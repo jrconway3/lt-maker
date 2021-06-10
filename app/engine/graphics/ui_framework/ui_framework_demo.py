@@ -1,30 +1,23 @@
-import os
-import time
-
-import pygame
-import pygame.draw
-import pygame.event
-from pygame import Surface
-from pygame import Color
-
-from .demo_code.demo_cursor import Cursor, Scene
-from .premade_components.text_component import *
 from .ui_framework import *
 from .ui_framework_animation import *
 from .ui_framework_layout import *
 from .ui_framework_styling import *
-from .premade_components import *
-from .premade_animations import *
+from .premade_components.text_component import *
+from .demo_code.demo_cursor import Cursor, Scene
+from typing import List
+import pygame
+import pygame.event
+import pygame.draw
+import random
+import os
+from itertools import cycle
+
+from pygame.math import Vector2
 
 TILEWIDTH, TILEHEIGHT = 16, 16
 TILEX, TILEY = 15, 10
 WINWIDTH, WINHEIGHT = TILEX * TILEWIDTH, TILEY * TILEHEIGHT
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
-
-
-def current_milli_time():
-    return round(time.time() * 1000)
-
 class DemoUI():    
     def __init__(self, cursor: Cursor):
         # this is just demo code, in real engine this would have a reference to game already
@@ -33,7 +26,7 @@ class DemoUI():
         # initialize components
         self.location_title: UIComponent = UIComponent(name="location title")
         self.location_title.props.bg = pygame.image.load(os.path.join(DIR_PATH, 'demo_code', 'world_map_location_box.png'))
-        self.location_title.size = self.location_title.props.bg.get_size()
+        self.location_title.size = Vector2(self.location_title.props.bg.get_size())
         self.location_title.props.v_alignment = VAlignment.TOP
         self.location_title.margin = (5, 5, 5, 5)
         self._init_location_title_animations()
@@ -79,20 +72,15 @@ class DemoUI():
         self.item3.props.bg_color = Color(128, 0, 128, 255)
         self.minimap.add_child(self.item3)
         
-        self.narration = NarrationDialogue('narration')
-        self.narration.disable()
-        
         self.base_component = UIComponent.create_base_component(WINWIDTH, WINHEIGHT)
         self.base_component.add_child(self.location_title)
         self.base_component.add_child(self.minimap)
-        self.base_component.add_child(self.narration)
-        self.base_component.set_chronometer(current_milli_time)
         
     def _init_minimap_animations(self):
-        translate_down = translate_anim((0, 0), (0, WINHEIGHT))
-        translate_up = translate_anim((0, WINHEIGHT), (0, 0))
+        translate_down = uif.translate_anim(Vector2(0, 0), Vector2(0, WINHEIGHT))
+        translate_up = uif.translate_anim(Vector2(0, WINHEIGHT), Vector2(0, 0))
         
-        def change_align(c: UIComponent, *args):
+        def change_align(c: UIComponent):
             if c.props.h_alignment == HAlignment.LEFT:
                 c.props.h_alignment = HAlignment.RIGHT
             else:
@@ -104,12 +92,12 @@ class DemoUI():
         self.minimap.save_animation(change_alignment, 'change_alignment')
     
     def _init_location_title_animations(self):
-        exit_left = translate_anim((0, 0), (-WINWIDTH, 0), disable_after=True)
-        exit_right = translate_anim((0, 0), (WINWIDTH, 0), disable_after=True)
-        enter_left = translate_anim((-WINWIDTH, 0), (0, 0))
-        enter_right = translate_anim((WINWIDTH, 0), (0, 0))
+        exit_left = uif.translate_anim(Vector2(0, 0), Vector2(-WINWIDTH, 0), disable_after=True)
+        exit_right = uif.translate_anim(Vector2(0, 0), Vector2(WINWIDTH, 0), disable_after=True)
+        enter_left = uif.translate_anim(Vector2(-WINWIDTH, 0), Vector2(0, 0))
+        enter_right = uif.translate_anim(Vector2(WINWIDTH, 0), Vector2(0, 0))
         
-        def which_transition(c: UIComponent, *args) -> str:
+        def which_transition(c: UIComponent) -> str:
             if c.props.h_alignment == HAlignment.LEFT:
                 return "left"
             else:
@@ -153,13 +141,13 @@ class DemoUI():
         if not self.minimap.enabled:
             self.minimap.enter()
         if (self.cursor.x > TILEX // 2 and 
-            self.cursor.y > TILEY // 2 - 2):
+            self.cursor.y > TILEY // 2):
             # if cursor is in the bottom right
             if self.minimap.props.h_alignment == HAlignment.RIGHT:
                 # if we're also in the right - get out of dodge
                 self.minimap.queue_animation(names=['translate_down', 'change_alignment', 'translate_up'])
         elif (self.cursor.x < TILEX // 2 and 
-              self.cursor.y > TILEY // 2 - 2):
+              self.cursor.y > TILEY // 2):
             # cursor is in the bottom left
             if self.minimap.props.h_alignment != HAlignment.RIGHT:
                 # then we leave the left
@@ -188,10 +176,6 @@ def main():
             if e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_ESCAPE:
                     return
-                elif e.key == pygame.K_SPACE:
-                    ui_overlay.narration.enter()
-                elif e.key == pygame.K_BACKSPACE:
-                    ui_overlay.narration.exit()
             cursor.take_input(events)
         tmp_surf.blit(world_map, (0, 0))
         nodes.draw(tmp_surf)
@@ -202,5 +186,5 @@ def main():
         pygame.display.flip()
         clock.tick(60)
 
-"""Usage: python -m app.engine.graphics.ui_framework.demo"""
+"""Usage: python -m app.engine.graphics.ui_framework.ui_framework_demo"""
 main()

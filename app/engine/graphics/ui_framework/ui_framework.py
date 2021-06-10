@@ -11,6 +11,7 @@ from PIL.Image import LANCZOS
 
 from pygame import Surface
 
+from .premade_animations.animation_templates import toggle_anim
 from .ui_framework_animation import UIAnimation, animated
 from .ui_framework_layout import (HAlignment, ListLayoutStyle, UILayoutHandler,
                                   UILayoutType, VAlignment)
@@ -46,6 +47,10 @@ class ComponentProperties():
         self.max_width: str = None                      # maximum width str for the component. 
                                                         # Useful for dynamic components such as dialog.
         self.max_height: str = None                     # maximum height str for the component.
+        
+        self.opacity: float = 1                         # layer opacity for the element.
+                                                        # NOTE: changing this from 1 will disable per-pixel alphas
+                                                        # for the entire component.
 
 
 class RootComponent():
@@ -323,6 +328,20 @@ class UIComponent():
         """
         child.parent = self
         self.children.append(child)
+        
+    def any_children_animating(self) -> bool:
+        """Returns whether or not any children are currently in the middle of an animation.
+        Useful for deciding whether or not to shut this component down.
+
+        Returns:
+            bool: Are any children recursively animating?
+        """
+        for child in self.children:
+            if child.any_children_animating():
+                return True
+            if len(child.queued_animations) > 0:
+                return True
+        return False
 
     @animated('!enter')
     def enter(self):
@@ -332,19 +351,28 @@ class UIComponent():
         the animation named "!enter" if it exists in the UIObject's
         saved animations
         """
+        for child in self.children:
+            child.enter()
         self.enabled = True
     
     @animated('!exit')
-    def exit(self):
+    def exit(self) -> bool:
         """Makes the component exit, i.e. transitions it out
 
         Because of the @animated tag, will automatically queue
         the animation named "!exit" if it exists in the UIObject's
         saved animations
+        
+        This will also recursively exit any children.
+        
+        Returns:
+            bool: whether or not this is disabled, or is waiting on children to finish animating.
         """
-        if len(self.queued_animations) > 0:
+        for child in self.children:
+            child.exit()
+        if self.any_children_animating() or len(self.queued_animations) > 0:
             # there's an animation playing; wait until afterwards to exit it
-            self.queue_animation([UIAnimation.toggle_anim(False)], force=True)
+            self.queue_animation([toggle_anim(False)], force=True)
         else:
             self.enabled = False
 
@@ -352,11 +380,15 @@ class UIComponent():
         """does the same thing as enter(), except forgoes all animations
         """
         self.enabled = True
+        for child in self.children:
+            child.enable()
 
     def disable(self):
         """Does the same as exit(), except forgoes all animations.
         """
         self.enabled = False
+        for child in self.children:
+            child.disable()
 
     def add_surf(self, surf: Surface, pos: Tuple[int, int]):
         """Add a hard-coded surface to this component.
@@ -458,4 +490,9 @@ class UIComponent():
             pos = hard_code_child[0]
             img = hard_code_child[1]
             base_surf.blit(img, (pos[0], pos[0]))
+        
+        # handle own opacity
+        if self.props.opacity < 1:
+            opacity_val = self.props.opacity * 255
+            base_surf.set_alpha(opacity_val)
         return base_surf

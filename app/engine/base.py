@@ -321,7 +321,7 @@ class SupportDisplay():
                 self.char_idx -= 1
                 return False
         else:
-            self.cursor.y_offset -= 1
+            self.cursor.y_offset_down()
         # check limit for new row
         limit = max(0, self.get_num_ranks(self.options[self.char_idx]) - 1)
         self.rank_idx = utils.clamp(self.rank_idx, 0, limit)
@@ -336,7 +336,7 @@ class SupportDisplay():
                 self.char_idx += 1
                 return False
         else:
-            self.cursor.y_offset += 1
+            self.cursor.y_offset_up()
         # check limit for new row
         limit = max(0, self.get_num_ranks(self.options[self.char_idx]) - 1)
         self.rank_idx = utils.clamp(self.rank_idx, 0, limit)

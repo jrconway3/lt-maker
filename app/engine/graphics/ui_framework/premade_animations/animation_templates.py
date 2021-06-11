@@ -39,11 +39,11 @@ def translate_anim(start_offset: Tuple[int, int], end_offset: Tuple[int, int],
         lerp_func = lambda a, b, t: tlog_interp(a, b, t, skew)
     def before_translation(c: UIComponent, *args):
         c.offset = start_offset
-    def translate(c: UIComponent, anim_time):
+    def translate(c: UIComponent, anim_time, *args):
         c.offset = lerp_func(start_offset, end_offset, anim_time / duration)
     def after_translation(c: UIComponent, *args):
         c.offset = end_offset
-    def should_stop(c: UIComponent, anim_time) -> bool:
+    def should_stop(c: UIComponent, anim_time, *args) -> bool:
         return anim_time >= duration
 
     def disable(c: UIComponent, *args):
@@ -117,11 +117,11 @@ def fade_anim(start_opacity: float, end_opacity: float,
     end_opacity = clamp(end_opacity, 0, 1)
     def before_fade(c: UIComponent, *args):
         c.props.opacity = start_opacity
-    def fade(c: UIComponent, anim_time):
+    def fade(c: UIComponent, anim_time, *args):
         c.props.opacity = lerp_func(start_opacity, end_opacity, anim_time / duration)
     def after_fade(c: UIComponent, *args):
         c.props.opacity = end_opacity
-    def should_stop(c: UIComponent, anim_time) -> bool:
+    def should_stop(c: UIComponent, anim_time, *args) -> bool:
         return anim_time >= duration
 
     def disable(c: UIComponent, *args):

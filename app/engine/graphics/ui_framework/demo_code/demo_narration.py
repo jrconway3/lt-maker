@@ -54,18 +54,19 @@ class NarrationDialogue(UIComponent):
         self._init_textbox_animations()
         
         # initialize the text component
-        self.text: TextComponent = TextComponent('narration_text', 
+        self.text: DialogTextComponent = DialogTextComponent('narration_text', 
             (
-            '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, '
-            'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
-            'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris '
-            'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in '
-            'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla' 
-            'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in '
-            'culpa qui officia deserunt mollit anim id est laborum."'
+            '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, {w}'
+            'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. {w}'
+            'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris {w}'
+            'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in {w}'
+            'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla{w}' 
+            'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in {w}'
+            'culpa qui officia deserunt mollit anim id est laborum."{w}'
             ))
         self.text.props.max_width = self.text_horizontal_area
         self.text.margin = (self.text_horizontal_margin, self.text_horizontal_margin, self.text_vertical_offset, 0)
+        self.text.num_visible_chars = 0
         
         self._init_text_animations()
         
@@ -94,8 +95,10 @@ class NarrationDialogue(UIComponent):
     def _init_text_animations(self):
         scroll_down = scroll_anim('0%', '100%', 5000)
         scroll_next = scroll_to_next_line_anim(duration=750)
+        write_line = type_line_anim(time_per_char=10)
         self.text.save_animation(scroll_down, 'scroll')
         self.text.save_animation(scroll_next, 'scroll_next')
+        self.text.save_animation(write_line, 'line')
     
     def set_text(self, text):
         self.text.set_text(text)
@@ -106,3 +109,6 @@ class NarrationDialogue(UIComponent):
         
     def scroll_to_next(self):
         self.text.queue_animation(names=['scroll_next'])
+        
+    def write_a_line(self):
+        self.text.queue_animation(names=['line'])

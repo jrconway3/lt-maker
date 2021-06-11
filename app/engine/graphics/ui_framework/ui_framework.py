@@ -115,11 +115,13 @@ class UIComponent():
         
         # secret internal timekeeper, basically never touch this
         self._chronometer: Callable[[], int] = engine.get_time
+        self._last_update: int = self._chronometer()
 
         self.enabled: bool = True
         
     def set_chronometer(self, chronometer: Callable[[], int]):
         self._chronometer = chronometer
+        self._last_update = self._chronometer()
         for child in self.children:
             child.set_chronometer(chronometer)
     
@@ -451,6 +453,25 @@ class UIComponent():
             animation.component = self
             self.queued_animations.append(animation)
         
+    def push_animation(self, animations: List[UIAnimation] = [], names: List[str] = []):
+        """Pushes an animation onto the animation stack, effectively pausing
+        the current animation and starting another one. N.B. this will not call
+        the "begin_anim" function of the first animation upon it resuming, so using this may result in
+        graphical "glitches". Don't use this unless you know exactly why you're using it.
+
+        Args:
+            animation (UIAnimation): The UIAnimation to push and begin *right now*.
+        """
+        for name in names[::-1]:
+            if name in self.saved_animations:
+                n_animation = self.saved_animations[name]
+                for anim in n_animation[::-1]:
+                    self.queued_animations.insert(0, anim)
+        
+        for animation in animations[::-1]:
+            animation.component = self
+            self.queued_animations.insert(0, animation)
+    
     def save_animation(self, animation: UIAnimation, name: str):
         """Adds an animation to the UIComponent's animation dict.
         This is useful for adding animations that may be called many times.
@@ -475,9 +496,10 @@ class UIComponent():
     def update(self):
         """update. used at the moment to advance animations.
         """
-        update_time = self._chronometer()
+        delta_time = self._chronometer() - self._last_update
+        self._last_update = self._chronometer()
         if len(self.queued_animations) > 0:
-            if self.queued_animations[0].update(update_time):
+            if self.queued_animations[0].update(delta_time):
                 # the above function call returns True if the animation is finished
                 self.queued_animations.pop(0)
 

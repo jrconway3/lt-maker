@@ -38,6 +38,7 @@ constants = ConstantCatalog([
     Constant('num_accessories', "Max number of Accessories in inventory", int, 0, 'inventory'),
     Constant('turnwheel', "Turnwheel", bool, False, 'features'),
     Constant('timeline', "Timeline", bool, False, 'features'),
+    Constant('sp', "Skill Points", bool, False, 'features'),
     Constant('fatigue', "Fatigue", bool, False, 'features'),
     Constant('lead', "Global Leadership Stars", bool, False, 'features'),
     Constant('bexp', "Bonus Experience", bool, False, 'features'),

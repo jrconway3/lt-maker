@@ -104,3 +104,20 @@ class CombatChargeIncreaseByStat(SkillComponent):
             new_value = self.skill.data['charge'] + unit.stats[self.value] + unit.stat_bonus(self.value)
             new_value = min(new_value, self.skill.data['total_charge'])
             action.do(action.SetObjData(self.skill, 'charge', new_value))
+
+class CostSP(SkillComponent):
+    nid = 'cost_sp'
+    desc = "Skill reduces SP with each use"
+    tag = "charge"
+
+    expose = Type.Int
+    value = 2
+
+    ignore_conditional = True
+
+    def end_combat(self, playback, unit, item, target, mode):
+        print(-self.value)
+        action.do(action.ChangeSP(unit, -self.value))
+
+    # def text(self) -> str:
+    #     return 'Reduces SP by ' + str(self.value)

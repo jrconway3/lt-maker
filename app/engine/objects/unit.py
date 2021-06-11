@@ -136,10 +136,10 @@ class UnitObject(Prefab):
         if any(v != 0 for v in bonus.values()):
             unit_funcs.apply_stat_changes(self, bonus)
 
-        if self.generic:            
+        if self.generic:
             unit_funcs.auto_level(self, num_levels)
-        # Existing units would have leveled up different with bonus growths 
-        elif DB.constants.value('backpropagate_difficulty_growths'):  
+        # Existing units would have leveled up different with bonus growths
+        elif DB.constants.value('backpropagate_difficulty_growths'):
             difficulty_growth_bonus = game.mode.get_growth_bonus(self)
             if difficulty_growth_bonus:
                 unit_funcs.auto_level(self, num_levels, difficulty_growths=True)
@@ -161,6 +161,9 @@ class UnitObject(Prefab):
         if DB.constants.get('timeline').value:
             self.get_timeline_speed()
 
+        self.max_sp = equations.parser.sp(self)
+        self.current_sp = self.max_sp
+
         return self
 
     def get_max_hp(self):
@@ -171,6 +174,12 @@ class UnitObject(Prefab):
 
     def set_hp(self, val):
         self.current_hp = int(utils.clamp(val, 0, equations.parser.hitpoints(self)))
+
+    def get_sp(self):
+        return self.current_sp
+
+    def set_sp(self, val):
+        self.current_sp = int(utils.clamp(val, 0, equations.parser.sp(self)))
 
     def get_max_mana(self):
         if 'MANA' in DB.equations:
@@ -464,6 +473,7 @@ class UnitObject(Prefab):
                   'affinity': self.affinity,
                   'skills': [skill.uid for skill in self.skills],
                   'current_hp': self.current_hp,
+                  'current_sp': self.current_sp,
                   'current_mana': self.current_mana,
                   'current_fatigue': self.current_fatigue,
                   'traveler': self.traveler,
@@ -514,6 +524,7 @@ class UnitObject(Prefab):
         self.skills = [s for s in self.skills if s]
 
         self.current_hp = s_dict['current_hp']
+        self.current_sp = s_dict['current_sp']
         self.current_mana = s_dict['current_mana']
         self.current_fatigue = s_dict['current_fatigue']
         self.movement_left = equations.parser.movement(self)

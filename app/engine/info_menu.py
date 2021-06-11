@@ -30,9 +30,9 @@ def handle_info():
 def handle_aux():
     avail_units = [
         u for u in game.units
-        if u.team == 'player' and 
-        u.position and 
-        not u.finished and 
+        if u.team == 'player' and
+        u.position and
+        not u.finished and
         skill_system.can_select(u) and
         'Tile' not in u.tags]
 
@@ -118,7 +118,7 @@ class InfoGraph():
         if not boxes:
             return
         if self.current_bb:
-            center_point = (self.current_bb.aabb[0] + self.current_bb.aabb[2]/2, 
+            center_point = (self.current_bb.aabb[0] + self.current_bb.aabb[2]/2,
                             self.current_bb.aabb[1] + self.current_bb.aabb[3]/2)
             closest_box = None
             max_distance = 1e6
@@ -234,7 +234,7 @@ class InfoMenuState(State):
                 self.scroll_units = [unit for unit in self.scroll_units if unit.position and game.board.in_vision(unit.position)]
         self.scroll_units = [unit for unit in self.scroll_units if 'Tile' not in unit.tags]
         game.memory['scroll_units'] = None
-        
+
         self.state = game.memory.get('info_menu_state', info_states[0])
         self.growth_flag = False
 
@@ -402,7 +402,7 @@ class InfoMenuState(State):
             return
         if self.info_flag:
             self.info_graph.handle_mouse(mouse_position)
-        
+
     def update(self):
         # Up and Down
         if self.next_unit:
@@ -494,7 +494,7 @@ class InfoMenuState(State):
         # Image flashy thing at the top of the InfoMenu
         num_frames = 8
         # 8 frames long, 8 different frames
-        blend_perc = abs(num_frames - ((engine.get_time()/134) % (num_frames * 2))) / float(num_frames)  
+        blend_perc = abs(num_frames - ((engine.get_time()/134) % (num_frames * 2))) / float(num_frames)
         sprite = SPRITES.get('info_menu_flash')
         im = image_mods.make_translucent_blend(sprite, 128. * blend_perc)
         surf.blit(im, (98, 0), None, engine.BLEND_RGB_ADD)
@@ -669,7 +669,9 @@ class InfoMenuState(State):
             FONT['text-yellow'].blit(name, surf, (72, 16 * idx + 24))
             self.info_graph.register((96 + 72, 16 * idx + 24, 64, 16), '%s_desc' % stat_nid, state)
 
-        other_stats = ['AID', 'TRV', 'RAT']
+        other_stats = ['SP', 'AID', 'TRV', 'RAT']
+        if not DB.constants.get('sp').value:
+            other_stats.remove('SP')
         other_stats = other_stats[:6 - len(right_stats)]
 
         for idx, stat in enumerate(other_stats):
@@ -712,6 +714,12 @@ class InfoMenuState(State):
                 FONT['text-yellow'].blit('Rat', surf, (72, 16 * true_idx + 24))
                 self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'Rating_desc', state)
 
+            elif stat == 'SP':
+                rat = str(self.unit.current_sp)
+                FONT['text-blue'].blit_right(rat, surf, (111, 16 * true_idx + 24))
+                FONT['text-yellow'].blit('SP', surf, (72, 16 * true_idx + 24))
+                self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'SP_desc', state)
+
             if DB.constants.value('lead'):
                 FONT['text-yellow'].blit('Lead', surf, (72, 120))
                 self.info_graph.register((96 + 72, 120, 64, 16), 'Lead_desc', state)
@@ -733,7 +741,7 @@ class InfoMenuState(State):
 
     def create_wexp_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)
-        
+
         how_many = len([wexp for wexp in self.unit.wexp.values() if wexp > 0])
         x_pos = (WINWIDTH - 102) // max(how_many, 2)
 
@@ -772,7 +780,7 @@ class InfoMenuState(State):
 
         weapon = self.unit.get_weapon()
         accessory = self.unit.get_accessory()
-        
+
         # Blit items
         for idx, item in enumerate(self.unit.nonaccessories):
             if item.multi_item and any(subitem is weapon for subitem in item.subitems):
@@ -789,7 +797,7 @@ class InfoMenuState(State):
                 item_option = menu_options.FullItemOption(idx, item)
             item_option.draw(surf, 8, idx * 16 + 24)
             self.info_graph.register((96 + 8, idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment', first=(idx == 0))
-        
+
         # Blit accessories
         for idx, item in enumerate(self.unit.accessories):
             height = DB.constants.value('num_items') * 16 + idx * 16 + 24

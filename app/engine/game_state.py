@@ -108,6 +108,7 @@ class GameState():
         self.ui_view = ui_view.UIView()
         self.combat_instance = []
         self.exp_instance = []
+        self.sp_instance = []
         self.ai = ai_controller.AIController()
 
         self.alerts.clear()

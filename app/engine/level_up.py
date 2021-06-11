@@ -38,6 +38,17 @@ class ExpState(State):
         self.auto_promote = (DB.constants.get('auto_promote') or 'AutoPromote' in self.unit.tags) and \
             self.unit_klass.turns_into and 'NoAutoPromote' not in self.unit.tags
 
+        # For later
+        self.show_sp = 0
+        if DB.constants.get('sp'):
+            self.show_sp = 1
+        self.old_sp = self.unit.current_sp
+        self.max_sp = self.unit.max_sp
+        self.sp_to_gain = 0
+        if game.sp_instance:
+            self.sp_to_gain = game.sp_instance.pop()
+        self.sp_bar = None
+
         self.state = SimpleStateMachine(self.starting_state)
         self.start_time = engine.get_time()
 
@@ -246,7 +257,7 @@ class ExpState(State):
         elif self.state.get_state() in ('promote', 'class_change'):
             # TODO Combat Anims for Promotion
             old_anim = self.unit.battle_anim
-            
+
             if self.state.get_state() == 'promote':
                 promote_action = action.Promote(self.unit, game.memory['next_class'])
             else:
@@ -279,7 +290,7 @@ class ExpState(State):
     def draw(self, surf):
         if not self.state:
             return surf
-            
+
         if self.state.get_state() in ('init', 'exp_wait', 'exp_leave', 'exp0', 'exp100', 'prepare_promote'):
             if self.exp_bar:
                 self.exp_bar.draw(surf)
@@ -452,7 +463,7 @@ class LevelUpScreen():
         for idx, num in enumerate(self.stat_list[:self.current_spark + 1]):
             if num != 0:  # Stat change
                 if idx == self.current_spark:
-                    rect = (self.underline_offset, 0, 
+                    rect = (self.underline_offset, 0,
                             new_underline_surf.get_width() - self.underline_offset, 3)
                     new_underline_surf = engine.subsurface(new_underline_surf, rect)
                     # Change underline offset

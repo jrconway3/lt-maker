@@ -413,5 +413,29 @@
                 null
             ]
         ]
+    },
+    {
+        "nid": "SP Attack",
+        "name": "SP Attack",
+        "desc": "Attacks but costs SP!",
+        "icon_nid": "Skills",
+        "icon_index": [
+            0,
+            14
+        ],
+        "components": [
+            [
+                "combat_art",
+                "Poisoned"
+            ],
+            [
+                "cost_sp",
+                2
+            ],
+            [
+                "class_skill",
+                null
+            ]
+        ]
     }
 ]

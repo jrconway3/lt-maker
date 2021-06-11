@@ -3,7 +3,7 @@ from app.data.database import DB
 
 from app.engine.combat.solver import CombatPhaseSolver
 
-from app.engine import action, skill_system, banner, item_system, item_funcs, supports
+from app.engine import action, skill_system, banner, item_system, item_funcs, supports, equations
 from app.engine.game_state import game
 
 from app.engine.objects.unit import UnitObject
@@ -17,7 +17,7 @@ class SimpleCombat():
     Does the simple mechanical effects of combat without any effects
     """
 
-    def _full_setup(self, attacker: UnitObject, main_item: ItemObject, items: list, 
+    def _full_setup(self, attacker: UnitObject, main_item: ItemObject, items: list,
                     positions: list, main_target_positions: list, splash_positions: list):
         self.attacker: UnitObject = attacker
         self.main_item: ItemObject = main_item
@@ -131,6 +131,8 @@ class SimpleCombat():
         if self.defender and self.def_item and not self.defender.is_dying:
             self.handle_wexp(self.defender, self.def_item, self.attacker)
 
+        if DB.constants.get('sp').value:
+            self.handle_sp()
         self.handle_exp()
 
         self.handle_records(self.full_playback, all_units)
@@ -338,6 +340,18 @@ class SimpleCombat():
                 func(action.GainWexp(unit, item, wexp*2))
             else:
                 func(action.GainWexp(unit, item, wexp))
+
+    def handle_sp(self):
+        # handle sp
+        if self.attacker.team == 'player' and self.defender.is_dying:
+            sp = equations.parser.sp_gain(self)
+            # This is being left open - if something effects SP gain it will be done here
+            game.sp_instance.append((self.attacker, sp))
+
+        elif self.defender and self.defender.team == 'player' and self.attacker.is_dying:
+            sp = equations.parser.sp_gain(self)
+            # This is being left open - if something effects SP gain it will be done here
+            game.sp_instance.append((self.defender, sp))
 
     def handle_exp(self):
         # handle exp

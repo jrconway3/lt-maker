@@ -90,5 +90,13 @@
     {
         "nid": "TIMELINESPEED",
         "expression": "SKL + LCK//2"
+    },
+    {
+        "nid": "SP",
+        "expression": "20"
+    },
+    {
+        "nid": "SP_GAIN",
+        "expression": "4"
     }
 ]

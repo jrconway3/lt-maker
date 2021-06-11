@@ -9,7 +9,7 @@ import logging
 
 constants = {'current_time': 0,
              'last_time': 0,
-             'last_fps': 0,
+             'delta_t': 0,
              'standalone': True,
              'running': True}
 
@@ -55,9 +55,10 @@ def on_end(crash=False):
 
 # === timing functions ===
 def update_time():
+    # All measured in milliseconds
     constants['last_time'] = constants['current_time']
     constants['current_time'] = pygame.time.get_ticks()
-    constants['last_fps'] = constants['current_time'] - constants['last_time']
+    constants['delta_t'] = constants['current_time'] - constants['last_time']
 
 def get_time():
     return constants['current_time']
@@ -69,7 +70,7 @@ def get_true_time():
     return pygame.time.get_ticks()
 
 def get_delta():
-    return constants['last_fps']
+    return constants['delta_t']
 
 # === drawing functions ===
 BLEND_RGB_ADD = pygame.BLEND_RGB_ADD

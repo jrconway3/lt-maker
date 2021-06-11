@@ -125,8 +125,8 @@ class AnimationCombat(BaseCombat):
 
         self.battle_music = None
 
-        self.left_battle_anim = battle_animation.get_battle_anim(self.attacker, self.main_item)
-        self.right_battle_anim = battle_animation.get_battle_anim(self.defender, self.def_item)
+        self.left_battle_anim = battle_animation.get_battle_anim(self.attacker, self.main_item, self.distance)
+        self.right_battle_anim = battle_animation.get_battle_anim(self.defender, self.def_item, self.distance
         self.current_battle_anim = None
 
         self.initial_paint_setup()

@@ -50,8 +50,6 @@ class WeaponAnimation():
         self.full_path = full_path
         self.poses = Data()
         self.frames = Data()
-        self.weapon_type = None
-        self.weapon_kind = None
 
         self.pixmap = None
         self.image = None

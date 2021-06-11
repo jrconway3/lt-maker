@@ -1,29 +1,43 @@
 import random
-from app.constants import WINWIDTH
+from app.constants import WINWIDTH, COLORKEY
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
-from app.engine import engine, image_mods
+from app.engine import engine, image_mods, item_system, item_funcs
+
+from app.resources.combat_anims import CombatAnimation, WeaponAnimation
+from app.resources.combat_palettes import Palette
+
+import logging
 
 battle_anim_speed = 1
 
 class BattleAnimation():
     idle_poses = {'Stand', 'RangedStand', 'TransformStand'}
 
-    def __init__(self, anim_prefab, unit, item):
+    def __init__(self, anim_prefab: WeaponAnimation, palette: Palette, unit, item):
         self.anim_prefab = anim_prefab
+        self.current_palette = palette
         self.unit = unit
         self.item = item
 
-        self.poses = []  # TODO Generate poses  -- 
-        # Copy Stand -> RangedStand and Dodge -> RangedDodge if missing
-        # Copy Attack -> Miss and Attack -> Critical if missing
-        self.frame_directory = {}  # TODO Generate Frame directory
+        self.poses = {pose.nid: pose for pose in anim_prefab.poses}
+        self._generate_missing_poses()
         self.current_pose = None
-        self.current_palette = None
 
+        # Load frames as images
+        if not anim_prefab.image:
+            # Only do load stuff if image does not exist already
+            image_full_path = anim_prefab.full_path
+            anim_prefab.image = engine.image_load(image_full_path, convert=True)
+            engine.set_colorkey(anim_prefab.image, COLORKEY, rleaccel=True)
+            for frame in anim_prefab.frames:
+                frame.image = engine.subsurface(anim_prefab.image, *frame.rect)
+
+        self.frame_directory = {frame.nid: frame for frame in anim_prefab.frames}
+        
         self.state = 'inert'
         self.in_basic_state: bool = False  # Is animation in a basic state?
         self.processing = False
@@ -78,6 +92,18 @@ class BattleAnimation():
         self.lr_offset = []
         self.effect_offset = (0, 0)
         self.personal_offset = (0, 0)
+
+    def _generate_missing_poses(self):
+        # Copy Stand -> RangedStand and Dodge -> RangedDodge if missing
+        # Copy Attack -> Miss and Attack -> Critical if missing
+        if 'RangedStand' not in self.poses and 'Stand' in self.poses:
+            self.poses['RangedStand'] = self.poses['Stand']
+        if 'RangedDodge' not in self.poses and 'Dodge' in self.poses:
+            self.poses['RangedDodge'] = self.poses['Dodge']
+        if 'Miss' not in self.poses and 'Attack' in self.poses:
+            self.poses['Miss'] = self.poses['Attack']
+        if 'Critical' not in self.poses and 'Attack' in self.poses:
+            self.poses['Critical'] = self.poses['Attack']
 
     def pair(self, owner, partner_anim, right, at_range, entrance_frames=0, position=None, parent=None):
         print(self.unit.nid, "pair")
@@ -327,8 +353,8 @@ class BattleAnimation():
                 self.partner_anim.lr_offset = [-1, -2, -3, -2, -1]
         elif command.nid == 'wait_for_hit':
             if self.wait_for_hit:
-                self.current_frame = self.frame_directory(values[0])
-                self.under_frame = self.frame_directory(values[1])
+                self.current_frame = self.frame_directory.get(values[0])
+                self.under_frame = self.frame_directory.get(values[1])
                 self.over_frame = None
                 self.processing = False
                 self.state = 'wait'
@@ -594,7 +620,22 @@ class BattleAnimation():
                 self.screen_dodge_image = None
         return image
 
-def get_battle_anim(unit, item) -> BattleAnimation:
+def get_palette(anim_prefab: CombatAnimation, unit) -> Palette:
+    palettes = anim_prefab.palettes
+    palette_names = [palette[0] for palette in palettes]
+    palette_nids = [palette[1] for palette in palettes]
+    if unit.name in palette_names:
+        idx = palette_names.index(unit.name)
+        palette_nid = palette_nids[idx]
+    elif unit.nid in palette_names:
+        idx = palette_names.index(unit.nid)
+        palette_nid = palette_nids[idx]
+    else:
+        palette_nid = palette_nids[0]
+    current_palette = RESOURCES.combat_palettes.get(palette_nid)
+    return current_palette
+
+def get_battle_anim(unit, item, distance=1) -> BattleAnimation:
     class_obj = DB.classes.get(unit.klass)
     combat_anim_nid = class_obj.combat_anim_nid
     if unit.variant:
@@ -604,6 +645,37 @@ def get_battle_anim(unit, item) -> BattleAnimation:
         res = RESOURCES.combat_anims.get(class_obj.combat_anim_nid)
     if not res:
         return None
-
-    battle_anim = BattleAnimation(res, unit, item)
+    palette = get_palette(res, unit)
+    if not palette:
+        logging.warning("Could not find valid palette for %s", unit)
+        return None
+    # Get the correct weapon anim
+    if not item:
+        weapon_anim_nid = "Unarmed"
+    else:
+        weapon_type = item_system.weapon_type(unit, item)
+        if not weapon_type:
+            weapon_type = "Neutral"
+        magic = item_funcs.is_magic(unit, item)
+        ranged = item_funcs.is_ranged(unit, item)
+        if item.nid in res.weapon_anims.keys():
+            weapon_anim_nid = item.nid
+            if magic:
+                weapon_anim_nid = "Magic" + weapon_anim_nid
+            elif ranged and distance > 1:
+                weapon_anim_nid = "Ranged" + weapon_anim_nid
+        elif magic:
+            weapon_anim_nid = "Magic" + weapon_type
+        elif ranged and distance > 1:
+            weapon_anim_nid = "Ranged" + weapon_type
+        else:
+            weapon_anim_nid = weapon_type
+        if magic and weapon_anim_nid not in res.weapon_anims.keys():
+            weapon_anim_nid = 'MagicGeneric'
+    weapon_anim = res.weapon_anims.get(weapon_anim_nid)
+    if not weapon_anim:
+        logging.warning("Could not find valid weapon animation. Trying: %s", weapon_anim_nid)
+        return None
+    # Check effects
+    battle_anim = BattleAnimation(weapon_anim, palette, unit, item)
     return battle_anim

@@ -1,3 +1,5 @@
+from app.utilities import utils
+
 from app.engine import item_system, skill_system, battle_animation
 from app.engine.game_state import game
 from app.engine.input_manager import INPUT
@@ -23,9 +25,13 @@ def has_animation(attacker: UnitObject, item: ItemObject, main_target: tuple) ->
 
     toggle_anim = INPUT.is_pressed('AUX')
     if attacker is not defender and animation_wanted(attacker, defender) != toggle_anim:
-        attacker_anim = battle_animation.get_battle_anim(attacker, item)
+        if attacker.position and defender.position:
+            distance = utils.calculate_distance(attacker.position, defender.position)
+        else:
+            distance = 1
+        attacker_anim = battle_animation.get_battle_anim(attacker, item, distance)
         def_item = defender.get_weapon()
-        defender_anim = battle_animation.get_battle_anim(defender, def_item)
+        defender_anim = battle_animation.get_battle_anim(defender, def_item, distance)
         return bool(attacker_anim and defender_anim)
 
     return False

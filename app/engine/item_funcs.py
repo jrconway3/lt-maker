@@ -12,6 +12,11 @@ def is_magic(unit, item) -> bool:
         return True
     return False
 
+def is_ranged(unit, item) -> bool:
+    if max(get_range(unit, item), default=0) > 1:
+        return True
+    return False
+
 def available(unit, item) -> bool:
     return item_system.available(unit, item) and skill_system.available(unit, item)
 

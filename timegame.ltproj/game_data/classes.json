@@ -1180,12 +1180,12 @@
                 0
             ]
         },
-        "icon_nid": "[AXE] Brigand (F) Axe {SamirPlayz}",
+        "icon_nid": "[LNC] Deserter Lance {Rasdel}",
         "icon_index": [
             0,
             0
         ],
-        "map_sprite_nid": "Recruit (M) {Waleed}",
+        "map_sprite_nid": "Deserter (M) {Alusq}",
         "combat_anim_nid": null
     },
     {
@@ -7553,10 +7553,13 @@
         "movement_group": "Armors",
         "promotes_from": null,
         "turns_into": [],
-        "tags": [],
+        "tags": [
+            "LanceWeak",
+            "AnimaWeak"
+        ],
         "max_level": 20,
         "bases": {
-            "HP": 20,
+            "HP": 7,
             "STR": 5,
             "MAG": 0,
             "SKL": 2,

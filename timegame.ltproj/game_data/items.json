@@ -10,6 +10,10 @@
         ],
         "components": [
             [
+                "cannot_be_countered",
+                null
+            ],
+            [
                 "weapon",
                 null
             ],
@@ -60,6 +64,16 @@
             [
                 "weapon_rank",
                 "E"
+            ],
+            [
+                "effective",
+                5
+            ],
+            [
+                "effective_tag",
+                [
+                    "SwordWeak"
+                ]
             ]
         ]
     },
@@ -543,6 +557,10 @@
         ],
         "components": [
             [
+                "cannot_be_countered",
+                null
+            ],
+            [
                 "weapon",
                 null
             ],
@@ -593,6 +611,16 @@
             [
                 "uses",
                 45
+            ],
+            [
+                "effective",
+                7
+            ],
+            [
+                "effective_tag",
+                [
+                    "LanceWeak"
+                ]
             ]
         ]
     },
@@ -799,6 +827,10 @@
         ],
         "components": [
             [
+                "cannot_be_countered",
+                null
+            ],
+            [
                 "weapon",
                 null
             ],
@@ -849,6 +881,16 @@
             [
                 "weapon_rank",
                 "E"
+            ],
+            [
+                "effective",
+                8
+            ],
+            [
+                "effective_tag",
+                [
+                    "AxeWeak"
+                ]
             ]
         ]
     },
@@ -1309,17 +1351,27 @@
             [
                 "magic",
                 null
+            ],
+            [
+                "effective",
+                3
+            ],
+            [
+                "effective_tag",
+                [
+                    "AnimaWeak"
+                ]
             ]
         ]
     },
     {
-        "nid": "Fire",
-        "name": "Fire",
-        "desc": "",
+        "nid": "Blaze",
+        "name": "Blaze",
+        "desc": "Targets all units in a straight line",
         "icon_nid": "Anima",
         "icon_index": [
             0,
-            0
+            3
         ],
         "components": [
             [
@@ -1372,7 +1424,7 @@
             ],
             [
                 "weapon_rank",
-                "E"
+                "D"
             ],
             [
                 "map_hit_add_blend",
@@ -1385,6 +1437,24 @@
             [
                 "magic",
                 null
+            ],
+            [
+                "line_aoe",
+                null
+            ],
+            [
+                "cannot_be_countered",
+                null
+            ],
+            [
+                "effective",
+                3
+            ],
+            [
+                "effective_tag",
+                [
+                    "AnimaWeak"
+                ]
             ]
         ]
     },
@@ -1617,6 +1687,16 @@
             [
                 "uses",
                 5
+            ],
+            [
+                "effective",
+                3
+            ],
+            [
+                "effective_tag",
+                [
+                    "AnimaWeak"
+                ]
             ]
         ]
     },
@@ -1753,6 +1833,22 @@
             [
                 "value",
                 5000
+            ]
+        ]
+    },
+    {
+        "nid": "ab_Refresh",
+        "name": "ab_Refresh",
+        "desc": "A stand-in to refresh a unit",
+        "icon_nid": "",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "refresh",
+                null
             ]
         ]
     }

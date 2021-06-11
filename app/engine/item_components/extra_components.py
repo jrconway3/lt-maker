@@ -34,7 +34,7 @@ class EffectiveTag(ItemComponent):
 
     def item_icon_mod(self, unit, item, target, sprite):
         if any(tag in target.tags for tag in self.value):
-            sprite = image_mods.make_white(sprite.convert_alpha(), abs(250 - engine.get_time()%500)/250) 
+            sprite = image_mods.make_white(sprite.convert_alpha(), abs(250 - engine.get_time()%500)/250)
         return sprite
 
     def danger(self, unit, item, target) -> bool:
@@ -97,7 +97,7 @@ class DamageOnMiss(ItemComponent):
         playback.append(('damage_hit', unit, item, target, damage, true_damage))
         if true_damage == 0:
             playback.append(('hit_sound', 'No Damage'))
-            playback.append(('hit_anim', 'MapNoDamage', target))        
+            playback.append(('hit_anim', 'MapNoDamage', target))
 
 class Eclipse(ItemComponent):
     nid = 'Eclipse'

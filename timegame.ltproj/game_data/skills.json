@@ -361,5 +361,57 @@
                 ]
             ]
         ]
+    },
+    {
+        "nid": "Defensive Stance",
+        "name": "Defensive Stance",
+        "desc": "Gained by choosing the wait command. Lasts until the end of this unit's next combat.",
+        "icon_nid": "Skills",
+        "icon_index": [
+            8,
+            3
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ],
+            [
+                "stack",
+                null
+            ],
+            [
+                "avoid",
+                10
+            ],
+            [
+                "lost_on_end_combat",
+                null
+            ]
+        ]
+    },
+    {
+        "nid": "Follow Up",
+        "name": "Follow Up",
+        "desc": "Since this unit attacked an enemy's weakness, they get an additional action",
+        "icon_nid": "Skills",
+        "icon_index": [
+            8,
+            11
+        ],
+        "components": [
+            [
+                "condition",
+                "True"
+            ],
+            [
+                "ability",
+                "ab_Refresh"
+            ],
+            [
+                "class_skill",
+                null
+            ]
+        ]
     }
 ]

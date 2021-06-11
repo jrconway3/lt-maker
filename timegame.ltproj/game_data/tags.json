@@ -11,5 +11,11 @@
     "NoAutoPromote",
     "Convoy",
     "AdjConvoy",
-    "Tile"
+    "Tile",
+    "SwordWeak",
+    "LanceWeak",
+    "AxeWeak",
+    "AnimaWeak",
+    "LightWeak",
+    "DarkWeak"
 ]

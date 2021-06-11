@@ -923,6 +923,27 @@ class ChangeRoamingUnit(EventCommand):
 
     keywords = ["Unit"]
 
+class CleanUpRoaming(EventCommand):
+    nid = 'clean_up_roaming'
+    tag = Tags.MISCELLANEOUS
+    desc = "Removes all units other than the roaming unit"
+
+    keywords = ["Bool"]
+
+class AddToTimeline(EventCommand):
+    nid = 'add_to_timeline'
+    tag = Tags.MISCELLANEOUS
+    desc = "Adds the specified unit to the specified point in time (0 is the current timeline position). Position should always be > 0"
+
+    keywords = ["Unit", "PositiveInteger"]
+
+class DelayInTimeline(EventCommand):
+    nid = 'delay_in_timeline'
+    tag = Tags.MISCELLANEOUS
+    desc = "Delays the next turn of the specified unit by the given number of turns."
+
+    keywords = ["Unit", "PositiveInteger"]
+
 
 def get_commands():
     return EventCommand.__subclasses__()

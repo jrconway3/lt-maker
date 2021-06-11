@@ -3,7 +3,7 @@
         "nid": "0",
         "name": "Prologue",
         "tilemap": "Starting Cave",
-        "party": "Eirika",
+        "party": "Ross",
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",
@@ -39,7 +39,10 @@
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": null,
+                "starting_position": [
+                    10,
+                    4
+                ],
                 "generic": false
             },
             {
@@ -61,17 +64,6 @@
                 "name": null,
                 "desc": null,
                 "generic": true
-            },
-            {
-                "nid": "Seth",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    10,
-                    5
-                ],
-                "generic": false
             },
             {
                 "nid": "101",
@@ -143,6 +135,18 @@
                         8
                     ]
                 }
+            },
+            {
+                "nid": "Monsters2",
+                "units": [
+                    "103"
+                ],
+                "positions": {
+                    "103": [
+                        10,
+                        6
+                    ]
+                }
             }
         ]
     },
@@ -150,7 +154,7 @@
         "nid": "1",
         "name": "Ch. 1: Escape!",
         "tilemap": "Chapter 1",
-        "party": "Eirika",
+        "party": "Ross",
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",
@@ -606,7 +610,7 @@
         "nid": "2",
         "name": "Ch. 2: The Protected",
         "tilemap": "Chapter 2",
-        "party": "Eirika",
+        "party": "Ross",
         "music": {
             "player_phase": "Distant Roads",
             "enemy_phase": "Shadow of the Enemy",
@@ -1021,7 +1025,7 @@
         "nid": "DEBUG",
         "name": "DEBUG",
         "tilemap": "Chapter 2",
-        "party": "Eirika",
+        "party": "Ross",
         "music": {
             "player_phase": null,
             "enemy_phase": null,
@@ -1036,8 +1040,8 @@
             "win": "Don't Crash",
             "loss": "Crash"
         },
-        "roam": true,
-        "roam_unit": null,
+        "roam": false,
+        "roam_unit": "Eirika",
         "units": [
             {
                 "nid": "Joshua",
@@ -1121,7 +1125,7 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    5,
+                    12,
                     6
                 ],
                 "name": null,

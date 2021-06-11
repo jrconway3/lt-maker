@@ -17,7 +17,7 @@ class FreeRoamState(MapState):
 
     def begin(self):
         game.cursor.hide()
-    
+
         if game.level.roam and game.level.roam_unit:
             roam_unit_nid = game.level.roam_unit
             if self.roam_unit and self.roam_unit.nid != roam_unit_nid:
@@ -90,6 +90,8 @@ class FreeRoamState(MapState):
                 did_trigger = game.events.trigger(region.sub_nid, self.roam_unit, position=self.roam_unit.position, region=region)
                 if did_trigger:
                     self.rationalize()
+                if did_trigger and region.only_once:
+                    action.do(action.RemoveRegion(region))
             else:
                 SOUNDTHREAD.play_sfx('Error')
 

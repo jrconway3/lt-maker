@@ -28,5 +28,10 @@
         "nid": "cave",
         "terrain_grid": {},
         "autotiles": {}
+    },
+    {
+        "nid": "Desert",
+        "terrain_grid": {},
+        "autotiles": {}
     }
 ]

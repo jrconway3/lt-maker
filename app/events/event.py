@@ -1066,6 +1066,15 @@ class Event():
         elif command.nid == 'change_roaming_unit':
             self.change_roaming_unit(command)
 
+        elif command.nid == 'clean_up_roaming':
+            self.clean_up_roaming(command)
+
+        elif command.nid == 'add_to_timeline':
+            self.add_to_timeline(command)
+
+        elif command.nid == 'delay_in_timeline':
+            self.delay_in_timeline(command)
+
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)
         name = values[0]
@@ -1681,7 +1690,7 @@ class Event():
             reload_map_nid = values[2]
         else:
             reload_map_nid = tilemap_nid
-        
+
         # Remove all units from the map
         # But remember their original positions for later
         previous_unit_pos = {}
@@ -2313,6 +2322,48 @@ class Event():
                 game.level.roam_unit = values[0]
             else:
                 game.level.roam_unit = None
+
+    def clean_up_roaming(self, command):
+        values, flags = event_commands.parse(command)
+        val = values[0].lower()
+        if val in self.true_vals:
+            for unit in game.units:
+                if unit.position and not unit == game.level.roam_unit:
+                    action.do(action.FadeOut(unit))
+            game.timeline_position = 0
+            game.timeline = game.create_timeline([game.level.roam_unit])
+        else:
+            pass
+
+    def add_to_timeline(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        pos = int(values[1])
+        if game.timeline_position + pos < len(game.timeline):
+            game.insert_in_timeline(unit, game.timeline, pos)
+        else:
+            logging.debug("Specified position out of range! Adding to end.")
+            game.timeline.append(unit)
+
+    def delay_in_timeline(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        pos = int(values[1])
+        i = game.timeline_position
+        stop = False
+        while i < len(game.timeline) and not stop:
+            if game.timeline[i] == unit:
+                stop = True
+            i += 1
+        if stop == False:
+            return
+        new_loc = i + pos
+        game.timeline.pop(i)
+        if new_loc < len(game.timeline):
+            game.insert_in_timeline(unit, game.timeline, new_loc)
+        else:
+            logging.debug("Specified position out of range! Adding to end.")
+            game.timeline.append(unit)
 
     def parse_pos(self, text):
         position = None

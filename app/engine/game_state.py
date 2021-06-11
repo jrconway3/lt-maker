@@ -163,6 +163,7 @@ class GameState():
         if DB.constants.get('timeline').value:
             self.timeline_position = 0
             self.timeline = self.create_timeline([])
+            self.timeline_death = 0
 
     def create_timeline(self, t) -> list:
         #Creates a timeline. Most likely only happens on start of level
@@ -202,6 +203,8 @@ class GameState():
         # Probably only do this when a unit dies or is removed
         for unit in t:
             if unit == u:
+                if game.timeline.index(unit) <= game.timeline_position:
+                    game.timeline_position -= 1
                 t.remove(unit)
 
     def full_register(self, unit):

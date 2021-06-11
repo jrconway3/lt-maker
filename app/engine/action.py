@@ -1310,7 +1310,10 @@ class Die(Action):
                 if game.timeline[i] == self.unit:
                     self.timeline_positions.append(i)
                 i += 1
+            if self.unit == game.timeline[game.timeline_position]:
+                game.timeline_death = 1
             game.remove_from_timeline(self.unit, game.timeline)
+            game.timeline[game.timeline_position].finished = 1
 
         self.leave_map.do()
         for act in self.lock_all_support_ranks:

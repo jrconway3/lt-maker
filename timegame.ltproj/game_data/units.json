@@ -529,10 +529,10 @@
         "desc": "A young villager. He longs to be a warrior, like his father.",
         "variant": null,
         "level": 1,
-        "klass": "Journeyman (M) {IS}",
+        "klass": "Recruit (M) {Waleed}",
         "tags": [],
         "bases": {
-            "HP": 15,
+            "HP": 21,
             "STR": 5,
             "MAG": 2,
             "SKL": 2,
@@ -557,7 +557,7 @@
         },
         "starting_items": [
             [
-                "Hatchet",
+                "Iron Lance",
                 false
             ],
             [
@@ -565,7 +565,12 @@
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Follow Up"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -573,7 +578,7 @@
             ],
             "Lance": [
                 false,
-                0
+                31
             ],
             "Axe": [
                 true,
@@ -991,6 +996,10 @@
         "starting_items": [
             [
                 "Anima",
+                false
+            ],
+            [
+                "Blaze",
                 false
             ]
         ],

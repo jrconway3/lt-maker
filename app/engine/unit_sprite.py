@@ -280,7 +280,7 @@ class UnitSprite():
             elif game.cursor.draw_state and game.cursor.position == self.unit.position and self.unit.team == 'player':
                 self.image_state = 'active'
             elif game.level and game.level.roam and game.level.roam_unit == self.unit.nid:
-                self.image_state = 'active'
+                self.image_state = 'passive'
             else:
                 self.image_state = 'passive'
         elif self.state == 'combat_anim':

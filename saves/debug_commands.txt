@@ -5,7 +5,6 @@ increment_support_points;Eirika;Seth;43
 increment_support_points;Eirika;Seth;43
 increment_support_points;Eirika;Seth;43
 increment_support_points;Eirika;Seth;43
-increment_support_points;Eirika;Seth;43
 win_game
 win_game
 remove_item;Kayla;Warp
@@ -18,3 +17,4 @@ give_exp;Eirika;100
 give_exp;Eirika;100
 give_exp;Eirika;100
 give_exp;Eirika;100
+gg

@@ -1,6 +1,12 @@
 import math
 from collections import Counter
 import colorsys, hashlib
+from operator import add, sub
+
+def frames_to_ms(num_frames: int) -> int:
+    """at 60 fps, each frame would happen in 16.67 ms"""
+    return int(16.67 * num_frames)
+frames2ms = frames_to_ms  # Alternate name
 
 def frames_to_ms(num_frames: int) -> int:
     """at 60 fps, each frame would happen in 16.67 ms"""
@@ -11,7 +17,9 @@ class Multiset(Counter):
     def __contains__(self, item):
         return self[item] > 0
 
-def clamp(i, min_, max_):
+def clamp(i, bound_a, bound_b):
+    max_ = max(bound_a, bound_b)
+    min_ = min(bound_a, bound_b)
     return min(max_, max(min_, i))
 
 def sign(n):
@@ -21,10 +29,6 @@ def sign(n):
         return 0
     else:
         return -1
-
-def lerp(a, b, t):
-    t = clamp(t, 0, 1)
-    return (b - a) * t + a
 
 def distance(pos1, pos2):
     """
@@ -79,8 +83,32 @@ def process_terms(terms):
         return 0
     return sum(float(val * weight) for weight, val in terms) / weight_sum
 
+"""Vector Tuple Math
+"""
 def dot_product(a: tuple, b: tuple) -> float:
     return sum(a[i] * b[i] for i in range(len(b)))
+
+def tuple_sub(a: tuple, b: tuple) -> tuple:
+    return tuple(map(sub, a, b))
+
+def tuple_add(a: tuple, b: tuple) -> tuple:
+    return tuple(map(add, a, b))
+
+def magnitude(a: tuple) -> tuple:
+    return math.sqrt(a[0] * a[0] + a[1] * a[1])
+
+def normalize(a: tuple) -> tuple:
+    mag = magnitude(a)
+    return (a[0] / mag, a[1] / mag)
+
+def tmult(a: tuple, b: float) -> tuple:
+    return (a[0] * b, a[1] * b)
+
+def tmax(a: tuple, b: tuple) -> tuple:
+    return tuple(map(max, a, b))
+
+def tclamp(a: tuple, lower: tuple, upper: tuple) -> tuple:
+    return tuple(map(clamp, a, lower, upper))
 
 def strhash(s: str) -> int:
     """

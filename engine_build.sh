@@ -4,14 +4,14 @@ rm -rf ../lt_engine
 mkdir ../lt_engine
 mkdir ../lt_engine/lt_engine
 mv dist/lt_engine ../lt_engine
-# cp ../lex-talionis-utilities/audio_dlls/* ../the_lion_throne/the_lion_throne
-cp double_click_to_play.bat ../lt_engine
+cp utilities/audio_dlls/* ../lt_engine
+cp utilities/install/double_click_to_play.bat ../lt_engine
 # cp autoupdater.exe ../lt_engine/lt_engine
 cp autoupdater.py ../lt_engine/lt_engine
 
 # Get version
 version="Waffle"
-constants="./app/data/constants.py"
+constants="./app/constants.py"
 while IFS='=' read -r col1 col2
 do
     # echo "$col1"

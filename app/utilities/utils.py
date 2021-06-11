@@ -2,6 +2,11 @@ import math
 from collections import Counter
 import colorsys, hashlib
 
+def frames_to_ms(num_frames: int) -> int:
+    """at 60 fps, each frame would happen in 16.67 ms"""
+    return int(16.67 * num_frames)
+frames2ms = frames_to_ms  # Alternate name
+
 class Multiset(Counter):
     def __contains__(self, item):
         return self[item] > 0
@@ -10,7 +15,12 @@ def clamp(i, min_, max_):
     return min(max_, max(min_, i))
 
 def sign(n):
-    return 1 if n >= 0 else -1
+    if n > 0:
+        return 1
+    elif n == 0:
+        return 0
+    else:
+        return -1
 
 def lerp(a, b, t):
     t = clamp(t, 0, 1)

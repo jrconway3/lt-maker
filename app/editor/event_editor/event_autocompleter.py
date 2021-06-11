@@ -6,7 +6,6 @@ from app.utilities.typing import NID
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QCompleter
 
-
 class Completer(QCompleter):
     insertText = pyqtSignal(str)
 
@@ -17,7 +16,6 @@ class Completer(QCompleter):
     def changeCompletion(self, completion):
         self.insertText.emit(completion)
         self.popup().hide()
-
 
 @lru_cache()
 def generate_wordlist_from_validator_type(validator: event_validators.Validator, level: NID = None) -> List[str]:
@@ -42,8 +40,18 @@ def generate_flags_wordlist(flags: List[str] = []) -> List[str]:
             flaglist.append('FLAG({flag})'.format(flag=flag))
     return flaglist
 
+def detect_command_under_cursor(line: str) -> event_commands.EventCommand:
+    return event_commands.parse_text(line)
 
 def detect_type_under_cursor(line: str, cursor_pos: int) -> Tuple[event_validators.Validator, List[str]]:
+    try:
+        # turn off typechecking for comments
+        comment_index = line.index("#")
+        if cursor_pos > comment_index:
+            return (event_validators.Validator, [])
+    except ValueError:
+        # no pound sign
+        pass 
     arg_idx = line.count(';', 0, cursor_pos) - 1
     flags = []
     # -1 is the command itself, and 0, 1, 2, etc. are the args

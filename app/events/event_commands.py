@@ -36,7 +36,11 @@ class EventCommand(Prefab):
         self.display_values = disp_values or values or []
 
     def save(self):
-        return self.nid, self.values, self.display_values
+        # Don't bother saving display values if they are identical
+        if self.display_values == self.values:
+            return self.nid, self.values
+        else:
+            return self.nid, self.values, self.display_values
 
     def to_plain_text(self):
         if self.display_values:

@@ -25,7 +25,7 @@ config = [('animation', ['Always', 'Your Turn', 'Combat Only', 'Never'], 0),
           ('screen_size', [1, 2, 3, 4, 5], 18),
           ('unit_speed', list(reversed(range(15, 180, 15))), 1),
           ('text_speed', cf.text_speed_options, 2),
-          ('cursor_speed', list(reversed(range(32, 160, 16))), 8),
+          # ('cursor_speed', list(reversed(range(32, 160, 16))), 8),
           ('mouse', bool, 19),
           ('show_terrain', bool, 7),
           ('show_objective', bool, 6),
@@ -190,8 +190,8 @@ class SettingsMenuState(State):
         SOUNDTHREAD.play_sfx('Select 4')
         cf.save_settings()
         self.update_sound()
-        if game.cursor is not None:
-            game.cursor.fluid.update_speed(cf.SETTINGS['cursor_speed'])
+        # if game.cursor is not None:
+        #     game.cursor.fluid.update_speed(cf.SETTINGS['cursor_speed'])
             
         game.state.change('transition_pop')
 

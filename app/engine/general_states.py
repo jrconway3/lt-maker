@@ -149,6 +149,7 @@ class FreeState(MapState):
                     game.cursor.cur_unit = cur_unit
                     SOUNDTHREAD.play_sfx('Select 3')
                     game.state.change('move')
+                    game.cursor.place_arrows()
                     game.events.trigger('unit_select', cur_unit, position=cur_unit.position)
                 else:
                     if cur_unit.team == 'enemy' or cur_unit.team == 'enemy2':
@@ -406,7 +407,7 @@ class MoveState(MapState):
             self.valid_moves = game.highlight.display_highlights(cur_unit)
         game.highlight.display_aura_highlights(cur_unit)
 
-        game.cursor.place_arrows()
+        game.cursor.show_arrows()
 
     def take_input(self, event):
         game.cursor.take_input()
@@ -652,6 +653,7 @@ class MenuState(MapState):
                 if skill_system.has_canto(self.cur_unit, self.cur_unit):
                     game.cursor.set_pos(self.cur_unit.position)
                     game.state.change('move')
+                    game.cursor.place_arrows()
                 else:
                     game.state.clear()
                     game.state.change('free')
@@ -660,8 +662,9 @@ class MenuState(MapState):
                 if self.cur_unit.current_move:
                     action.reverse(self.cur_unit.current_move)
                     self.cur_unit.current_move = None
-                game.cursor.set_pos(self.cur_unit.position)
+                # game.cursor.set_pos(self.cur_unit.position)
                 game.state.change('move')
+                game.cursor.construct_arrows(game.cursor.path[::-1])
 
         elif event == 'INFO':
             pass

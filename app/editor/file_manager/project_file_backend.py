@@ -133,19 +133,28 @@ class ProjectFileBackend():
                 return False
         return False
 
+    def auto_open_fallback(self):
+        self.current_proj = "default.ltproj"
+        self.settings.set_current_project(self.current_proj)
+        self.load()
+
     def auto_open(self):
         path = self.settings.get_current_project()
         print("Auto Open: %s" % path)
 
         if path and os.path.exists(path):
-            self.current_proj = path
-            self.settings.set_current_project(self.current_proj)
-            self.load()
-            return True
+            try:
+                self.current_proj = path
+                self.settings.set_current_project(self.current_proj)
+                self.load()
+                return True
+            except Exception as e:
+                print(e)
+                print("Falling back to default.ltproj")
+                self.auto_open_fallback()
+                return False
         else:
-            self.current_proj = "default.ltproj"
-            self.settings.set_current_project(self.current_proj)
-            self.load()
+            self.auto_open_fallback()
             return False
 
     def load(self):

@@ -15869,7 +15869,7 @@
         "name": "Secret",
         "trigger": "Secret",
         "level_nid": "8",
-        "condition": "",
+        "condition": "True",
         "commands": [
             [
                 "transition",
@@ -34515,29 +34515,27 @@
                 ]
             ],
             [
-                "base",
+                "comment",
                 [
-                    "Ruins"
+                    "#base;"
                 ]
             ],
             [
-                "add_portrait",
+                "comment",
                 [
-                    "Ophie",
-                    "Left"
+                    "#add_portrait;Ophie;Left"
                 ]
             ],
             [
-                "speak",
+                "comment",
                 [
-                    "Ophie",
-                    "Wow!"
+                    "#speak;Ophie;Wow!"
                 ]
             ],
             [
-                "remove_portrait",
+                "comment",
                 [
-                    "Ophie"
+                    "#remove_portrait;Ophie"
                 ]
             ]
         ],

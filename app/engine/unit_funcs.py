@@ -28,6 +28,8 @@ def get_next_level_up(unit, custom_method=None) -> dict:
     if method == 'BEXP':
         _rd_bexp_levelup(unit, unit.get_internal_level(), klass, stat_changes)
     else:
+        level = unit.get_internal_level()
+        rng = static_random.get_levelup(unit.nid, level)
         for nid in DB.stats.keys():
             growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0) + difficulty_growth_bonus.get(nid)
 
@@ -40,16 +42,15 @@ def get_next_level_up(unit, custom_method=None) -> dict:
                     unit.growth_points[nid] = (unit.growth_points[nid] - growth) % 100
 
             elif method == 'Random':
-                stat_changes[nid] += _random_levelup(unit, unit.get_internal_level(), growth)
+                stat_changes[nid] += _random_levelup(rng, unit, level, growth)
             elif method == 'Dynamic':
-                _dynamic_levelup(unit, unit.get_internal_level(), stat_changes, unit.growth_points, nid, growth)
+                _dynamic_levelup(rng, unit, level, stat_changes, unit.growth_points, nid, growth)
             
         stat_changes[nid] = utils.clamp(stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid, 30) - unit.stats[nid])
 
     return stat_changes
 
-def _random_levelup(unit, level, growth_rate):
-    rng = static_random.get_levelup(unit.nid, level)
+def _random_levelup(rng, unit, level, growth_rate):
     counter = 0
     if growth_rate > 0:
         while growth_rate > 0:
@@ -62,8 +63,7 @@ def _random_levelup(unit, level, growth_rate):
             growth_rate -= 100
     return counter
 
-def _dynamic_levelup(unit, level, stats, growth_points, growth_nid, growth_rate):
-    rng = static_random.get_levelup(unit.nid, level)
+def _dynamic_levelup(rng, unit, level, stats, growth_points, growth_nid, growth_rate):
     variance = 10
     if growth_rate > 0:
         start_growth = growth_rate + growth_points[growth_nid]
@@ -105,13 +105,13 @@ def _rd_bexp_levelup(unit, level, klass, stat_changes):
             growths.append(max(growth, 0))
         else:  # Cannot increase this one at all
             growths.append(0)
-    r = static_random.get_levelup(unit.nid, level)
+    rng = static_random.get_levelup(unit.nid, level)
     num_choices = 3
 
     for i in range(num_choices):
         if sum(growths) <= 0:
             break
-        choice = static_random.weighted_choice(growths, r)
+        choice = static_random.weighted_choice(growths, rng)
         nid = [stat.nid for stat in DB.stats][choice]
         stat_changes[nid] += 1
         growths[choice] = max(0, growths[choice] - 100)
@@ -141,22 +141,26 @@ def auto_level(unit, num_levels, starting_level=1, difficulty_growths=False):
                 unit.growth_points[growth_nid] = (growth_sum + unit.growth_points[growth_nid]) % 100
 
     elif method == 'Random':
-        for growth_nid, growth_value in unit.growths.items():
-            if difficulty_growths:
-                growth_rate = difficulty_growth_bonus.get(growth_nid, 0)
-            else:
-                growth_rate = growth_value + unit.growth_bonus(growth_nid) + difficulty_growth_bonus.get(growth_nid, 0)
-            for n in range(num_levels):    
-                unit.stats[growth_nid] += _random_levelup(unit, starting_level + n, growth_rate)
+        for n in range(num_levels):
+            level = starting_level + n
+            rng = static_random.get_levelup(unit.nid, level)
+            for growth_nid, growth_value in unit.growths.items():
+                if difficulty_growths:
+                    growth_rate = difficulty_growth_bonus.get(growth_nid, 0)
+                else:
+                    growth_rate = growth_value + unit.growth_bonus(growth_nid) + difficulty_growth_bonus.get(growth_nid, 0)
+                unit.stats[growth_nid] += _random_levelup(rng, unit, level, growth_rate)
 
     elif method == 'Dynamic':
-        for growth_nid, growth_value in unit.growths.items():
-            if difficulty_growths:
-                growth_rate = difficulty_growth_bonus.get(growth_nid, 0)
-            else:
-                growth_rate = growth_value + unit.growth_bonus(growth_nid) + difficulty_growth_bonus.get(growth_nid, 0)
-            for n in range(num_levels):
-                _dynamic_levelup(unit, starting_level + n, unit.stats, unit.growth_points, growth_nid, growth_rate)
+        for n in range(num_levels):
+            level = starting_level + n
+            rng = static_random.get_levelup(unit.nid, level)
+            for growth_nid, growth_value in unit.growths.items():
+                if difficulty_growths:
+                    growth_rate = difficulty_growth_bonus.get(growth_nid, 0)
+                else:
+                    growth_rate = growth_value + unit.growth_bonus(growth_nid) + difficulty_growth_bonus.get(growth_nid, 0)
+                _dynamic_levelup(rng, unit, level, unit.stats, unit.growth_points, growth_nid, growth_rate)
                 
     # Make sure we don't exceed max
     klass = DB.classes.get(unit.klass)

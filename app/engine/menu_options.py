@@ -66,7 +66,7 @@ class BasicOption():
 
     def draw(self, surf, x, y):
         font = FONT[self.get_color()]
-        font.blit(self.display_text, surf, (x + 6, y))
+        font.blit(self.display_text, surf, (x + 5, y))
 
     def draw_highlight(self, surf, x, y, menu_width):
         highlight_surf = SPRITES.get('menu_highlight')

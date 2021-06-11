@@ -9,16 +9,10 @@
                 "show_layer",
                 [
                     "bottom"
-                ],
-                [
-                    "bottom"
                 ]
             ],
             [
                 "change_background",
-                [
-                    "BlackBackground"
-                ],
                 [
                     "BlackBackground"
                 ]
@@ -27,17 +21,10 @@
                 "change_roaming",
                 [
                     "0"
-                ],
-                [
-                    "0"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Narrator",
-                    "On his hands and knees,{w} a young man crawls through a shallow tunnel.{w}{br}A torch held weakly in front of him,{w} the man seems to barely be able to fit through the space.{w}{br}Finally, after far too long for his liking,{w} he emerges into a broader cavern."
-                ],
                 [
                     "Narrator",
                     "On his hands and knees,{w} a young man crawls through a shallow tunnel.{w}{br}A torch held weakly in front of him,{w} the man seems to barely be able to fit through the space.{w}{br}Finally, after far too long for his liking,{w} he emerges into a broader cavern."
@@ -47,17 +34,10 @@
                 "change_background",
                 [
                     ""
-                ],
-                [
-                    ""
                 ]
             ],
             [
                 "speak",
-                [
-                    "Narrator",
-                    "Slowly rising to his feet,{w} he makes a half-hearted attempt to brush dirt off his animal-hide clothes."
-                ],
                 [
                     "Narrator",
                     "Slowly rising to his feet,{w} he makes a half-hearted attempt to brush dirt off his animal-hide clothes."
@@ -68,18 +48,10 @@
                 [
                     "Ross",
                     "Left"
-                ],
-                [
-                    "Ross",
-                    "Left"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "No way am I going back through there.{w}{br}There's got to be another exit around here somewhere..."
-                ],
                 [
                     "Ross",
                     "No way am I going back through there.{w}{br}There's got to be another exit around here somewhere..."
@@ -89,17 +61,10 @@
                 "flicker_cursor",
                 [
                     "14,8"
-                ],
-                [
-                    "14,8"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "There!{w} I'm sure that will take me back to Emelia."
-                ],
                 [
                     "Ross",
                     "There!{w} I'm sure that will take me back to Emelia."
@@ -109,17 +74,10 @@
                 "flicker_cursor",
                 [
                     "12,4"
-                ],
-                [
-                    "12,4"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "Are those human remains?{w}{br}They're nothing but bones, but it's still worth checking."
-                ],
                 [
                     "Ross",
                     "Are those human remains?{w}{br}They're nothing but bones, but it's still worth checking."
@@ -129,16 +87,10 @@
                 "move_cursor",
                 [
                     "Ross"
-                ],
-                [
-                    "Ross"
                 ]
             ],
             [
                 "change_roaming",
-                [
-                    "1"
-                ],
                 [
                     "1"
                 ]
@@ -158,18 +110,10 @@
                 [
                     "Eirika",
                     "FarRight"
-                ],
-                [
-                    "Eirika",
-                    "FarRight"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Brother... I'm sorry."
-                ],
                 [
                     "Eirika",
                     "Brother... I'm sorry."
@@ -180,17 +124,10 @@
                 [
                     "Eirika",
                     "CloseEyes"
-                ],
-                [
-                    "Eirika",
-                    "CloseEyes"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Eirika"
-                ],
                 [
                     "Eirika"
                 ]
@@ -199,14 +136,10 @@
                 "remove_unit",
                 [
                     "Eirika"
-                ],
-                [
-                    "Eirika"
                 ]
             ],
             [
                 "lose_game",
-                [],
                 []
             ]
         ],
@@ -224,18 +157,10 @@
                 [
                     "Seth",
                     "FarRight"
-                ],
-                [
-                    "Seth",
-                    "FarRight"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Seth",
-                    "Urgh...|My apologies. I must withdraw."
-                ],
                 [
                     "Seth",
                     "Urgh...|My apologies. I must withdraw."
@@ -246,17 +171,10 @@
                 [
                     "Seth",
                     "CloseEyes"
-                ],
-                [
-                    "Seth",
-                    "CloseEyes"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Seth"
-                ],
                 [
                     "Seth"
                 ]
@@ -276,18 +194,10 @@
                 [
                     "Franz",
                     "FarRight"
-                ],
-                [
-                    "Franz",
-                    "FarRight"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Franz",
-                    "I'm sorry, General Seth..."
-                ],
                 [
                     "Franz",
                     "I'm sorry, General Seth..."
@@ -298,17 +208,10 @@
                 [
                     "Franz",
                     "CloseEyes"
-                ],
-                [
-                    "Franz",
-                    "CloseEyes"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Franz"
-                ],
                 [
                     "Franz"
                 ]
@@ -328,18 +231,10 @@
                 [
                     "Gilliam",
                     "FarRight"
-                ],
-                [
-                    "Gilliam",
-                    "FarRight"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Gilliam",
-                    "I was prepared for...{br}anything..."
-                ],
                 [
                     "Gilliam",
                     "I was prepared for...{br}anything..."
@@ -350,17 +245,10 @@
                 [
                     "Gilliam",
                     "CloseEyes"
-                ],
-                [
-                    "Gilliam",
-                    "CloseEyes"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Gilliam"
-                ],
                 [
                     "Gilliam"
                 ]
@@ -380,18 +268,10 @@
                 [
                     "Breguet",
                     "Left"
-                ],
-                [
-                    "Breguet",
-                    "Left"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Breguet",
-                    "This... this can't be...|I..."
-                ],
                 [
                     "Breguet",
                     "This... this can't be...|I..."
@@ -402,17 +282,10 @@
                 [
                     "Breguet",
                     "CloseEyes"
-                ],
-                [
-                    "Breguet",
-                    "CloseEyes"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Breguet"
-                ],
                 [
                     "Breguet"
                 ]
@@ -429,7 +302,6 @@
         "commands": [
             [
                 "win_game",
-                [],
                 []
             ]
         ],
@@ -447,10 +319,6 @@
                 [
                     "Breguet",
                     "Left"
-                ],
-                [
-                    "Breguet",
-                    "Left"
                 ]
             ],
             [
@@ -458,17 +326,10 @@
                 [
                     "Breguet",
                     "Bah, what a worthless lot of curs I've been assigned!"
-                ],
-                [
-                    "Breguet",
-                    "Bah, what a worthless lot of curs I've been assigned!"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Breguet"
-                ],
                 [
                     "Breguet"
                 ]
@@ -487,9 +348,6 @@
                 "comment",
                 [
                     "# Move Franz and Gilliam into the game"
-                ],
-                [
-                    "# Move Franz and Gilliam into the game"
                 ]
             ],
             [
@@ -498,18 +356,10 @@
                     "Rein",
                     "North",
                     "Starting"
-                ],
-                [
-                    "Rein",
-                    "North",
-                    "Starting"
                 ]
             ],
             [
                 "comment",
-                [
-                    "# Hover cursor over Franz"
-                ],
                 [
                     "# Hover cursor over Franz"
                 ]
@@ -518,16 +368,10 @@
                 "move_cursor",
                 [
                     "Franz"
-                ],
-                [
-                    "Franz"
                 ]
             ],
             [
                 "disp_cursor",
-                [
-                    "1"
-                ],
                 [
                     "1"
                 ]
@@ -536,16 +380,10 @@
                 "wait",
                 [
                     "1000"
-                ],
-                [
-                    "1000"
                 ]
             ],
             [
                 "disp_cursor",
-                [
-                    "0"
-                ],
                 [
                     "0"
                 ]
@@ -554,18 +392,10 @@
                 "comment",
                 [
                     "# Franz and Gilliam converse"
-                ],
-                [
-                    "# Franz and Gilliam converse"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Franz",
-                    "Left",
-                    "no_block"
-                ],
                 [
                     "Franz",
                     "Left",
@@ -577,18 +407,10 @@
                 [
                     "Gilliam",
                     "Right"
-                ],
-                [
-                    "Gilliam",
-                    "Right"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Franz",
-                    "Sir Gilliam, is that Mulan? Have we reached Frelia's border already?"
-                ],
                 [
                     "Franz",
                     "Sir Gilliam, is that Mulan? Have we reached Frelia's border already?"
@@ -599,18 +421,10 @@
                 [
                     "Gilliam",
                     "Aye, we have. Her Highness Princess Tana should be inside the castle."
-                ],
-                [
-                    "Gilliam",
-                    "Aye, we have. Her Highness Princess Tana should be inside the castle."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Franz",
-                    "But look--the countryside is crawling with Grado soldiers!|Where's the castle guard? Has Mulan fallen? Are we too late?"
-                ],
                 [
                     "Franz",
                     "But look--the countryside is crawling with Grado soldiers!|Where's the castle guard? Has Mulan fallen? Are we too late?"
@@ -621,18 +435,10 @@
                 [
                     "Gilliam",
                     "Too tough to say from here.|Princess Tana's in no danger if they want her as a bargaining tool.|We men of the Eastern Watch will see her to safety."
-                ],
-                [
-                    "Gilliam",
-                    "Too tough to say from here.|Princess Tana's in no danger if they want her as a bargaining tool.|We men of the Eastern Watch will see her to safety."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Franz",
-                    "Yes... Yes, of course.{br}We mustn't give up. We must move.|We must retake the castle. Then, we ride forth to Princess Eirika's aid."
-                ],
                 [
                     "Franz",
                     "Yes... Yes, of course.{br}We mustn't give up. We must move.|We must retake the castle. Then, we ride forth to Princess Eirika's aid."
@@ -643,10 +449,6 @@
                 [
                     "Gilliam",
                     "I've stronger armor than you do. I'll take the lead. Watch my back."
-                ],
-                [
-                    "Gilliam",
-                    "I've stronger armor than you do. I'll take the lead. Watch my back."
                 ]
             ],
             [
@@ -654,17 +456,10 @@
                 [
                     "Franz",
                     "no_block"
-                ],
-                [
-                    "Franz",
-                    "no_block"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Gilliam"
-                ],
                 [
                     "Gilliam"
                 ]
@@ -683,16 +478,10 @@
                 "transition",
                 [
                     "Close"
-                ],
-                [
-                    "Close"
                 ]
             ],
             [
                 "change_background",
-                [
-                    "House"
-                ],
                 [
                     "House"
                 ]
@@ -701,9 +490,6 @@
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
@@ -712,19 +498,10 @@
                     "Man1",
                     "Left",
                     "no_block"
-                ],
-                [
-                    "Man1",
-                    "Left",
-                    "no_block"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "{unit}",
-                    "Right"
-                ],
                 [
                     "{unit}",
                     "Right"
@@ -735,31 +512,20 @@
                 [
                     "Man1",
                     "The rumors are true, aren't they? The Grado army's taken over the castle|It looks like they've seized the castle gate, too.|Smart work--the gate provides defense and heals wounds to boot.|They must be fierce warriors to have taken the gate. Watch yourself."
-                ],
-                [
-                    "Man1",
-                    "The rumors are true, aren't they? The Grado army's taken over the castle|It looks like they've seized the castle gate, too.|Smart work--the gate provides defense and heals wounds to boot.|They must be fierce warriors to have taken the gate. Watch yourself."
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
             ],
             [
                 "change_background",
-                [],
                 []
             ],
             [
                 "transition",
-                [
-                    "Open"
-                ],
                 [
                     "Open"
                 ]
@@ -778,16 +544,10 @@
                 "transition",
                 [
                     "Close"
-                ],
-                [
-                    "Close"
                 ]
             ],
             [
                 "change_background",
-                [
-                    "House"
-                ],
                 [
                     "House"
                 ]
@@ -796,9 +556,6 @@
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
@@ -807,19 +564,10 @@
                     "Man2",
                     "Left",
                     "no_block"
-                ],
-                [
-                    "Man2",
-                    "Left",
-                    "no_block"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "{unit}",
-                    "Right"
-                ],
                 [
                     "{unit}",
                     "Right"
@@ -830,31 +578,20 @@
                 [
                     "Man2",
                     "That knight encamped at the castle was wearing the finest armor I've seen.|It looked like it could turn aside alomst any blade you swing at it.|I know my armor, though. I wager a good rapier or armorslayer could get through it."
-                ],
-                [
-                    "Man2",
-                    "That knight encamped at the castle was wearing the finest armor I've seen.|It looked like it could turn aside alomst any blade you swing at it.|I know my armor, though. I wager a good rapier or armorslayer could get through it."
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
             ],
             [
                 "change_background",
-                [],
                 []
             ],
             [
                 "transition",
-                [
-                    "Open"
-                ],
                 [
                     "Open"
                 ]
@@ -871,7 +608,6 @@
         "commands": [
             [
                 "win_game",
-                [],
                 []
             ]
         ],
@@ -889,10 +625,6 @@
                 [
                     "Eirika",
                     "Franz"
-                ],
-                [
-                    "Eirika",
-                    "Franz"
                 ]
             ],
             [
@@ -900,18 +632,10 @@
                 [
                     "Seth",
                     "Franz"
-                ],
-                [
-                    "Seth",
-                    "Franz"
                 ]
             ],
             [
                 "remove_group",
-                [
-                    "Enemy1",
-                    "immediate"
-                ],
                 [
                     "Enemy1",
                     "immediate"
@@ -922,18 +646,10 @@
                 [
                     "Rein",
                     "immediate"
-                ],
-                [
-                    "Rein",
-                    "immediate"
                 ]
             ],
             [
                 "remove_group",
-                [
-                    "EirikaSeth",
-                    "immediate"
-                ],
                 [
                     "EirikaSeth",
                     "immediate"
@@ -941,14 +657,10 @@
             ],
             [
                 "chapter_title",
-                [],
                 []
             ],
             [
                 "comment",
-                [
-                    "# Fade in"
-                ],
                 [
                     "# Fade in"
                 ]
@@ -957,16 +669,10 @@
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "comment",
-                [
-                    "# Move enemies into map"
-                ],
                 [
                     "# Move enemies into map"
                 ]
@@ -979,20 +685,10 @@
                     "Enemy1",
                     "",
                     "stack"
-                ],
-                [
-                    "Enemy1",
-                    "South",
-                    "Enemy1",
-                    "",
-                    "stack"
                 ]
             ],
             [
                 "comment",
-                [
-                    "# Hover cursor over castle"
-                ],
                 [
                     "# Hover cursor over castle"
                 ]
@@ -1001,25 +697,16 @@
                 "move_cursor",
                 [
                     "2,2"
-                ],
-                [
-                    "2,2"
                 ]
             ],
             [
                 "comment",
                 [
                     "# Flicker cursor"
-                ],
-                [
-                    "# Flicker cursor"
                 ]
             ],
             [
                 "disp_cursor",
-                [
-                    "1"
-                ],
                 [
                     "1"
                 ]
@@ -1028,16 +715,10 @@
                 "wait",
                 [
                     "1000"
-                ],
-                [
-                    "1000"
                 ]
             ],
             [
                 "disp_cursor",
-                [
-                    "0"
-                ],
                 [
                     "0"
                 ]
@@ -1046,16 +727,10 @@
                 "comment",
                 [
                     "# Fade to inside castle"
-                ],
-                [
-                    "# Fade to inside castle"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
@@ -1064,27 +739,16 @@
                 "change_background",
                 [
                     "InsideCastle"
-                ],
-                [
-                    "InsideCastle"
                 ]
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "SoldierBlue",
-                    "Left",
-                    "no_block"
-                ],
                 [
                     "SoldierBlue",
                     "Left",
@@ -1096,18 +760,10 @@
                 [
                     "Tana",
                     "Right"
-                ],
-                [
-                    "Tana",
-                    "Right"
                 ]
             ],
             [
                 "speak",
-                [
-                    "SoldierBlue",
-                    "Princess Tana! Grado's forces are approaching!"
-                ],
                 [
                     "SoldierBlue",
                     "Princess Tana! Grado's forces are approaching!"
@@ -1118,18 +774,10 @@
                 [
                     "Tana",
                     "What? So soon? Ah, we've had no time!"
-                ],
-                [
-                    "Tana",
-                    "What? So soon? Ah, we've had no time!"
                 ]
             ],
             [
                 "speak",
-                [
-                    "SoldierBlue",
-                    "Milady, we lack the arms to defend this place. You must return to Castle Frelia."
-                ],
                 [
                     "SoldierBlue",
                     "Milady, we lack the arms to defend this place. You must return to Castle Frelia."
@@ -1140,18 +788,10 @@
                 [
                     "Tana",
                     "I can't! Not yet. We haven't found Eirika and her companions yet.|Eirika is my friend, and she needs my help. I won't abandon her.|Oh, I know! Go and ask Father--{br}I mean King Hayden for more troops."
-                ],
-                [
-                    "Tana",
-                    "I can't! Not yet. We haven't found Eirika and her companions yet.|Eirika is my friend, and she needs my help. I won't abandon her.|Oh, I know! Go and ask Father--{br}I mean King Hayden for more troops."
                 ]
             ],
             [
                 "speak",
-                [
-                    "SoldierBlue",
-                    "Yes, Your Highness!"
-                ],
                 [
                     "SoldierBlue",
                     "Yes, Your Highness!"
@@ -1161,9 +801,6 @@
                 "remove_portrait",
                 [
                     "SoldierBlue"
-                ],
-                [
-                    "SoldierBlue"
                 ]
             ],
             [
@@ -1171,64 +808,42 @@
                 [
                     "Tana",
                     "Eirika, please be safe!"
-                ],
-                [
-                    "Tana",
-                    "Eirika, please be safe!"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
             ],
             [
                 "change_background",
-                [],
                 []
             ],
             [
                 "end_skip",
-                [],
                 []
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "comment",
                 [
                     "# Green units leave castle. Mercenary stays on castle."
-                ],
-                [
-                    "# Green units leave castle. Mercenary stays on castle."
                 ]
             ],
             [
                 "comment",
-                [
-                    "# Add and move cavalier"
-                ],
                 [
                     "# Add and move cavalier"
                 ]
             ],
             [
                 "add_unit",
-                [
-                    "GreenCav",
-                    "2,2"
-                ],
                 [
                     "GreenCav",
                     "2,2"
@@ -1239,17 +854,10 @@
                 [
                     "GreenCav",
                     "2,3"
-                ],
-                [
-                    "GreenCav",
-                    "2,3"
                 ]
             ],
             [
                 "comment",
-                [
-                    "# Add Mercenary"
-                ],
                 [
                     "# Add Mercenary"
                 ]
@@ -1259,27 +867,16 @@
                 [
                     "GreenMerc",
                     "2,2"
-                ],
-                [
-                    "GreenMerc",
-                    "2,2"
                 ]
             ],
             [
                 "comment",
                 [
                     "# Move Cavalier again"
-                ],
-                [
-                    "# Move Cavalier again"
                 ]
             ],
             [
                 "move_unit",
-                [
-                    "GreenCav",
-                    "0,0"
-                ],
                 [
                     "GreenCav",
                     "0,0"
@@ -1289,25 +886,16 @@
                 "remove_unit",
                 [
                     "GreenCav"
-                ],
-                [
-                    "GreenCav"
                 ]
             ],
             [
                 "move_cursor",
                 [
                     "Breguet"
-                ],
-                [
-                    "Breguet"
                 ]
             ],
             [
                 "disp_cursor",
-                [
-                    "1"
-                ],
                 [
                     "1"
                 ]
@@ -1316,34 +904,22 @@
                 "wait",
                 [
                     "1000"
-                ],
-                [
-                    "1000"
                 ]
             ],
             [
                 "disp_cursor",
                 [
                     "0"
-                ],
-                [
-                    "0"
                 ]
             ],
             [
                 "comment",
                 [
                     "# Fade in Breguet"
-                ],
-                [
-                    "# Fade in Breguet"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
@@ -1352,27 +928,16 @@
                 "change_background",
                 [
                     "Plains"
-                ],
-                [
-                    "Plains"
                 ]
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "SoldierRed",
-                    "Left",
-                    "no_block"
-                ],
                 [
                     "SoldierRed",
                     "Left",
@@ -1384,18 +949,10 @@
                 [
                     "Breguet",
                     "Right"
-                ],
-                [
-                    "Breguet",
-                    "Right"
                 ]
             ],
             [
                 "speak",
-                [
-                    "SoldierRed",
-                    "Commander Breguet, the enemy appears to be fortifying its position in the castle."
-                ],
                 [
                     "SoldierRed",
                     "Commander Breguet, the enemy appears to be fortifying its position in the castle."
@@ -1406,18 +963,10 @@
                 [
                     "Breguet",
                     "Hmph.|They're tenacious, but they have no hope of stopping our advance."
-                ],
-                [
-                    "Breguet",
-                    "Hmph.|They're tenacious, but they have no hope of stopping our advance."
                 ]
             ],
             [
                 "speak",
-                [
-                    "SoldierRed",
-                    "What are your orders, sir?"
-                ],
                 [
                     "SoldierRed",
                     "What are your orders, sir?"
@@ -1428,18 +977,10 @@
                 [
                     "Breguet",
                     "Ha! Orders? You just stand here and watch. I'll crush them myself!"
-                ],
-                [
-                    "Breguet",
-                    "Ha! Orders? You just stand here and watch. I'll crush them myself!"
                 ]
             ],
             [
                 "speak",
-                [
-                    "SoldierRed",
-                    "As you command, sir."
-                ],
                 [
                     "SoldierRed",
                     "As you command, sir."
@@ -1449,40 +990,26 @@
                 "transition",
                 [
                     "Close"
-                ],
-                [
-                    "Close"
                 ]
             ],
             [
                 "change_background",
-                [],
                 []
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "comment",
                 [
                     "# Breguet moves and attacks Green Mercenary. He crits the mercenary."
-                ],
-                [
-                    "# Breguet moves and attacks Green Mercenary. He crits the mercenary."
                 ]
             ],
             [
                 "move_unit",
-                [
-                    "Breguet",
-                    "2,3"
-                ],
                 [
                     "Breguet",
                     "2,3"
@@ -1494,27 +1021,16 @@
                     "Breguet",
                     "GreenMerc",
                     "crit1"
-                ],
-                [
-                    "Breguet",
-                    "GreenMerc",
-                    "crit1"
                 ]
             ],
             [
                 "move_cursor",
                 [
                     "Breguet"
-                ],
-                [
-                    "Breguet"
                 ]
             ],
             [
                 "disp_cursor",
-                [
-                    "1"
-                ],
                 [
                     "1"
                 ]
@@ -1523,26 +1039,16 @@
                 "wait",
                 [
                     "1000"
-                ],
-                [
-                    "1000"
                 ]
             ],
             [
                 "disp_cursor",
                 [
                     "0"
-                ],
-                [
-                    "0"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Breguet",
-                    "Left"
-                ],
                 [
                     "Breguet",
                     "Left"
@@ -1553,17 +1059,10 @@
                 [
                     "Breguet",
                     "Ha! That's what happens when you face my lance!"
-                ],
-                [
-                    "Breguet",
-                    "Ha! That's what happens when you face my lance!"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Breguet"
-                ],
                 [
                     "Breguet"
                 ]
@@ -1572,17 +1071,10 @@
                 "comment",
                 [
                     "# Units move to their final positions"
-                ],
-                [
-                    "# Units move to their final positions"
                 ]
             ],
             [
                 "move_unit",
-                [
-                    "Breguet",
-                    "2,2"
-                ],
                 [
                     "Breguet",
                     "2,2"
@@ -1593,26 +1085,16 @@
                 [
                     "Enemy1",
                     "Starting"
-                ],
-                [
-                    "Enemy1",
-                    "Starting"
                 ]
             ],
             [
                 "move_cursor",
                 [
                     "Breguet"
-                ],
-                [
-                    "Breguet"
                 ]
             ],
             [
                 "disp_cursor",
-                [
-                    "1"
-                ],
                 [
                     "1"
                 ]
@@ -1621,25 +1103,16 @@
                 "wait",
                 [
                     "1000"
-                ],
-                [
-                    "1000"
                 ]
             ],
             [
                 "disp_cursor",
                 [
                     "0"
-                ],
-                [
-                    "0"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
@@ -1648,23 +1121,16 @@
                 "change_background",
                 [
                     "InsideCastle"
-                ],
-                [
-                    "InsideCastle"
                 ]
             ],
             [
                 "end_skip",
-                [],
                 []
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
@@ -1673,19 +1139,10 @@
                     "Breguet",
                     "Left",
                     "no_block"
-                ],
-                [
-                    "Breguet",
-                    "Left",
-                    "no_block"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Tana",
-                    "Right"
-                ],
                 [
                     "Tana",
                     "Right"
@@ -1696,18 +1153,10 @@
                 [
                     "Tana",
                     "MidRight"
-                ],
-                [
-                    "Tana",
-                    "MidRight"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Tana",
-                    "St-stop right there!|Call off your forces and turn back, or you'll have me to deal with!"
-                ],
                 [
                     "Tana",
                     "St-stop right there!|Call off your forces and turn back, or you'll have me to deal with!"
@@ -1718,18 +1167,10 @@
                 [
                     "Breguet",
                     "Is that so? And who might you be?"
-                ],
-                [
-                    "Breguet",
-                    "Is that so? And who might you be?"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Tana",
-                    "Who--? I am Tana, Princess of Frelia.|I will not permit you to abuse my country any longer."
-                ],
                 [
                     "Tana",
                     "Who--? I am Tana, Princess of Frelia.|I will not permit you to abuse my country any longer."
@@ -1740,10 +1181,6 @@
                 [
                     "Breguet",
                     "Frelia's royal brat, huh? How convenient..."
-                ],
-                [
-                    "Breguet",
-                    "Frelia's royal brat, huh? How convenient..."
                 ]
             ],
             [
@@ -1751,18 +1188,10 @@
                 [
                     "Tana",
                     "Leave this castle immediately.|If you harm me, my father and brother will chase you to the earth's end."
-                ],
-                [
-                    "Tana",
-                    "Leave this castle immediately.|If you harm me, my father and brother will chase you to the earth's end."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Breguet",
-                    "Yes, I've heard how King Hayden dotes on his precious little daughter.|Let's see how true that is. You'll make us a fine hostage, my dear.|Seize the girl and lock her up!"
-                ],
                 [
                     "Breguet",
                     "Yes, I've heard how King Hayden dotes on his precious little daughter.|Let's see how true that is. You'll make us a fine hostage, my dear.|Seize the girl and lock her up!"
@@ -1773,18 +1202,10 @@
                 [
                     "SoldierRed",
                     "FarRight"
-                ],
-                [
-                    "SoldierRed",
-                    "FarRight"
                 ]
             ],
             [
                 "speak",
-                [
-                    "SoldierRed",
-                    "Right away, sir!"
-                ],
                 [
                     "SoldierRed",
                     "Right away, sir!"
@@ -1794,9 +1215,6 @@
                 "bop_portrait",
                 [
                     "Tana"
-                ],
-                [
-                    "Tana"
                 ]
             ],
             [
@@ -1804,45 +1222,30 @@
                 [
                     "Tana",
                     "No! Let me go!"
-                ],
-                [
-                    "Tana",
-                    "No! Let me go!"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
             ],
             [
                 "change_background",
-                [],
                 []
             ],
             [
                 "end_skip",
-                [],
                 []
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "comment",
-                [
-                    "# Eirika and Seth arrive"
-                ],
                 [
                     "# Eirika and Seth arrive"
                 ]
@@ -1853,27 +1256,16 @@
                     "EirikaSeth",
                     "East",
                     "Starting"
-                ],
-                [
-                    "EirikaSeth",
-                    "East",
-                    "Starting"
                 ]
             ],
             [
                 "move_cursor",
                 [
                     "Eirika"
-                ],
-                [
-                    "Eirika"
                 ]
             ],
             [
                 "disp_cursor",
-                [
-                    "1"
-                ],
                 [
                     "1"
                 ]
@@ -1882,27 +1274,16 @@
                 "wait",
                 [
                     "1000"
-                ],
-                [
-                    "1000"
                 ]
             ],
             [
                 "disp_cursor",
                 [
                     "0"
-                ],
-                [
-                    "0"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Eirika",
-                    "Right",
-                    "no_block"
-                ],
                 [
                     "Eirika",
                     "Right",
@@ -1914,18 +1295,10 @@
                 [
                     "Seth",
                     "Left"
-                ],
-                [
-                    "Seth",
-                    "Left"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Seth, look..."
-                ],
                 [
                     "Eirika",
                     "Seth, look..."
@@ -1936,18 +1309,10 @@
                 [
                     "Seth",
                     "I see it. It seems like Grado's army has already reached Frelia.|Princess, this place is perilous.|We should bypass Mulan altogether and head straight to the castle."
-                ],
-                [
-                    "Seth",
-                    "I see it. It seems like Grado's army has already reached Frelia.|Princess, this place is perilous.|We should bypass Mulan altogether and head straight to the castle."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "But we can't just ignore this...|You were there when Renais was invaded... You saw what I saw.|You saw how the people suffered at the hands of Grado's soldiers.|Homes were destroyed, possessions stolen, women kidnapped...|Anyone who resisted was executed without question, without hesitation."
-                ],
                 [
                     "Eirika",
                     "But we can't just ignore this...|You were there when Renais was invaded... You saw what I saw.|You saw how the people suffered at the hands of Grado's soldiers.|Homes were destroyed, possessions stolen, women kidnapped...|Anyone who resisted was executed without question, without hesitation."
@@ -1958,18 +1323,10 @@
                 [
                     "Seth",
                     "..."
-                ],
-                [
-                    "Seth",
-                    "..."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Please, Seth. I can't allow that to happen here.|I don't want to see any more people harmed by Grado's atrocities."
-                ],
                 [
                     "Eirika",
                     "Please, Seth. I can't allow that to happen here.|I don't want to see any more people harmed by Grado's atrocities."
@@ -1980,10 +1337,6 @@
                 [
                     "Seth",
                     "All right, Princess. I understand. Perhaps we can retake Mulan.|But, Princess, you must act with caution. Your people need you, too."
-                ],
-                [
-                    "Seth",
-                    "All right, Princess. I understand. Perhaps we can retake Mulan.|But, Princess, you must act with caution. Your people need you, too."
                 ]
             ],
             [
@@ -1991,10 +1344,6 @@
                 [
                     "Eirika",
                     "Of course, Seth. Come on! Let's go!"
-                ],
-                [
-                    "Eirika",
-                    "Of course, Seth. Come on! Let's go!"
                 ]
             ],
             [
@@ -2002,17 +1351,10 @@
                 [
                     "Seth",
                     "no_block"
-                ],
-                [
-                    "Seth",
-                    "no_block"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Eirika"
-                ],
                 [
                     "Eirika"
                 ]
@@ -2031,16 +1373,10 @@
                 "comment",
                 [
                     "# Fade to black"
-                ],
-                [
-                    "# Fade to black"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
@@ -2049,27 +1385,16 @@
                 "change_background",
                 [
                     "InsideCastle"
-                ],
-                [
-                    "InsideCastle"
                 ]
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Tana",
-                    "Left",
-                    "no_block"
-                ],
                 [
                     "Tana",
                     "Left",
@@ -2081,18 +1406,10 @@
                 [
                     "Gilliam",
                     "MidRight"
-                ],
-                [
-                    "Gilliam",
-                    "MidRight"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Gilliam",
-                    "Princess Tana."
-                ],
                 [
                     "Gilliam",
                     "Princess Tana."
@@ -2103,18 +1420,10 @@
                 [
                     "Tana",
                     "Sir Gilliam...|I'm sorry. I never meant to cause you such trouble."
-                ],
-                [
-                    "Tana",
-                    "Sir Gilliam...|I'm sorry. I never meant to cause you such trouble."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Gilliam",
-                    "It was no trouble. I live to serve, Princess."
-                ],
                 [
                     "Gilliam",
                     "It was no trouble. I live to serve, Princess."
@@ -2124,18 +1433,10 @@
                 "comment",
                 [
                     "# Move Eirika onscreen from offscreen"
-                ],
-                [
-                    "# Move Eirika onscreen from offscreen"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Eirika",
-                    "OffscreenRight",
-                    "immediate"
-                ],
                 [
                     "Eirika",
                     "OffscreenRight",
@@ -2147,18 +1448,10 @@
                 [
                     "Eirika",
                     "FarRight"
-                ],
-                [
-                    "Eirika",
-                    "FarRight"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Tana!"
-                ],
                 [
                     "Eirika",
                     "Tana!"
@@ -2169,18 +1462,10 @@
                 [
                     "Tana",
                     "...Eirika?!?|Is that really you?"
-                ],
-                [
-                    "Tana",
-                    "...Eirika?!?|Is that really you?"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Tana, what are you doing, so far from Castle Frelia?"
-                ],
                 [
                     "Eirika",
                     "Tana, what are you doing, so far from Castle Frelia?"
@@ -2190,17 +1475,10 @@
                 "comment",
                 [
                     "# This is how you tell a character to change their expression"
-                ],
-                [
-                    "# This is how you tell a character to change their expression"
                 ]
             ],
             [
                 "expression",
-                [
-                    "Tana",
-                    "Smile"
-                ],
                 [
                     "Tana",
                     "Smile"
@@ -2211,10 +1489,6 @@
                 [
                     "Tana",
                     "I heard that Renais had fallen, and I was so worried...|But I'm glad to see that you're safe...{w}{clear}Wait! Where is Ephraim? Is he well?"
-                ],
-                [
-                    "Tana",
-                    "I heard that Renais had fallen, and I was so worried...|But I'm glad to see that you're safe...{w}{clear}Wait! Where is Ephraim? Is he well?"
                 ]
             ],
             [
@@ -2222,18 +1496,10 @@
                 [
                     "Tana",
                     "NoSmile"
-                ],
-                [
-                    "Tana",
-                    "NoSmile"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "I wish I knew."
-                ],
                 [
                     "Eirika",
                     "I wish I knew."
@@ -2244,18 +1510,10 @@
                 [
                     "Tana",
                     "You haven't heard from him? Oh, I hope he's not been harmed...|Come, we must go to Castle Frelia. My lord father may know something."
-                ],
-                [
-                    "Tana",
-                    "You haven't heard from him? Oh, I hope he's not been harmed...|Come, we must go to Castle Frelia. My lord father may know something."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Thank you, Tana."
-                ],
                 [
                     "Eirika",
                     "Thank you, Tana."
@@ -2263,9 +1521,6 @@
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
@@ -2286,27 +1541,16 @@
                     "EnemyRein",
                     "East",
                     "EnemyRein"
-                ],
-                [
-                    "EnemyRein",
-                    "East",
-                    "EnemyRein"
                 ]
             ],
             [
                 "move_cursor",
                 [
                     "107"
-                ],
-                [
-                    "107"
                 ]
             ],
             [
                 "disp_cursor",
-                [
-                    "1"
-                ],
                 [
                     "1"
                 ]
@@ -2315,26 +1559,16 @@
                 "wait",
                 [
                     "1000"
-                ],
-                [
-                    "1000"
                 ]
             ],
             [
                 "disp_cursor",
                 [
                     "0"
-                ],
-                [
-                    "0"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "SoldierRed",
-                    "Left"
-                ],
                 [
                     "SoldierRed",
                     "Left"
@@ -2345,17 +1579,10 @@
                 [
                     "SoldierRed",
                     "I've found them! Stragglers from Renais! Don't let them get away."
-                ],
-                [
-                    "SoldierRed",
-                    "I've found them! Stragglers from Renais! Don't let them get away."
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "SoldierRed"
-                ],
                 [
                     "SoldierRed"
                 ]
@@ -2376,11 +1603,6 @@
                     "Franz",
                     "Left",
                     "no_block"
-                ],
-                [
-                    "Franz",
-                    "Left",
-                    "no_block"
                 ]
             ],
             [
@@ -2388,18 +1610,10 @@
                 [
                     "Seth",
                     "Right"
-                ],
-                [
-                    "Seth",
-                    "Right"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Seth",
-                    "Is that you, Franz? I'm relieved to see you're still in one piece!"
-                ],
                 [
                     "Seth",
                     "Is that you, Franz? I'm relieved to see you're still in one piece!"
@@ -2410,18 +1624,10 @@
                 [
                     "Franz",
                     "Y-yes...and you as well, General.|As long as you lead us, sir, the Knights of Renais cannot lose!"
-                ],
-                [
-                    "Franz",
-                    "Y-yes...and you as well, General.|As long as you lead us, sir, the Knights of Renais cannot lose!"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Seth",
-                    "Franz, you and I must work together to protect Princess Eirika.|I want you to ride with us."
-                ],
                 [
                     "Seth",
                     "Franz, you and I must work together to protect Princess Eirika.|I want you to ride with us."
@@ -2432,10 +1638,6 @@
                 [
                     "Franz",
                     "Sir! With honor, sir!"
-                ],
-                [
-                    "Franz",
-                    "Sir! With honor, sir!"
                 ]
             ],
             [
@@ -2443,27 +1645,16 @@
                 [
                     "Franz",
                     "no_block"
-                ],
-                [
-                    "Franz",
-                    "no_block"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Seth"
-                ],
                 [
                     "Seth"
                 ]
             ],
             [
                 "remove_talk",
-                [
-                    "Seth",
-                    "Franz"
-                ],
                 [
                     "Seth",
                     "Franz"
@@ -2485,11 +1676,6 @@
                     "Franz",
                     "Left",
                     "no_block"
-                ],
-                [
-                    "Franz",
-                    "Left",
-                    "no_block"
                 ]
             ],
             [
@@ -2497,18 +1683,10 @@
                 [
                     "Eirika",
                     "Right"
-                ],
-                [
-                    "Eirika",
-                    "Right"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Franz",
-                    "Princess Eirika, it is good to see you're well."
-                ],
                 [
                     "Franz",
                     "Princess Eirika, it is good to see you're well."
@@ -2519,18 +1697,10 @@
                 [
                     "Eirika",
                     "Franz, you made it through unscathed..."
-                ],
-                [
-                    "Eirika",
-                    "Franz, you made it through unscathed..."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Franz",
-                    "Y-yes, Your Highness!|I met up with Sir Gilliam of Frelia and explained the situation in Renais.|He told me that Princess Tana was in danger as well, here at Mulan.|We rode as swiftly as we could."
-                ],
                 [
                     "Franz",
                     "Y-yes, Your Highness!|I met up with Sir Gilliam of Frelia and explained the situation in Renais.|He told me that Princess Tana was in danger as well, here at Mulan.|We rode as swiftly as we could."
@@ -2541,10 +1711,6 @@
                 [
                     "Eirika",
                     "Tana is here?|Franz, we must hurry!"
-                ],
-                [
-                    "Eirika",
-                    "Tana is here?|Franz, we must hurry!"
                 ]
             ],
             [
@@ -2552,10 +1718,6 @@
                 [
                     "Franz",
                     "Understood!"
-                ],
-                [
-                    "Franz",
-                    "Understood!"
                 ]
             ],
             [
@@ -2563,27 +1725,16 @@
                 [
                     "Eirika",
                     "no_block"
-                ],
-                [
-                    "Eirika",
-                    "no_block"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Franz"
-                ],
                 [
                     "Franz"
                 ]
             ],
             [
                 "remove_talk",
-                [
-                    "Eirika",
-                    "Franz"
-                ],
                 [
                     "Eirika",
                     "Franz"
@@ -2604,10 +1755,6 @@
                 [
                     "Breguet",
                     "Left"
-                ],
-                [
-                    "Breguet",
-                    "Left"
                 ]
             ],
             [
@@ -2615,17 +1762,10 @@
                 [
                     "Breguet",
                     "Hm? Is that the princess of Renais?|Ha ha! It really is my lucky day! Fame and fortune ride to meet me!|Move on, you slugs!{br}Bring that girl to me!"
-                ],
-                [
-                    "Breguet",
-                    "Hm? Is that the princess of Renais?|Ha ha! It really is my lucky day! Fame and fortune ride to meet me!|Move on, you slugs!{br}Bring that girl to me!"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Breguet"
-                ],
                 [
                     "Breguet"
                 ]
@@ -2644,9 +1784,6 @@
                 "comment",
                 [
                     "# Setup"
-                ],
-                [
-                    "# Setup"
                 ]
             ],
             [
@@ -2654,10 +1791,6 @@
                 [
                     "_convoy",
                     "True"
-                ],
-                [
-                    "_convoy",
-                    "True"
                 ]
             ],
             [
@@ -2665,18 +1798,10 @@
                 [
                     "Eirika",
                     "Ross"
-                ],
-                [
-                    "Eirika",
-                    "Ross"
                 ]
             ],
             [
                 "add_talk",
-                [
-                    "Ross",
-                    "Garcia"
-                ],
                 [
                     "Ross",
                     "Garcia"
@@ -2687,18 +1812,10 @@
                 [
                     "PrevVillage",
                     "immediate"
-                ],
-                [
-                    "PrevVillage",
-                    "immediate"
                 ]
             ],
             [
                 "remove_group",
-                [
-                    "Bandits1",
-                    "immediate"
-                ],
                 [
                     "Bandits1",
                     "immediate"
@@ -2709,10 +1826,6 @@
                 [
                     "Vanessa",
                     "immediate"
-                ],
-                [
-                    "Vanessa",
-                    "immediate"
                 ]
             ],
             [
@@ -2720,18 +1833,10 @@
                 [
                     "BlueTeam",
                     "immediate"
-                ],
-                [
-                    "BlueTeam",
-                    "immediate"
                 ]
             ],
             [
                 "remove_group",
-                [
-                    "RossGarcia",
-                    "immediate"
-                ],
                 [
                     "RossGarcia",
                     "immediate"
@@ -2741,25 +1846,16 @@
                 "comment",
                 [
                     "# Money making"
-                ],
-                [
-                    "# Money making"
                 ]
             ],
             [
                 "change_background",
                 [
                     "Bedroom"
-                ],
-                [
-                    "Bedroom"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Open"
-                ],
                 [
                     "Open"
                 ]
@@ -2768,50 +1864,32 @@
                 "give_money",
                 [
                     "5000"
-                ],
-                [
-                    "5000"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
             ],
             [
                 "chapter_title",
-                [],
                 []
             ],
             [
                 "change_background",
                 [
                     "Clearing"
-                ],
-                [
-                    "Clearing"
                 ]
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Eirika",
-                    "Left",
-                    "no_block"
-                ],
                 [
                     "Eirika",
                     "Left",
@@ -2824,11 +1902,6 @@
                     "Vanessa",
                     "FarRight",
                     "no_block"
-                ],
-                [
-                    "Vanessa",
-                    "FarRight",
-                    "no_block"
                 ]
             ],
             [
@@ -2836,18 +1909,10 @@
                 [
                     "Moulder",
                     "MidRight"
-                ],
-                [
-                    "Moulder",
-                    "MidRight"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Seth has mapped out a route for us.|We'll travel south of Renais and pass through Serafew into Grado territory."
-                ],
                 [
                     "Eirika",
                     "Seth has mapped out a route for us.|We'll travel south of Renais and pass through Serafew into Grado territory."
@@ -2858,18 +1923,10 @@
                 [
                     "Moulder",
                     "Hmm...{br}That would seem a sensible plan.|Assuming, of course, that we can avoid any run-ins with Grado soldiers..."
-                ],
-                [
-                    "Moulder",
-                    "Hmm...{br}That would seem a sensible plan.|Assuming, of course, that we can avoid any run-ins with Grado soldiers..."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Vanessa",
-                    "Princess Eirika, may I have your leave to scout ahead?|From the sky, I'll have a better chance of spotting any nearby troops."
-                ],
                 [
                     "Vanessa",
                     "Princess Eirika, may I have your leave to scout ahead?|From the sky, I'll have a better chance of spotting any nearby troops."
@@ -2880,18 +1937,10 @@
                 [
                     "Moulder",
                     "We're yours to command, Your Higness. Will you give your permission?"
-                ],
-                [
-                    "Moulder",
-                    "We're yours to command, Your Higness. Will you give your permission?"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Yes, of course.|Keep an eye out for enemy bowmen though, Vanessa."
-                ],
                 [
                     "Eirika",
                     "Yes, of course.|Keep an eye out for enemy bowmen though, Vanessa."
@@ -2902,27 +1951,16 @@
                 [
                     "Vanessa",
                     "Yes, Your Higness, I shall.|I shall prove myself worthy of the honor of your trust."
-                ],
-                [
-                    "Vanessa",
-                    "Yes, Your Higness, I shall.|I shall prove myself worthy of the honor of your trust."
                 ]
             ],
             [
                 "remove_portrait",
                 [
                     "Vanessa"
-                ],
-                [
-                    "Vanessa"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "She seems very...sincere."
-                ],
                 [
                     "Eirika",
                     "She seems very...sincere."
@@ -2933,10 +1971,6 @@
                 [
                     "Moulder",
                     "Sincere... Yes, quite."
-                ],
-                [
-                    "Moulder",
-                    "Sincere... Yes, quite."
                 ]
             ],
             [
@@ -2944,54 +1978,36 @@
                 [
                     "Eirika",
                     "no_block"
-                ],
-                [
-                    "Eirika",
-                    "no_block"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Moulder"
-                ],
                 [
                     "Moulder"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
             ],
             [
                 "end_skip",
-                [],
                 []
             ],
             [
                 "change_background",
-                [],
                 []
             ],
             [
                 "comment",
                 [
                     "# Transition to Bandit conversation"
-                ],
-                [
-                    "# Transition to Bandit conversation"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Open"
-                ],
                 [
                     "Open"
                 ]
@@ -3002,19 +2018,10 @@
                     "Vanessa",
                     "1,0",
                     "immediate"
-                ],
-                [
-                    "Vanessa",
-                    "1,0",
-                    "immediate"
                 ]
             ],
             [
                 "move_unit",
-                [
-                    "Vanessa",
-                    "7,4"
-                ],
                 [
                     "Vanessa",
                     "7,4"
@@ -3027,20 +2034,10 @@
                     "14,8",
                     "immediate",
                     "stack"
-                ],
-                [
-                    "Bandits1",
-                    "14,8",
-                    "immediate",
-                    "stack"
                 ]
             ],
             [
                 "move_group",
-                [
-                    "Bandits1",
-                    "Bandits1"
-                ],
                 [
                     "Bandits1",
                     "Bandits1"
@@ -3050,17 +2047,10 @@
                 "flicker_cursor",
                 [
                     "Bone"
-                ],
-                [
-                    "Bone"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Bone",
-                    "MidRight"
-                ],
                 [
                     "Bone",
                     "MidRight"
@@ -3071,10 +2061,6 @@
                 [
                     "Bone",
                     "Hey, boss! We've found more villages ripe for the picking."
-                ],
-                [
-                    "Bone",
-                    "Hey, boss! We've found more villages ripe for the picking."
                 ]
             ],
             [
@@ -3082,18 +2068,10 @@
                 [
                     "Bazba",
                     "FarLeft"
-                ],
-                [
-                    "Bazba",
-                    "FarLeft"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Bazba",
-                    "One, two, three...{br}Ha ha ha! I love a good war!|With all those soldiers preoccupied, we're free to pillage as we please!|Right, Bone--you're in charge.|Grab everything that's not nailed down and bring it to the hideout."
-                ],
                 [
                     "Bazba",
                     "One, two, three...{br}Ha ha ha! I love a good war!|With all those soldiers preoccupied, we're free to pillage as we please!|Right, Bone--you're in charge.|Grab everything that's not nailed down and bring it to the hideout."
@@ -3104,10 +2082,6 @@
                 [
                     "Bone",
                     "I'm on it."
-                ],
-                [
-                    "Bone",
-                    "I'm on it."
                 ]
             ],
             [
@@ -3115,18 +2089,10 @@
                 [
                     "Bazba",
                     "no_block"
-                ],
-                [
-                    "Bazba",
-                    "no_block"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Bone",
-                    "no_block"
-                ],
                 [
                     "Bone",
                     "no_block"
@@ -3137,18 +2103,10 @@
                 [
                     "BoneBuddy",
                     "14,10"
-                ],
-                [
-                    "BoneBuddy",
-                    "14,10"
                 ]
             ],
             [
                 "remove_unit",
-                [
-                    "BoneBuddy",
-                    "immediate"
-                ],
                 [
                     "BoneBuddy",
                     "immediate"
@@ -3158,25 +2116,16 @@
                 "comment",
                 [
                     "# Transition to Ross and Garcia conversation"
-                ],
-                [
-                    "# Transition to Ross and Garcia conversation"
                 ]
             ],
             [
                 "flicker_cursor",
                 [
                     "12,3"
-                ],
-                [
-                    "12,3"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
@@ -3185,18 +2134,12 @@
                 "change_background",
                 [
                     "Town"
-                ],
-                [
-                    "Town"
                 ]
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
@@ -3205,19 +2148,10 @@
                     "Garcia",
                     "Right",
                     "no_block"
-                ],
-                [
-                    "Garcia",
-                    "Right",
-                    "no_block"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Ross",
-                    "FarLeft"
-                ],
                 [
                     "Ross",
                     "FarLeft"
@@ -3228,10 +2162,6 @@
                 [
                     "Ross",
                     "Left"
-                ],
-                [
-                    "Ross",
-                    "Left"
                 ]
             ],
             [
@@ -3239,18 +2169,10 @@
                 [
                     "Ross",
                     "Dad!{br}Bandits approaching!"
-                ],
-                [
-                    "Ross",
-                    "Dad!{br}Bandits approaching!"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Garcia",
-                    "Hmmm...|I'm getting you out of here, Ross. You stay close to me!"
-                ],
                 [
                     "Garcia",
                     "Hmmm...|I'm getting you out of here, Ross. You stay close to me!"
@@ -3258,9 +2180,6 @@
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
@@ -3269,35 +2188,24 @@
                 "comment",
                 [
                     "# Transition to Bone leaving and TopBandit destroying the village"
-                ],
-                [
-                    "# Transition to Bone leaving and TopBandit destroying the village"
                 ]
             ],
             [
                 "end_skip",
-                [],
                 []
             ],
             [
                 "change_background",
-                [],
                 []
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "flicker_cursor",
-                [
-                    "Bone"
-                ],
                 [
                     "Bone"
                 ]
@@ -3307,18 +2215,10 @@
                 [
                     "Bone",
                     "Right"
-                ],
-                [
-                    "Bone",
-                    "Right"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Bone",
-                    "Let's start with that village there! Go to it, boys! It's all yours.|Cut down anyone fool enough to get in your way.|I'm heading west around the mountains to the other villages."
-                ],
                 [
                     "Bone",
                     "Let's start with that village there! Go to it, boys! It's all yours.|Cut down anyone fool enough to get in your way.|I'm heading west around the mountains to the other villages."
@@ -3328,17 +2228,10 @@
                 "remove_portrait",
                 [
                     "Bone"
-                ],
-                [
-                    "Bone"
                 ]
             ],
             [
                 "move_unit",
-                [
-                    "Bone",
-                    "9,10"
-                ],
                 [
                     "Bone",
                     "9,10"
@@ -3349,18 +2242,10 @@
                 [
                     "Bone",
                     "immediate"
-                ],
-                [
-                    "Bone",
-                    "immediate"
                 ]
             ],
             [
                 "move_unit",
-                [
-                    "TopBandit",
-                    "12,3"
-                ],
                 [
                     "TopBandit",
                     "12,3"
@@ -3370,16 +2255,10 @@
                 "hide_layer",
                 [
                     "PrevVillage"
-                ],
-                [
-                    "PrevVillage"
                 ]
             ],
             [
                 "sound",
-                [
-                    "ItemBreak"
-                ],
                 [
                     "ItemBreak"
                 ]
@@ -3388,19 +2267,10 @@
                 "alert",
                 [
                     "The village was destroyed."
-                ],
-                [
-                    "The village was destroyed."
                 ]
             ],
             [
                 "add_group",
-                [
-                    "RossGarcia",
-                    "12,3",
-                    "immediate",
-                    "stack"
-                ],
                 [
                     "RossGarcia",
                     "12,3",
@@ -3413,26 +2283,16 @@
                 [
                     "RossGarcia",
                     "Starting"
-                ],
-                [
-                    "RossGarcia",
-                    "Starting"
                 ]
             ],
             [
                 "flicker_cursor",
                 [
                     "Ross"
-                ],
-                [
-                    "Ross"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
@@ -3441,18 +2301,12 @@
                 "change_background",
                 [
                     "Forest"
-                ],
-                [
-                    "Forest"
                 ]
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
@@ -3461,19 +2315,10 @@
                     "Ross",
                     "Left",
                     "no_block"
-                ],
-                [
-                    "Ross",
-                    "Left",
-                    "no_block"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Garcia",
-                    "Right"
-                ],
                 [
                     "Garcia",
                     "Right"
@@ -3483,17 +2328,10 @@
                 "bop_portrait",
                 [
                     "Ross"
-                ],
-                [
-                    "Ross"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "Unnnng!"
-                ],
                 [
                     "Ross",
                     "Unnnng!"
@@ -3504,18 +2342,10 @@
                 [
                     "Garcia",
                     "Ross? What is it? What's wrong?"
-                ],
-                [
-                    "Garcia",
-                    "Ross? What is it? What's wrong?"
                 ]
             ],
             [
                 "expression",
-                [
-                    "Ross",
-                    "Smile"
-                ],
                 [
                     "Ross",
                     "Smile"
@@ -3526,10 +2356,6 @@
                 [
                     "Ross",
                     "It's nothing! It's just a scratch!|You're a warrior, Dad, and I am your son. I won't be beaten so easily."
-                ],
-                [
-                    "Ross",
-                    "It's nothing! It's just a scratch!|You're a warrior, Dad, and I am your son. I won't be beaten so easily."
                 ]
             ],
             [
@@ -3537,18 +2363,10 @@
                 [
                     "Ross",
                     "NoSmile"
-                ],
-                [
-                    "Ross",
-                    "NoSmile"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Garcia",
-                    "Don't risk youself so foolishly...{br}We need to get you some help.|Please! Someone help my son!"
-                ],
                 [
                     "Garcia",
                     "Don't risk youself so foolishly...{br}We need to get you some help.|Please! Someone help my son!"
@@ -3556,35 +2374,22 @@
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
             ],
             [
                 "change_background",
-                [],
                 []
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "add_group",
-                [
-                    "BlueTeam",
-                    "0,0",
-                    "immediate",
-                    "stack"
-                ],
                 [
                     "BlueTeam",
                     "0,0",
@@ -3597,32 +2402,20 @@
                 [
                     "BlueTeam",
                     "Starting"
-                ],
-                [
-                    "BlueTeam",
-                    "Starting"
                 ]
             ],
             [
                 "end_skip",
-                [],
                 []
             ],
             [
                 "flicker_cursor",
                 [
                     "Vanessa"
-                ],
-                [
-                    "Vanessa"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Vanessa",
-                    "FarLeft"
-                ],
                 [
                     "Vanessa",
                     "FarLeft"
@@ -3633,17 +2426,10 @@
                 [
                     "Vanessa",
                     "Ah! This looks serious.|I must report back to Priness Eirika at once."
-                ],
-                [
-                    "Vanessa",
-                    "Ah! This looks serious.|I must report back to Priness Eirika at once."
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Vanessa"
-                ],
                 [
                     "Vanessa"
                 ]
@@ -3653,19 +2439,12 @@
                 [
                     "Vanessa",
                     "2,3"
-                ],
-                [
-                    "Vanessa",
-                    "2,3"
                 ]
             ],
             [
                 "flicker_cursor",
                 [
                     "Vanessa"
-                ],
-                [
-                    "Vanessa"
                 ]
             ],
             [
@@ -3674,19 +2453,10 @@
                     "Vanessa",
                     "OffscreenRight",
                     "immediate"
-                ],
-                [
-                    "Vanessa",
-                    "OffscreenRight",
-                    "immediate"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Eirika",
-                    "Left"
-                ],
                 [
                     "Eirika",
                     "Left"
@@ -3697,10 +2467,6 @@
                 [
                     "Vanessa",
                     "MidRight"
-                ],
-                [
-                    "Vanessa",
-                    "MidRight"
                 ]
             ],
             [
@@ -3708,18 +2474,10 @@
                 [
                     "Vanessa",
                     "I have bad news.|The villages to the east is under attack by bandits."
-                ],
-                [
-                    "Vanessa",
-                    "I have bad news.|The villages to the east is under attack by bandits."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Bandits?!"
-                ],
                 [
                     "Eirika",
                     "Bandits?!"
@@ -3730,18 +2488,10 @@
                 [
                     "Moulder",
                     "FarRight"
-                ],
-                [
-                    "Moulder",
-                    "FarRight"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Moulder",
-                    "We have arrive at our first dilemma.|We must move quickly and attract as little attention as possible, but..."
-                ],
                 [
                     "Moulder",
                     "We have arrive at our first dilemma.|We must move quickly and attract as little attention as possible, but..."
@@ -3752,18 +2502,10 @@
                 [
                     "Eirika",
                     "But I cannot stand by and watch innocents be harmed.|Vanessa, how fare the villagers?"
-                ],
-                [
-                    "Eirika",
-                    "But I cannot stand by and watch innocents be harmed.|Vanessa, how fare the villagers?"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Vanessa",
-                    "I spotted one injured person.{br}He appeared to be just a child."
-                ],
                 [
                     "Vanessa",
                     "I spotted one injured person.{br}He appeared to be just a child."
@@ -3774,18 +2516,10 @@
                 [
                     "Eirika",
                     "Father Moulder, can your staff help him?"
-                ],
-                [
-                    "Eirika",
-                    "Father Moulder, can your staff help him?"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Moulder",
-                    "Well, yes, I can heal his injuries with my staff, but...|I cannot do it from here. He's too far away. I must be near him."
-                ],
                 [
                     "Moulder",
                     "Well, yes, I can heal his injuries with my staff, but...|I cannot do it from here. He's too far away. I must be near him."
@@ -3796,18 +2530,10 @@
                 [
                     "Vanessa",
                     "Princess, please leave this to me.|I shall bring the boy here."
-                ],
-                [
-                    "Vanessa",
-                    "Princess, please leave this to me.|I shall bring the boy here."
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Eirika",
-                    "no_block"
-                ],
                 [
                     "Eirika",
                     "no_block"
@@ -3818,17 +2544,10 @@
                 [
                     "Moulder",
                     "no_block"
-                ],
-                [
-                    "Moulder",
-                    "no_block"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Vanessa"
-                ],
                 [
                     "Vanessa"
                 ]
@@ -3837,18 +2556,10 @@
                 "flicker_cursor",
                 [
                     "Moulder"
-                ],
-                [
-                    "Moulder"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Moulder",
-                    "Right",
-                    "no_block"
-                ],
                 [
                     "Moulder",
                     "Right",
@@ -3860,18 +2571,10 @@
                 [
                     "Vanessa",
                     "Left"
-                ],
-                [
-                    "Vanessa",
-                    "Left"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Moulder",
-                    "All right, Vanessa. It's up to you."
-                ],
                 [
                     "Moulder",
                     "All right, Vanessa. It's up to you."
@@ -3882,26 +2585,16 @@
                 [
                     "Vanessa",
                     "Very well. I'm off."
-                ],
-                [
-                    "Vanessa",
-                    "Very well. I'm off."
                 ]
             ],
             [
                 "remove_portrait",
                 [
                     "Vanessa"
-                ],
-                [
-                    "Vanessa"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Moulder"
-                ],
                 [
                     "Moulder"
                 ]
@@ -3910,18 +2603,12 @@
                 "move_unit",
                 [
                     "Vanessa"
-                ],
-                [
-                    "Vanessa"
                 ]
             ],
             [
                 "comment",
                 [
                     "# Add the two enemy units back"
-                ],
-                [
-                    "# Add the two enemy units back"
                 ]
             ],
             [
@@ -3930,20 +2617,10 @@
                     "Bone",
                     "",
                     "immediate"
-                ],
-                [
-                    "Bone",
-                    "",
-                    "immediate"
                 ]
             ],
             [
                 "add_unit",
-                [
-                    "BoneBuddy",
-                    "",
-                    "immediate"
-                ],
                 [
                     "BoneBuddy",
                     "",
@@ -3952,10 +2629,6 @@
             ],
             [
                 "set_current_hp",
-                [
-                    "Ross",
-                    "5"
-                ],
                 [
                     "Ross",
                     "5"
@@ -3975,9 +2648,6 @@
                 "transition",
                 [
                     "Close"
-                ],
-                [
-                    "Close"
                 ]
             ],
             [
@@ -3985,17 +2655,10 @@
                 [
                     "{unit}",
                     "Iron Sword,Slim Sword,Iron Lance,Slim Lance,Iron Axe"
-                ],
-                [
-                    "{unit}",
-                    "Iron Sword,Slim Sword,Iron Lance,Slim Lance,Iron Axe"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Open"
-                ],
                 [
                     "Open"
                 ]
@@ -4014,36 +2677,22 @@
                 "transition",
                 [
                     "Close"
-                ],
-                [
-                    "Close"
                 ]
             ],
             [
                 "change_background",
                 [
                     "Town"
-                ],
-                [
-                    "Town"
                 ]
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Woman1",
-                    "Left",
-                    "no_block"
-                ],
                 [
                     "Woman1",
                     "Left",
@@ -4055,10 +2704,6 @@
                 [
                     "Selena",
                     "Right"
-                ],
-                [
-                    "Selena",
-                    "Right"
                 ]
             ],
             [
@@ -4066,18 +2711,10 @@
                 [
                     "Woman1",
                     "This is terrible... What are we going to do? Those bandits are so close.|If we can't find some way to protect ourselves, the village is doomed."
-                ],
-                [
-                    "Woman1",
-                    "This is terrible... What are we going to do? Those bandits are so close.|If we can't find some way to protect ourselves, the village is doomed."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Selena",
-                    "Perhaps..."
-                ],
                 [
                     "Selena",
                     "Perhaps..."
@@ -4085,9 +2722,6 @@
             ],
             [
                 "remove_portrait",
-                [
-                    "Woman1"
-                ],
                 [
                     "Woman1"
                 ]
@@ -4097,18 +2731,10 @@
                 [
                     "Eirika",
                     "Left"
-                ],
-                [
-                    "Eirika",
-                    "Left"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "People, listen to me! You must close the village gates immediately.|Hurry, before the bandits arrive!"
-                ],
                 [
                     "Eirika",
                     "People, listen to me! You must close the village gates immediately.|Hurry, before the bandits arrive!"
@@ -4119,18 +2745,10 @@
                 [
                     "Selena",
                     "Who are you? You aren't from one of the neighboring towns, are you.|And your weapons give you away... You're no peasant."
-                ],
-                [
-                    "Selena",
-                    "Who are you? You aren't from one of the neighboring towns, are you.|And your weapons give you away... You're no peasant."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "I am Er...|My name is Erina.{br}I'm a mercenary."
-                ],
                 [
                     "Eirika",
                     "I am Er...|My name is Erina.{br}I'm a mercenary."
@@ -4141,18 +2759,10 @@
                 [
                     "Selena",
                     "A mercenary named Erina, is it?|There's more to you than that, I feel. But don't worry--it's none of my affair.|I haven't told you who I am yet, have I?{br}I am Selena, a general in Grado's army."
-                ],
-                [
-                    "Selena",
-                    "A mercenary named Erina, is it?|There's more to you than that, I feel. But don't worry--it's none of my affair.|I haven't told you who I am yet, have I?{br}I am Selena, a general in Grado's army."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Ah!"
-                ],
                 [
                     "Eirika",
                     "Ah!"
@@ -4163,18 +2773,10 @@
                 [
                     "Selena",
                     "Is something wrong?"
-                ],
-                [
-                    "Selena",
-                    "Is something wrong?"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "No...uh, nothing."
-                ],
                 [
                     "Eirika",
                     "No...uh, nothing."
@@ -4185,18 +2787,10 @@
                 [
                     "Selena",
                     "It looks like these villagers have some bandit troubles.|I would like to help, but I have orders...|I'm to leave for the capital immediately, and I cannot stay.|You're armed, and you claim to be a mercenary. Will you help them?"
-                ],
-                [
-                    "Selena",
-                    "It looks like these villagers have some bandit troubles.|I would like to help, but I have orders...|I'm to leave for the capital immediately, and I cannot stay.|You're armed, and you claim to be a mercenary. Will you help them?"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Um..."
-                ],
                 [
                     "Eirika",
                     "Um..."
@@ -4207,10 +2801,6 @@
                 [
                     "Selena",
                     "Is there a problem?"
-                ],
-                [
-                    "Selena",
-                    "Is there a problem?"
                 ]
             ],
             [
@@ -4218,18 +2808,10 @@
                 [
                     "Eirika",
                     "No! Of course I'll help them!|It's just... You're one of Grado's generals... Why..."
-                ],
-                [
-                    "Eirika",
-                    "No! Of course I'll help them!|It's just... You're one of Grado's generals... Why..."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Selena",
-                    "These aren't soldiers.{br}They're people.|Should they suffer because their leaders fight?|I've petitioned your aid. Take this as payment."
-                ],
                 [
                     "Selena",
                     "These aren't soldiers.{br}They're people.|Should they suffer because their leaders fight?|I've petitioned your aid. Take this as payment."
@@ -4239,9 +2821,6 @@
                 "remove_portrait",
                 [
                     "Selena"
-                ],
-                [
-                    "Selena"
                 ]
             ],
             [
@@ -4249,17 +2828,10 @@
                 [
                     "Eirika",
                     "......"
-                ],
-                [
-                    "Eirika",
-                    "......"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
@@ -4268,31 +2840,20 @@
                 "show_layer",
                 [
                     "Village1"
-                ],
-                [
-                    "Village1"
                 ]
             ],
             [
                 "change_background",
-                [],
                 []
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "give_item",
-                [
-                    "Eirika",
-                    "Red Gem"
-                ],
                 [
                     "Eirika",
                     "Red Gem"
@@ -4314,11 +2875,6 @@
                     "Eirika",
                     "Left",
                     "no_block"
-                ],
-                [
-                    "Eirika",
-                    "Left",
-                    "no_block"
                 ]
             ],
             [
@@ -4326,10 +2882,6 @@
                 [
                     "Ross",
                     "Right"
-                ],
-                [
-                    "Ross",
-                    "Right"
                 ]
             ],
             [
@@ -4337,18 +2889,10 @@
                 [
                     "Ross",
                     "Hey, listen! My village is being attacked by bandits.|My name's Ross.|Come on! You have to help me wipe those thugs out!"
-                ],
-                [
-                    "Ross",
-                    "Hey, listen! My village is being attacked by bandits.|My name's Ross.|Come on! You have to help me wipe those thugs out!"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "All right, just... Just take a deep breath and calm down, Ross.|Leave the villages to use.{br}We'll drive off the bandits.|Seth, take the body somewhere safe."
-                ],
                 [
                     "Eirika",
                     "All right, just... Just take a deep breath and calm down, Ross.|Leave the villages to use.{br}We'll drive off the bandits.|Seth, take the body somewhere safe."
@@ -4358,17 +2902,10 @@
                 "bop_portrait",
                 [
                     "Ross"
-                ],
-                [
-                    "Ross"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "No! Wait! I'm going to fight, too!"
-                ],
                 [
                     "Ross",
                     "No! Wait! I'm going to fight, too!"
@@ -4379,18 +2916,10 @@
                 [
                     "Eirika",
                     "But..."
-                ],
-                [
-                    "Eirika",
-                    "But..."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "My father is out there all alone, fighting those bandits.|I've got to get back to him as quickly as possible!|I'm the son of the great Garcia!|As long as I have my axe, no bandit will ever defeat me!"
-                ],
                 [
                     "Ross",
                     "My father is out there all alone, fighting those bandits.|I've got to get back to him as quickly as possible!|I'm the son of the great Garcia!|As long as I have my axe, no bandit will ever defeat me!"
@@ -4401,10 +2930,6 @@
                 [
                     "Eirika",
                     "All right, I can see you're not going to be swayed...|But you must promise you will stay close to us."
-                ],
-                [
-                    "Eirika",
-                    "All right, I can see you're not going to be swayed...|But you must promise you will stay close to us."
                 ]
             ],
             [
@@ -4412,27 +2937,16 @@
                 [
                     "Eirika",
                     "no_block"
-                ],
-                [
-                    "Eirika",
-                    "no_block"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Ross"
-                ],
                 [
                     "Ross"
                 ]
             ],
             [
                 "change_team",
-                [
-                    "Ross",
-                    "player"
-                ],
                 [
                     "Ross",
                     "player"
@@ -4452,16 +2966,10 @@
                 "transition",
                 [
                     "Close"
-                ],
-                [
-                    "Close"
                 ]
             ],
             [
                 "change_background",
-                [
-                    "Town"
-                ],
                 [
                     "Town"
                 ]
@@ -4470,9 +2978,6 @@
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
@@ -4481,19 +2986,10 @@
                     "Woman2",
                     "Right",
                     "no_block"
-                ],
-                [
-                    "Woman2",
-                    "Right",
-                    "no_block"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "{unit}",
-                    "Left"
-                ],
                 [
                     "{unit}",
                     "Left"
@@ -4504,17 +3000,10 @@
                 [
                     "Woman2",
                     "The most wonderful man rescued me.|He was dressed like a mercenary, but he had an air of elegance about him...|He gave me this elixir. I'm sure it will help you on the battlefield."
-                ],
-                [
-                    "Woman2",
-                    "The most wonderful man rescued me.|He was dressed like a mercenary, but he had an air of elegance about him...|He gave me this elixir. I'm sure it will help you on the battlefield."
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
@@ -4523,31 +3012,20 @@
                 "show_layer",
                 [
                     "Village2"
-                ],
-                [
-                    "Village2"
                 ]
             ],
             [
                 "change_background",
-                [],
                 []
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "give_item",
-                [
-                    "{unit}",
-                    "Elixir"
-                ],
                 [
                     "{unit}",
                     "Elixir"
@@ -4567,16 +3045,10 @@
                 "transition",
                 [
                     "Close"
-                ],
-                [
-                    "Close"
                 ]
             ],
             [
                 "change_background",
-                [
-                    "Town"
-                ],
                 [
                     "Town"
                 ]
@@ -4585,9 +3057,6 @@
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
@@ -4596,19 +3065,10 @@
                     "Man3",
                     "Right",
                     "no_block"
-                ],
-                [
-                    "Man3",
-                    "Right",
-                    "no_block"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "{unit}",
-                    "Left"
-                ],
                 [
                     "{unit}",
                     "Left"
@@ -4619,17 +3079,10 @@
                 [
                     "Man3",
                     "Hm? What is it? What's all the ruckus?|What? B-bandits?!|Spread the word, everyone!{br}Close the village gates!|Thank you for your warning.{br}Please, accept this small token."
-                ],
-                [
-                    "Man3",
-                    "Hm? What is it? What's all the ruckus?|What? B-bandits?!|Spread the word, everyone!{br}Close the village gates!|Thank you for your warning.{br}Please, accept this small token."
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
@@ -4638,31 +3091,20 @@
                 "show_layer",
                 [
                     "Village3"
-                ],
-                [
-                    "Village3"
                 ]
             ],
             [
                 "change_background",
-                [],
                 []
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "give_item",
-                [
-                    "{unit}",
-                    "Pure Water"
-                ],
                 [
                     "{unit}",
                     "Pure Water"
@@ -4684,19 +3126,10 @@
                     "Ross",
                     "Left",
                     "no_block"
-                ],
-                [
-                    "Ross",
-                    "Left",
-                    "no_block"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Garcia",
-                    "Right"
-                ],
                 [
                     "Garcia",
                     "Right"
@@ -4706,17 +3139,10 @@
                 "bop_portrait",
                 [
                     "Ross"
-                ],
-                [
-                    "Ross"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "Dad!"
-                ],
                 [
                     "Ross",
                     "Dad!"
@@ -4727,18 +3153,10 @@
                 [
                     "Garcia",
                     "Ross?! Boy, what did I tell you!? What are you doing here?|Don't worry about me. Hurry up and get yourself to safety!"
-                ],
-                [
-                    "Garcia",
-                    "Ross?! Boy, what did I tell you!? What are you doing here?|Don't worry about me. Hurry up and get yourself to safety!"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "Did you really think I could just run away while you fight, Dad?|You taught me that fighters fight for what's important to them!|There's no way I'm leaving!{br}I'm fighting just like you!"
-                ],
                 [
                     "Ross",
                     "Did you really think I could just run away while you fight, Dad?|You taught me that fighters fight for what's important to them!|There's no way I'm leaving!{br}I'm fighting just like you!"
@@ -4749,10 +3167,6 @@
                 [
                     "Garcia",
                     "Ross...|All right, listen to me. We'll cut our way out of here together!"
-                ],
-                [
-                    "Garcia",
-                    "Ross...|All right, listen to me. We'll cut our way out of here together!"
                 ]
             ],
             [
@@ -4760,27 +3174,16 @@
                 [
                     "Ross",
                     "no_block"
-                ],
-                [
-                    "Ross",
-                    "no_block"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Garcia"
-                ],
                 [
                     "Garcia"
                 ]
             ],
             [
                 "change_team",
-                [
-                    "Garcia",
-                    "player"
-                ],
                 [
                     "Garcia",
                     "player"
@@ -4800,18 +3203,10 @@
                 "move_cursor",
                 [
                     "1,9"
-                ],
-                [
-                    "1,9"
                 ]
             ],
             [
                 "spawn_group",
-                [
-                    "BanditReinforcements",
-                    "West",
-                    "BanditReinforcements"
-                ],
                 [
                     "BanditReinforcements",
                     "West",
@@ -4833,10 +3228,6 @@
                 [
                     "Bone",
                     "Left"
-                ],
-                [
-                    "Bone",
-                    "Left"
                 ]
             ],
             [
@@ -4844,17 +3235,10 @@
                 [
                     "Bone",
                     "Wait a minute!{br}Wh-who are you?"
-                ],
-                [
-                    "Bone",
-                    "Wait a minute!{br}Wh-who are you?"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Bone"
-                ],
                 [
                     "Bone"
                 ]
@@ -4874,10 +3258,6 @@
                 [
                     "Bone",
                     "Left"
-                ],
-                [
-                    "Bone",
-                    "Left"
                 ]
             ],
             [
@@ -4885,17 +3265,10 @@
                 [
                     "Bone",
                     "Urgh... Blast..."
-                ],
-                [
-                    "Bone",
-                    "Urgh... Blast..."
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Bone"
-                ],
                 [
                     "Bone"
                 ]
@@ -4914,16 +3287,10 @@
                 "transition",
                 [
                     "Close"
-                ],
-                [
-                    "Close"
                 ]
             ],
             [
                 "comment",
-                [
-                    "# Just in case Garcia hasn't been recruited yet"
-                ],
                 [
                     "# Just in case Garcia hasn't been recruited yet"
                 ]
@@ -4933,17 +3300,10 @@
                 [
                     "Garcia",
                     "player"
-                ],
-                [
-                    "Garcia",
-                    "player"
                 ]
             ],
             [
                 "change_background",
-                [
-                    "Clearing"
-                ],
                 [
                     "Clearing"
                 ]
@@ -4952,18 +3312,10 @@
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Seth",
-                    "MidLeft",
-                    "no_block"
-                ],
                 [
                     "Seth",
                     "MidLeft",
@@ -4976,11 +3328,6 @@
                     "Eirika",
                     "FarLeft",
                     "no_block"
-                ],
-                [
-                    "Eirika",
-                    "FarLeft",
-                    "no_block"
                 ]
             ],
             [
@@ -4988,10 +3335,6 @@
                 [
                     "Garcia",
                     "Right"
-                ],
-                [
-                    "Garcia",
-                    "Right"
                 ]
             ],
             [
@@ -4999,18 +3342,10 @@
                 [
                     "Garcia",
                     "You saved my son.{br}I owe you my thanks."
-                ],
-                [
-                    "Garcia",
-                    "You saved my son.{br}I owe you my thanks."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "It's not necessary..."
-                ],
                 [
                     "Eirika",
                     "It's not necessary..."
@@ -5022,11 +3357,6 @@
                     "Seth",
                     "...Hold on a moment...|Aren't you...the great Garcia?{br}You fought for Renais, didn't you?",
                     "low_priority"
-                ],
-                [
-                    "Seth",
-                    "...Hold on a moment...|Aren't you...the great Garcia?{br}You fought for Renais, didn't you?",
-                    "low_priority"
                 ]
             ],
             [
@@ -5034,18 +3364,10 @@
                 [
                     "Garcia",
                     "......"
-                ],
-                [
-                    "Garcia",
-                    "......"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Seth, do you know this man?"
-                ],
                 [
                     "Eirika",
                     "Seth, do you know this man?"
@@ -5057,19 +3379,10 @@
                     "Seth",
                     "He was a troop commander for Renais until around ten years ago.|When I was a recruit, the soldiers used to tell so many tales about him.|They called him a daring and fearless fighter for Renais.{w}{clear}Master Garcia, you must know the peril our homeland faces right now...|Can we impose upon you to lend your strength to Renais once again?",
                     "low_priority"
-                ],
-                [
-                    "Seth",
-                    "He was a troop commander for Renais until around ten years ago.|When I was a recruit, the soldiers used to tell so many tales about him.|They called him a daring and fearless fighter for Renais.{w}{clear}Master Garcia, you must know the peril our homeland faces right now...|Can we impose upon you to lend your strength to Renais once again?",
-                    "low_priority"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Garcia",
-                    "...I'm sorry. I'm retired now.|I'm not a soldier anymore. It's... a decision I made long ago."
-                ],
                 [
                     "Garcia",
                     "...I'm sorry. I'm retired now.|I'm not a soldier anymore. It's... a decision I made long ago."
@@ -5081,19 +3394,10 @@
                     "Seth",
                     "Master Garcia...",
                     "low_priority"
-                ],
-                [
-                    "Seth",
-                    "Master Garcia...",
-                    "low_priority"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Garcia",
-                    "...When I was a soldier, I lived my life fighting for my country's honor.|I left no time for my family.|I spent my life fighting for faceless, uncaring nobles.{w}{clear}When my wife fell ill and died, I met the child she had left behind...|At that moment, I finally realized what my duty had cost me."
-                ],
                 [
                     "Garcia",
                     "...When I was a soldier, I lived my life fighting for my country's honor.|I left no time for my family.|I spent my life fighting for faceless, uncaring nobles.{w}{clear}When my wife fell ill and died, I met the child she had left behind...|At that moment, I finally realized what my duty had cost me."
@@ -5104,18 +3408,10 @@
                 [
                     "Eirika",
                     "......"
-                ],
-                [
-                    "Eirika",
-                    "......"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Garcia",
-                    "I stood at my wife's grave and promised her I would be a father to our son.|I'm done with armies. I'm done with fighting, except to protect my son.|I've no regrets. I'm the boy's father."
-                ],
                 [
                     "Garcia",
                     "I stood at my wife's grave and promised her I would be a father to our son.|I'm done with armies. I'm done with fighting, except to protect my son.|I've no regrets. I'm the boy's father."
@@ -5127,11 +3423,6 @@
                     "Seth",
                     "......",
                     "low_priority"
-                ],
-                [
-                    "Seth",
-                    "......",
-                    "low_priority"
                 ]
             ],
             [
@@ -5139,26 +3430,16 @@
                 [
                     "Seth",
                     "Princess, are you injured?"
-                ],
-                [
-                    "Seth",
-                    "Princess, are you injured?"
                 ]
             ],
             [
                 "remove_portrait",
                 [
                     "Eirika"
-                ],
-                [
-                    "Eirika"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Seth"
-                ],
                 [
                     "Seth"
                 ]
@@ -5169,19 +3450,10 @@
                     "Ross",
                     "OffscreenLeft",
                     "immediate"
-                ],
-                [
-                    "Ross",
-                    "OffscreenLeft",
-                    "immediate"
                 ]
             ],
             [
                 "move_portrait",
-                [
-                    "Ross",
-                    "Left"
-                ],
                 [
                     "Ross",
                     "Left"
@@ -5192,10 +3464,6 @@
                 [
                     "Ross",
                     "You...you blasted fool!|Father, what's all this nonsense I'm hearing?"
-                ],
-                [
-                    "Ross",
-                    "You...you blasted fool!|Father, what's all this nonsense I'm hearing?"
                 ]
             ],
             [
@@ -5203,18 +3471,10 @@
                 [
                     "Garcia",
                     "Ross!"
-                ],
-                [
-                    "Garcia",
-                    "Ross!"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "If you're not going, then I will!|I'm a fighter!{br}I know I can do this!"
-                ],
                 [
                     "Ross",
                     "If you're not going, then I will!|I'm a fighter!{br}I know I can do this!"
@@ -5225,18 +3485,10 @@
                 [
                     "Garcia",
                     "MidRight"
-                ],
-                [
-                    "Garcia",
-                    "MidRight"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Garcia",
-                    "Ross, what are you saying?{br}I..."
-                ],
                 [
                     "Garcia",
                     "Ross, what are you saying?{br}I..."
@@ -5247,18 +3499,10 @@
                 [
                     "Ross",
                     "Dad, please! Listen to me!|I respect you more than any other man in the world.|I know you gave up being a soldier for me. I know that!|But how can you throw away such a big part of yourself?|You're a warrior at heart! You can't give that up and be happy!"
-                ],
-                [
-                    "Ross",
-                    "Dad, please! Listen to me!|I respect you more than any other man in the world.|I know you gave up being a soldier for me. I know that!|But how can you throw away such a big part of yourself?|You're a warrior at heart! You can't give that up and be happy!"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Garcia",
-                    "......"
-                ],
                 [
                     "Garcia",
                     "......"
@@ -5269,18 +3513,10 @@
                 [
                     "Ross",
                     "Look at me, Dad!{br}Have you seen me fight?|I'm not a child anymore.{br}I'm a warrior, like you.|You're free to worry, but I can survive on my own."
-                ],
-                [
-                    "Ross",
-                    "Look at me, Dad!{br}Have you seen me fight?|I'm not a child anymore.{br}I'm a warrior, like you.|You're free to worry, but I can survive on my own."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Garcia",
-                    "...Ross."
-                ],
                 [
                     "Garcia",
                     "...Ross."
@@ -5290,17 +3526,10 @@
                 "bop_portrait",
                 [
                     "Ross"
-                ],
-                [
-                    "Ross"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "You want to challenge me, Father?|I'm a fighter! The best in all of Ide!|I'm not going to lose to you!{br}I'm not going to lose to anyone!"
-                ],
                 [
                     "Ross",
                     "You want to challenge me, Father?|I'm a fighter! The best in all of Ide!|I'm not going to lose to you!{br}I'm not going to lose to anyone!"
@@ -5311,10 +3540,6 @@
                 [
                     "Ross",
                     "Smile"
-                ],
-                [
-                    "Ross",
-                    "Smile"
                 ]
             ],
             [
@@ -5322,18 +3547,10 @@
                 [
                     "Garcia",
                     "Smile"
-                ],
-                [
-                    "Garcia",
-                    "Smile"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Garcia",
-                    "...You're right.|You're a good soldier, Ross."
-                ],
                 [
                     "Garcia",
                     "...You're right.|You're a good soldier, Ross."
@@ -5343,18 +3560,10 @@
                 "remove_portrait",
                 [
                     "Ross"
-                ],
-                [
-                    "Ross"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Eirika",
-                    "MidLeft",
-                    "no_block"
-                ],
                 [
                     "Eirika",
                     "MidLeft",
@@ -5366,18 +3575,10 @@
                 [
                     "Seth",
                     "FarLeft"
-                ],
-                [
-                    "Seth",
-                    "FarLeft"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Garcia",
-                    "Sir Seth...|If these old bones of mine can still serve, I'd like to join you."
-                ],
                 [
                     "Garcia",
                     "Sir Seth...|If these old bones of mine can still serve, I'd like to join you."
@@ -5388,18 +3589,10 @@
                 [
                     "Ross",
                     "FarRight"
-                ],
-                [
-                    "Ross",
-                    "FarRight"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "Dad..."
-                ],
                 [
                     "Ross",
                     "Dad..."
@@ -5410,10 +3603,6 @@
                 [
                     "Garcia",
                     "Looks like my boy grew up while I wasn't looking...|He's tougher than I thought. He doesn't need my help.|I've raised him as best I could, but he's right.|I've nothing to fear. I should fight. I will fight."
-                ],
-                [
-                    "Garcia",
-                    "Looks like my boy grew up while I wasn't looking...|He's tougher than I thought. He doesn't need my help.|I've raised him as best I could, but he's right.|I've nothing to fear. I should fight. I will fight."
                 ]
             ],
             [
@@ -5421,18 +3610,10 @@
                 [
                     "Ross",
                     "Dad!"
-                ],
-                [
-                    "Ross",
-                    "Dad!"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Ross",
-                    "no_block"
-                ],
                 [
                     "Ross",
                     "no_block"
@@ -5443,10 +3624,6 @@
                 [
                     "Garcia",
                     "no_block"
-                ],
-                [
-                    "Garcia",
-                    "no_block"
                 ]
             ],
             [
@@ -5454,26 +3631,16 @@
                 [
                     "Eirika",
                     "no_block"
-                ],
-                [
-                    "Eirika",
-                    "no_block"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Seth"
-                ],
                 [
                     "Seth"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close"
-                ],
                 [
                     "Close"
                 ]
@@ -5482,27 +3649,16 @@
                 "change_background",
                 [
                     "TownSunset"
-                ],
-                [
-                    "TownSunset"
                 ]
             ],
             [
                 "transition",
                 [
                     "Open"
-                ],
-                [
-                    "Open"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Eirika",
-                    "Left",
-                    "no_block"
-                ],
                 [
                     "Eirika",
                     "Left",
@@ -5514,18 +3670,10 @@
                 [
                     "Man2",
                     "Right"
-                ],
-                [
-                    "Man2",
-                    "Right"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Man2",
-                    "Thank you so much for your help. Please stay the night and rest..."
-                ],
                 [
                     "Man2",
                     "Thank you so much for your help. Please stay the night and rest..."
@@ -5536,18 +3684,10 @@
                 [
                     "Eirika",
                     "We would if we could, but we have much to do and far to travel.|Your safety is reward enough."
-                ],
-                [
-                    "Eirika",
-                    "We would if we could, but we have much to do and far to travel.|Your safety is reward enough."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Man2",
-                    "Ah, well...|My, tht is a splendid bracelet you're wearing."
-                ],
                 [
                     "Man2",
                     "Ah, well...|My, tht is a splendid bracelet you're wearing."
@@ -5558,18 +3698,10 @@
                 [
                     "Eirika",
                     "Thank you. My father gave this to me."
-                ],
-                [
-                    "Eirika",
-                    "Thank you. My father gave this to me."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Man2",
-                    "It's a wonderful gift.|But you should be careful, wearing such a valuable item so openly.|Since Renais was invaded, things have become so dangerous around here.|There are gold-hungry thieves and bandits everywhere.{w}{clear}The most wicked ae Bazba's Bandits. They are...cruel beyond words.|If you have something they want, your life is worth less than nothing.|Just the other day they assaulted some travelers and... Oh, it was awful."
-                ],
                 [
                     "Man2",
                     "It's a wonderful gift.|But you should be careful, wearing such a valuable item so openly.|Since Renais was invaded, things have become so dangerous around here.|There are gold-hungry thieves and bandits everywhere.{w}{clear}The most wicked ae Bazba's Bandits. They are...cruel beyond words.|If you have something they want, your life is worth less than nothing.|Just the other day they assaulted some travelers and... Oh, it was awful."
@@ -5580,10 +3712,6 @@
                 [
                     "Eirika",
                     "I...I can't believe such things..."
-                ],
-                [
-                    "Eirika",
-                    "I...I can't believe such things..."
                 ]
             ],
             [
@@ -5591,18 +3719,10 @@
                 [
                     "Man2",
                     "Oh, Renais is finished, mark my words.{br}The Grado Empire's stolen our future.|Our only hope against them was that Prince Ephraim would prevail, but...|Rumor has it that he's on the verge of being crushed by Grado's vast numbers.|These are dark days. Travel with care."
-                ],
-                [
-                    "Man2",
-                    "Oh, Renais is finished, mark my words.{br}The Grado Empire's stolen our future.|Our only hope against them was that Prince Ephraim would prevail, but...|Rumor has it that he's on the verge of being crushed by Grado's vast numbers.|These are dark days. Travel with care."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "......"
-                ],
                 [
                     "Eirika",
                     "......"
@@ -5612,17 +3732,10 @@
                 "comment",
                 [
                     "# Fade to night"
-                ],
-                [
-                    "# Fade to night"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close",
-                    "750"
-                ],
                 [
                     "Close",
                     "750"
@@ -5632,17 +3745,10 @@
                 "change_background",
                 [
                     "ForestDark"
-                ],
-                [
-                    "ForestDark"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Open",
-                    "750"
-                ],
                 [
                     "Open",
                     "750"
@@ -5653,10 +3759,6 @@
                 [
                     "Eirika",
                     "MidLeft"
-                ],
-                [
-                    "Eirika",
-                    "MidLeft"
                 ]
             ],
             [
@@ -5664,19 +3766,10 @@
                 [
                     "Eirika",
                     "Ephraim..."
-                ],
-                [
-                    "Eirika",
-                    "Ephraim..."
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close",
-                    "2000",
-                    "248,248,248"
-                ],
                 [
                     "Close",
                     "2000",
@@ -5687,18 +3780,10 @@
                 "change_background",
                 [
                     "CastleSepia"
-                ],
-                [
-                    "CastleSepia"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Open",
-                    "2000",
-                    "248,248,248"
-                ],
                 [
                     "Open",
                     "2000",
@@ -5709,27 +3794,16 @@
                 "location_card",
                 [
                     "3 years ago"
-                ],
-                [
-                    "3 years ago"
                 ]
             ],
             [
                 "wait",
                 [
                     "2000"
-                ],
-                [
-                    "2000"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "EphraimSepia",
-                    "Left",
-                    "no_block"
-                ],
                 [
                     "EphraimSepia",
                     "Left",
@@ -5741,18 +3815,10 @@
                 [
                     "EirikaSepia",
                     "Right"
-                ],
-                [
-                    "EirikaSepia",
-                    "Right"
                 ]
             ],
             [
                 "speak",
-                [
-                    "EphraimSepia",
-                    "It's time to start.{br}Are you ready, Eirika?"
-                ],
                 [
                     "EphraimSepia",
                     "It's time to start.{br}Are you ready, Eirika?"
@@ -5763,18 +3829,10 @@
                 [
                     "EirikaSepia",
                     "Yes, Ephraim.{br}Let's begin."
-                ],
-                [
-                    "EirikaSepia",
-                    "Yes, Ephraim.{br}Let's begin."
                 ]
             ],
             [
                 "speak",
-                [
-                    "EphraimSepia",
-                    "Tell me, though: why do you want me to teach you to fight?|I thought you didn't care for violence..."
-                ],
                 [
                     "EphraimSepia",
                     "Tell me, though: why do you want me to teach you to fight?|I thought you didn't care for violence..."
@@ -5785,18 +3843,10 @@
                 [
                     "EirikaSepia",
                     "I do not like uncivilized behaviour.|I think one can solve one's problems without fighting.|And yet..."
-                ],
-                [
-                    "EirikaSepia",
-                    "I do not like uncivilized behaviour.|I think one can solve one's problems without fighting.|And yet..."
                 ]
             ],
             [
                 "speak",
-                [
-                    "EphraimSepia",
-                    "And yet what?"
-                ],
                 [
                     "EphraimSepia",
                     "And yet what?"
@@ -5807,18 +3857,10 @@
                 [
                     "EirikaSepia",
                     "I've always relied on your to protect me, Brother.|I would rather not be such a burden to you in the future.|So, I thought maybe I should learn to protect myself..."
-                ],
-                [
-                    "EirikaSepia",
-                    "I've always relied on your to protect me, Brother.|I would rather not be such a burden to you in the future.|So, I thought maybe I should learn to protect myself..."
                 ]
             ],
             [
                 "speak",
-                [
-                    "EphraimSepia",
-                    "I'm your brother. Brothers are supposed to protect their sisters.|It's nothing for you to worry about. It's no cause for concern."
-                ],
                 [
                     "EphraimSepia",
                     "I'm your brother. Brothers are supposed to protect their sisters.|It's nothing for you to worry about. It's no cause for concern."
@@ -5829,10 +3871,6 @@
                 [
                     "EirikaSepia",
                     "Yes, but...|I am your sister. Sisters are supposed to worry about their brothers.{w}{clear}So I would like to learn something of swordplay, if only a little.|And maybe, someday, I can protect you in your time of need...|So please, Ephraim."
-                ],
-                [
-                    "EirikaSepia",
-                    "Yes, but...|I am your sister. Sisters are supposed to worry about their brothers.{w}{clear}So I would like to learn something of swordplay, if only a little.|And maybe, someday, I can protect you in your time of need...|So please, Ephraim."
                 ]
             ],
             [
@@ -5840,18 +3878,10 @@
                 [
                     "EphraimSepia",
                     "All right, all right. How could I say no?|Honestly, once you get an idea into your head, that's it. I might as well give in.{w}{clear}It's agreed. I'll teach you, but I won't hold back because you're my sister.|And I want no complaining once we've starting, Eirika."
-                ],
-                [
-                    "EphraimSepia",
-                    "All right, all right. How could I say no?|Honestly, once you get an idea into your head, that's it. I might as well give in.{w}{clear}It's agreed. I'll teach you, but I won't hold back because you're my sister.|And I want no complaining once we've starting, Eirika."
                 ]
             ],
             [
                 "speak",
-                [
-                    "EirikaSepia",
-                    "Complain? Me? Never!"
-                ],
                 [
                     "EirikaSepia",
                     "Complain? Me? Never!"
@@ -5859,11 +3889,6 @@
             ],
             [
                 "transition",
-                [
-                    "Close",
-                    "2000",
-                    "248,248,248"
-                ],
                 [
                     "Close",
                     "2000",
@@ -5874,18 +3899,10 @@
                 "change_background",
                 [
                     "ForestDark"
-                ],
-                [
-                    "ForestDark"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Open",
-                    "2000",
-                    "248,248,248"
-                ],
                 [
                     "Open",
                     "2000",
@@ -5897,18 +3914,10 @@
                 [
                     "Eirika",
                     "MidLeft"
-                ],
-                [
-                    "Eirika",
-                    "MidLeft"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "......"
-                ],
                 [
                     "Eirika",
                     "......"
@@ -5918,18 +3927,10 @@
                 "comment",
                 [
                     "# Colm arrives"
-                ],
-                [
-                    "# Colm arrives"
                 ]
             ],
             [
                 "add_portrait",
-                [
-                    "Colm",
-                    "OffscreenLeft",
-                    "immediate"
-                ],
                 [
                     "Colm",
                     "OffscreenLeft",
@@ -5941,18 +3942,10 @@
                 [
                     "Colm",
                     "FarLeft"
-                ],
-                [
-                    "Colm",
-                    "FarLeft"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Colm",
-                    "Oops! Beg your pardon."
-                ],
                 [
                     "Colm",
                     "Oops! Beg your pardon."
@@ -5962,17 +3955,10 @@
                 "bop_portrait",
                 [
                     "Eirika"
-                ],
-                [
-                    "Eirika"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Hey!"
-                ],
                 [
                     "Eirika",
                     "Hey!"
@@ -5983,18 +3969,10 @@
                 [
                     "Colm",
                     "OffscreenRight"
-                ],
-                [
-                    "Colm",
-                    "OffscreenRight"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Colm",
-                    "immediate"
-                ],
                 [
                     "Colm",
                     "immediate"
@@ -6005,18 +3983,10 @@
                 [
                     "Seth",
                     "Right"
-                ],
-                [
-                    "Seth",
-                    "Right"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Seth",
-                    "Princess, are you all right?"
-                ],
                 [
                     "Seth",
                     "Princess, are you all right?"
@@ -6027,18 +3997,10 @@
                 [
                     "Eirika",
                     "Y-yes... Someone bumped into me is all. I was jarred."
-                ],
-                [
-                    "Eirika",
-                    "Y-yes... Someone bumped into me is all. I was jarred."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Seth",
-                    "Hm?{br}Your Higness, where is your bracelet?"
-                ],
                 [
                     "Seth",
                     "Hm?{br}Your Higness, where is your bracelet?"
@@ -6049,18 +4011,10 @@
                 [
                     "Eirika",
                     "My bracelet?{br}It's...gone.|Where could it be?{br}Did that man--"
-                ],
-                [
-                    "Eirika",
-                    "My bracelet?{br}It's...gone.|Where could it be?{br}Did that man--"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Seth",
-                    "I'll find him!"
-                ],
                 [
                     "Seth",
                     "I'll find him!"
@@ -6071,10 +4025,6 @@
                 [
                     "Eirika",
                     "Don't worry about it, Seth.|That bracelet was a gift from my father, but Ephraim needs our help.|I can't let setnimentality get in the way of my duty."
-                ],
-                [
-                    "Eirika",
-                    "Don't worry about it, Seth.|That bracelet was a gift from my father, but Ephraim needs our help.|I can't let setnimentality get in the way of my duty."
                 ]
             ],
             [
@@ -6082,10 +4032,6 @@
                 [
                     "Seth",
                     "No, Princess... We must retrieve your bracelet regardless of cost.|You cannot lose it. Let's go.{br}We must hurry."
-                ],
-                [
-                    "Seth",
-                    "No, Princess... We must retrieve your bracelet regardless of cost.|You cannot lose it. Let's go.{br}We must hurry."
                 ]
             ],
             [
@@ -6093,28 +4039,16 @@
                 [
                     "Eirika",
                     "no_block"
-                ],
-                [
-                    "Eirika",
-                    "no_block"
                 ]
             ],
             [
                 "remove_portrait",
-                [
-                    "Seth"
-                ],
                 [
                     "Seth"
                 ]
             ],
             [
                 "transition",
-                [
-                    "Close",
-                    "250",
-                    "0,0,0"
-                ],
                 [
                     "Close",
                     "250",
@@ -6147,12 +4081,6 @@
                     "Right",
                     "Eirika",
                     "Left"
-                ],
-                [
-                    "Ross",
-                    "Right",
-                    "Eirika",
-                    "Left"
                 ]
             ],
             [
@@ -6160,18 +4088,10 @@
                 [
                     "Ross",
                     "Hello"
-                ],
-                [
-                    "Ross",
-                    "Hello"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Eirika",
-                    "Hi"
-                ],
                 [
                     "Eirika",
                     "Hi"
@@ -6179,9 +4099,6 @@
             ],
             [
                 "change_roaming_unit",
-                [
-                    "Eirika"
-                ],
                 [
                     "Eirika"
                 ]
@@ -6201,18 +4118,10 @@
                 [
                     "Ross",
                     "Left"
-                ],
-                [
-                    "Ross",
-                    "Left"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "Huh, what's this?"
-                ],
                 [
                     "Ross",
                     "Huh, what's this?"
@@ -6223,18 +4132,10 @@
                 [
                     "Narrator",
                     "Ross kneels down, nearly touching the bones.{w}{br}A skull, a few ribs,{w} and a mysterious belt lay against the wall.{w}{br}These are, without a doubt, human remains."
-                ],
-                [
-                    "Narrator",
-                    "Ross kneels down, nearly touching the bones.{w}{br}A skull, a few ribs,{w} and a mysterious belt lay against the wall.{w}{br}These are, without a doubt, human remains."
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "They look like they've been here forever...{w}{br}What's this belt?{w}{br}It almost looks like it's all iron!{w}{br}I can't wait to show Emelia all of this."
-                ],
                 [
                     "Ross",
                     "They look like they've been here forever...{w}{br}What's this belt?{w}{br}It almost looks like it's all iron!{w}{br}I can't wait to show Emelia all of this."
@@ -6244,25 +4145,16 @@
                 "show_layer",
                 [
                     "exit"
-                ],
-                [
-                    "exit"
                 ]
             ],
             [
                 "music",
                 [
                     "30Silence"
-                ],
-                [
-                    "30Silence"
                 ]
             ],
             [
                 "sound",
-                [
-                    "Knight Step"
-                ],
                 [
                     "Knight Step"
                 ]
@@ -6271,26 +4163,16 @@
                 "wait",
                 [
                     "100"
-                ],
-                [
-                    "100"
                 ]
             ],
             [
                 "sound",
                 [
                     "Knight Step"
-                ],
-                [
-                    "Knight Step"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "Oh, not-{w} gah!"
-                ],
                 [
                     "Ross",
                     "Oh, not-{w} gah!"
@@ -6301,17 +4183,10 @@
                 [
                     "Narrator",
                     "Throwing the belt around his waist,{w} Ross quickly begins to back up."
-                ],
-                [
-                    "Narrator",
-                    "Throwing the belt around his waist,{w} Ross quickly begins to back up."
                 ]
             ],
             [
                 "sound",
-                [
-                    "Knight Step"
-                ],
                 [
                     "Knight Step"
                 ]
@@ -6320,16 +4195,10 @@
                 "wait",
                 [
                     "100"
-                ],
-                [
-                    "100"
                 ]
             ],
             [
                 "sound",
-                [
-                    "Knight Step"
-                ],
                 [
                     "Knight Step"
                 ]
@@ -6338,16 +4207,10 @@
                 "wait",
                 [
                     "100"
-                ],
-                [
-                    "100"
                 ]
             ],
             [
                 "sound",
-                [
-                    "Knight Step"
-                ],
                 [
                     "Knight Step"
                 ]
@@ -6357,17 +4220,10 @@
                 [
                     "Ross",
                     "Sword!{w} Right, here.{w} Draw it, just like Jarod taught-"
-                ],
-                [
-                    "Ross",
-                    "Sword!{w} Right, here.{w} Draw it, just like Jarod taught-"
                 ]
             ],
             [
                 "sound",
-                [
-                    "Knight Step"
-                ],
                 [
                     "Knight Step"
                 ]
@@ -6376,16 +4232,10 @@
                 "wait",
                 [
                     "100"
-                ],
-                [
-                    "100"
                 ]
             ],
             [
                 "sound",
-                [
-                    "Knight Step"
-                ],
                 [
                     "Knight Step"
                 ]
@@ -6394,16 +4244,10 @@
                 "wait",
                 [
                     "100"
-                ],
-                [
-                    "100"
                 ]
             ],
             [
                 "sound",
-                [
-                    "Knight Step"
-                ],
                 [
                     "Knight Step"
                 ]
@@ -6412,26 +4256,16 @@
                 "wait",
                 [
                     "100"
-                ],
-                [
-                    "100"
                 ]
             ],
             [
                 "sound",
-                [
-                    "Knight Step"
-                ],
                 [
                     "Knight Step"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "Focus.{w} Calm down, and focus."
-                ],
                 [
                     "Ross",
                     "Focus.{w} Calm down, and focus."
@@ -6441,9 +4275,6 @@
                 "add_group",
                 [
                     "Monsters"
-                ],
-                [
-                    "Monsters"
                 ]
             ],
             [
@@ -6451,18 +4282,10 @@
                 [
                     "103",
                     "10,7"
-                ],
-                [
-                    "103",
-                    "10,7"
                 ]
             ],
             [
                 "move_unit",
-                [
-                    "103",
-                    "11,8"
-                ],
                 [
                     "103",
                     "11,8"
@@ -6470,9 +4293,6 @@
             ],
             [
                 "change_roaming",
-                [
-                    "0"
-                ],
                 [
                     "0"
                 ]
@@ -6492,18 +4312,10 @@
                 [
                     "Ross",
                     "Left"
-                ],
-                [
-                    "Ross",
-                    "Left"
                 ]
             ],
             [
                 "speak",
-                [
-                    "Ross",
-                    "Hmm, I feel like there's more to do here.{w}{br} I should go check out those bones."
-                ],
                 [
                     "Ross",
                     "Hmm, I feel like there's more to do here.{w}{br} I should go check out those bones."
@@ -6513,16 +4325,10 @@
                 "add_group",
                 [
                     "Monsters2"
-                ],
-                [
-                    "Monsters2"
                 ]
             ],
             [
                 "change_roaming",
-                [
-                    "0"
-                ],
                 [
                     "0"
                 ]
@@ -6541,25 +4347,16 @@
                 "change_roaming",
                 [
                     "1"
-                ],
-                [
-                    "1"
                 ]
             ],
             [
                 "if",
                 [
                     "game.check_dead('Ross')"
-                ],
-                [
-                    "game.check_dead('Ross')"
                 ]
             ],
             [
                 "resurrect",
-                [
-                    "Ross"
-                ],
                 [
                     "Ross"
                 ]
@@ -6569,17 +4366,10 @@
                 [
                     "Ross",
                     "1"
-                ],
-                [
-                    "Ross",
-                    "1"
                 ]
             ],
             [
                 "clean_up_roaming",
-                [
-                    "1"
-                ],
                 [
                     "1"
                 ]
@@ -6596,11 +4386,6 @@
         "commands": [
             [
                 "give_skill",
-                [
-                    "{unit}",
-                    "Defensive Stance",
-                    "no_banner"
-                ],
                 [
                     "{unit}",
                     "Defensive Stance",

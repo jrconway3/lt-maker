@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Union
 
 from app.utilities import str_utils
-
 
 class MetricType(Enum):
   PIXEL = 0
@@ -68,3 +68,52 @@ class UIMetric():
     except Exception:
       # the input string was incorrectly formatted
       return cls(0, MetricType.PIXEL)
+
+  #################################
+  # magic methods for metric math #
+  ################################# 
+  def __add__(self, other: Union[UIMetric, float, int, str]):
+    if isinstance(other, str):
+      other = UIMetric.parse(str)
+    if isinstance(other, UIMetric):
+      if self.mtype == other.mtype:
+        return UIMetric(self.val + other.val, self.mtype)
+      else:
+        raise TypeError('UIMetrics not of same type')
+    elif isinstance(other, (float, int)):
+      return UIMetric(self.val + other, self.mtype)
+    
+  def __radd__(self, other):
+    return other + self
+    
+  def __sub__(self, other: Union[UIMetric, float, int, str]):
+    if isinstance(other, str):
+      other = UIMetric.parse(str)
+    if isinstance(other, UIMetric):
+      if self.mtype == other.mtype:
+        return UIMetric(self.val - other.val, self.mtype)
+      else:
+        raise TypeError('UIMetrics not of same type')
+    elif isinstance(other, (float, int)):
+      return UIMetric(self.val - other, self.mtype)
+    
+  def __rsub__(self, other):
+    if isinstance(other, str):
+      other = UIMetric.parse(str)
+    if isinstance(other, UIMetric):
+      if self.mtype == other.mtype:
+        return UIMetric(other.val - self.val, self.mtype)
+      else:
+        raise TypeError('UIMetrics not of same type')
+    elif isinstance(other, (float, int)):
+      return UIMetric(other - self.val, self.mtype)
+    
+  def __mul__(self, other: Union[float, int]):
+    if isinstance(other, (float, int)):
+      return UIMetric(self.val * other, self.mtype)
+    
+  def __rmul__(self, other: Union[float, int]):
+    return self * other
+  
+  def __truediv__(self, other: Union[float, int]):
+    return self * (1 / other)

@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Tuple, Union
 
+from app.engine import engine, text_funcs
 from app.engine.bmpfont import BmpFont
-from app.engine import engine
 from app.engine.fonts import FONT
 from app.engine.graphics.ui_framework.ui_framework_styling import UIMetric
-from app.engine import text_funcs
+from app.utilities.utils import clamp
+
 if TYPE_CHECKING:
     from pygame import Surface
 
@@ -33,6 +34,7 @@ class TextComponent(UIComponent):
         self.text = text
         self.num_visible_chars = len(text)
         self.final_formatted_text = []
+        self.scrolled_line: float = 1
         
     @property
     def font_height(self) -> int:
@@ -60,7 +62,7 @@ class TextComponent(UIComponent):
 
         Args:
             line_break_size (str): pixel or percentage measure for how much space is between
-                the lines of text. Percentage measured in size of parent.
+            the lines of text. Percentage measured in size of parent.
         """
         self.props.line_break_size = line_break_size
         self._recalculate_size()
@@ -101,8 +103,7 @@ class TextComponent(UIComponent):
             else:
                 # if not, we can just do math with max width
                 # and the number of lines plus number of breaks
-                font_size = self.props.font.size(self.text)
-                height = num_lines * font_size[1] + (num_lines - 1) * self.line_break_size
+                height = num_lines * self.font_height + (num_lines - 1) * self.line_break_size
                 text_size = self.max_text_width, height
             self.size = (text_size[0] + 2 + self.padding[0] + self.padding[1],
                          text_size[1] + self.padding[2] + self.padding[3])
@@ -123,8 +124,8 @@ class TextComponent(UIComponent):
         at any given time. Useful for dialog.
 
         Args:
-            num_visible_chars (int): number of chars, starting from the beginnning
-                of the text, to display
+            num_visible_chars (int): number of chars, starting from the beginning
+            of the text, to display
         """
         self.num_visible_chars = num_chars_visible
 
@@ -152,9 +153,39 @@ class TextComponent(UIComponent):
             self.final_formatted_text = lines
         else:
             self.final_formatted_text = [self.text]
+    
+    @property
+    def scrollable_height(self):
+        height_of_max_lines = self.props.max_lines * self.font_height + (self.props.max_lines - 1) * self.line_break_size
+        return self.height - height_of_max_lines
+    
+    def _pixel_height_to_line(self, pixels):
+        return clamp(pixels / self.scrollable_height * len(self.final_formatted_text) + 1, 1, len(self.final_formatted_text))
+        
+    def scroll_to_nearest_line(self):
+        self.scrolled_line = round(self.scrolled_line)
+
+    def set_scroll_height(self, scroll_to: Union[int, float, str, UIMetric]):
+        """crops the text component to the place you want to scroll to. This supports
+        calculating the y-coord of a specific line or space between two lines (int, float), 
+        or a specific pixel or percentage (str, UIMetric)
+
+        Args:
+            scroll_to (Union[int, float, str, UIMetric]): location of scroll.
+        """
+        if isinstance(scroll_to, (int, float)):
+            scroll_to = clamp(scroll_to, 1, len(self.final_formatted_text))
+            self.scrolled_line = scroll_to
+        elif isinstance(scroll_to, str):
+            self.scrolled_line = self._pixel_height_to_line(UIMetric.parse(scroll_to).to_pixels(self.scrollable_height))
+        elif isinstance(scroll_to, UIMetric):
+            self.scrolled_line =  self._pixel_height_to_line(scroll_to.to_pixels(self.scrollable_height))
+        else:
+            self.scrolled_line = 1
 
     # @overrides UIComponent.to_surf
     def to_surf(self) -> Surface:
+        self._recalculate_size()
         if not self.enabled:
             return engine.create_surface(self.size, True)
         # draw the background.
@@ -167,4 +198,13 @@ class TextComponent(UIComponent):
             visible_line = line[:remaining_chars]
             remaining_chars -= len(visible_line)
             self.props.font.blit(visible_line, base_surf, pos=(self.padding[0], self.padding[2] + line_num * (self.line_break_size + self.font_height)))
-        return base_surf
+        
+        if self.props.max_lines > 0:
+            # crop the text to the max number of lines, to avoid overflow
+            scrolled_down_height = (self.scrolled_line - 1) * (self.font_height + self.line_break_size)
+            remaining_lines = min(self.props.max_lines, len(self.final_formatted_text) - self.scrolled_line + 1)
+            height_of_max_lines = remaining_lines * self.font_height + (remaining_lines - 1) * self.line_break_size
+            ret_surf = engine.subsurface(base_surf, (0, scrolled_down_height, self.width, height_of_max_lines))
+        else:
+            ret_surf = base_surf
+        return ret_surf

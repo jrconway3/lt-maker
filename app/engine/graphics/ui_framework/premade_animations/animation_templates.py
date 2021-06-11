@@ -1,15 +1,14 @@
 from __future__ import annotations
-from app.utilities.algorithms.interpolation import lerp, log_interp, tlerp, tlog_interp
-from enum import Enum
 
-from typing import List, Optional, TYPE_CHECKING, Callable, Dict, Tuple
+from typing import TYPE_CHECKING, Tuple
 
-from app.utilities.utils import (clamp, dot_product, magnitude, normalize, tclamp, tmult, tuple_add,
-                                 tuple_sub)
+from app.utilities.algorithms.interpolation import (lerp, log_interp, tlerp,
+                                                    tlog_interp)
+from app.utilities.utils import clamp
 
 if TYPE_CHECKING:
     from ..ui_framework import UIComponent
-    
+
 from ..ui_framework_animation import InterpolationType, UIAnimation
 
 """
@@ -48,11 +47,10 @@ def translate_anim(start_offset: Tuple[int, int], end_offset: Tuple[int, int],
         return anim_time >= duration
 
     def disable(c: UIComponent, *args):
-        c.offset = end_offset
         c.disable()
     
     if disable_after:
-        return UIAnimation(halt_condition=should_stop, before_anim=before_translation, do_anim=translate, after_anim=disable)
+        return UIAnimation(halt_condition=should_stop, before_anim=before_translation, do_anim=translate, after_anim=[after_translation, disable])
     else:
         return UIAnimation(halt_condition=should_stop, before_anim=before_translation, do_anim=translate, after_anim=after_translation)
 
@@ -117,20 +115,19 @@ def fade_anim(start_opacity: float, end_opacity: float,
         lerp_func = lambda a, b, t: log_interp(a, b, t, skew)
     start_opacity = clamp(start_opacity, 0, 1)
     end_opacity = clamp(end_opacity, 0, 1)
-    def before_translation(c: UIComponent, *args):
+    def before_fade(c: UIComponent, *args):
         c.props.opacity = start_opacity
-    def translate(c: UIComponent, anim_time):
+    def fade(c: UIComponent, anim_time):
         c.props.opacity = lerp_func(start_opacity, end_opacity, anim_time / duration)
-    def after_translation(c: UIComponent, *args):
+    def after_fade(c: UIComponent, *args):
         c.props.opacity = end_opacity
     def should_stop(c: UIComponent, anim_time) -> bool:
         return anim_time >= duration
 
     def disable(c: UIComponent, *args):
-        c.props.opacity = end_opacity
         c.disable()
     
     if disable_after:
-        return UIAnimation(halt_condition=should_stop, before_anim=before_translation, do_anim=translate, after_anim=disable)
+        return UIAnimation(halt_condition=should_stop, before_anim=before_fade, do_anim=fade, after_anim=[after_fade, disable])
     else:
-        return UIAnimation(halt_condition=should_stop, before_anim=before_translation, do_anim=translate, after_anim=after_translation)
+        return UIAnimation(halt_condition=should_stop, before_anim=before_fade, do_anim=fade, after_anim=after_fade)

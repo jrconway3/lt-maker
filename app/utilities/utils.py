@@ -2,6 +2,12 @@ import math
 from collections import Counter
 import colorsys, hashlib
 from operator import add, sub
+
+def frames_to_ms(num_frames: int) -> int:
+    """at 60 fps, each frame would happen in 16.67 ms"""
+    return int(16.67 * num_frames)
+frames2ms = frames_to_ms  # Alternate name
+
 class Multiset(Counter):
     def __contains__(self, item):
         return self[item] > 0
@@ -78,8 +84,11 @@ def tuple_sub(a: tuple, b: tuple) -> tuple:
 def tuple_add(a: tuple, b: tuple) -> tuple:
     return tuple(map(add, a, b))
 
+def magnitude(a: tuple) -> tuple:
+    return math.sqrt(a[0] * a[0] + a[1] * a[1])
+
 def normalize(a: tuple) -> tuple:
-    mag = math.sqrt(a[0] * a[0] + a[1] * a[1])
+    mag = magnitude(a)
     return (a[0] / mag, a[1] / mag)
 
 def tmult(a: tuple, b: float) -> tuple:

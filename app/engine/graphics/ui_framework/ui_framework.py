@@ -185,6 +185,24 @@ class UIComponent():
         self.cached_background = None
     
     @property
+    def max_width(self) -> int:
+        """Returns max width in pixels
+
+        Returns:
+            int: max width of component
+        """
+        return UIMetric.parse(self.props.max_width).to_pixels(self.parent.width)
+    
+    @property
+    def max_height(self) -> int:
+        """return max height in pixels
+
+        Returns:
+            int: max height of component
+        """
+        return UIMetric.parse(self.props.max_height).to_pixels(self.parent.height)
+    
+    @property
     def offset(self) -> Tuple[int, int]:
         """returns offset in pixels
 
@@ -327,7 +345,17 @@ class UIComponent():
             child (UIComponent): a child UIComponent
         """
         child.parent = self
+        child.set_chronometer(self._chronometer)
         self.children.append(child)
+        
+    def add_surf(self, surf: Surface, pos: Tuple[int, int]):
+        """Add a hard-coded surface to this component.
+
+        Args:
+            surf (Surface): A Surface
+            pos (Tuple[int, int]): the coordinate position of the top left of surface
+        """
+        self.manual_surfaces.append((pos, surf))
         
     def any_children_animating(self) -> bool:
         """Returns whether or not any children are currently in the middle of an animation.
@@ -356,7 +384,7 @@ class UIComponent():
         self.enabled = True
     
     @animated('!exit')
-    def exit(self) -> bool:
+    def exit(self, is_top_level=True) -> bool:
         """Makes the component exit, i.e. transitions it out
 
         Because of the @animated tag, will automatically queue
@@ -365,11 +393,20 @@ class UIComponent():
         
         This will also recursively exit any children.
         
+        Args:
+            is_top_level (bool): Whether or not this is the top level parent.
+            If not, then this will not actually disable. This is because if
+            you disable a top-level component, then you will never render its children
+            anyway; this will avoid graphical bugs such as children vanishing instantly
+            before the parent animates out.
+        
         Returns:
             bool: whether or not this is disabled, or is waiting on children to finish animating.
         """
         for child in self.children:
-            child.exit()
+            child.exit(False)
+        if not is_top_level:
+            return
         if self.any_children_animating() or len(self.queued_animations) > 0:
             # there's an animation playing; wait until afterwards to exit it
             self.queue_animation([toggle_anim(False)], force=True)
@@ -383,21 +420,10 @@ class UIComponent():
         for child in self.children:
             child.enable()
 
-    def disable(self):
+    def disable(self, is_top_level=True):
         """Does the same as exit(), except forgoes all animations.
         """
         self.enabled = False
-        for child in self.children:
-            child.disable()
-
-    def add_surf(self, surf: Surface, pos: Tuple[int, int]):
-        """Add a hard-coded surface to this component.
-
-        Args:
-            surf (Surface): A Surface
-            pos (Tuple[int, int]): the coordinate position of the top left of surface
-        """
-        self.manual_surfaces.append((pos, surf))
         
     def queue_animation(self, animations: List[UIAnimation] = [], names: List[str] = [], force: bool = False):
         """Queues a series of animations for the component. This method can be called with
@@ -411,7 +437,7 @@ class UIComponent():
             animation (List[UIAnimation], optional): A list of animations to queue. Defaults to [].
             name (List[str], optional): The names of saved animations. Defaults to [].
             force (bool, optional): Whether or not to queue this animation even if other animations are already playing. 
-                Defaults to False.
+            Defaults to False.
         """
         if not force and len(self.queued_animations) > 0:
             return
@@ -437,6 +463,14 @@ class UIComponent():
             self.saved_animations[name].append(animation)
         else:
             self.saved_animations[name] = [animation]
+        
+    def skip_animation(self):
+        """clears the animation queue by finishing all of them instantly. 
+        Useful for skip button implementation.
+        """
+        for anim in self.queued_animations:
+            anim.after_anim()
+        self.queued_animations = []
         
     def update(self):
         """update. used at the moment to advance animations.

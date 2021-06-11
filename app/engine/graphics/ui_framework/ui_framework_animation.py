@@ -4,11 +4,16 @@ from enum import Enum
 
 from typing import List, Optional, TYPE_CHECKING, Callable, Dict, Tuple
 
-from app.utilities.utils import (dot_product, normalize, tclamp, tmult, tuple_add,
+
+from app.utilities.utils import (dot_product, magnitude, normalize, tclamp, tmult, tuple_add,
                                  tuple_sub)
 
 if TYPE_CHECKING:
     from .ui_framework import UIComponent
+
+class InterpolationType(Enum):
+    LINEAR = 0
+    LOGARITHMIC = 1
 
 def animated(name: str):
     """Decorator that binds an animation to a function call. For example,
@@ -48,6 +53,10 @@ class UIAnimation():
             before_anim is called once, when the animation is begun (via animation.begin())
             do_anim is continuously called.
             after_anim is called once, when the animation ends (via the halt_condition())
+            
+            Generally, it is advised that after_anim contains the expected end state of a
+            component, as animations can be skipped, and do_anim is not guaranteed to be
+            called until halt_condition is satisfied.
     """
     def __init__(self, halt_condition: Callable[[UIComponent, int], bool] = None, 
                  before_anim:   List[Callable[[UIComponent, int]]] | Callable[[UIComponent, int]] = None, 
@@ -139,6 +148,8 @@ class UIAnimation():
                            self.before_anim + other.before_anim, 
                            self.do_anim + other.do_anim,
                            self.after_anim + other.after_anim)
+
+
 
 def hybridize_animation(anims: Dict[str, UIAnimation], keyfunction: Callable[[UIComponent], str]) -> UIAnimation:
     """Helper function for creating a switchable animation.

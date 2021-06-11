@@ -121,6 +121,7 @@ event_hooks = ('on_use', 'on_end_chapter', 'reverse_use',
                'on_equip_item', 'on_unequip_item', 'on_add_item', 'on_remove_item')
 
 combat_event_hooks = ('start_combat', 'end_combat')
+aesthetic_combat_hooks = ('battle_music', 'combat_effect')
 
 status_event_hooks = ('on_upkeep', 'on_endstep')
 
@@ -220,13 +221,14 @@ for hook in status_event_hooks:
         % (hook, hook, hook, hook, hook)
     exec(func)
 
-
-def battle_music(unit, item, target, mode):
+for hook in aesthetic_combat_hooks:
+    func = """def %s(unit, item, target, mode):
     for component in item.components:
-        if component.defines('battle_music'):
-            return component.battle_music(unit, item, target, mode)
-    return None
-
+        if component.defines('%s'):
+            return component.%s(unit, item, target, mode)
+    return None""" \
+        % (hook, hook, hook)
+    exec(func)
 
 def available(unit, item) -> bool:
     """

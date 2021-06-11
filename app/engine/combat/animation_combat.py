@@ -201,11 +201,15 @@ class AnimationCombat(BaseCombat):
         elif self.state == 'init_effects':
             if not self.left_battle_anim.effect_playing() and not self.right_battle_anim.effect_playing():
                 if self.right_item:
-                    effect = item_system.combat_effect(self.right, self.right_item, self.left)
-                    self.right_battle_anim.add_effect(effect)
+                    mode = 'attack' if self.right is self.attacker else 'defense'
+                    effect = item_system.combat_effect(self.right, self.right_item, self.left, mode)
+                    if effect:
+                        self.right_battle_anim.add_effect(effect)
                 elif self.left_item:
-                    effect = item_system.combat_effect(self.left, self.left_item, self.right)
-                    self.left_battle_anim.add_effect(effect)
+                    mode = 'attack' if self.left is self.attacker else 'defense'
+                    effect = item_system.combat_effect(self.left, self.left_item, self.right, mode)
+                    if effect:
+                        self.left_battle_anim.add_effect(effect)
                 else:
                     self.state = 'begin_phase'
 
@@ -307,6 +311,15 @@ class AnimationCombat(BaseCombat):
 
         if self.state != self.current_state:
             self.last_update = engine.get_time()
+
+        # Generic update stuff
+        # Update hp bars
+        self.left_hp_bar.update()
+        self.right_hp_bar.update()
+
+        # Update battle anims
+        self.left_battle_anim.update()
+        self.right_battle_anim.update()
 
         # Update shake
         if self.current_shake:

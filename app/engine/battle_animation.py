@@ -19,7 +19,7 @@ class BattleAnimation():
 
         self.poses = []  # TODO Generate poses  -- 
         # Copy Stand -> RangedStand and Dodge -> RangedDodge if missing
-        # Copy Attack -> Miss and Attack -> Critcal if missing
+        # Copy Attack -> Miss and Attack -> Critical if missing
         self.frame_directory = {}  # TODO Generate Frame directory
         self.current_pose = None
         self.current_palette = None
@@ -80,6 +80,7 @@ class BattleAnimation():
         self.personal_offset = (0, 0)
 
     def pair(self, owner, partner_anim, right, at_range, entrance_frames=0, position=None, parent=None):
+        print(self.unit.nid, "pair")
         self.owner = owner
         self.partner_anim = partner_anim
         self.parent = parent if parent else self
@@ -206,7 +207,9 @@ class BattleAnimation():
             self.skip_next_loop += 1
 
     def update(self):
+        print(self.unit.nid, self.state)
         if self.state == 'run':
+            print(self.current_pose)
             # Read script
             if self.frame_count >= self.num_frames:
                 self.processing = True
@@ -257,6 +260,7 @@ class BattleAnimation():
         self.under_child_effects = [child for child in self.under_child_effects if child.state != 'inert']
 
     def read_script(self):
+        print("read script")
         if not self.has_pose(self.current_pose):
             return
         script = self.poses[self.current_pose]
@@ -266,6 +270,7 @@ class BattleAnimation():
             self.script_idx += 1
 
     def run_command(self, command):
+        print(command.nid, command.values)
         self.in_basic_state = False
 
         values = command.values
@@ -466,6 +471,7 @@ class BattleAnimation():
         for child in self.under_child_effects:
             child.draw(surf, (0, 0), range_offset, pan_offset)
 
+        print(self.entrance_counter, self.entrance_frames)
         if self.current_frame is not None:
             image, offset = self.get_image(self.current_frame, shake, range_offset, pan_offset, self.static)
 

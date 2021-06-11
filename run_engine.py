@@ -47,10 +47,10 @@ if __name__ == '__main__':
     if not success:
         engine.terminate()
     try:
-        find_and_run_project()
+        # find_and_run_project()
         # main('lion_throne')        
         # test_play('lion_throne')
-        # test_play('sacred_stones')
+        test_play('sacred_stones')
     except Exception as e:
         logging.exception(e)
         inform_error()

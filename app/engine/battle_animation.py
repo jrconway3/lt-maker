@@ -7,7 +7,7 @@ from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, image_mods, item_system, item_funcs
 
-from app.resources.combat_anims import CombatAnimation, WeaponAnimation
+from app.resources.combat_anims import CombatAnimation, WeaponAnimation, EffectAnimation
 from app.resources.combat_palettes import Palette
 
 import logging
@@ -35,6 +35,9 @@ class BattleAnimation():
             engine.set_colorkey(anim_prefab.image, COLORKEY, rleaccel=True)
             for frame in anim_prefab.frames:
                 frame.image = engine.subsurface(anim_prefab.image, *frame.rect)
+
+        # Apply palette to frames
+        self.apply_palette()
 
         self.frame_directory = {frame.nid: frame for frame in anim_prefab.frames}
         
@@ -105,6 +108,12 @@ class BattleAnimation():
         if 'Critical' not in self.poses and 'Attack' in self.poses:
             self.poses['Critical'] = self.poses['Attack']
 
+    def apply_palette(self):
+        colors = self.current_palette.colors
+        conversion_dict = {(0, coord[0], coord[1]): (color[0], color[1], color[2]) for coord, color in colors.items()}
+        for frame in self.anim_prefab.frames:
+            frame.frame = image_mods.color_convert(engine.copy_surface(frame.image), conversion_dict)
+
     def pair(self, owner, partner_anim, right, at_range, entrance_frames=0, position=None, parent=None):
         print(self.unit.nid, "pair")
         self.owner = owner
@@ -127,6 +136,12 @@ class BattleAnimation():
             self.current_pose = 'RangedStand'
         else:
             self.current_pose = 'Stand'
+
+    def get_frame(self, frame_nid: str):
+        frame = self.frame_directory.get(frame_nid)
+        if frame:
+            return frame.frame  # Colorswapped image
+        return None
 
     def start_anim(self, pose):
         self.change_pose(pose)
@@ -174,7 +189,7 @@ class BattleAnimation():
         else:
             self.start_anim('Dodge')
 
-    def get_frames(self, num) -> int:
+    def get_num_frames(self, num) -> int:
         return max(1, int(int(num) * battle_anim_speed))
 
     def start_dying_animation(self):
@@ -200,6 +215,23 @@ class BattleAnimation():
     def screen_dodge(self, num_frames, color):
         self.screen_dodge_counter = num_frames
         self.screen_dodge_color = color
+
+    def get_effect(self, effect_nid: str, enemy: bool = False) -> EffectAnimation:
+        effect = RESOURCES.combat_effects.get(effect_nid)
+        if effect:
+            effect_palette_nids = [palette[1] for palette in effect.palettes]
+            if self.current_palette.nid in effect_palette_nids:
+                palette = self.current_palette
+            else:
+                first_palette_nid = effect.palettes[0][1]
+                palette = RESOURCES.combat_palettes.get(first_palette_nid)
+            child_effect = BattleAnimation(effect, palette, self.unit, self.item)
+            right = not self.right if enemy else self.right
+            parent = self.parent.partner_anim if enemy else self.parent
+            child_effect.pair(self.owner, self.partner_anim, right, self.at_range, parent=parent)
+            child_effect.start_anim(self.current_pose)
+            return child_effect
+        return None
 
     def add_effect(self, effect, pose=None):
         if pose and pose in effect.poses:
@@ -289,7 +321,7 @@ class BattleAnimation():
         print("read script")
         if not self.has_pose(self.current_pose):
             return
-        script = self.poses[self.current_pose]
+        script = self.poses[self.current_pose].timeline
         while self.script_idx < len(script) and self.processing:
             command = script[self.script_idx]
             self.run_command(command)
@@ -302,47 +334,44 @@ class BattleAnimation():
         values = command.values
         if command.nid == 'frame':
             self.frame_count = 0
-            self.num_frames = self.get_frames(values[0])
-            self.current_frame = self.frame_directory.get(values[1])
+            self.num_frames = self.get_num_frames(values[0])
+            self.current_frame = self.get_frame(values[1])
             self.under_frame = self.over_frame = None
             self.processing = False  # No more processing -- need to wait at least a frame
         elif command.nid == 'over_frame':
             self.frame_count = 0
-            self.num_frames = self.get_frames(values[0])
-            self.over_frame = self.frame_directory.get(values[1])
+            self.num_frames = self.get_num_frames(values[0])
+            self.over_frame = self.get_frame(values[1])
             self.under_frame = self.current_frame = None
             self.processing = False
         elif command.nid == 'under_frame':
             self.frame_count = 0
-            self.num_frames = self.get_frames(values[0])
-            self.under_frame = self.frame_directory.get(values[1])
+            self.num_frames = self.get_num_frames(values[0])
+            self.under_frame = self.get_frame(values[1])
             self.over_frame = self.current_frame = None
             self.processing = False
         elif command.nid == 'frame_with_offset':
             self.frame_count = 0
-            self.num_frames = self.get_frames(values[0])
-            self.current_frame = self.frame_directory.get(values[1])
+            self.num_frames = self.get_num_frames(values[0])
+            self.current_frame = self.get_frame(values[1])
             self.under_frame = self.over_frame = None
             self.processing = False
             self.personal_offset = (int(values[2]), int(values[3]))
         elif command.nid == 'dual_frame':
             self.frame_count = 0
-            self.num_frames = self.get_frames(values[0])
-            self.current_frame = self.frame_directory.get(values[1])
-            self.under_frame = self.frame_directory.get(values[1])
+            self.num_frames = self.get_num_frames(values[0])
+            self.current_frame = self.get_frame(values[1])
+            self.under_frame = self.get_frame(values[1])
             self.over_frame = None
             self.processing = False
         elif command.nid == 'wait':
             self.frame_count = 0
-            self.num_frames = self.get_frames(values[0])
+            self.num_frames = self.get_num_frames(values[0])
             self.current_frame = self.over_frame = self.under_frame = None
             self.processing = False  # No more processing -- need to wait at least a frame
 
         elif command.nid == 'sound':
             SOUNDTHREAD.play_sfx(values[0])
-        elif command.nid == 'random_sound':
-            sound = random.choice(values)
-            SOUNDTHREAD.play_sfx(sound)
         elif command.nid == 'stop_sound':
             SOUNDTHREAD.stop_sfx(values[0])
 
@@ -353,8 +382,8 @@ class BattleAnimation():
                 self.partner_anim.lr_offset = [-1, -2, -3, -2, -1]
         elif command.nid == 'wait_for_hit':
             if self.wait_for_hit:
-                self.current_frame = self.frame_directory.get(values[0])
-                self.under_frame = self.frame_directory.get(values[1])
+                self.current_frame = self.get_frame(values[0])
+                self.under_frame = self.get_frame(values[1])
                 self.over_frame = None
                 self.processing = False
                 self.state = 'wait'
@@ -422,37 +451,37 @@ class BattleAnimation():
                 self.owner.pan_back()
 
         elif command.nid == 'self_tint':
-            num_frames = self.get_frames(values[0])
+            num_frames = self.get_num_frames(values[0])
             color = values[1]
             self.flash(num_frames, color)
         elif command.nid == 'enemy_tint':
-            num_frames = self.get_frames(values[0])
+            num_frames = self.get_num_frames(values[0])
             color = values[1]
             if self.partner:
                 self.partner_anim.flash(num_frames, color)
         elif command.nid == 'self_screen_dodge':
-            num_frames = self.get_frames(values[0])
+            num_frames = self.get_num_frames(values[0])
             color = values[1]
             self.screen_dodge(num_frames, color)
         elif command.nid == 'enemy_screen_dodge':
-            num_frames = self.get_frames(values[0])
+            num_frames = self.get_num_frames(values[0])
             color = values[1]
             if self.partner:
                 self.partner_anim.screen_dodge(num_frames, color)
         elif command.nid == 'background_blend':
-            num_frames = self.get_frames(values[0])
+            num_frames = self.get_num_frames(values[0])
             color = values[1]
             self.background_counter = num_frames
             self.background = SPRITES.get('bg_black').copy()
             self.background.fill(color)
         elif command.nid == 'foreground_blend':
-            num_frames = self.get_frames(values[0])
+            num_frames = self.get_num_frames(values[0])
             color = values[1]
             self.foreground_counter = num_frames
             self.foreground = SPRITES.get('bg_black').copy()
             self.foreground.fill(color)
         elif command.nid == 'screen_blend':
-            num_frames = self.get_frames(values[0])
+            num_frames = self.get_num_frames(values[0])
             color = values[1]
             self.owner.screen_flash(num_frames, color)
 
@@ -636,6 +665,7 @@ def get_palette(anim_prefab: CombatAnimation, unit) -> Palette:
     return current_palette
 
 def get_battle_anim(unit, item, distance=1) -> BattleAnimation:
+    # Find the right combat animation
     class_obj = DB.classes.get(unit.klass)
     combat_anim_nid = class_obj.combat_anim_nid
     if unit.variant:
@@ -645,10 +675,13 @@ def get_battle_anim(unit, item, distance=1) -> BattleAnimation:
         res = RESOURCES.combat_anims.get(class_obj.combat_anim_nid)
     if not res:
         return None
+
+    # Get the palette
     palette = get_palette(res, unit)
     if not palette:
         logging.warning("Could not find valid palette for %s", unit)
         return None
+
     # Get the correct weapon anim
     if not item:
         weapon_anim_nid = "Unarmed"
@@ -676,6 +709,19 @@ def get_battle_anim(unit, item, distance=1) -> BattleAnimation:
     if not weapon_anim:
         logging.warning("Could not find valid weapon animation. Trying: %s", weapon_anim_nid)
         return None
-    # Check effects
+
+    # Check spell effects
+    for pose in weapon_anim.poses:
+        script = pose.timeline
+        for command in script:
+            if command.nid == 'spell':
+                if command.values[0]:
+                    effect = command.values[0]
+                else:
+                    effect = item.nid
+                if effect not in RESOURCES.combat_effects.keys():
+                    logging.warning("Could not find spell animation for effect %s in weapon anim %s", effect, weapon_anim_nid)
+                    return None
+
     battle_anim = BattleAnimation(weapon_anim, palette, unit, item)
     return battle_anim

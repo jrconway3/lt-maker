@@ -499,14 +499,12 @@ class ResetUnitVars(Action):
         self.unit.set_mana(min(self.unit.get_mana(), equations.parser.get_mana(self.unit)))
         self.unit.set_fatigue(min(self.unit.get_fatigue(), equations.parser.get_fatigue(self.unit)))
         self.unit.movement_left = min(self.unit.movement_left, equations.parser.movement(self.unit))
-        self.unit.set_sp(min(self.unit.get_sp(), equations.parser.sp(self.unit)))
 
     def reverse(self):
         self.unit.set_hp(self.old_current_hp)
         self.unit.set_mana(self.old_current_mana)
         self.unit.set_fatigue(self.old_current_fatigue)
         self.unit.movement_left = self.old_movement_left
-        self.unit.set_sp(self.old_current_sp)
 
 
 class SetPreviousPosition(Action):

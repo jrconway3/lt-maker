@@ -45,7 +45,6 @@ class ExpState(State):
         if game.sp_instance:
             self.sp_to_gain = game.sp_instance.pop()[1]
             if self.sp_to_gain + self.old_sp > self.max_sp:
-                print(self.old_sp, self.sp_to_gain)
                 self.sp_to_gain = self.max_sp - self.old_sp
         self.sp_bar = None
 
@@ -627,7 +626,7 @@ class SpBar():
         new_surf = engine.copy_surface(self.bg_surf)
 
         # Blit correct number of sprites for middle of exp bar
-        idx = int(max(0, self.num))
+        idx = int(5 * max(0, self.num))
         for x in range(idx):
             new_surf.blit(self.middle, (10 + x, 9))
 

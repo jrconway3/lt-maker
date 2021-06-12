@@ -1,7 +1,7 @@
 from app.utilities.data import Data
 
 class CombatAnimationCommand():
-    def __init__(self, nid=None, name='', attr=bool, value=True, tag=None, desc=''):
+    def __init__(self, nid=None, name='', attr=bool, value=(True,), tag=None, desc=''):
         self.nid: str = nid
         self.name: str = name
         self.attr: tuple = attr  # Can have multiple attributes
@@ -54,8 +54,8 @@ def generate_text(command: CombatAnimationCommand) -> str:
     s = [command.nid]
     if isinstance(command.attrs, tuple):
         for idx, attr in command.attrs:
-            if command.values[idx] is not None:
-                s.append(str(command.values[idx]))
+            if command.value[idx] is not None:
+                s.append(str(command.value[idx]))
     return ';'.join(s)
 
 def parse_text(split_text: list) -> CombatAnimationCommand:

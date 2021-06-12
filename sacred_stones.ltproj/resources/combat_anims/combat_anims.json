@@ -11,43 +11,43 @@
                             [
                                 "over_frame",
                                 [
-                                    1,
-                                    "Disarmed_000"
+                                    0,
+                                    null
                                 ]
                             ],
                             [
                                 "over_frame",
                                 [
-                                    3,
-                                    "Disarmed_001"
+                                    0,
+                                    null
                                 ]
                             ],
                             [
                                 "over_frame",
                                 [
-                                    1,
-                                    "Disarmed_002"
+                                    0,
+                                    null
                                 ]
                             ],
                             [
                                 "over_frame",
                                 [
-                                    26,
-                                    "Disarmed_002"
+                                    0,
+                                    null
                                 ]
                             ],
                             [
                                 "over_frame",
                                 [
-                                    3,
-                                    "Disarmed_001"
+                                    0,
+                                    null
                                 ]
                             ],
                             [
                                 "frame",
                                 [
-                                    1,
-                                    "Disarmed_001"
+                                    0,
+                                    null
                                 ]
                             ]
                         ]
@@ -58,8 +58,8 @@
                             [
                                 "frame",
                                 [
-                                    4,
-                                    "Disarmed_000"
+                                    0,
+                                    null
                                 ]
                             ]
                         ]
@@ -2199,359 +2199,6 @@
                         [
                             367,
                             147,
-                            31,
-                            32
-                        ],
-                        [
-                            148,
-                            71
-                        ]
-                    ]
-                ]
-            },
-            {
-                "nid": "MagicSword",
-                "poses": [
-                    [
-                        "Dodge",
-                        [
-                            [
-                                "frame",
-                                [
-                                    1,
-                                    "Sword_000"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    3,
-                                    "Sword_061"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    27,
-                                    "Sword_062"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    4,
-                                    "Sword_061"
-                                ]
-                            ]
-                        ]
-                    ],
-                    [
-                        "Attack",
-                        [
-                            [
-                                "frame",
-                                [
-                                    6,
-                                    "Sword_000"
-                                ]
-                            ],
-                            [
-                                "sound",
-                                [
-                                    "Weapon Pull"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    1,
-                                    "Sword_000"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    3,
-                                    "Sword_058"
-                                ]
-                            ],
-                            [
-                                "spell",
-                                [
-                                    null
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    1,
-                                    "Sword_059"
-                                ]
-                            ],
-                            [
-                                "start_loop",
-                                null
-                            ],
-                            [
-                                "frame",
-                                [
-                                    4,
-                                    "Sword_059"
-                                ]
-                            ],
-                            [
-                                "end_loop",
-                                null
-                            ],
-                            [
-                                "frame",
-                                [
-                                    4,
-                                    "Sword_059"
-                                ]
-                            ],
-                            [
-                                "sound",
-                                [
-                                    "Weapon Push"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    1,
-                                    "Sword_059"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    4,
-                                    "Sword_058"
-                                ]
-                            ]
-                        ]
-                    ],
-                    [
-                        "Critical",
-                        [
-                            [
-                                "frame",
-                                [
-                                    6,
-                                    "Sword_000"
-                                ]
-                            ],
-                            [
-                                "sound",
-                                [
-                                    "Weapon Pull"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    1,
-                                    "Sword_000"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    3,
-                                    "Sword_058"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    3,
-                                    "Sword_060"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    2,
-                                    "Sword_059"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    4,
-                                    "Sword_060"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    3,
-                                    "Sword_059"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    2,
-                                    "Sword_060"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    3,
-                                    "Sword_059"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    4,
-                                    "Sword_060"
-                                ]
-                            ],
-                            [
-                                "spell",
-                                [
-                                    null
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    1,
-                                    "Sword_059"
-                                ]
-                            ],
-                            [
-                                "start_loop",
-                                null
-                            ],
-                            [
-                                "frame",
-                                [
-                                    4,
-                                    "Sword_059"
-                                ]
-                            ],
-                            [
-                                "end_loop",
-                                null
-                            ],
-                            [
-                                "frame",
-                                [
-                                    4,
-                                    "Sword_059"
-                                ]
-                            ],
-                            [
-                                "sound",
-                                [
-                                    "Weapon Push"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    1,
-                                    "Sword_059"
-                                ]
-                            ],
-                            [
-                                "frame",
-                                [
-                                    4,
-                                    "Sword_058"
-                                ]
-                            ]
-                        ]
-                    ],
-                    [
-                        "Stand",
-                        [
-                            [
-                                "frame",
-                                [
-                                    4,
-                                    "Sword_000"
-                                ]
-                            ]
-                        ]
-                    ]
-                ],
-                "frames": [
-                    [
-                        "Sword_000",
-                        [
-                            0,
-                            23,
-                            39,
-                            35
-                        ],
-                        [
-                            138,
-                            72
-                        ]
-                    ],
-                    [
-                        "Sword_058",
-                        [
-                            39,
-                            0,
-                            38,
-                            58
-                        ],
-                        [
-                            138,
-                            48
-                        ]
-                    ],
-                    [
-                        "Sword_059",
-                        [
-                            77,
-                            1,
-                            28,
-                            57
-                        ],
-                        [
-                            137,
-                            47
-                        ]
-                    ],
-                    [
-                        "Sword_060",
-                        [
-                            105,
-                            0,
-                            28,
-                            58
-                        ],
-                        [
-                            137,
-                            46
-                        ]
-                    ],
-                    [
-                        "Sword_061",
-                        [
-                            133,
-                            26,
-                            31,
-                            32
-                        ],
-                        [
-                            143,
-                            72
-                        ]
-                    ],
-                    [
-                        "Sword_062",
-                        [
-                            164,
-                            26,
                             31,
                             32
                         ],

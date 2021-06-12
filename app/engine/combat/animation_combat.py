@@ -31,7 +31,7 @@ class AnimationCombat(BaseCombat):
         self.main_item = main_item
         self.def_item = self.defender.get_weapon()
 
-        if self.attacker.team == 'player' and self.defender.team != 'player':
+        if self.defender.team == 'player' and self.attacker.team != 'player':
             self.right = self.defender
             self.right_item = self.def_item
             self.left = self.attacker
@@ -125,11 +125,12 @@ class AnimationCombat(BaseCombat):
 
         self.battle_music = None
 
-        self.left_battle_anim = battle_animation.get_battle_anim(self.attacker, self.main_item, self.distance)
-        self.right_battle_anim = battle_animation.get_battle_anim(self.defender, self.def_item, self.distance
+        self.left_battle_anim = battle_animation.get_battle_anim(self.left, self.left_item, self.distance)
+        self.right_battle_anim = battle_animation.get_battle_anim(self.right, self.right_item, self.distance)
         self.current_battle_anim = None
 
         self.initial_paint_setup()
+        self._set_stats()
 
     def skip(self):
         self._skip = True
@@ -169,13 +170,13 @@ class AnimationCombat(BaseCombat):
                     (self.left.position[1] - game.camera.get_y()) * TILEHEIGHT
                 right_pos = (self.right.position[0] - game.camera.get_x()) * TILEWIDTH, \
                     (self.right.position[1] - game.camera.get_y()) * TILEHEIGHT
-                self.left_battle_anim.pair(self, self.right_battle_anim, False, self.at_range, 8, left_pos)
-                self.right_battle_anim.pair(self, self.left_battle_anim, True, self.at_range, 8, right_pos)
+                self.left_battle_anim.pair(self, self.right_battle_anim, False, self.at_range, 14, left_pos)
+                self.right_battle_anim.pair(self, self.left_battle_anim, True, self.at_range, 14, right_pos)
                 # Unit should be facing down
                 self.attacker.sprite.change_state('selected')
 
         elif self.state == 'entrance':
-            entrance_time = 400
+            entrance_time = utils.frames2ms(10)
             self.bar_offset = current_time / entrance_time
             self.name_offset = current_time / entrance_time
             if self._skip or current_time > entrance_time:
@@ -185,7 +186,7 @@ class AnimationCombat(BaseCombat):
                 self.start_battle_music()
 
         elif self.state == 'init_pause':
-            if self._skip or current_time > 410:  # 25 frames
+            if self._skip or current_time > utils.frames2ms(25):
                 self.state = 'pre_proc'
 
         elif self.state == 'pre_proc':
@@ -287,14 +288,14 @@ class AnimationCombat(BaseCombat):
                 self.state = 'name_tags_out'
 
         elif self.state == 'name_tags_out':
-            exit_time = 400
+            exit_time = utils.frames2ms(10)
             self.name_offset = 1 - current_time / exit_time
             if self._skip or current_time > exit_time:
                 self.name_offset = 0
                 self.state = 'all_out'
 
         elif self.state == 'all_out':
-            exit_time = 400
+            exit_time = utils.frames2ms(10)
             self.bar_offset = 1 - current_time / exit_time
             if self._skip or current_time > exit_time:
                 self.bar_offset = 0
@@ -312,7 +313,6 @@ class AnimationCombat(BaseCombat):
         if self.state != self.current_state:
             self.last_update = engine.get_time()
 
-        # Generic update stuff
         # Update hp bars
         self.left_hp_bar.update()
         self.right_hp_bar.update()
@@ -697,7 +697,7 @@ class AnimationCombat(BaseCombat):
             self.pan_dir = self.pan_move
 
     def draw(self, surf):
-        platform_trans = 100
+        platform_trans = 88
         platform_top = 88
         if self.darken_background or self.target_dark:
             bg = image_mods.make_translucent(SPRITES.get('bg_black'), 1 - self.darken_background)
@@ -792,7 +792,7 @@ class AnimationCombat(BaseCombat):
         self.draw_stats(left_bar, self.left_stats, (42, 1))
         self.draw_stats(right_bar, self.right_stats, (WINWIDTH // 2 - 3, 1))
 
-        bar_trans = 80
+        bar_trans = 52
         left_pos_x = -3 + self.shake_offset[0]
         left_pos_y = WINHEIGHT - left_bar.get_height() + (bar_trans - self.bar_offset * bar_trans) + self.shake_offset[1]
         right_pos_x = WINWIDTH // 2 + self.shake_offset[0]

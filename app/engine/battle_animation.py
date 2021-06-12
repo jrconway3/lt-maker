@@ -1,5 +1,5 @@
-import random
 from app.constants import WINWIDTH, COLORKEY
+from app.utilities import utils
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
@@ -20,6 +20,7 @@ class BattleAnimation():
     def __init__(self, anim_prefab: WeaponAnimation, palette: Palette, unit, item):
         self.anim_prefab = anim_prefab
         self.current_palette = palette
+        print(self.current_palette.nid, self.current_palette.colors)
         self.unit = unit
         self.item = item
 
@@ -34,13 +35,11 @@ class BattleAnimation():
             anim_prefab.image = engine.image_load(image_full_path, convert=True)
             engine.set_colorkey(anim_prefab.image, COLORKEY, rleaccel=True)
             for frame in anim_prefab.frames:
-                frame.image = engine.subsurface(anim_prefab.image, *frame.rect)
+                frame.image = engine.subsurface(anim_prefab.image, frame.rect)
 
         # Apply palette to frames
         self.apply_palette()
 
-        self.frame_directory = {frame.nid: frame for frame in anim_prefab.frames}
-        
         self.state = 'inert'
         self.in_basic_state: bool = False  # Is animation in a basic state?
         self.processing = False
@@ -109,10 +108,12 @@ class BattleAnimation():
             self.poses['Critical'] = self.poses['Attack']
 
     def apply_palette(self):
+        self.image_directory = {}
         colors = self.current_palette.colors
         conversion_dict = {(0, coord[0], coord[1]): (color[0], color[1], color[2]) for coord, color in colors.items()}
         for frame in self.anim_prefab.frames:
-            frame.frame = image_mods.color_convert(engine.copy_surface(frame.image), conversion_dict)
+            converted_image = image_mods.color_convert(engine.copy_surface(frame.image), conversion_dict)
+            self.image_directory[frame.nid] = converted_image
 
     def pair(self, owner, partner_anim, right, at_range, entrance_frames=0, position=None, parent=None):
         print(self.unit.nid, "pair")
@@ -138,10 +139,7 @@ class BattleAnimation():
             self.current_pose = 'Stand'
 
     def get_frame(self, frame_nid: str):
-        frame = self.frame_directory.get(frame_nid)
-        if frame:
-            return frame.frame  # Colorswapped image
-        return None
+        return self.anim_prefab.frames.get(frame_nid)
 
     def start_anim(self, pose):
         self.change_pose(pose)
@@ -265,15 +263,16 @@ class BattleAnimation():
             self.skip_next_loop += 1
 
     def update(self):
-        print(self.unit.nid, self.state)
+        print("Update", self.unit.nid, self.state)
         if self.state == 'run':
-            print(self.current_pose)
+            print("Current Pose", self.current_pose)
             # Read script
             if self.frame_count >= self.num_frames:
                 self.processing = True
                 self.read_script()
             if self.current_pose in self.poses:
-                if self.script_idx >= len(self.poses[self.current_pose]):
+                script = self.poses[self.current_pose].timeline
+                if self.script_idx >= len(script):
                     # Check whether we should loop or end
                     if self.current_pose in self.idle_poses:
                         self.script_idx = 0  # Loop
@@ -328,10 +327,10 @@ class BattleAnimation():
             self.script_idx += 1
 
     def run_command(self, command):
-        print(command.nid, command.values)
+        print("Command", command.nid, command.value)
         self.in_basic_state = False
 
-        values = command.values
+        values = command.value
         if command.nid == 'frame':
             self.frame_count = 0
             self.num_frames = self.get_num_frames(values[0])
@@ -526,7 +525,7 @@ class BattleAnimation():
         for child in self.under_child_effects:
             child.draw(surf, (0, 0), range_offset, pan_offset)
 
-        print(self.entrance_counter, self.entrance_frames)
+        print("Entrance", self.entrance_counter, self.entrance_frames)
         if self.current_frame is not None:
             image, offset = self.get_image(self.current_frame, shake, range_offset, pan_offset, self.static)
 
@@ -591,7 +590,7 @@ class BattleAnimation():
             engine.blit(surf, image, offset, None, self.blend)
 
     def get_image(self, frame, shake, range_offset, pan_offset, static) -> tuple:
-        image = frame.image.copy()
+        image = self.image_directory[frame.nid].copy()
         if not self.right:
             image = engine.flip_horiz(image)
         offset = frame.offset
@@ -653,11 +652,15 @@ def get_palette(anim_prefab: CombatAnimation, unit) -> Palette:
     palettes = anim_prefab.palettes
     palette_names = [palette[0] for palette in palettes]
     palette_nids = [palette[1] for palette in palettes]
+    team_palette = 'Generic%s' % utils.get_team_color(unit.team).capitalize()
     if unit.name in palette_names:
         idx = palette_names.index(unit.name)
         palette_nid = palette_nids[idx]
     elif unit.nid in palette_names:
         idx = palette_names.index(unit.nid)
+        palette_nid = palette_nids[idx]
+    elif team_palette in palette_names:
+        idx = palette_names.index(team_palette)
         palette_nid = palette_nids[idx]
     else:
         palette_nid = palette_nids[0]
@@ -715,8 +718,8 @@ def get_battle_anim(unit, item, distance=1) -> BattleAnimation:
         script = pose.timeline
         for command in script:
             if command.nid == 'spell':
-                if command.values[0]:
-                    effect = command.values[0]
+                if command.value[0]:
+                    effect = command.value[0]
                 else:
                     effect = item.nid
                 if effect not in RESOURCES.combat_effects.keys():

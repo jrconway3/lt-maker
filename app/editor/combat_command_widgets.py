@@ -202,7 +202,7 @@ class FrameCommand(CombatCommand):
     def select_frame(self):
         combat_anim_editor = self.window.window
         weapon_anim = combat_anim_editor.get_current_weapon_anim()
-        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim, combat_anim_editor)
         if ok:
             self.frame.setText(res.nid)
 

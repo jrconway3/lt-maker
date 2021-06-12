@@ -43,7 +43,7 @@ class FrameSelector(Dialog):
         self.combat_anim = combat_anim
         self.weapon_anim = weapon_anim
         self.current_palette_nid = self.window.get_current_palette()
-        # Get a referenceto the color change function
+        # Get a reference to the color change function
         self.frames = weapon_anim.frames
         if self.frames:
             self.current = self.frames[0]

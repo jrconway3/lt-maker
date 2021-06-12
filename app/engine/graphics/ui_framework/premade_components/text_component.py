@@ -36,6 +36,7 @@ class TextComponent(UIComponent):
         self.num_visible_chars = len(text)
         self._final_formatted_text = []
         self.scrolled_line: float = 1
+        self._recalculate_size()
         
     @property
     def wrapped_text(self) -> str:

@@ -1304,6 +1304,8 @@ class SetSP(Action):
     def __init__(self, unit, new_sp):
         self.unit = unit
         self.new_sp = new_sp
+        if self.new_sp > self.unit.max_sp:
+            self.new_sp = self.unit.max_sp
         self.old_sp = self.unit.get_sp()
 
     def do(self):

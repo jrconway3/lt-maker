@@ -115,9 +115,9 @@ class CostSP(SkillComponent):
 
     ignore_conditional = True
 
-    def end_combat(self, playback, unit, item, target, mode):
-        print(-self.value)
-        action.do(action.ChangeSP(unit, -self.value))
+    def start_combat(self, playback, unit, item, target, mode):
+        if self.skill.data.get('active'):
+            action.do(action.ChangeSP(unit, -self.value))
 
     # def text(self) -> str:
     #     return 'Reduces SP by ' + str(self.value)

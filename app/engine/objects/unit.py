@@ -180,6 +180,7 @@ class UnitObject(Prefab):
 
     def set_sp(self, val):
         self.current_sp = int(utils.clamp(val, 0, equations.parser.sp(self)))
+        print(self.current_sp)
 
     def get_max_mana(self):
         if 'MANA' in DB.equations:

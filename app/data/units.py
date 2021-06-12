@@ -19,6 +19,7 @@ class UnitPrefab(Prefab):
     starting_items: list = None  # of tuples (ItemPrefab, droppable)
 
     learned_skills: list = None
+    unit_notes: list = None
     wexp_gain: dict = None
 
     alternate_classes: list = None

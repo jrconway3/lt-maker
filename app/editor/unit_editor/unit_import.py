@@ -72,10 +72,12 @@ def get_from_xml(parent_dir: str, xml_fn: str) -> list:
 
         personal_skills = unit.find('skills').text.split(',') if unit.find('skills') is not None and unit.find('skills').text is not None else []
         personal_skills = [[1, s] for s in personal_skills]
+        unit_notes = unit.find('notes').text.split(',') if unit.find('notes') is not None and unit.find('notes').text is not None else []
+        unit_notes = [[1, s] for s in unit_notes]
         portrait = nid if nid in RESOURCES.portraits.keys() else None
         new_unit = units.UnitPrefab(
             nid, name, desc, None, level, klass, tags, 
-            bases, growths, items, personal_skills, 
+            bases, growths, items, personal_skills, unit_notes,
             wexp_gain, None, portrait)
         unit_list.append(new_unit)
 

@@ -89,6 +89,12 @@ class UnitObject(Prefab):
         class_skills = unit_funcs.get_starting_skills(self)
         self.skills = personal_skills + class_skills
 
+        #Handle Notes
+        if not self.generic:
+            self.notes = [[n[0], n[1]] for n in prefab.unit_notes]
+        else:
+            self.notes = None
+
         # Handle items
         items = item_funcs.create_items(self, prefab.starting_items)
         for item in items:
@@ -457,6 +463,7 @@ class UnitObject(Prefab):
                   'portrait_nid': self.portrait_nid,
                   'affinity': self.affinity,
                   'skills': [skill.uid for skill in self.skills],
+                  'notes': self.notes,
                   'current_hp': self.current_hp,
                   'current_mana': self.current_mana,
                   'current_fatigue': self.current_fatigue,
@@ -506,6 +513,8 @@ class UnitObject(Prefab):
 
         self.skills = [game.get_skill(skill_uid) for skill_uid in s_dict['skills']]
         self.skills = [s for s in self.skills if s]
+
+        self.notes = s_dict['notes']
 
         self.current_hp = s_dict['current_hp']
         self.current_mana = s_dict['current_mana']

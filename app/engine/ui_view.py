@@ -100,7 +100,7 @@ class UIView():
                 self.obj_info_disp = None
 
         if game.state.current() in self.legal_states and DB.constants.get('timeline').value \
-                and not game.current_level.roam:
+                and not game.current_level.roam and game.timeline_show:
             self.timeline_info_disp = self.create_timeline_info()
             self.timeline_info_offset -= 0
             self.timeline_info_offset = max(0, self.timeline_info_offset)
@@ -109,21 +109,26 @@ class UIView():
             if self.timeline_info_offset >= 200:
                 self.timeline_info_disp = None
 
+        if not game.timeline_show:
+            self.timeline_info_disp = None
+
         # === Final drawing
         # Should be in topleft, unless cursor is in topleft, in which case it should be in bottomleft
         if self.unit_info_disp:
             # If in top and not in right
-            if not DB.constants.get('timeline').value:
+            if not DB.constants.get('timeline').value or not game.timeline_show:
                 if game.cursor.position[1] < TILEY // 2 + game.camera.get_y() and \
                         not (game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1):
                     surf.blit(self.unit_info_disp, (-self.unit_info_offset, WINHEIGHT - self.unit_info_disp.get_height()))
                 else:
                     surf.blit(self.unit_info_disp, (-self.unit_info_offset, 0))
             else:
-                if game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1:
-                    surf.blit(self.unit_info_disp, (-self.unit_info_offset, WINHEIGHT - self.unit_info_disp.get_height()))
-                else:
-                    surf.blit(self.unit_info_disp, (self.unit_info_offset + WINWIDTH - 50, WINHEIGHT - self.unit_info_disp.get_height()))
+                pass
+                # yoffset = 5
+                # if game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1:
+                #    surf.blit(self.unit_info_disp, (-self.unit_info_offset, WINHEIGHT - self.unit_info_disp.get_height() + yoffset))
+                # else:
+                #     surf.blit(self.unit_info_disp, (self.unit_info_offset + WINWIDTH - 50, WINHEIGHT - self.unit_info_disp.get_height() + yoffset))
 
         if game.state.current() in self.legal_states and cf.SETTINGS['show_terrain'] and \
                 (game.level_vars['_fog_of_war'] != 2 or game.board.in_vision(game.cursor.position)):
@@ -143,14 +148,14 @@ class UIView():
                 # Should be in bottom, no matter what. Can be in bottomleft or bottomright, depending on where cursor is
                 if right:
                     a = 0
-                    if DB.constants.get('timeline').value:
-                        a = 50
-                    surf.blit(self.tile_info_disp, (5 - offset + 1, WINHEIGHT - self.tile_info_disp.get_height() - 3)) # Bottomleft
+                    # if DB.constants.get('timeline').value and self.unit_info_disp:
+                    #     a = 45
+                    surf.blit(self.tile_info_disp, (5 - offset + 1 + a, WINHEIGHT - self.tile_info_disp.get_height())) # Bottomleft
                 else:
                     xpos = WINWIDTH - self.tile_info_disp.get_width() - 5 + offset
-                    ypos = WINHEIGHT - self.tile_info_disp.get_height() - 3
-                    if DB.constants.get('timeline').value:
-                        xpos -= 50
+                    ypos = WINHEIGHT - self.tile_info_disp.get_height()
+                    # if DB.constants.get('timeline').value and self.unit_info_disp:
+                    #     xpos -= 45
                     surf.blit(self.tile_info_disp, (xpos, ypos)) # Bottomright
 
         if self.obj_info_disp and not self.timeline_info_disp:
@@ -179,18 +184,21 @@ class UIView():
 
     def create_timeline_info(self):
         i = game.timeline_position
-        x_increment = 24
-        most = max(0, WINWIDTH//x_increment)
+        x_increment = 20
+        most = max(0, WINWIDTH//x_increment - 1)
         surf = engine.create_surface((WINWIDTH, 50), transparent=True)
-        x, y = 4, -3
+        x, y = -5, -3
         a = 0
         hover = game.cursor.get_hover()
         while i < len(game.timeline) and i <= game.timeline_position + most:
             if hover and hover == game.timeline[i]:
                 a = 10
-            surf.blit(SPRITES.get('status_platform').copy(), (x, y + 18 + a))
-            char_sprite = game.timeline[i].sprite.create_image('passive')
-            surf.blit(char_sprite, (x - 16, y - 14 + a))
+                char_sprite = game.timeline[i].sprite.create_image('active')
+            else:
+                char_sprite = game.timeline[i].sprite.create_image('passive')
+            surf.blit(SPRITES.get('timeline_platform').copy(), (x, y + 15 + a))
+
+            surf.blit(char_sprite, (x - 17, y - 14 + a))
             i += 1
             x += x_increment
             a = 0
@@ -198,98 +206,51 @@ class UIView():
 
     def create_unit_info(self, unit):
         font = FONT['info-grey']
-        if not DB.constants.get('timeline').value:
-            dimensions = (112, 40)
-            width, height = dimensions
-            surf = SPRITES.get('unit_info_bg').copy()
-            top, left = 4, 6
-            if unit.generic:
-                icons.draw_faction(surf, DB.factions.get(unit.faction), (left + 1, top + 4))
-            else:
-                portrait_nid = unit.portrait_nid
-                icons.draw_chibi(surf, portrait_nid, (left + 1, top + 4))
-
-            name = unit.name
-            if unit.generic:
-                short_name = DB.classes.get(unit.klass).name
-                name = short_name + ' ' + str(unit.level)
-            pos = (left + width//2 + 6 - font.width(name)//2, top + 4)
-            font.blit(name, surf, pos)
-
-            # Health text
-            surf.blit(SPRITES.get('unit_info_hp'), (left + 34, top + height - 20))
-            surf.blit(SPRITES.get('unit_info_slash'), (left + 68, top + height - 19))
-            current_hp = unit.get_hp()
-            max_hp = equations.parser.hitpoints(unit)
-            font.blit_right(str(current_hp), surf, (left + 66, top + 16))
-            font.blit_right(str(max_hp), surf, (left + 90, top + 16))
-
-            # Health BG
-            bg_surf = SPRITES.get('health_bar2_bg')
-            surf.blit(bg_surf, (left + 36, top + height - 10))
-
-            # Health Bar
-            hp_ratio = utils.clamp(current_hp / float(max_hp), 0, 1)
-            if hp_ratio > 0:
-                hp_surf = SPRITES.get('health_bar2')
-                idx = int(hp_ratio * hp_surf.get_width())
-                hp_surf = engine.subsurface(hp_surf, (0, 0, idx, 2))
-                surf.blit(hp_surf, (left + 37, top + height - 9))
-
-            # Weapon Icon
-            weapon = unit.get_weapon()
-            icon = icons.get_icon(weapon)
-            if icon:
-                pos = (left + width - 20, top + height//2 - 8)
-                # icon = item_system.item_icon_mod(unit, weapon, defender, icon)
-                surf.blit(icon, pos)
-            return surf
+        dimensions = (112, 40)
+        width, height = dimensions
+        surf = SPRITES.get('unit_info_bg').copy()
+        top, left = 4, 6
+        if unit.generic:
+            icons.draw_faction(surf, DB.factions.get(unit.faction), (left + 1, top + 4))
         else:
-            dimensions = (40, 112)
-            width, height = dimensions
-            surf = SPRITES.get('unit_info_side').copy()
-            top, left = 2, 6
-            if unit.generic:
-                icons.draw_faction(surf, DB.factions.get(unit.faction), (left + 2, top + 4))
-            else:
-                portrait_nid = unit.portrait_nid
-                icons.draw_chibi(surf, portrait_nid, (left + 2, top + 4))
+            portrait_nid = unit.portrait_nid
+            icons.draw_chibi(surf, portrait_nid, (left + 1, top + 4))
 
-            # name = unit.name
-            # if unit.generic:
-            #    short_name = DB.classes.get(unit.klass).name
-            #    name = short_name + ' ' + str(unit.level)
-            #    pos = (left + width//2 + 6 - font.width(name)//2, top + 4)
-            #    font.blit(name, surf, pos)
+        name = unit.name
+        if unit.generic:
+            short_name = DB.classes.get(unit.klass).name
+            name = short_name + ' ' + str(unit.level)
+        pos = (left + width//2 + 6 - font.width(name)//2, top + 4)
+        font.blit(name, surf, pos)
 
-            # Health text
-            # surf.blit(SPRITES.get('unit_info_hp'), (left + 2, top + 40))
-            surf.blit(SPRITES.get('unit_info_slash'), (left + 15, top + 40))
-            current_hp = unit.get_hp()
-            max_hp = equations.parser.hitpoints(unit)
-            font.blit_right(str(current_hp), surf, (left + 16, top + 32))
-            font.blit_right(str(max_hp), surf, (left + 35, top + 37))
+        # Health text
+        surf.blit(SPRITES.get('unit_info_hp'), (left + 34, top + height - 20))
+        surf.blit(SPRITES.get('unit_info_slash'), (left + 68, top + height - 19))
+        current_hp = unit.get_hp()
+        max_hp = equations.parser.hitpoints(unit)
+        font.blit_right(str(current_hp), surf, (left + 66, top + 16))
+        font.blit_right(str(max_hp), surf, (left + 90, top + 16))
 
-            # Health BG
-            bg_surf = SPRITES.get('health_bar2_bg_side')
-            surf.blit(bg_surf, (left + 6, top + 50))
+        # Health BG
+        bg_surf = SPRITES.get('health_bar2_bg')
+        surf.blit(bg_surf, (left + 36, top + height - 10))
 
-            # Health Bar
-            hp_ratio = utils.clamp(current_hp / float(max_hp), 0, 1)
-            if hp_ratio > 0:
-                hp_surf = SPRITES.get('health_bar2_side')
-                idx = int(hp_ratio * hp_surf.get_height())
-                hp_surf = engine.subsurface(hp_surf, (0, 0, idx, 2))
-                surf.blit(hp_surf, (left + 7, top + 52))
+        # Health Bar
+        hp_ratio = utils.clamp(current_hp / float(max_hp), 0, 1)
+        if hp_ratio > 0:
+            hp_surf = SPRITES.get('health_bar2')
+            idx = int(hp_ratio * hp_surf.get_width())
+            hp_surf = engine.subsurface(hp_surf, (0, 0, idx, 2))
+            surf.blit(hp_surf, (left + 37, top + height - 9))
 
-            # Weapon Icon
-            weapon = unit.get_weapon()
-            icon = icons.get_icon(weapon)
-            if icon:
-                pos = (left + width - 21, top + height//2 - 6)
-                # icon = item_system.item_icon_mod(unit, weapon, defender, icon)
-                surf.blit(icon, pos)
-            return surf
+        # Weapon Icon
+        weapon = unit.get_weapon()
+        icon = icons.get_icon(weapon)
+        if icon:
+            pos = (left + width - 20, top + height//2 - 8)
+            # icon = item_system.item_icon_mod(unit, weapon, defender, icon)
+            surf.blit(icon, pos)
+        return surf
 
     def create_tile_info(self, coord):
         terrain_nid = game.tilemap.get_terrain(coord)

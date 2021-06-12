@@ -132,7 +132,12 @@
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "SP Attack"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 true,
@@ -1143,9 +1148,9 @@
             "HP": 24,
             "STR": 8,
             "MAG": 4,
-            "SKL": 13,
+            "SKL": 0,
             "SPD": 14,
-            "LCK": 7,
+            "LCK": 0,
             "DEF": 5,
             "RES": 2,
             "CON": 8,

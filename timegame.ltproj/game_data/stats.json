@@ -4,7 +4,7 @@
         "name": "HP",
         "maximum": 60,
         "desc": "Hit points. The unit is removed from the battle if HP reaches 0.",
-        "position": "left"
+        "position": "hidden"
     },
     {
         "nid": "STR",

@@ -294,5 +294,9 @@
     {
         "nid": "config_desc",
         "text": "Change settings."
+    },
+    {
+        "nid": "SP_desc",
+        "text": "Skill points, gained by killing or healing."
     }
 ]

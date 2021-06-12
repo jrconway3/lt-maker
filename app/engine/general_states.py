@@ -165,7 +165,10 @@ class FreeState(MapState):
 
         elif event == 'START':
             SOUNDTHREAD.play_sfx('Select 5')
-            game.state.change('minimap')
+            if DB.constants.get('timeline').value:
+                game.timeline_show = not game.timeline_show
+            else:
+                game.state.change('minimap')
 
     def update(self):
         super().update()

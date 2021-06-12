@@ -143,6 +143,7 @@ class AnimationCombat(BaseCombat):
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
         self.current_state = self.state
+        print("Animation Combat Update:", self.state)
 
         if self.state == 'init':
             self.start_combat()
@@ -201,16 +202,22 @@ class AnimationCombat(BaseCombat):
 
         elif self.state == 'init_effects':
             if not self.left_battle_anim.effect_playing() and not self.right_battle_anim.effect_playing():
+                any_effect: bool = False
                 if self.right_item:
                     mode = 'attack' if self.right is self.attacker else 'defense'
                     effect = item_system.combat_effect(self.right, self.right_item, self.left, mode)
                     if effect:
+                        any_effect = True
                         self.right_battle_anim.add_effect(effect)
                 elif self.left_item:
                     mode = 'attack' if self.left is self.attacker else 'defense'
                     effect = item_system.combat_effect(self.left, self.left_item, self.right, mode)
                     if effect:
+                        any_effect = True
                         self.left_battle_anim.add_effect(effect)
+                
+                if any_effect:
+                    pass # Stay on current state
                 else:
                     self.state = 'begin_phase'
 
@@ -218,10 +225,12 @@ class AnimationCombat(BaseCombat):
             # Get playback
             if not self.state_machine.get_state():
                 self.state = 'end_combat'
-                self.actions = []
-                self.playback = []
+                self.actions.clear()
+                self.playback.clear()
                 return False
             self.actions, self.playback = self.state_machine.do()
+            print(self.actions)
+            print(self.playback)
             self.full_playback += self.playback
             if not self.actions and not self.playback:
                 self.state_machine.setup_next_state()
@@ -252,7 +261,7 @@ class AnimationCombat(BaseCombat):
 
         elif self.state == 'hp_change':
             proceed = self.current_battle_anim.can_proceed()
-            if current_time > 450 and self.left_hp_bar.done() and self.right_hp_bar.done() and proceed:
+            if current_time > utils.frames2ms(27) and self.left_hp_bar.done() and self.right_hp_bar.done() and proceed:
                 self.current_battle_anim.resume()
                 if self.left.get_hp() <= 0:
                     self.left_battle_anim.start_dying_animation()
@@ -264,6 +273,7 @@ class AnimationCombat(BaseCombat):
 
         elif self.state == 'end_phase':
             self._end_phase()
+            self.state_machine.setup_next_state()
             self.state = 'begin_phase'
 
         elif self.state == 'end_combat':
@@ -422,7 +432,7 @@ class AnimationCombat(BaseCombat):
             if brush[0] in ('damage_hit', 'damage_crit', 'heal_hit'):
                 self.last_update = engine.get_time()
                 self.state = 'hp_change'
-                self.damage_numbers(brush)
+                self.handle_damage_numbers(brush)
             elif brush[0] == 'hit_sound' and sound:
                 sound = brush[1]
                 if sound == 'Attack Miss 2':
@@ -507,6 +517,7 @@ class AnimationCombat(BaseCombat):
 
     def set_up_combat_animation(self):
         self.state = 'anim'
+        print("Set up Combat Animation")
         if self.get_from_playback('defender_phase'):
             if self.attacker is self.left:
                 self.current_battle_anim = self.right_battle_anim
@@ -523,6 +534,7 @@ class AnimationCombat(BaseCombat):
             self.current_battle_anim.start_anim('Attack')
         elif self.get_from_playback('mark_miss'):
             self.current_battle_anim.start_anim('Miss')
+        print(self.current_battle_anim is self.right_battle_anim)
 
         if self.right_battle_anim == self.current_battle_anim:
             self.focus_right = True
@@ -530,7 +542,7 @@ class AnimationCombat(BaseCombat):
             self.focus_right = False
         self.move_camera()
 
-    def damage_numbers(self, brush):
+    def handle_damage_numbers(self, brush):
         if brush[0] == 'damage_hit':
             damage = brush[4]
             if damage <= 0:
@@ -575,6 +587,7 @@ class AnimationCombat(BaseCombat):
             animation = RESOURCES.animations.get(anim_nid)
             if animation:
                 anim = Animation(animation, position)
+                anim.set_tint(True)
                 self.animations.append(anim)
         else:
             self.no_damage()
@@ -590,6 +603,7 @@ class AnimationCombat(BaseCombat):
                     animation.image = engine.flip_horiz(animation.image)
                 position = (-40, -30)
                 anim = Animation(animation, position)
+                anim.set_tint(True)
                 self.animations.append(anim)
         else:
             self.no_damage()
@@ -770,7 +784,7 @@ class AnimationCombat(BaseCombat):
             if damage_num.left:
                 x_pos = 94 + left_range_offset - total_shake_x + self.pan_offset
             else:
-                x_pos = 194 + right_range_offset - total_shake_x + self.pan_offset
+                x_pos = 146 + right_range_offset - total_shake_x + self.pan_offset
             damage_num.draw(surf, (x_pos, 40))
         self.damage_numbers = [d for d in self.damage_numbers if not d.done]
 
@@ -890,4 +904,7 @@ class AnimationCombat(BaseCombat):
         self.handle_broken_items(a_broke, d_broke)
 
     def handle_state_stack(self):
-        MapCombat.handle_state_stack()
+        """
+        Map combat has the implementation I want of this, so let's just use it
+        """
+        MapCombat.handle_state_stack(self)

@@ -74,7 +74,7 @@ def make_white(image, white):
 
     return image
 
-def change_color(image, color):
+def change_color(image, color: tuple):
     """
     Additively blends a color with the image
     """

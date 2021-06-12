@@ -220,7 +220,7 @@ class SimpleCombat():
                 all_units.append(unit)
         return all_units
 
-    def handle_message(self):
+    def handle_messages(self):
         # Messages
         if self.defender:
             if skill_system.check_enemy(self.attacker, self.defender):

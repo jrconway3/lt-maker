@@ -33,7 +33,7 @@ class InitState(SolverState):
             return self.process_command(command) 
 
 class AttackerState(SolverState):
-    num_multiattacks = 0
+    num_multiattacks = 1
 
     def get_next_state(self, solver):
         command = solver.get_script()
@@ -94,7 +94,7 @@ class AttackerState(SolverState):
         skill_system.end_sub_combat(actions, playback, solver.attacker, solver.main_item, solver.defender, 'attack')
 
 class DefenderState(SolverState):
-    num_multiattacks = 0
+    num_multiattacks = 1
 
     def get_next_state(self, solver):
         command = solver.get_script()

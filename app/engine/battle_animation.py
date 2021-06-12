@@ -20,7 +20,6 @@ class BattleAnimation():
     def __init__(self, anim_prefab: WeaponAnimation, palette: Palette, unit, item):
         self.anim_prefab = anim_prefab
         self.current_palette = palette
-        print(self.current_palette.nid, self.current_palette.colors)
         self.unit = unit
         self.item = item
 
@@ -77,7 +76,7 @@ class BattleAnimation():
         self.foreground_counter = 0
         self.background = None
         self.background_counter = 0
-        self.flash_color = []
+        self.flash_color = []  # It's a list so you could have it flash through several colors
         self.flash_counter = 0
         self.flash_image = None
         self.screen_dodge_color = None
@@ -142,6 +141,7 @@ class BattleAnimation():
         return self.anim_prefab.frames.get(frame_nid)
 
     def start_anim(self, pose):
+        print(self.unit.nid, "start anim", pose)
         self.change_pose(pose)
         self.script_idx = 0
         self.wait_for_hit = True
@@ -164,6 +164,15 @@ class BattleAnimation():
             self.pan_away = False
             self.owner.pan_back()
         self.script_idx = 0
+
+    def resume(self):
+        if self.state == 'wait':
+            self.reset_frames()
+        for effect in self.child_effects:
+            effect.resume()
+        for effect in self.under_child_effects:
+            effect.resume()
+        self.wait_for_hit = False
 
     def finish(self):
         self.get_stand()
@@ -206,9 +215,9 @@ class BattleAnimation():
         if self.in_basic_state:
             self.num_frames = int(42 * battle_anim_speed)
 
-    def flash(self, num_frames, color):
+    def flash(self, num_frames: int, color: tuple):
         self.flash_counter = num_frames
-        self.flash_color = color
+        self.flash_color = [color]
 
     def screen_dodge(self, num_frames, color):
         self.screen_dodge_counter = num_frames
@@ -290,7 +299,7 @@ class BattleAnimation():
                 opacity = self.death_opacity.pop()
                 if opacity == -1:
                     opacity = 255
-                    self.flash_color = (248, 248, 248)
+                    self.flash_color = [(248, 248, 248)]
                     self.flash_counter = 100
                     SOUNDTHREAD.play_sfx('CombatDeath')
                 self.opacity = opacity
@@ -317,7 +326,6 @@ class BattleAnimation():
         self.under_child_effects = [child for child in self.under_child_effects if child.state != 'inert']
 
     def read_script(self):
-        print("read script")
         if not self.has_pose(self.current_pose):
             return
         script = self.poses[self.current_pose].timeline
@@ -456,7 +464,7 @@ class BattleAnimation():
         elif command.nid == 'enemy_tint':
             num_frames = self.get_num_frames(values[0])
             color = values[1]
-            if self.partner:
+            if self.partner_anim:
                 self.partner_anim.flash(num_frames, color)
         elif command.nid == 'self_screen_dodge':
             num_frames = self.get_num_frames(values[0])
@@ -465,7 +473,7 @@ class BattleAnimation():
         elif command.nid == 'enemy_screen_dodge':
             num_frames = self.get_num_frames(values[0])
             color = values[1]
-            if self.partner:
+            if self.partner_anim:
                 self.partner_anim.screen_dodge(num_frames, color)
         elif command.nid == 'background_blend':
             num_frames = self.get_num_frames(values[0])
@@ -525,7 +533,6 @@ class BattleAnimation():
         for child in self.under_child_effects:
             child.draw(surf, (0, 0), range_offset, pan_offset)
 
-        print("Entrance", self.entrance_counter, self.entrance_frames)
         if self.current_frame is not None:
             image, offset = self.get_image(self.current_frame, shake, range_offset, pan_offset, self.static)
 

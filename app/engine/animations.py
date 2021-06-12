@@ -21,7 +21,7 @@ class Animation():
         self.hold = hold
         self.reverse = reverse
         self.enabled = True
-        self.tint = False
+        self.tint: bool = False
         self.tint_after_delay = None
 
         self.width = self.sprite.get_width() // self.frame_x
@@ -45,8 +45,8 @@ class Animation():
         else:
             return self.position
 
-    def set_tint(self, val):
-        self.tint = val
+    def set_tint(self, val: bool):
+        self.tint: bool = val
 
     def set_tint_after_delay(self, i):
         self.tint_after_delay = i

@@ -52,8 +52,8 @@ class CombatHealthBar(HealthBar):
     empty_hp_blip = SPRITES.get('empty_hp_blip')
     end_hp_blip = engine.subsurface(full_hp_blip, (0, 0, 1, full_hp_blip.get_height()))
     colors = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1]
-    speed = 33
-    time_for_change_min = 2665
+    speed = utils.frames2ms(2)
+    time_for_change_min = 0
 
     def __init__(self, unit):
         super().__init__(unit) 
@@ -61,9 +61,9 @@ class CombatHealthBar(HealthBar):
 
     def update(self, skip=False):
         if self.displayed_hp < self.unit.get_hp():
-            self.speed = 66  # Slower speed when increasing hp
+            self.speed = utils.frames2ms(4)  # Slower speed when increasing hp
         else:
-            self.speed = 33
+            self.speed = utils.frames2ms(2)
         super().update()
         self.color_tick = int(engine.get_time() / 16.67) % len(self.colors)
 
@@ -75,14 +75,17 @@ class CombatHealthBar(HealthBar):
     def big_number(self) -> bool:
         return self.displayed_hp != self.unit.get_hp()
 
+    def done(self) -> bool:
+        return self.displayed_hp == self.unit.get_hp()
+
     def draw(self, surf, left, top):
         font = FONT['number-small2']
         if self.big_number():
             font = FONT['number-big2']
         if self.displayed_hp <= 80:
-            font.blit_right(str(self.displayed_hp), surf, (left, top))
+            font.blit_right(str(self.displayed_hp), surf, (left, top - 4))
         else:
-            font.blit_right('??', surf, (left, top))
+            font.blit_right('??', surf, (left, top - 4))
 
         full_hp_blip = engine.subsurface(self.full_hp_blip, (self.colors[self.color_tick] * 2, 0, 2, self.full_hp_blip.get_height()))
         if self.unit.get_max_hp() <= 40:

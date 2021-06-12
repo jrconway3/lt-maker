@@ -1057,7 +1057,7 @@
             {
                 "nid": "Bone",
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
                     4,
@@ -1079,7 +1079,7 @@
             {
                 "nid": "O'Neill",
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
                     4,

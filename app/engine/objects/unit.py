@@ -136,10 +136,10 @@ class UnitObject(Prefab):
         if any(v != 0 for v in bonus.values()):
             unit_funcs.apply_stat_changes(self, bonus)
 
-        if self.generic:            
+        if self.generic:
             unit_funcs.auto_level(self, num_levels)
-        # Existing units would have leveled up different with bonus growths 
-        elif DB.constants.value('backpropagate_difficulty_growths'):  
+        # Existing units would have leveled up different with bonus growths
+        elif DB.constants.value('backpropagate_difficulty_growths'):
             difficulty_growth_bonus = game.mode.get_growth_bonus(self)
             if difficulty_growth_bonus:
                 unit_funcs.auto_level(self, num_levels, difficulty_growths=True)
@@ -201,6 +201,11 @@ class UnitObject(Prefab):
 
     def growth_bonus(self, stat_nid):
         return skill_system.growth_change(self, stat_nid)
+
+    def lck_growth_bonus(self, stat_nid):
+        if 'LCK' in DB.stats.keys():
+            return int(round(equations.parser.lck_bonus(self) * self.stats.get('LCK', 0)))
+        return 0
 
     def get_stat(self, stat_nid):
         return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)

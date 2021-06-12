@@ -14,6 +14,10 @@
                 null
             ],
             [
+                "no_double",
+                null
+            ],
+            [
                 "weapon",
                 null
             ],
@@ -279,6 +283,14 @@
             11
         ],
         "components": [
+            [
+                "cannot_be_countered",
+                null
+            ],
+            [
+                "no_double",
+                null
+            ],
             [
                 "weapon",
                 null
@@ -561,6 +573,10 @@
                 null
             ],
             [
+                "no_double",
+                null
+            ],
+            [
                 "weapon",
                 null
             ],
@@ -828,6 +844,10 @@
         "components": [
             [
                 "cannot_be_countered",
+                null
+            ],
+            [
+                "no_double",
                 null
             ],
             [

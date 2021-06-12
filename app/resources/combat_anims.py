@@ -42,6 +42,8 @@ class Frame():
     @classmethod
     def restore(cls, s_tuple):
         self = cls(*s_tuple)
+        self.rect = tuple(self.rect)
+        self.offset = tuple(self.offset)
         return self
 
 class WeaponAnimation():

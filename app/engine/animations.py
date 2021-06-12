@@ -78,7 +78,7 @@ class Animation():
         else:  # Frame by frame timing
             num_frames = self.speed[self.counter]
             self.frames_held += 1
-            if self.frames_held > num_frames:
+            if self.frames_held >= num_frames:
                 self.frames_held = 0
                 self.counter += 1
             if self.counter >= min(len(self.speed), self.num_frames):

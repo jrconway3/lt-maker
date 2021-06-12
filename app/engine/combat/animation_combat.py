@@ -517,7 +517,6 @@ class AnimationCombat(BaseCombat):
 
     def set_up_combat_animation(self):
         self.state = 'anim'
-        print("Set up Combat Animation")
         if self.get_from_playback('defender_phase'):
             if self.attacker is self.left:
                 self.current_battle_anim = self.right_battle_anim
@@ -534,7 +533,6 @@ class AnimationCombat(BaseCombat):
             self.current_battle_anim.start_anim('Attack')
         elif self.get_from_playback('mark_miss'):
             self.current_battle_anim.start_anim('Miss')
-        print(self.current_battle_anim is self.right_battle_anim)
 
         if self.right_battle_anim == self.current_battle_anim:
             self.focus_right = True
@@ -577,8 +575,19 @@ class AnimationCombat(BaseCombat):
         new_icon = gui.SkillIcon(skill, unit is self.right)
         self.proc_icons.append(new_icon)
 
+    def get_damage(self) -> int:
+        damage_hit_marks = self.get_from_playback('damage_hit')
+        damage_crit_marks = self.get_from_playback('damage_crit')
+        if damage_hit_marks:
+            damage = damage_hit_marks[0][4]
+        elif damage_crit_marks:
+            damage = damage_crit_marks[0][4]
+        else:
+            damage = 0
+        return damage
+
     def hit_spark(self):
-        if self.get_from_playback('damage_hit') or self.get_from_playback('damage_crit'):
+        if self.get_damage() > 0:
             if self.current_battle_anim is self.right_battle_anim:
                 position = (-110, -30)
             else:
@@ -593,16 +602,16 @@ class AnimationCombat(BaseCombat):
             self.no_damage()
 
     def crit_spark(self):
-        if self.get_from_playback('damage_hit') or self.get_from_playback('damage_crit'):
-            anim_nid = 'HitSpark'
+        if self.get_damage() > 0:
+            anim_nid = 'CritSpark'
             animation = RESOURCES.animations.get(anim_nid)
             if animation:
+                position = (-40, -30)
+                anim = Animation(animation, position)
                 if self.current_battle_anim is self.right_battle_anim:
                     pass
                 else:
-                    animation.image = engine.flip_horiz(animation.image)
-                position = (-40, -30)
-                anim = Animation(animation, position)
+                    anim.sprite = engine.flip_horiz(anim.sprite)
                 anim.set_tint(True)
                 self.animations.append(anim)
         else:
@@ -803,8 +812,8 @@ class AnimationCombat(BaseCombat):
         if self.right_item:
             self.draw_item(right_bar, self.right_item, self.left_item, self.right, self.left, (1, 2 + crit))
         # Stats
-        self.draw_stats(left_bar, self.left_stats, (42, 1))
-        self.draw_stats(right_bar, self.right_stats, (WINWIDTH // 2 - 3, 1))
+        self.draw_stats(left_bar, self.left_stats, (42, 0))
+        self.draw_stats(right_bar, self.right_stats, (WINWIDTH // 2 - 3, 0))
 
         bar_trans = 52
         left_pos_x = -3 + self.shake_offset[0]

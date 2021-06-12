@@ -62,7 +62,7 @@ def get_combat_anim_icon(klass_obj):
             if not frame:
                 continue
             if not frame.pixmap:
-                frame.pixmap = QPixmap(frame.full_path)
+                frame.pixmap = QPixmap(weapon_anim.full_path).copy(*frame.rect)
             pixmap = frame.pixmap
             im = pixmap.toImage()
             im = editor_utilities.color_convert(im, convert_dict)

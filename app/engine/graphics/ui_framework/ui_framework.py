@@ -29,7 +29,7 @@ class ComponentProperties():
 
         self.grid_occupancy: Tuple[int, int] = (1, 1)    # width/height that the component takes up in a grid
         self.grid_coordinate: Tuple[int, int] = (0, 0)   # which grid coordinate the component occupies
-        
+
         # used by the component to configure itself
         self.bg: Surface = None                         # bg image for the component
         self.bg_color: Color4 = (0, 0, 0, 0)            # (if no bg) - bg fill color for the component
@@ -41,13 +41,13 @@ class ComponentProperties():
             ListLayoutStyle.ROW )
 
         self.resize_mode: ResizeMode = (                # resize mode; AUTO components will dynamically resize themselves,
-            ResizeMode.AUTO )                           # whereas MANUAL components will NEVER resize themselves. 
+            ResizeMode.AUTO )                           # whereas MANUAL components will NEVER resize themselves.
                                                         # Probably always use AUTO, since it'll use special logic.
-        
-        self.max_width: str = None                      # maximum width str for the component. 
+
+        self.max_width: str = None                      # maximum width str for the component.
                                                         # Useful for dynamic components such as dialog.
         self.max_height: str = None                     # maximum height str for the component.
-        
+
         self.opacity: float = 1                         # layer opacity for the element.
                                                         # NOTE: changing this from 1 will disable per-pixel alphas
                                                         # for the entire component.
@@ -64,13 +64,13 @@ class UIComponent():
     def __init__(self, name: str = "", parent: UIComponent = None):
         """A generic UI component. Contains convenient functionality for
         organizing a UI, as well as UI animation support.
-        
+
         NOTE: If using percentages, all of width, height, offset, and margin
         are stored as percentages of the size of the parent, while
         padding is stored as a percentage of the self's size.
-        
+
         Margin and Padding are stored as Left, Right, Top, and Bottom.
-        
+
         self.children are UI component children.
         self.manual_surfaces are manually positioned surfaces, to support more primitive
             and direct control over the UI.
@@ -79,55 +79,55 @@ class UIComponent():
             self.parent = RootComponent()
         else:
             self.parent = parent
-        
+
         self.layout_handler = UILayoutHandler(self)
 
         self.name = name
-        
+
         self.children: List[UIComponent] = []
         self.manual_surfaces: List[Tuple[Tuple[int, int], Surface]] = []
-        
+
         self.props: ComponentProperties = ComponentProperties()
-        
+
         self.isize: List[UIMetric] = [UIMetric.percent(100),
                                       UIMetric.percent(100)]
-        
+
         self.imargin: List[UIMetric] = [UIMetric.pixels(0),
                                         UIMetric.pixels(0),
                                         UIMetric.pixels(0),
                                         UIMetric.pixels(0)]
-        
+
         self.ipadding: List[UIMetric] = [UIMetric.pixels(0),
                                          UIMetric.pixels(0),
                                          UIMetric.pixels(0),
                                          UIMetric.pixels(0)]
-        
+
         # temporary offset (horizontal, vertical) - used for animations
         self.ioffset: List[UIMetric] = [UIMetric.pixels(0),
                                         UIMetric.pixels(0)]
-        
+
         self.cached_background: Surface = None # contains the rendered background.
-        
+
         # animation queue
         self.queued_animations: List[UIAnimation] = []
         # saved animations
         self.saved_animations: Dict[str, List[UIAnimation]] = {}
-        
+
         # secret internal timekeeper, basically never touch this
         self._chronometer: Callable[[], int] = engine.get_time
 
         self.enabled: bool = True
-        
+
     def set_chronometer(self, chronometer: Callable[[], int]):
         self._chronometer = chronometer
         for child in self.children:
             child.set_chronometer(chronometer)
-    
+
     @classmethod
     def create_base_component(cls, win_width=WINWIDTH, win_height=WINHEIGHT) -> UIComponent:
         """Creates a blank component that spans the entire screen; a base component
         to which other components can be attached
-        
+
         Args:
             win_width (int): pixel width of the window. Defaults to the global setting.
             win_height(int): pixel height of the window. Defaults to the global setting.
@@ -139,7 +139,7 @@ class UIComponent():
         base.width = win_width
         base.height = win_height
         return base
-    
+
     @classmethod
     def from_existing_surf(cls, surf: Surface) -> UIComponent:
         """Creates a sparse UIComponent from an existing surface.
@@ -155,7 +155,7 @@ class UIComponent():
         component.height = surf.get_height()
         component.set_background(surf)
         return component
-    
+
     def set_background(self, bg: Union[Surface, Color4]):
         """Set the background of this component to bg_surf.
         If the size doesn't match, it will be rescaled on draw.
@@ -171,7 +171,7 @@ class UIComponent():
         # the component will regenerate the background.
         # See _create_bg_surf() and to_surf()
         self.cached_background = None
-        
+
     def set_bg_resize(self, mode: ResizeMode):
         """Changes the resizing policy of the bg for this component.
 
@@ -183,7 +183,7 @@ class UIComponent():
         # the component will regenerate the background.
         # See _create_bg_surf() and to_surf()
         self.cached_background = None
-    
+
     @property
     def max_width(self) -> int:
         """Returns max width in pixels
@@ -192,7 +192,7 @@ class UIComponent():
             int: max width of component
         """
         return UIMetric.parse(self.props.max_width).to_pixels(self.parent.width)
-    
+
     @property
     def max_height(self) -> int:
         """return max height in pixels
@@ -201,7 +201,7 @@ class UIComponent():
             int: max height of component
         """
         return UIMetric.parse(self.props.max_height).to_pixels(self.parent.height)
-    
+
     @property
     def offset(self) -> Tuple[int, int]:
         """returns offset in pixels
@@ -221,7 +221,7 @@ class UIComponent():
                 can be in percentages or pixels
         """
         self.ioffset = (UIMetric.parse(new_offset[0]), UIMetric.parse(new_offset[1]))
-    
+
     @property
     def size(self) -> Tuple[int, int]:
         """Returns the pixel width and height of the component
@@ -230,7 +230,7 @@ class UIComponent():
             Tuple[int, int]: (pixel width, pixel height)
         """
         return (self.width, self.height)
-    
+
     @size.setter
     def size(self, size_input: Tuple[str, str]):
         """sets the size of the component
@@ -241,7 +241,7 @@ class UIComponent():
         """
         self.isize = [UIMetric.parse(size_input[0]),
                       UIMetric.parse(size_input[1])]
-    
+
     @property
     def width(self) -> int:
         """width of component in pixels
@@ -254,7 +254,7 @@ class UIComponent():
             return min(self.isize[0].to_pixels(self.parent.width), max_width)
         else:
             return self.isize[0].to_pixels(self.parent.width)
-    
+
     @width.setter
     def width(self, width: str):
         """Sets width
@@ -263,7 +263,7 @@ class UIComponent():
             width (str): width string. Can be percentage or pixels.
         """
         self.isize[0] = UIMetric.parse(width)
-    
+
     @property
     def height(self) -> int:
         """height of component in pixels
@@ -276,7 +276,7 @@ class UIComponent():
             return min(self.isize[1].to_pixels(self.parent.height), max_height)
         else:
             return self.isize[1].to_pixels(self.parent.height)
-    
+
     @height.setter
     def height(self, height: str):
         """Sets height
@@ -285,7 +285,7 @@ class UIComponent():
             height (str): height string. Can be percentage or pixels.
         """
         self.isize[1] = UIMetric.parse(height)
-    
+
     @property
     def margin(self) -> Tuple[int, int, int, int]:
         """margin of component in pixels
@@ -297,7 +297,7 @@ class UIComponent():
                 self.imargin[1].to_pixels(self.parent.width),
                 self.imargin[2].to_pixels(self.parent.height),
                 self.imargin[3].to_pixels(self.parent.height))
-        
+
     @margin.setter
     def margin(self, margin: Tuple[str, str, str, str]):
         """sets a margin
@@ -310,7 +310,7 @@ class UIComponent():
                         UIMetric.parse(margin[1]),
                         UIMetric.parse(margin[2]),
                         UIMetric.parse(margin[3])]
-    
+
     @property
     def padding(self) -> Tuple[int, int, int, int]:
         """Padding of component in pixels
@@ -335,7 +335,7 @@ class UIComponent():
                          UIMetric.parse(padding[1]),
                          UIMetric.parse(padding[2]),
                          UIMetric.parse(padding[3])]
-    
+
     def add_child(self, child: UIComponent):
         """Add a child component to this component.
         NOTE: Order matters, depending on the layout
@@ -347,7 +347,7 @@ class UIComponent():
         child.parent = self
         child.set_chronometer(self._chronometer)
         self.children.append(child)
-        
+
     def add_surf(self, surf: Surface, pos: Tuple[int, int]):
         """Add a hard-coded surface to this component.
 
@@ -356,7 +356,7 @@ class UIComponent():
             pos (Tuple[int, int]): the coordinate position of the top left of surface
         """
         self.manual_surfaces.append((pos, surf))
-        
+
     def any_children_animating(self) -> bool:
         """Returns whether or not any children are currently in the middle of an animation.
         Useful for deciding whether or not to shut this component down.
@@ -382,7 +382,7 @@ class UIComponent():
         for child in self.children:
             child.enter()
         self.enabled = True
-    
+
     @animated('!exit')
     def exit(self, is_top_level=True) -> bool:
         """Makes the component exit, i.e. transitions it out
@@ -390,16 +390,16 @@ class UIComponent():
         Because of the @animated tag, will automatically queue
         the animation named "!exit" if it exists in the UIObject's
         saved animations
-        
+
         This will also recursively exit any children.
-        
+
         Args:
             is_top_level (bool): Whether or not this is the top level parent.
             If not, then this will not actually disable. This is because if
             you disable a top-level component, then you will never render its children
             anyway; this will avoid graphical bugs such as children vanishing instantly
             before the parent animates out.
-        
+
         Returns:
             bool: whether or not this is disabled, or is waiting on children to finish animating.
         """
@@ -424,11 +424,11 @@ class UIComponent():
         """Does the same as exit(), except forgoes all animations.
         """
         self.enabled = False
-        
+
     def queue_animation(self, animations: List[UIAnimation] = [], names: List[str] = [], force: bool = False):
         """Queues a series of animations for the component. This method can be called with
         arbitrary animations to play, or it can be called with names corresponding to
-        an animation saved in its animation dict, or both, with names taking precedence. 
+        an animation saved in its animation dict, or both, with names taking precedence.
         The animations will automatically trigger in the order in which they were queued.
 
         NOTE: by default, this does not allow queueing when an animation is already playing.
@@ -436,7 +436,7 @@ class UIComponent():
         Args:
             animation (List[UIAnimation], optional): A list of animations to queue. Defaults to [].
             name (List[str], optional): The names of saved animations. Defaults to [].
-            force (bool, optional): Whether or not to queue this animation even if other animations are already playing. 
+            force (bool, optional): Whether or not to queue this animation even if other animations are already playing.
             Defaults to False.
         """
         if not force and len(self.queued_animations) > 0:
@@ -450,7 +450,7 @@ class UIComponent():
         for animation in animations:
             animation.component = self
             self.queued_animations.append(animation)
-        
+
     def save_animation(self, animation: UIAnimation, name: str):
         """Adds an animation to the UIComponent's animation dict.
         This is useful for adding animations that may be called many times.
@@ -463,15 +463,15 @@ class UIComponent():
             self.saved_animations[name].append(animation)
         else:
             self.saved_animations[name] = [animation]
-        
+
     def skip_animation(self):
-        """clears the animation queue by finishing all of them instantly. 
+        """clears the animation queue by finishing all of them instantly.
         Useful for skip button implementation.
         """
         for anim in self.queued_animations:
             anim.after_anim()
         self.queued_animations = []
-        
+
     def update(self):
         """update. used at the moment to advance animations.
         """
@@ -484,7 +484,7 @@ class UIComponent():
     def _create_bg_surf(self) -> Surface:
         """Generates the background surf for this component of identical dimension
         as the component itself. If the background image isn't the same size as the component,
-        and we want to rescale, then we will use PIL to rescale. Because rescaling is expensive, 
+        and we want to rescale, then we will use PIL to rescale. Because rescaling is expensive,
         we'll be making use of limited caching here.
 
         Returns:
@@ -524,7 +524,7 @@ class UIComponent():
             pos = hard_code_child[0]
             img = hard_code_child[1]
             base_surf.blit(img, (pos[0], pos[0]))
-        
+
         # handle own opacity
         if self.props.opacity < 1:
             opacity_val = self.props.opacity * 255

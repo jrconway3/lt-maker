@@ -22,7 +22,7 @@ class TextProperties(ComponentProperties):
         self.font: BmpFont = FONT['text-white']         # self-explanatory: the font
         self.line_break_size: str = '0px'               # if the text component is multiline, how much space
                                                         # is between the two lines. Can be percentage or pixel value.
-        
+
         self.max_lines: int = 2                         # maximum number of lines to split the text over, if max_width is set.
 
 class TextComponent(UIComponent):
@@ -35,7 +35,8 @@ class TextComponent(UIComponent):
         self.num_visible_chars = len(text)
         self.final_formatted_text = []
         self.scrolled_line: float = 1
-        
+        self._recalculate_size()
+
     @property
     def font_height(self) -> int:
         return self.props.font.height
@@ -43,11 +44,11 @@ class TextComponent(UIComponent):
     @property
     def max_text_width(self) -> int:
         return UIMetric.parse(self.props.max_width).to_pixels(self.parent.width) - self.padding[0] - self.padding[1]
-    
+
     @property
     def line_break_size(self) -> int:
         return UIMetric.parse(self.props.line_break_size).to_pixels(self.parent.height)
-        
+
     def set_font(self, font: BmpFont):
         """Sets the font of this component and recalculates the component size.
 
@@ -66,7 +67,7 @@ class TextComponent(UIComponent):
         """
         self.props.line_break_size = line_break_size
         self._recalculate_size()
-        
+
     def set_num_lines(self, num_lines: int):
         """Sets the max lines of this component and recalculates the component size.
 
@@ -74,7 +75,7 @@ class TextComponent(UIComponent):
             num_lines (int): max number of lines
         """
         self.props.max_lines = num_lines
-        self._recalculate_size()        
+        self._recalculate_size()
 
     # @overrides UIComponent.padding.setter
     @UIComponent.padding.setter
@@ -117,7 +118,7 @@ class TextComponent(UIComponent):
         self.text = text
         self.num_visible_chars = len(text)
         self._recalculate_size()
-        
+
     def set_visible(self, num_chars_visible: int):
         """If you do not wish to display all the text at once,
         you can specify how many characters you want to display
@@ -143,7 +144,7 @@ class TextComponent(UIComponent):
         return self.cached_background
 
     def _add_line_breaks_to_text(self):
-        """Generates correctly line-broken text based on 
+        """Generates correctly line-broken text based on
         our max width. This is stored in the internal list `final_formatted_text`
         """
         # determine the max length of the string we can fit on the first line
@@ -153,21 +154,21 @@ class TextComponent(UIComponent):
             self.final_formatted_text = lines
         else:
             self.final_formatted_text = [self.text]
-    
+
     @property
     def scrollable_height(self):
         height_of_max_lines = self.props.max_lines * self.font_height + (self.props.max_lines - 1) * self.line_break_size
         return self.height - height_of_max_lines
-    
+
     def _pixel_height_to_line(self, pixels):
         return clamp(pixels / self.scrollable_height * len(self.final_formatted_text) + 1, 1, len(self.final_formatted_text))
-        
+
     def scroll_to_nearest_line(self):
         self.scrolled_line = round(self.scrolled_line)
 
     def set_scroll_height(self, scroll_to: Union[int, float, str, UIMetric]):
         """crops the text component to the place you want to scroll to. This supports
-        calculating the y-coord of a specific line or space between two lines (int, float), 
+        calculating the y-coord of a specific line or space between two lines (int, float),
         or a specific pixel or percentage (str, UIMetric)
 
         Args:
@@ -198,7 +199,7 @@ class TextComponent(UIComponent):
             visible_line = line[:remaining_chars]
             remaining_chars -= len(visible_line)
             self.props.font.blit(visible_line, base_surf, pos=(self.padding[0], self.padding[2] + line_num * (self.line_break_size + self.font_height)))
-        
+
         if self.props.max_lines > 0:
             # crop the text to the max number of lines, to avoid overflow
             scrolled_down_height = (self.scrolled_line - 1) * (self.font_height + self.line_break_size)

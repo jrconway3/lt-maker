@@ -21,7 +21,7 @@ class EventState(State):
                 game.cursor.hide()
 
     def take_input(self, event):
-        if event == 'START' or event == 'BACK':
+        if event == 'START' or event == 'BACK' and self.event.state != 'dialog_log':
             SOUNDTHREAD.play_sfx('Select 4')
             self.event.skip(event == 'START')
 
@@ -30,6 +30,23 @@ class EventState(State):
                 if not cf.SETTINGS['talk_boop']:
                     SOUNDTHREAD.play_sfx('Select 1')
                 self.event.hurry_up()
+
+        elif event == 'INFO':
+            if self.event.state == 'dialog':
+                self.event.state = 'dialog_log'
+                print('DIALOG_LOG')
+            elif self.event.state == 'dialog_log':
+                self.event.state = 'dialog'
+                print('DIALOG')
+
+        elif event == 'UP':
+            if self.event.state == 'dialog_log':
+                self.event.dialog_log.scroll_up()
+
+        elif event == 'DOWN':
+            if self.event.state == 'dialog_log':
+                self.event.dialog_log.scroll_down()
+
 
     def update(self):
         if self.game_over:

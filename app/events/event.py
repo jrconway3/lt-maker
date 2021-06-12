@@ -19,6 +19,8 @@ from app.engine.objects.tilemap import TileMapObject
 from app.engine.animations import MapAnimation
 from app.engine.sound import SOUNDTHREAD
 from app.engine.game_state import game
+from app.engine.dialog_log import DialogLog
+
 
 import logging
 
@@ -85,6 +87,8 @@ class Event():
         # For map animations
         self.animations = []
 
+        self.dialog_history = DialogLog()
+
     @property
     def unit1(self):
         return self.unit
@@ -146,6 +150,7 @@ class Event():
             elif self.state == 'dialog':
                 if self.text_boxes:
                     if self.text_boxes[-1].is_done():
+                        self.dialog_history.log_dialog(self.text_boxes[-1])
                         self.state = 'processing'
                 else:
                     self.state = 'processing'
@@ -198,6 +203,9 @@ class Event():
             for dialog_box in to_draw:
                 dialog_box.update()
                 dialog_box.draw(surf)
+
+        if self.state == "dialog_log":
+            self.dialog_history.draw(surf)
 
         # Fade to black
         if self.transition_state:
@@ -1239,6 +1247,7 @@ class Event():
                 position = (4, 2)
             if not width:
                 width = WINWIDTH - 8
+
         new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant)
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'
@@ -1666,7 +1675,7 @@ class Event():
             reload_map_nid = values[2]
         else:
             reload_map_nid = tilemap_nid
-        
+
         # Remove all units from the map
         # But remember their original positions for later
         previous_unit_pos = {}

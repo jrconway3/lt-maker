@@ -20,6 +20,7 @@ class EventPortrait():
     halfsmile = (32, 80, 32, 16)
     closesmile = (64, 80, 32, 16)
 
+
     transition_speed = utils.frames2ms(14)
     travel_time = utils.frames2ms(15)
     bop_time = utils.frames2ms(8)
@@ -39,6 +40,7 @@ class EventPortrait():
         self.expressions = expressions or set()
 
         self.main_portrait = engine.subsurface(self.portrait.image, (0, 0, 96, 80))
+        self.mini_portrait = engine.subsurface(self.portrait.image, (96, 16, 32, 32))
 
         self.talk_on = False
         self.remove = False
@@ -108,7 +110,7 @@ class EventPortrait():
             self.last_talk_update = current_time
             chance = random.randint(1, 10)
             if self.talk_state == 0:
-                # 10% chance to skip to state 2    
+                # 10% chance to skip to state 2
                 if chance == 1:
                     self.talk_state = 2
                     self.next_talk_update = random.randint(70, 160)
@@ -159,7 +161,7 @@ class EventPortrait():
                 mouth_image = engine.subsurface(self.portrait.image, self.halfmouth)
             elif self.talk_state == 2:
                 mouth_image = engine.subsurface(self.portrait.image, self.openmouth)
-        
+
         # For blink image
         if "CloseEyes" in self.expressions:
             blink_image = engine.subsurface(self.portrait.image, self.fullblink)
@@ -174,7 +176,7 @@ class EventPortrait():
                 blink_image = engine.subsurface(self.portrait.image, self.halfblink)
             elif self.blink_counter.count == 2:
                 blink_image = engine.subsurface(self.portrait.image, self.fullblink)
-            
+
         # Piece together image
         if blink_image:
             main_image.blit(blink_image, self.portrait.blinking_offset)
@@ -209,7 +211,7 @@ class EventPortrait():
                 # The below does not actually contain the CORRECT true-to-GBA algorithm
                 # Just a close simple approximation, because I could not determine the GBA algorithm perfectly
                 # 15 frames (250 ms) to lerp 24 pixels
-                # 30 frames (500 ms) to lerp 120 pixels 
+                # 30 frames (500 ms) to lerp 120 pixels
                 # 45 frames? (750 ms) to lerp 264 pixels
                 direction = 1 if diff_x >= 0 else -1
                 travel_mag = int(round(abs(diff_x) / 8))
@@ -218,10 +220,10 @@ class EventPortrait():
                     self.bop_state = True
                     self.bop_height = 1
                 # angle = math.atan2(self.travel[1], self.travel[0])
-                # updated_position = (self.orig_position[0] + abs(self.travel[0]) * travel_mag * math.cos(angle), 
+                # updated_position = (self.orig_position[0] + abs(self.travel[0]) * travel_mag * math.cos(angle),
                 #                     self.orig_position[1] + abs(self.travel[1]) * travel_mag * math.sin(angle))
                 updated_position = (self.position[0] + (travel_mag * direction), self.position[1])
-                self.position = updated_position                
+                self.position = updated_position
 
         if self.bops_remaining:
             if current_time - self.last_bop > self.bop_time:

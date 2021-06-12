@@ -79,24 +79,25 @@ class UIAnimation():
         self.should_halt = halt_condition
         
         self.start_time: int = 0
+        self.current_time: int = 0
         self.begun = False
 
-    def _exec_before_anims(self, component: UIComponent, start_time: int):
+    def _exec_before_anims(self, component: UIComponent, start_time: int, delta_time: int):
         for before_anim in self.before_anim:
             if before_anim:
-                before_anim(component, start_time)
+                before_anim(component, start_time, 0)
         
-    def _exec_do_anims(self, component: UIComponent, anim_time: int):
+    def _exec_do_anims(self, component: UIComponent, anim_time: int, delta_time: int):
         for do_anim in self.do_anim:
             if do_anim:
-                do_anim(component, anim_time)
+                do_anim(component, anim_time, delta_time)
                 
-    def _exec_after_anims(self, component: UIComponent, anim_time: int):
+    def _exec_after_anims(self, component: UIComponent, anim_time: int, delta_time: int):
         for after_anim in self.after_anim:
             if after_anim:
-                after_anim(component, anim_time)
+                after_anim(component, anim_time, delta_time)
 
-    def begin(self, start_time: int = 0):
+    def begin(self):
         """begins the animation
 
         Args:
@@ -106,17 +107,18 @@ class UIAnimation():
         if not self.component:
             return
         self.begun = True
-        self.start_time = start_time
-        self._exec_before_anims(self.component, start_time)
+        self.start_time = 0
+        self.current_time = 0
+        self._exec_before_anims(self.component, 0, 0)
         
-    def update(self, update_time: int = 0) -> bool:
+    def update(self, delta_time: int = 0) -> bool:
         """Plays the animation.
         If the animation hasn't started, start it.
         If the animation is started, iterate the animation one stage.
         If the animation should stop, finish it and return true.
         
         Args:
-            update_time (int, optional): the time at which the animation was updated. Defaults to 0.
+            delta_time (int, optional): the time since an animation was last updated. Defaults to 0.
                 necessary to calculate animation progress and lerping
 
         Returns:
@@ -125,18 +127,20 @@ class UIAnimation():
         if not self.component:
             return False
         if not self.begun:
-            self.begin(update_time)
+            self.begin()
             return False
+        # update internal timer
+        self.current_time = self.current_time + delta_time
+        anim_time = self.current_time 
         # update animation
-        anim_time = update_time - self.start_time
-        if self.should_halt is None or self.should_halt(self.component, anim_time):
-            self._exec_after_anims(self.component, anim_time)
+        if self.should_halt is None or self.should_halt(self.component, anim_time, delta_time):
+            self._exec_after_anims(self.component, anim_time, delta_time)
             # we finished, so we want to reset the animation
             # in case we call it again
             self.reset()
             return True
         else:
-            self._exec_do_anims(self.component, anim_time)
+            self._exec_do_anims(self.component, anim_time, delta_time)
             return False
     
     def reset(self):
@@ -169,23 +173,23 @@ def hybridize_animation(anims: Dict[str, UIAnimation], keyfunction: Callable[[UI
     Returns:
         UIAnimation: a hybridized UIAnimation.
     """
-    def composite_before(c: UIComponent, anim_time):
-        which_anim = keyfunction(c, anim_time)
+    def composite_before(c: UIComponent, *args):
+        which_anim = keyfunction(c, *args)
         if which_anim in anims and anims[which_anim].before_anim:
-            anims[which_anim]._exec_before_anims(c, anim_time)
-    def composite_do(c: UIComponent, anim_time):
-        which_anim = keyfunction(c, anim_time)
+            anims[which_anim]._exec_before_anims(c, *args)
+    def composite_do(c: UIComponent, *args):
+        which_anim = keyfunction(c, *args)
         if which_anim in anims and anims[which_anim].do_anim:
-            anims[which_anim]._exec_do_anims(c, anim_time)
-    def composite_after(c: UIComponent, anim_time):
-        which_anim = keyfunction(c, anim_time)
+            anims[which_anim]._exec_do_anims(c, *args)
+    def composite_after(c: UIComponent, *args):
+        which_anim = keyfunction(c, *args)
         if which_anim in anims and anims[which_anim].after_anim:
-            anims[which_anim]._exec_after_anims(c, anim_time)
-    def composite_halt(c: UIComponent, anim_time) -> bool:
-        which_anim = keyfunction(c, anim_time)
+            anims[which_anim]._exec_after_anims(c, *args)
+    def composite_halt(c: UIComponent, *args) -> bool:
+        which_anim = keyfunction(c, *args)
         if which_anim in anims:
             if anims[which_anim].should_halt:
-                return anims[which_anim].should_halt(c, anim_time)
+                return anims[which_anim].should_halt(c, *args)
         return True
     
     composite_anim = UIAnimation(halt_condition=composite_halt, before_anim=composite_before, do_anim=composite_do, after_anim=composite_after)

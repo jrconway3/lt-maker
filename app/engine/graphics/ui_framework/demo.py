@@ -32,6 +32,7 @@ class Mode(Enum):
     OverworldUIMode = 0
     NarrationMode = 1
 
+
 def main():
     screen = pygame.display.set_mode((WINWIDTH * 2, WINHEIGHT * 2))
     tmp_surf = pygame.Surface((WINWIDTH, WINHEIGHT))
@@ -62,7 +63,7 @@ def main():
                         mode = Mode.OverworldUIMode
                 elif e.key == pygame.K_TAB:
                     if mode == Mode.NarrationMode:
-                        ui_overlay.narration.start_scrolling()
+                        ui_overlay.narration.write_a_line()
             cursor.take_input(events)
         tmp_surf.blit(world_map, (0, 0))
         nodes.draw(tmp_surf)

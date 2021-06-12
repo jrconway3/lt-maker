@@ -49,6 +49,8 @@ def parse_attr(attr, text: str):
         return text
     elif attr == 'sound':
         return text
+    elif attr == 'effect':
+        return text
 
 def generate_text(command: CombatAnimationCommand) -> str:
     s = [command.nid]

@@ -64,6 +64,13 @@ class CombatAnimProperties(QWidget):
         self.build_frames()
         self.set_layout()
 
+    def save_state(self) -> str:
+        return [self.main_splitter.saveState(), self.right_splitter.saveState()]
+
+    def restore_state(self, state):
+        self.main_splitter.restoreState(state[0])
+        self.right_splitter.restoreState(state[1])
+
     def control_setup(self, current):
         self.current = current
         self.playing = False
@@ -186,21 +193,21 @@ class CombatAnimProperties(QWidget):
         view_frame = QFrame()
         view_frame.setLayout(self.view_section)
 
-        main_splitter = QSplitter(self)
-        main_splitter.setChildrenCollapsible(False)
+        self.main_splitter = QSplitter(self)
+        self.main_splitter.setChildrenCollapsible(False)
 
-        right_splitter = QSplitter(self)
-        right_splitter.setOrientation(Qt.Vertical)
-        right_splitter.setChildrenCollapsible(False)
-        right_splitter.addWidget(self.palette_menu)
-        right_splitter.addWidget(self.timeline_menu)
+        self.right_splitter = QSplitter(self)
+        self.right_splitter.setOrientation(Qt.Vertical)
+        self.right_splitter.setChildrenCollapsible(False)
+        self.right_splitter.addWidget(self.palette_menu)
+        self.right_splitter.addWidget(self.timeline_menu)
 
-        main_splitter.addWidget(view_frame)
-        main_splitter.addWidget(right_splitter)
+        self.main_splitter.addWidget(view_frame)
+        self.main_splitter.addWidget(self.right_splitter)
 
         final_section = QHBoxLayout()
         self.setLayout(final_section)
-        final_section.addWidget(main_splitter)
+        final_section.addWidget(self.main_splitter)
 
         timer.get_timer().tick_elapsed.connect(self.tick)
 

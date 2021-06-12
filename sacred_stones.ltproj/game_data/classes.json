@@ -3709,7 +3709,7 @@
             0
         ],
         "map_sprite_nid": "Archer",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Archer"
     },
     {
         "nid": "Sniper",

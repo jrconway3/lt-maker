@@ -123,6 +123,11 @@ class MultiDatabaseEditor(SingleDatabaseEditor):
             state = self.settings.component_controller.get_state(_type)
             if state and tab.splitter:
                 tab.splitter.restoreState(state)
+            # Also handle the frame itself
+            right_frame_type = _type + '_right_frame'
+            state = self.settings.component_controller.get_state(right_frame_type)
+            if state:
+                tab.right_frame.restore_state(state)
 
     def on_tab_changed(self, idx):
         # Make each tab individually resizable
@@ -154,6 +159,11 @@ class MultiDatabaseEditor(SingleDatabaseEditor):
             _type = tab.__class__.__name__
             if tab.splitter:
                 self.settings.component_controller.set_state(_type, tab.splitter.saveState())
+            if hasattr(tab.right_frame, 'save_state'):
+                state = tab.right_frame.save_state()
+                right_frame_type = _type + '_right_frame'
+                if state:
+                    self.settings.component_controller.set_state(right_frame_type, state)
 
     def closeEvent(self, event):
         self.save_geometry()
@@ -253,6 +263,16 @@ class MultiResourceEditor(SingleResourceEditor):
         geometry = self.settings.component_controller.get_geometry(self._type())
         if geometry:
             self.restoreGeometry(geometry)
+        for tab in self.tabs:
+            _type = tab.__class__.__name__
+            state = self.settings.component_controller.get_state(_type)
+            if state and tab.splitter:
+                tab.splitter.restoreState(state)
+            # Also handle the frame itself
+            right_frame_type = _type + '_right_frame'
+            state = self.settings.component_controller.get_state(right_frame_type)
+            if state:
+                tab.right_frame.restore_state(state)
 
     def on_tab_changed(self, idx):
         # Make each tab individually resizable
@@ -275,6 +295,15 @@ class MultiResourceEditor(SingleResourceEditor):
 
     def save_geometry(self):
         self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
+        for tab in self.tabs:
+            _type = tab.__class__.__name__
+            if tab.splitter:
+                self.settings.component_controller.set_state(_type, tab.splitter.saveState())
+            if hasattr(tab.right_frame, 'save_state'):
+                state = tab.right_frame.save_state()
+                right_frame_type = _type + '_right_frame'
+                if state:
+                    self.settings.component_controller.set_state(right_frame_type, state)
 
     def closeEvent(self, event):
         self.save_geometry()

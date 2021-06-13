@@ -233,4 +233,6 @@ class DelayTimelineTurn(SkillComponent):
     author = "KD"
 
     def end_combat(self, playback, unit, item, target, mode):
-        action.do(action.DelayInTimeline(target, self.value))
+        mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
+        if any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
+            action.do(action.DelayInTimeline(target, self.value))

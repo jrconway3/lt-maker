@@ -1544,8 +1544,6 @@ class AIState(MapState):
     def get_next_unit(self):
         if DB.constants.get('timeline').value:
             t_unit = game.timeline[game.timeline_position]
-            print(game.timeline)
-            print(t_unit)
             if t_unit.position and not t_unit.finished and not t_unit.has_run_ai:
                 return t_unit
             else:
@@ -1629,7 +1627,6 @@ class AIState(MapState):
             game.ai.reset()
             self.cur_unit = None
             self.cur_group = None
-            print('ai ending')
             game.state.change('turn_change')
             game.state.change('status_endstep')
             self.finish()

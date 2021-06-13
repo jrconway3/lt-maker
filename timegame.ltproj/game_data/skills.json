@@ -445,16 +445,16 @@
         ],
         "components": [
             [
-                "delay_timeline_turn",
-                1
-            ],
-            [
                 "combat_art",
                 "Kneebreaker"
             ],
             [
                 "class_skill",
                 null
+            ],
+            [
+                "lifelink",
+                0.5
             ]
         ]
     },

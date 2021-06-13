@@ -92,6 +92,22 @@
         "expression": "CON"
     },
     {
+        "nid": "TIMELINESPEED",
+        "expression": "SPD"
+    },
+    {
+        "nid": "SP",
+        "expression": "20"
+    },
+    {
+        "nid": "SP_GAIN",
+        "expression": "4"
+    },
+    {
+        "nid": "LCK_BONUS",
+        "expression": "1"
+    },
+    {
         "nid": "ZERO",
         "expression": "0"
     }

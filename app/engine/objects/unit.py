@@ -203,7 +203,7 @@ class UnitObject(Prefab):
         return skill_system.growth_change(self, stat_nid)
 
     def lck_growth_bonus(self, stat_nid):
-        if 'LCK' in DB.stats.keys():
+        if 'LCK' in DB.stats.keys() and 'LCK_BONUS' in DB.equations:
             return int(round(equations.parser.lck_bonus(self) * self.stats.get('LCK', 0)))
         return 0
 
@@ -211,7 +211,11 @@ class UnitObject(Prefab):
         return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)
 
     def get_timeline_speed(self):
-        self.timeline_speed = equations.parser.timelinespeed(self)
+        if 'TIMELINESPEED' in DB.equations:
+            self.timeline_speed = equations.parser.timelinespeed(self)
+        else:
+            self.timeline_speed = self.get_max_hp()
+            print('No TIMELINESPEED equation! Defaulting to max hp')
 
     @property
     def sprite(self):

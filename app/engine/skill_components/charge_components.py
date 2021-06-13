@@ -105,10 +105,27 @@ class CombatChargeIncreaseByStat(SkillComponent):
             new_value = min(new_value, self.skill.data['total_charge'])
             action.do(action.SetObjData(self.skill, 'charge', new_value))
 
+class GainSP(SkillComponent):
+    nid = 'gain_sp'
+    desc = "Gain X SP on use"
+    # paired_with = ('effective_tag',)
+    tag = "charge"
+    author = 'KD'
+
+    expose = Type.Int
+    value = 2
+
+    ignore_conditional = True
+
+    def start_combat(self, playback, unit, item, target, mode):
+        if self.skill.data.get('active'):
+            action.do(action.ChangeSP(unit, self.value))
+
 class CostSP(SkillComponent):
     nid = 'cost_sp'
     desc = "Skill reduces SP with each use. Unit must have >=X SP to use the skill."
     tag = "charge"
+    author = 'KD'
 
     expose = Type.Int
     value = 2
@@ -129,6 +146,7 @@ class CheckSP(SkillComponent):
     nid = 'check_sp'
     desc = "Unit must have more than X SP to use this skill. Does not subtract SP on use."
     tag = "charge"
+    author = 'KD'
 
     expose = Type.Int
     value = 2

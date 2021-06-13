@@ -17,11 +17,10 @@ from app.editor.custom_widgets import ClassBox, AffinityBox
 from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatAverageDialog, UnitStatAveragesModel
 from app.editor.learned_skill_delegate import LearnedSkillDelegate
-from app.editor.unit_notes_delegate import UnitNotesDelegate
+from app.editor.unit_notes_delegate import UnitNotesDelegate, UnitNotesDoubleListModel
 from app.editor.item_list_widget import ItemListWidget
 from app.editor.weapon_editor import weapon_model
 from app.editor.icons import UnitPortrait
-# from app.editor.helper_funcs import can_wield
 
 class WexpModel(VirtualListModel):
     def __init__(self, columns, data, parent=None):
@@ -201,8 +200,10 @@ class UnitProperties(QWidget):
         # self.personal_skill_widget.activated.connect(self.learned_skills_changed)
 
         noteAttrs = ("Category", "Entries")
-        self.unit_notes_widget = AppendMultiListWidget([], "Unit Notes", noteAttrs, UnitNotesDelegate, self, model=ReverseDoubleListModel)
+        self.unit_notes_widget = AppendMultiListWidget([], "Unit Notes", noteAttrs, UnitNotesDelegate, self, model=UnitNotesDoubleListModel)
         self.unit_notes_widget.view.setMaximumHeight(120)
+        if not DB.constants.value('unit_notes'):
+            self.unit_notes_widget.hide()
 
         default_weapons = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}
         self.wexp_gain_widget = HorizWeaponListWidget(

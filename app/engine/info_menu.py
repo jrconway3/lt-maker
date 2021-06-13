@@ -236,7 +236,7 @@ class InfoMenuState(State):
         game.memory['scroll_units'] = None
         
         self.state = game.memory.get('info_menu_state', info_states[0])
-        if not self.unit.notes and self.state == 'notes':
+        if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.unit.notes):
             self.state = 'personal_data'
         self.growth_flag = False
 
@@ -372,7 +372,7 @@ class InfoMenuState(State):
         index = info_states.index(self.state)
         new_index = (index - 1) % len(info_states)
         self.next_state = info_states[new_index]
-        if not self.unit.notes and self.next_state == 'notes':
+        if self.next_state == 'notes' and not (DB.constants.value('unit_notes') and self.unit.notes):
             new_index = (new_index - 1) % len(info_states)
             self.next_state = info_states[new_index]
         self.transition = 'LEFT'
@@ -384,7 +384,7 @@ class InfoMenuState(State):
         index = info_states.index(self.state)
         new_index = (index + 1) % len(info_states)
         self.next_state = info_states[new_index]
-        if not self.unit.notes and self.next_state == 'notes':
+        if self.next_state == 'notes' and not (DB.constants.value('unit_notes') and self.unit.notes):
             new_index = (new_index + 1) % len(info_states)
             self.next_state = info_states[new_index]
         self.transition = 'RIGHT'
@@ -397,7 +397,7 @@ class InfoMenuState(State):
             index = self.scroll_units.index(self.unit)
             new_index = (index + 1) % len(self.scroll_units)
             self.next_unit = self.scroll_units[new_index]
-            if not self.next_unit.notes and self.state == 'notes':
+            if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
                 self.state = 'personal_data'
                 self.switch_logo('personal_data')
             self.transition = 'DOWN'
@@ -408,7 +408,7 @@ class InfoMenuState(State):
             index = self.scroll_units.index(self.unit)
             new_index = (index - 1) % len(self.scroll_units)
             self.next_unit = self.scroll_units[new_index]
-            if not self.next_unit.notes and self.state == 'notes':
+            if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
                 self.state = 'personal_data'
                 self.switch_logo('personal_data')
             self.transition = 'UP'
@@ -968,20 +968,16 @@ class InfoMenuState(State):
         if my_notes:
             total_height = 24
             help_offset = 0
-            for y_index, note in enumerate(my_notes):
+            for idx, note in enumerate(my_notes):
                 category = note[0]
                 entries = note[1].split(',')
-                one_line = False if len(entries) > 1 else True
                 FONT['text-blue'].blit(category, menu_surf, (10, total_height))
                 for entry in entries:
                     category_length = font.size(category)[0]
                     left_pos = 64 if category_length <= 64 else (category_length + 8)
-                    if one_line:
-                        font.blit(entry, menu_surf, (left_pos, total_height))
-                    else:
-                        font.blit(entry, menu_surf, (left_pos, total_height))
+                    font.blit(entry, menu_surf, (left_pos, total_height))
                     total_height += 16
-                self.info_graph.register((96, 16 * help_offset + 24, 64, 16), '%s_desc' % category, 'notes', first=(y_index == 0))
+                self.info_graph.register((96, 16 * help_offset + 24, 64, 16), '%s_desc' % category, 'notes', first=(idx == 0))
                 help_offset += len(entries)
 
         return menu_surf

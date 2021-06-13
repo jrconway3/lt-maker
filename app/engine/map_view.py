@@ -29,6 +29,9 @@ class MapView():
         self.x2_counter.update(current_time)
 
     def draw_units(self, surf, cull_rect, subsurface_rect=None):
+        # Surf is always 240x160 WxH
+        unit_surf = engine.create_surface((WINWIDTH, WINHEIGHT), transparent=True)
+
         # Update all units except the cur unit
         update_units = [unit for unit in game.units if (unit.position or unit.sprite.fake_position)]
         for unit in update_units:
@@ -44,34 +47,32 @@ class MapView():
             culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position or unit.sprite.fake_position)]
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])
 
-        # Done only in animation combat
-        if subsurface_rect:
-            draw_surf = engine.create_surface((subsurface_rect[2], subsurface_rect[3]), transparent=True)
-            topleft = subsurface_rect[0] - cull_rect[0], subsurface_rect[1] - cull_rect[1]
-        else:
-            draw_surf = surf
-            topleft = cull_rect[0], cull_rect[1]
+        topleft = cull_rect[0], cull_rect[1]
         
         for unit in draw_units:
-            unit.sprite.draw(draw_surf, topleft)
+            unit.sprite.draw(unit_surf, topleft)
             if 'event' not in game.state.state_names():
-                unit.sprite.draw_hp(draw_surf, topleft)
+                unit.sprite.draw_hp(unit_surf, topleft)
         for unit in draw_units:
-            unit.sprite.draw_markers(draw_surf, topleft)
+            unit.sprite.draw_markers(unit_surf, topleft)
 
         # Draw the movement arrows
-        game.cursor.draw_arrows(draw_surf, topleft)
+        game.cursor.draw_arrows(unit_surf, topleft)
 
         # Draw the main unit
         cur_unit = game.cursor.cur_unit
         if cur_unit and (cur_unit.position or cur_unit.sprite.fake_position):
-            cur_unit.sprite.draw(draw_surf, topleft)
+            cur_unit.sprite.draw(unit_surf, topleft)
             if 'event' not in game.state.state_names():
-                cur_unit.sprite.draw_hp(draw_surf, topleft)
-                cur_unit.sprite.draw_markers(draw_surf, topleft)
+                cur_unit.sprite.draw_hp(unit_surf, topleft)
+                cur_unit.sprite.draw_markers(unit_surf, topleft)
 
         if subsurface_rect:
-            surf.blit(draw_surf, (subsurface_rect[0], subsurface_rect[1]))
+            left, top = (subsurface_rect[0] - cull_rect[0], subsurface_rect[1] - cull_rect[1])
+            unit_surf = engine.subsurface(unit_surf, (left, top, subsurface_rect[2], subsurface_rect[3]))
+            surf.blit(unit_surf, (left, top))
+        else:
+            surf.blit(unit_surf, (0, 0))
 
     def draw(self, culled_rect=None):
         # start = time.time_ns()

@@ -24,7 +24,7 @@ class ManifestCatalog(Data[M]):
     filetype = '.png'
     manifest = None  # To be implemented
     title = ''  # To be implemented
-    datatype = None  # To be implement
+    datatype = None  # To be implemented
 
     def load(self, loc):
         resource_dict = self.read_manifest(os.path.join(loc, self.manifest))

@@ -14,8 +14,8 @@ from app.utilities import str_utils
 def get_palette_pixmap(palette) -> QPixmap:
     painter = QPainter()
     main_pixmap = QPixmap(32, 32)
+    main_pixmap.fill(QColor(0, 0, 0, 0))
     painter.begin(main_pixmap)
-    painter.fillRect(0, 0, 32, 32, QColor(0, 0, 0, 0))
     colors = palette.colors.values()
     colors = sorted(colors, key=lambda color: utils.rgb2hsv(*color)[0])
     for idx, color in enumerate(colors[:16]):

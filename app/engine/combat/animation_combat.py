@@ -456,7 +456,7 @@ class AnimationCombat(BaseCombat):
 
     def build_viewbox(self, current_time):
         vb_multiplier = utils.clamp(current_time / self.viewbox_time, 0, 1)
-        true_x, true_y = self.view_pos[0] - game.camera.get_x(), self.view_pos[1] - game.camera.get_y()
+        true_x, true_y = self.view_pos[0] - game.camera.get_x() + 0.5, self.view_pos[1] - game.camera.get_y() + 0.5
         vb_x = int(vb_multiplier * true_x * TILEWIDTH)
         vb_y = int(vb_multiplier * true_y * TILEHEIGHT)
         vb_width = int(WINWIDTH - vb_x - (vb_multiplier * (TILEX - true_x)) * TILEWIDTH)

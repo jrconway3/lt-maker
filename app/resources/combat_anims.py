@@ -169,15 +169,17 @@ class CombatEffectCatalog(ManifestCatalog):
         for s_dict in effect_dict:
             new_effect_anim = EffectAnimation.restore(s_dict)
             full_path = os.path.join(loc, new_effect_anim.nid + '.png')
-            new_effect_anim.set_full_path(os.path.join(loc, full_path))
+            new_effect_anim.set_full_path(full_path)
             self.append(new_effect_anim)
 
     def save(self, loc):
         for effect_anim in self:
-            full_path = os.path.join(loc, effect_anim.nid)
-            if os.path.abspath(effect_anim.full_path) != os.path.abspath(full_path):
-                shutil.copy(effect_anim.full_path, full_path)
-                effect_anim.set_full_path(full_path)
+            new_full_path = os.path.join(loc, '%s.png' % effect_anim.nid)
+            if not effect_anim.full_path:
+                effect_anim.pixmap.save(new_full_path, "PNG")
+            elif os.path.abspath(effect_anim.full_path) != os.path.abspath(new_full_path):
+                self.make_copy(effect_anim.full_path, new_full_path)
+                effect_anim.set_full_path(new_full_path)
         self.dump(loc)
 
     def clean(self, loc):

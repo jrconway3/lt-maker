@@ -61,6 +61,7 @@ def generate_text(command: CombatAnimationCommand) -> str:
     return ';'.join(s)
 
 def parse_text(split_text: list) -> CombatAnimationCommand:
+    print("Import", split_text)
     command_nid = split_text[0]
     if command_nid == 'f':
         if len(split_text) == 3: 
@@ -89,6 +90,8 @@ def parse_text(split_text: list) -> CombatAnimationCommand:
         for idx, attr in enumerate(command.attr):
             if len(split_text) > idx + 1:
                 value = parse_attr(attr, split_text[idx + 1])
+            elif attr is bool:
+                value = True
             else:
                 value = None
             values.append(value)

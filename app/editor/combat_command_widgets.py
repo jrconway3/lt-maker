@@ -71,11 +71,11 @@ class BasicCommand(CombatCommand):
 class BoolCommand(CombatCommand):
     def create_editor(self, hbox):
         self.editor = QCheckBox(self)
-        self.editor.setChecked(self._data.value)
-        self.editor.valueChanged.connect(self.on_value_changed)
+        self.editor.setChecked(self._data.value[0])
+        self.editor.stateChanged.connect(self.on_value_changed)
 
     def on_value_changed(self, val):
-        self._data.value = bool(val)
+        self._data.value = (bool(val),)
 
 class IntCommand(CombatCommand):
     def create_editor(self, hbox):
@@ -97,21 +97,23 @@ class SoundCommand(CombatCommand):
         self.editor = ComboBox(self)
         self.editor.addItems([d.nid for d in RESOURCES.sfx])
         self.editor.setValue(self._data.value[0])
-        self.editor.currentIndexChanged.connect(self.on_value_changed)
+        self.editor.activated.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
-    def on_value_changed(self, idx):
-        self._data.value = (RESOURCES.sfx[idx].nid, )
+    def on_value_changed(self):
+        sfx_nid = self.editor.currentText()
+        self._data.value = (sfx_nid,)
 
 class EffectCommand(CombatCommand):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
         self.editor.addItems([d.nid for d in RESOURCES.combat_effects])
-        self.editor.currentIndexChanged.connect(self.on_value_changed)
+        self.editor.activated.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
-    def on_value_changed(self, idx):
-        self._data.value = RESOURCES.combat_effects[idx].nid
+    def on_value_changed(self):
+        effect_nid = self.editor.currentText()
+        self._data.value = (effect_nid,)
 
 class WaitForHitCommand(CombatCommand):
     def create_editor(self, hbox):
@@ -349,10 +351,10 @@ class ColorTimeCommand(CombatCommand):
     def on_value_changed(self, val):
         num_frames = int(self.num_frames.value())
         color = self.color.color().getRgb()
-        print(color)
         self._data.value = (num_frames, color)
 
 def get_command_widget(command, parent):
+    print("Get command widget", command.nid)
     if command.attr is None:
         c = BasicCommand(command, parent)
     elif command.attr == (bool,):

@@ -703,7 +703,14 @@ class AnimationCombat(BaseCombat):
         self.move_camera()
 
     def pan_back(self):
-        self.focus_exp()
+        next_state = self.state_machine.get_next_state()
+        if next_state:
+            if next_state == 'attacker':
+                self.focus_right = (self.attacker is self.right)
+            elif next_state == 'defender':
+                self.focus_right = (self.defender is self.right)
+        else:
+            self.focus_exp()
         self.move_camera()
 
     def focus_exp(self):

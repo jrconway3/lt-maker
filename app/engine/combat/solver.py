@@ -6,6 +6,8 @@ from app.engine.game_state import game
 import logging
 
 class SolverState():
+    name = None
+
     def get_next_state(self, solver):
         return None
 
@@ -22,6 +24,8 @@ class SolverState():
         return None
 
 class InitState(SolverState):
+    name = 'init'
+
     def get_next_state(self, solver):
         command = solver.get_script()
         if command == '--':
@@ -33,6 +37,7 @@ class InitState(SolverState):
             return self.process_command(command) 
 
 class AttackerState(SolverState):
+    name = 'attacker'
     num_multiattacks = 1
 
     def get_next_state(self, solver):
@@ -94,6 +99,7 @@ class AttackerState(SolverState):
         skill_system.end_sub_combat(actions, playback, solver.attacker, solver.main_item, solver.defender, 'attack')
 
 class DefenderState(SolverState):
+    name = 'defender'
     num_multiattacks = 1
 
     def get_next_state(self, solver):
@@ -105,7 +111,7 @@ class DefenderState(SolverState):
                 else:
                     defender_outspeed = 1
                 attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
-                self.num_multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
+                # self.num_multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
                 
                 if solver.allow_counterattack() and \
                         solver.num_subdefends < self.num_multiattacks:
@@ -176,7 +182,14 @@ class CombatPhaseSolver():
         self.state.process(self, actions, playback)
         return actions, playback
 
+    def get_next_state(self) -> str:
+        # This is just used to determine what the next state will be
+        if self.state:
+            return self.state.name
+        return None
+
     def setup_next_state(self):
+        # Does actually change the state
         next_state = self.state.get_next_state(self)
         logging.debug("Next State: %s" % next_state)
         if next_state:

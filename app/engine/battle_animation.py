@@ -86,9 +86,9 @@ class BattleAnimation():
         self.opacity = 255
         self.death_opacity = []
         # Offset
-        self.static = False # Animation will always be in the same place on the screen
-        self.ignore_pan = False  # Animation will ignore any panning
-        self.pan_away = False
+        self.static: bool = False # Animation will always be in the same place on the screen
+        self.ignore_pan: bool = False  # Animation will ignore any panning
+        self.pan_away: bool = False
 
         self.lr_offset = []
         self.effect_offset = (0, 0)

@@ -426,11 +426,59 @@
         "components": [
             [
                 "combat_art",
-                "Avoid5"
+                "Poisoned"
             ],
             [
                 "class_skill",
                 null
+            ]
+        ]
+    },
+    {
+        "nid": "Kneebreaker",
+        "name": "Kneebreaker",
+        "desc": "Delays the target's next turn by one",
+        "icon_nid": "Skills",
+        "icon_index": [
+            0,
+            16
+        ],
+        "components": [
+            [
+                "delay_timeline_turn",
+                1
+            ],
+            [
+                "combat_art",
+                "Kneebreaker"
+            ],
+            [
+                "class_skill",
+                null
+            ]
+        ]
+    },
+    {
+        "nid": "Weaken",
+        "name": "Weaken",
+        "desc": "Target is poisoned until their next turn",
+        "icon_nid": "Skills",
+        "icon_index": [
+            8,
+            9
+        ],
+        "components": [
+            [
+                "class_skill",
+                null
+            ],
+            [
+                "give_status_after_attack",
+                "Poisoned"
+            ],
+            [
+                "combat_art",
+                "Flying"
             ]
         ]
     }

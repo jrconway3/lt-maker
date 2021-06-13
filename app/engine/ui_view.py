@@ -11,6 +11,7 @@ from app.engine.game_state import game
 
 class UIView():
     legal_states = ('free', 'prep_formation', 'prep_formation_select')
+    timeline_states = ('status_endstep', 'turn_change', 'ai', 'phase_change', 'menu')
     x_positions = (0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 6, 6, 6, 5, 4, 3, 2, 1)
     y_positions = (0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, 0, 0, 0, 0, 0)
 
@@ -99,7 +100,8 @@ class UIView():
             if self.obj_info_offset >= 200:
                 self.obj_info_disp = None
 
-        if game.state.current() in self.legal_states and DB.constants.get('timeline').value \
+        if (game.state.current() in self.legal_states or game.state.current() in self.timeline_states) \
+                and DB.constants.get('timeline').value \
                 and not game.current_level.roam and game.timeline_show:
             self.timeline_info_disp = self.create_timeline_info()
             self.timeline_info_offset -= 0

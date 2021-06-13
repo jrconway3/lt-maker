@@ -1838,6 +1838,30 @@ class TriggerCharge(Action):
         if self.new_charge is not None:
             self.skill.data['charge'] = self.old_charge
 
+class DelayInTimeline(Action):
+    def __init__(self, unit, time):
+        self.unit = unit
+        self.time = time
+
+    def do(self):
+        i = game.timeline_position
+        stop = False
+        while i < len(game.timeline) and not stop:
+            if game.timeline[i] == self.unit:
+                game.timeline.pop(i)
+                self.old_position = i
+                self.new_position = i + self.time
+                if self.new_position >= len(game.timeline):
+                    self.new_position = len(game.timeline)
+                    game.timeline.append(self.unit)
+                else:
+                    game.insert_in_timeline(self.unit, game.timeline, self.new_position)
+                stop = True
+            i += 1
+
+    def reverse(self):
+        game.timeline.pop(self.new_position)
+        game.insert_in_timeline(self.unit, game.timeline, self.old_position)
 
 class AddSkill(Action):
     def __init__(self, unit, skill, initiator=None):

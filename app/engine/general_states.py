@@ -29,18 +29,19 @@ class TurnChangeState(MapState):
             supports.increment_end_turn_supports('player')
             game.memory['previous_cursor_position'] = game.cursor.position
         # Clear all previous states in state machine except me
-        if DB.constants.get('timeline').value and game.turncount > 0:
-            if not game.timeline_death:
-                game.timeline.append(game.timeline[game.timeline_position])
-            else:
-                game.timeline_death = 0
-            game.timeline_position += 1
         game.state.refresh()
         game.state.back()  # Turn Change should only last 1 frame
         return 'repeat'
 
     def end(self):
         game.phase.next()  # Go to next phase
+        # Timeline stuff
+        if DB.constants.get('timeline').value and game.turncount > 0:
+            if not game.timeline_death:
+                game.timeline.append(game.timeline[game.timeline_position])
+            else:
+                game.timeline_death = 0
+            game.timeline_position += 1
         # If entering player phase
         if game.phase.get_current() == 'player' or (DB.constants.get('timeline').value \
                 and game.timeline[game.timeline_position].team == 'player'):
@@ -1541,16 +1542,20 @@ class AIState(MapState):
         self.cur_group = None
 
     def get_next_unit(self):
+        if DB.constants.get('timeline').value:
+            t_unit = game.timeline[game.timeline_position]
+            print(game.timeline)
+            print(t_unit)
+            if t_unit.position and not t_unit.finished and not t_unit.has_run_ai:
+                return t_unit
+            else:
+                return None
         valid_units = [
             unit for unit in game.units if
             unit.position and
             not unit.finished and
             not unit.has_run_ai and
             unit.team == game.phase.get_current()]
-        if DB.constants.get('timeline').value:
-            for unit in valid_units:
-                if game.timeline[game.timeline_position] != unit:
-                    valid_units.remove(unit)
         if not valid_units:
             return None
         # Check if any members of group
@@ -1624,6 +1629,7 @@ class AIState(MapState):
             game.ai.reset()
             self.cur_unit = None
             self.cur_group = None
+            print('ai ending')
             game.state.change('turn_change')
             game.state.change('status_endstep')
             self.finish()

@@ -180,6 +180,7 @@ class GameState():
                 i += 1
             if i == len(timeline) and not stop:
                 timeline.append(u)
+        print('a')
         return timeline
 
     def add_to_timeline(self, u, t: list, pos=0) -> None:
@@ -195,10 +196,12 @@ class GameState():
             i += 1
         if i == len(t) and not stop:
             t.append(u)
+        print('b')
 
     def insert_in_timeline(self, u, t: list, pos) -> None:
         # A more controlled version of add_to_timeline. Always inserts at the specified index
         t.insert(pos, u)
+        print('c')
 
     def remove_from_timeline(self, u, t: list) -> None:
         # Probably only do this when a unit dies or is removed
@@ -207,6 +210,7 @@ class GameState():
                 if game.timeline.index(unit) <= game.timeline_position:
                     game.timeline_position -= 1
                 t.remove(unit)
+        print('d')
 
     def full_register(self, unit):
         self.register_unit(unit)

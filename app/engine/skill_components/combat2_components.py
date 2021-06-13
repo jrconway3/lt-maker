@@ -222,3 +222,15 @@ class GainSkillAfterActiveKill(SkillComponent):
         if target and target.get_hp() <= 0 and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
             action.do(action.AddSkill(unit, self.value))
             action.do(action.TriggerCharge(unit, self.skill))
+
+class DelayTimelineTurn(SkillComponent):
+    nid = 'delay_timeline_turn'
+    desc = "Delays the target's next turn by X"
+    tag = 'combat2'
+
+    expose = Type.Int
+    value = 1
+    author = "KD"
+
+    def end_combat(self, playback, unit, item, target, mode):
+        action.do(action.DelayInTimeline(target, self.value))

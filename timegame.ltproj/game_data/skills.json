@@ -415,26 +415,6 @@
         ]
     },
     {
-        "nid": "SP Attack",
-        "name": "SP Attack",
-        "desc": "Attacks but costs SP!",
-        "icon_nid": "Skills",
-        "icon_index": [
-            0,
-            14
-        ],
-        "components": [
-            [
-                "combat_art",
-                "Poisoned"
-            ],
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
         "nid": "Kneebreaker",
         "name": "Kneebreaker",
         "desc": "Delays the target's next turn by one",
@@ -451,6 +431,10 @@
             [
                 "class_skill",
                 null
+            ],
+            [
+                "cost_sp",
+                2
             ]
         ]
     },
@@ -495,6 +479,10 @@
             [
                 "combat_art",
                 "Weaken_item_mod"
+            ],
+            [
+                "check_sp",
+                23
             ]
         ]
     },

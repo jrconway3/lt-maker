@@ -107,7 +107,7 @@ class CombatChargeIncreaseByStat(SkillComponent):
 
 class CostSP(SkillComponent):
     nid = 'cost_sp'
-    desc = "Skill reduces SP with each use"
+    desc = "Skill reduces SP with each use. Unit must have >=X SP to use the skill."
     tag = "charge"
 
     expose = Type.Int
@@ -115,9 +115,25 @@ class CostSP(SkillComponent):
 
     ignore_conditional = True
 
+    def condition(self, unit):
+        return unit.current_sp >= self.value
+
     def start_combat(self, playback, unit, item, target, mode):
         if self.skill.data.get('active'):
             action.do(action.ChangeSP(unit, -self.value))
 
     # def text(self) -> str:
     #     return 'Reduces SP by ' + str(self.value)
+
+class CheckSP(SkillComponent):
+    nid = 'check_sp'
+    desc = "Unit must have more than X SP to use this skill. Does not subtract SP on use."
+    tag = "charge"
+
+    expose = Type.Int
+    value = 2
+
+    ignore_conditional = True
+
+    def condition(self, unit):
+        return unit.current_sp >= self.value

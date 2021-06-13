@@ -102,7 +102,7 @@ class ExpState(State):
             self.exp_bar = ExpBar(self.old_exp, center=not self.combat_object)
             self.start_time = current_time
 
-            if DB.constants.get('sp') and self.sp_to_gain:
+            if DB.constants.get('sp') and (self.sp_to_gain or self.unit.current_sp != self.unit.max_sp):
                 self.sp_bar = SpBar(self.old_sp, center=not self.combat_object)
 
             self.state.change('exp_wait')

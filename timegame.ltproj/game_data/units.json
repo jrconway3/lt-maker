@@ -132,12 +132,7 @@
                 false
             ]
         ],
-        "learned_skills": [
-            [
-                1,
-                "SP Attack"
-            ]
-        ],
+        "learned_skills": [],
         "wexp_gain": {
             "Sword": [
                 true,
@@ -1012,10 +1007,6 @@
             [
                 1,
                 "Weaken"
-            ],
-            [
-                1,
-                "SP Attack"
             ],
             [
                 1,

@@ -343,13 +343,16 @@ class SimpleCombat():
 
     def handle_sp(self):
         # handle sp
-        if self.attacker.team == 'player' and self.defender.is_dying:
+        try:
             sp = equations.parser.sp_gain(self)
+        except AttributeError:
+            print('No SP_GAIN equation! Defaulting to 4')
+            sp = 4
+        if self.attacker.team == 'player' and self.defender.is_dying:
             # This is being left open - if something effects SP gain it will be done here
             game.sp_instance.append((self.attacker, sp))
 
         elif self.defender and self.defender.team == 'player' and self.attacker.is_dying:
-            sp = equations.parser.sp_gain(self)
             # This is being left open - if something effects SP gain it will be done here
             game.sp_instance.append((self.defender, sp))
 

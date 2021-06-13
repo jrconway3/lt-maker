@@ -100,7 +100,7 @@
         "expression": "4"
     },
     {
-        "nid": "LCK_BONUS",
-        "expression": "1"
+        "nid": "GROWTH_BONUS",
+        "expression": "LCK"
     }
 ]

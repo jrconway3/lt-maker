@@ -37,11 +37,7 @@ class TurnChangeState(MapState):
         game.phase.next()  # Go to next phase
         # Timeline stuff
         if DB.constants.get('timeline').value and game.turncount > 0:
-            if not game.timeline_death:
-                game.timeline.append(game.timeline[game.timeline_position])
-            else:
-                game.timeline_death = 0
-            game.timeline_position += 1
+            action.do(action.EndTimelineTurn(game.timeline[game.timeline_position]))
         # If entering player phase
         if game.phase.get_current() == 'player' or (DB.constants.get('timeline').value \
                 and game.timeline[game.timeline_position].team == 'player'):

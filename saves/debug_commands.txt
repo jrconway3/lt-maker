@@ -1,8 +1,8 @@
 give_exp;Eirika;100
 give_exp;Eirika;100
 give_exp;Eirika;100
-give_exp;Eirika;100
 
+give_exp;Lute;100
 give_exp;Lute;100
 give_exp;Lute;100
 give_exp;Lute;100

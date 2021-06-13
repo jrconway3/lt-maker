@@ -1129,6 +1129,17 @@
                 "name": null,
                 "desc": null,
                 "generic": true
+            },
+            {
+                "nid": "Neimi",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    2,
+                    3
+                ],
+                "generic": false
             }
         ],
         "regions": [],

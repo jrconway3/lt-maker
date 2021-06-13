@@ -1864,6 +1864,24 @@ class TriggerCharge(Action):
         if self.new_charge is not None:
             self.skill.data['charge'] = self.old_charge
 
+class EndTimelineTurn(Action):
+    def __init__(self, unit):
+        self.unit = unit
+        self.added = 0
+
+    def do(self):
+        if not game.timeline_death:
+            self.added = 1
+            game.timeline.append(self.unit)
+        else:
+            game.timeline_death = 0
+        game.timeline_position += 1
+
+    def reverse(self):
+        if self.added:
+            game.timeline.pop(len(game.timeline) - 1)
+        game.timeline_position -= 1
+
 class DelayInTimeline(Action):
     def __init__(self, unit, time):
         self.unit = unit

@@ -215,14 +215,12 @@ class UnitObject(Prefab):
     def growth_bonus(self, stat_nid):
         return skill_system.growth_change(self, stat_nid)
 
-    def lck_growth_bonus(self, stat_nid):
-        if 'LCK' in DB.stats.keys():
-            try:
-                r = int(round(equations.parser.lck_bonus(self) * self.stats.get('LCK', 0)))
-            except AttributeError:
-                r = 0
-            return r
-        return 0
+    def stat_growth_bonus(self, stat_nid):
+        try:
+            r = int(round(equations.parser.growth_bonus(self)))
+        except AttributeError:
+            r = 0
+        return r
 
     def get_stat(self, stat_nid):
         return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)

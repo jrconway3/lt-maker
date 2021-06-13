@@ -82,8 +82,7 @@ class EquationDialog(MultiAttrListDialog):
                    "DAMAGE", "DEFENSE", "MAGIC_DAMAGE", "MAGIC_DEFENSE",
                    "HITPOINTS", "MOVEMENT", "CRIT_ADD", "CRIT_MULT",
                    "SPEED_TO_DOUBLE", "STEAL_ATK", "STEAL_DEF",
-                   "HEAL", "RESCUE_AID", "RESCUE_WEIGHT", "RATING",
-                   "TIMELINESPEED", "SP", "SP_GAIN", "LCK_BONUS"}
+                   "HEAL", "RESCUE_AID", "RESCUE_WEIGHT", "RATING"}
 
     @classmethod
     def create(cls):

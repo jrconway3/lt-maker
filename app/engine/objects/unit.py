@@ -161,7 +161,11 @@ class UnitObject(Prefab):
         if DB.constants.get('timeline').value:
             self.get_timeline_speed()
 
-        self.max_sp = equations.parser.sp(self)
+        try:
+            self.max_sp = equations.parser.sp(self)
+        except AttributeError:
+            print('No SP equation! Defaulting to 20')
+            self.max_sp = 20
         self.current_sp = self.max_sp
 
         return self
@@ -212,16 +216,21 @@ class UnitObject(Prefab):
         return skill_system.growth_change(self, stat_nid)
 
     def lck_growth_bonus(self, stat_nid):
-        if 'LCK' in DB.stats.keys() and 'LCK_BONUS' in DB.equations:
-            return int(round(equations.parser.lck_bonus(self) * self.stats.get('LCK', 0)))
+        if 'LCK' in DB.stats.keys():
+            try:
+                r = int(round(equations.parser.lck_bonus(self) * self.stats.get('LCK', 0)))
+            except AttributeError:
+                r = 0
+            return r
         return 0
 
     def get_stat(self, stat_nid):
         return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)
 
     def get_timeline_speed(self):
-        self.timeline_speed = equations.parser.timelinespeed(self)
-        if not isinstance(self.timeline_speed, int):
+        try:
+            self.timeline_speed = equations.parser.timelinespeed(self)
+        except AttributeError:
             self.timeline_speed = self.get_max_hp()
             print('No TIMELINESPEED equation! Defaulting to max hp')
 

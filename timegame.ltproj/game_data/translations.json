@@ -157,7 +157,7 @@
     },
     {
         "nid": "LCK_desc",
-        "text": "Luck affects accuracy and avoid."
+        "text": "Luck affects accuracy and avoid. Half of Luck is added to growths."
     },
     {
         "nid": "MOV_desc",

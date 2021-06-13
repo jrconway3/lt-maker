@@ -165,6 +165,7 @@ class GameState():
             self.timeline_position = 0
             self.timeline = self.create_timeline([])
             self.timeline_death = 0
+        self.timeline_show = 1
 
     def create_timeline(self, t) -> list:
         #Creates a timeline. Most likely only happens on start of level

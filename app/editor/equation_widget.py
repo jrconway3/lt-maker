@@ -78,18 +78,19 @@ class EquationMultiModel(MultiAttrListModel):
             item_components.swap_values(affected_items, components.Type.Equation, old_value, new_value)
 
 class EquationDialog(MultiAttrListDialog):
-    locked_vars = {"HIT", "AVOID", "CRIT_HIT", "CRIT_AVOID", 
-                   "DAMAGE", "DEFENSE", "MAGIC_DAMAGE", "MAGIC_DEFENSE", 
+    locked_vars = {"HIT", "AVOID", "CRIT_HIT", "CRIT_AVOID",
+                   "DAMAGE", "DEFENSE", "MAGIC_DAMAGE", "MAGIC_DEFENSE",
                    "HITPOINTS", "MOVEMENT", "CRIT_ADD", "CRIT_MULT",
-                   "SPEED_TO_DOUBLE", "STEAL_ATK", "STEAL_DEF", 
-                   "HEAL", "RESCUE_AID", "RESCUE_WEIGHT", "RATING"}
+                   "SPEED_TO_DOUBLE", "STEAL_ATK", "STEAL_DEF",
+                   "HEAL", "RESCUE_AID", "RESCUE_WEIGHT", "RATING",
+                   "TIMELINESPEED", "SP", "SP_GAIN", "LCK_BONUS"}
 
     @classmethod
     def create(cls):
         def deletion_func(model, index):
             return model._data[index.row()].nid not in cls.locked_vars
 
-        dlg = cls(DB.equations, "Equation", ("nid", "expression"), 
+        dlg = cls(DB.equations, "Equation", ("nid", "expression"),
                   EquationMultiModel, (deletion_func, None, deletion_func), cls.locked_vars)
         return dlg
 

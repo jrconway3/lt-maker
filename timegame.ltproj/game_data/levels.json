@@ -1044,17 +1044,6 @@
         "roam_unit": "Eirika",
         "units": [
             {
-                "nid": "Joshua",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    2,
-                    3
-                ],
-                "generic": false
-            },
-            {
                 "nid": "Bone",
                 "team": "enemy",
                 "ai": "Attack",
@@ -1088,25 +1077,11 @@
                 "generic": false
             },
             {
-                "nid": "Seth",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    1,
-                    4
-                ],
-                "generic": false
-            },
-            {
                 "nid": "Eirika",
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": [
-                    6,
-                    3
-                ],
+                "starting_position": null,
                 "generic": false
             },
             {
@@ -1127,6 +1102,29 @@
                 "starting_position": [
                     12,
                     6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 1,
+                "klass": "Fighter (M) {IS}",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Axe",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    6,
+                    8
                 ],
                 "name": null,
                 "desc": null,

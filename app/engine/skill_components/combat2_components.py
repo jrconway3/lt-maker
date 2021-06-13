@@ -185,6 +185,19 @@ class GiveStatusAfterAttack(SkillComponent):
             action.do(action.AddSkill(target, self.value, unit))
             action.do(action.TriggerCharge(unit, self.skill))
 
+class GiveStatusAfterHit(SkillComponent):
+    nid = 'give_status_after_hit'
+    desc = "Gives a status to target after hitting them"
+    tag = 'combat2'
+
+    expose = Type.Skill
+
+    def after_hit(self, actions, playback, unit, item, target, mode):
+        mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
+        if target and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
+            action.do(action.AddSkill(target, self.value, unit))
+            action.do(action.TriggerCharge(unit, self.skill))
+
 class GainSkillAfterKill(SkillComponent):
     nid = 'gain_skill_after_kill'
     desc = "Gives a skill to user after a kill"
@@ -221,4 +234,19 @@ class GainSkillAfterActiveKill(SkillComponent):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
         if target and target.get_hp() <= 0 and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
             action.do(action.AddSkill(unit, self.value))
+            action.do(action.TriggerCharge(unit, self.skill))
+
+class DelayTimelineTurn(SkillComponent):
+    nid = 'delay_timeline_turn'
+    desc = "Delays the target's next turn by X. Cannot activate when unit is defending."
+    tag = 'combat2'
+
+    expose = Type.Int
+    value = 1
+    author = "KD"
+
+    def after_hit(self, actions, playback, unit, item, target, mode):
+        mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
+        if target and target.get_hp() <= 0 and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
+            action.do(action.DelayInTimeline(target, self.value))
             action.do(action.TriggerCharge(unit, self.skill))

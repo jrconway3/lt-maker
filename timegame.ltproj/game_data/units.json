@@ -975,7 +975,7 @@
         "klass": "Mage",
         "tags": [],
         "bases": {
-            "HP": 17,
+            "HP": 40,
             "STR": 0,
             "MAG": 6,
             "SKL": 6,
@@ -1011,7 +1011,15 @@
         "learned_skills": [
             [
                 1,
+                "Weaken"
+            ],
+            [
+                1,
                 "SP Attack"
+            ],
+            [
+                1,
+                "Kneebreaker"
             ]
         ],
         "wexp_gain": {
@@ -1153,9 +1161,9 @@
             "HP": 24,
             "STR": 8,
             "MAG": 4,
-            "SKL": 13,
+            "SKL": 0,
             "SPD": 14,
-            "LCK": 7,
+            "LCK": 0,
             "DEF": 5,
             "RES": 2,
             "CON": 8,

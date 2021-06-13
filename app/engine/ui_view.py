@@ -193,7 +193,7 @@ class UIView():
         a = 0
         hover = game.cursor.get_hover()
         while i < len(game.timeline) and i <= game.timeline_position + most:
-            if hover and hover == game.timeline[i]:
+            if hover and hover == game.timeline[i] and game.state.current() in self.legal_states:
                 a = 10
                 char_sprite = game.timeline[i].sprite.create_image('active')
             else:

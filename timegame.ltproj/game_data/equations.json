@@ -101,6 +101,6 @@
     },
     {
         "nid": "LCK_BONUS",
-        "expression": "0.5"
+        "expression": "1"
     }
 ]

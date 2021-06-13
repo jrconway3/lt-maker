@@ -36,6 +36,10 @@
         false
     ],
     [
+        "unit_notes",
+        false
+    ],
+    [
         "crit",
         true
     ],

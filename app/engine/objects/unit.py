@@ -220,9 +220,8 @@ class UnitObject(Prefab):
         return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)
 
     def get_timeline_speed(self):
-        if 'TIMELINESPEED' in DB.equations:
-            self.timeline_speed = equations.parser.timelinespeed(self)
-        else:
+        self.timeline_speed = equations.parser.timelinespeed(self)
+        if not isinstance(self.timeline_speed, int):
             self.timeline_speed = self.get_max_hp()
             print('No TIMELINESPEED equation! Defaulting to max hp')
 

@@ -236,6 +236,8 @@ class InfoMenuState(State):
         game.memory['scroll_units'] = None
         
         self.state = game.memory.get('info_menu_state', info_states[0])
+        if not self.unit.notes and self.state == 'notes':
+            self.state = 'personal_data'
         self.growth_flag = False
 
         self.fluid = FluidScroll(200, 1)
@@ -965,6 +967,7 @@ class InfoMenuState(State):
 
         if my_notes:
             total_height = 24
+            help_offset = 0
             for y_index, note in enumerate(my_notes):
                 category = note[0]
                 entries = note[1].split(',')
@@ -978,6 +981,8 @@ class InfoMenuState(State):
                     else:
                         font.blit(entry, menu_surf, (left_pos, total_height))
                     total_height += 16
+                self.info_graph.register((96, 16 * help_offset + 24, 64, 16), '%s_desc' % category, 'notes', first=(y_index == 0))
+                help_offset += len(entries)
 
         return menu_surf
 

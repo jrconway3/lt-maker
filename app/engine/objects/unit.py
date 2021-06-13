@@ -40,6 +40,7 @@ class UnitObject(Prefab):
             self.wexp = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
             self.portrait_nid = None
             self.affinity = None
+            self.notes = []
         else:
             self.faction = None
             self.name = prefab.name
@@ -53,6 +54,7 @@ class UnitObject(Prefab):
             self.wexp = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
             self.portrait_nid = prefab.portrait_nid
             self.affinity = prefab.affinity
+            self.notes = [[n[0], n[1]] for n in prefab.unit_notes]
         self.starting_position = self.position
 
         method = unit_funcs.get_leveling_method(self)
@@ -487,6 +489,7 @@ class UnitObject(Prefab):
                   'portrait_nid': self.portrait_nid,
                   'affinity': self.affinity,
                   'skills': [skill.uid for skill in self.skills],
+                  'notes': self.notes,
                   'current_hp': self.current_hp,
                   'current_sp': self.current_sp,
                   'current_mana': self.current_mana,
@@ -530,6 +533,7 @@ class UnitObject(Prefab):
         self.wexp = s_dict['wexp']
         self.portrait_nid = s_dict['portrait_nid']
         self.affinity = s_dict.get('affinity', None)
+        self.notes = s_dict.get('notes', [])
         if s_dict['starting_position']:
             self.starting_position = tuple(s_dict['starting_position'])
         else:

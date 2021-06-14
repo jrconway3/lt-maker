@@ -59,7 +59,7 @@ class BoundingBox():
     state: str = None
     first: bool = False
 
-info_states = ('personal_data', 'equipment', 'support_skills')
+info_states = ('personal_data', 'equipment', 'support_skills', 'notes')
 
 class InfoGraph():
     def __init__(self):
@@ -236,6 +236,8 @@ class InfoMenuState(State):
         game.memory['scroll_units'] = None
         
         self.state = game.memory.get('info_menu_state', info_states[0])
+        if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.unit.notes):
+            self.state = 'personal_data'
         self.growth_flag = False
 
         self.fluid = FluidScroll(200, 1)
@@ -275,6 +277,7 @@ class InfoMenuState(State):
         self.skill_surf = None
         self.class_skill_surf = None
         self.fatigue_surf = None
+        self.notes_surf = None
 
     def switch_logo(self, name):
         if name == 'personal_data':
@@ -283,6 +286,8 @@ class InfoMenuState(State):
             image = SPRITES.get('info_title_items')
         elif name == 'support_skills':
             image = SPRITES.get('info_title_weapon')
+        elif name == 'notes':
+            image = SPRITES.get('info_title_notes')
         else:
             return
         if self.logo:
@@ -367,6 +372,9 @@ class InfoMenuState(State):
         index = info_states.index(self.state)
         new_index = (index - 1) % len(info_states)
         self.next_state = info_states[new_index]
+        if self.next_state == 'notes' and not (DB.constants.value('unit_notes') and self.unit.notes):
+            new_index = (new_index - 1) % len(info_states)
+            self.next_state = info_states[new_index]
         self.transition = 'LEFT'
         self.left_arrow.pulse()
         self.switch_logo(self.next_state)
@@ -376,6 +384,9 @@ class InfoMenuState(State):
         index = info_states.index(self.state)
         new_index = (index + 1) % len(info_states)
         self.next_state = info_states[new_index]
+        if self.next_state == 'notes' and not (DB.constants.value('unit_notes') and self.unit.notes):
+            new_index = (new_index + 1) % len(info_states)
+            self.next_state = info_states[new_index]
         self.transition = 'RIGHT'
         self.right_arrow.pulse()
         self.switch_logo(self.next_state)
@@ -386,6 +397,9 @@ class InfoMenuState(State):
             index = self.scroll_units.index(self.unit)
             new_index = (index + 1) % len(self.scroll_units)
             self.next_unit = self.scroll_units[new_index]
+            if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
+                self.state = 'personal_data'
+                self.switch_logo('personal_data')
             self.transition = 'DOWN'
 
     def move_up(self):
@@ -394,6 +408,9 @@ class InfoMenuState(State):
             index = self.scroll_units.index(self.unit)
             new_index = (index - 1) % len(self.scroll_units)
             self.next_unit = self.scroll_units[new_index]
+            if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
+                self.state = 'personal_data'
+                self.switch_logo('personal_data')
             self.transition = 'UP'
 
     def handle_mouse(self):
@@ -614,6 +631,11 @@ class InfoMenuState(State):
             if not self.support_surf:
                 self.support_surf = self.create_support_surf()
             self.draw_support_surf(main_surf)
+
+        elif self.state == 'notes':
+            if not self.notes_surf:
+                self.notes_surf = self.create_notes_surf()
+            self.draw_notes_surf(main_surf)
 
         # Now put it in the right place
         offset_x = max(96, 96 - self.scroll_offset_x)
@@ -935,3 +957,30 @@ class InfoMenuState(State):
 
     def draw_fatigue_surf(self, surf):
         surf.blit(self.fatigue_surf, (96, 0))
+
+    def create_notes_surf(self):
+        # Menu background
+        menu_surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT), transparent=True)
+        font = FONT['text-white']
+
+        my_notes = self.unit.notes
+
+        if my_notes:
+            total_height = 24
+            help_offset = 0
+            for idx, note in enumerate(my_notes):
+                category = note[0]
+                entries = note[1].split(',')
+                FONT['text-blue'].blit(category, menu_surf, (10, total_height))
+                for entry in entries:
+                    category_length = font.size(category)[0]
+                    left_pos = 64 if category_length <= 64 else (category_length + 8)
+                    font.blit(entry, menu_surf, (left_pos, total_height))
+                    total_height += 16
+                self.info_graph.register((96, 16 * help_offset + 24, 64, 16), '%s_desc' % category, 'notes', first=(idx == 0))
+                help_offset += len(entries)
+
+        return menu_surf
+
+    def draw_notes_surf(self, surf):
+        surf.blit(self.notes_surf, (96, 0))

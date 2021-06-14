@@ -17,10 +17,10 @@ from app.editor.custom_widgets import ClassBox, AffinityBox
 from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatAverageDialog, UnitStatAveragesModel
 from app.editor.learned_skill_delegate import LearnedSkillDelegate
+from app.editor.unit_notes_delegate import UnitNotesDelegate, UnitNotesDoubleListModel
 from app.editor.item_list_widget import ItemListWidget
 from app.editor.weapon_editor import weapon_model
 from app.editor.icons import UnitPortrait
-# from app.editor.helper_funcs import can_wield
 
 class WexpModel(VirtualListModel):
     def __init__(self, columns, data, parent=None):
@@ -199,6 +199,12 @@ class UnitProperties(QWidget):
         # Changing of Personal skills done automatically also
         # self.personal_skill_widget.activated.connect(self.learned_skills_changed)
 
+        noteAttrs = ("Category", "Entries")
+        self.unit_notes_widget = AppendMultiListWidget([], "Unit Notes", noteAttrs, UnitNotesDelegate, self, model=UnitNotesDoubleListModel)
+        self.unit_notes_widget.view.setMaximumHeight(120)
+        if not DB.constants.value('unit_notes'):
+            self.unit_notes_widget.hide()
+
         default_weapons = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}
         self.wexp_gain_widget = HorizWeaponListWidget(
             default_weapons, "Starting Weapon Experience", HorizWeaponListDelegate, self)
@@ -232,6 +238,7 @@ class UnitProperties(QWidget):
         right_section.addLayout(item_section)
         right_section.addWidget(QHLine())
         right_section.addWidget(self.personal_skill_widget)
+        right_section.addWidget(self.unit_notes_widget)
         right_section.addWidget(QHLine())
         right_section.addWidget(self.alternate_class_box)
         right_section.addWidget(self.affinity_box)
@@ -371,6 +378,7 @@ class UnitProperties(QWidget):
             self.averages_dialog.set_current(current)
 
         self.personal_skill_widget.set_current(current.learned_skills)
+        self.unit_notes_widget.set_current(current.unit_notes)
         self.wexp_gain_widget.set_current(current.wexp_gain)
         self.item_widget.set_current(current.starting_items)
 

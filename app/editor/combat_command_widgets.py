@@ -73,6 +73,7 @@ class BoolCommand(CombatCommand):
         self.editor = QCheckBox(self)
         self.editor.setChecked(self._data.value[0])
         self.editor.stateChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
 
     def on_value_changed(self, val):
         self._data.value = (bool(val),)
@@ -107,13 +108,21 @@ class SoundCommand(CombatCommand):
 class EffectCommand(CombatCommand):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
-        self.editor.addItems([d.nid for d in RESOURCES.combat_effects])
+        self.editor.addItems(['None'] + [d.nid for d in RESOURCES.combat_effects])
+        value = self._data.value[0]
+        if value:
+            self.editor.setValue(value)
+        else:
+            self.editor.setValue('None')
         self.editor.activated.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
     def on_value_changed(self):
         effect_nid = self.editor.currentText()
-        self._data.value = (effect_nid,)
+        if effect_nid == 'None':
+            self._data.value = (None, )
+        else:
+            self._data.value = (effect_nid,)
 
 class WaitForHitCommand(CombatCommand):
     def create_editor(self, hbox):
@@ -341,7 +350,6 @@ class ColorTimeCommand(CombatCommand):
 
         self.color = ColorIcon(QColor(248, 248, 248), self)
         if len(self._data.value) > 1:
-            print(self._data.value[1])
             new_color = QColor(*self._data.value[1])
             self.color.change_color(new_color)
         self.color.set_size(32)
@@ -354,7 +362,6 @@ class ColorTimeCommand(CombatCommand):
         self._data.value = (num_frames, color)
 
 def get_command_widget(command, parent):
-    print("Get command widget", command.nid)
     if command.attr is None:
         c = BasicCommand(command, parent)
     elif command.attr == (bool,):

@@ -1149,7 +1149,7 @@
             0
         ],
         "map_sprite_nid": "Mercenary",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Mercenary"
     },
     {
         "nid": "Hero",
@@ -4472,7 +4472,7 @@
             0
         ],
         "map_sprite_nid": "Mage",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Mage"
     },
     {
         "nid": "Sage",
@@ -5251,7 +5251,7 @@
             0
         ],
         "map_sprite_nid": "WyvernRider",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Wyvern Knight"
     },
     {
         "nid": "Wyvern Lord",

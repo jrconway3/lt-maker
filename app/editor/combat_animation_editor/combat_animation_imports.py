@@ -75,7 +75,8 @@ def add_poses(fn, new_weapon):
             new_weapon.poses.append(current_pose)
         else:
             command = combat_commands.parse_text(line)
-            current_pose.timeline.append(command)
+            if command:
+                current_pose.timeline.append(command)
 
 def import_from_lion_throne(current, fn):
     """

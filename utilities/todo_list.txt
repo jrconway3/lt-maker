@@ -6,6 +6,14 @@ Combat Animations
     Combat Anims / Palettes as a separate tab?
     Combat Effects
     Combat Palettes
+    Promotion
+    Proc Skills
+    Import from GBA
+    Mass Import from GBA
+    Export Frames
+    Export Index File?
+    Export Frames as Gif
+    Show in Engine
 Overworld
 Base
     Arena, *Repair (in market)*, Forge (optional), Bonus Exp / Skills, Support, Codex (World Map, Achievements, Tactics) 
@@ -18,8 +26,9 @@ Book pages frames with a number under them?
 Supports - Radiant Dawn Style (allow player to swap current support partner)
 
 # Polish
-Cursor control mirror the GBA exactly!
-     - Camera scroll, Camera jump, Menu cursor, cursor over units
+Dialogue should show if possible in event editor
+Autocomplete in event editor needs a checkbox in preferences
+ClassBox and UnitBox should have the ability to search
 UI framework
     - Tile Info
     - Unit Info
@@ -28,8 +37,6 @@ UI framework
 * Slight issue with footstep sounds: (*this may be covered under the "Better method for frame speed for Map Animations" note on the todo list)
     * For Player-Controlled Units, movement sounds correctly play shorter or longer based on the Unit Speed setting, but if the Unit Speed is set very high, no footstep sound is played at all if the Unit moves leses than 4 spaces.  Some logic should be put in place to at least play the "half sound" for any amount of movement even if it doesn't reach the threshold to play or loop the "full" footstep sound.
 * 2 or 3 frame fade-in / fade-out for showing / hiding enemy ranges
-
-If you click a unit, move them, then B back, then click the unit again, the cursor should jump to their previous move
 
 Get rid of on_add and on_remove in skill_system
 

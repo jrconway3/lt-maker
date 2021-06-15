@@ -105,11 +105,9 @@ class TimelineMenu(QWidget):
         self.setLayout(layout)
 
     def set_current_frames(self, frames):
-        print("Set Current Frames: ", frames)
         self.current_frames = frames
 
     def set_current_pose(self, pose):
-        print("Set Current Pose: ", pose)
         self.current_pose = pose
         self.current_idx = 0
         self._finished = False
@@ -122,7 +120,6 @@ class TimelineMenu(QWidget):
         self.select(self.current_idx)
 
     def clear(self):
-        print("Timeline Menu Clear!")
         self.current_frames = None
         self.clear_pose()
 
@@ -138,7 +135,6 @@ class TimelineMenu(QWidget):
         self.view.scrollToItem(item, QAbstractItemView.EnsureVisible)
 
     def on_new_selection(self, curr, prev):
-        print("On New Selection: %s" % curr.row())
         self.current_idx = curr.row()
 
     def reset(self):

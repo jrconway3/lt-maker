@@ -3557,11 +3557,11 @@
                 "nid": "101",
                 "variant": null,
                 "level": 1,
-                "klass": "Myrmidon",
+                "klass": "Mage",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Sword",
+                        "Fire",
                         false
                     ]
                 ],
@@ -3615,8 +3615,8 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    2,
-                    13
+                    4,
+                    6
                 ],
                 "name": null,
                 "desc": null,

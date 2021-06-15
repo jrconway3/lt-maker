@@ -85,6 +85,8 @@ def parse_text(split_text: list) -> CombatAnimationCommand:
         command_nid = 'screen_blend'
         split_text.append('255,255,255')
     command = get_command(command_nid)
+    if not command:
+        return None
     values = []
     if command.attr:
         for idx, attr in enumerate(command.attr):
@@ -116,7 +118,7 @@ anim_commands = Data([
     CombatAnimationCommand('wait_for_hit', 'Wait for End of Normal Hit Routine', ('frame', 'frame'), (None, None), 'process'),
     CombatAnimationCommand('miss', 'Miss', None, None, 'process'),
     CombatAnimationCommand('spell', 'Cast Spell', ('effect',), (None,), 'process'),
-    CombatAnimationCommand('spell_hit', 'Spell Hit with Shake/Sound', (bool,), (True,), 'process'),
+    CombatAnimationCommand('spell_hit', 'Spell Hit', None, None, 'process'),
 
     CombatAnimationCommand('self_tint', 'Tint Self', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
     CombatAnimationCommand('enemy_tint', 'Tint Enemy', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
@@ -153,6 +155,8 @@ anim_commands = Data([
 ])
     
 
-def get_command(nid):
+def get_command(nid) -> CombatAnimationCommand:
     base = anim_commands.get(nid)
-    return CombatAnimationCommand.copy(base)
+    if base:
+        return CombatAnimationCommand.copy(base)
+    return None

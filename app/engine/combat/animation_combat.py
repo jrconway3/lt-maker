@@ -11,7 +11,7 @@ from app.engine.combat.solver import CombatPhaseSolver
 
 from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, combat_calcs, gui, action, battle_animation, \
-    item_system, skill_system, icons, background, image_mods
+    item_system, skill_system, icons, background, image_mods, item_funcs
 from app.engine.animations import Animation
 from app.engine.health_bar import CombatHealthBar
 from app.engine.game_state import game
@@ -427,6 +427,10 @@ class AnimationCombat(BaseCombat):
         if miss:
             self.miss_anim()
 
+    def spell_hit(self):
+        self._apply_actions()
+        self._handle_playback()
+
     def _handle_playback(self, sound=True):
         for brush in self.playback:
             if brush[0] in ('damage_hit', 'damage_crit', 'heal_hit'):
@@ -651,8 +655,14 @@ class AnimationCombat(BaseCombat):
         for brush in self.playback:
             if brush[0] == 'damage_hit':
                 damage = brush[4]
+                unit = brush[1]
+                item = brush[2]
+                magic = item_funcs.is_magic(unit, item)
                 if damage > 0:
-                    self._shake(1)
+                    if magic:
+                        self._shake(3)
+                    else:
+                        self._shake(1)
                 else:
                     self._shake(2)  # No damage
             elif brush[0] == 'damage_crit':

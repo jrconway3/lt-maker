@@ -47,7 +47,12 @@ def get_combat_anim_icon(klass_obj):
     # Get palette and apply palette
     if not combat_anim.palettes:
         return None
-    palette_name, palette_nid = combat_anim.palettes[0]
+    palette_names = [palette[0] for palette in combat_anim.palettes]
+    if 'GenericBlue' in palette_names:
+        idx = palette_names.index('GenericBlue')
+        palette_name, palette_nid = combat_anim.palettes[idx]
+    else:
+        palette_name, palette_nid = combat_anim.palettes[0]
     palette = RESOURCES.combat_palettes.get(palette_nid)
     if not palette:
         return None

@@ -23,7 +23,7 @@ import app.editor.combat_animation_editor.combat_animation_imports as combat_ani
 from app.extensions.custom_gui import ComboBox
 
 import app.editor.utilities as editor_utilities
-from app import utilities
+from app.utilities import str_utils
                 
 class CombatAnimProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -255,7 +255,7 @@ class CombatAnimProperties(QWidget):
         other_nids = [d.nid for d in self._data if d is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'ID %s already in use' % self.current.nid)
-            self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
+            self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
         self.on_nid_changed(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
@@ -285,9 +285,7 @@ class CombatAnimProperties(QWidget):
         self.delete_pose_button.setEnabled(b)
 
     def weapon_changed(self, idx):
-        print("weapon_changed", idx)
         weapon_nid = self.weapon_box.currentText()
-        print(weapon_nid)
         weapon_anim = self.current.weapon_anims.get(weapon_nid)
         if not weapon_anim:
             self.pose_box.clear()
@@ -296,13 +294,8 @@ class CombatAnimProperties(QWidget):
             self.has_pose(False)
             return
         self.has_weapon(True)
-        print("Weapon Animation Frames")
-        print(weapon_anim.frames, flush=True)
         self.timeline_menu.set_current_frames(weapon_anim.frames)
         if weapon_anim.poses:
-            print("We have poses!")
-            print(weapon_anim.poses)
-            print(weapon_anim.nid)
             poses = self.reset_pose_box(weapon_anim)
             current_pose_nid = self.pose_box.currentText()
             current_pose = poses.get(current_pose_nid)
@@ -340,7 +333,7 @@ class CombatAnimProperties(QWidget):
             new_nid, ok = QInputDialog.getText(self, "Custom Weapon Animation", "Enter New Name for Weapon: ")
             if not new_nid or not ok:
                 return
-            new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
+            new_nid = str_utils.get_next_name(new_nid, self.current.weapon_anims.keys())
         new_weapon = combat_anims.WeaponAnimation(new_nid)
         self.current.weapon_anims.append(new_weapon)
         self.weapon_box.addItem(new_nid)
@@ -356,7 +349,7 @@ class CombatAnimProperties(QWidget):
             new_nid, ok = QInputDialog.getText(self, "Custom Weapon Animation", "Enter New Name for Weapon: ")
             if not new_nid or not ok:
                 return
-            new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
+            new_nid = str_utils.get_next_name(new_nid, self.current.weapon_anims.keys())
 
         current_weapon_nid = self.weapon_box.currentText()
         current_weapon = self.current.weapon_anims.get(current_weapon_nid)
@@ -442,7 +435,7 @@ class CombatAnimProperties(QWidget):
             new_nid, ok = QInputDialog.getText(self, "Custom Pose", "Enter New Name for Pose: ")
             if not new_nid or not ok:
                 return
-            new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
+            new_nid = str_utils.get_next_name(new_nid, self.current.weapon_anims.keys())
         return new_nid
 
     def add_new_pose(self):
@@ -525,7 +518,6 @@ class CombatAnimProperties(QWidget):
             dlg.exec_()
 
     def set_current(self, current):
-        print("Set Current!")
         self.stop()
 
         self.current = current
@@ -762,7 +754,7 @@ class CombatEffectProperties(CombatAnimProperties):
             new_nid, ok = QInputDialog.getText(self, "Custom Pose", "Enter New Name for Pose: ")
             if not new_nid or not ok:
                 return
-            new_nid = utilities.get_next_name(new_nid, self.current.poses.keys())
+            new_nid = str_utils.get_next_name(new_nid, self.current.poses.keys())
         return new_nid
 
     def add_new_pose(self):
@@ -825,7 +817,6 @@ class CombatEffectProperties(CombatAnimProperties):
         dlg.exec_()
 
     def set_current(self, current):
-        print("Set Current!")
         self.stop()
 
         self.current = current

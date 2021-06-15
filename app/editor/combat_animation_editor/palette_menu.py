@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QButtonGroup, QMenu, \
     QListWidgetItem, QRadioButton, QHBoxLayout, QListWidget, QAction, \
     QLineEdit
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 
 from app.utilities import str_utils
 from app.resources.resources import RESOURCES
@@ -9,6 +9,8 @@ from app.extensions.custom_gui import ComboBox
 from app.editor.combat_animation_editor.palette_model import PaletteModel
 
 class PaletteWidget(QWidget):
+    palette_nid_changed = pyqtSignal(int)
+
     def __init__(self, idx, combat_anim, parent=None):
         super().__init__(parent)
         self.window = parent
@@ -31,10 +33,14 @@ class PaletteWidget(QWidget):
         self.palette_box.setModel(model)
         self.palette_box.view().setUniformItemSizes(True)
         self.palette_box.setValue(palette_nid)
+        self.palette_box.activated.connect(self.change_palette)
 
         layout.addWidget(radio_button)
         layout.addWidget(self.name_label)
         layout.addWidget(self.palette_box)
+
+    def change_palette(self):
+        self.palette_nid_changed.emit(self.idx)
 
 class PaletteMenu(QListWidget):
     def __init__(self, parent=None):
@@ -74,6 +80,7 @@ class PaletteMenu(QListWidget):
 
             item = QListWidgetItem(self)
             pf = PaletteWidget(idx, combat_anim, self)
+            pf.palette_nid_changed.connect(self.palette_nid_changed)
             self.palette_widgets.append(pf)
             item.setSizeHint(pf.minimumSizeHint())
             self.addItem(item)
@@ -92,6 +99,9 @@ class PaletteMenu(QListWidget):
 
     def get_palette_widget(self):
         return self.palette_widgets[self.current_idx]
+
+    def palette_nid_changed(self, idx):
+        self.combat_anim.palettes[idx][1] = self.palette_widgets[idx].palette_box.currentText()
 
     def clear(self):
         # Clear out old radio buttons

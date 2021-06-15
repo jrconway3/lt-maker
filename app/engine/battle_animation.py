@@ -400,7 +400,7 @@ class BattleAnimation():
             if self.partner_anim:
                 self.partner_anim.dodge()
         elif command.nid == 'spell_hit':
-            self.owner.spell_hit(values[0])
+            self.owner.spell_hit()
             self.state = 'wait'
             self.processing = False
 
@@ -437,6 +437,7 @@ class BattleAnimation():
                 self.child_effects.append(child_effect)
 
         elif command.nid == 'blend':
+            print(self.unit.nid, "Blend", command.nid, values)
             if bool(values[0]):
                 self.blend = engine.BLEND_RGB_ADD
             else:

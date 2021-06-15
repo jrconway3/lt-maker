@@ -586,6 +586,7 @@ class CombatAnimProperties(QWidget):
 
     def do_command(self, command):
         self.custom_frame_offset = None
+        self.under_frame_nid = None
         if command.nid in ('frame', 'over_frame', 'under_frame'):
             num_frames, image = command.value
             self.num_frames = num_frames
@@ -638,7 +639,7 @@ class CombatAnimProperties(QWidget):
         if self.under_frame_nid:
             weapon_anim = self.get_current_weapon_anim()
             if weapon_anim:
-                frame = weapon_anim.frames.get(self.frame_nid)
+                frame = weapon_anim.frames.get(self.under_frame_nid)
                 if frame:
                     under_offset_x, under_offset_y = frame.offset
                     under_actor_im = self.modify_for_palette(frame.pixmap)

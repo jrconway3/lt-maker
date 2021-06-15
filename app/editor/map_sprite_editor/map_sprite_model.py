@@ -77,7 +77,7 @@ class MapSpriteModel(ResourceCollectionModel):
                 elif 16 <= standing_pix.width() <= 64 and standing_pix.height() % 3 == 0:  # Try for GBA mode
                     lion_throne_mode = False
                 else:   
-                    QMessageBox.critical(self.window, "Error", "Standing Map Sprite is not correct size for Lion Throne import (192x144 px)")
+                    QMessageBox.critical(self.window, "Error", "Standing Map Sprite is not correct size for Legacy import (192x144 px)")
                     return
             else:
                 QMessageBox.critical(self.window, "Error", "Image must be PNG format")
@@ -96,7 +96,7 @@ class MapSpriteModel(ResourceCollectionModel):
                     if moving_pix.width() == 192 and moving_pix.height() == 160:
                         pass
                     else:
-                        QMessageBox.critical(self.window, "Error", "Moving Map Sprite is not correct size for Lion Throne import (192x160 px)")
+                        QMessageBox.critical(self.window, "Error", "Moving Map Sprite is not correct size for Legacy import (192x160 px)")
                         return
                 else:
                     if moving_pix.width() == 32 and moving_pix.height() == 32 * 15:

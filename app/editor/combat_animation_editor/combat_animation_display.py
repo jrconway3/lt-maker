@@ -173,7 +173,7 @@ class CombatAnimProperties(QWidget):
         self.frame_group_box.setTitle("Image Frames")
         frame_layout = QVBoxLayout()
         self.frame_group_box.setLayout(frame_layout)
-        self.import_from_lt_button = QPushButton("Import Lion Throne Weapon Animation...")
+        self.import_from_lt_button = QPushButton("Import Legacy Weapon Animation...")
         self.import_from_lt_button.clicked.connect(self.import_lion_throne)
         self.import_from_gba_button = QPushButton("Import GBA Weapon Animation...")
         self.import_from_gba_button.clicked.connect(self.import_gba)
@@ -496,7 +496,7 @@ class CombatAnimProperties(QWidget):
     def import_lion_throne(self):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
-        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Lion Throne Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Legacy Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
         if ok:
             for fn in fns:
                 if fn.endswith('-Script.txt'):
@@ -705,7 +705,7 @@ class CombatEffectProperties(CombatAnimProperties):
         self.frame_group_box.setTitle("Image Frames")
         frame_layout = QVBoxLayout()
         self.frame_group_box.setLayout(frame_layout)
-        self.import_from_lt_button = QPushButton("Import Lion Throne Effect...")
+        self.import_from_lt_button = QPushButton("Import Legacy Effect...")
         self.import_from_lt_button.clicked.connect(self.import_lion_throne)
         self.import_from_gba_button = QPushButton("Import GBA Effect...")
         self.import_from_gba_button.clicked.connect(self.import_gba)
@@ -801,7 +801,7 @@ class CombatEffectProperties(CombatAnimProperties):
     def import_lion_throne(self):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
-        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Lion Throne Effect Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Legacy Effect Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
         if ok and fns:
             for fn in fns:
                 if fn.endswith('-Script.txt'):

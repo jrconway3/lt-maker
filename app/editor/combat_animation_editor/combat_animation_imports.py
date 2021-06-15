@@ -80,7 +80,7 @@ def add_poses(fn, new_weapon):
 
 def import_from_lion_throne(current, fn):
     """
-    Imports weapon animations from a Lion Throne formatted combat animation script file.
+    Imports weapon animations from a Legacy formatted combat animation script file.
 
     Parameters
     ----------
@@ -124,7 +124,7 @@ def import_from_lion_throne(current, fn):
 
 def import_effect_from_lion_throne(fn):
     """
-    Imports effect animations from a Lion Throne formatted effect animation script file.
+    Imports effect animations from a Legacy formatted effect animation script file.
 
     Parameters
     ----------

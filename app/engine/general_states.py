@@ -41,13 +41,7 @@ class TurnChangeState(MapState):
     def end(self):
         if DB.constants.value('initiative'):
             action.do(action.IncInitiativeTurn())
-            game.phase.next()
-            if game.initiative.get_current_unit().team == 'player':
-                game.state.change('free')
-            else:
-                game.state.change('ai')
-            game.state.change('status_upkeep')
-            game.state.change('phase_change')
+            game.state.change('initiative_upkeep')
             if game.initiative.at_start():
                 action.do(action.IncrementTurn())
                 game.events.trigger('turn_change')
@@ -81,6 +75,25 @@ class TurnChangeState(MapState):
     def take_input(self, event):
         return 'repeat'
 
+class InitiativeUpkeep(MapState):
+    name = 'initiative_upkeep'
+
+    def begin(self):
+        game.state.back()
+        return 'repeat'
+
+    def end(self):
+        game.phase.next()
+        if game.initiative.get_current_unit().team == 'player':
+            game.state.change('free')
+        else:
+            game.state.change('ai')
+        game.state.change('status_upkeep')
+        game.state.change('phase_change')
+
+    def take_input(self, event):
+        return 'repeat'
+
 class PhaseChangeState(MapState):
     name = 'phase_change'
 
@@ -97,6 +110,11 @@ class PhaseChangeState(MapState):
         action.do(action.ResetAll([unit for unit in game.units if not unit.dead]))
         game.cursor.hide()
         game.phase.slide_in()
+
+        if DB.constants.value('initiative'):
+            unit = game.initiative.get_current_unit()
+            if unit.position:
+                game.cursor.set_pos(unit.position)
 
     def update(self):
         super().update()

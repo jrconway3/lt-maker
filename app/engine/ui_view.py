@@ -180,7 +180,10 @@ class UIView():
         current_unit = game.initiative.get_current_unit()
         unit_list = game.initiative.unit_line[:]
         current_idx = game.initiative.current_idx
-        unit_list = unit_list[max(0, current_idx - 5):min(len(unit_list), current_idx + 6)]
+        min_scroll, max_scroll = current_idx - 9, current_idx + 10
+        min_scroll = max(min_scroll, 0)
+        max_scroll = min(max_scroll, len(unit_list))
+        unit_list = unit_list[min_scroll:max_scroll]
 
         for idx, unit_nid in enumerate(unit_list):
             unit = game.get_unit(unit_nid)

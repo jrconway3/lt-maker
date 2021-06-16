@@ -98,5 +98,9 @@
     {
         "nid": "MANA",
         "expression": "MAG"
+    },
+    {
+        "nid": "INITIATIVE",
+        "expression": "SPD"
     }
 ]

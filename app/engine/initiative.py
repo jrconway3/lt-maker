@@ -74,7 +74,7 @@ class InitiativeTracker():
         lo, hi = 0, len(self.unit_line)
         while lo < hi:
             mid = (lo + hi) // 2
-            if initiative < self.initiative_line[mid]:
+            if initiative > self.initiative_line[mid]:
                 hi = mid
             else:
                 lo = mid + 1

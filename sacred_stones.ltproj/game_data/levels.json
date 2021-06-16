@@ -3470,7 +3470,7 @@
             {
                 "nid": "Bone",
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
                     2,
@@ -3536,10 +3536,7 @@
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": [
-                    1,
-                    2
-                ],
+                "starting_position": null,
                 "generic": false
             },
             {
@@ -3552,6 +3549,26 @@
                     2
                 ],
                 "generic": false
+            },
+            {
+                "nid": "101",
+                "variant": null,
+                "level": 1,
+                "klass": "Myrmidon",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": null,
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [

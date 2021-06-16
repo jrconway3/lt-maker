@@ -86,10 +86,12 @@ class UnitObject(Prefab):
 
         # Handle skills
         self.skills = []
+        global_skills = unit_funcs.get_global_skills(self)
+        self.skills += global_skills
         personal_skills = unit_funcs.get_personal_skills(self, prefab)
         self.skills += personal_skills
         class_skills = unit_funcs.get_starting_skills(self)
-        self.skills = personal_skills + class_skills
+        self.skills += class_skills
 
         # Handle items
         items = item_funcs.create_items(self, prefab.starting_items)
@@ -160,16 +162,6 @@ class UnitObject(Prefab):
         for skill in self.skills:
             skill_system.on_add(self, skill)
 
-        if DB.constants.get('timeline').value:
-            self.get_timeline_speed()
-
-        try:
-            self.max_sp = equations.parser.sp(self)
-        except AttributeError:
-            print('No SP equation! Defaulting to 20')
-            self.max_sp = 20
-        self.current_sp = self.max_sp
-
         return self
 
     def get_max_hp(self):
@@ -180,12 +172,6 @@ class UnitObject(Prefab):
 
     def set_hp(self, val):
         self.current_hp = int(utils.clamp(val, 0, equations.parser.hitpoints(self)))
-
-    def get_sp(self):
-        return self.current_sp
-
-    def set_sp(self, val):
-        self.current_sp = int(utils.clamp(val, 0, equations.parser.sp(self)))
 
     def get_max_mana(self):
         if 'MANA' in DB.equations:
@@ -217,22 +203,8 @@ class UnitObject(Prefab):
     def growth_bonus(self, stat_nid):
         return skill_system.growth_change(self, stat_nid)
 
-    def stat_growth_bonus(self, stat_nid):
-        try:
-            r = int(round(equations.parser.growth_bonus(self)))
-        except AttributeError:
-            r = 0
-        return r
-
     def get_stat(self, stat_nid):
         return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)
-
-    def get_timeline_speed(self):
-        try:
-            self.timeline_speed = equations.parser.timelinespeed(self)
-        except AttributeError:
-            self.timeline_speed = self.get_max_hp()
-            print('No TIMELINESPEED equation! Defaulting to max hp')
 
     @property
     def sprite(self):
@@ -491,7 +463,6 @@ class UnitObject(Prefab):
                   'skills': [skill.uid for skill in self.skills],
                   'notes': self.notes,
                   'current_hp': self.current_hp,
-                  'current_sp': self.current_sp,
                   'current_mana': self.current_mana,
                   'current_fatigue': self.current_fatigue,
                   'traveler': self.traveler,
@@ -543,7 +514,6 @@ class UnitObject(Prefab):
         self.skills = [s for s in self.skills if s]
 
         self.current_hp = s_dict['current_hp']
-        self.current_sp = s_dict['current_sp']
         self.current_mana = s_dict['current_mana']
         self.current_fatigue = s_dict['current_fatigue']
         self.movement_left = equations.parser.movement(self)

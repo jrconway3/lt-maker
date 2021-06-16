@@ -103,7 +103,7 @@ class HPCost(ItemComponent):
     def available(self, unit, item) -> bool:
         return unit.get_hp() > self.value
 
-    def start_combat(self, playback, unit, item, target):
+    def start_combat(self, playback, unit, item, target, mode):
         action.do(action.ChangeHP(unit, -self.value))
 
     def reverse_use(self, unit, item):
@@ -120,7 +120,7 @@ class ManaCost(ItemComponent):
     def available(self, unit, item) -> bool:
         return unit.get_mana() > self.mana_cost
 
-    def start_combat(self, playback, unit, item, target):
+    def start_combat(self, playback, unit, item, target, mode):
         action.do(action.ChangeMana(unit, -self.value))
 
     def reverse_use(self, unit, item):
@@ -151,7 +151,7 @@ class Cooldown(ItemComponent):
     def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
         self._used_in_combat = True
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if self._used_in_combat:
             action.do(action.SetObjData(item, 'cooldown', self.value))
             self._used_in_combat = False

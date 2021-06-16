@@ -932,22 +932,21 @@ class CleanUpRoaming(EventCommand):
     tag = Tags.MISCELLANEOUS
     desc = "Removes all units other than the roaming unit"
 
-    keywords = ["Bool"]
+    keywords = []
 
-class AddToTimeline(EventCommand):
-    nid = 'add_to_timeline'
+class AddToInitiative(EventCommand):
+    nid = 'add_to_initiative'
     tag = Tags.MISCELLANEOUS
-    desc = "Adds the specified unit to the specified point in time (0 is the current timeline position). Position should always be > 0"
+    desc = "Adds the specified unit to the specified point in the initiative order. 0 is the current initiative position."
 
-    keywords = ["Unit", "PositiveInteger"]
+    keywords = ["Unit", "Integer"]
 
-class DelayInTimeline(EventCommand):
-    nid = 'delay_in_timeline'
+class MoveInInitiative(EventCommand):
+    nid = 'move_in_initiative'
     tag = Tags.MISCELLANEOUS
-    desc = "Delays the next turn of the specified unit by the given number of turns."
+    desc = "Moves the initiative of the specified unit."
 
-    keywords = ["Unit", "PositiveInteger"]
-
+    keywords = ["Unit", "Integer"]
 
 def get_commands():
     return EventCommand.__subclasses__()

@@ -24,3 +24,8 @@ class Negative(SkillComponent):
     nid = 'negative'
     desc = "Skill is considered detrimental"
     tag = "attribute"
+
+class Global(SkillComponent):
+    nid = 'global'
+    desc = "All units will possess this skill"
+    tag = "attribute"

@@ -11,7 +11,7 @@ from app.engine.game_state import game
 
 class UIView():
     legal_states = ('free', 'prep_formation', 'prep_formation_select')
-    timeline_states = ('status_endstep', 'turn_change', 'ai', 'phase_change', 'menu', 'turnwheel')
+    initiative_states = ('status_endstep', 'turn_change', 'ai', 'phase_change', 'menu', 'turnwheel')
     x_positions = (0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 6, 6, 6, 5, 4, 3, 2, 1)
     y_positions = (0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, 0, 0, 0, 0, 0)
 
@@ -21,14 +21,14 @@ class UIView():
         self.obj_info_disp = None
         self.attack_info_disp = None
         self.spell_info_disp = None
-        self.timeline_info_disp = None
+        self.initiative_info_disp = None
 
         self.cursor_right: bool = False
 
         self.unit_info_offset = 0
         self.obj_info_offset = 0
         self.attack_info_offset = 0
-        self.timeline_info_offset = 0
+        self.initiative_info_offset = 0
 
         # Tile Info Offset
         self.tile_transition_state = 'normal'
@@ -60,8 +60,7 @@ class UIView():
         # Handle tile info slide in
         if self.tile_transition_state != 'normal':
             diff = current_time - self.tile_last_update
-            # 4 frames => 66 ms
-            self.tile_progress = utils.clamp(diff / 66, 0, 1)
+            self.tile_progress = utils.clamp(diff / utils.frames2ms(4), 0, 1)
             if self.tile_progress >= 1:
                 self.tile_progress = 0
                 self.tile_last_update = current_time
@@ -100,25 +99,23 @@ class UIView():
             if self.obj_info_offset >= 200:
                 self.obj_info_disp = None
 
-        if (game.state.current() in self.legal_states or game.state.current() in self.timeline_states) \
-                and DB.constants.get('timeline').value \
-                and not game.current_level.roam and game.timeline_show:
-            self.timeline_info_disp = self.create_timeline_info()
-            self.timeline_info_offset -= 0
-            self.timeline_info_offset = max(0, self.timeline_info_offset)
-        elif self.timeline_info_disp:
-            self.timeline_info_offset += 0
-            if self.timeline_info_offset >= 200:
-                self.timeline_info_disp = None
+        if (game.state.current() in self.legal_states or game.state.current() in self.initiative_states) \
+                and DB.constants.value('initiative') \
+                and not game.current_level.roam and game.initiative.draw_me:
+            self.initiative_info_disp = self.create_initiative_info()
+            self.initiative_info_offset = max(0, self.initiative_info_offset)
+        elif self.initiative_info_disp:
+            if self.initiative_info_offset >= 200:
+                self.initiative_info_disp = None
 
-        if not game.timeline_show:
-            self.timeline_info_disp = None
+        if not game.initiative.draw_me:
+            self.initiative_info_disp = None
 
         # === Final drawing
         # Should be in topleft, unless cursor is in topleft, in which case it should be in bottomleft
         if self.unit_info_disp:
             # If in top and not in right
-            if not DB.constants.get('timeline').value or not game.timeline_show:
+            if not DB.constants.value('initiative').value or not game.initiative.draw_me:
                 if game.cursor.position[1] < TILEY // 2 + game.camera.get_y() and \
                         not (game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1):
                     surf.blit(self.unit_info_disp, (-self.unit_info_offset, WINHEIGHT - self.unit_info_disp.get_height()))
@@ -126,11 +123,6 @@ class UIView():
                     surf.blit(self.unit_info_disp, (-self.unit_info_offset, 0))
             else:
                 pass
-                # yoffset = 5
-                # if game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1:
-                #    surf.blit(self.unit_info_disp, (-self.unit_info_offset, WINHEIGHT - self.unit_info_disp.get_height() + yoffset))
-                # else:
-                #     surf.blit(self.unit_info_disp, (self.unit_info_offset + WINWIDTH - 50, WINHEIGHT - self.unit_info_disp.get_height() + yoffset))
 
         if game.state.current() in self.legal_states and cf.SETTINGS['show_terrain'] and \
                 (game.level_vars['_fog_of_war'] != 2 or game.board.in_vision(game.cursor.position)):
@@ -149,18 +141,13 @@ class UIView():
 
                 # Should be in bottom, no matter what. Can be in bottomleft or bottomright, depending on where cursor is
                 if right:
-                    a = 0
-                    # if DB.constants.get('timeline').value and self.unit_info_disp:
-                    #     a = 45
-                    surf.blit(self.tile_info_disp, (5 - offset + 1 + a, WINHEIGHT - self.tile_info_disp.get_height())) # Bottomleft
+                    surf.blit(self.tile_info_disp, (5 - offset, WINHEIGHT - self.tile_info_disp.get_height() - 3)) # Bottomleft
                 else:
                     xpos = WINWIDTH - self.tile_info_disp.get_width() - 5 + offset
-                    ypos = WINHEIGHT - self.tile_info_disp.get_height()
-                    # if DB.constants.get('timeline').value and self.unit_info_disp:
-                    #     xpos -= 45
+                    ypos = WINHEIGHT - self.tile_info_disp.get_height() - 3
                     surf.blit(self.tile_info_disp, (xpos, ypos)) # Bottomright
 
-        if self.obj_info_disp and not self.timeline_info_disp:
+        if self.obj_info_disp and not self.initiative_info_disp:
             # Should be in topright, unless the cursor is in the topright
             # TopRight - I believe this has RIGHT precedence
             if game.cursor.position[1] < TILEY // 2 + game.camera.get_y() and \
@@ -179,31 +166,30 @@ class UIView():
                     self.obj_info_offset = self.obj_info_disp.get_width()
                 surf.blit(self.obj_info_disp, (WINWIDTH - 4 + self.obj_info_offset - self.obj_info_disp.get_width(), 1))
 
-        if self.timeline_info_disp:
-            surf.blit(self.timeline_info_disp, (0, 0))
+        if self.initiative_info_disp:
+            surf.blit(self.initiative_info_disp, (0, 0))
 
         return surf
 
-    def create_timeline_info(self):
-        i = game.timeline_position
+    def create_initiative_info(self):
         x_increment = 20
-        most = max(0, WINWIDTH//x_increment - 1)
+        y_offset = 0
         surf = engine.create_surface((WINWIDTH, 50), transparent=True)
-        x, y = -5, -3
-        a = 0
-        hover = game.cursor.get_hover()
-        while i < len(game.timeline) and i <= game.timeline_position + most:
-            if hover and hover == game.timeline[i] and game.state.current() in self.legal_states:
-                a = 10
-                char_sprite = game.timeline[i].sprite.create_image('active')
-            else:
-                char_sprite = game.timeline[i].sprite.create_image('passive')
-            surf.blit(SPRITES.get('timeline_platform').copy(), (x, y + 15 + a))
+        
+        current_unit = game.initiative.get_current_unit()
+        unit_list = game.initiative.unit_list[:]
+        current_idx = game.initiative.current_idx
+        unit_list = unit_list[max(0, current_idx - 5):min(len(unit_list) - 1, current_idx + 5)]
 
-            surf.blit(char_sprite, (x - 17, y - 14 + a))
-            i += 1
-            x += x_increment
-            a = 0
+        for idx, unit_nid in enumerate(unit_list):
+            unit = game.get_unit(unit_nid)
+            if current_unit and unit is current_unit:
+                y_offset = 10
+                char_sprite = unit.sprite.create_image('active')
+            else:
+                char_sprite = unit.sprite.create_image('passive')
+            surf.blit(SPRITES.get('initiative_platform'), (idx * x_increment, 12 + y_offset))
+            surf.blit(char_sprite, (-22 + idx * x_increment, -17 + y_offset))
         return surf
 
     def create_unit_info(self, unit):

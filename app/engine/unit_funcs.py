@@ -31,7 +31,7 @@ def get_next_level_up(unit, custom_method=None) -> dict:
         level = unit.get_internal_level()
         rng = static_random.get_levelup(unit.nid, level)
         for nid in DB.stats.keys():
-            growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0) + difficulty_growth_bonus.get(nid) + unit.stat_growth_bonus(nid)
+            growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0) + difficulty_growth_bonus.get(nid)
 
             if method == 'Fixed':
                 if growth > 0:
@@ -230,6 +230,16 @@ def get_personal_skills(unit, prefab):
 
     personal_skills = item_funcs.create_skills(unit, skills_to_add)
     return personal_skills
+
+def get_global_skills(unit):
+    skills_to_add = []
+    current_skills = [skill.nid for skill in unit.skills]
+    for skill_prefab in DB.skills:
+        if skill_prefab.components.get('global') and skill_prefab.nid not in current_skills:
+            skills_to_add.append(skill_prefab.nid)
+
+    global_skills = item_funcs.create_skills(unit, skills_to_add)
+    return global_skills
 
 def can_unlock(unit, region) -> bool:
     from app.engine import skill_system, item_system

@@ -1286,32 +1286,29 @@ class SetHP(Action):
     def reverse(self):
         self.unit.set_hp(self.old_hp)
 
-class ChangeSP(Action):
+class ChangeMana(Action):
     def __init__(self, unit, num):
         self.unit = unit
         self.num = num
-        self.old_sp = self.unit.get_sp()
+        self.old_mana = self.unit.get_mana()
 
     def do(self):
-        self.unit.set_sp(self.old_sp + self.num)
+        self.unit.set_mana(self.old_mana + self.num)
 
     def reverse(self):
-        self.unit.set_sp(self.old_sp)
+        self.unit.set_mana(self.old_mana)
 
-class SetSP(Action):
-    def __init__(self, unit, new_sp):
+class SetMana(Action):
+    def __init__(self, unit, new_mana):
         self.unit = unit
-        self.new_sp = new_sp
-        if self.new_sp > self.unit.max_sp:
-            self.new_sp = self.unit.max_sp
-        self.old_sp = self.unit.get_sp()
+        self.new_mana = new_mana
+        self.old_mana = self.unit.get_mana()
 
     def do(self):
-        self.unit.set_sp(self.new_sp)
+        self.unit.set_mana(self.new_mana)
 
     def reverse(self):
-        self.unit.set_sp(self.old_sp)
-
+        self.unit.set_mana(self.old_mana)
 
 class Die(Action):
     def __init__(self, unit):
@@ -1321,6 +1318,7 @@ class Die(Action):
         self.lock_all_support_ranks = \
             [LockAllSupportRanks(pair.nid) for pair in game.supports.get_pairs(self.unit.nid)]
         self.drop = None
+        self.orig_initiative = None
 
     def do(self):
         if self.unit.traveler:
@@ -1329,17 +1327,9 @@ class Die(Action):
             self.drop.do()
             # TODO Drop Sound
 
-        if DB.constants.get('timeline').value:
-            self.timeline_positions = []
-            i = 0
-            while i < len(game.timeline):
-                if game.timeline[i] == self.unit:
-                    self.timeline_positions.append(i)
-                i += 1
-            if self.unit == game.timeline[game.timeline_position]:
-                game.timeline_death = 1
-            game.remove_from_timeline(self.unit, game.timeline)
-            game.timeline[game.timeline_position].finished = 1
+        if DB.constants.value('initiative'):
+            self.orig_initiative = game.initiative.get_index(self.unit)
+            game.initiative.remove_unit(self.unit)
 
         self.leave_map.do()
         for act in self.lock_all_support_ranks:
@@ -1352,9 +1342,8 @@ class Die(Action):
         self.unit.sprite.set_transition('normal')
         self.unit.sprite.change_state('normal')
 
-        if DB.constants.get('timeline').value and self.timeline_positions:
-            for pos in self.timeline_positions:
-                game.insert_in_timeline(self.unit, game.timeline, pos)
+        if DB.constants.value('initiative'):
+            game.initiative.insert_at(self.unit, self.orig_initiative)
 
         for act in self.lock_all_support_ranks:
             act.reverse()
@@ -1864,48 +1853,30 @@ class TriggerCharge(Action):
         if self.new_charge is not None:
             self.skill.data['charge'] = self.old_charge
 
-class EndTimelineTurn(Action):
-    def __init__(self, unit):
-        self.unit = unit
-        self.added = 0
+class IncInitiativeTurn(Action):
+    def __init__(self):
+        self.old_idx = game.initiative.current_idx
 
     def do(self):
-        if not game.timeline_death:
-            self.added = 1
-            game.timeline.append(self.unit)
-        else:
-            game.timeline_death = 0
-        game.timeline_position += 1
+        game.initiative.next()
 
     def reverse(self):
-        if self.added:
-            game.timeline.pop(len(game.timeline) - 1)
-        game.timeline_position -= 1
+        game.initiative.current_idx = self.old_idx
 
-class DelayInTimeline(Action):
-    def __init__(self, unit, time):
+class MoveInInitiative(Action):
+    def __init__(self, unit, offset):
         self.unit = unit
-        self.time = time
+        self.offset = offset
+        self.old_idx = game.initiative.get_index(self.unit)
+        self.new_idx = self.old_idx + self.offset
 
-    def do(self):
-        i = game.timeline_position
-        stop = False
-        while i < len(game.timeline) and not stop:
-            if game.timeline[i] == self.unit:
-                game.timeline.pop(i)
-                self.old_position = i
-                self.new_position = i + self.time
-                if self.new_position >= len(game.timeline):
-                    self.new_position = len(game.timeline)
-                    game.timeline.append(self.unit)
-                else:
-                    game.insert_in_timeline(self.unit, game.timeline, self.new_position)
-                stop = True
-            i += 1
+    def do(self):    
+        game.initiative.remove_unit(self.unit)
+        self.new_idx = game.initiative.insert_at(self.unit, self.new_idx)
 
     def reverse(self):
-        game.timeline.pop(self.new_position)
-        game.insert_in_timeline(self.unit, game.timeline, self.old_position)
+        game.initiative.remove_unit(self.unit)
+        game.initiative.insert_at(self.unit, self.old_idx)
 
 class AddSkill(Action):
     def __init__(self, unit, skill, initiator=None):

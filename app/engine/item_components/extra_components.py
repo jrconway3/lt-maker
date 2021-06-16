@@ -190,36 +190,20 @@ class StatusOnHold(ItemComponent):
     def on_remove_item(self, unit, item):
         action.do(action.RemoveSkill(unit, self.value))
 
-class GainSP(ItemComponent):
-    nid = 'gain_sp'
-    desc = 'Item grants X SP at the end of combat if a conditional is met'
-    # requires = ['damage']
-    paired_with = ('gain_sp_condition',)
-    tag = 'extra'
-    author = 'KD'
-
-    expose = Type.Int
-    value = 0
-
-    def init(self, item):
-        item.data['gain_sp'] = self.value
-
-class GainSPCondition(ItemComponent):
-    nid = 'gain_sp_condition'
-    desc = "Item grants X SP at the end of combat if a conditional is met"
-    # requires = ['damage']
-    paired_with = ('gain_sp',)
+class GainManaAfterCombat(ItemComponent):
+    nid = 'gain_mana_after_combat'
+    desc = "Item grants X Mana at the end of combat solved dynamically"
     tag = 'extra'
     author = 'KD'
 
     expose = Type.String
-    value = 'True'
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         from app.engine import evaluate
         try:
-            if target and evaluate.evaluate(self.value, target, position=target.position):
-                action.do(action.ChangeSP(unit, item.data.get('gain_sp', 0)))
+            if target:
+                mana_gain = int(evaluate.evaluate(self.value, unit, target, position=unit.position))
+                action.do(action.ChangeMana(unit, mana_gain))
         except Exception as e:
             print("Could not evaluate %s (%s)" % (self.value, e))
             return True

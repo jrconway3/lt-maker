@@ -298,6 +298,16 @@ def growth_change(unit, stat) -> int:
                     bonus += d.get(stat, 0)
     return bonus
 
+def mana(playback, unit, item, target) -> int:
+    mana = 0
+    for skill in unit.skills:
+        for component in skill.components:
+            if component.defines('mana'):
+                if component.ignore_conditional or condition(skill, unit):
+                    d = component.mana(playback, unit, item, target)
+                    mana += d
+    return mana
+
 def can_unlock(unit, region) -> bool:
     for skill in unit.skills:
         for component in skill.components:

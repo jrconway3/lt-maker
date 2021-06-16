@@ -131,8 +131,7 @@ class SimpleCombat():
         if self.defender and self.def_item and not self.defender.is_dying:
             self.handle_wexp(self.defender, self.def_item, self.attacker)
 
-        if DB.constants.get('sp').value:
-            self.handle_sp()
+        self.handle_mana(all_units)
         self.handle_exp()
 
         self.handle_records(self.full_playback, all_units)
@@ -159,7 +158,7 @@ class SimpleCombat():
             skill_system.pre_combat(self.full_playback, unit, None, None, 'defense')
 
         skill_system.start_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
-        item_system.start_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        item_system.start_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
 
         already_pre = [self.attacker]
         for idx, defender in enumerate(self.defenders):
@@ -168,7 +167,7 @@ class SimpleCombat():
                 def_item = self.def_items[idx]
                 skill_system.start_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
                 if def_item:
-                    item_system.start_combat(self.full_playback, defender, def_item, self.attacker)
+                    item_system.start_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
         for unit in self.all_splash:
             skill_system.start_combat(self.full_playback, unit, None, None, 'defense')
 
@@ -185,7 +184,7 @@ class SimpleCombat():
 
     def end_combat(self):
         skill_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
-        item_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        item_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         already_pre = [self.attacker]
         for idx, defender in enumerate(self.defenders):
             if defender and defender not in already_pre:
@@ -193,7 +192,7 @@ class SimpleCombat():
                 def_item = self.def_items[idx]
                 skill_system.end_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
                 if def_item:
-                    item_system.end_combat(self.full_playback, defender, def_item, self.attacker)
+                    item_system.end_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
         for unit in self.all_splash:
             skill_system.end_combat(self.full_playback, unit, None, self.attacker, 'defense')
 
@@ -341,20 +340,19 @@ class SimpleCombat():
             else:
                 func(action.GainWexp(unit, item, wexp))
 
-    def handle_sp(self):
-        # handle sp
-        try:
-            sp = equations.parser.sp_kill_gain(self)
-        except AttributeError:
-            # print('No SP_KILL_GAIN equation! Defaulting to 0')
-            sp = 0
-        if self.attacker.team == 'player' and self.defender.is_dying:
-            # This is being left open - if something effects SP gain it will be done here
-            game.sp_instance.append((self.attacker, sp))
+    def handle_mana(self, all_units):
+        if self.attacker.team == 'player':
+            total_mana = 0
+            for unit in all_units:
+                if unit is not self.attacker:
+                    total_mana += skill_system.mana(self.full_playback, self.attacker, self.main_item, unit)
+            # This is being left open - if something effects mana gain it will be done here
+            game.mana_instance.append((self.attacker, total_mana))
 
-        elif self.defender and self.defender.team == 'player' and self.attacker.is_dying:
-            # This is being left open - if something effects SP gain it will be done here
-            game.sp_instance.append((self.defender, sp))
+        elif self.defender and self.defender.team == 'player':
+            # This is being left open - if something effects mana gain it will be done here
+            mana_gain = skill_system.mana(self.full_playback, self.defender, self.def_item, self.attacker)
+            game.mana_instance.append((self.defender, mana_gain))
 
     def handle_exp(self):
         # handle exp

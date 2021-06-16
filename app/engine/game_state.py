@@ -108,7 +108,7 @@ class GameState():
         self.ui_view = ui_view.UIView()
         self.combat_instance = []
         self.exp_instance = []
-        self.sp_instance = []
+        self.mana_instance = []
         self.ai = ai_controller.AIController()
 
         self.alerts.clear()
@@ -124,6 +124,7 @@ class GameState():
         self.generic()
         logging.debug("Starting Level %s", level_nid)
 
+        from app.engine.initiative import InitiativeTracker
         from app.engine.objects.level import LevelObject
         from app.engine.objects.tilemap import TileMapObject
         from app.engine.objects.party import PartyObject
@@ -161,53 +162,10 @@ class GameState():
         for unit in self.current_level.units:
             self.arrive(unit)
 
-        if DB.constants.get('timeline').value:
-            self.timeline_position = 0
-            self.timeline = self.create_timeline([])
-            self.timeline_death = 0
-        self.timeline_show = 1
-
-    def create_timeline(self, t) -> list:
-        #Creates a timeline. Most likely only happens on start of level
-        to_sort = self.get_all_units()
-        timeline = t
-        for u in to_sort:
-            i = 0
-            stop = False
-            while i < len(timeline) and not stop:
-                if u.timeline_speed > timeline[i].timeline_speed:
-                    timeline.insert(i, u)
-                    stop = True
-                i += 1
-            if i == len(timeline) and not stop:
-                timeline.append(u)
-        return timeline
-
-    def add_to_timeline(self, u, t: list, pos=0) -> None:
-        # Adds a unit into the given timeline. Lists are mutable, so no need to return
-        # u - UnitObject
-        # pos is included to prevent reinforcements from being added to the front of the timeline
-        i = pos
-        stop = False
-        while i < len(t) and not stop:
-            if u.timeline_speed > t[i].timeline_speed:
-                t.insert(i, u)
-                stop = True
-            i += 1
-        if i == len(t) and not stop:
-            t.append(u)
-
-    def insert_in_timeline(self, u, t: list, pos) -> None:
-        # A more controlled version of add_to_timeline. Always inserts at the specified index
-        t.insert(pos, u)
-
-    def remove_from_timeline(self, u, t: list) -> None:
-        # Probably only do this when a unit dies or is removed
-        for unit in t:
-            if unit == u:
-                if game.timeline.index(unit) <= game.timeline_position:
-                    game.timeline_position -= 1
-                t.remove(unit)
+        # Handle initiative
+        if DB.constants.value('initiative'):
+            self.initiative = InitiativeTracker()
+            self.initiative.start(self.get_all_units())
 
     def full_register(self, unit):
         self.register_unit(unit)

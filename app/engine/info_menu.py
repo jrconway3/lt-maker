@@ -13,7 +13,7 @@ from app.engine.input_manager import INPUT
 from app.engine.state import State
 from app.engine import engine, background, menu_options, help_menu, gui, \
     icons, image_mods, item_funcs, equations, \
-    combat_calcs, menus, skill_system
+    combat_calcs, menus, skill_system, text_funcs
 from app.engine.game_state import game
 from app.engine.fluid_scroll import FluidScroll
 
@@ -691,9 +691,9 @@ class InfoMenuState(State):
             FONT['text-yellow'].blit(name, surf, (72, 16 * idx + 24))
             self.info_graph.register((96 + 72, 16 * idx + 24, 64, 16), '%s_desc' % stat_nid, state)
 
-        other_stats = ['SP', 'AID', 'TRV', 'RAT']
-        if not DB.constants.get('sp').value:
-            other_stats.remove('SP')
+        other_stats = ['AID', 'TRV', 'RAT']
+        if self.unit.get_max_mana() > 0:
+            other_stats.insert(0, 'MANA')
         other_stats = other_stats[:6 - len(right_stats)]
 
         for idx, stat in enumerate(other_stats):
@@ -736,11 +736,11 @@ class InfoMenuState(State):
                 FONT['text-yellow'].blit('Rat', surf, (72, 16 * true_idx + 24))
                 self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'Rating_desc', state)
 
-            elif stat == 'SP':
-                rat = str(self.unit.current_sp)
-                FONT['text-blue'].blit_right(rat, surf, (111, 16 * true_idx + 24))
-                FONT['text-yellow'].blit('SP', surf, (72, 16 * true_idx + 24))
-                self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'SP_desc', state)
+            elif stat == 'MANA':
+                mana = str(self.unit.current_mana)
+                FONT['text-blue'].blit_right(mana, surf, (111, 16 * true_idx + 24))
+                FONT['text-yellow'].blit(text_funcs.translate('MANA'), surf, (72, 16 * true_idx + 24))
+                self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'MANA_desc', state)
 
             if DB.constants.value('lead'):
                 FONT['text-yellow'].blit('Lead', surf, (72, 120))

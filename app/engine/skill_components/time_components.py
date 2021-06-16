@@ -17,13 +17,10 @@ class Time(SkillComponent):
         self.skill.data['starting_turns'] = self.value
 
     def on_upkeep(self, actions, playback, unit):
-        from app.data.database import DB
-        if not DB.constants.get('timeline').value or game.timeline[game.timeline_position] == unit:
-            val = self.skill.data['turns'] - 1
-            action.do(action.SetObjData(self.skill, 'turns', val))
-            if self.skill.data['turns'] <= 0:
-                actions.append(action.RemoveSkill(unit, self.skill))
-
+        val = self.skill.data['turns'] - 1
+        action.do(action.SetObjData(self.skill, 'turns', val))
+        if self.skill.data['turns'] <= 0:
+            actions.append(action.RemoveSkill(unit, self.skill))
 
     def text(self) -> str:
         return str(self.skill.data['turns'])

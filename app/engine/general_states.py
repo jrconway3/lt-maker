@@ -35,33 +35,42 @@ class TurnChangeState(MapState):
 
     def end(self):
         game.phase.next()  # Go to next phase
-        # Timeline stuff
-        if DB.constants.get('timeline').value and game.turncount > 0:
-            action.do(action.EndTimelineTurn(game.timeline[game.timeline_position]))
-        # If entering player phase
-        if game.phase.get_current() == 'player' or (DB.constants.get('timeline').value \
-                and game.timeline[game.timeline_position].team == 'player'):
-            action.do(action.IncrementTurn())
-            action.do(action.UpdateRecords('turn', None))
-            game.state.change('free')
+        if DB.constants.value('initiative'):
+            action.do(action.IncInitiativeTurn())
+            if game.initiative.get_current_unit().team == 'player':
+                game.state.change('free')
+            else:
+                game.state.change('ai')
             game.state.change('status_upkeep')
             game.state.change('phase_change')
-            # EVENTS TRIGGER HERE
-            game.events.trigger('turn_change')
-            if game.turncount - 1 <= 0:  # Beginning of the level
-                game.events.trigger('level_start')
+            if game.initiative.at_start():
+                action.do(action.IncrementTurn())
+                game.events.trigger('turn_change')
+                if game.turncount - 1 <= 0:  # Beginning of the level
+                    game.events.trigger('level_start')
         else:
-            game.state.change('ai')
-            game.state.change('status_upkeep')
-            game.state.change('phase_change')
-            # game.state.change('end_step')
-            # EVENTS TRIGGER HERE
-            if game.phase.get_current() == 'enemy':
-                game.events.trigger('enemy_turn_change')
-            elif game.phase.get_current() == 'enemy2':
-                game.events.trigger('enemy2_turn_change')
-            elif game.phase.get_current() == 'other':
-                game.events.trigger('other_turn_change')
+            # If entering player phase
+            if game.phase.get_current() == 'player':
+                action.do(action.IncrementTurn())
+                action.do(action.UpdateRecords('turn', None))
+                game.state.change('free')
+                game.state.change('status_upkeep')
+                game.state.change('phase_change')
+                # EVENTS TRIGGER HERE
+                game.events.trigger('turn_change')
+                if game.turncount - 1 <= 0:  # Beginning of the level
+                    game.events.trigger('level_start')
+            else:
+                game.state.change('ai')
+                game.state.change('status_upkeep')
+                game.state.change('phase_change')
+                # EVENTS TRIGGER HERE
+                if game.phase.get_current() == 'enemy':
+                    game.events.trigger('enemy_turn_change')
+                elif game.phase.get_current() == 'enemy2':
+                    game.events.trigger('enemy2_turn_change')
+                elif game.phase.get_current() == 'other':
+                    game.events.trigger('other_turn_change')
 
     def take_input(self, event):
         return 'repeat'
@@ -138,11 +147,7 @@ class FreeState(MapState):
             cur_pos = game.cursor.position
             cur_unit = game.board.get_unit(cur_pos)
             if cur_unit and not cur_unit.finished and 'Tile' not in cur_unit.tags and game.board.in_vision(cur_unit.position):
-                timeline_turn = True
-                if DB.constants.get('timeline').value:
-                    if game.timeline[game.timeline_position] != cur_unit:
-                        timeline_turn = False
-                if skill_system.can_select(cur_unit) and timeline_turn:
+                if skill_system.can_select(cur_unit) and (not DB.constants.value('initiative') or game.initiative.get_current_unit() is cur_unit):
                     game.cursor.cur_unit = cur_unit
                     SOUNDTHREAD.play_sfx('Select 3')
                     game.state.change('move')
@@ -162,8 +167,8 @@ class FreeState(MapState):
 
         elif event == 'START':
             SOUNDTHREAD.play_sfx('Select 5')
-            if DB.constants.get('timeline').value:
-                game.timeline_show = not game.timeline_show
+            if DB.constants.value('initiative'):
+                game.initiative.toggle_draw()
             else:
                 game.state.change('minimap')
 
@@ -172,10 +177,15 @@ class FreeState(MapState):
         game.highlight.handle_hover()
 
         # Auto-end turn
+        autoend_turn = False
         # Check to see if all ally units have completed their turns and no unit is active and the game is in the free state.
         if cf.SETTINGS['autoend_turn'] and any(unit.position for unit in game.units) and \
-                (all(unit.finished for unit in game.units if unit.position and unit.team == 'player') \
-                    or (DB.constants.get('timeline').value and game.timeline[game.timeline_position].finished)):
+                (all(unit.finished for unit in game.units if unit.position and unit.team == 'player')):
+            autoend_turn = True
+        if DB.constants.value('initiative') and game.initiative.get_current_unit().finished:
+            autoend_turn = True
+
+        if autoend_turn:
             # End the turn
             logging.info('Autoending turn.')
             game.state.change('turn_change')
@@ -1538,12 +1548,15 @@ class AIState(MapState):
         self.cur_group = None
 
     def get_next_unit(self):
-        if DB.constants.get('timeline').value:
-            t_unit = game.timeline[game.timeline_position]
-            if t_unit.position and not t_unit.finished and not t_unit.has_run_ai:
-                return t_unit
+        # Initiative way
+        if DB.constants.value('initiative'):
+            current_unit = game.initiative.get_current_unit()
+            if current_unit.position and not current_unit.finished and not current_unit.has_run_ai:
+                return current_unit
             else:
                 return None
+
+        # Normal way
         valid_units = [
             unit for unit in game.units if
             unit.position and

@@ -38,15 +38,15 @@ class ExpState(State):
         self.auto_promote = (DB.constants.get('auto_promote') or 'AutoPromote' in self.unit.tags) and \
             self.unit_klass.turns_into and 'NoAutoPromote' not in self.unit.tags
 
-        # For later
-        self.old_sp = self.unit.current_sp
-        self.max_sp = self.unit.max_sp
-        self.sp_to_gain = 0
-        if game.sp_instance:
-            self.sp_to_gain = game.sp_instance.pop()[1]
-            if self.sp_to_gain + self.old_sp > self.max_sp:
-                self.sp_to_gain = self.max_sp - self.old_sp
-        self.sp_bar = None
+        # For mana
+        self.old_mana = self.unit.get_mana()
+        self.max_mana = self.unit.get_max_mana()
+        self.mana_to_gain = 0
+        if game.mana_instance:
+            self.mana_to_gain = game.mana_instance.pop()[1]
+            if self.mana_to_gain + self.old_mana > self.max_mana:
+                self.mana_to_gain = self.max_mana - self.old_mana
+        self.mana_bar = None
 
         self.state = SimpleStateMachine(self.starting_state)
         self.start_time = engine.get_time()
@@ -102,16 +102,16 @@ class ExpState(State):
             self.exp_bar = ExpBar(self.old_exp, center=not self.combat_object)
             self.start_time = current_time
 
-            if DB.constants.get('sp') and (self.sp_to_gain or self.unit.current_sp != self.unit.max_sp):
-                self.sp_bar = SpBar(self.old_sp, center=not self.combat_object)
+            if self.mana_to_gain or (self.unit.get_max_mana() > 0 and self.unit.get_mana() != self.unit.get_max_mana()):
+                self.mana_bar = ManaBar(self.old_mana, center=not self.combat_object)
 
             self.state.change('exp_wait')
 
         # Wait before starting to increment exp
         elif self.state.get_state() == 'exp_wait':
             self.exp_bar.update(self.old_exp)
-            if self.sp_bar:
-                self.sp_bar.update(self.old_sp)
+            if self.mana_bar:
+                self.mana_bar.update(self.old_mana)
             if current_time - self.start_time > 466:
                 self.state.change('exp0')
                 self.start_time = current_time
@@ -124,10 +124,10 @@ class ExpState(State):
             exp_set = int(min(self.old_exp + self.exp_gain, exp_set))
             self.exp_bar.update(exp_set)
 
-            if self.sp_bar:
-                sp_set = self.old_sp + (progress * 5) * self.sp_to_gain
-                sp_set = int(min(self.old_sp + self.sp_to_gain, sp_set))
-                self.sp_bar.update(sp_set)
+            if self.mana_bar:
+                mana_set = self.old_mana + progress * self.mana_to_gain
+                mana_set = int(min(self.old_mana + self.mana_to_gain, mana_set))
+                self.mana_bar.update(mana_set)
 
             if exp_set >= self.old_exp + self.exp_gain:
                 SOUNDTHREAD.stop_sfx('Experience Gain')
@@ -160,8 +160,8 @@ class ExpState(State):
             done = self.exp_bar.update()
             if done:
                 action.do(action.GainExp(self.unit, self.exp_gain))
-                if self.sp_bar:
-                    action.do(action.ChangeSP(self.unit, self.sp_to_gain))
+                if self.mana_to_gain:
+                    action.do(action.ChangeMana(self.unit, self.mana_to_gain))
                 action.do(action.UpdateRecords('exp_gain', (self.unit.nid, self.exp_gain, self.unit.klass)))
                 self.state.back()
                 self.start_time = current_time
@@ -304,8 +304,8 @@ class ExpState(State):
             return surf
 
         if self.state.get_state() in ('init', 'exp_wait', 'exp_leave', 'exp0', 'exp100', 'prepare_promote'):
-            if self.sp_bar:
-                self.sp_bar.draw(surf)
+            if self.mana_bar:
+                self.mana_bar.draw(surf)
             if self.exp_bar:
                 self.exp_bar.draw(surf)
 
@@ -582,62 +582,8 @@ class ExpBar():
         surf.blit(new_surf, (self.pos[0], self.pos[1] + self.offset))
         return surf
 
-class SpBar():
-    background = engine.subsurface(SPRITES.get('spbar'), (0, 0, 136, 24))
-    begin = engine.subsurface(SPRITES.get('spbar'), (0, 24, 3, 7))
-    middle = engine.subsurface(SPRITES.get('spbar'), (3, 24, 1, 7))
-    end = engine.subsurface(SPRITES.get('spbar'), (4, 24, 2, 7))
-    width = 136
-    height = 24
-
-    def __init__(self, old_sp, center=True):
-        self.bg_surf = self.create_bg_surf()
-        if center:
-            self.pos = WINWIDTH//2 - self.width//2, WINHEIGHT//2 - self.height//2 + 30
-        else:
-            self.pos = WINWIDTH//2 - self.width//2, WINHEIGHT - self.height - 30
-
-        self.offset = self.height//2  # Start with fade in
-        self.done = False
-
-        self.num = old_sp
-
-    def create_bg_surf(self):
-        surf = engine.create_surface((self.width, self.height), transparent=True)
-        surf.blit(self.background, (0, 0))
-        surf.blit(self.begin, (7, 9))
-        return surf
-
-    def fade_out(self):
-        self.done = True
-
-    def update(self, sp=None):
-        if self.done:
-            self.offset += 1  # So fade in and out
-            if self.offset >= self.height//2:
-                return True
-        elif self.offset > 0:
-            self.offset -= 1
-
-        if sp is not None:
-            self.num = sp
-
-    def draw(self, surf):
-        new_surf = engine.copy_surface(self.bg_surf)
-
-        # Blit correct number of sprites for middle of exp bar
-        idx = int(5 * max(0, self.num))
-        for x in range(idx):
-            new_surf.blit(self.middle, (10 + x, 9))
-
-        # Blit end of exp bar
-        new_surf.blit(self.end, (10 + idx, 9))
-
-        # Blit current amount of exp
-        FONT['number-small3'].blit_right(str(self.num), new_surf, (self.width - 4, 4))
-
-        # Transition
-        new_surf = engine.subsurface(new_surf, (0, self.offset, self.width, self.height - self.offset * 2))
-
-        surf.blit(new_surf, (self.pos[0], self.pos[1] + self.offset))
-        return surf
+class ManaBar(ExpBar):
+    background = engine.subsurface(SPRITES.get('manabar'), (0, 0, 136, 24))
+    begin = engine.subsurface(SPRITES.get('manabar'), (0, 24, 3, 7))
+    middle = engine.subsurface(SPRITES.get('manabar'), (3, 24, 1, 7))
+    end = engine.subsurface(SPRITES.get('manabar'), (4, 24, 2, 7))

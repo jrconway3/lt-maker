@@ -1069,11 +1069,11 @@ class Event():
         elif command.nid == 'clean_up_roaming':
             self.clean_up_roaming(command)
 
-        elif command.nid == 'add_to_timeline':
-            self.add_to_timeline(command)
+        elif command.nid == 'add_to_initiative':
+            self.add_to_initiative(command)
 
-        elif command.nid == 'delay_in_timeline':
-            self.delay_in_timeline(command)
+        elif command.nid == 'move_in_initiative':
+            self.move_in_initiative(command)
 
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)
@@ -1299,8 +1299,8 @@ class Event():
         if not position:
             return None
 
-        if DB.constants.get('timeline').value:
-            game.add_to_timeline(unit, game.timeline, pos=1)
+        if DB.constants.value('initiative'):
+            game.initiative.insert_unit(unit)
 
         self._place_unit(unit, position, entry_type)
 
@@ -1369,8 +1369,8 @@ class Event():
         else:
             remove_type = 'fade'
 
-        if DB.constants.get('timeline').value:
-            game.remove_from_timeline(unit, game.timeline)
+        if DB.constants.value('initiative'):
+            game.initiative.remove_unit(unit)
 
         if self.do_skip:
             action.do(action.LeaveMap(unit))
@@ -1390,8 +1390,8 @@ class Event():
             logging.error("Couldn't find unit %s" % values[0])
             return
 
-        if DB.constants.get('timeline').value:
-            game.remove_from_timeline(unit, game.timeline)
+        if DB.constants.value('initiative'):
+            game.initiative.remove_unit(unit)
 
         if not unit.position:
             unit.dead = True
@@ -1472,8 +1472,8 @@ class Event():
             if not position:
                 logging.warning("Couldn't determine valid position for %s?", unit.nid)
                 continue
-            if DB.constants.get('timeline').value:
-                game.add_to_timeline(unit, game.timeline, pos=1)
+            if DB.constants.value('initiative'):
+                game.initiative.insert_unit(unit)
             self._place_unit(unit, position, entry_type)
 
     def _move_unit(self, movement_type, placement, follow, unit, position):
@@ -1581,8 +1581,8 @@ class Event():
                 continue
 
             if self._add_unit_from_direction(unit, position, cardinal_direction, placement):
-                if DB.constants.get('timeline').value:
-                    game.add_to_timeline(unit, game.timeline, pos=1)
+                if DB.constants.value('initiative'):
+                    game.initiative.insert_unit(unit)
                 self._move_unit(movement_type, placement, follow, unit, position)
             else:
                 logging.error("Couldn't add unit %s to position %s" % (unit.nid, position))
@@ -1638,8 +1638,9 @@ class Event():
         for unit_nid in group.units:
             unit = game.get_unit(unit_nid)
             if unit.position:
-                if DB.constants.get('timeline').value:
-                    game.remove_from_timeline(unit, game.timeline)
+                if DB.constants.value('initiative'):
+                    game.initiative.remove_unit(unit)
+
                 if self.do_skip:
                     action.do(action.LeaveMap(unit))
                 elif remove_type == 'warp':
@@ -1833,8 +1834,8 @@ class Event():
         if assign_unit:
             self.unit = new_unit
 
-        if DB.constants.get('timeline').value:
-            game.add_to_timeline(unit, game.timeline, pos=1)
+        if DB.constants.value('initiative'):
+            game.initiative.insert_unit(unit)
 
         self._place_unit(new_unit, position, entry_type)
 
@@ -2324,46 +2325,30 @@ class Event():
                 game.level.roam_unit = None
 
     def clean_up_roaming(self, command):
+        # WARNING: Not currently turnwheel combatible
         values, flags = event_commands.parse(command)
-        val = values[0].lower()
-        if val in self.true_vals:
-            for unit in game.units:
-                if unit.position and not unit == game.level.roam_unit:
-                    action.do(action.FadeOut(unit))
-            game.timeline_position = 0
-            game.timeline = game.create_timeline([game.level.roam_unit])
-        else:
-            pass
+        for unit in game.units:
+            if unit.position and not unit == game.level.roam_unit:
+                action.do(action.FadeOut(unit))
+        if DB.constants.value('initiative'):
+            game.initiative.clear()
+            game.initiative.insert_unit(game.level.roam_unit)
 
-    def add_to_timeline(self, command):
+    def add_to_initiative(self, command):
+        # WARNING: Not currently turnwheel combatible
         values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
         pos = int(values[1])
-        if game.timeline_position + pos < len(game.timeline):
-            game.insert_in_timeline(unit, game.timeline, pos)
-        else:
-            logging.debug("Specified position out of range! Adding to end.")
-            game.timeline.append(unit)
+        if DB.constants.value('initiative'):
+            if unit.nid in game.initiative.unit_list:
+                game.initiative.remove_unit(unit)
+            game.initiative.insert_at(unit, game.initiative.current_idx + pos)
 
-    def delay_in_timeline(self, command):
+    def move_in_initiative(self, command):
         values, flags = event_commands.parse(command)
         unit = self.get_unit(values[0])
-        pos = int(values[1])
-        i = game.timeline_position
-        stop = False
-        while i < len(game.timeline) and not stop:
-            if game.timeline[i] == unit:
-                stop = True
-            i += 1
-        if stop == False:
-            return
-        new_loc = i + pos
-        game.timeline.pop(i)
-        if new_loc < len(game.timeline):
-            game.insert_in_timeline(unit, game.timeline, new_loc)
-        else:
-            logging.debug("Specified position out of range! Adding to end.")
-            game.timeline.append(unit)
+        offset = int(values[1])
+        action.do(action.MoveInInitiative(unit, offset))
 
     def parse_pos(self, text):
         position = None

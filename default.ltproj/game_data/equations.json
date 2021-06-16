@@ -92,20 +92,12 @@
         "expression": "CON"
     },
     {
-        "nid": "TIMELINESPEED",
+        "nid": "INITIATIVE",
         "expression": "SPD"
     },
     {
-        "nid": "SP",
+        "nid": "MANA",
         "expression": "20"
-    },
-    {
-        "nid": "SP_GAIN",
-        "expression": "4"
-    },
-    {
-        "nid": "GROWTH_BONUS",
-        "expression": "1"
     },
     {
         "nid": "ZERO",

@@ -11,8 +11,7 @@ from app.engine.combat.solver import CombatPhaseSolver
 
 from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, combat_calcs, gui, action, battle_animation, \
-    item_system, skill_system, icons, background, image_mods, item_funcs
-from app.engine.animations import Animation
+    item_system, skill_system, icons, item_funcs
 from app.engine.health_bar import CombatHealthBar
 from app.engine.game_state import game
 
@@ -21,15 +20,16 @@ from app.engine.objects.unit import UnitObject
 
 from app.engine.combat.map_combat import MapCombat
 from app.engine.combat.base_combat import BaseCombat
+from app.engine.combat.mock_combat import MockCombat
 
-class AnimationCombat(BaseCombat):
+class AnimationCombat(BaseCombat, MockCombat):
     alerts: bool = True
 
-    def __init__(self, attacker: UnitObject, main_item: ItemObject, main_target: tuple, script):
+    def __init__(self, attacker: UnitObject, main_item: ItemObject, defender: UnitObject, def_item: ItemObject, script: list):
         self.attacker = attacker
-        self.defender = game.board.get_unit(main_target)
+        self.defender = defender
         self.main_item = main_item
-        self.def_item = self.defender.get_weapon()
+        self.def_item = def_item
 
         if self.defender.team == 'player' and self.attacker.team != 'player':
             self.right = self.defender
@@ -79,49 +79,16 @@ class AnimationCombat(BaseCombat):
         self.viewbox_time = 250
         self.viewbox = None
 
-        self.darken_background = 0
-        self.target_dark = 0
-        self.darken_ui_background = 0
-        self.foreground = background.Foreground()
-        self.combat_surf = engine.create_surface((WINWIDTH, WINHEIGHT), transparent=True)
+        self.setup_dark()
 
-        self.bar_offset = 0
-        self.name_offset = 0
-        self.damage_numbers = []
-        self.proc_icons = []
-        self.animations = []
-
-        self.left_stats = None
-        self.right_stats = None
+        self.setup_ui()
 
         # For pan
         self.focus_right: bool = self.attacker is self.right
-        self.pan_dir = 0
-        if self.at_range == 1:
-            self.pan_max = 16
-            self.pan_move = 4
-        elif self.at_range == 2:
-            self.pan_max = 32
-            self.pan_move = 8
-        elif self.at_range >= 3:
-            self.pan_max = 120
-            self.pan_move = 25
-        else:
-            self.pan_max = 0
-            self.pan_move = 0
-
-        if self.focus_right:
-            self.pan_offset = -self.pan_max
-        else:
-            self.pan_offset = self.pan_max
+        self.setup_pan()
 
         # For shake
-        self.shake_set = [(0, 0)]
-        self.shake_offset = (0, 0)
-        self.current_shake = 0
-        self.platform_shake_set = [(0, 0)]
-        self.platform_shake_offset = (0, 0)
-        self.platform_current_shake = 0
+        self.setup_shake()
 
         self.battle_music = None
 
@@ -327,21 +294,7 @@ class AnimationCombat(BaseCombat):
         self.left_hp_bar.update()
         self.right_hp_bar.update()
 
-        # Update battle anims
-        self.left_battle_anim.update()
-        self.right_battle_anim.update()
-
-        # Update shake
-        if self.current_shake:
-            self.shake_offset = self.shake_set[self.current_shake - 1]
-            self.current_shake += 1
-            if self.current_shake > len(self.shake_set):
-                self.current_shake = 0
-        if self.platform_current_shake:
-            self.platform_shake_offset = self.platform_shake_set[self.platform_current_shake - 1]
-            self.platform_current_shake += 1
-            if self.platform_current_shake > len(self.platform_shake_set):
-                self.platform_current_shake = 0
+        MockCombat.update_anims(self)
 
         return False
 
@@ -478,6 +431,12 @@ class AnimationCombat(BaseCombat):
         elif battle_music:
             self.battle_music = SOUNDTHREAD.fade_in(battle_music) 
 
+    def left_team(self):
+        return self.left.team
+
+    def right_team(self):
+        return self.right.team
+
     def _set_stats(self):
         a_hit = combat_calcs.compute_hit(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
         a_mt = combat_calcs.compute_damage(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
@@ -590,67 +549,6 @@ class AnimationCombat(BaseCombat):
             damage = 0
         return damage
 
-    def hit_spark(self):
-        if self.get_damage() > 0:
-            if self.current_battle_anim is self.right_battle_anim:
-                position = (-110, -30)
-            else:
-                position = (-40, -30)
-            anim_nid = 'HitSpark'
-            animation = RESOURCES.animations.get(anim_nid)
-            if animation:
-                anim = Animation(animation, position)
-                anim.set_tint(True)
-                self.animations.append(anim)
-        else:
-            self.no_damage()
-
-    def crit_spark(self):
-        if self.get_damage() > 0:
-            anim_nid = 'CritSpark'
-            animation = RESOURCES.animations.get(anim_nid)
-            if animation:
-                position = (-40, -30)
-                anim = Animation(animation, position)
-                if self.current_battle_anim is self.right_battle_anim:
-                    pass
-                else:
-                    anim.sprite = engine.flip_horiz(anim.sprite)
-                anim.set_tint(True)
-                self.animations.append(anim)
-        else:
-            self.no_damage()
-
-    def no_damage(self):
-        if self.current_battle_anim is self.right_battle_anim:
-            position = (52, 21)
-            team = self.right.team
-        else:
-            position = (110, 21)
-            team = self.left.team
-        color = utils.get_team_color(team)
-        anim_nid = 'NoDamage%s' % color.capitalize()
-        animation = RESOURCES.animations.get(anim_nid)
-        if animation:
-            anim = Animation(animation, position)
-            self.animations.append(anim)
-        # Also offset battle animation by lr_offset
-        self.current_battle_anim.lr_offset = [-1, -2, -3, -2, -1]
-
-    def miss_anim(self):
-        if self.current_battle_anim is self.right_battle_anim:
-            position = (72, 21)
-            team = self.right.team
-        else:
-            position = (128, 21)  # Enemy's position
-            team = self.left.team
-        color = utils.get_team_color(team)
-        anim_nid = 'Miss%s' % color.capitalize()
-        animation = RESOURCES.animations.get(anim_nid)
-        if animation:
-            anim = Animation(animation, position)
-            self.animations.append(anim)
-
     def shake(self):
         for brush in self.playback:
             if brush[0] == 'damage_hit':
@@ -672,46 +570,6 @@ class AnimationCombat(BaseCombat):
                 else:
                     self._shake(2)  # No damage
 
-    def _shake(self, num):
-        self.current_shake = 1
-        if num == 1: # Normal Hit
-            self.shake_set = [(3, 3), (0, 0), (0, 0), (-3, -3), (0, 0), (0, 0), (3, 3), (0, 0), (-3, -3), (0, 0), 
-                              (3, 3), (0, 0), (-3, -3), (3, 3), (0, 0)]
-        elif num == 2: # No Damage
-            self.shake_set = [(1, 1), (1, 1), (1, 1), (-1, -1), (-1, -1), (-1, -1), (0, 0)]
-        elif num == 3: # Spell Hit
-            self.shake_set = [(0, 0), (-3, -3), (0, 0), (0, 0), (0, 0), (3, 3), (0, 0), (0, 0), (-3, -3), (0, 0),
-                              (0, 0), (3, 3), (0, 0), (-3, -3), (0, 0), (3, 3), (0, 0), (-3, -3), (3, 3), (3, 3), 
-                              (0, 0)]
-        elif num == 4: # Critical Hit
-            self.shake_set = [(-6, -6), (0, 0), (0, 0), (0, 0), (6, 6), (0, 0), (0, 0), (-6, -6), (0, 0), (0, 0),
-                              (6, 6), (0, 0), (-6, -6), (0, 0), (6, 6), (0, 0), (4, 4), (0, 0), (-4, -4), (0, 0),
-                              (4, 4), (0, 0), (-4, -4), (0, 0), (4, 4), (0, 0), (-2, -2), (0, 0), (2, 2), (0, 0),
-                              (-2, -2), (0, 0), (2, 2), (0, 0), (-1, -1), (0, 0), (1, 1), (0, 0)]
-
-    def platform_shake(self):
-        self.platform_current_shake = 1
-        self.platform_shake_set = [(0, 1), (0, 0), (0, -1), (0, 0), (0, 1), (0, 0), (-1, -1), (0, 1), (0, 0)]
-
-    def screen_flash(self, num_frames, color, fade_out=0):
-        self.foreground.flash(num_frames, fade_out, color)
-
-    def darken(self):
-        self.target_dark += 0.5
-
-    def lighten(self):
-        self.target_dark -= 0.5
-
-    def darken_ui(self):
-        self.darken_ui_background = 1
-
-    def lighten_ui(self):
-        self.darken_ui_background = -3
-
-    def pan_away(self):
-        self.focus_right = not self.focus_right
-        self.move_camera()
-
     def pan_back(self):
         next_state = self.state_machine.get_next_state()
         if next_state:
@@ -730,48 +588,9 @@ class AnimationCombat(BaseCombat):
         elif self.defender.team == 'player':
             self.focus_right = (self.defender is self.right)
 
-    def move_camera(self):
-        if self.focus_right and self.pan_offset != -self.pan_max:
-            self.pan_dir = -self.pan_move
-        elif not self.focus_right and self.pan_offset != self.pan_max:
-            self.pan_dir = self.pan_move
-
     def draw(self, surf):
-        platform_trans = 88
-        platform_top = 88
-        if self.darken_background or self.target_dark:
-            bg = image_mods.make_translucent(SPRITES.get('bg_black'), 1 - self.darken_background)
-            surf.blit(bg, (0, 0))
-            if self.target_dark > self.darken_background:
-                self.darken_background += 0.125
-            elif self.target_dark < self.darken_background:
-                self.darken_background -= 0.125
-        # Pan
-        if self.pan_dir != 0:
-            self.pan_offset += self.pan_dir
-            if self.pan_offset > self.pan_max:
-                self.pan_offset = self.pan_max
-                self.pan_dir = 0
-            elif self.pan_offset < -self.pan_max:
-                self.pan_offset = -self.pan_max
-                self.pan_dir = 0
-
-        total_shake_x = self.shake_offset[0] + self.platform_shake_offset[0]
-        total_shake_y = self.shake_offset[1] + self.platform_shake_offset[1]
-        # Platform
-        top = platform_top + (platform_trans - self.bar_offset * platform_trans) + total_shake_y
-        if self.at_range:
-            surf.blit(self.left_platform, (9 - self.pan_max + total_shake_x + self.pan_offset, top))
-            surf.blit(self.right_platform, (131 + self.pan_max + total_shake_x + self.pan_offset, top))
-        else:
-            surf.blit(self.left_platform, (WINWIDTH // 2 - self.left_platform.get_width() + total_shake_x, top))
-            surf.blit(self.right_platform, (WINWIDTH // 2 + total_shake_x, top))
-        # Animation
-        if self.at_range:
-            right_range_offset = 24 + self.pan_max
-            left_range_offset = -24 - self.pan_max
-        else:
-            right_range_offset, left_range_offset = 0, 0
+        left_range_offset, right_range_offset, total_shake_x, total_shake_y = \
+            self.draw_ui(surf)
 
         shake = (-total_shake_x, total_shake_y)
         if self.playback:
@@ -794,9 +613,7 @@ class AnimationCombat(BaseCombat):
             self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
 
         # Animations
-        self.animations = [anim for anim in self.animations if not anim.update()]
-        for anim in self.animations:
-            anim.draw(surf)
+        self.draw_anims(surf)
 
         # Proc Icons
         for proc_icon in self.proc_icons:
@@ -805,14 +622,7 @@ class AnimationCombat(BaseCombat):
         self.proc_icons = [proc_icon for proc_icon in self.proc_icons if not proc_icon.done]
 
         # Damage Numbers
-        for damage_num in self.damage_numbers:
-            damage_num.update()
-            if damage_num.left:
-                x_pos = 94 + left_range_offset - total_shake_x + self.pan_offset
-            else:
-                x_pos = 146 + right_range_offset - total_shake_x + self.pan_offset
-            damage_num.draw(surf, (x_pos, 40))
-        self.damage_numbers = [d for d in self.damage_numbers if not d.done]
+        self.draw_damage_numbers(surf, (left_range_offset, right_range_offset, total_shake_x, total_shake_y))
 
         # Combat surf
         combat_surf = engine.copy_surface(self.combat_surf)

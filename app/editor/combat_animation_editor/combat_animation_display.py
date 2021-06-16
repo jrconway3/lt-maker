@@ -8,8 +8,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QIcon, QPainter
 
 from app.constants import WINWIDTH, WINHEIGHT
-from app.data.database import DB
 from app.resources import combat_anims
+from app.resources.resources import RESOURCES
+from app.data.database import DB
 
 from app.editor.settings import MainSettingsController
 
@@ -24,6 +25,9 @@ from app.extensions.custom_gui import ComboBox
 
 import app.editor.utilities as editor_utilities
 from app.utilities import str_utils
+
+# Game interface
+import app.editor.game_actions.game_actions as GAME_ACTIONS
                 
 class CombatAnimProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -112,9 +116,14 @@ class CombatAnimProperties(QWidget):
         self.loop_button.setCheckable(True)
 
         self.export_button = QToolButton(self)
-        self.export_button.setIcon(self.style().standardIcon(QStyle.SP_Export))
+        self.export_button.setIcon(self.style().standardIcon(QStyle.SP_DirLinkIcon))
         self.export_button.clicked.connect(self.export_clicked)
-        self.export_button.setToolTip("Export Animation as PNGs")
+        self.export_button.setToolTip("Export Animation as PNGs...")
+
+        self.test_combat_button = QToolButton(self)
+        self.test_combat_button.setIcon(QIcon('favicon.ico'))
+        self.test_combat_button.clicked.connect(self.test_combat)
+        self.test_combat_button.setToolTip("Display Animation in Engine")
 
         label = QLabel("FPS ")
         label.setAlignment(Qt.AlignRight)
@@ -128,6 +137,7 @@ class CombatAnimProperties(QWidget):
         self.button_section.addWidget(self.stop_button)
         self.button_section.addWidget(self.loop_button)
         self.button_section.addWidget(self.export_button)
+        self.button_section.addWidget(self.test_combat_button)
         self.button_section.addSpacing(40)
         self.button_section.addWidget(label, Qt.AlignRight)
         self.button_section.addWidget(self.speed_box, Qt.AlignRight)
@@ -183,7 +193,6 @@ class CombatAnimProperties(QWidget):
         self.import_from_lt_button.clicked.connect(self.import_legacy)
         self.import_from_gba_button = QPushButton("Import GBA Weapon Animation...")
         self.import_from_gba_button.clicked.connect(self.import_gba)
-        # self.import_from_gba_button.setEnabled(False)
         self.import_png_button = QPushButton("View Frames...")
         self.import_png_button.clicked.connect(self.select_frame)
         frame_layout.addWidget(self.import_from_lt_button)
@@ -298,6 +307,8 @@ class CombatAnimProperties(QWidget):
         self.timeline_menu.setEnabled(b)
         self.duplicate_pose_button.setEnabled(b)
         self.delete_pose_button.setEnabled(b)
+        self.export_button.setEnabled(b)
+        self.test_combat_button.setEnabled(b)
 
     def weapon_changed(self, idx):
         weapon_nid = self.weapon_box.currentText()
@@ -378,7 +389,7 @@ class CombatAnimProperties(QWidget):
             current_weapon.pixmap = None
             has_pixmap = True
 
-            for index in range(0,len(current_weapon.frames)):
+            for index in range(len(current_weapon.frames)):
                 frame = current_weapon.frames[index]
                 frame.pixmap = None
 
@@ -730,6 +741,50 @@ class CombatAnimProperties(QWidget):
                 im.save(full_path)
                 counter += 1
 
+    def test_combat(self):
+        if self.current:
+            weapon_nid = self.weapon_box.currentText()
+            weapon_anim = self.current.weapon_anims.get(weapon_nid)
+            if not weapon_anim:
+                return
+            if 'Stand' in weapon_anim.poses.keys() and 'Attack' in weapon_anim.poses.keys():
+                pass
+            else:
+                print("Missing Stand or Attack pose!")
+                return
+            
+            palettes = self.current.palettes
+            if not palettes:
+                print("No palettes!")
+                return
+            palette_names = [palette[0] for palette in palettes]
+            palette_nids = [palette[1] for palette in palettes]
+            if 'GenericBlue' in palette_names:
+                idx = palette_names.index('GenericBlue')
+                right_palette_nid = palette_nids[idx]
+            else:
+                right_palette_nid = palette_nids[0]
+            if 'GenericRed' in palette_names:
+                idx = palette_names.index('GenericRed')
+                left_palette_nid = palette_nids[idx]
+            elif len(palette_nids) > 1:
+                left_palette_nid = palette_nids[1]
+            else:
+                left_palette_nid = palette_nids[0]
+            right_palette = RESOURCES.combat_palettes.get(right_palette_nid)
+            left_palette = RESOURCES.combat_palettes.get(left_palette_nid)
+
+            item_nid = None
+            for item in DB.items:
+                if item.magic and item.nid in DB.combat_effects:
+                    item_nid = item.nid
+            
+            timer.get_timer().stop()
+            GAME_ACTIONS.test_combat(
+                weapon_anim, left_palette, item_nid, 
+                weapon_anim, right_palette, item_nid)
+            timer.get_timer().start()
+
 class CombatEffectProperties(CombatAnimProperties):
     def __init__(self, parent, current=None):
         QWidget.__init__(self, parent)
@@ -744,6 +799,7 @@ class CombatEffectProperties(CombatAnimProperties):
                 frame.pixmap = effect_anim.pixmap.copy(x, y, width, height)
 
         self.control_setup(current)
+        self.test_combat_button.setEnabled(False)
 
         self.info_form = QFormLayout()
 
@@ -781,15 +837,11 @@ class CombatEffectProperties(CombatAnimProperties):
         self.window.left_frame.layout().addWidget(self.import_from_lt_button, 2, 0, 1, 2)
         frame_layout.addWidget(self.import_png_button)
 
-    def has_weapon(self, b: bool):
-        self.duplicate_weapon_button.setEnabled(b)
-        self.delete_weapon_button.setEnabled(b)
-        self.new_pose_button.setEnabled(b)
-
     def has_pose(self, b: bool):
         self.timeline_menu.setEnabled(b)
         self.duplicate_pose_button.setEnabled(b)
         self.delete_pose_button.setEnabled(b)
+        self.export_button.setEnabled(b)
 
     def pose_changed(self, idx):
         current_pose_nid = self.pose_box.currentText()

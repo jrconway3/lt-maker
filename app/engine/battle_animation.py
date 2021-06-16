@@ -115,7 +115,6 @@ class BattleAnimation():
             self.image_directory[frame.nid] = converted_image
 
     def pair(self, owner, partner_anim, right, at_range, entrance_frames=0, position=None, parent=None):
-        print(self.unit.nid, "pair")
         self.owner = owner
         self.partner_anim = partner_anim
         self.parent = parent if parent else self
@@ -141,7 +140,6 @@ class BattleAnimation():
         return self.anim_prefab.frames.get(frame_nid)
 
     def start_anim(self, pose):
-        print(self.unit.nid, "start anim", pose)
         self.change_pose(pose)
         self.script_idx = 0
         self.wait_for_hit = True
@@ -272,7 +270,6 @@ class BattleAnimation():
             self.skip_next_loop += 1
 
     def update(self):
-        print("Update", self.unit.nid, self.state)
         if self.state == 'run':
             print("Current Pose", self.current_pose)
             # Read script
@@ -431,6 +428,8 @@ class BattleAnimation():
         elif command.nid == 'spell':
             if values[0]:
                 effect = values[0]
+            elif isinstance(self.item, str):
+                effect = self.item
             else:
                 effect = self.item.nid
             child_effect = self.get_effect(effect)
@@ -438,7 +437,6 @@ class BattleAnimation():
                 self.child_effects.append(child_effect)
 
         elif command.nid == 'blend':
-            print(self.unit.nid, "Blend", command.nid, values)
             if bool(values[0]):
                 self.blend = engine.BLEND_RGB_ADD
             else:

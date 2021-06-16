@@ -81,7 +81,9 @@ def engage(attacker: UnitObject, positions: list, main_item: ItemObject, skip: b
     elif not main_targets[0] or splashes[0]:
         combat = MapCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
     elif has_animation(attacker, item, main_target):
-        combat = AnimationCombat(attacker, item, main_target, script)
+        defender = game.board.get_unit(main_target)
+        def_item = defender.get_weapon()
+        combat = AnimationCombat(attacker, item, defender, def_item, script)
     else:
         combat = MapCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
     return combat

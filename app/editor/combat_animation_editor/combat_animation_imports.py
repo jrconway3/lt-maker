@@ -14,7 +14,7 @@ def populate_palettes(current, images, nid):
         palette_name = os.path.split(image_fn)[-1][:-4].split('-')[-1]
         palette_nid = nid + '_' + palette_name
         if palette_name not in [_[0] for _ in current.palettes]:
-            if palette_nid not in RESOURCES.combat_palettes:
+            if palette_nid not in RESOURCES.combat_palettes.keys():
                 # Need to create palette
                 pix = QPixmap(image_fn)
                 palette_colors = editor_utilities.find_palette(pix.toImage())
@@ -78,7 +78,7 @@ def add_poses(fn, new_weapon):
             if command:
                 current_pose.timeline.append(command)
 
-def import_from_lion_throne(current, fn):
+def import_from_legacy(current, fn):
     """
     Imports weapon animations from a Legacy formatted combat animation script file.
 
@@ -122,7 +122,7 @@ def import_from_lion_throne(current, fn):
     current.weapon_anims.append(new_weapon)
     print("Done!!! %s" % fn)
 
-def import_effect_from_lion_throne(fn):
+def import_effect_from_legacy(fn):
     """
     Imports effect animations from a Legacy formatted effect animation script file.
 
@@ -172,7 +172,7 @@ def import_effect_from_lion_throne(fn):
     return current
 
 # === IMPORT FROM GBA ========================================================
-def update_weapon_anim_pixmap(weapon_anim):
+def update_weapon_anim_full_image(weapon_anim):
     width_limit = 1200
     left = 0
     heights = []
@@ -293,17 +293,28 @@ def import_from_gba(current, fn):
     # Convert to GBA colors
     pixmaps = {name: convert_gba(pix) for name, pix in pixmaps.items()}
     # Find palette
-    palette = get_palette(list(pixmaps.values())[0])
-    palette_nid = utilities.get_next_name("GenericBlue", current.palettes.keys())
-    new_palette = combat_anims.Palette(palette_nid, palette)
-    current.palettes.append(new_palette)
+    all_palette_colors = editor_utilities.find_palette_from_multiple([pix.toImage() for pix in pixmaps.values()])
+    my_palette = None
+    for palette in current.palettes:
+        if palette.is_similar(all_palette_colors):
+            my_palette = palette
+            break
+    else:
+        print("Generating new palette...")
+        palette_nid = utilities.get_next_name("New Palette", RESOURCES.combat_palettes.keys())
+        my_palette = combat_palettes.Palette(palette_nid)
+        RESOURCES.combat_palettes.append(my_palette)
+        palette_name = utilities.get_next_name('GenericBlue', [name for name, nid in current.palettes])
+        current.palettes.append([palette_name, my_palette.nid])
+        colors = {(int(idx % 8), int(idx / 8)): color for idx, color in enumerate(all_palette_colors)}
+        my_palette.colors = colors
+
     # Now do a simple crop to get rid of palette extras
     pixmaps = {name: simple_crop(pix) for name, pix in pixmaps.items()}
     # Split double images into "_under" image
     pixmaps = split_doubles(pixmaps)
     # Convert pixmaps to new palette colors
-    base_colors = combat_anims.base_palette.colors
-    convert_dict = {qRgb(*a): qRgb(*b) for a, b in zip(palette, base_colors)}
+    convert_dict = {qRgb(*color): qRgb(0, coord[0], coord[1]) for coord, color in my_palette.colors}
     pixmaps = {name: color_convert(pixmap, convert_dict) for name, pixmap in pixmaps.items()}
     # Determine which pixmaps should be replaced by "wait" commands
     empty_pixmaps = find_empty_pixmaps(pixmaps)
@@ -312,8 +323,8 @@ def import_from_gba(current, fn):
     melee_weapon_anim, ranged_weapon_anim = parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps)
 
     # Animation collation
-    update_weapon_anim_pixmap(melee_weapon_anim)
-    update_weapon_anim_pixmap(ranged_weapon_anim)
+    update_weapon_anim_full_image(melee_weapon_anim)
+    update_weapon_anim_full_image(ranged_weapon_anim)
 
     def unarmed_pose_setup(weapon_anim):
         stand_pose = weapon_anim.poses.get('Stand')

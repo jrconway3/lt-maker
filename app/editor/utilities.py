@@ -62,6 +62,18 @@ def find_palette(image):
     true_palette = [(c.red(), c.green(), c.blue()) for c in color_palette]
     return true_palette
 
+def find_palette_from_multiple(images: list):
+    palette = []
+    for image in images:
+        for x in range(image.width()):
+            for y in range(image.height()):
+                current_color = image.pixel(x, y)
+                if current_color not in palette:
+                    palette.append(current_color)
+    color_palette = [QtGui.QColor(p) for p in palette]
+    true_palette = [(c.red(), c.green(), c.blue()) for c in color_palette]
+    return true_palette
+
 def get_full_palette(image) -> list:
     """
     Returns list of 3-tuples

@@ -637,7 +637,7 @@ class MapEditor(QDialog):
             fn, ok = QFileDialog.getSaveFileName(
                 self, "Export Current Image", starting_path, 
                 "PNG Files (*.png)")
-            if ok:
+            if fn and ok:
                 image.save(fn)
                 parent_dir = os.path.split(fn)[0]
                 self.settings.set_last_open_path(parent_dir)

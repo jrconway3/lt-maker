@@ -111,6 +111,11 @@ class CombatAnimProperties(QWidget):
         self.loop_button.clicked.connect(self.loop_clicked)
         self.loop_button.setCheckable(True)
 
+        self.export_button = QToolButton(self)
+        self.export_button.setIcon(self.style().standardIcon(QStyle.SP_Export))
+        self.export_button.clicked.connect(self.export_clicked)
+        self.export_button.setToolTip("Export Animation as PNGs")
+
         label = QLabel("FPS ")
         label.setAlignment(Qt.AlignRight)
 
@@ -122,6 +127,7 @@ class CombatAnimProperties(QWidget):
         self.button_section.addWidget(self.play_button)
         self.button_section.addWidget(self.stop_button)
         self.button_section.addWidget(self.loop_button)
+        self.button_section.addWidget(self.export_button)
         self.button_section.addSpacing(40)
         self.button_section.addWidget(label, Qt.AlignRight)
         self.button_section.addWidget(self.speed_box, Qt.AlignRight)
@@ -174,10 +180,10 @@ class CombatAnimProperties(QWidget):
         frame_layout = QVBoxLayout()
         self.frame_group_box.setLayout(frame_layout)
         self.import_from_lt_button = QPushButton("Import Legacy Weapon Animation...")
-        self.import_from_lt_button.clicked.connect(self.import_lion_throne)
+        self.import_from_lt_button.clicked.connect(self.import_legacy)
         self.import_from_gba_button = QPushButton("Import GBA Weapon Animation...")
         self.import_from_gba_button.clicked.connect(self.import_gba)
-        self.import_from_gba_button.setEnabled(False)
+        # self.import_from_gba_button.setEnabled(False)
         self.import_png_button = QPushButton("View Frames...")
         self.import_png_button.clicked.connect(self.select_frame)
         frame_layout.addWidget(self.import_from_lt_button)
@@ -246,6 +252,15 @@ class CombatAnimProperties(QWidget):
 
     def speed_changed(self, val):
         pass
+
+    def export_clicked(self):
+        if self.current:
+            starting_path = self.settings.get_last_open_path()
+            fn_dir, ok = QFileDialog.getExistingDirectory(
+                self, "Export Current Animation", starting_path)
+            if fn_dir and ok:
+                self.settings.set_last_open_path(fn_dir)
+                self.export(fn_dir)
 
     def nid_changed(self, text):
         self.current.nid = text
@@ -493,23 +508,37 @@ class CombatAnimProperties(QWidget):
             self.pose_box.setValue(poses[0].nid)
         return poses
 
-    def import_lion_throne(self):
-        settings = MainSettingsController()
-        starting_path = settings.get_last_open_path()
+    def import_legacy(self):
+        starting_path = self.settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Legacy Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
-        if ok:
+        if fns and ok:
+            parent_dir = os.path.split(fns[-1])[0]
+            self.settings.set_last_open_path(parent_dir)
+
             for fn in fns:
                 if fn.endswith('-Script.txt'):
-                    combat_animation_imports.import_from_lion_throne(self.current, fn)
+                    combat_animation_imports.import_from_legacy(self.current, fn)
+
             # Reset
             self.set_current(self.current)
             if self.current.weapon_anims:
                 self.weapon_box.setValue(self.current.weapon_anims[-1].nid)
-            parent_dir = os.path.split(fns[-1])[0]
-            settings.set_last_open_path(parent_dir)
 
     def import_gba(self):
-        pass
+        starting_path = self.settings.get_last_open_path()
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Legacy Script Files", starting_path, "Text Files (*.txt);;All Files (*)")
+        if fns and ok:
+            parent_dir = os.path.split(fns[-1])[0]
+            self.settings.set_last_open_path(parent_dir)
+
+            for fn in fns:
+                if fn.endswith('.txt'):
+                    combat_animation_imports.import_from_gba(self.current, fn)
+
+            # Reset
+            self.set_current(self.current)
+            if self.current.weapon_anims:
+                self.weapon_box.setValue(self.current.weapon_anims[-1].nid)
 
     def select_frame(self):
         weapon_anim = self.get_current_weapon_anim()
@@ -651,15 +680,55 @@ class CombatAnimProperties(QWidget):
         under_offset_x, under_offset_y = under_offset
         base_image = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
         base_image.fill(editor_utilities.qCOLORKEY)
-        if actor_im:
+        if actor_im or under_actor_im:
             painter = QPainter()
             painter.begin(base_image)
             if under_actor_im:
                 painter.drawImage(under_offset_x, under_offset_y, under_actor_im)
-            painter.drawImage(offset_x, offset_y, actor_im)
+            if actor_im:
+                painter.drawImage(offset_x, offset_y, actor_im)
             painter.end()
         self.anim_view.set_image(QPixmap.fromImage(base_image))
         self.anim_view.show_image()
+
+    def export(self, fn_dir: str):
+        weapon_anim = self.get_current_weapon_anim()
+        poses = weapon_anim.poses
+        current_pose_nid = self.pose_box.currentText()
+        current_pose = poses.get(current_pose_nid)
+        counter = 0
+        for command in current_pose.timeline:
+            self.processing = True
+            self.do_command(command)
+            if self.processing:  # Don't bother drawing anything if we are still processing
+                continue
+            im = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
+            im.fill(editor_utilities.qCOLORKEY)
+            frame, under_frame = None, None
+            if self.under_frame_nid:
+                under_frame = weapon_anim.frames.get(self.under_frame_nid)
+                under_offset_x, under_offset_y = under_frame.offset
+                under_frame = self.modify_for_palette(under_frame.pixmap)
+            if self.frame_nid:
+                frame = weapon_anim.frames.get(self.frame_nid)
+                if self.custom_frame_offset:
+                    offset_x, offset_y = self.custom_frame_offset
+                else:
+                    offset_x, offset_y = frame.offset
+                frame = self.modify_for_palette(frame.pixmap)
+            if frame or under_frame:
+                painter = QPainter()
+                painter.begin(im)
+                if under_frame:
+                    painter.drawImage(under_offset_x, under_offset_y, under_frame)
+                if frame:
+                    painter.drawImage(offset_x, offset_y, frame)
+                painter.end()
+            for i in range(self.num_frames):
+                path = '%s_%s_%s_%04d.png' % (self.current.nid, weapon_anim.nid, current_pose.nid, counter)
+                full_path = os.path.join(fn_dir, path)
+                im.save(full_path)
+                counter += 1
 
 class CombatEffectProperties(CombatAnimProperties):
     def __init__(self, parent, current=None):
@@ -706,14 +775,10 @@ class CombatEffectProperties(CombatAnimProperties):
         frame_layout = QVBoxLayout()
         self.frame_group_box.setLayout(frame_layout)
         self.import_from_lt_button = QPushButton("Import Legacy Effect...")
-        self.import_from_lt_button.clicked.connect(self.import_lion_throne)
-        self.import_from_gba_button = QPushButton("Import GBA Effect...")
-        self.import_from_gba_button.clicked.connect(self.import_gba)
-        self.import_from_gba_button.setEnabled(False)
+        self.import_from_lt_button.clicked.connect(self.import_legacy)
         self.import_png_button = QPushButton("View Frames...")
         self.import_png_button.clicked.connect(self.select_frame)
         self.window.left_frame.layout().addWidget(self.import_from_lt_button, 2, 0, 1, 2)
-        frame_layout.addWidget(self.import_from_gba_button)
         frame_layout.addWidget(self.import_png_button)
 
     def has_weapon(self, b: bool):
@@ -798,20 +863,16 @@ class CombatEffectProperties(CombatAnimProperties):
             self.pose_box.setValue(poses[0].nid)
         return poses
 
-    def import_lion_throne(self):
-        settings = MainSettingsController()
-        starting_path = settings.get_last_open_path()
+    def import_legacy(self):
+        starting_path = self.settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Legacy Effect Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
         if ok and fns:
             for fn in fns:
                 if fn.endswith('-Script.txt'):
-                    combat_animation_imports.import_effect_from_lion_throne(fn)
+                    combat_animation_imports.import_effect_from_legacy(fn)
             parent_dir = os.path.split(fns[-1])[0]
-            settings.set_last_open_path(parent_dir)
+            self.settings.set_last_open_path(parent_dir)
         self.window.update_list()
-
-    def import_gba(self):
-        pass
 
     def select_frame(self):
         dlg = FrameSelector(self.current, self.current, self)
@@ -859,3 +920,40 @@ class CombatEffectProperties(CombatAnimProperties):
                 under_actor_im = self.modify_for_palette(frame.pixmap)
 
         self.set_anim_view(actor_im, (offset_x, offset_y), under_actor_im, (under_offset_x, under_offset_y))
+
+    def export(self, fn_dir: str):
+        current_pose_nid = self.pose_box.currentText()
+        current_pose = self.current.poses.get(current_pose_nid)
+        counter = 0
+        for command in current_pose.timeline:
+            self.processing = True
+            self.do_command(command)
+            if self.processing:  # Don't bother drawing anything if we are still processing
+                continue
+            im = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
+            im.fill(editor_utilities.qCOLORKEY)
+            frame, under_frame = None, None
+            if self.under_frame_nid:
+                under_frame = self.frames.get(self.under_frame_nid)
+                under_offset_x, under_offset_y = under_frame.offset
+                under_frame = self.modify_for_palette(under_frame.pixmap)
+            if self.frame_nid:
+                frame = self.frames.get(self.frame_nid)
+                if self.custom_frame_offset:
+                    offset_x, offset_y = self.custom_frame_offset
+                else:
+                    offset_x, offset_y = frame.offset
+                frame = self.modify_for_palette(frame.pixmap)
+            if frame or under_frame:
+                painter = QPainter()
+                painter.begin(im)
+                if under_frame:
+                    painter.drawImage(under_offset_x, under_offset_y, under_frame)
+                if frame:
+                    painter.drawImage(offset_x, offset_y, frame)
+                painter.end()
+            for i in range(self.num_frames):
+                path = '%s_%s_%04d.png' % (self.current.nid, current_pose.nid, counter)
+                full_path = os.path.join(fn_dir, path)
+                im.save(full_path)
+                counter += 1

@@ -12,7 +12,7 @@ Combat Animations
     Mass Import from GBA
     Export Frames
     Export Index File?
-    Export Frames as Gif
+    Export Frames as Gif (Test)
     Show in Engine
 Overworld
 Base

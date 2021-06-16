@@ -17,4 +17,4 @@ give_exp;Ophie;100
 give_exp;Ophie;100
 give_exp;Ophie;100
 give_exp;Ophie;100
-give_exp;Ophie;100
+give_exp;Eirika;100

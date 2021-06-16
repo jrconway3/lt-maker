@@ -1,6 +1,7 @@
 from __future__ import annotations
+from app.sprites import SPRITES
 
-from typing import TYPE_CHECKING, Tuple, Union
+from typing import List, TYPE_CHECKING, Tuple, Union
 import re
 
 from app.engine import engine, text_funcs
@@ -36,10 +37,12 @@ class TextComponent(UIComponent):
         self.num_visible_chars = len(text)
         self._final_formatted_text = []
         self.scrolled_line: float = 1
-        self._recalculate_size()
+        self._reset('__init__')
 
     @property
     def wrapped_text(self) -> str:
+        if not self._final_formatted_text:
+            self._add_line_breaks_to_text()
         return str.join("", self._final_formatted_text)
 
     @property
@@ -64,7 +67,7 @@ class TextComponent(UIComponent):
     @property
     def scrollable_height(self):
         height_of_max_lines = self.props.max_lines * self.font_height + (self.props.max_lines - 1) * self.line_break_size
-        return self.height - height_of_max_lines
+        return self.height - self.max_text_area_height
 
     @property
     def lines_displayed(self) -> int:
@@ -94,7 +97,7 @@ class TextComponent(UIComponent):
             font (BmpFont): font to use to draw the text
         """
         self.props.font = font
-        self._recalculate_size()
+        self._reset("font")
 
     def set_line_break_size(self, line_break_size: str):
         """Sets the line break size of this component and recalculates the component size.
@@ -104,7 +107,7 @@ class TextComponent(UIComponent):
             the lines of text. Percentage measured in size of parent.
         """
         self.props.line_break_size = line_break_size
-        self._recalculate_size()
+        self._reset("set_line_break_size")
 
     def set_num_lines(self, num_lines: int):
         """Sets the max lines of this component and recalculates the component size.
@@ -113,27 +116,23 @@ class TextComponent(UIComponent):
             num_lines (int): max number of lines
         """
         self.props.max_lines = num_lines
-        self._recalculate_size()
+        self._reset("set_num_lines")
 
-    # @overrides UIComponent.padding.setter
-    @UIComponent.padding.setter
-    def padding(self, padding: Tuple[int, int, int, int]):
-        """sets an explicit pixel padding and recalculates the component size
-
-        Args:
-            padding (Tuple[int, int, int, int]): padding in pixels
+    # @overrides UIComponent._reset
+    def _reset(self, _=None):
+        """Resets component state
         """
-        self.ipadding = [UIMetric.parse(padding[0]),
-                         UIMetric.parse(padding[1]),
-                         UIMetric.parse(padding[2]),
-                         UIMetric.parse(padding[3])]
+        self.skip_all_animations()
+        self.scrolled_line = 1
+        self._add_line_breaks_to_text()
         self._recalculate_size()
 
     def _recalculate_size(self):
         """Given our formatted text and our font, we can easily determine
-        the size of the text component.
+        the size of the text component. This resets all state values,
+        since things like scroll may no longer apply.
         """
-        self._add_line_breaks_to_text()
+        # calculate size
         if self.props.resize_mode == ResizeMode.AUTO:
             num_lines = len(self._final_formatted_text)
             if num_lines == 1:
@@ -155,7 +154,7 @@ class TextComponent(UIComponent):
         """
         self.text = text
         self.num_visible_chars = len(text)
-        self._recalculate_size()
+        self._reset('text')
 
     def set_visible(self, num_chars_visible: int):
         """If you do not wish to display all the text at once,
@@ -177,8 +176,8 @@ class TextComponent(UIComponent):
             Surface: a correctly-sized transparent surf.
         """
         # if we don't have cached, or our size has changed since last background generation, regenerate
-        if not self.cached_background or self.cached_background.get_size() != self.size:
-            self.cached_background = engine.create_surface(self.size, True)
+        if not self.cached_background or self.cached_background.get_size() != self.tsize:
+            self.cached_background = engine.create_surface(self.tsize, True)
         return self.cached_background
 
     def _add_line_breaks_to_text(self):
@@ -256,9 +255,8 @@ class TextComponent(UIComponent):
 
     # @overrides UIComponent.to_surf
     def to_surf(self) -> Surface:
-        self._recalculate_size()
         if not self.enabled:
-            return engine.create_surface(self.size, True)
+            return engine.create_surface(self.tsize, True)
         # draw the background.
         base_surf = self._create_bg_surf().copy()
         # draw the text
@@ -284,12 +282,18 @@ class TextComponent(UIComponent):
 class DialogTextComponent(TextComponent):
     def __init__(self, name: str="", text: str="", parent: UIComponent=None):
         super().__init__(name=name, text=text, parent=parent)
+        self.cursor = SPRITES.get('waiting_cursor')
+        self.cursor_y_offset = [0]*20 + [1]*2 + [2]*8 + [1]*2
+        self.cursor_y_offset_index = 0
+
+    def wiggle_cursor_height(self):
+        self.cursor_y_offset_index = (self.cursor_y_offset_index + 1) % len(self.cursor_y_offset)
+        return self.cursor_y_offset[self.cursor_y_offset_index] + self.font_height / 3
 
     # @overrides TextComponent.to_surf
     def to_surf(self) -> Surface:
-        self._recalculate_size()
         if not self.enabled:
-            return engine.create_surface(self.size, True)
+            return engine.create_surface(self.tsize, True)
         # draw the background.
         base_surf = self._create_bg_surf().copy()
         # draw the text
@@ -302,6 +306,12 @@ class DialogTextComponent(TextComponent):
             processed_line = re.sub('{[^}]*}?', '', visible_line)
             remaining_chars -= len(visible_line)
             self.props.font.blit(processed_line, base_surf, pos=(self.padding[0], self.padding[2] + line_num * (self.line_break_size + self.font_height)))
+            # if we're at a wait point, and this is the last line, blit the waiting cursor sprite
+            if remaining_chars <= 0 and self.is_index_at_sequence(self.num_visible_chars, '{w}'):
+                cursor_pos = (self.padding[0] + self.props.font.width(processed_line) + self.props.font.width(' '),
+                              self.padding[2] + line_num * (self.line_break_size + self.font_height) + self.wiggle_cursor_height())
+                base_surf.blit(self.cursor, cursor_pos)
+                pass
 
         if self.props.max_lines > 0:
             # crop the text to the max number of lines, to avoid overflow

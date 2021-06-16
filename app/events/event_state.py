@@ -25,28 +25,24 @@ class EventState(State):
             SOUNDTHREAD.play_sfx('Select 4')
             self.event.skip(event == 'START')
 
-        elif event == 'SELECT' or event == 'RIGHT' or event == 'DOWN':
-            if self.event.state == 'dialog':
+        elif self.event.state == 'dialog':
+            if event == 'SELECT' or event == 'RIGHT' or event == 'DOWN':
                 if not cf.SETTINGS['talk_boop']:
                     SOUNDTHREAD.play_sfx('Select 1')
                 self.event.hurry_up()
 
-        elif event == 'INFO':
-            if self.event.state == 'dialog':
+            elif event == 'INFO':
                 self.event.state = 'dialog_log'
-                print('DIALOG_LOG')
-            elif self.event.state == 'dialog_log':
+
+        elif self.event.state == 'dialog_log':
+            if event == 'INFO':
                 self.event.state = 'dialog'
-                print('DIALOG')
 
-        elif event == 'UP':
-            if self.event.state == 'dialog_log':
-                self.event.dialog_log.scroll_up()
+            elif event == 'UP':
+                self.event.dialog_history.scroll_up()
 
-        elif event == 'DOWN':
-            if self.event.state == 'dialog_log':
-                self.event.dialog_log.scroll_down()
-
+            elif event == 'DOWN':
+                self.event.dialog_history.scroll_down()
 
     def update(self):
         if self.game_over:

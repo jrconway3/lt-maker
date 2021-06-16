@@ -1,13 +1,15 @@
 from __future__ import annotations
+from app.utilities.utils import clamp
 
 from enum import Enum
-from typing import Callable, Dict, List, Tuple, Union
+import logging
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 from app.constants import WINHEIGHT, WINWIDTH
 from app.engine import engine
 from app.utilities.typing import Color4
 from PIL import Image
-from PIL.Image import LANCZOS
+from PIL.Image import LANCZOS, new
 
 from pygame import Surface
 
@@ -44,9 +46,9 @@ class ComponentProperties():
             ResizeMode.AUTO )                           # whereas MANUAL components will NEVER resize themselves.
                                                         # Probably always use AUTO, since it'll use special logic.
 
-        self.max_width: str = None                      # maximum width str for the component.
+        self.max_width: str = '100%'                      # maximum width str for the component.
                                                         # Useful for dynamic components such as dialog.
-        self.max_height: str = None                     # maximum height str for the component.
+        self.max_height: str = '100%'                     # maximum height str for the component.
 
         self.opacity: float = 1                         # layer opacity for the element.
                                                         # NOTE: changing this from 1 will disable per-pixel alphas
@@ -106,12 +108,18 @@ class UIComponent():
         self.ioffset: List[UIMetric] = [UIMetric.pixels(0),
                                         UIMetric.pixels(0)]
 
+        # scroll offset
+        self.iscroll: List[UIMetric] = [UIMetric.pixels(0),
+                                        UIMetric.pixels(0)]
+
         self.cached_background: Surface = None # contains the rendered background.
 
         # animation queue
         self.queued_animations: List[UIAnimation] = []
         # saved animations
         self.saved_animations: Dict[str, List[UIAnimation]] = {}
+        # animation speed-up
+        self.animation_speed: int = 1
 
         # secret internal timekeeper, basically never touch this
         self._chronometer: Callable[[], int] = engine.get_time
@@ -128,7 +136,9 @@ class UIComponent():
     @classmethod
     def create_base_component(cls, win_width=WINWIDTH, win_height=WINHEIGHT) -> UIComponent:
         """Creates a blank component that spans the entire screen; a base component
-        to which other components can be attached
+        to which other components can be attached. This component should not be used
+        for any real rendering; it is an organizational tool, and should not be
+        animated.
 
         Args:
             win_width (int): pixel width of the window. Defaults to the global setting.
@@ -195,6 +205,13 @@ class UIComponent():
         """
         return UIMetric.parse(self.props.max_width).to_pixels(self.parent.width)
 
+    @max_width.setter
+    def max_width(self, max_width: str):
+        """sets max width
+        """
+        self.props.max_width = max_width
+        self._reset('max_width')
+
     @property
     def max_height(self) -> int:
         """return max height in pixels
@@ -203,6 +220,13 @@ class UIComponent():
             int: max height of component
         """
         return UIMetric.parse(self.props.max_height).to_pixels(self.parent.height)
+
+    @max_height.setter
+    def max_height(self, max_height: str):
+        """sets max width
+        """
+        self.props.max_height = max_height
+        self._reset('max_height')
 
     @property
     def offset(self) -> Tuple[int, int]:
@@ -225,6 +249,34 @@ class UIComponent():
         self.ioffset = (UIMetric.parse(new_offset[0]), UIMetric.parse(new_offset[1]))
 
     @property
+    def scroll(self) -> Tuple[int, int]:
+        """returns scroll in pixels
+
+        Returns:
+            Tuple[int, int]: scroll offset value
+        """
+        return (self.iscroll[0].to_pixels(self.width),
+                self.iscroll[1].to_pixels(self.height))
+
+    @scroll.setter
+    def scroll(self, new_scroll: Tuple[str | UIMetric, str | UIMetric]):
+        """sets scroll
+
+        Args:
+            new_scroll (Tuple[str, str]): offset str,
+                can be in percentages or pixels
+        """
+        if isinstance(new_scroll[0], UIMetric):
+            scroll_x = new_scroll[0]
+            scroll_y = new_scroll[1]
+        else: # parse them
+            scroll_x = UIMetric.parse(new_scroll[0])
+            scroll_y = UIMetric.parse(new_scroll[1])
+        cap_scroll_x = clamp(scroll_x.to_pixels(self.width), 0, self.twidth - self.width)
+        cap_scroll_y = clamp(scroll_y.to_pixels(self.height), 0, self.theight - self.height)
+        self.iscroll = (UIMetric.parse(cap_scroll_x), UIMetric.parse(cap_scroll_y))
+
+    @property
     def size(self) -> Tuple[int, int]:
         """Returns the pixel width and height of the component
 
@@ -232,6 +284,15 @@ class UIComponent():
             Tuple[int, int]: (pixel width, pixel height)
         """
         return (self.width, self.height)
+
+    @property
+    def tsize(self) -> Tuple[int, int]:
+        """Returns the true pixel width and height of the component
+
+        Returns:
+            Tuple[int, int]: (pixel width, pixel height)
+        """
+        return (self.twidth, self.theight)
 
     @size.setter
     def size(self, size_input: Tuple[str, str]):
@@ -246,7 +307,7 @@ class UIComponent():
 
     @property
     def width(self) -> int:
-        """width of component in pixels
+        """display width of component in pixels
 
         Returns:
             int: pixel width
@@ -256,6 +317,15 @@ class UIComponent():
             return min(self.isize[0].to_pixels(self.parent.width), max_width)
         else:
             return self.isize[0].to_pixels(self.parent.width)
+
+    @property
+    def twidth(self) -> int:
+        """true width of component in pixels
+
+        Returns:
+            int: pixel width
+        """
+        return self.isize[0].to_pixels(self.parent.width)
 
     @width.setter
     def width(self, width: str):
@@ -268,7 +338,7 @@ class UIComponent():
 
     @property
     def height(self) -> int:
-        """height of component in pixels
+        """display height of component in pixels
 
         Returns:
             int: pixel height
@@ -278,6 +348,15 @@ class UIComponent():
             return min(self.isize[1].to_pixels(self.parent.height), max_height)
         else:
             return self.isize[1].to_pixels(self.parent.height)
+
+    @property
+    def theight(self) -> int:
+        """true height of component in pixels
+
+        Returns:
+            int: pixel height
+        """
+        return self.isize[1].to_pixels(self.parent.height)
 
     @height.setter
     def height(self, height: str):
@@ -337,11 +416,14 @@ class UIComponent():
                          UIMetric.parse(padding[1]),
                          UIMetric.parse(padding[2]),
                          UIMetric.parse(padding[3])]
+        self._reset("padding")
 
     def add_child(self, child: UIComponent):
         """Add a child component to this component.
         NOTE: Order matters, depending on the layout
         set in UIComponent.props.layout.
+
+        Also triggers a component reset, if the component is dynamically sized.
 
         Args:
             child (UIComponent): a child UIComponent
@@ -349,6 +431,35 @@ class UIComponent():
         child.parent = self
         child.set_chronometer(self._chronometer)
         self.children.append(child)
+        if self.props.resize_mode == ResizeMode.AUTO:
+            self._reset('add_child')
+
+    def has_child(self, child_name: str) -> bool:
+        for child in self.children:
+            if child_name == child.name:
+                return True
+        return False
+
+    def get_child(self, child_name: str) -> Optional[UIComponent]:
+        for child in self.children:
+            if child_name == child.name:
+                return child
+        return None
+
+    def remove_child(self, child_name: str) -> bool:
+        """remove a child from this component.
+
+        Args:
+            child_name (str): name of child component.
+
+        Returns:
+            bool: whether or not the child existed in the first place to be removed
+        """
+        for idx, child in enumerate(self.children):
+            if child.name == child_name:
+                self.children.pop(idx)
+                return True
+        return False
 
     def add_surf(self, surf: Surface, pos: Tuple[int, int]):
         """Add a hard-coded surface to this component.
@@ -358,6 +469,23 @@ class UIComponent():
             pos (Tuple[int, int]): the coordinate position of the top left of surface
         """
         self.manual_surfaces.append((pos, surf))
+
+    def speed_up_animation(self, multiplier: int):
+        """scales the animation of the component and its children
+
+        Args:
+            multiplier (int): the animation speed to be set
+        """
+        self.animation_speed = multiplier
+        for child in self.children:
+            child.speed_up_animation(multiplier)
+
+    def is_animating(self) -> bool:
+        """
+        Returns:
+            bool: Is this component currently in the middle of an animation
+        """
+        return len(self.queued_animations) != 0
 
     def any_children_animating(self) -> bool:
         """Returns whether or not any children are currently in the middle of an animation.
@@ -409,7 +537,7 @@ class UIComponent():
             child.exit(False)
         if not is_top_level:
             return
-        if self.any_children_animating() or len(self.queued_animations) > 0:
+        if self.any_children_animating() or self.is_animating():
             # there's an animation playing; wait until afterwards to exit it
             self.queue_animation([toggle_anim(False)], force=True)
         else:
@@ -441,7 +569,7 @@ class UIComponent():
             force (bool, optional): Whether or not to queue this animation even if other animations are already playing.
             Defaults to False.
         """
-        if not force and len(self.queued_animations) > 0:
+        if not force and self.is_animating():
             return
         for name in names:
             if name in self.saved_animations:
@@ -485,23 +613,56 @@ class UIComponent():
         else:
             self.saved_animations[name] = [animation]
 
-    def skip_animation(self):
-        """clears the animation queue by finishing all of them instantly.
+    def skip_next_animation(self):
+        """Finishes the next animation immediately
+        """
+        current_num_animations = len(self.queued_animations)
+        while len(self.queued_animations) >= current_num_animations and len(self.queued_animations) > 0:
+            self.update(100)
+
+    def skip_all_animations(self):
+        """clears the animation queue by finishing all of them instantly, except for unskippable animations
         Useful for skip button implementation.
         """
-        for anim in self.queued_animations:
-            anim.after_anim()
-        self.queued_animations = []
+        for child in self.children:
+            child.skip_all_animations()
 
-    def update(self):
+        # remove unskippable animations from queue
+        unskippables = [anim for anim in self.queued_animations if not anim.skippable]
+        self.queued_animations = list(filter(lambda anim: anim.skippable, self.queued_animations))
+        while len(self.queued_animations) > 0:
+            self.update(100)
+        self.queued_animations = unskippables
+
+    def update(self, manual_delta_time=0):
         """update. used at the moment to advance animations.
         """
-        delta_time = self._chronometer() - self._last_update
+        if manual_delta_time > 0:
+            delta_time = manual_delta_time
+        else:
+            delta_time = (self._chronometer() - self._last_update) * self.animation_speed
         self._last_update = self._chronometer()
         if len(self.queued_animations) > 0:
-            if self.queued_animations[0].update(delta_time):
-                # the above function call returns True if the animation is finished
+            try:
+                if self.queued_animations[0].update(delta_time):
+                    # the above function call returns True if the animation is finished
+                    self.queued_animations.pop(0)
+            except Exception as e:
+                logging.exception('%s: Animation exception! Aborting animation for component %s. Error message: %s',
+                                  'ui_framework.py:update()',
+                                  self.name,
+                                  repr(e))
                 self.queued_animations.pop(0)
+
+    def _reset(self, reason: str=None):
+        """Resets internal state. Triggers on dimension change, so as to allow
+        dynamically resized subclasses to resize on prop change.
+
+        Args:
+            reason (str): the source of the reset call; usually the name of the function or property
+            (e.g. 'size')
+        """
+        pass
 
     def _create_bg_surf(self) -> Surface:
         """Generates the background surf for this component of identical dimension
@@ -513,19 +674,19 @@ class UIComponent():
             Surface: A surface of size self.width x self.height, containing a scaled background image.
         """
         if self.props.bg is None:
-            surf = engine.create_surface(self.size, True)
+            surf = engine.create_surface(self.tsize, True)
             surf.fill(self.props.bg_color)
             return surf
         else:
-            if not self.cached_background or not self.cached_background.get_size() == self.size:
+            if not self.cached_background or not self.cached_background.get_size() == self.tsize:
                 if self.props.bg_resize_mode == ResizeMode.AUTO:
                     bg_raw = engine.surf_to_raw(self.props.bg, 'RGBA')
                     pil_bg = Image.frombytes('RGBA', self.props.bg.get_size(), bg_raw, 'raw')
-                    pil_bg = pil_bg.resize(self.size, resample=LANCZOS)
-                    bg_scaled = engine.raw_to_surf(pil_bg.tobytes('raw', 'RGBA'), self.size, 'RGBA')
+                    pil_bg = pil_bg.resize(self.tsize, resample=LANCZOS)
+                    bg_scaled = engine.raw_to_surf(pil_bg.tobytes('raw', 'RGBA'), self.tsize, 'RGBA')
                     self.cached_background = bg_scaled
                 else:
-                    base = engine.create_surface(self.size, True)
+                    base = engine.create_surface(self.tsize, True)
                     base.blit(self.props.bg, (0, 0))
                     self.cached_background = base
             return self.cached_background
@@ -547,8 +708,14 @@ class UIComponent():
             img = hard_code_child[1]
             base_surf.blit(img, (pos[0], pos[0]))
 
+        # scroll the component
+        scroll_x, scroll_y = self.scroll
+        scroll_width = min(self.twidth - scroll_x, self.width)
+        scroll_height = min(self.theight - scroll_y, self.height)
+        ret_surf = engine.subsurface(base_surf, (scroll_x, scroll_y, scroll_width, scroll_height))
+
         # handle own opacity
         if self.props.opacity < 1:
             opacity_val = self.props.opacity * 255
-            base_surf.set_alpha(opacity_val)
-        return base_surf
+            ret_surf.set_alpha(opacity_val)
+        return ret_surf

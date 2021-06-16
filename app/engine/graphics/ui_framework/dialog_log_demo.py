@@ -67,8 +67,10 @@ def main():
                     return
                 elif e.key == pygame.K_SPACE:
                     show_log = not show_log
-                    if show_log:
-                        dialog_history.ui.enter()
+                elif e.key == pygame.K_DOWN:
+                    dialog_history.scroll_down()
+                elif e.key == pygame.K_UP:
+                    dialog_history.scroll_up()
 
         tmp_surf.blit(world_map, (0, 0))
 

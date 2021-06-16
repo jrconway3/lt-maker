@@ -1,6 +1,7 @@
 from __future__ import annotations
+from app.engine.graphics.ui_framework.ui_framework_styling import UIMetric
 
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Tuple, Union
 
 from app.utilities.algorithms.interpolation import (lerp, log_interp, tlerp,
                                                     tlog_interp)
@@ -89,7 +90,7 @@ def toggle_anim(enabled: bool=None, force: bool=False) -> UIAnimation:
     else:
         def enable(c: UIComponent, *args):
             c.enable()
-        return UIAnimation(before_anim=enable)
+        return UIAnimation(after_anim=enable)
 
 def fade_anim(start_opacity: float, end_opacity: float, 
               duration: int=125, disable_after=False, 
@@ -131,3 +132,52 @@ def fade_anim(start_opacity: float, end_opacity: float,
         return UIAnimation(halt_condition=should_stop, before_anim=before_fade, do_anim=fade, after_anim=[after_fade, disable])
     else:
         return UIAnimation(halt_condition=should_stop, before_anim=before_fade, do_anim=fade, after_anim=after_fade)
+    
+def component_scroll_anim(start_scroll: Tuple[int | float | str | UIMetric, int | float | str | UIMetric],
+                          end_scroll: Tuple[int | float | str | UIMetric, int | float | str | UIMetric], 
+                          duration: int=125, disable_after=False, 
+                          interp_mode: InterpolationType = InterpolationType.LINEAR,
+                          skew: float = 10) -> UIAnimation:
+    """A shorthand way of creating a scroll animation.
+
+    Args:
+        start_offset (Tuple[int | float | str | UIMetric, int | float | str | UIMetric]): Starting scroll pos
+        end_offset (Tuple[int | float | str | UIMetric, int | float | str | UIMetric]): Ending scroll pos
+        duration (int, optional): measured in milliseconds. How long the animation takes. Defaults to 125 (1/8 of a second)
+        disable_after (bool, optional): whether or not to disable the component after the animation halts.
+            Useful for transition outs.
+        interp_mode (InterpolationType, optional): which interpolation strategy to use. Defaults to linear.
+        skew (float, optional): if using InterpolationType.LOGARITHMIC, what skew to use for the interpolation
+
+    Returns:
+        UIAnimation: A UIAnimation that scrolls the UIComponent from one height to another
+    """
+    # convert scroll input
+    if isinstance(start_scroll[0], str):
+        sscroll = (UIMetric.parse(start_scroll[0]), UIMetric.parse(start_scroll[1]))
+        escroll = (UIMetric.parse(end_scroll[0]), UIMetric.parse(end_scroll[1]))
+    else:
+        sscroll = start_scroll
+        escroll = end_scroll
+    
+    if interp_mode == InterpolationType.LINEAR:
+        lerp_func = tlerp
+    else:
+        lerp_func = lambda a, b, t: tlog_interp(a, b, t, skew)
+        
+    def before_scroll(c: UIComponent, *args):
+        c.scroll = sscroll
+    def do_scroll(c: UIComponent, anim_time, *args):
+        c.scroll = lerp_func(sscroll, escroll, anim_time / duration)
+    def after_translation(c: UIComponent, *args):
+        c.scroll = escroll
+    def should_stop(c: UIComponent, anim_time, *args) -> bool:
+        return anim_time >= duration
+
+    def disable(c: UIComponent, *args):
+        c.disable()
+    
+    if disable_after:
+        return UIAnimation(halt_condition=should_stop, before_anim=before_scroll, do_anim=do_scroll, after_anim=[after_translation, disable])
+    else:
+        return UIAnimation(halt_condition=should_stop, before_anim=before_scroll, do_anim=do_scroll, after_anim=after_translation)

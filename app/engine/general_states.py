@@ -25,18 +25,23 @@ class TurnChangeState(MapState):
     name = 'turn_change'
 
     def begin(self):
-        if game.phase.get_current() == 'player':
-            supports.increment_end_turn_supports('player')
+        # handle end turn supports
+        if DB.constants.value('initiative') and game.initiative.get_current_unit().team == 'player':
+            supports.increment_unit_end_turn_supports(game.initiative.get_current_unit())
             game.memory['previous_cursor_position'] = game.cursor.position
+        elif game.phase.get_current() == 'player':
+            supports.increment_team_end_turn_supports('player')
+            game.memory['previous_cursor_position'] = game.cursor.position
+
         # Clear all previous states in state machine except me
         game.state.refresh()
         game.state.back()  # Turn Change should only last 1 frame
         return 'repeat'
 
     def end(self):
-        game.phase.next()  # Go to next phase
         if DB.constants.value('initiative'):
             action.do(action.IncInitiativeTurn())
+            game.phase.next()
             if game.initiative.get_current_unit().team == 'player':
                 game.state.change('free')
             else:
@@ -49,6 +54,7 @@ class TurnChangeState(MapState):
                 if game.turncount - 1 <= 0:  # Beginning of the level
                     game.events.trigger('level_start')
         else:
+            game.phase.next()  # Go to next phase
             # If entering player phase
             if game.phase.get_current() == 'player':
                 action.do(action.IncrementTurn())

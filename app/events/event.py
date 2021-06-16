@@ -2349,8 +2349,7 @@ class Event():
         unit = self.get_unit(values[0])
         pos = int(values[1])
         if DB.constants.value('initiative'):
-            if unit.nid in game.initiative.unit_list:
-                game.initiative.remove_unit(unit)
+            game.initiative.remove_unit(unit)
             game.initiative.insert_at(unit, game.initiative.current_idx + pos)
 
     def move_in_initiative(self, command):

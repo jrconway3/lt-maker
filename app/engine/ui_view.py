@@ -174,12 +174,13 @@ class UIView():
     def create_initiative_info(self):
         x_increment = 20
         y_offset = 0
-        surf = engine.create_surface((WINWIDTH, 50), transparent=True)
+        surf = engine.subsurface(SPRITES.get('bg_black').copy(), (0, 0, WINWIDTH, 40))
+        surf = image_mods.make_translucent(surf, .75)
         
         current_unit = game.initiative.get_current_unit()
-        unit_list = game.initiative.unit_list[:]
+        unit_list = game.initiative.unit_line[:]
         current_idx = game.initiative.current_idx
-        unit_list = unit_list[max(0, current_idx - 5):min(len(unit_list) - 1, current_idx + 5)]
+        unit_list = unit_list[max(0, current_idx - 5):min(len(unit_list), current_idx + 6)]
 
         for idx, unit_nid in enumerate(unit_list):
             unit = game.get_unit(unit_nid)
@@ -187,9 +188,10 @@ class UIView():
                 y_offset = 10
                 char_sprite = unit.sprite.create_image('active')
             else:
+                y_offset = 0
                 char_sprite = unit.sprite.create_image('passive')
-            surf.blit(SPRITES.get('initiative_platform'), (idx * x_increment, 12 + y_offset))
-            surf.blit(char_sprite, (-22 + idx * x_increment, -17 + y_offset))
+            surf.blit(SPRITES.get('initiative_platform'), (idx * x_increment, 8 + y_offset))
+            surf.blit(char_sprite, (-17 + idx * x_increment, -19 + y_offset))
         return surf
 
     def create_unit_info(self, unit):

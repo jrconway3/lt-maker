@@ -64,6 +64,12 @@ class Parser():
         else:
             return 0
 
+    def get_initiative(self, unit):
+        if hasattr(self, 'initiative'):
+            return self.initiative(unit)
+        else:
+            return 0
+
 PARSER = Parser()
 
 def __getattr__(name):

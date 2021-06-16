@@ -24,7 +24,7 @@ class InitiativeTracker():
 
     def start(self, units):
         # Sort descending
-        units = list(sorted(units, lambda unit: equations.parser.get_initiative(unit), reversed=True))
+        units = list(sorted(units, key=lambda unit: equations.parser.get_initiative(unit), reverse=True))
         self.unit_line = [unit.nid for unit in units]
         self.initiative_line = [equations.parser.get_initiative(unit) for unit in units]
         self.current_idx = -1

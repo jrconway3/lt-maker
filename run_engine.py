@@ -50,6 +50,7 @@ if __name__ == '__main__':
         find_and_run_project()
         # main('lion_throne')        
         # test_play('lion_throne')
+        # test_play('sacred_stones')
     except Exception as e:
         logging.exception(e)
         inform_error()

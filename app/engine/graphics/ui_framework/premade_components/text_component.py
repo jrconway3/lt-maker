@@ -26,6 +26,7 @@ class TextProperties(ComponentProperties):
                                                         # is between the two lines. Can be percentage or pixel value.
 
         self.max_lines: int = 2                         # maximum number of lines to split the text over, if max_width is set.
+                                                        # if 0, then it will
 
 class TextComponent(UIComponent):
     """A component consisting purely of text
@@ -66,7 +67,6 @@ class TextComponent(UIComponent):
 
     @property
     def scrollable_height(self):
-        height_of_max_lines = self.props.max_lines * self.font_height + (self.props.max_lines - 1) * self.line_break_size
         return self.height - self.max_text_area_height
 
     @property

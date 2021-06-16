@@ -104,6 +104,7 @@ class ExpState(State):
 
             if self.mana_to_gain or (self.unit.get_max_mana() > 0 and self.unit.get_mana() != self.unit.get_max_mana()):
                 self.mana_bar = ManaBar(self.old_mana, center=not self.combat_object)
+                self.mana_bar.bar_max = self.unit.get_max_mana()
 
             self.state.change('exp_wait')
 
@@ -121,13 +122,15 @@ class ExpState(State):
         elif self.state.get_state() == 'exp0':
             progress = (current_time - self.start_time)/float(self.total_time_for_exp)
             exp_set = self.old_exp + progress * self.exp_gain
-            exp_set = int(min(self.old_exp + self.exp_gain, exp_set))
+            exp_set = min(self.old_exp + self.exp_gain, exp_set)
             self.exp_bar.update(exp_set)
+            exp_set = int(exp_set)
 
             if self.mana_bar:
                 mana_set = self.old_mana + progress * self.mana_to_gain
-                mana_set = int(min(self.old_mana + self.mana_to_gain, mana_set))
+                mana_set = min(self.old_mana + self.mana_to_gain, mana_set)
                 self.mana_bar.update(mana_set)
+                mana_set = int(mana_set)
 
             if exp_set >= self.old_exp + self.exp_gain:
                 SOUNDTHREAD.stop_sfx('Experience Gain')
@@ -173,8 +176,9 @@ class ExpState(State):
         elif self.state.get_state() == 'exp100':
             progress = (current_time - self.start_time)/float(self.total_time_for_exp)
             exp_set = self.old_exp + (self.exp_gain * progress) - 100
-            exp_set = int(min(self.old_exp + self.exp_gain - 100, exp_set))
+            exp_set = min(self.old_exp + self.exp_gain - 100, exp_set)
             self.exp_bar.update(exp_set)
+            exp_set = int(exp_set)
 
             if exp_set >= self.old_exp + self.exp_gain - 100:
                 SOUNDTHREAD.stop_sfx('Experience Gain')
@@ -529,6 +533,7 @@ class ExpBar():
     end = engine.subsurface(SPRITES.get('expbar'), (4, 24, 2, 7))
     width = 136
     height = 24
+    bar_max = 100
 
     def __init__(self, old_exp, center=True):
         self.bg_surf = self.create_bg_surf()
@@ -551,7 +556,7 @@ class ExpBar():
     def fade_out(self):
         self.done = True
 
-    def update(self, exp=None):
+    def update(self, exp: float = None):
         if self.done:
             self.offset += 1  # So fade in and out
             if self.offset >= self.height//2:
@@ -566,7 +571,7 @@ class ExpBar():
         new_surf = engine.copy_surface(self.bg_surf)
 
         # Blit correct number of sprites for middle of exp bar
-        idx = int(max(0, self.num))
+        idx = int(100 * max(0, self.num) / self.bar_max)
         for x in range(idx):
             new_surf.blit(self.middle, (10 + x, 9))
 
@@ -574,7 +579,7 @@ class ExpBar():
         new_surf.blit(self.end, (10 + idx, 9))
 
         # Blit current amount of exp
-        FONT['number-small3'].blit_right(str(self.num), new_surf, (self.width - 4, 4))
+        FONT['number-small3'].blit_right(str(int(self.num)), new_surf, (self.width - 4, 4))
 
         # Transition
         new_surf = engine.subsurface(new_surf, (0, self.offset, self.width, self.height - self.offset * 2))
@@ -587,3 +592,7 @@ class ManaBar(ExpBar):
     begin = engine.subsurface(SPRITES.get('manabar'), (0, 24, 3, 7))
     middle = engine.subsurface(SPRITES.get('manabar'), (3, 24, 1, 7))
     end = engine.subsurface(SPRITES.get('manabar'), (4, 24, 2, 7))
+
+    def __init__(self, old_exp, center=True):
+        super().__init__(old_exp, center)
+        self.pos = self.pos[0], self.pos[1] - self.height

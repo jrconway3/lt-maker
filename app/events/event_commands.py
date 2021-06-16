@@ -480,6 +480,11 @@ class SetCurrentHP(EventCommand):
     tag = Tags.MODIFY_UNIT_PROPERTIES
     keywords = ["Unit", "PositiveInteger"]
 
+class SetCurrentMana(EventCommand):
+    nid = 'set_current_mana'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+    keywords = ["Unit", "PositiveInteger"]
+
 class Resurrect(EventCommand):
     nid = 'resurrect'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS

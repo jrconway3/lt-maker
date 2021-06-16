@@ -174,10 +174,7 @@ class UnitObject(Prefab):
         self.current_hp = int(utils.clamp(val, 0, equations.parser.hitpoints(self)))
 
     def get_max_mana(self):
-        if 'MANA' in DB.equations:
-            return equations.parser.mana(self)
-        else:
-            return 0
+        return equations.parser.get_mana(self)
 
     def get_mana(self):
         return self.current_mana

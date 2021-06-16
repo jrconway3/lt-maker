@@ -716,6 +716,15 @@ class Event():
             hp = int(values[1])
             action.do(action.SetHP(unit, hp))
 
+        elif command.nid == 'set_current_mana':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            mana = int(values[1])
+            action.do(action.SetMana(unit, mana))
+
         elif command.nid == 'resurrect':
             values, flags = event_commands.parse(command)
             unit = self.get_unit(values[0])

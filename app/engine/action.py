@@ -492,7 +492,6 @@ class ResetUnitVars(Action):
         self.old_current_mana = self.unit.get_mana()
         self.old_current_fatigue = self.unit.get_fatigue()
         self.old_movement_left = self.unit.movement_left
-        self.old_current_sp = self.unit.get_sp()
 
     def do(self):
         self.unit.set_hp(min(self.unit.get_hp(), equations.parser.hitpoints(self.unit)))

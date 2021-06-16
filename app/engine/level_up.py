@@ -21,8 +21,13 @@ class ExpState(State):
 
     def start(self):
         if game.exp_instance:
-            self.unit, self.exp_gain, self.combat_object, self.starting_state = \
-                game.exp_instance.pop()
+            if len(game.exp_instance[0]) < 5:
+                self.unit, self.exp_gain, self.combat_object, self.starting_state = \
+                    game.exp_instance.pop()
+                self.method = 'default'
+            else:
+                self.unit, self.exp_gain, self.combat_object, self.starting_state, self.method = \
+                    game.exp_instance.pop()
         else:
             game.state.back()
             return 'repeat'
@@ -35,7 +40,7 @@ class ExpState(State):
         self.old_exp = self.unit.exp
         self.old_level = self.unit.level
         self.unit_klass = DB.classes.get(self.unit.klass)
-        self.auto_promote = (DB.constants.get('auto_promote') or 'AutoPromote' in self.unit.tags) and \
+        self.auto_promote = (DB.constants.value('auto_promote') or 'AutoPromote' in self.unit.tags) and \
             self.unit_klass.turns_into and 'NoAutoPromote' not in self.unit.tags
 
         self.state = SimpleStateMachine(self.starting_state)

@@ -81,7 +81,7 @@ def scroll_to_next_line_anim(duration: int=500, disable_after=False,
     if interp_mode == InterpolationType.LINEAR:
         lerp_func = lerp
     else:
-        lerp_func = lambda a, b, t: log_interp(a, b, t, skew)
+        lerp_func = lambda a, b, t: log_interp(a, b, t, skew)        
     def do_scroll(c: TextComponent, anim_time, *args):
         original_line = math.floor(c.scrolled_line)
         next_line = original_line + 1
@@ -108,14 +108,18 @@ def type_line_anim(time_per_char: int=50, halting_sequence: str ='{w}'):
     def type_next_character(c: TextComponent, anim_time, delta_time):
         # if enough time has passed since the last character has been typed
         type_next_character.time_since_last_char += delta_time
-        if type_next_character.time_since_last_char > time_per_char:
+        while type_next_character.time_since_last_char > time_per_char:
             # as long as we haven't finished a line and we're not max lines:
-            if not c.is_index_at_end_of_line(c.num_visible_chars) or c.lines_displayed != c.props.max_lines:
+            if ((not c.is_index_at_end_of_line(c.num_visible_chars) or c.lines_displayed != c.props.max_lines)
+                and not c.is_index_at_sequence(c.num_visible_chars, halting_sequence)):
                 c.num_visible_chars += 1
-                type_next_character.time_since_last_char = 0
+                type_next_character.time_since_last_char -= time_per_char
             # we finished a line, and we're on the maximum line; it's time to scroll to make some space
-            else:
+            elif c.is_index_at_end_of_line(c.num_visible_chars):
                 c.push_animation([scroll_to_next_line_anim()])
+                break
+            else:
+                break
     type_next_character.time_since_last_char = 0
     
     def halt(c: TextComponent, *args) -> bool:
@@ -126,4 +130,3 @@ def type_line_anim(time_per_char: int=50, halting_sequence: str ='{w}'):
             return False
         
     return UIAnimation(before_anim=start_next_line, do_anim=type_next_character, halt_condition=halt)
-

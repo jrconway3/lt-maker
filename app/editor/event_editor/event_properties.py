@@ -186,8 +186,8 @@ class CodeEditor(QPlainTextEdit):
         self.window = parent
         self.line_number_area = LineNumberArea(self)
 
-        settings = MainSettingsController()
-        theme = settings.get_theme()
+        self.settings = MainSettingsController()
+        theme = self.settings.get_theme()
         if theme == 0:
             self.line_number_color = Qt.darkGray
         else:
@@ -240,6 +240,8 @@ class CodeEditor(QPlainTextEdit):
         return tc.selectedText()
 
     def display_function_hint(self):
+        if not bool(self.settings.get_event_autocomplete()):
+            return  # Event auto completer is turned off
         tc = self.textCursor()
         line = tc.block().text()
         cursor_pos = tc.positionInBlock()
@@ -308,7 +310,9 @@ class CodeEditor(QPlainTextEdit):
         tc_top_right.setX(min(tc_top_right.x() + 15, self.width() - self.function_annotator.width()))
         self.function_annotator.move(tc_top_right)
 
-    def complete(self):        
+    def complete(self):
+        if not bool(self.settings.get_event_autocomplete()):
+            return  # Event auto completer is turned off
         tc = self.textCursor()
         
         line = tc.block().text()

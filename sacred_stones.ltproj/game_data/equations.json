@@ -94,13 +94,5 @@
     {
         "nid": "ZERO",
         "expression": "0"
-    },
-    {
-        "nid": "MANA",
-        "expression": "MAG"
-    },
-    {
-        "nid": "INITIATIVE",
-        "expression": "SPD"
     }
 ]

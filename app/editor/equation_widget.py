@@ -93,6 +93,11 @@ class EquationDialog(MultiAttrListDialog):
                   EquationMultiModel, (deletion_func, None, deletion_func), cls.locked_vars)
         return dlg
 
+    def accept(self):
+        super().accept()
+        from app.engine import equations
+        equations.clear()
+
 # Testing
 # Run "python -m app.editor.equation_widget"
 if __name__ == '__main__':

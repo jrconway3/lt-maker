@@ -137,12 +137,12 @@ class UILayoutHandler():
             # we increment the y-coordinate
             incrementing_index = 1
         elif self.parent_component.props.list_style == ListLayoutStyle.ROW_REVERSE:
-            # we reverse the list so we draw the last child first (thus simulating a "right to left" list)
+            # we reverse the list so we calculate the last child first (thus simulating a "right to left" list)
             # we increment the x-coordinate
             incrementing_index = 0
             ordered_children = ordered_children[::-1]
         elif self.parent_component.props.list_style == ListLayoutStyle.COLUMN_REVERSE:
-            # we reverse the list so we draw the last child first (thus simulating a "bottom-to-top" list)
+            # we reverse the list so we calculate the last child first (thus simulating a "bottom-to-top" list)
             # we increment the y-coordinate
             incrementing_index = 1
             ordered_children = ordered_children[::-1]
@@ -179,4 +179,8 @@ class UILayoutHandler():
                                                          csize[incrementing_index] +
                                                          cmargin_sum[incrementing_index])
 
+        if (self.parent_component.props.list_style == ListLayoutStyle.ROW_REVERSE 
+            or self.parent_component.props.list_style == ListLayoutStyle.COLUMN_REVERSE):
+            # reverse the positions list so the ordering is accurate
+            positions = positions[::-1]
         return positions

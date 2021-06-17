@@ -64,7 +64,7 @@ class NarrationDialogue(UIComponent):
             'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in {w}'
             'culpa qui officia deserunt mollit anim id est laborum."{w}'
             ))
-        self.text.props.max_width = self.text_horizontal_area
+        self.text.max_width = self.text_horizontal_area
         self.text.margin = (self.text_horizontal_margin, self.text_horizontal_margin, self.text_vertical_offset, 0)
         self.text.num_visible_chars = 0
         
@@ -93,7 +93,7 @@ class NarrationDialogue(UIComponent):
         self.bot_text_area.save_animation(translate_onscreen_up, '!enter')
         
     def _init_text_animations(self):
-        scroll_down = scroll_anim('0%', '100%', 5000)
+        scroll_down = scroll_anim('0%', '100%', 2000)
         scroll_next = scroll_to_next_line_anim(duration=750)
         write_line = type_line_anim(time_per_char=10)
         self.text.save_animation(scroll_down, 'scroll')
@@ -105,6 +105,7 @@ class NarrationDialogue(UIComponent):
         self.text.set_visible(0)
         
     def start_scrolling(self):
+        self.text.num_visible_chars = len(self.text.text)
         self.text.queue_animation(names=['scroll'])
         
     def scroll_to_next(self):
@@ -112,3 +113,18 @@ class NarrationDialogue(UIComponent):
         
     def write_a_line(self):
         self.text.queue_animation(names=['line'])
+        
+class NarrationUI():    
+    def __init__(self):
+        self.narration = NarrationDialogue('narration')
+        self.narration.disable()
+        
+        self.base_component = UIComponent.create_base_component(WINWIDTH, WINHEIGHT)
+        self.base_component.name = "base"
+        self.base_component.add_child(self.narration)
+        self.base_component.set_chronometer(current_milli_time)
+    
+    def draw(self, surf: Surface) -> Surface:
+        ui_surf = self.base_component.to_surf()
+        surf.blit(ui_surf, (0, 0))
+        return surf

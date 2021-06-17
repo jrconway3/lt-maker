@@ -40,6 +40,12 @@ class MainSettingsController():
     def get_theme(self, fallback=0):
         return self.state.value("theme", fallback)
 
+    def set_event_autocomplete(self, value):
+        self.state.setValue("event_autocomplete", value)
+
+    def get_event_autocomplete(self, fallback=True):
+        return self.state.value("event_autocomplete", fallback)
+
     def set_autosave_time(self, value):
         self.state.setValue("autosave_time", value)
 

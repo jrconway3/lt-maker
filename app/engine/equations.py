@@ -76,3 +76,11 @@ def __getattr__(name):
     if name == 'parser':
         return PARSER
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+
+def clear():
+    """
+    Recreate the parser. Necessary in order to update equations after the user 
+    updates them in the equation editor
+    """
+    global PARSER
+    PARSER = Parser()

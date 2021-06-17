@@ -1,4 +1,5 @@
 from __future__ import annotations
+from math import inf
 from app.utilities.algorithms.interpolation import tlerp, tlog_interp
 from enum import Enum
 
@@ -57,12 +58,18 @@ class UIAnimation():
             Generally, it is advised that after_anim contains the expected end state of a
             component, as animations can be skipped, and do_anim is not guaranteed to be
             called until halt_condition is satisfied.
+            
+        skippable [bool]:
+            Whether or not this animation is skippable. Some animations, such as passive hovering animations,
+            are not skippable, and skipping them would result in a program lock.
     """
     def __init__(self, halt_condition: Callable[[UIComponent, int], bool] = None, 
-                 before_anim:   List[Callable[[UIComponent, int]]] | Callable[[UIComponent, int]] = None, 
-                 do_anim:       List[Callable[[UIComponent, int]]] | Callable[[UIComponent, int]] = None, 
-                 after_anim:    List[Callable[[UIComponent, int]]] | Callable[[UIComponent, int]] = None):
+                 before_anim:   List[Callable[[UIComponent, int, int]]] | Callable[[UIComponent, int, int]] = None, 
+                 do_anim:       List[Callable[[UIComponent, int, int]]] | Callable[[UIComponent, int, int]] = None, 
+                 after_anim:    List[Callable[[UIComponent, int, int]]] | Callable[[UIComponent, int, int]] = None,
+                 skippable: bool = True):
         self.component: UIComponent = None
+        self.skippable = skippable
         
         if isinstance(before_anim, list):
             self.before_anim = before_anim
@@ -168,7 +175,7 @@ def hybridize_animation(anims: Dict[str, UIAnimation], keyfunction: Callable[[UI
     Args:
         anims (Dict[str, UIAnimation]): a list of animations with arbitrary keys
         keyfunction (Callable[[UIComponent, int], str]): a function for determining which key to select at any given time.
-            MUST return only keys that are present in the anims Dict.
+        MUST return only keys that are present in the anims Dict.
 
     Returns:
         UIAnimation: a hybridized UIAnimation.

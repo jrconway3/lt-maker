@@ -1,5 +1,7 @@
-# Bugs
-Sometimes the frame display loses the ability to correctly display frames (after close combat animation editor, save game, then open combat animation editor?)
+# UI Modifications
+Event Autocomplete in preferences
+Equation Widget updates correctly on close
+ClassBox and UnitBox should have search
 
 # Features
 Combat Animations

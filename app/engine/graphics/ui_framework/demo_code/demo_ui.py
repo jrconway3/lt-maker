@@ -9,8 +9,8 @@ import pygame.event
 from pygame import Surface
 from pygame import Color
 
-from .demo_narration import NarrationDialogue
 from .demo_cursor import Cursor
+from .demo_narration import NarrationDialogue
 from ..premade_components.text_component import *
 from ...ui_framework import *
 from ..ui_framework_animation import *

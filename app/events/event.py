@@ -1309,7 +1309,7 @@ class Event():
             return None
 
         if DB.constants.value('initiative'):
-            game.initiative.insert_unit(unit)
+            action.do(action.InsertInitiative(unit))
 
         self._place_unit(unit, position, entry_type)
 
@@ -1379,7 +1379,7 @@ class Event():
             remove_type = 'fade'
 
         if DB.constants.value('initiative'):
-            game.initiative.remove_unit(unit)
+            action.do(action.RemoveInitiative(unit))
 
         if self.do_skip:
             action.do(action.LeaveMap(unit))
@@ -1400,7 +1400,7 @@ class Event():
             return
 
         if DB.constants.value('initiative'):
-            game.initiative.remove_unit(unit)
+            action.do(action.RemoveInitiative(unit))
 
         if not unit.position:
             unit.dead = True
@@ -1482,7 +1482,7 @@ class Event():
                 logging.warning("Couldn't determine valid position for %s?", unit.nid)
                 continue
             if DB.constants.value('initiative'):
-                game.initiative.insert_unit(unit)
+                action.do(action.InsertInitiative(unit))
             self._place_unit(unit, position, entry_type)
 
     def _move_unit(self, movement_type, placement, follow, unit, position):
@@ -1591,7 +1591,7 @@ class Event():
 
             if self._add_unit_from_direction(unit, position, cardinal_direction, placement):
                 if DB.constants.value('initiative'):
-                    game.initiative.insert_unit(unit)
+                    action.do(action.InsertInitiative(unit))
                 self._move_unit(movement_type, placement, follow, unit, position)
             else:
                 logging.error("Couldn't add unit %s to position %s" % (unit.nid, position))
@@ -1648,7 +1648,7 @@ class Event():
             unit = game.get_unit(unit_nid)
             if unit.position:
                 if DB.constants.value('initiative'):
-                    game.initiative.remove_unit(unit)
+                    action.do(action.RemoveInitiative(unit))
 
                 if self.do_skip:
                     action.do(action.LeaveMap(unit))
@@ -1844,7 +1844,7 @@ class Event():
             self.unit = new_unit
 
         if DB.constants.value('initiative'):
-            game.initiative.insert_unit(unit)
+            action.do(action.InsertInitiative(unit))
 
         self._place_unit(new_unit, position, entry_type)
 

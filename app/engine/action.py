@@ -1317,7 +1317,10 @@ class Die(Action):
         self.lock_all_support_ranks = \
             [LockAllSupportRanks(pair.nid) for pair in game.supports.get_pairs(self.unit.nid)]
         self.drop = None
-        self.orig_initiative = None
+
+        self.initiative_action = None
+        if DB.constants.value('initiative'):
+            self.initiative_action = RemoveInitiative(self.unit)
 
     def do(self):
         if self.unit.traveler:
@@ -1326,9 +1329,8 @@ class Die(Action):
             self.drop.do()
             # TODO Drop Sound
 
-        if DB.constants.value('initiative'):
-            self.orig_initiative = game.initiative.get_index(self.unit)
-            game.initiative.remove_unit(self.unit)
+        if DB.constants.value('initiative') and self.initiative_action:
+            self.initiative_action.do()
 
         self.leave_map.do()
         for act in self.lock_all_support_ranks:
@@ -1341,15 +1343,14 @@ class Die(Action):
         self.unit.sprite.set_transition('normal')
         self.unit.sprite.change_state('normal')
 
-        if DB.constants.value('initiative'):
-            game.initiative.insert_at(self.unit, self.orig_initiative)
+        if DB.constants.value('initiative') and self.initiative_action:
+            self.initiative_action.reverse()
 
         for act in self.lock_all_support_ranks:
             act.reverse()
         self.leave_map.reverse()
         if self.drop:
             self.drop.reverse()
-
 
 class Resurrect(Action):
     def __init__(self, unit):
@@ -1861,6 +1862,28 @@ class IncInitiativeTurn(Action):
 
     def reverse(self):
         game.initiative.current_idx = self.old_idx
+
+class InsertInitiative(Action):
+    def __init__(self, unit):
+        self.unit = unit
+
+    def do(self):
+        game.initiative.insert_unit(self.unit)
+
+    def reverse(self):
+        game.initiative.remove_unit(self.unit)
+
+class RemoveInitiative(Action):
+    def __init__(self, unit):
+        self.unit = unit
+        self.old_idx = game.initiative.get_index(self.unit)
+        self.initiative = game.initiative.get_initiative(self.unit)
+
+    def do(self):
+        game.initiative.remove_unit(self.unit)
+
+    def reverse(self):
+        game.initiative.insert_at(self.unit, self.old_idx, self.initiative)
 
 class MoveInInitiative(Action):
     def __init__(self, unit, offset):

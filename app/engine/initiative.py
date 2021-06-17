@@ -32,6 +32,11 @@ class InitiativeTracker():
     def get_current_unit(self):
         return game.get_unit(self.unit_line[self.current_idx])
 
+    def get_initiative(self, unit):
+        idx = self.get_index(unit)
+        if idx is not None:
+            return self.initiative_line[idx]
+
     def get_index(self, unit):
         if unit.nid in self.unit_line:
             return self.unit_line.index(unit.nid)
@@ -61,9 +66,15 @@ class InitiativeTracker():
             if self.current_idx > idx:
                 self.current_idx -= 1
 
-    def insert_at(self, unit, idx: int) -> int:
+    def insert_at(self, unit, idx: int, initiative=None) -> int:
+        """
+        Don't use the initiative argument unless you know what you are doing
+        """
         idx = utils.clamp(idx, 0, len(self.initiative_line) - 1)
-        initiative_at = self.initiative_line[idx]
+        if initiative is not None:
+            initiative_at = initiative
+        else:
+            initiative_at = self.initiative_line[idx]
         self.unit_line.insert(idx, unit.nid)
         self.initiative_line.insert(idx, initiative_at)
         if self.current_idx > idx:

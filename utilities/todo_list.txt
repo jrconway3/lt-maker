@@ -1,8 +1,3 @@
-# UI Modifications
-Event Autocomplete in preferences
-Equation Widget updates correctly on close
-ClassBox and UnitBox should have search
-
 # Features
 Combat Animations
     Combat Anims / Palettes as a separate tab?
@@ -20,8 +15,6 @@ Book pages frames with a number under them?
 Supports - Radiant Dawn Style (allow player to swap current support partner)
 
 # Polish
-Cursor control mirror the GBA exactly!
-     - Camera scroll, Camera jump, Menu cursor, cursor over units
 UI framework
     - Tile Info
     - Unit Info
@@ -74,6 +67,7 @@ Tutorial:
     Battle Save
     Breakable Walls
     Supports
+    Summoning
 
     Writing your own components
     Item System Hooks

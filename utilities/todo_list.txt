@@ -6,8 +6,6 @@ Combat Animations
     Promotion (Build)
     Proc Skills (Test both map combat and animation combat)
     Import from GBA (Test)
-    Export Frames (Test)
-    Export Index File? (Test)
     Export Frames as Gif (Test)
     Show in Engine (Test)
 Overworld
@@ -23,10 +21,7 @@ Supports - Radiant Dawn Style (allow player to swap current support partner)
 Mass Import Combat Animations from GBA
 
 # Polish
-Equations need to update themselves
 Dialogue should show if possible in event editor
-Autocomplete in event editor needs a checkbox in preferences
-ClassBox and UnitBox should have the ability to search
 AI Skip Phase button
 UI framework
     - Tile Info

@@ -115,9 +115,9 @@ class FrameSelector(Dialog):
 
     def export_frames(self):
         starting_path = self.settings.get_last_open_path()
-        fn_dir, ok = QFileDialog.getExistingDirectory(
+        fn_dir = QFileDialog.getExistingDirectory(
             self, "Export Frames", starting_path)
-        if fn_dir and ok:
+        if fn_dir:
             self.settings.set_last_open_path(fn_dir)
             self.export(fn_dir)
             QMessageBox.information(self, "Export Complete", "Export of frames complete!")
@@ -209,8 +209,18 @@ class FrameSelector(Dialog):
         index = {}
         for frame in self.frames:
             index[frame.nid] = (frame.rect, frame.offset)
+            # Draw frame
+            base_image = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
+            base_image.fill(editor_utilities.qCOLORKEY)
+            painter = QPainter()
+            painter.begin(base_image)
+            pixmap = frame.pixmap
+            im = combat_animation_model.palette_swap(pixmap, self.current_palette_nid)
+            painter.drawImage(frame.offset[0], frame.offset[1], im)
+            painter.end()
             path = os.path.join(fn_dir, '%s.png' % frame.nid)
-            frame.pixmap.save(path)
+            base_image.save(path)
+
         index_path = os.path.join(fn_dir, '%s-%s-Index.txt' % (self.combat_anim.nid, self.weapon_anim.nid))
         with open(index_path, 'w') as fn:
             frames = sorted(index.items())

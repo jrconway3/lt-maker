@@ -265,9 +265,9 @@ class CombatAnimProperties(QWidget):
     def export_clicked(self):
         if self.current:
             starting_path = self.settings.get_last_open_path()
-            fn_dir, ok = QFileDialog.getExistingDirectory(
+            fn_dir = QFileDialog.getExistingDirectory(
                 self, "Export Current Animation", starting_path)
-            if fn_dir and ok:
+            if fn_dir:
                 self.settings.set_last_open_path(fn_dir)
                 self.export(fn_dir)
 

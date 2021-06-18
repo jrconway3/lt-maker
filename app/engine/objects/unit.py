@@ -136,7 +136,7 @@ class UnitObject(Prefab):
         stat_bonus = game.mode.get_base_bonus(self)
         bonus = {nid: 0 for nid in DB.stats.keys()}
         for nid in DB.stats.keys():
-            bonus[nid] = utils.clamp(stat_bonus[nid], -self.stats[nid], klass.max_stats.get(nid, 30) - self.stats[nid])
+            bonus[nid] = utils.clamp(stat_bonus.get(nid, 0), -self.stats.get(nid, 0), klass.max_stats.get(nid, 30) - self.stats.get(nid, 0))
         if any(v != 0 for v in bonus.values()):
             unit_funcs.apply_stat_changes(self, bonus)
 

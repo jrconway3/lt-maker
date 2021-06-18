@@ -15,6 +15,7 @@ Book pages frames with a number under them?
 Supports - Radiant Dawn Style (allow player to swap current support partner)
 
 # Polish
+AI Skip Phase button
 UI framework
     - Tile Info
     - Unit Info
@@ -25,8 +26,6 @@ UI framework
 * 2 or 3 frame fade-in / fade-out for showing / hiding enemy ranges
 
 Get rid of on_add and on_remove in skill_system
-
-AI Skip Phase button
 
 # Release
 README

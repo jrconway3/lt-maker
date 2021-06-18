@@ -396,7 +396,7 @@ class CodeEditor(QPlainTextEdit):
         # Shift + Tab is not the same as catching a shift modifier + tab key
         # Shift + Tab is a Backtab
         if event.key() == Qt.Key_Tab:
-            if self.completer.popup().isVisible():
+            if self.completer.popup().isVisible() and self.completer.popup().selectedIndexes():
                 # If completer is up, Tab can auto-complete
                 completion = self.completer.popup().selectedIndexes()[0].data(Qt.DisplayRole)
                 self.completer.changeCompletion(completion)
@@ -411,7 +411,7 @@ class CodeEditor(QPlainTextEdit):
             return super().keyPressEvent(event)
         elif event.key() == Qt.Key_Return:
             # completer functionality, enters the selected suggestion
-            if self.completer.popup().isVisible():
+            if self.completer.popup().isVisible() and self.completer.popup().selectedIndexes():
                 completion = self.completer.popup().selectedIndexes()[0].data(Qt.DisplayRole)
                 self.completer.changeCompletion(completion)
             else:

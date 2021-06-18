@@ -763,6 +763,10 @@ class TitleSaveState(State):
     in_level = False
     show_map = False
 
+    bg = None
+    particles = None
+    menu = None
+
     def start(self):
         self.fluid = FluidScroll(128)
         imgs = RESOURCES.panoramas.get('title_background')

@@ -118,7 +118,7 @@ class ManaCost(ItemComponent):
     value = 1
 
     def available(self, unit, item) -> bool:
-        return unit.get_mana() > self.mana_cost
+        return unit.get_mana() >= self.value
 
     def start_combat(self, playback, unit, item, target, mode):
         action.do(action.ChangeMana(unit, -self.value))

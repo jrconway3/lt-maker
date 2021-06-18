@@ -190,7 +190,11 @@ class StatModel(VirtualListModel):
         if role == Qt.DisplayRole or role == Qt.EditRole:
             row = self._data[index.row()]  # row is a dict
             key = self._columns[index.column()]
-            val = row.get(key, DB.stats.get(key).maximum)
+            attr = self._rows[index.row()]
+            if attr == 'max_stats':
+                val = row.get(key, DB.stats.get(key).maximum)
+            else:
+                val = row.get(key, 0)
             return val
         elif role == Qt.TextAlignmentRole:
             return Qt.AlignRight + Qt.AlignVCenter

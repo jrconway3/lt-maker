@@ -33,7 +33,6 @@ def run(game):
     
     surf = engine.create_surface((WINWIDTH, WINHEIGHT))
     screenshot = False
-    png_screenshot = False
     # import time
     while True:
         # start = time.time_ns()
@@ -60,19 +59,14 @@ def run(game):
                     os.mkdir('screenshots')
             elif e.type == engine.KEYUP and e.key == engine.key_map['`']:
                 screenshot = False
-            if e.type == engine.KEYDOWN and e.key == engine.key_map['&']:
-                png_screenshot = True
+            if e.type == engine.KEYDOWN and e.key == engine.key_map['f12']:
                 if not os.path.isdir('screenshots'):
                     os.mkdir('screenshots')
-            elif e.type == engine.KEYUP and e.key == engine.key_map['&']:
-                png_screenshot = False
+                current_time = str(datetime.now()).replace(' ', '_').replace(':', '.')
+                engine.save_surface(surf, 'screenshots/LT_%s.png' % current_time)
         if screenshot:
             current_time = str(datetime.now()).replace(' ', '_').replace(':', '.')
             engine.save_surface(surf, 'screenshots/LT_%s.bmp' % current_time)
-        if png_screenshot:
-            current_time = str(datetime.now()).replace(' ', '_').replace(':', '.')
-            engine.save_surface(surf, 'screenshots/LT_%s.png' % current_time)
-            png_screenshot = False
 
         engine.update_display()
         # milliseconds_elapsed = (end - start)/1e6

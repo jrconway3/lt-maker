@@ -3,7 +3,8 @@ import os, glob
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QImage, QPixmap, qRgb, QColor, QPainter
 
-from app import utilities
+from app.constants import COLORKEY
+from app.utilities import str_utils
 from app.resources.resources import RESOURCES
 from app.resources import combat_anims, combat_commands, combat_palettes
 
@@ -188,12 +189,13 @@ def update_weapon_anim_full_image(weapon_anim):
             frame.rect = (left, sum(max_heights), width, height)
             left += width
             heights.append(height)
+    if heights:
+        max_heights.append(max(heights))
 
     total_width = min(width_limit, sum(frame.rect[2] for frame in weapon_anim.frames))
     total_height = sum(max_heights)
-    print(total_width, total_height)
     new_pixmap = QPixmap(total_width, total_height)
-    new_pixmap.fill(QColor(editor_utilities.qCOLORKEY))
+    new_pixmap.fill(QColor(0, 0, 0))
     painter = QPainter()
     painter.begin(new_pixmap)
     for frame in weapon_anim.frames:
@@ -235,7 +237,7 @@ def split_doubles(pixmaps: dict) -> dict:
     new_pixmaps = {}
     for name in pixmaps.keys():
         pix = pixmaps[name]
-        if pix.width == 480:
+        if pix.width() == 480:
             pix1 = pix.copy(0, 0, 240, pix.height())
             pix2 = pix.copy(240, 0, 240, pix.height())
             new_pixmaps[name] = pix1
@@ -258,6 +260,30 @@ def find_empty_pixmaps(pixmaps: dict) -> set:
         else:
             empty_pixmaps.add(name)
     return empty_pixmaps
+
+def combine_identical_commands(pose):
+    """
+    The GBA import likes to put identical commands next to one another.
+    Like f;3;Unarmed0 will be followed by f;1;Unarmed0.
+    This could more simply be rendered as f;4;Unarmed0
+    """
+    last_command = None
+    new_timeline = []
+    for command in pose.timeline[:]:
+        if command.has_frames():
+            if last_command and last_command.nid == command.nid and last_command.value[1:] == command.value[1:]:
+                # Combine these two
+                last_command.value = (last_command.value[0] + command.value[0], *last_command.value[1:])
+            elif last_command:
+                new_timeline.append(last_command)
+                last_command = command
+            else:
+                last_command = command
+        else:
+            new_timeline.append(command)
+    if last_command:
+        new_timeline.append(last_command)
+    pose.timeline = new_timeline
 
 def import_from_gba(current, fn):
     """
@@ -288,6 +314,8 @@ def import_from_gba(current, fn):
 
     image_paths = os.path.join(head, '*.png')
     images = glob.glob(image_paths)
+    # Remove main sheet if it exists
+    images = list(sorted([path for path in images if 'Sheet' not in os.path.split(path)[-1]]))
     # Convert to pixmaps
     pixmaps = {os.path.split(path)[-1][:-4]: QPixmap(path) for path in images}
     # Convert to GBA colors
@@ -295,17 +323,28 @@ def import_from_gba(current, fn):
     # Find palette
     all_palette_colors = editor_utilities.find_palette_from_multiple([pix.toImage() for pix in pixmaps.values()])
     my_palette = None
-    for palette in current.palettes:
+    palette_nids = [palette[1] for palette in current.palettes]
+    for palette_nid in palette_nids:
+        palette = RESOURCES.combat_palettes.get(palette_nid)
         if palette.is_similar(all_palette_colors):
             my_palette = palette
+            print("Using existing palette! %s" % palette.nid)
+            # Change first color to colorkey
+            colorkey_conversion = {qRgb(*all_palette_colors[0]): editor_utilities.qCOLORKEY}
+            pixmaps = {name: color_convert(pixmap, colorkey_conversion) for name, pixmap in pixmaps.items()}
             break
     else:
         print("Generating new palette...")
-        palette_nid = utilities.get_next_name("New Palette", RESOURCES.combat_palettes.keys())
+        palette_nid = str_utils.get_next_name("New Palette", RESOURCES.combat_palettes.keys())
         my_palette = combat_palettes.Palette(palette_nid)
         RESOURCES.combat_palettes.append(my_palette)
-        palette_name = utilities.get_next_name('GenericBlue', [name for name, nid in current.palettes])
+        palette_name = str_utils.get_next_name('GenericBlue', [name for name, nid in current.palettes])
         current.palettes.append([palette_name, my_palette.nid])
+        # Change first color to colorkey
+        colorkey_conversion = {qRgb(*all_palette_colors[0]): editor_utilities.qCOLORKEY}
+        pixmaps = {name: color_convert(pixmap, colorkey_conversion) for name, pixmap in pixmaps.items()}
+        all_palette_colors[0] = COLORKEY
+        # Build true palette colors
         colors = {(int(idx % 8), int(idx / 8)): color for idx, color in enumerate(all_palette_colors)}
         my_palette.colors = colors
 
@@ -314,13 +353,18 @@ def import_from_gba(current, fn):
     # Split double images into "_under" image
     pixmaps = split_doubles(pixmaps)
     # Convert pixmaps to new palette colors
-    convert_dict = {qRgb(*color): qRgb(0, coord[0], coord[1]) for coord, color in my_palette.colors}
+    convert_dict = {qRgb(*color): qRgb(0, coord[0], coord[1]) for coord, color in my_palette.colors.items()}
     pixmaps = {name: color_convert(pixmap, convert_dict) for name, pixmap in pixmaps.items()}
     # Determine which pixmaps should be replaced by "wait" commands
     empty_pixmaps = find_empty_pixmaps(pixmaps)
 
     # So now we have melee_anim and ranged_anim with all poses
     melee_weapon_anim, ranged_weapon_anim = parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps)
+
+    for pose in melee_weapon_anim.poses:
+        combine_identical_commands(pose)
+    for pose in ranged_weapon_anim.poses:
+        combine_identical_commands(pose)
 
     # Animation collation
     update_weapon_anim_full_image(melee_weapon_anim)
@@ -401,7 +445,7 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
     current_mode: int = None
     current_anim: combat_anims.WeaponAnimation = None
     current_pose: combat_anims.Pose = None
-    current_frame: combat_commands.CombatAnimationCommand = None
+    current_command: combat_commands.CombatAnimationCommand = None
     melee_weapon_anim = combat_anims.WeaponAnimation('prototype')
     ranged_weapon_anim = combat_anims.WeaponAnimation('prototype')
     used_images = set()
@@ -439,7 +483,7 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
             return 'Dodge', melee_weapon_anim
         elif mode == 8:
             return 'Dodge', ranged_weapon_anim
-        elif mode in 9:
+        elif mode in (9, 10):
             return 'Stand', melee_weapon_anim
         elif mode == 11:
             return 'Stand', ranged_weapon_anim
@@ -459,12 +503,12 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
             else:
                 for frame in frames:
                     used_images.add(frame)
-            global current_frame
-            current_frame = command
+            nonlocal current_command
+            current_command = command
 
         current_pose.timeline.append(command)
 
-    def copy_frame(frame_command, num_frames):
+    def copy_frame(frame_command, num_frames: int = 1):
         # combat_commands.CombatAnimationCommand.copy()
         new_command = frame_command.__class__.copy(frame_command)
         new_command.set_frame_count(num_frames)
@@ -485,7 +529,7 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
 
     def save_images(current_pose):
         if current_anim:
-            for frame_nid in used_images:
+            for frame_nid in sorted(used_images):
                 if frame_nid in current_anim.frames.keys():
                     # Don't bother if already present
                     continue
@@ -510,6 +554,7 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
         print("end_loop")
 
     for line in script_lines:
+        print(line, current_command)
         if line.startswith('/// - '):
             if current_mode:
                 save_images(current_pose)
@@ -519,7 +564,7 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
                 current_pose = combat_anims.Pose(pose_name)
                 if current_anim:
                     current_anim.poses.append(current_pose)
-                current_frame = None
+                current_command = None
 
                 dodge_front = False
                 crit = False
@@ -535,37 +580,37 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
             if command_code == '01':
                 if throwing_axe:
                     parse_text('start_loop')
-                    copy_frame(current_frame)
+                    copy_frame(current_command)
                     parse_text('end_loop')
-                    copy_frame(current_frame, 8)
+                    copy_frame(current_command, 8)
                 elif loop_end:
                     parse_text('end_loop')
                     loop_end = False
                 elif current_pose.nid == 'Miss':
-                    copy_frame(current_frame)
+                    copy_frame(current_command)
                     parse_text('miss')
-                    copy_frame(current_frame, 30)
+                    copy_frame(current_command, 30)
                 elif current_mode == 5 or current_mode == 6:  # Ranged
                     parse_text('start_loop')
-                    copy_frame(current_frame, 4)
+                    copy_frame(current_command, 4)
                     parse_text('end_loop')
-                    copy_frame(current_frame, 4)
+                    copy_frame(current_command, 4)
                 elif 'Dodge' in current_pose.nid:
                     # There are always 31 frames in a dodge
                     counter = 0
                     for command in current_pose.timeline:
                         if command.tag == 'frame':
                             counter += command.value[0]
-                    copy_frame(current_frame, 31 - counter)
+                    copy_frame(current_command, 31 - counter)
                 elif current_mode in (1, 2, 3, 4):  # Hit or Crit
-                    wait_for_hit(current_frame)
+                    wait_for_hit(current_command)
                     if shield_toss:
                         parse_text('end_child_loop')
                         shield_toss = False
                     else:
-                        copy_frame(current_frame, 4)
+                        copy_frame(current_command, 4)
                 elif current_mode in (9, 10, 11):  # Stand??
-                    copy_frame(current_frame, 3)
+                    copy_frame(current_command, 3)
                 write_extra_frame = False
             elif command_code == '02':  # Normally marks a dodge animation, but doesn't matter in LT script
                 write_extra_frame = False
@@ -589,22 +634,22 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
                 begin = True
             elif command_code in ('08', '09', '0A', '0B', '0C'):  # Start crit
                 parse_text('enemy_flash_white;8')
-                if current_frame:
-                    copy_frame(current_frame)
+                if current_command:
+                    copy_frame(current_command)
                 parse_text('foreground_blend;2;255,255,255')
                 crit = True
                 start_hit = True
                 write_extra_frame = False
             elif command_code == '0D':  # End
-                if current_frame:
-                    copy_frame(current_frame)
+                if current_command:
+                    copy_frame(current_command)
                 write_extra_frame = False
             elif command_code == '0E':  # Dodge Start
                 write_extra_frame = False
             elif command_code == '13':  # Throwing Axe
-                if current_frame:
+                if current_command:
                     parse_text('start_loop')
-                    copy_frame(current_frame)
+                    copy_frame(current_command)
                     parse_text('end_loop')
                 throwing_axe = True
             elif command_code == '14':
@@ -616,8 +661,8 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
                 write_extra_frame = False
             elif command_code == '1A':  # Start hit
                 parse_text('enemy_flash_white;8')
-                if current_frame:
-                    copy_frame(current_frame)
+                if current_command:
+                    copy_frame(current_command)
                 parse_text('screen_flash_white;4')
                 crit = False
                 start_hit = True
@@ -712,8 +757,8 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
             else:
                 print("Unknown Command Code: C%s" % command_code)
 
-            if write_extra_frame and current_frame:
-                current_frame.increment_frame_count()
+            if write_extra_frame and current_command:
+                current_command.increment_frame_count()
 
         elif line.startswith('~~~'):
             pass

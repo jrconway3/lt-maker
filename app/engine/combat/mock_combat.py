@@ -11,12 +11,13 @@ from app.engine import engine, gui, image_mods, background
 from app.engine.animations import Animation
 
 class MockCombat():
-    def __init__(self, left_anim, right_anim, at_range=0):
+    def __init__(self, left_anim, right_anim, at_range=0, pose='Attack'):
         self.left_battle_anim = left_anim
         self.right_battle_anim = right_anim
         self.current_battle_anim = self.right_battle_anim
 
         self.at_range = at_range
+        self.pose = pose
 
         self.last_update = engine.get_time()
         self.state = 'init'
@@ -164,7 +165,7 @@ class MockCombat():
     def set_up_combat_animation(self):
         self.state = 'anim'
         self.current_battle_anim = self.right_battle_anim
-        self.current_battle_anim.start_anim('Attack')
+        self.current_battle_anim.start_anim(self.pose)
         self.focus_right = True
         self.move_camera()
 

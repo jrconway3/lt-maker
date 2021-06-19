@@ -173,8 +173,7 @@ class TimelineMenu(QWidget):
     def add_text(self):
         try:
             text = self.entry.text()
-            split_text = text.split(';')
-            command = combat_commands.parse_text(split_text)
+            command = combat_commands.parse_text(text)
             self.add_command(command)                
             self.entry.clear()
         except Exception:

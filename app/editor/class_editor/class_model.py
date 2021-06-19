@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QIcon, QPixmap, qRgb
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt
 
 from app.resources.resources import RESOURCES
@@ -13,11 +13,11 @@ from app.editor import timer
 from app.editor.custom_widgets import ClassBox
 from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.map_sprite_editor import map_sprite_model
+from app.editor.combat_animation_editor import combat_animation_model
 
 from app.data import klass
 
 from app.utilities import str_utils
-import app.editor.utilities as editor_utilities
 
 def get_map_sprite_icon(klass_obj, num=0, current=False, team='player', variant=None):
     res = None
@@ -36,45 +36,7 @@ def get_map_sprite_icon(klass_obj, num=0, current=False, team='player', variant=
 def get_combat_anim_icon(klass_obj):
     if not klass_obj.combat_anim_nid:
         return None
-    combat_anim = RESOURCES.combat_anims.get(klass_obj.combat_anim_nid)
-    if not combat_anim or not combat_anim.weapon_anims:
-        return None
-    weapon_anim = combat_anim.weapon_anims.get('Unarmed', combat_anim.weapon_anims[0])
-    pose = weapon_anim.poses.get('Stand')
-    if not pose:
-        return None
-
-    # Get palette and apply palette
-    if not combat_anim.palettes:
-        return None
-    palette_names = [palette[0] for palette in combat_anim.palettes]
-    if 'GenericBlue' in palette_names:
-        idx = palette_names.index('GenericBlue')
-        palette_name, palette_nid = combat_anim.palettes[idx]
-    else:
-        palette_name, palette_nid = combat_anim.palettes[0]
-    palette = RESOURCES.combat_palettes.get(palette_nid)
-    if not palette:
-        return None
-    colors = palette.colors
-    convert_dict = {qRgb(0, coord[0], coord[1]): qRgb(*color) for coord, color in colors.items()}
-
-    # Get first command that displays a frame
-    for command in pose.timeline:
-        if command.nid in ('frame', 'over_frame', 'under_frame'):
-            frame_nid = command.value[1]
-            frame = weapon_anim.frames.get(frame_nid)
-            if not frame:
-                continue
-            if not frame.pixmap:
-                frame.pixmap = QPixmap(weapon_anim.full_path).copy(*frame.rect)
-            pixmap = frame.pixmap
-            im = pixmap.toImage()
-            im = editor_utilities.color_convert(im, convert_dict)
-            im = editor_utilities.convert_colorkey(im)
-            pixmap = QPixmap.fromImage(im)
-            return pixmap
-    return None
+    return combat_animation_model.get_combat_anim_icon(klass_obj.combat_anim_nid)
 
 class ClassModel(DragDropCollectionModel):
     display_team = 'player'

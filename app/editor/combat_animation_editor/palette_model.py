@@ -67,7 +67,7 @@ class PaletteModel(DragDropCollectionModel):
     def on_nid_changed(self, old_nid, new_nid):
         # What uses combat palettes
         for combat_anim in RESOURCES.combat_anims:
-            if old_nid in combat_anim.palettes:
-                idx = combat_anim.palettes.index(old_nid)
-                combat_anim.palettes.remove(old_nid)
-                combat_anim.palettes.insert(idx, new_nid)
+            palette_nids = [palette[1] for palette in combat_anim.palettes]
+            if old_nid in palette_nids:
+                idx = palette_nids.index(old_nid)
+                combat_anim.palettes[idx][1] = new_nid

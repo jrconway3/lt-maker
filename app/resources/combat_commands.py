@@ -17,7 +17,7 @@ class CombatAnimationCommand():
         return self.nid, self.value
 
     def has_frames(self) -> bool:
-        return 'frame' in self.attr
+        return self.attr and 'frame' in self.attr
 
     def get_frames(self) -> list:
         return [self.value[idx] for idx in range(len(self.attr)) if self.attr[idx] == 'frame']
@@ -60,7 +60,8 @@ def generate_text(command: CombatAnimationCommand) -> str:
                 s.append(str(command.value[idx]))
     return ';'.join(s)
 
-def parse_text(split_text: list) -> CombatAnimationCommand:
+def parse_text(text: str) -> CombatAnimationCommand:
+    split_text = text.split(';')
     print("Import", split_text)
     command_nid = split_text[0]
     if command_nid == 'f':

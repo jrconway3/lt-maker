@@ -28,6 +28,7 @@ class AnimView(IconView):
         return (color.red(), color.green(), color.blue())
 
     def mousePressEvent(self, event):
+        # TODO
         super().mousePressEvent(event)
         scene_pos = self.mapToScene(event.pos())
         pos = int(scene_pos.x()), int(scene_pos.y())

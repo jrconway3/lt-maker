@@ -3,7 +3,8 @@ from PyQt5.QtWidgets import QDialog
 from app.resources.resources import RESOURCES
 
 from app.editor.base_database_gui import DatabaseTab
-from app.editor.combat_animation_editor.combat_animation_display import CombatAnimProperties, CombatEffectProperties
+from app.editor.combat_animation_editor.combat_animation_display import CombatAnimProperties
+from app.editor.combat_animation_editor.combat_effect_display import CombatEffectProperties
 from app.editor.combat_animation_editor.palette_tab import PaletteDatabase
 from app.editor.combat_animation_editor.combat_animation_model import CombatAnimModel, CombatEffectModel
 from app.extensions.custom_gui import ResourceListView

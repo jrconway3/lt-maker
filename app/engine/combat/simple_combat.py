@@ -331,13 +331,14 @@ class SimpleCombat():
         if DB.constants.value('double_wexp'):
             for mark in marks:
                 if mark[2] and mark[2].is_dying and DB.constants.value('kill_wexp'):
-                    wexp = wexp * 2
+                    func(action.GainWexp(unit, item, (wexp * 2) * skill_system.wexp_multiplier(unit, target) * skill_system.enemy_wexp_multiplier(target, unit)))
+                else:
+                    func(action.GainWexp(unit, item, wexp * skill_system.wexp_multiplier(unit, target) * skill_system.enemy_wexp_multiplier(target, unit)))
         elif marks:
             if DB.constants.value('kill_wexp') and any(mark[2] and mark[2].is_dying for mark in marks):
-                wexp = wexp * 2
-        wexp = wexp * skill_system.wexp_multiplier(unit, target)
-        wexp = wexp * skill_system.enemy_wexp_multiplier(target, unit)
-        func(action.GainWexp(unit, item, wexp))
+                func(action.GainWexp(unit, item, (wexp * 2) * skill_system.wexp_multiplier(unit, target) * skill_system.enemy_wexp_multiplier(target, unit)))
+            else:
+                func(action.GainWexp(unit, item, wexp * skill_system.wexp_multiplier(unit, target) * skill_system.enemy_wexp_multiplier(target, unit)))
 
     def handle_mana(self, all_units):
         if self.attacker.team == 'player':

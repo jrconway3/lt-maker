@@ -47,10 +47,10 @@ def test_play_load(level_nid, save_loc=None):
 
 def test_combat(left_weapon_anim, left_palette, left_item_nid: str, 
                 right_weapon_anim, right_palette, right_item_nid: str):
-    from app.engine.battle_animation import BattleAnimation
-    from app.engine.combat.mock_combat import MockCombat
     try:
         driver.start("Combat Test", from_editor=True)
+        from app.engine.battle_animation import BattleAnimation
+        from app.engine.combat.mock_combat import MockCombat
         right = BattleAnimation(right_weapon_anim, right_palette, None, right_item_nid)
         left = BattleAnimation(left_weapon_anim, left_palette, None, left_item_nid)
         at_range = 1 if 'Ranged' in right_weapon_anim.nid else 0

@@ -270,6 +270,7 @@ class CombatAnimProperties(QWidget):
             if fn_dir:
                 self.settings.set_last_open_path(fn_dir)
                 self.export(fn_dir)
+                QMessageBox.information(self, "Export Complete", "Export of frames complete!")
 
     def nid_changed(self, text):
         self.current.nid = text
@@ -652,6 +653,13 @@ class CombatAnimProperties(QWidget):
             self.processing = False
             self.frame_nid = image
             self.custom_frame_offset = (x, y)
+        elif command.nid == 'wait_for_hit':
+            image1, image2 = command.value
+            self.num_frames = 27
+            self.last_update = self.next_update
+            self.processing = False
+            self.frame_nid = image1
+            self.under_frame_nid = image2
         else:
             pass
 
@@ -776,7 +784,7 @@ class CombatAnimProperties(QWidget):
 
             item_nid = None
             for item in DB.items:
-                if item.magic and item.nid in DB.combat_effects:
+                if item.magic and item.nid in RESOURCES.combat_effects.keys():
                     item_nid = item.nid
             
             timer.get_timer().stop()

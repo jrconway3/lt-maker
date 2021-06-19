@@ -10,7 +10,6 @@ from app.engine import state_machine, static_random
 from app.engine import config as cf
 
 import logging
-logger = logging.getLogger(__name__)
 
 class GameState():
     def __init__(self):
@@ -39,7 +38,7 @@ class GameState():
     # When the player clicks "New Game"
     def build_new(self):
         from app.engine import records, supports
-        logger.info("Building New Game")
+        logging.info("Building New Game")
         self.playtime = 0
 
         self.unit_registry = {}
@@ -232,7 +231,7 @@ class GameState():
         from app.engine.objects.difficulty_mode import DifficultyModeObject
         from app.events.regions import Region
 
-        logger.info("Loading Game...")
+        logging.info("Loading Game...")
         self.game_vars = Counter(s_dict.get('game_vars', {}))
         static_random.set_seed(self.game_vars.get('_random_seed', 0))
         self.level_vars = Counter(s_dict.get('level_vars', {}))
@@ -287,7 +286,7 @@ class GameState():
             static_random.set_combat_random_state(s_dict['current_random_state'])
 
         if s_dict['level']:
-            logger.info("Loading Level...")
+            logging.info("Loading Level...")
             self.current_level = LevelObject.restore(s_dict['level'], self)
             self.set_up_game_board(self.current_level.tilemap)
 
@@ -422,29 +421,29 @@ class GameState():
         return list(self.unit_registry.values())
 
     def register_unit(self, unit):
-        logger.debug("Registering unit %s as %s", unit, unit.nid)
+        logging.debug("Registering unit %s as %s", unit, unit.nid)
         self.unit_registry[unit.nid] = unit
 
     def register_item(self, item):
-        logger.debug("Registering item %s as %s", item, item.uid)
+        logging.debug("Registering item %s as %s", item, item.uid)
         self.item_registry[item.uid] = item
         # For multi-items
         for subitem in item.subitems:
             self.item_registry[subitem.uid] = subitem
 
     def register_skill(self, skill):
-        logger.debug("Registering skill %s as %s", skill, skill.uid)
+        logging.debug("Registering skill %s as %s", skill, skill.uid)
         self.skill_registry[skill.uid] = skill
         # For aura skills
         if skill.subskill:
             self.skill_registry[skill.subskill.uid] = skill.subskill
 
     def register_terrain_status(self, key, skill_uid):
-        logger.debug("Registering terrain status %s", skill_uid)
+        logging.debug("Registering terrain status %s", skill_uid)
         self.terrain_status_registry[key] = skill_uid
 
     def register_region(self, region):
-        logger.debug("Registering region %s", region.nid)
+        logging.debug("Registering region %s", region.nid)
         self.region_registry[region.nid] = region
 
     def get_unit(self, unit_nid):
@@ -524,7 +523,7 @@ class GameState():
         """
         from app.engine import action, aura_funcs
         if unit.position:
-            logger.debug("Leave %s %s", unit.nid, unit.position)
+            logging.debug("Leave %s %s", unit.nid, unit.position)
             # Auras
             for aura_data in game.board.get_auras(unit.position):
                 child_aura_uid, target = aura_data
@@ -580,7 +579,7 @@ class GameState():
         """
         from app.engine import skill_system, aura_funcs
         if unit.position:
-            logger.debug("Arrive %s %s", unit.nid, unit.position)
+            logging.debug("Arrive %s %s", unit.nid, unit.position)
             if not test:
                 self.board.set_unit(unit.position, unit)
             # Tiles

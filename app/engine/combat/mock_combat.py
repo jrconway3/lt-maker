@@ -14,7 +14,7 @@ class MockCombat():
     def __init__(self, left_anim, right_anim, at_range=0):
         self.left_battle_anim = left_anim
         self.right_battle_anim = right_anim
-        self.current_battle_anim = self.right_anim
+        self.current_battle_anim = self.right_battle_anim
 
         self.at_range = at_range
 
@@ -43,7 +43,17 @@ class MockCombat():
         # For shake
         self.setup_shake()
 
+        res = RESOURCES.panoramas.get('promotion_background')
+        img = None
+        if res:
+            img = engine.image_load(res.full_image)
+        if img:
+            self.bg = background.SpriteBackground(img, fade=False)
+        else:
+            self.bg = background.create_background('default_background')
+
         self.battle_music = None
+        self.damage = 0
 
     def setup_dark(self):
         self.darken_background = 0
@@ -119,6 +129,7 @@ class MockCombat():
                 self.state = 'begin_phase'
 
         if self.state == 'begin_phase':
+            self.damage = random.randint(4, 25)
             self.set_up_combat_animation()
 
         elif self.state == 'anim':
@@ -161,7 +172,6 @@ class MockCombat():
         self.last_update = engine.get_time()
         if not miss:
             self.state = 'hp_change'
-            self.damage = random.randint(4, 25)
             self.generate_damage_numbers()
 
         if miss:
@@ -170,7 +180,6 @@ class MockCombat():
 
     def spell_hit(self):
         self.last_update = engine.get_time()
-        self.damage = random.randint(4, 25)
         self.state = 'hp_change'
         self.generate_damage_numbers()
 
@@ -364,6 +373,7 @@ class MockCombat():
         self.damage_numbers = [d for d in self.damage_numbers if not d.done]
 
     def draw(self, surf):
+        self.bg.draw(surf)
         left_range_offset, right_range_offset, total_shake_x, total_shake_y = \
             self.draw_ui(surf)
         shake = (-total_shake_x, total_shake_y)

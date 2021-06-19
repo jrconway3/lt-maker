@@ -6,8 +6,6 @@ Combat Animations
     Promotion (Build)
     Proc Skills (Test both map combat and animation combat)
     Import from GBA (Test)
-    Export Frames as Gif (Test)
-    Show in Engine (Test)
 Overworld
 Base
     Arena, *Repair (in market)*, Forge (optional), Bonus Exp / Skills, Support, Codex (World Map, Achievements, Tactics) 

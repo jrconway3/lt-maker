@@ -43,12 +43,13 @@ class MapView():
         if game.level_vars.get('_fog_of_war'):
             culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position or unit.sprite.fake_position)]
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])
-        
+
         for unit in draw_units:
             surf = unit.sprite.draw(surf, cull_rect)
             if 'event' not in game.state.state_names():
                 surf = unit.sprite.draw_hp(surf, cull_rect)
         for unit in draw_units:
+
             surf = unit.sprite.draw_markers(surf, cull_rect)
 
         # Draw the movement arrows

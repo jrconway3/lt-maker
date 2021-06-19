@@ -1892,7 +1892,7 @@ class MoveInInitiative(Action):
         self.old_idx = game.initiative.get_index(self.unit)
         self.new_idx = self.old_idx + self.offset
 
-    def do(self):    
+    def do(self):
         game.initiative.remove_unit(self.unit)
         self.new_idx = game.initiative.insert_at(self.unit, self.new_idx)
 

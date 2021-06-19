@@ -57,7 +57,10 @@ class CombatArt(SkillComponent):
     def end_combat(self, playback, unit, item, target, mode):
         if self.skill.data.get('active'):
             action.do(action.TriggerCharge(unit, self.skill))
-        self.on_deactivation(unit)
+        self.skill.data['active'] = False
+        if self._action:
+            action.do(action.RemoveSkill(unit, self._action.skill_obj))
+        self._action = None
 
 class AutomaticCombatArt(SkillComponent):
     nid = 'automatic_combat_art'
@@ -120,7 +123,7 @@ def get_proc_rate(unit, skill) -> int:
         if component.defines('proc_rate'):
             return component.proc_rate(unit)
     return 100  # 100 is default
-            
+
 class AttackProc(SkillComponent):
     nid = 'attack_proc'
     desc = "Allows skill to proc when about to attack"
@@ -134,7 +137,7 @@ class AttackProc(SkillComponent):
         if static_random.get_combat() < proc_rate:
             action.do(action.AddSkill(unit, self.value))
             self._did_action = True
-        
+
     def end_sub_combat(self, unit, item, target, mode):
         if self._did_action:
             action.do(action.RemoveSkill(unit, self.value))
@@ -152,7 +155,7 @@ class DefenseProc(SkillComponent):
         if static_random.get_combat() < proc_rate:
             action.do(action.AddSkill(unit, self.value))
             self._did_action = True
-        
+
     def end_sub_combat(self, unit, item, target, mode):
         if self._did_action:
             action.do(action.RemoveSkill(unit, self.value))

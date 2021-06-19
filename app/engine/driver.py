@@ -61,7 +61,8 @@ def run(game):
                 screenshot = False
         if screenshot:
             current_time = str(datetime.now()).replace(' ', '_').replace(':', '.')
-            engine.save_surface(surf, 'screenshots/LT_%s.bmp' % current_time)
+            engine.save_surface(surf, 'screenshots/LT_%s.png' % current_time)
+            screenshot = False
 
         engine.update_display()
         # milliseconds_elapsed = (end - start)/1e6

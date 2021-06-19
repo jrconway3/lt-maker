@@ -137,11 +137,7 @@ class CostMana(SkillComponent):
 
     def start_combat(self, playback, unit, item, target, mode):
         if self.skill.data.get('active'):
-            print(1)
             action.do(action.ChangeMana(unit, -self.value))
-
-    # def text(self) -> str:
-    #     return 'Reduces SP by ' + str(self.value)
 
 class CheckMana(SkillComponent):
     nid = 'check_mana'

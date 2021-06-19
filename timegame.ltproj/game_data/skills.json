@@ -377,16 +377,12 @@
                 null
             ],
             [
-                "gain_mana",
-                2
-            ],
-            [
                 "combat_art",
                 "Blank_item_mod"
             ],
             [
-                "check_mana",
-                19
+                "gain_mana",
+                "4"
             ]
         ]
     },

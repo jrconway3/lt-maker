@@ -112,14 +112,17 @@ class GainMana(SkillComponent):
     tag = "charge"
     author = 'KD'
 
-    expose = Type.Int
-    value = 2
-
-    ignore_conditional = True
+    expose = Type.String
 
     def start_combat(self, playback, unit, item, target, mode):
-        if self.skill.data.get('active'):
-            action.do(action.ChangeMana(unit, self.value))
+        from app.engine import evaluate
+        try:
+            if target:
+                mana_gain = int(evaluate.evaluate(self.value, unit, target, position=unit.position))
+                action.do(action.ChangeMana(unit, mana_gain))
+        except Exception as e:
+            print("Could not evaluate %s (%s)" % (self.value, e))
+            return True
 
 class CostMana(SkillComponent):
     nid = 'cost_mana'

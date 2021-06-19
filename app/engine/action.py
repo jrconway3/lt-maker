@@ -489,19 +489,19 @@ class ResetUnitVars(Action):
     def __init__(self, unit):
         self.unit = unit
         self.old_current_hp = self.unit.get_hp()
-        self.old_current_mana = self.unit.get_mana()
+        # self.old_current_mana = self.unit.get_mana()
         self.old_current_fatigue = self.unit.get_fatigue()
         self.old_movement_left = self.unit.movement_left
 
     def do(self):
         self.unit.set_hp(min(self.unit.get_hp(), equations.parser.hitpoints(self.unit)))
-        self.unit.set_mana(min(self.unit.get_mana(), equations.parser.get_mana(self.unit)))
+        # self.unit.set_mana(min(self.unit.get_mana(), equations.parser.get_mana(self.unit)))
         self.unit.set_fatigue(min(self.unit.get_fatigue(), equations.parser.get_fatigue(self.unit)))
         self.unit.movement_left = min(self.unit.movement_left, equations.parser.movement(self.unit))
 
     def reverse(self):
         self.unit.set_hp(self.old_current_hp)
-        self.unit.set_mana(self.old_current_mana)
+        # self.unit.set_mana(self.old_current_mana)
         self.unit.set_fatigue(self.old_current_fatigue)
         self.unit.movement_left = self.old_movement_left
 
@@ -1892,7 +1892,7 @@ class MoveInInitiative(Action):
         self.old_idx = game.initiative.get_index(self.unit)
         self.new_idx = self.old_idx + self.offset
 
-    def do(self):    
+    def do(self):
         game.initiative.remove_unit(self.unit)
         self.new_idx = game.initiative.insert_at(self.unit, self.new_idx)
 

@@ -90,5 +90,9 @@
     {
         "nid": "TIMELINESPEED",
         "expression": "SKL + LCK//2"
+    },
+    {
+        "nid": "MANA",
+        "expression": "20"
     }
 ]

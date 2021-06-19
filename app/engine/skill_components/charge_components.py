@@ -104,3 +104,55 @@ class CombatChargeIncreaseByStat(SkillComponent):
             new_value = self.skill.data['charge'] + unit.stats[self.value] + unit.stat_bonus(self.value)
             new_value = min(new_value, self.skill.data['total_charge'])
             action.do(action.SetObjData(self.skill, 'charge', new_value))
+
+class GainMana(SkillComponent):
+    nid = 'gain_mana'
+    desc = "Gain X Mana on use"
+    # paired_with = ('effective_tag',)
+    tag = "charge"
+    author = 'KD'
+
+    expose = Type.Int
+    value = 2
+
+    ignore_conditional = True
+
+    def start_combat(self, playback, unit, item, target, mode):
+        if self.skill.data.get('active'):
+            action.do(action.ChangeMana(unit, self.value))
+
+class CostMana(SkillComponent):
+    nid = 'cost_mana'
+    desc = "Skill reduces Mana with each use. Unit must have >=X Mana to use the skill."
+    tag = "charge"
+    author = 'KD'
+
+    expose = Type.Int
+    value = 2
+
+    ignore_conditional = True
+
+    def condition(self, unit):
+        return unit.current_mana >= self.value
+
+    def start_combat(self, playback, unit, item, target, mode):
+        if self.skill.data.get('active'):
+            print(1)
+            action.do(action.ChangeMana(unit, -self.value))
+
+    # def text(self) -> str:
+    #     return 'Reduces SP by ' + str(self.value)
+
+class CheckMana(SkillComponent):
+    nid = 'check_mana'
+    desc = "Unit must have more than X Mana to use this skill. Does not subtract Mana on use."
+    tag = "charge"
+    author = 'KD'
+
+    expose = Type.Int
+    value = 2
+
+    ignore_conditional = True
+
+    def condition(self, unit):
+        return unit.current_mana >= self.value

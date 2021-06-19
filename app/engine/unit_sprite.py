@@ -474,7 +474,7 @@ class UnitSprite():
                                       'combat_targeting', 'item_targeting'):
             cur_unit = game.cursor.cur_unit
         elif game.state.current() == 'free_roam':
-            cur_unit = roam_state.FreeRoamState.can_talk()
+            cur_unit = game.state.state[-1].can_talk()
         if not cur_unit:
             return surf
         map_markers = SPRITES.get('map_markers')
@@ -484,9 +484,7 @@ class UnitSprite():
 
         frame = (engine.get_time() // 100) % 8
         offset = [0, 0, 0, 1, 2, 2, 2, 1][frame]
-        print(1)
-        if game.level.roam and roam_state.FreeRoamState.can_talk():
-            print(2)
+        if game.level.roam and game.state.current() == 'free_roam' and game.state.state[-1].can_talk():
             talk_marker = engine.subsurface(map_markers, (0, 0, 24, 16))
             surf.blit(talk_marker, (topleft[0], topleft[1] + offset))
         if (cur_unit.nid, self.unit.nid) in game.talk_options:

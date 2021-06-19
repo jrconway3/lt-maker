@@ -49,7 +49,6 @@ class MapView():
             if 'event' not in game.state.state_names():
                 surf = unit.sprite.draw_hp(surf, cull_rect)
         for unit in draw_units:
-
             surf = unit.sprite.draw_markers(surf, cull_rect)
 
         # Draw the movement arrows

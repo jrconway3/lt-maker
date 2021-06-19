@@ -133,7 +133,16 @@
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "SP Drain"
+            ],
+            [
+                1,
+                "SP Cost"
+            ]
+        ],
         "unit_notes": [],
         "wexp_gain": {
             "Sword": [

@@ -361,5 +361,77 @@
                 ]
             ]
         ]
+    },
+    {
+        "nid": "SP Drain",
+        "name": "SP Drain",
+        "desc": "Gives SP from attacks",
+        "icon_nid": "Skills",
+        "icon_index": [
+            11,
+            22
+        ],
+        "components": [
+            [
+                "class_skill",
+                null
+            ],
+            [
+                "gain_mana",
+                2
+            ],
+            [
+                "combat_art",
+                "Blank_item_mod"
+            ],
+            [
+                "check_mana",
+                21
+            ]
+        ]
+    },
+    {
+        "nid": "Blank_item_mod",
+        "name": "Blank_item_mod",
+        "desc": "For combat arts that serve to gain SP",
+        "icon_nid": "Skills",
+        "icon_index": [
+            0,
+            11
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ]
+        ]
+    },
+    {
+        "nid": "SP Cost",
+        "name": "SP Cost",
+        "desc": "This attack costs SP but is cool",
+        "icon_nid": "Skills",
+        "icon_index": [
+            0,
+            20
+        ],
+        "components": [
+            [
+                "class_skill",
+                null
+            ],
+            [
+                "cost_mana",
+                4
+            ],
+            [
+                "combat_art",
+                "Blank_item_mod"
+            ],
+            [
+                "lifelink",
+                0.5
+            ]
+        ]
     }
 ]

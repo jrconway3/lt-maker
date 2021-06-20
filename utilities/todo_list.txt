@@ -1,7 +1,8 @@
 # Features
 Combat Animations
-    Promotion (Build)
+    Promotion (Build and test)
     Proc Skills (Test both map combat and animation combat)
+    Test Animation Combat music
     Generate full set of initial combat anims
 Overworld
 Base

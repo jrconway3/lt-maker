@@ -75,7 +75,7 @@ def add_poses(fn, new_weapon):
             current_pose = combat_anims.Pose(line[1])
             new_weapon.poses.append(current_pose)
         else:
-            command = combat_commands.parse_text(line)
+            command = combat_commands.parse_text(';'.join(line))
             if command:
                 current_pose.timeline.append(command)
 

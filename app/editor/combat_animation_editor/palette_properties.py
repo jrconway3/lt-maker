@@ -484,11 +484,11 @@ class WeaponAnimSelection(Dialog):
         main_layout.addWidget(self.buttonbox)
 
     def combat_changed(self, idx):
-        combat_text = self.combat_box.currentText()
+        combat_text = self.combat_box.edit.currentText()
         self.current_combat_anim = RESOURCES.combat_anims.get(combat_text)
         self.weapon_box.edit.clear()
         weapon_anims = self.current_combat_anim.weapon_anims
-        self.weapon_box.edit.addItems(weapon_anims[0])
+        self.weapon_box.edit.addItems([weapon_anim.nid for weapon_anim in weapon_anims])
 
     @classmethod
     def get(cls, parent):
@@ -593,7 +593,9 @@ class PaletteProperties(QWidget):
             self.color_editor_widget.setEnabled(True)
             self.color_editor_widget.set_current(QColor(*current))
         else:
-            self.color_editor_widget.setEnabled(False)
+            self.color_editor_widget.setEnabled(True)
+            self.color_editor_widget.set_current(QColor(0, 0, 0))
+            # self.color_editor_widget.setEnabled(False)
 
     def color_changed(self, color: QColor):
         if self.current_palette:

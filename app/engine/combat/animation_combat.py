@@ -294,7 +294,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         self.left_hp_bar.update()
         self.right_hp_bar.update()
 
-        MockCombat.update_anims(self)
+        self.update_anims(self)
 
         return False
 
@@ -654,11 +654,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         combat_surf.blit(self.left_name, (left_pos_x, top))
         combat_surf.blit(self.right_name, (WINWIDTH + 3 - self.right_name.get_width() + self.shake_offset[0], top))
 
-        if self.darken_ui_background:
-            self.darken_ui_background = min(self.darken_ui_background, 4)
-            color = 255 - abs(self.darken_ui_background * 24)
-            engine.fill(combat_surf, (color, color, color), None, engine.BLEND_RGB_MULT)
-            self.darken_ui_background += 1
+        self.color_ui(combat_surf)
 
         surf.blit(combat_surf, (0, 0))
 

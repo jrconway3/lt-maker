@@ -44,6 +44,12 @@ class MockCombat():
         # For shake
         self.setup_shake()
 
+        self.create_background()
+
+        self.battle_music = None
+        self.damage = 0
+
+    def create_background(self):
         res = RESOURCES.panoramas.get('promotion_background')
         img = None
         if res:
@@ -52,9 +58,6 @@ class MockCombat():
             self.bg = background.SpriteBackground(img, fade=False)
         else:
             self.bg = background.create_background('default_background')
-
-        self.battle_music = None
-        self.damage = 0
 
     def setup_dark(self):
         self.darken_background = 0
@@ -318,6 +321,13 @@ class MockCombat():
             self.pan_dir = -self.pan_move
         elif not self.focus_right and self.pan_offset != self.pan_max:
             self.pan_dir = self.pan_move
+
+    def color_ui(self, combat_surf):
+        if self.darken_ui_background:
+            self.darken_ui_background = min(self.darken_ui_background, 4)
+            color = 255 - abs(self.darken_ui_background * 24)
+            engine.fill(combat_surf, (color, color, color), None, engine.BLEND_RGB_MULT)
+            self.darken_ui_background += 1
 
     def draw_ui(self, surf) -> tuple:
         platform_trans = 88

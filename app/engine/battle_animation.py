@@ -221,7 +221,7 @@ class BattleAnimation():
         self.screen_dodge_counter = num_frames
         self.screen_dodge_color = color
 
-    def get_effect(self, effect_nid: str, enemy: bool = False) -> EffectAnimation:
+    def get_effect(self, effect_nid: str, enemy: bool = False, pose=None) -> EffectAnimation:
         effect = RESOURCES.combat_effects.get(effect_nid)
         if effect:
             effect_palette_nids = [palette[1] for palette in effect.palettes]
@@ -234,7 +234,10 @@ class BattleAnimation():
             right = not self.right if enemy else self.right
             parent = self.parent.partner_anim if enemy else self.parent
             child_effect.pair(self.owner, self.partner_anim, right, self.at_range, parent=parent)
-            child_effect.start_anim(self.current_pose)
+            if pose:
+                child_effect.start_anim(pose)
+            else:
+                child_effect.start_anim(self.current_pose)
             return child_effect
         return None
 
@@ -243,7 +246,7 @@ class BattleAnimation():
             effect.change_pose(pose)
         self.child_effects.append(effect)
 
-    def remmove_effects(self, effects: list):
+    def remove_effects(self, effects: list):
         for effect in effects:
             if effect in self.child_effects:
                 self.child_effects.remove(effect)
@@ -536,7 +539,7 @@ class BattleAnimation():
         if self.current_frame is not None:
             image, offset = self.get_image(self.current_frame, shake, range_offset, pan_offset, self.static)
 
-            # Move the animations in at the beginnign and out at the end
+            # Move the animations in at the beginning and out at the end
             if self.entrance_counter:
                 progress = (self.entrance_frames - self.entrance_counter) / self.entrance_frames
                 new_size = int(progress * image.get_width()), int(progress * image.get_height())
@@ -674,9 +677,12 @@ def get_palette(anim_prefab: CombatAnimation, unit) -> Palette:
     current_palette = RESOURCES.combat_palettes.get(palette_nid)
     return current_palette
 
-def get_battle_anim(unit, item, distance=1) -> BattleAnimation:
+def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
     # Find the right combat animation
-    class_obj = DB.classes.get(unit.klass)
+    if klass:
+        class_obj = DB.classes.get(klass)
+    else:
+        class_obj = DB.classes.get(unit.klass)
     combat_anim_nid = class_obj.combat_anim_nid
     if unit.variant:
         combat_anim_nid += unit.variant

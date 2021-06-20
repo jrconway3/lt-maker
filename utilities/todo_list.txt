@@ -2,8 +2,7 @@
 Combat Animations
     Promotion (Build)
     Proc Skills (Test both map combat and animation combat)
-    Import from GBA (Test)
-    Copy and Paste / Import and Export LT maker combat animations and effects (With palettes)
+    Generate full set of initial combat anims
 Overworld
 Base
     Arena, *Repair (in market)*, Forge (optional), Bonus Exp / Skills, Support, Codex (World Map, Achievements, Tactics) 

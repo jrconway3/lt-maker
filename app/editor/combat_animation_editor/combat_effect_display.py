@@ -1,14 +1,14 @@
-import os
+import os, glob
+import json
 
 from PyQt5.QtWidgets import QVBoxLayout, \
     QWidget, QGroupBox, QFormLayout, QFileDialog, \
-    QPushButton, QLineEdit, QInputDialog
+    QPushButton, QLineEdit, QInputDialog, QMessageBox
 from PyQt5.QtGui import QImage, QPixmap, QPainter
 
 from app.constants import WINWIDTH, WINHEIGHT
 from app.resources import combat_anims
 from app.resources.resources import RESOURCES
-from app.data.database import DB
 
 from app.editor.settings import MainSettingsController
 
@@ -24,6 +24,12 @@ from app.utilities import str_utils
 # Game interface
 import app.editor.game_actions.game_actions as GAME_ACTIONS
 
+def populate_effect_pixmaps(effect_anim):
+    effect_anim.pixmap = QPixmap(effect_anim.full_path)
+    for frame in effect_anim.frames:
+        x, y, width, height = frame.rect
+        frame.pixmap = effect_anim.pixmap.copy(x, y, width, height)
+
 class CombatEffectProperties(CombatAnimProperties):
     def __init__(self, parent, current=None):
         QWidget.__init__(self, parent)
@@ -32,10 +38,7 @@ class CombatEffectProperties(CombatAnimProperties):
 
         # Populate resources
         for effect_anim in self._data:
-            effect_anim.pixmap = QPixmap(effect_anim.full_path)
-            for frame in effect_anim.frames:
-                x, y, width, height = frame.rect
-                frame.pixmap = effect_anim.pixmap.copy(x, y, width, height)
+            populate_effect_pixmaps(effect_anim)
 
         self.control_setup(current)
         self.test_combat_button.setEnabled(False)
@@ -62,7 +65,17 @@ class CombatEffectProperties(CombatAnimProperties):
         self.set_layout()
 
     def on_nid_changed(self, old_nid, new_nid):
-        pass
+        for combat_anim in RESOURCES.combat_anims:
+            for weapon_anim in combat_anim.weapon_anims:
+                for pose in weapon_anim.poses:
+                    for command in pose.timeline:
+                        if command.has_effect() and command.value[0] == old_nid:
+                            command.value = (new_nid,)
+        for effect_anim in RESOURCES.combat_effects:
+            for pose in effect_anim.poses:
+                for command in pose.timeline:
+                    if command.has_effect() and command.value[0] == old_nid:
+                        command.value = (new_nid,)
 
     def build_frames(self):
         self.frame_group_box = QGroupBox()
@@ -73,7 +86,15 @@ class CombatEffectProperties(CombatAnimProperties):
         self.import_from_lt_button.clicked.connect(self.import_legacy)
         self.import_png_button = QPushButton("View Frames...")
         self.import_png_button.clicked.connect(self.select_frame)
-        self.window.left_frame.layout().addWidget(self.import_from_lt_button, 2, 0, 1, 2)
+
+        self.import_effect_button = QPushButton("Import...")
+        self.import_effect_button.clicked.connect(self.import_effect)
+        self.export_effect_button = QPushButton("Export...")
+        self.export_effect_button.clicked.connect(self.export_effect)
+
+        self.window.left_frame.layout().addWidget(self.import_effect_button, 2, 0)
+        self.window.left_frame.layout().addWidget(self.export_effect_button, 2, 1)
+        self.window.left_frame.layout().addWidget(self.import_from_lt_button, 3, 0, 1, 2)
         frame_layout.addWidget(self.import_png_button)
 
     def pose_changed(self, idx):
@@ -206,7 +227,90 @@ class CombatEffectProperties(CombatAnimProperties):
 
         self.set_anim_view(actor_im, (offset_x, offset_y), under_actor_im, (under_offset_x, under_offset_y))
 
-    def export(self, fn_dir: str):
+    def import_effect(self):
+        # Ask user for location
+        starting_path = self.settings.get_last_open_path()
+        fn_dir = QFileDialog.getExistingDirectory(
+            self, "Import *.lteffect", starting_path)
+        if not fn_dir:
+            return
+        self.settings.set_last_open_path(fn_dir)
+        # Determine the palettes in the folder
+        palette_nid_swap = self.import_palettes(fn_dir)
+        # Determine the effects in the folder
+        effect_path = os.path.join(fn_dir, '*_effect.json')
+        effects = sorted(glob.glob(effect_path))
+        if not effects:
+            QMessageBox.warning(self, "File Not Found", "Could not find any valid *_effect.json Combat Effect files.")
+        for effect_fn in effects:
+            with open(effect_fn) as load_file:
+                data = json.load(load_file)
+            effect = combat_anims.EffectAnimation.restore(data)
+            full_path = os.path.join(fn_dir, effect.nid + '.png')
+            effect.set_full_path(full_path)
+            effect.nid = str_utils.get_next_name(effect.nid, RESOURCES.combat_effects.keys())
+            # Update any palette references that changed
+            for idx, palette in enumerate(effect.palettes[:]):
+                name, nid = palette
+                if nid in palette_nid_swap:
+                    effect.palettes[idx][1] = palette_nid_swap[nid]
+            populate_effect_pixmaps(effect)
+            RESOURCES.combat_effects.append(effect)
+        # Print done import! Import complete!
+        self.window.update_list()
+        QMessageBox.information(self, "Import Complete", "Import of effect %s complete!" % fn_dir)
+
+    def export_effect(self):
+        # Ask user for location
+        if not self.current:
+            return
+        starting_path = self.settings.get_last_open_path()
+        fn_dir = QFileDialog.getExistingDirectory(
+            self, "Export Current Effect", starting_path)
+        if not fn_dir:
+            return
+        self.settings.set_last_open_path(fn_dir)
+        # Create folder at location named effect_nid.lteffect
+        path = os.path.join(fn_dir, '%s.lteffect' % self.current.nid)
+        if not os.path.exists(path):
+            os.mkdir(path)
+        # Determine which effects are used as subeffects here
+        effects = {self.current.nid}
+        for pose in self.current.poses:
+            for command in pose.timeline:
+                if command.has_effect():
+                    effect_nid = command.value[0]
+                    if effect_nid:
+                        effects.add(effect_nid)
+        # For each effect and subeffect:
+        for effect_nid in effects:
+            print("Exporting %s" % effect_nid)
+            effect = RESOURCES.combat_effects.get(effect_nid)
+            if not effect:
+                continue
+            # Store all of this in effect_nid.lteffect folder
+            # Gather reference to images for this effect
+            RESOURCES.combat_effects.save_image(path, effect)
+            # Serialize into json form
+            serialized_data = effect.save()
+            serialized_path = os.path.join(path, '%s_effect.json' % effect_nid)
+            with open(serialized_path, 'w') as serialize_file:
+                json.dump(serialized_data, serialize_file, indent=4)
+            # Gather reference to palettes
+            palette_nids = [palette[1] for palette in effect.palettes]
+            for palette_nid in palette_nids:
+                palette = RESOURCES.combat_palettes.get(palette_nid)
+                if not palette:
+                    continue
+                # Serialize into json form
+                serialized_data = palette.save()
+                serialized_path = os.path.join(path, '%s_palette.json' % palette_nid)
+                with open(serialized_path, 'w') as serialize_file:
+                    json.dump(serialized_data, serialize_file, indent=4)
+        # Print done export! Export to %s complete!
+        QMessageBox.information(self, "Export Complete", "Export of effect to %s complete!" % path)
+        
+    def export_all_frames(self, fn_dir: str):
         current_pose_nid = self.pose_box.currentText()
         current_pose = self.current.poses.get(current_pose_nid)
         counter = 0

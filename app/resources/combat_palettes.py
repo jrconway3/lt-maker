@@ -46,8 +46,4 @@ class PaletteCatalog(ManifestCatalog[Palette]):
     def save(self, loc):
         # No need to finagle with full paths
         # Because Palettes don't have any connection to any actual file.
-        import time
-        start = time.time_ns()/1e6
         self.dump(loc)
-        end = time.time_ns()/1e6
-        print("Time Taken: %s ms" % (end - start))

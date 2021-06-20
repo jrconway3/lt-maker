@@ -1,4 +1,6 @@
-import time, os, pickle
+import time, os, glob
+import json
+import pickle
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QWidget, QGroupBox, QFormLayout, QSpinBox, QFileDialog, \
@@ -8,7 +10,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QIcon, QPainter
 
 from app.constants import WINWIDTH, WINHEIGHT
-from app.resources import combat_anims
+from app.resources import combat_anims, combat_palettes
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
@@ -28,7 +30,14 @@ from app.utilities import str_utils
 
 # Game interface
 import app.editor.game_actions.game_actions as GAME_ACTIONS
-                
+
+def populate_anim_pixmaps(combat_anim):
+    for weapon_anim in combat_anim.weapon_anims:
+        weapon_anim.pixmap = QPixmap(weapon_anim.full_path)
+        for frame in weapon_anim.frames:
+            x, y, width, height = frame.rect
+            frame.pixmap = weapon_anim.pixmap.copy(x, y, width, height)
+
 class CombatAnimProperties(QWidget):
     def __init__(self, parent, current=None):
         QWidget.__init__(self, parent)
@@ -37,11 +46,7 @@ class CombatAnimProperties(QWidget):
 
         # Populate resources
         for combat_anim in self._data:
-            for weapon_anim in combat_anim.weapon_anims:
-                weapon_anim.pixmap = QPixmap(weapon_anim.full_path)
-                for frame in weapon_anim.frames:
-                    x, y, width, height = frame.rect
-                    frame.pixmap = weapon_anim.pixmap.copy(x, y, width, height)
+            populate_anim_pixmaps(combat_anim)
 
         self.control_setup(current)
 
@@ -195,6 +200,14 @@ class CombatAnimProperties(QWidget):
         self.import_from_gba_button.clicked.connect(self.import_gba)
         self.import_png_button = QPushButton("View Frames...")
         self.import_png_button.clicked.connect(self.select_frame)
+
+        self.import_anim_button = QPushButton("Import...")
+        self.import_anim_button.clicked.connect(self.import_anim)
+        self.export_anim_button = QPushButton("Export...")
+        self.export_anim_button.clicked.connect(self.export_anim)
+
+        self.window.left_frame.layout().addWidget(self.import_anim_button, 2, 0)
+        self.window.left_frame.layout().addWidget(self.export_anim_button, 2, 1)
         frame_layout.addWidget(self.import_from_lt_button)
         frame_layout.addWidget(self.import_from_gba_button)
         frame_layout.addWidget(self.import_png_button)
@@ -269,7 +282,7 @@ class CombatAnimProperties(QWidget):
                 self, "Export Current Animation", starting_path)
             if fn_dir:
                 self.settings.set_last_open_path(fn_dir)
-                self.export(fn_dir)
+                self.export_all_frames(fn_dir)
                 QMessageBox.information(self, "Export Complete", "Export of frames complete!")
 
     def nid_changed(self, text):
@@ -710,7 +723,95 @@ class CombatAnimProperties(QWidget):
         self.anim_view.set_image(QPixmap.fromImage(base_image))
         self.anim_view.show_image()
 
-    def export(self, fn_dir: str):
+    def import_palettes(self, fn_dir) -> dict:
+        palette_path = os.path.join(fn_dir, '*_palette.json')
+        palettes = sorted(glob.glob(palette_path))
+        if not palettes:
+            QMessageBox.warning(self, "File Not Found", "Could not find any valid *_palette.json Palette files.")
+        palette_nid_swap = {}
+        for palette_fn in palettes:
+            with open(palette_fn) as load_file:
+                data = json.load(load_file)
+            palette = combat_palettes.Palette.restore(data)
+            new_nid = str_utils.get_next_name(palette.nid, RESOURCES.combat_palettes.keys())
+            if new_nid != palette.nid:
+                palette_nid_swap[palette.nid] = new_nid
+                palette.nid = new_nid
+            RESOURCES.combat_palettes.append(palette)
+        return palette_nid_swap
+
+    def import_anim(self):
+        # Ask user for location
+        starting_path = self.settings.get_last_open_path()
+        fn_dir = QFileDialog.getExistingDirectory(
+            self, "Import *.ltanim", starting_path)
+        if not fn_dir:
+            return
+        self.settings.set_last_open_path(fn_dir)
+        # Determine the palettes in the folder
+        palette_nid_swap = self.import_palettes(fn_dir)
+        # Determine the combat_anims in the folder
+        anim_path = os.path.join(fn_dir, '*_anim.json')
+        anims = sorted(glob.glob(anim_path))
+        if not anims:
+            QMessageBox.warning(self, "File Not Found", "Could not find any valid *_anim.json Combat Animation files.")
+        for anim_fn in anims:
+            with open(anim_fn) as load_file:
+                data = json.load(load_file)
+            anim = combat_anims.CombatAnimation.restore(data)
+            for weapon_anim in anim.weapon_anims:
+                short_path = "%s-%s.png" % (anim.nid, weapon_anim.nid)
+                weapon_anim.set_full_path(os.path.join(fn_dir, short_path))
+            anim.nid = str_utils.get_next_name(anim.nid, RESOURCES.combat_anims.keys())
+            # Update any palette references that changed
+            for idx, palette in enumerate(anim.palettes[:]):
+                name, nid = palette
+                if nid in palette_nid_swap:
+                    anim.palettes[idx][1] = palette_nid_swap[nid]
+            populate_anim_pixmaps(anim)
+            RESOURCES.combat_anims.append(anim)
+        # Print done import! Import complete!
+        self.window.update_list()
+        QMessageBox.information(self, "Import Complete", "Import of combat animation %s complete!" % fn_dir)
+
+    def export_anim(self):
+        # Ask user for location
+        if not self.current:
+            return
+        starting_path = self.settings.get_last_open_path()
+        fn_dir = QFileDialog.getExistingDirectory(
+            self, "Export Current Combat Animation", starting_path)
+        if not fn_dir:
+            return
+        self.settings.set_last_open_path(fn_dir)
+        # Create folder at location named effect_nid.lteffect
+        path = os.path.join(fn_dir, '%s.ltanim' % self.current.nid)
+        if not os.path.exists(path):
+            os.mkdir(path)
+        
+        # Store all of this in anim_nid.ltanim folder
+        # Gather reference to images for this effect
+        RESOURCES.combat_anims.save_image(path, self.current)
+        # Serialize into json form
+        serialized_data = self.current.save()
+        serialized_path = os.path.join(path, '%s_anim.json' % self.current.nid)
+        with open(serialized_path, 'w') as serialize_file:
+            json.dump(serialized_data, serialize_file, indent=4)
+        # Gather reference to palettes
+        palette_nids = [palette[1] for palette in self.current.palettes]
+        for palette_nid in palette_nids:
+            palette = RESOURCES.combat_palettes.get(palette_nid)
+            if not palette:
+                continue
+            # Serialize into json form
+            serialized_data = palette.save()
+            serialized_path = os.path.join(path, '%s_palette.json' % palette_nid)
+            with open(serialized_path, 'w') as serialize_file:
+                json.dump(serialized_data, serialize_file, indent=4)
+        # Print done export! Export to %s complete!
+        QMessageBox.information(self, "Export Complete", "Export of combat animation to %s complete!" % path)
+
+    def export_all_frames(self, fn_dir: str):
         weapon_anim = self.get_current_weapon_anim()
         poses = weapon_anim.poses
         current_pose_nid = self.pose_box.currentText()

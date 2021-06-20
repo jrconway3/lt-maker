@@ -12,6 +12,10 @@
         true
     ],
     [
+        "initiative",
+        false
+    ],
+    [
         "fatigue",
         false
     ],
@@ -33,6 +37,10 @@
     ],
     [
         "overworld",
+        false
+    ],
+    [
+        "unit_notes",
         false
     ],
     [

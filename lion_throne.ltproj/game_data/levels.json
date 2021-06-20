@@ -12738,11 +12738,11 @@
                 "nid": "106",
                 "variant": null,
                 "level": 10,
-                "klass": "Mage",
+                "klass": "Fighter",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Fire",
+                        "Iron Axe",
                         false
                     ]
                 ],
@@ -12760,8 +12760,8 @@
             {
                 "nid": "108",
                 "variant": null,
-                "level": 10,
-                "klass": "Mage",
+                "level": 6,
+                "klass": "Sage",
                 "faction": "Soldier",
                 "starting_items": [
                     [
@@ -12922,7 +12922,7 @@
                 "nid": "103",
                 "variant": null,
                 "level": 5,
-                "klass": "Fighter",
+                "klass": "Cavalier",
                 "faction": "Soldier",
                 "starting_items": [
                     [
@@ -12940,6 +12940,17 @@
                 "name": null,
                 "desc": null,
                 "generic": true
+            },
+            {
+                "nid": "Nia",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    11,
+                    18
+                ],
+                "generic": false
             }
         ],
         "regions": [

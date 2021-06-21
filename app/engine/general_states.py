@@ -223,7 +223,6 @@ class FreeState(MapState):
 
 def suspend():
     game.state.back()
-    game.state.back()
     game.state.process_temp_state()
     logging.info('Suspending game...')
     save.suspend_game(game, 'suspend')
@@ -234,10 +233,9 @@ def suspend():
 
 def battle_save():
     game.state.back()
-    game.state.back()
     logging.info('Creating battle save...')
     game.memory['save_kind'] = 'battle'
-    game.state.change('title_save')
+    game.state.change('in_chapter_save')
     game.state.change('transition_out')
 
 class OptionMenuState(MapState):
@@ -312,9 +310,9 @@ class OptionMenuState(MapState):
                     game.memory['option_menu'] = self.menu
                     game.state.change('option_child')
                 else:
-                    if self.menu.owner == 'Suspend':
+                    if selection == 'Suspend':
                         suspend()
-                    elif self.menu.owner == 'Save':
+                    elif selection == 'Save':
                         battle_save()
             elif selection == 'Objective':
                 game.memory['next_state'] = 'objective_menu'
@@ -391,8 +389,10 @@ class OptionChildState(State):
                     game.state.change('ai')
                     return 'repeat'
                 elif self.menu.owner == 'Suspend':
+                    game.state.back()
                     suspend()
                 elif self.menu.owner == 'Save':
+                    game.state.back()
                     battle_save()
                 elif self.menu.owner == 'Discard' or self.menu.owner == 'Storage':
                     item = game.memory['option_item']

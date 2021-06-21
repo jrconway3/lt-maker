@@ -3644,6 +3644,29 @@
                 "name": null,
                 "desc": null,
                 "generic": true
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 20,
+                "klass": "Myrmidon",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    0,
+                    4
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [

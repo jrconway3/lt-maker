@@ -29,8 +29,8 @@ class PromotionChoiceState(State):
     def _proceed(self, next_class):
         game.memory['current_unit'] = self.unit
         game.memory['next_class'] = next_class
-        game.state.change('promotion')
-        game.state.change('transition_out')
+        game.memory['next_state'] = 'promotion'
+        game.state.change('transition_to')
 
     def start(self):
         self.fluid = FluidScroll()
@@ -47,8 +47,13 @@ class PromotionChoiceState(State):
         self.menu = menus.Choice(self.unit, display_options, (14, 13))
         self.child_menu = None
 
+        self.animations = []
         self.weapon_icons = []
         for option in self.class_options:
+            anim = battle_animation.get_battle_anim(self.unit, None, klass=option)
+            if anim:
+                anim.pair(self, None, True, 0)
+            self.animations.append(anim)
             weapons = []
             klass = DB.classes.get(option)
             for weapon_nid, weapon in klass.wexp_gain.items():
@@ -156,6 +161,10 @@ class PromotionChoiceState(State):
             if self.anim_offset < 0:
                 self.anim_offset = 0
 
+        anim = self.animations[self.menu.get_current_index()]
+        if anim:
+            anim.update()
+
     def draw(self, surf):
         if not self.started:
             return surf
@@ -165,6 +174,9 @@ class PromotionChoiceState(State):
         top = 88
         surf.blit(self.left_platform, (WINWIDTH//2 - self.left_platform.get_width() + self.anim_offset + 52, top))
         surf.blit(self.right_platform, (WINWIDTH//2 + self.anim_offset + 52, top))
+        anim = self.animations[self.menu.get_current_index()]
+        if anim:
+            anim.draw(surf, (self.anim_offset + 12, 0))
 
         # Class Reel
         FONT['class-purple'].blit(self.menu.get_current(), surf, (114, 5))
@@ -198,8 +210,8 @@ class ClassChangeChoiceState(PromotionChoiceState):
     def _proceed(self, next_class):
         game.memory['current_unit'] = self.unit
         game.memory['next_class'] = next_class
-        game.state.change('class_change')
-        game.state.change('transition_out')
+        game.memory['next_state'] = 'class_change'
+        game.state.change('transition_to')
 
 class PromotionState(State, MockCombat):
     name = 'promotion'
@@ -257,7 +269,8 @@ class PromotionState(State, MockCombat):
     def start_anim(self, effect_nid):
         anim = self.current_battle_anim
         effect = anim.get_effect(effect_nid, pose='Attack')
-        anim.add_effect(effect)
+        if effect:
+            anim.add_effect(effect)
 
     def update(self):
         current_time = engine.get_time() - self.last_update
@@ -288,7 +301,7 @@ class PromotionState(State, MockCombat):
             self.state = 'leave'
 
         elif self.state == 'leave':
-            if current_time - self.last_update > utils.frames2ms(10):
+            if current_time > utils.frames2ms(10):
                 game.state.change('transition_double_pop')
                 self.state = 'done'
                 if self.promotion_song:
@@ -308,6 +321,8 @@ class PromotionState(State, MockCombat):
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
+        else:
+            return surf
 
         combat_surf = engine.copy_surface(self.combat_surf)
 

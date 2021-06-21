@@ -202,6 +202,9 @@ class BaseConvosChildState(State):
         self.menu.set_ignore(ignore)
 
     def begin(self):
+        if not game.base_convos:
+            game.state.back()
+            return 'repeat'
         self.options = [event_nid for event_nid in game.base_convos.keys()]
         ignore = [game.base_convos[event_nid] for event_nid in self.options]
         self.menu.update_options(self.options)

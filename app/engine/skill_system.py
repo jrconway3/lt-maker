@@ -286,24 +286,24 @@ def available(unit, item) -> bool:
                         return False
     return True
 
-def stat_change(unit, stat) -> int:
+def stat_change(unit, stat_nid) -> int:
     bonus = 0
     for skill in unit.skills:
         for component in skill.components:
             if component.defines('stat_change'):
                 if component.ignore_conditional or condition(skill, unit):
                     d = component.stat_change(unit)
-                    bonus += d.get(stat, 0)
+                    bonus += d.get(stat_nid, 0)
     return bonus
 
-def growth_change(unit, stat) -> int:
+def growth_change(unit, stat_nid) -> int:
     bonus = 0
     for skill in unit.skills:
         for component in skill.components:
             if component.defines('growth_change'):
                 if component.ignore_conditional or condition(skill, unit):
                     d = component.growth_change(unit)
-                    bonus += d.get(stat, 0)
+                    bonus += d.get(stat_nid, 0)
     return bonus
 
 def mana(playback, unit, item, target) -> int:

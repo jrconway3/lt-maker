@@ -1,5 +1,7 @@
+from app.data.database import DB
 from app.data.skill_components import SkillComponent
 from app.data.components import Type
+from app.engine import equations
 
 class StatChange(SkillComponent):
     nid = 'stat_change'
@@ -40,6 +42,17 @@ class GrowthChange(SkillComponent):
 
     def growth_change(self, unit):
         return {stat[0]: stat[1] for stat in self.value}
+
+class EquationGrowthChange(SkillComponent):
+    nid = 'equation_growth_change'
+    desc = "Gives growth rate % bonuses equal to chosen equation"
+    tag = 'combat'
+
+    expose = Type.Equation
+
+    def growth_change(self, unit):
+        value = equations.parser.get(self.value, unit)
+        return {stat_nid: value for stat_nid in DB.stats.keys()}
 
 class Damage(SkillComponent):
     nid = 'damage'

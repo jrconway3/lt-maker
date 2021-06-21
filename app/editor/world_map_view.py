@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QPainter, QPen
+from PyQt5.QtGui import QColor, QPixmap, QPainter, QPen
 
 from app.editor.map_view import SimpleMapView
 from app.data.overworld import OverworldPrefab
@@ -24,12 +24,12 @@ class WorldMapView(SimpleMapView):
         if isinstance(overworld, OverworldPrefab):
             self.current_level = overworld
             self.current_map = RESOURCES.tilemaps.get(overworld.tilemap)
-            self.update_view()        
-    
+            self.update_view()
+
     def set_selected(self, sel):
         self.selected = sel
         self.update_view()
-        
+
     def update_view(self, _=None):
         if(self.current_level and not self.current_map):
             self.current_map = RESOURCES.tilemaps.get(
@@ -53,12 +53,13 @@ class WorldMapView(SimpleMapView):
         pixmap = icon.get_pixmap()
         pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
         # to support 16x16, 32x32, and 48x48 map icons, we offset them differently
-        offset = (pixmap.height() / 16 - 1) * 8
+        offset_x = (pixmap.width() / 16 - 1) * 8
+        offset_y = (pixmap.height() - 16)
         if pixmap:
             if opacity:
                 painter.setOpacity(0.33)
-            painter.drawImage(coord[0] * TILEWIDTH - offset,
-                              coord[1] * TILEHEIGHT - offset, pixmap.toImage())
+            painter.drawImage(coord[0] * TILEWIDTH - offset_x,
+                              coord[1] * TILEHEIGHT - offset_y, pixmap.toImage())
             painter.setOpacity(1.0)
         else:
             pass
@@ -68,20 +69,24 @@ class WorldMapView(SimpleMapView):
         start_y = start_position[1] * TILEHEIGHT + TILEHEIGHT / 2
         end_x = end_position[0] * TILEWIDTH + TILEWIDTH / 2
         end_y = end_position[1] * TILEHEIGHT + TILEHEIGHT / 2
-        
+
         # if this is our current working line, draw an accent to let the user know
         if selected:
             pen = QPen(Qt.yellow, 3, style=Qt.SolidLine)
             painter.setRenderHint(QPainter.Antialiasing)
-            painter.setPen(pen)  
+            painter.setPen(pen)
             painter.drawLine(start_x, start_y, end_x, end_y)
-            
+
         # draw the road segment
-        pen = QPen(Qt.darkRed, 2, style=Qt.DotLine)
+        pen = QPen(QColor(232, 216, 136, 160), 3, style=Qt.SolidLine)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setPen(pen)
         painter.drawLine(start_x, start_y, end_x, end_y)
-        
+        pen = QPen(QColor(248, 248, 200), 2, style=Qt.DotLine)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setPen(pen)
+        painter.drawLine(start_x, start_y, end_x, end_y)
+
     def paint_nodes(self, current_level):
         if self.working_image:
             painter = QPainter()
@@ -91,7 +96,7 @@ class WorldMapView(SimpleMapView):
                     continue
                 self.draw_node(painter, node, node.pos)
             painter.end()
-            
+
     def paint_roads(self, current_level):
         if self.working_image:
             painter = QPainter()
@@ -138,12 +143,12 @@ class WorldMapView(SimpleMapView):
                 painter.drawImage(
                     coord[0] * TILEWIDTH - 8, coord[1] * TILEHEIGHT - 5, cursor_image)
             painter.end()
-    
+
     def show_map(self):
         if self.working_image:
             self.clear_scene()
             self.scene.addPixmap(self.working_image)
-            
+
     # these two are in the superclass but are useless in this context, override just in case
     def paint_units(self, current_level):
         pass

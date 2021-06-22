@@ -429,7 +429,7 @@
                 []
             ]
         ],
-        "only_once": null,
+        "only_once": false,
         "priority": 20
     },
     {

@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 from app.events import event_commands, event_validators
 from app.utilities.typing import NID
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QCompleter
 
 class Completer(QCompleter):
@@ -11,6 +11,7 @@ class Completer(QCompleter):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setFilterMode(Qt.MatchContains)
         self.activated.connect(self.changeCompletion)
 
     def changeCompletion(self, completion):
@@ -51,7 +52,7 @@ def detect_type_under_cursor(line: str, cursor_pos: int) -> Tuple[event_validato
             return (event_validators.Validator, [])
     except ValueError:
         # no pound sign
-        pass 
+        pass
     arg_idx = line.count(';', 0, cursor_pos) - 1
     flags = []
     # -1 is the command itself, and 0, 1, 2, etc. are the args

@@ -38,7 +38,7 @@ class OverworldEditorInternalTypes(Enum):
     UNFINISHED_ROAD = 1
     FINISHED_ROAD = 2
     MAP_NODE = 3
-    
+
 SelectedObject = namedtuple('SelectedObject', ['type', 'obj'])
 
 class OverworldEditor(QMainWindow):
@@ -49,12 +49,12 @@ class OverworldEditor(QMainWindow):
         self._initialize_editor_components()
         self._initialize_window_components()
         self._initialize_subscriptions()
-        
+
         # editor state
         self.set_current_overworld(self.state_manager.state.selected_overworld)
         self.edit_mode = OverworldEditorEditMode.NONE
         self.selected_object = SelectedObject(type=OverworldEditorInternalTypes.NONE, obj=None)
-        
+
     @property
     def selected_object(self):
         return self._selected_object
@@ -64,7 +64,7 @@ class OverworldEditor(QMainWindow):
         """contains the selected object
 
         Args:
-            sel SelectedObject(OverworldEditorInternalTypes type, Union(NodePrefab, list, None) obj): 
+            sel SelectedObject(OverworldEditorInternalTypes type, Union(NodePrefab, list, None) obj):
                 internal type. 'obj' is either a node (NodePrefab), or a list (road array) or None, which means deselect
         """
         self._selected_object = sel
@@ -80,7 +80,7 @@ class OverworldEditor(QMainWindow):
             # deselect
             self.map_view.set_selected(obj)
             self.state_manager.change_and_broadcast('selected_node', None)
-            
+
     @selected_object.deleter
     def selected_object(self):
         """Deletes the selected_object from the DB (if necessary) and resets the selection.
@@ -101,18 +101,18 @@ class OverworldEditor(QMainWindow):
             self.current_overworld.overworld_nodes.remove_key(nid_to_delete)
         # reset selection
         self.selected_object = SelectedObject(type=OverworldEditorInternalTypes.NONE, obj=None)
-    
+
     def set_current_overworld(self, overworld_nid):
         self.current_overworld = DB.overworlds.get(overworld_nid)
-        
+
     def on_map_double_left_click(self, x, y):
         if(self.edit_mode == OverworldEditorEditMode.NODES):
             self.create_node(x, y)
-    
+
     def on_map_right_click(self, x, y):
         if(self.edit_mode == OverworldEditorEditMode.NODES):
             self.edit_road(x, y)
-        
+
     def on_map_left_click(self, x, y):
         """Left click handler. NB: this uses float granularity (see where it's bound in this class)
 
@@ -122,11 +122,11 @@ class OverworldEditor(QMainWindow):
         """
         if(self.edit_mode == OverworldEditorEditMode.NODES):
             self.select_object_on_map(x, y)
-            
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
             del self.selected_object
-            
+
     def create_node(self, x, y):
         """Function handles node creation.
 
@@ -145,11 +145,11 @@ class OverworldEditor(QMainWindow):
             new_node = OverworldNodePrefab(next_nid, 'New Location', (x, y))
             self.current_overworld.overworld_nodes.append(new_node)
             self.selected_object = SelectedObject(type=OverworldEditorInternalTypes.MAP_NODE, obj=new_node)
-            
+
     def select_object_on_map(self, x, y, search_radius=0.5, node_priority=0.2):
         """Handles selecting nearest object (road, node) to clicked coordinate.
         Selection is stored in self.selected_object.
-        
+
         Note: Prioritizes nodes.
 
         Args:
@@ -161,7 +161,7 @@ class OverworldEditor(QMainWindow):
         closest_dist = search_radius
         closest_obj = None
         closest_obj_type = OverworldEditorInternalTypes.NONE
-        
+
         # search through the nodes
         for node in self.current_overworld.overworld_nodes.values():
             distance = utils.distance((x, y), node.pos) - node_priority
@@ -169,7 +169,7 @@ class OverworldEditor(QMainWindow):
                 closest_dist = distance
                 closest_obj = node
                 closest_obj_type = OverworldEditorInternalTypes.MAP_NODE
-        
+
         # search through the roads
         for road in self.current_overworld.map_paths.values():
             # sanity check
@@ -185,7 +185,7 @@ class OverworldEditor(QMainWindow):
                     closest_obj_type = OverworldEditorInternalTypes.FINISHED_ROAD
 
         self.selected_object = SelectedObject(type=closest_obj_type, obj=closest_obj)
-        
+
     def edit_road(self, x, y):
         """Function handles road creation and termination.
         Contextually creates a road and enters road editing mode, appends
@@ -203,14 +203,14 @@ class OverworldEditor(QMainWindow):
             new_road = []
             new_road.append(node.pos)
             self.selected_object = SelectedObject(type=OverworldEditorInternalTypes.UNFINISHED_ROAD, obj=new_road)
-        elif(self.selected_object.type == OverworldEditorInternalTypes.NONE or 
+        elif(self.selected_object.type == OverworldEditorInternalTypes.NONE or
              self.selected_object.type == OverworldEditorInternalTypes.FINISHED_ROAD):
             # nothing to do here, abandon
             return
         else:
             # we have a road in progress, continue
             pass
-        
+
         # now we have a road in progress, process the cell we just clicked on
         current_road = self.selected_object.obj
         other_node = self.find_node(x, y)
@@ -234,72 +234,72 @@ class OverworldEditor(QMainWindow):
             for node in self.current_overworld.overworld_nodes:
                 if node.pos == (x, y):
                     return node
-    
+
     """=========Editor UI related functions========="""
-    
+
     def _initialize_editor_components(self):
         self.map_view = WorldMapView()
         self._connect_listeners()
         self.setCentralWidget(self.map_view)
         self._initialize_docks()
-        
+
     def _initialize_docks(self):
         self.docks = {}
-        
+
         self.docks['Properties']= Dock(
             'Properties', self, self.on_property_tab_select)
         self.properties_menu = OverworldPropertiesMenu(self.state_manager)
         self.docks['Properties'].setWidget(self.properties_menu)
-        
+
         self.docks['Node Editor'] = Dock(
             'Node Editor', self, self.on_node_tab_select)
         self.node_menu = NodePropertiesMenu(self.state_manager)
         self.docks['Node Editor'].setWidget(self.node_menu)
-    
+
         for title, dock in self.docks.items():
             dock.setAllowedAreas(Qt.RightDockWidgetArea)
             dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
             self.addDockWidget(Qt.RightDockWidgetArea, dock)
-            
+
         self.tabifyDockWidget(self.docks['Properties'], self.docks['Node Editor'])
-        
+
         for title, dock in self.docks.items():
             dock.show()
-            
+
         self.docks['Properties'].raise_()
-        
+
     def _connect_listeners(self):
         self.map_view.position_double_clicked.connect(self.on_map_double_left_click)
         self.map_view.position_clicked_float.connect(self.on_map_left_click)
         self.map_view.position_right_clicked.connect(self.on_map_right_click)
-    
+
     def on_node_tab_select(self, visible):
         if visible:
             self.edit_mode = OverworldEditorEditMode.NODES
-    
+
     def on_property_tab_select(self, visible):
         if visible:
             self.edit_mode = OverworldEditorEditMode.NONE
-            
+
     def update_view(self, _=None):
         self.map_view.update_view()
-        
+
     def _initialize_subscriptions(self):
         self.state_manager.subscribe_to_key(OverworldEditor.__name__, 'selected_overworld', self.set_current_overworld)
         self.state_manager.subscribe_to_key(OverworldEditor.__name__, 'ui_refresh_signal', self.update_view)
         self.state_manager.subscribe_to_key(WorldMapView.__name__, 'selected_overworld', self.map_view.set_current_level)
-    
-    
-        
+
+
+
     """=========MainEditorWindow related functions========="""
-    
+
     def navigate_to_global(self):
         self.state_manager.change_and_broadcast('main_editor_mode', MainEditorScreenStates.GLOBAL_EDITOR)
-    
+
     def _initialize_window_components(self):
         self.create_actions()
         self.set_icons()
-        
+
     def create_actions(self):
         # menu actions
         self.zoom_in_act = QAction(
@@ -309,7 +309,7 @@ class OverworldEditor(QMainWindow):
         # toolbar actions
         self.back_to_main_act = QAction(
             "Back", self, shortcut="E", triggered=self.navigate_to_global)
-    
+
     def set_icons(self):
         theme = self.settings.get_theme(0)
         if theme == 0:
@@ -319,10 +319,10 @@ class OverworldEditor(QMainWindow):
         self.zoom_in_act.setIcon(QIcon(f'{icon_folder}/zoom_in.png'))
         self.zoom_out_act.setIcon(QIcon(f'{icon_folder}/zoom_out.png'))
         self.back_to_main_act.setIcon(QIcon(f'{icon_folder}/left_arrow.png'))
-        
+
     def create_toolbar(self, toolbar):
         toolbar.addAction(self.back_to_main_act, 0)
-        
+
     def create_menus(self, app_menu_bar):
         edit_menu = app_menu_bar.getMenu('Edit')
         edit_menu.addSeparator()

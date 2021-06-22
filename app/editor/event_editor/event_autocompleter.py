@@ -18,6 +18,36 @@ class Completer(QCompleter):
         self.insertText.emit(completion)
         self.popup().hide()
 
+    def handleKeyPressEvent(self, event) -> bool:
+        """Handles a key press event.
+
+        Args:
+            event (Qt.Key): qt key event
+
+        Returns:
+            bool: whether or not the event should be consumed.
+        """
+        if event.key() == Qt.Key_Tab:
+            if self.popup().isVisible() and len(self.popup().selectedIndexes()) > 0:
+                # If completer is up, Tab can auto-complete
+                completion = self.popup().selectedIndexes()[0].data(Qt.DisplayRole)
+                self.changeCompletion(completion)
+                return True # should not enter a tab
+        elif event.key() == Qt.Key_Backspace:
+            # autofill functionality, hides autofill windows
+            if self.popup().isVisible():
+                self.popup().hide()
+        elif event.key() == Qt.Key_Return:
+            # completer functionality, enters the selected suggestion
+            if self.popup().isVisible() and len(self.popup().selectedIndexes()) > 0:
+                completion = self.popup().selectedIndexes()[0].data(Qt.DisplayRole)
+                self.changeCompletion(completion)
+                return True # should not do an enter
+        elif event.key() == Qt.Key_Escape:
+            if self.popup().isVisible():
+                self.popup().hide()
+        return False
+
 @lru_cache()
 def generate_wordlist_from_validator_type(validator: event_validators.Validator, level: NID = None) -> List[str]:
     valid_entries = validator().valid_entries(level)

@@ -202,19 +202,23 @@ class CodeEditor(QPlainTextEdit):
         fm = QFontMetrics(self.font())
         self.setTabStopWidth(4 * fm.width(' '))
 
-        # completer
         self.completer: event_autocompleter.Completer = None
-        self.setCompleter(event_autocompleter.Completer(parent=self))
-        self.textChanged.connect(self.complete)
-        self.textChanged.connect(self.display_function_hint)
-        self.prev_keyboard_press = None
-
-        # function helper
         self.function_annotator: QLabel = QLabel(self)
-        self.function_annotator.setTextFormat(Qt.RichText)
-        self.function_annotator.setWordWrap(True)
-        with open(os.path.join(os.path.dirname(__file__),'event_styles.css'), 'r') as stylecss:
-            self.function_annotator.setStyleSheet(stylecss.read())
+
+        if not bool(self.settings.get_event_autocomplete()):
+            return  # Event auto completer is turned off
+        else:
+            # completer
+            self.setCompleter(event_autocompleter.Completer(parent=self))
+            self.textChanged.connect(self.complete)
+            self.textChanged.connect(self.display_function_hint)
+            self.prev_keyboard_press = None
+
+            # function helper
+            self.function_annotator.setTextFormat(Qt.RichText)
+            self.function_annotator.setWordWrap(True)
+            with open(os.path.join(os.path.dirname(__file__),'event_styles.css'), 'r') as stylecss:
+                self.function_annotator.setStyleSheet(stylecss.read())
 
     def setCompleter(self, completer):
         if not completer:
@@ -311,10 +315,9 @@ class CodeEditor(QPlainTextEdit):
         self.function_annotator.move(tc_top_right)
 
     def complete(self):
-        if not bool(self.settings.get_event_autocomplete()):
+        if not self.completer or not bool(self.settings.get_event_autocomplete()):
             return  # Event auto completer is turned off
         tc = self.textCursor()
-
         line = tc.block().text()
         cursor_pos = tc.positionInBlock()
 
@@ -397,27 +400,22 @@ class CodeEditor(QPlainTextEdit):
         self.prev_keyboard_press = event.key()
         # Shift + Tab is not the same as catching a shift modifier + tab key
         # Shift + Tab is a Backtab
+        if self.completer:  # let the autocomplete handle the event first
+            stop_handling = self.completer.handleKeyPressEvent(event)
+            if stop_handling:
+                return
+        # autocomplete didn't handle the event, or doesn't consume it
+        # let the textbox handle
         if event.key() == Qt.Key_Tab:
-            if self.completer.popup().isVisible() and len(self.completer.popup().selectedIndexes()) > 0:
-                # If completer is up, Tab can auto-complete
-                completion = self.completer.popup().selectedIndexes()[0].data(Qt.DisplayRole)
-                self.completer.changeCompletion(completion)
-            else:  # Otherwise just normal tab (insert 4 spaces)
-                cur = self.textCursor()
-                cur.insertText("    ")
+            cur = self.textCursor()
+            cur.insertText("    ")
         elif event.key() == Qt.Key_Backspace:
             # autofill functionality, hides autofill windows
-            if self.completer.popup().isVisible():
-                self.completer.popup().hide()
-            # Always does Backspace as well
+            if self.function_annotator.isVisible():
+                self.function_annotator.hide()
             return super().keyPressEvent(event)
         elif event.key() == Qt.Key_Return:
-            # completer functionality, enters the selected suggestion
-            if self.completer.popup().isVisible() and len(self.completer.popup().selectedIndexes()) > 0:
-                completion = self.completer.popup().selectedIndexes()[0].data(Qt.DisplayRole)
-                self.completer.changeCompletion(completion)
-            else:
-                return super().keyPressEvent(event)
+            return super().keyPressEvent(event)
         elif event.key() == Qt.Key_Backtab:
             cur = self.textCursor()
             # Copy the current selection
@@ -460,8 +458,6 @@ class CodeEditor(QPlainTextEdit):
             # autofill functionality, hides autofill windows
             if self.function_annotator.isVisible():
                 self.function_annotator.hide()
-            if self.completer.popup().isVisible():
-                self.completer.popup().hide()
         else:
             return super().keyPressEvent(event)
 

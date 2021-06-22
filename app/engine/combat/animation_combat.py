@@ -160,9 +160,9 @@ class AnimationCombat(BaseCombat, MockCombat):
         elif self.state == 'pre_proc':
             if self.left_battle_anim.done() and self.right_battle_anim.done():
                 # These would have happened from pre_combat and start_combat
-                if self.get_from_playback('attack_pre_proc'):
+                if self.get_from_full_playback('attack_pre_proc'):
                     self.set_up_proc_animation('attack_pre_proc')
-                elif self.get_from_playback('defense_pre_proc'):
+                elif self.get_from_full_playback('defense_pre_proc'):
                     self.set_up_proc_animation('defense_pre_proc')
                 else:
                     self.state = 'init_effects'
@@ -196,8 +196,6 @@ class AnimationCombat(BaseCombat, MockCombat):
                 self.playback.clear()
                 return False
             self.actions, self.playback = self.state_machine.do()
-            print(self.actions)
-            print(self.playback)
             self.full_playback += self.playback
             if not self.actions and not self.playback:
                 self.state_machine.setup_next_state()
@@ -294,7 +292,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         self.left_hp_bar.update()
         self.right_hp_bar.update()
 
-        self.update_anims(self)
+        self.update_anims()
 
         return False
 
@@ -470,9 +468,19 @@ class AnimationCombat(BaseCombat, MockCombat):
         mark = marks.pop()
         # Remove the mark since we no longer want to consider it
         self.playback.remove(mark)
+        skill = mark[2]
+        unit = mark[1]
+        if unit == self.right:
+            effect = self.right_battle_anim.get_effect(skill.nid, pose='Attack')
+            if effect:
+                self.right_battle_anim.add_effect(effect)
+        else:
+            effect = self.left_battle_anim.get_effect(skill.nid, pose='Attack')
+            if effect:
+                self.left_battle_anim.add_effect(effect)
 
         self.add_proc_icon(mark)
-        if mark[1] == self.right:
+        if unit == self.right:
             self.focus_right = True
         else:
             self.focus_right = False

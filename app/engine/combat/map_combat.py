@@ -34,6 +34,8 @@ class MapCombat(SimpleCombat):
         self.damage_numbers = []
         self.health_bars = {}
 
+        self.first_phase = True
+
     def skip(self):
         self._skip = True
         self.attacker.sprite.reset()
@@ -48,8 +50,6 @@ class MapCombat(SimpleCombat):
             if self._skip or current_time > 200:
                 self.start_combat()
                 self.state = 'begin_phase'
-                self.set_up_proc_animation('attack_pre_proc')
-                self.set_up_proc_animation('defense_pre_proc')
                 self.last_update = engine.get_time()
 
         # print("Map Combat %s" % self.state)
@@ -64,6 +64,10 @@ class MapCombat(SimpleCombat):
                 self.state_machine.setup_next_state()
                 return False
             self._build_health_bars()
+            if self.first_phase:
+                self.set_up_pre_proc_animation('attack_pre_proc')
+                self.set_up_pre_proc_animation('defense_pre_proc')
+                self.first_phase = False
 
             # Camera
             if self.get_from_playback('defender_phase'):
@@ -285,6 +289,11 @@ class MapCombat(SimpleCombat):
 
     def set_up_proc_animation(self, mark_type):
         marks = self.get_from_playback(mark_type)
+        for mark in marks:
+            self.add_proc_icon(mark)
+
+    def set_up_pre_proc_animation(self, mark_type):
+        marks = self.get_from_full_playback(mark_type)
         for mark in marks:
             self.add_proc_icon(mark)
 

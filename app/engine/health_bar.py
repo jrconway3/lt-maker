@@ -399,7 +399,7 @@ class MapCombatInfo():
         # Draw skill icons
         for idx, skill_icon in enumerate(self.skill_icons):
             skill_icon.update()
-            x, y = self.true_position + width // 2, self.true_position[1] - 16 * idx * 16
+            x, y = self.true_position[0] + width // 2, self.true_position[1] - 16 + idx * 16
             skill_icon.draw(surf, (x, y))
         self.skill_icons = [s for s in self.skill_icons if not s.done]
 

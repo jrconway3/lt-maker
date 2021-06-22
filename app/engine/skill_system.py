@@ -398,8 +398,9 @@ def get_combat_arts(unit):
         for component in skill.components:
             if component.defines('combat_art'):
                 combat_art = component.combat_art(unit)
-            if component.defines('combat_art_weapon_filter'):
-                combat_art_weapons = component.combat_art_weapon_filter(unit)
+            if component.defines('weapon_filter'):
+                combat_art_weapons = \
+                    [item for item in combat_art_weapons if component.weapon_filter(unit, item)]
             if component.defines('combat_art_set_max_range'):
                 combat_art_set_max_range = component.combat_art_set_max_range(unit)
             if component.defines('combat_art_modify_max_range'):

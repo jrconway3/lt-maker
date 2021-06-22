@@ -3565,7 +3565,7 @@
                         false
                     ]
                 ],
-                "team": "player",
+                "team": "enemy",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
@@ -3588,7 +3588,7 @@
                         false
                     ]
                 ],
-                "team": "enemy",
+                "team": "player",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [

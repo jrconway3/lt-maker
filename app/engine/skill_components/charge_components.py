@@ -30,7 +30,10 @@ class BuildCharge(SkillComponent):
         return str(self.skill.data['charge'])
 
     def cooldown(self):
-        return self.skill.data['charge'] / self.skill.data['total_charge']
+        if self.skill.data.get('total_charge'):
+            return self.skill.data['charge'] / self.skill.data['total_charge']
+        else:
+            return 1
 
 class DrainCharge(SkillComponent):
     nid = 'drain_charge'

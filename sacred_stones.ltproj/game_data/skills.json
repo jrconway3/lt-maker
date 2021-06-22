@@ -959,30 +959,6 @@
         ]
     },
     {
-        "nid": "Sword Hit +10",
-        "name": "Sword Hit +10",
-        "desc": "",
-        "icon_nid": "Skills",
-        "icon_index": [
-            5,
-            6
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ],
-            [
-                "hit",
-                10
-            ],
-            [
-                "condition",
-                "unit.get_weapon() and item_system.weapon_type(unit, unit.get_weapon()) == 'Sword'"
-            ]
-        ]
-    },
-    {
         "nid": "Torch",
         "name": "Torch",
         "desc": "Grants increased sight range in fog of war.",
@@ -1023,13 +999,13 @@
         ]
     },
     {
-        "nid": "Inspiration",
-        "name": "Inspiration",
-        "desc": "Aura - Grants +1 damage and +1 resist to allies.",
+        "nid": "Luna",
+        "name": "Luna",
+        "desc": "Proc. SKL% change to ignore enemy's Defense or Resistance.",
         "icon_nid": "Skills",
         "icon_index": [
-            10,
-            4
+            4,
+            3
         ],
         "components": [
             [
@@ -1037,36 +1013,44 @@
                 null
             ],
             [
-                "aura",
-                "Inspiration_child"
+                "proc_rate",
+                "HUNDRED"
             ],
             [
-                "aura_range",
-                3
+                "attack_proc",
+                "Luna_proc"
             ],
             [
-                "aura_target",
-                "ally"
+                "allowed_weapons",
+                "item_system.is_weapon(unit, item)"
             ]
         ]
     },
     {
-        "nid": "Inspiration_child",
-        "name": "Inspired",
-        "desc": "Grants +1 damage and +1 resist.",
+        "nid": "Luna_proc",
+        "name": "Luna",
+        "desc": "Adds target's resist to damage.",
         "icon_nid": "Skills",
         "icon_index": [
-            10,
-            4
+            4,
+            3
         ],
         "components": [
             [
-                "damage",
-                1
+                "hidden",
+                null
             ],
             [
-                "resist",
-                1
+                "dynamic_damage",
+                "combat_calcs.defense(target, None, None)"
+            ],
+            [
+                "unit_flickering_tint",
+                [
+                    0,
+                    128,
+                    248
+                ]
             ]
         ]
     }

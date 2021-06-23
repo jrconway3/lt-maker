@@ -14,7 +14,21 @@ def populate_palettes(current, images, nid):
     for image_fn in images:
         palette_name = os.path.split(image_fn)[-1][:-4].split('-')[-1]
         palette_nid = nid + '_' + palette_name
-        if palette_name not in [_[0] for _ in current.palettes]:
+        palette_names = [_[0] for _ in current.palettes]
+        if palette_name in palette_names:
+            # Check whether this palette is bigger
+            idx = palette_names.index(palette_name)
+            orig_palette_nid = current.palettes[idx][1]
+            orig_palette = RESOURCES.combat_palettes.get(orig_palette_nid)
+            pix = QPixmap(image_fn)
+            palette_colors = editor_utilities.find_palette(pix.toImage())
+            orig_len = len(orig_palette.colors)
+            if len(palette_colors) > orig_len:
+                # Add new colors in
+                new_colors = [color for color in palette_colors if color not in orig_palette.colors.values()]
+                new_colors = {(int((idx + orig_len) % 8), int((idx + orig_len) / 8)): color for idx, color in enumerate(new_colors)}
+                orig_palette.colors.update(new_colors)
+        else:
             if palette_nid not in RESOURCES.combat_palettes.keys():
                 # Need to create palette
                 pix = QPixmap(image_fn)

@@ -28,17 +28,12 @@ class AnimView(IconView):
         return (color.red(), color.green(), color.blue())
 
     def mousePressEvent(self, event):
-        # TODO
         super().mousePressEvent(event)
         scene_pos = self.mapToScene(event.pos())
         pos = int(scene_pos.x()), int(scene_pos.y())
 
         # Need to get original frame with base palette
-        frame_nid = self.window.frame_nid
-        if not frame_nid:
-            return
-        weapon_anim = self.window.get_current_weapon_anim()
-        frame = weapon_anim.frames.get(frame_nid)
+        frame = self.window.current_frame
         if not frame:
             return
         offset_x, offset_y = frame.offset
@@ -47,24 +42,16 @@ class AnimView(IconView):
 
         if event.button() == Qt.LeftButton:
             base_color = self.get_color_at_pos(pixmap, pos)
-            palette = self.window.get_current_palette()
-            base_colors = combat_anims.base_palette.colors
+            palette = self.window.current_palette
+            if not palette:
+                return
+            base_colors = palette.colors.keys()
             if base_color not in base_colors:
                 print("Cannot find color: %s in %s" % (base_color, base_colors))
                 return
-            idx = base_colors.index(base_color)
-            dlg = QColorDialog()
-            c = palette.colors[idx]
+            c = palette.colors[base_color]
             print(c, flush=True)
-            dlg.setCurrentColor(QColor(*c))
-            if dlg.exec_():
-                new_color = QColor(dlg.currentColor())
-                print(new_color, flush=True)
-                color = new_color.getRgb()
-                print(color, flush=True)
-                palette_widget = self.window.palette_menu.get_palette_widget()
-                icon = palette_widget.color_icons[idx]
-                icon.change_color(new_color.name())
+            self.window.color_editor_widget.set_current(c)
 
 class ColorSelectorWidget(QGraphicsView):
     palette_size = 32

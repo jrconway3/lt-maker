@@ -474,7 +474,7 @@ class UnitSprite():
                                       'combat_targeting', 'item_targeting'):
             cur_unit = game.cursor.cur_unit
         elif game.state.current() == 'free_roam':
-            cur_unit = game.level.roam_unit
+            cur_unit = game.get_unit(game.level.roam_unit)
         if not cur_unit:
             return surf
         map_markers = SPRITES.get('map_markers')

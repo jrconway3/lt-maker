@@ -45,15 +45,15 @@ def test_play_load(level_nid, save_loc=None):
     except Exception as e:
         handle_exception(e)
 
-def test_combat(left_weapon_anim, left_palette, left_item_nid: str, 
-                right_weapon_anim, right_palette, right_item_nid: str,
+def test_combat(left_weapon_anim, left_palette_name, left_palette, left_item_nid: str, 
+                right_weapon_anim, right_palette_name, right_palette, right_item_nid: str,
                 pose_nid: str):
     try:
         driver.start("Combat Test", from_editor=True)
         from app.engine.battle_animation import BattleAnimation
         from app.engine.combat.mock_combat import MockCombat
-        right = BattleAnimation(right_weapon_anim, right_palette, None, right_item_nid)
-        left = BattleAnimation(left_weapon_anim, left_palette, None, left_item_nid)
+        right = BattleAnimation(right_weapon_anim, right_palette_name, right_palette, None, right_item_nid)
+        left = BattleAnimation(left_weapon_anim, left_palette_name, left_palette, None, left_item_nid)
         at_range = 1 if 'Ranged' in right_weapon_anim.nid else 0
         mock_combat = MockCombat(left, right, at_range, pose_nid)
         left.pair(mock_combat, right, False, at_range)

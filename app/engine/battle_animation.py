@@ -17,8 +17,9 @@ battle_anim_speed = 1
 class BattleAnimation():
     idle_poses = {'Stand', 'RangedStand', 'TransformStand'}
 
-    def __init__(self, anim_prefab: WeaponAnimation, palette: Palette, unit, item):
+    def __init__(self, anim_prefab: WeaponAnimation, palette_name: str, palette: Palette, unit, item):
         self.anim_prefab = anim_prefab
+        self.palette_name = palette_name
         self.current_palette = palette
         self.unit = unit
         self.item = item
@@ -28,11 +29,15 @@ class BattleAnimation():
         self.current_pose = None
 
         # Load frames as images
-        if not anim_prefab.image:
+        if not anim_prefab.image and anim_prefab.frames:
             # Only do load stuff if image does not exist already
             image_full_path = anim_prefab.full_path
             anim_prefab.image = engine.image_load(image_full_path, convert=True)
-            engine.set_colorkey(anim_prefab.image, COLORKEY, rleaccel=True)
+            colors = self.current_palette.colors.values()
+            if COLORKEY in colors:
+                engine.set_colorkey(anim_prefab.image, COLORKEY, rleaccel=True)
+            else:  # Effects can use 0, 0, 0 as their colorkey
+                engine.set_colorkey(anim_prefab.image, (0, 0, 0), rleaccel=True)
             for frame in anim_prefab.frames:
                 frame.image = engine.subsurface(anim_prefab.image, frame.rect)
 
@@ -224,13 +229,23 @@ class BattleAnimation():
     def get_effect(self, effect_nid: str, enemy: bool = False, pose=None) -> EffectAnimation:
         effect = RESOURCES.combat_effects.get(effect_nid)
         if effect:
+            # Determine effect's palette
+            effect_palette_names = [palette[0] for palette in effect.palettes]
             effect_palette_nids = [palette[1] for palette in effect.palettes]
+
             if self.current_palette.nid in effect_palette_nids:
                 palette = self.current_palette
-            else:
+            elif self.palette_name in effect_palette_names:
+                idx = effect_palette_names.index(self.palette_name)
+                palette_nid = effect_palette_nids[idx]
+                palette = RESOURCES.combat_palettes.get(palette_nid)
+            elif effect.palettes:
                 first_palette_nid = effect.palettes[0][1]
                 palette = RESOURCES.combat_palettes.get(first_palette_nid)
-            child_effect = BattleAnimation(effect, palette, self.unit, self.item)
+            else:  # Effect does not have a palette
+                palette = self.current_palette
+
+            child_effect = BattleAnimation(effect, self.palette_name, palette, self.unit, self.item)
             right = not self.right if enemy else self.right
             parent = self.parent.partner_anim if enemy else self.parent
             child_effect.pair(self.owner, self.partner_anim, right, self.at_range, parent=parent)
@@ -522,7 +537,7 @@ class BattleAnimation():
         elif command.nid == 'end_child_loop':
             for child in self.child_effects:
                 child.end_loop()
-            for child in self.under_children:
+            for child in self.under_child_effects:
                 child.end_loop()
 
     def draw(self, surf, shake=(0, 0), range_offset=0, pan_offset=0):
@@ -658,24 +673,28 @@ class BattleAnimation():
                 self.screen_dodge_image = None
         return image
 
-def get_palette(anim_prefab: CombatAnimation, unit) -> Palette:
+def get_palette(anim_prefab: CombatAnimation, unit) -> tuple:
     palettes = anim_prefab.palettes
     palette_names = [palette[0] for palette in palettes]
     palette_nids = [palette[1] for palette in palettes]
     team_palette = 'Generic%s' % utils.get_team_color(unit.team).capitalize()
     if unit.name in palette_names:
         idx = palette_names.index(unit.name)
+        palette_name = unit.name
         palette_nid = palette_nids[idx]
     elif unit.nid in palette_names:
         idx = palette_names.index(unit.nid)
+        palette_name = unit.nid
         palette_nid = palette_nids[idx]
     elif team_palette in palette_names:
         idx = palette_names.index(team_palette)
+        palette_name = team_palette
         palette_nid = palette_nids[idx]
     else:
+        palette_name = palette_names[0]
         palette_nid = palette_nids[0]
     current_palette = RESOURCES.combat_palettes.get(palette_nid)
-    return current_palette
+    return palette_name, current_palette
 
 def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
     # Find the right combat animation
@@ -693,7 +712,7 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
         return None
 
     # Get the palette
-    palette = get_palette(res, unit)
+    palette_name, palette = get_palette(res, unit)
     if not palette:
         logging.warning("Could not find valid palette for %s", unit)
         return None
@@ -739,5 +758,5 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
                     logging.warning("Could not find spell animation for effect %s in weapon anim %s", effect, weapon_anim_nid)
                     return None
 
-    battle_anim = BattleAnimation(weapon_anim, palette, unit, item)
+    battle_anim = BattleAnimation(weapon_anim, palette_name, palette, unit, item)
     return battle_anim

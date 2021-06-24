@@ -859,19 +859,24 @@ class CombatAnimProperties(QWidget):
         palette_nids = [palette[1] for palette in palettes]
         if 'GenericBlue' in palette_names:
             idx = palette_names.index('GenericBlue')
+            right_palette_name = 'GenericBlue'
             right_palette_nid = palette_nids[idx]
         else:
+            right_palette_name = palette_names[0]
             right_palette_nid = palette_nids[0]
         if 'GenericRed' in palette_names:
             idx = palette_names.index('GenericRed')
+            left_palette_name = 'GenericRed'
             left_palette_nid = palette_nids[idx]
         elif len(palette_nids) > 1:
             left_palette_nid = palette_nids[1]
+            left_palette_name = palette_names[1]
         else:
             left_palette_nid = palette_nids[0]
+            left_palette_name = palette_names[0]
         right_palette = RESOURCES.combat_palettes.get(right_palette_nid)
         left_palette = RESOURCES.combat_palettes.get(left_palette_nid)
-        return left_palette, right_palette
+        return left_palette_name, left_palette, right_palette_name, right_palette
 
     def test_combat(self):
         if self.current:
@@ -886,7 +891,7 @@ class CombatAnimProperties(QWidget):
                 print("Missing Stand or Attack pose!")
                 return
             
-            left_palette, right_palette = self.get_test_palettes(self.current)
+            left_palette_name, left_palette, right_palette_name, right_palette = self.get_test_palettes(self.current)
 
             item_nid = None
             for item in DB.items:
@@ -895,6 +900,6 @@ class CombatAnimProperties(QWidget):
             
             timer.get_timer().stop()
             GAME_ACTIONS.test_combat(
-                weapon_anim, left_palette, item_nid, 
-                weapon_anim, right_palette, item_nid, current_pose_nid)
+                weapon_anim, left_palette_name, left_palette, item_nid, 
+                weapon_anim, right_palette_name, right_palette, item_nid, current_pose_nid)
             timer.get_timer().start()

@@ -372,10 +372,10 @@ class CombatEffectProperties(CombatAnimProperties):
                 print("Couldn't find a usable weapon anim")
                 return None
 
-            left_palette, right_palette = self.get_test_palettes(combat_anim)
+            left_palette_name, left_palette, right_palette_name, right_palette = self.get_test_palettes(combat_anim)
             
             timer.get_timer().stop()
             GAME_ACTIONS.test_combat(
-                weapon_anim, left_palette, self.current.nid, 
-                weapon_anim, right_palette, self.current.nid, current_pose_nid)
+                weapon_anim, left_palette_name, left_palette, self.current.nid, 
+                weapon_anim, right_palette_name, right_palette, self.current.nid, current_pose_nid)
             timer.get_timer().start()

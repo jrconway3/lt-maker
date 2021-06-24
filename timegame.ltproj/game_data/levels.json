@@ -39,7 +39,10 @@
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": null,
+                "starting_position": [
+                    3,
+                    6
+                ],
                 "generic": false
             },
             {

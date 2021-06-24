@@ -94,6 +94,13 @@
                 [
                     "1"
                 ]
+            ],
+            [
+                "add_talk",
+                [
+                    "Ross",
+                    "Seth"
+                ]
             ]
         ],
         "only_once": false,

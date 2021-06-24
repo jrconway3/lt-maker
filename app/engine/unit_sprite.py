@@ -484,7 +484,8 @@ class UnitSprite():
 
         frame = (engine.get_time() // 100) % 8
         offset = [0, 0, 0, 1, 2, 2, 2, 1][frame]
-        if game.level.roam and game.state.current() == 'free_roam' and game.state.state[-1].can_talk():
+        if game.level.roam and game.state.current() == 'free_roam' and game.state.state[-1].can_talk() and \
+                (self.unit.nid, cur_unit.nid) in game.talk_options:
             talk_marker = engine.subsurface(map_markers, (0, 0, 24, 16))
             surf.blit(talk_marker, (topleft[0], topleft[1] + offset))
         if (cur_unit.nid, self.unit.nid) in game.talk_options:

@@ -186,7 +186,8 @@ class CombatEffectCatalog(ManifestCatalog):
 
     def save(self, loc):
         for effect_anim in self:
-            self.save_image(loc, effect_anim)
+            if effect_anim.pixmap:  # Possible that no pixmap is associated with a simple control script
+                self.save_image(loc, effect_anim)
         self.dump(loc)
 
     def clean(self, loc):

@@ -137,7 +137,17 @@ def import_from_legacy(current, fn):
     current.weapon_anims.append(new_weapon)
     print("Done!!! %s" % fn)
 
-def import_effect_from_legacy(fn):
+def get_child_effects(fn_dir: str, current: combat_anims.EffectAnimation):
+    for pose in current.poses:
+        for command in pose.timeline:
+            if command.has_effect():
+                subeffect_nid = command.value[0]
+                # Check if the effect is in here somewhere
+                subeffect_fn = os.path.join(fn_dir, '%s-Script.txt' % subeffect_nid)
+                if subeffect_nid not in RESOURCES.combat_effects.keys() and os.path.exists(subeffect_fn):
+                    import_effect_from_legacy(subeffect_fn)
+
+def import_effect_from_legacy(fn: str):
     """
     Imports effect animations from a Legacy formatted effect animation script file.
 
@@ -148,6 +158,7 @@ def import_effect_from_legacy(fn):
     """
 
     print(fn)
+    fn_dir = os.path.split(fn)[0]
     if '-Script.txt' not in fn:
         QMessageBox.critical(None, "Error", "Not a valid combat animation script file: %s" % fn)
         return
@@ -157,6 +168,9 @@ def import_effect_from_legacy(fn):
         # This is a simple control script that owns many other effects
         current = combat_anims.EffectAnimation(nid)
         add_poses(fn, current)
+        # Add necessary child effects
+        get_child_effects(fn_dir, current)
+
         # Actually add effect animation to RESOURCES
         if current.nid in RESOURCES.combat_effects.keys():
             RESOURCES.combat_effects.remove_key(current.nid)
@@ -179,6 +193,9 @@ def import_effect_from_legacy(fn):
 
     # Now add poses to the effect anim
     add_poses(fn, current)
+
+    # Determine if this has any child effects
+    get_child_effects(fn_dir, current)
     
     # Actually add effect animation to RESOURCES
     if current.nid in RESOURCES.combat_effects.keys():

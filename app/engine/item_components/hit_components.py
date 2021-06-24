@@ -35,7 +35,7 @@ class PermanentStatChange(ItemComponent):
         actions.append(action.ApplyStatChanges(target, stat_changes))
         playback.append(('stat_hit', unit, item, target))
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         # Count number of stat hits
         count = 0
         for p in playback:
@@ -135,7 +135,7 @@ class ShoveOnEndCombat(Shove):
     expose = Type.Int
     value = 1
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if not skill_system.ignore_forced_movement(target):
             new_position = self._check_shove(target, unit.position, self.value)
             if new_position:
@@ -165,7 +165,7 @@ class ShoveTargetRestrict(Shove, ItemComponent):
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         pass
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         pass
 
 class Swap(ItemComponent):
@@ -231,7 +231,7 @@ class Steal(ItemComponent):
             actions.append(action.UpdateRecords('steal', (unit.nid, target.nid, target_item.nid)))
             self._did_steal = True
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if self._did_steal:
             target_item = item.data.get('target_item')
             game.alerts.append(banner.StoleItem(unit, target_item))
@@ -285,7 +285,7 @@ class EventAfterCombat(ItemComponent):
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         self._did_hit = True
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if self._did_hit and target:
             event_prefab = DB.events.get_from_nid(self.value)
             if event_prefab:

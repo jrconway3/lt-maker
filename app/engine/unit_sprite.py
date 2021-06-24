@@ -274,10 +274,13 @@ class UnitSprite():
         if self.state == 'normal':
             if self.unit.finished and not self.unit.is_dying:
                 self.image_state = 'gray'
+            elif DB.constants.value('initiative') and game.initiative.get_current_unit() != self.unit \
+                    and not game.level.roam and self.unit.team == 'player':
+                self.image_state = 'gray'
             elif game.cursor.draw_state and game.cursor.position == self.unit.position and self.unit.team == 'player':
                 self.image_state = 'active'
             elif game.level and game.level.roam and game.level.roam_unit == self.unit.nid:
-                self.image_state = 'active'
+                self.image_state = 'passive'
             else:
                 self.image_state = 'passive'
         elif self.state == 'combat_anim':
@@ -470,6 +473,8 @@ class UnitSprite():
                                       'weapon_choice', 'spell_choice', 'targeting',
                                       'combat_targeting', 'item_targeting'):
             cur_unit = game.cursor.cur_unit
+        elif game.state.current() == 'free_roam':
+            cur_unit = game.get_unit(game.level.roam_unit)
         if not cur_unit:
             return surf
         map_markers = SPRITES.get('map_markers')

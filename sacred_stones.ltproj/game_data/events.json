@@ -6564,6 +6564,13 @@
                     "EirikaSupport",
                     "True"
                 ]
+            ],
+            [
+                "add_unit",
+                [
+                    "101",
+                    "0,0"
+                ]
             ]
         ],
         "only_once": false,

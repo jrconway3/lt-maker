@@ -101,17 +101,29 @@ class Cursor():
             self.sprite = sprite
         self.y_offset = 0
 
+    def y_offset_up(self):
+        self.y_offset = 12
+
+    def y_offset_down(self):
+        self.y_offset = -12
+
     def update(self):
         self.counter = (self.counter + 1) % len(self.anim)
 
+    def update_y_offset(self):
+        if self.y_offset > 0:
+            self.y_offset = max(0, self.y_offset - 4)
+        elif self.y_offset < 0:
+            self.y_offset = min(0, self.y_offset + 4)
+
     def draw(self, surf, x, y):
-        surf.blit(self.sprite, (x - 12 + self.anim[self.counter], y + 3 + self.y_offset * 8))
-        self.y_offset = 0
+        surf.blit(self.sprite, (x - 12 + self.anim[self.counter], y + 3 + self.y_offset))
+        self.update_y_offset()
         return surf
 
     def draw_vert(self, surf, x, y):
-        surf.blit(self.sprite, (x - 12, y + 3 + self.y_offset * 8 + self.anim[self.counter]))
-        self.y_offset = 0
+        surf.blit(self.sprite, (x - 12, y + 3 + self.y_offset + self.anim[self.counter]))
+        self.update_y_offset()
         return surf
 
 class Simple():
@@ -237,14 +249,14 @@ class Simple():
             elif self.current_index > self.scroll + self.limit - 2 and self.scroll + self.limit < len(self.options):
                 self.scroll += 1
             else:
-                self.cursor.y_offset -= 1
+                self.cursor.y_offset_down()
         else:
             if self.current_index < len(self.options) - 1:
                 self.current_index += 1
                 if self.current_index > self.scroll + self.limit - 2 and self.scroll + self.limit < len(self.options):
                     self.scroll += 1
                 else:
-                    self.cursor.y_offset -= 1
+                    self.cursor.y_offset_down()
         if self.limit < len(self.options):
             self.scroll = min(len(self.options) - self.limit, self.scroll)
         return first_push or self.current_index < len(self.options) - 1
@@ -258,14 +270,14 @@ class Simple():
             elif self.current_index < self.scroll + 1:
                 self.scroll -= 1
             else:
-                self.cursor.y_offset += 1
+                self.cursor.y_offset_up()
         else:
             if self.current_index > 0:
                 self.current_index -= 1
                 if self.current_index < self.scroll + 1:
                     self.scroll -= 1
                 else:
-                    self.cursor.y_offset += 1
+                    self.cursor.y_offset_up()
         self.scroll = max(0, self.scroll)
         return first_push or self.current_index > 0
 
@@ -287,9 +299,9 @@ class Simple():
     def get_topleft(self):
         if not self.topleft:
             if game.cursor.position[0] > TILEX//2 + game.camera.get_x():
-                return (8, 8)
+                return (14, 8)
             else:
-                return (WINWIDTH - self.get_menu_width() - 8, 8)
+                return (WINWIDTH - self.get_menu_width() - 14, 8)
         elif self.topleft == 'center':
             return (WINWIDTH//2 - self.get_menu_width()//2, WINHEIGHT//2 - self.get_menu_height()//2)
         elif isinstance(self.topleft, tuple):
@@ -960,7 +972,7 @@ class Table(Simple):
             if row > self.scroll + self.rows - 2:
                 self.scroll += 1
             elif row != 0:
-                self.cursor.y_offset -= 1
+                self.cursor.y_offset_down()
             if not self.options[idx].ignore:
                 break
         self.current_index = idx
@@ -990,7 +1002,7 @@ class Table(Simple):
             if row < self.scroll + 1:
                 self.scroll -= 1
             elif row != self._get_bottom(col):
-                self.cursor.y_offset += 1
+                self.cursor.y_offset_up()
             if not self.options[idx].ignore:
                 break
         self.current_index = idx
@@ -1191,8 +1203,9 @@ class Convoy():
                     all_items += items                
 
         sorted_dict = {}
-        for w_type in self.order[:-1]:
-            sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type] 
+        for w_type in self.order:
+            if w_type != 'Default':
+                sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type] 
         sorted_dict['Default'] = [item for item in all_items if item_system.weapon_type(self.unit, item) is None]
         for key, value in sorted_dict.items():
             value.sort(key=lambda item: item_system.special_sort(self.unit, item) or 0)

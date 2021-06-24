@@ -1,3 +1,5 @@
+import math
+
 from app.constants import TILEX, TILEY
 from app.utilities import utils
 from app.engine.game_state import game
@@ -19,24 +21,36 @@ class Camera():
         self.pan_speed = 0.125  
         self.pan_targets = []
 
-    def cursor_x(self, x):
+    def _shift_x(self, x):
         if x <= self.target_x + 2:
             self.target_x -= 1
         elif x >= (TILEX + self.target_x - 3):
             self.target_x += 1
 
-    def cursor_y(self, y):
+    def _shift_y(self, y):
         if y <= self.target_y + 1:
             self.target_y -= 1
         elif y >= (TILEY + self.target_y - 2):
             self.target_y += 1
 
+    def cursor_x(self, x):
+        self._shift_x(x)
+
+    def cursor_y(self, y):
+        self._shift_y(y)
+
+    def mouse_x(self, x):
+        self._shift_x(x)
+
+    def mouse_y(self, y):
+        self._shift_y(y)
+
     def mouse_xy(self, x, y):
         """
         Gives mouse position
         """
-        self.cursor_x(x)
-        self.cursor_y(y)
+        self.mouse_x(x)
+        self.mouse_y(y)
 
     def _change_x(self, x):
         if x <= self.target_x + 3:
@@ -131,20 +145,23 @@ class Camera():
 
         # Move camera around
         diff_x = self.target_x - self.current_x
-        if diff_x > 0:
-            self.current_x += self.pan_speed if self.pan_mode else min(2, diff_x/self.speed)
-        elif diff_x < 0:
-            self.current_x += -self.pan_speed if self.pan_mode else min(2, diff_x/self.speed)
         diff_y = self.target_y - self.current_y
-        if diff_y > 0:
-            self.current_y += self.pan_speed if self.pan_mode else min(2, diff_y/self.speed)
-        elif diff_y < 0:
-            self.current_y += -self.pan_speed if self.pan_mode else min(2, diff_y/self.speed)
+        if self.pan_mode:
+            self.current_x += self.pan_speed * utils.sign(diff_x)
+            self.current_y += self.pan_speed * utils.sign(diff_y)
+        elif diff_x or diff_y:
+            dist = utils.distance((self.current_x, self.current_y), (self.target_x, self.target_y))
+            total_speed = utils.clamp(dist / self.speed, min(dist, 0.25), 1.0)  # max of 0.5 is faithful to GBA, but I like the snappyness of 1.0
+            angle = math.atan2(abs(diff_y), abs(diff_x))
+            x_push = math.cos(angle)
+            y_push = math.sin(angle)
+            self.current_x += total_speed * x_push * utils.sign(diff_x)
+            self.current_y += total_speed * y_push * utils.sign(diff_y)
 
         # If close enough to target, just make it so
-        if abs(diff_x) <= 0.25:
+        if abs(diff_x) <= 0.125:
             self.current_x = self.target_x
-        if abs(diff_y) <= 0.25:
+        if abs(diff_y) <= 0.125:
             self.current_y = self.target_y
 
         if self.pan_targets and self.at_rest():

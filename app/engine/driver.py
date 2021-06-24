@@ -33,6 +33,11 @@ def save_screenshot(raw_events: list, surf):
                 os.mkdir('screenshots')
         elif e.type == engine.KEYUP and e.key == engine.key_map['`']:
             screenshot = False
+        elif e.type == engine.KEYDOWN and e.key == engine.key_map['f12']:
+            if not os.path.isdir('screenshots'):
+                os.mkdir('screenshots')
+            current_time = str(datetime.now()).replace(' ', '_').replace(':', '.')
+            engine.save_surface(surf, 'screenshots/LT_%s.png' % current_time)
     if screenshot:
         current_time = str(datetime.now()).replace(' ', '_').replace(':', '.')
         engine.save_surface(surf, 'screenshots/LT_%s.bmp' % current_time)
@@ -64,6 +69,7 @@ def run(game):
         SOUNDTHREAD.update(raw_events)
 
         engine.push_display(surf, engine.SCREENSIZE, engine.DISPLAYSURF)
+        
         save_screenshot(raw_events, surf)
 
         engine.update_display()

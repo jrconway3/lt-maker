@@ -107,6 +107,7 @@ class GameState():
         self.ui_view = ui_view.UIView()
         self.combat_instance = []
         self.exp_instance = []
+        self.mana_instance = []
         self.ai = ai_controller.AIController()
 
         self.alerts.clear()
@@ -122,6 +123,7 @@ class GameState():
         self.generic()
         logging.debug("Starting Level %s", level_nid)
 
+        from app.engine.initiative import InitiativeTracker
         from app.engine.objects.level import LevelObject
         from app.engine.objects.tilemap import TileMapObject
         from app.engine.objects.party import PartyObject
@@ -158,6 +160,11 @@ class GameState():
             self.full_register(unit)
         for unit in self.current_level.units:
             self.arrive(unit)
+
+        # Handle initiative
+        if DB.constants.value('initiative'):
+            self.initiative = InitiativeTracker()
+            self.initiative.start(self.get_all_units())
 
     def full_register(self, unit):
         self.register_unit(unit)

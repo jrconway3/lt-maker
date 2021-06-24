@@ -1,6 +1,6 @@
 import random
 
-from app.utilities import utils
+import app.utilities as utils
 from app.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX, TILEY
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT

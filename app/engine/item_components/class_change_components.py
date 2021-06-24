@@ -15,7 +15,7 @@ class Promote(ItemComponent):
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         self._did_hit = True
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if self._did_hit and target:
             klass = DB.classes.get(target.klass)
             if len(klass.turns_into) == 0:
@@ -43,7 +43,7 @@ class ForcePromote(Promote, ItemComponent):
 
     expose = Type.Class
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if self._did_hit and target:
             game.memory['current_unit'] = target
             game.memory['next_class'] = self.value
@@ -56,7 +56,7 @@ class ClassChange(Promote, ItemComponent):
     desc = "Item allows target to change class after hit"
     tag = 'class_change'
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if self._did_hit and target:
             unit_prefab = DB.units.get(target.nid)
             if target.generic or not unit_prefab:
@@ -86,7 +86,7 @@ class ForceClassChange(Promote, ItemComponent):
 
     expose = Type.Class
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if self._did_hit and target:
             game.memory['current_unit'] = target
             game.memory['next_class'] = self.value

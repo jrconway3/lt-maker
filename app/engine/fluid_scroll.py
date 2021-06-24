@@ -2,7 +2,7 @@ from app.engine import engine
 from app.engine.input_manager import INPUT
 
 class FluidScroll():
-    def __init__(self, speed=64, slow_speed=3):
+    def __init__(self, speed=67, slow_speed=3):
         self.reset()
 
         self.left_update = 0

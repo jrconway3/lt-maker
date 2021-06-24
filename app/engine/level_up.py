@@ -37,8 +37,18 @@ class ExpState(State):
         self.old_exp = self.unit.exp
         self.old_level = self.unit.level
         self.unit_klass = DB.classes.get(self.unit.klass)
-        self.auto_promote = (DB.constants.get('auto_promote') or 'AutoPromote' in self.unit.tags) and \
+        self.auto_promote = (DB.constants.value('auto_promote') or 'AutoPromote' in self.unit.tags) and \
             self.unit_klass.turns_into and 'NoAutoPromote' not in self.unit.tags
+
+        # For mana
+        self.old_mana = self.unit.get_mana()
+        self.max_mana = self.unit.get_max_mana()
+        self.mana_to_gain = 0
+        if game.mana_instance:
+            self.mana_to_gain = game.mana_instance.pop()[1]
+            if self.mana_to_gain + self.old_mana > self.max_mana:
+                self.mana_to_gain = self.max_mana - self.old_mana
+        self.mana_bar = None
 
         self.state = SimpleStateMachine(self.starting_state)
         self.start_time = engine.get_time()
@@ -93,11 +103,18 @@ class ExpState(State):
         if self.state.get_state() == 'init':
             self.exp_bar = ExpBar(self.old_exp, center=not self.combat_object)
             self.start_time = current_time
+
+            if self.mana_to_gain or (self.unit.get_max_mana() > 0 and self.unit.get_mana() != self.unit.get_max_mana()):
+                self.mana_bar = ManaBar(self.old_mana, center=not self.combat_object)
+                self.mana_bar.bar_max = self.unit.get_max_mana()
+
             self.state.change('exp_wait')
 
         # Wait before starting to increment exp
         elif self.state.get_state() == 'exp_wait':
             self.exp_bar.update(self.old_exp)
+            if self.mana_bar:
+                self.mana_bar.update(self.old_mana)
             if current_time - self.start_time > 466:
                 self.state.change('exp0')
                 self.start_time = current_time
@@ -107,8 +124,15 @@ class ExpState(State):
         elif self.state.get_state() == 'exp0':
             progress = (current_time - self.start_time)/float(self.total_time_for_exp)
             exp_set = self.old_exp + progress * self.exp_gain
-            exp_set = int(min(self.old_exp + self.exp_gain, exp_set))
+            exp_set = min(self.old_exp + self.exp_gain, exp_set)
             self.exp_bar.update(exp_set)
+            exp_set = int(exp_set)
+
+            if self.mana_bar:
+                mana_set = self.old_mana + progress * self.mana_to_gain
+                mana_set = min(self.old_mana + self.mana_to_gain, mana_set)
+                self.mana_bar.update(mana_set)
+                mana_set = int(mana_set)
 
             if exp_set >= self.old_exp + self.exp_gain:
                 SOUNDTHREAD.stop_sfx('Experience Gain')
@@ -141,6 +165,8 @@ class ExpState(State):
             done = self.exp_bar.update()
             if done:
                 action.do(action.GainExp(self.unit, self.exp_gain))
+                if self.mana_to_gain:
+                    action.do(action.ChangeMana(self.unit, self.mana_to_gain))
                 action.do(action.UpdateRecords('exp_gain', (self.unit.nid, self.exp_gain, self.unit.klass)))
                 self.state.back()
                 self.start_time = current_time
@@ -152,8 +178,9 @@ class ExpState(State):
         elif self.state.get_state() == 'exp100':
             progress = (current_time - self.start_time)/float(self.total_time_for_exp)
             exp_set = self.old_exp + (self.exp_gain * progress) - 100
-            exp_set = int(min(self.old_exp + self.exp_gain - 100, exp_set))
+            exp_set = min(self.old_exp + self.exp_gain - 100, exp_set)
             self.exp_bar.update(exp_set)
+            exp_set = int(exp_set)
 
             if exp_set >= self.old_exp + self.exp_gain - 100:
                 SOUNDTHREAD.stop_sfx('Experience Gain')
@@ -248,7 +275,7 @@ class ExpState(State):
         elif self.state.get_state() in ('promote', 'class_change'):
             # TODO Combat Anims for Promotion
             old_anim = self.unit.battle_anim
-            
+
             if self.state.get_state() == 'promote':
                 promote_action = action.Promote(self.unit, game.memory['next_class'])
             else:
@@ -281,8 +308,10 @@ class ExpState(State):
     def draw(self, surf):
         if not self.state:
             return surf
-            
+
         if self.state.get_state() in ('init', 'exp_wait', 'exp_leave', 'exp0', 'exp100', 'prepare_promote'):
+            if self.mana_bar:
+                self.mana_bar.draw(surf)
             if self.exp_bar:
                 self.exp_bar.draw(surf)
 
@@ -455,7 +484,7 @@ class LevelUpScreen():
         for idx, num in enumerate(self.stat_list[:self.current_spark + 1]):
             if num != 0:  # Stat change
                 if idx == self.current_spark:
-                    rect = (self.underline_offset, 0, 
+                    rect = (self.underline_offset, 0,
                             new_underline_surf.get_width() - self.underline_offset, 3)
                     new_underline_surf = engine.subsurface(new_underline_surf, rect)
                     # Change underline offset
@@ -507,6 +536,7 @@ class ExpBar():
     end = engine.subsurface(SPRITES.get('expbar'), (4, 24, 2, 7))
     width = 136
     height = 24
+    bar_max = 100
 
     def __init__(self, old_exp, center=True):
         self.bg_surf = self.create_bg_surf()
@@ -529,7 +559,7 @@ class ExpBar():
     def fade_out(self):
         self.done = True
 
-    def update(self, exp=None):
+    def update(self, exp: float = None):
         if self.done:
             self.offset += 1  # So fade in and out
             if self.offset >= self.height//2:
@@ -544,7 +574,7 @@ class ExpBar():
         new_surf = engine.copy_surface(self.bg_surf)
 
         # Blit correct number of sprites for middle of exp bar
-        idx = int(max(0, self.num))
+        idx = int(100 * max(0, self.num) / self.bar_max)
         for x in range(idx):
             new_surf.blit(self.middle, (10 + x, 9))
 
@@ -552,10 +582,20 @@ class ExpBar():
         new_surf.blit(self.end, (10 + idx, 9))
 
         # Blit current amount of exp
-        FONT['number-small3'].blit_right(str(self.num), new_surf, (self.width - 4, 4))
+        FONT['number-small3'].blit_right(str(int(self.num)), new_surf, (self.width - 4, 4))
 
         # Transition
         new_surf = engine.subsurface(new_surf, (0, self.offset, self.width, self.height - self.offset * 2))
 
         surf.blit(new_surf, (self.pos[0], self.pos[1] + self.offset))
         return surf
+
+class ManaBar(ExpBar):
+    background = engine.subsurface(SPRITES.get('manabar'), (0, 0, 136, 24))
+    begin = engine.subsurface(SPRITES.get('manabar'), (0, 24, 3, 7))
+    middle = engine.subsurface(SPRITES.get('manabar'), (3, 24, 1, 7))
+    end = engine.subsurface(SPRITES.get('manabar'), (4, 24, 2, 7))
+
+    def __init__(self, old_exp, center=True):
+        super().__init__(old_exp, center)
+        self.pos = self.pos[0], self.pos[1] - self.height

@@ -199,14 +199,15 @@ class BaseConvosChildState(State):
         topleft = game.memory['option_menu']
 
         self.menu = menus.Choice(selection, self.options, topleft)
-        # color = ['text-grey' if i else 'text-white' for i in ignore]
-        # self.menu.set_color(color)
         self.menu.set_ignore(ignore)
 
     def begin(self):
+        if not game.base_convos:
+            game.state.back()
+            return 'repeat'
+        self.options = [event_nid for event_nid in game.base_convos.keys()]
         ignore = [game.base_convos[event_nid] for event_nid in self.options]
-        # color = ['text-grey' if i else 'text-white' for i in ignore]
-        # self.menu.set_color(color)
+        self.menu.update_options(self.options)
         self.menu.set_ignore(ignore)
         base_music = game.game_vars.get('_base_music')
         if base_music:
@@ -321,7 +322,7 @@ class SupportDisplay():
                 self.char_idx -= 1
                 return False
         else:
-            self.cursor.y_offset -= 1
+            self.cursor.y_offset_down()
         # check limit for new row
         limit = max(0, self.get_num_ranks(self.options[self.char_idx]) - 1)
         self.rank_idx = utils.clamp(self.rank_idx, 0, limit)
@@ -336,7 +337,7 @@ class SupportDisplay():
                 self.char_idx += 1
                 return False
         else:
-            self.cursor.y_offset += 1
+            self.cursor.y_offset_up()
         # check limit for new row
         limit = max(0, self.get_num_ranks(self.options[self.char_idx]) - 1)
         self.rank_idx = utils.clamp(self.rank_idx, 0, limit)
@@ -1022,6 +1023,15 @@ class BaseRecordsState(State):
 
 class BaseBEXPSelectState(prep.PrepManageState):
     name = 'base_bexp_select'
+
+    def begin(self):
+        super().begin()
+        ignore = []
+        for unit in self.units:
+            auto_promote = (DB.constants.value('auto_promote') or 'AutoPromote' in unit.tags) and \
+                DB.classes.get(unit.klass).turns_into and 'NoAutoPromote' not in unit.tags
+            ignore.append(unit.level >= DB.classes.get(unit.klass).max_level and not auto_promote)
+        self.menu.set_ignore(ignore)
 
     def create_quick_disp(self):
         sprite = SPRITES.get('buttons')

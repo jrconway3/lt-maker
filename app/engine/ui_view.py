@@ -11,6 +11,7 @@ from app.engine.game_state import game
 
 class UIView():
     legal_states = ('free', 'prep_formation', 'prep_formation_select')
+    initiative_states = ('status_endstep', 'turn_change', 'ai', 'phase_change', 'menu', 'turnwheel')
     x_positions = (0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 6, 6, 6, 5, 4, 3, 2, 1)
     y_positions = (0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, 0, 0, 0, 0, 0)
 
@@ -20,12 +21,14 @@ class UIView():
         self.obj_info_disp = None
         self.attack_info_disp = None
         self.spell_info_disp = None
+        self.initiative_info_disp = None
 
         self.cursor_right: bool = False
 
         self.unit_info_offset = 0
         self.obj_info_offset = 0
         self.attack_info_offset = 0
+        self.initiative_info_offset = 0
 
         # Tile Info Offset
         self.tile_transition_state = 'normal'
@@ -57,8 +60,7 @@ class UIView():
         # Handle tile info slide in
         if self.tile_transition_state != 'normal':
             diff = current_time - self.tile_last_update
-            # 4 frames => 66 ms
-            self.tile_progress = utils.clamp(diff / 66, 0, 1)
+            self.tile_progress = utils.clamp(diff / utils.frames2ms(4), 0, 1)
             if self.tile_progress >= 1:
                 self.tile_progress = 0
                 self.tile_last_update = current_time
@@ -97,15 +99,30 @@ class UIView():
             if self.obj_info_offset >= 200:
                 self.obj_info_disp = None
 
+        if (game.state.current() in self.legal_states or game.state.current() in self.initiative_states) \
+                and DB.constants.value('initiative') \
+                and not game.current_level.roam and game.initiative.draw_me:
+            self.initiative_info_disp = self.create_initiative_info()
+            self.initiative_info_offset = max(0, self.initiative_info_offset)
+        elif self.initiative_info_disp:
+            if self.initiative_info_offset >= 200:
+                self.initiative_info_disp = None
+
+        if DB.constants.value('initiative') and not game.initiative.draw_me:
+            self.initiative_info_disp = None
+
         # === Final drawing
         # Should be in topleft, unless cursor is in topleft, in which case it should be in bottomleft
         if self.unit_info_disp:
             # If in top and not in right
-            if game.cursor.position[1] < TILEY // 2 + game.camera.get_y() and \
-                    not (game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1):
-                surf.blit(self.unit_info_disp, (-self.unit_info_offset, WINHEIGHT - self.unit_info_disp.get_height()))
+            if not DB.constants.value('initiative') or not game.initiative.draw_me:
+                if game.cursor.position[1] < TILEY // 2 + game.camera.get_y() and \
+                        not (game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1):
+                    surf.blit(self.unit_info_disp, (-self.unit_info_offset, WINHEIGHT - self.unit_info_disp.get_height()))
+                else:
+                    surf.blit(self.unit_info_disp, (-self.unit_info_offset, 0))
             else:
-                surf.blit(self.unit_info_disp, (-self.unit_info_offset, 0))
+                pass
 
         if game.state.current() in self.legal_states and cf.SETTINGS['show_terrain'] and \
                 (game.level_vars['_fog_of_war'] != 2 or game.board.in_vision(game.cursor.position)):
@@ -130,7 +147,7 @@ class UIView():
                     ypos = WINHEIGHT - self.tile_info_disp.get_height() - 3
                     surf.blit(self.tile_info_disp, (xpos, ypos)) # Bottomright
 
-        if self.obj_info_disp:
+        if self.obj_info_disp and not self.initiative_info_disp:
             # Should be in topright, unless the cursor is in the topright
             # TopRight - I believe this has RIGHT precedence
             if game.cursor.position[1] < TILEY // 2 + game.camera.get_y() and \
@@ -139,7 +156,7 @@ class UIView():
                 if self.obj_top:
                     self.obj_top = False
                     self.obj_info_offset = self.obj_info_disp.get_width()
-                pos = (WINWIDTH - 4 + self.obj_info_offset - self.obj_info_disp.get_width(), 
+                pos = (WINWIDTH - 4 + self.obj_info_offset - self.obj_info_disp.get_width(),
                        WINHEIGHT - 4 - self.obj_info_disp.get_height())
                 surf.blit(self.obj_info_disp, pos) # Should be bottom right
             else:
@@ -148,7 +165,36 @@ class UIView():
                     self.obj_top = True
                     self.obj_info_offset = self.obj_info_disp.get_width()
                 surf.blit(self.obj_info_disp, (WINWIDTH - 4 + self.obj_info_offset - self.obj_info_disp.get_width(), 1))
+
+        if self.initiative_info_disp:
+            surf.blit(self.initiative_info_disp, (0, 0))
+
+        return surf
+
+    def create_initiative_info(self):
+        x_increment = 20
+        y_offset = 0
+        surf = engine.subsurface(SPRITES.get('bg_black').copy(), (0, 0, WINWIDTH, 40))
+        surf = image_mods.make_translucent(surf, .75)
         
+        current_unit = game.initiative.get_current_unit()
+        unit_list = game.initiative.unit_line[:]
+        current_idx = game.initiative.current_idx
+        min_scroll, max_scroll = current_idx - 9, current_idx + 10
+        min_scroll = max(min_scroll, 0)
+        max_scroll = min(max_scroll, len(unit_list))
+        unit_list = unit_list[min_scroll:max_scroll]
+
+        for idx, unit_nid in enumerate(unit_list):
+            unit = game.get_unit(unit_nid)
+            if current_unit and unit is current_unit:
+                y_offset = 10
+                char_sprite = unit.sprite.create_image('active')
+            else:
+                y_offset = 0
+                char_sprite = unit.sprite.create_image('passive')
+            surf.blit(SPRITES.get('initiative_platform'), (idx * x_increment, 8 + y_offset))
+            surf.blit(char_sprite, (-17 + idx * x_increment, -19 + y_offset))
         return surf
 
     def create_unit_info(self, unit):
@@ -412,11 +458,13 @@ class UIView():
         # Advantage arrows
         if skill_system.check_enemy(attacker, defender):
             self.draw_adv_arrows(surf, attacker, defender, weapon, defender.get_weapon(), (topleft[0] + 13, topleft[1] + 8))
+
             y_pos = topleft[1] + 105
             if not crit:
                 y_pos -= 16
             if not grandmaster:
                 y_pos -= 16
+
             self.draw_adv_arrows(surf, defender, attacker, defender.get_weapon(), weapon, (topleft[0] + 61, y_pos))
 
         # Doubling
@@ -436,7 +484,7 @@ class UIView():
             surf.blit(SPRITES.get('x4'), x2_pos_player)
 
         # Enemy doubling
-        eweapon = defender.get_weapon()        
+        eweapon = defender.get_weapon()
         if eweapon and combat_calcs.can_counterattack(attacker, weapon, defender, eweapon):
             if DB.constants.value('def_double') or skill_system.def_double(defender):
                 e_num = combat_calcs.outspeed(defender, attacker, eweapon, weapon, 'defense')
@@ -721,6 +769,6 @@ class ItemDescriptionPanel():
             if cursor_left:
                 portrait = engine.flip_horiz(portrait)
             surf.blit(portrait, (topleft[0] + 2, topleft[1] - 76))
-                
+
         surf.blit(self.surf, topleft)
         return surf

@@ -154,7 +154,7 @@ class UnlockStaff(ItemComponent):
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         self._did_hit = True
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if self._did_hit:
             pos = game.cursor.position
             region = None
@@ -215,7 +215,7 @@ class Repair(ItemComponent):
         if target_item:
             actions.append(action.RepairItem(target_item))
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         item.data['target_item'] = None
 
 class Trade(ItemComponent):
@@ -228,7 +228,7 @@ class Trade(ItemComponent):
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
         self._did_hit = True
 
-    def end_combat(self, playback, unit, item, target):
+    def end_combat(self, playback, unit, item, target, mode):
         if self._did_hit and target:
             game.cursor.cur_unit = unit
             game.cursor.set_pos(target.position)

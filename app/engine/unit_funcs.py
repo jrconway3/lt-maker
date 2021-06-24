@@ -45,7 +45,7 @@ def get_next_level_up(unit, custom_method=None) -> dict:
                 stat_changes[nid] += _random_levelup(rng, unit, level, growth)
             elif method == 'Dynamic':
                 _dynamic_levelup(rng, unit, level, stat_changes, unit.growth_points, nid, growth)
-            
+
         stat_changes[nid] = utils.clamp(stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid, 30) - unit.stats[nid])
 
     return stat_changes
@@ -161,7 +161,7 @@ def auto_level(unit, num_levels, starting_level=1, difficulty_growths=False):
                 else:
                     growth_rate = growth_value + unit.growth_bonus(growth_nid) + difficulty_growth_bonus.get(growth_nid, 0)
                 _dynamic_levelup(rng, unit, level, unit.stats, unit.growth_points, growth_nid, growth_rate)
-                
+
     # Make sure we don't exceed max
     klass = DB.classes.get(unit.klass)
     unit.stats = {k: utils.clamp(v, 0, klass.max_stats.get(k, 30)) for (k, v) in unit.stats.items()}
@@ -173,7 +173,7 @@ def apply_stat_changes(unit, stat_changes: dict):
     """
     old_max_hp = unit.get_max_hp()
     old_max_mana = unit.get_max_mana()
-    
+
     # Actually apply changes
     for nid, value in stat_changes.items():
         unit.stats[nid] += value
@@ -200,7 +200,7 @@ def get_starting_skills(unit) -> list:
         else:
             break
     all_klasses.reverse()
-    
+
     skills_to_add = []
     feats = DB.skills.get_feats()
     current_skills = [skill.nid for skill in unit.skills]
@@ -230,6 +230,16 @@ def get_personal_skills(unit, prefab):
 
     personal_skills = item_funcs.create_skills(unit, skills_to_add)
     return personal_skills
+
+def get_global_skills(unit):
+    skills_to_add = []
+    current_skills = [skill.nid for skill in unit.skills]
+    for skill_prefab in DB.skills:
+        if skill_prefab.components.get('global') and skill_prefab.nid not in current_skills:
+            skills_to_add.append(skill_prefab.nid)
+
+    global_skills = item_funcs.create_skills(unit, skills_to_add)
+    return global_skills
 
 def can_unlock(unit, region) -> bool:
     from app.engine import skill_system, item_system

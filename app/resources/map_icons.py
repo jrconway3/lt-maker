@@ -31,4 +31,4 @@ class MapIconCatalog(ManifestCatalog[MapIcon]):
 
     @classmethod
     def DEFAULT(self):
-        return '0'
+        return 'map_node'

@@ -34,7 +34,7 @@ class EffectiveTag(ItemComponent):
 
     def item_icon_mod(self, unit, item, target, sprite):
         if any(tag in target.tags for tag in self.value):
-            sprite = image_mods.make_white(sprite.convert_alpha(), abs(250 - engine.get_time()%500)/250) 
+            sprite = image_mods.make_white(sprite.convert_alpha(), abs(250 - engine.get_time()%500)/250)
         return sprite
 
     def danger(self, unit, item, target) -> bool:
@@ -97,7 +97,7 @@ class DamageOnMiss(ItemComponent):
         playback.append(('damage_hit', unit, item, target, damage, true_damage))
         if true_damage == 0:
             playback.append(('hit_sound', 'No Damage'))
-            playback.append(('hit_anim', 'MapNoDamage', target))        
+            playback.append(('hit_anim', 'MapNoDamage', target))
 
 class Eclipse(ItemComponent):
     nid = 'Eclipse'
@@ -189,3 +189,21 @@ class StatusOnHold(ItemComponent):
 
     def on_remove_item(self, unit, item):
         action.do(action.RemoveSkill(unit, self.value))
+
+class GainManaAfterCombat(ItemComponent):
+    nid = 'gain_mana_after_combat'
+    desc = "Item grants X Mana at the end of combat solved dynamically"
+    tag = 'extra'
+    author = 'KD'
+
+    expose = Type.String
+
+    def end_combat(self, playback, unit, item, target, mode):
+        from app.engine import evaluate
+        try:
+            if target:
+                mana_gain = int(evaluate.evaluate(self.value, unit, target, position=unit.position))
+                action.do(action.ChangeMana(unit, mana_gain))
+        except Exception as e:
+            print("Could not evaluate %s (%s)" % (self.value, e))
+            return True

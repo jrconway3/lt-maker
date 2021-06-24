@@ -72,7 +72,12 @@ class ItemObject():
 
     @classmethod
     def restore(cls, dat):
-        self = cls.from_prefab(DB.items.get(dat['nid']))
+        prefab = DB.items.get(dat['nid'])
+        if prefab:
+            self = cls.from_prefab(prefab)
+        else:
+            desc = 'This is a placeholder for %s generated when the database cannot locate an item' % dat['nid']
+            self = cls(dat['nid'], 'Placeholder', desc)
         self.uid = dat['uid']
         self.owner_nid = dat['owner_nid']
         self.droppable = dat['droppable']

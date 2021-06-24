@@ -20,7 +20,7 @@
             "win": "Defeat boss",
             "loss": "Eirika dies"
         },
-        "roam": true,
+        "roam": false,
         "roam_unit": "Eirika",
         "units": [
             {
@@ -3470,7 +3470,7 @@
             {
                 "nid": "Bone",
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
                     2,
@@ -3536,10 +3536,7 @@
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": [
-                    1,
-                    2
-                ],
+                "starting_position": null,
                 "generic": false
             },
             {

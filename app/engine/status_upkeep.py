@@ -1,4 +1,5 @@
 from app.resources.resources import RESOURCES
+from app.data.database import DB
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import MapState
 from app.engine.game_state import game
@@ -6,17 +7,19 @@ from app.engine import engine, action, skill_system, \
     health_bar, animations, item_system, item_funcs
 
 import logging
-logger = logging.getLogger(__name__)
 
 class StatusUpkeepState(MapState):
     name = 'status_upkeep'
 
     def start(self):
         game.cursor.hide()
-        self.units = [unit for unit in game.units if 
-                      unit.position and 
-                      unit.team == game.phase.get_current() and
-                      not unit.dead]
+        if DB.constants.value('initiative'):
+            self.units = [game.initiative.get_current_unit()]
+        else:
+            self.units = [unit for unit in game.units if 
+                          unit.position and 
+                          unit.team == game.phase.get_current() and
+                          not unit.dead]
         self.cur_unit = None
 
         self.health_bar = None

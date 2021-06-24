@@ -198,14 +198,14 @@ for hook in event_hooks:
     exec(func)
 
 for hook in combat_event_hooks:
-    func = """def %s(playback, unit, item, target):
+    func = """def %s(playback, unit, item, target, mode):
     for component in item.components:
         if component.defines('%s'):
-            component.%s(playback, unit, item, target)
+            component.%s(playback, unit, item, target, mode)
     if item.parent_item:
         for component in item.parent_item.components:
             if component.defines('%s'):
-                component.%s(playback, unit, item.parent_item, target)""" \
+                component.%s(playback, unit, item.parent_item, target, mode)""" \
         % (hook, hook, hook, hook, hook)
     exec(func)
 

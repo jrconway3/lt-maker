@@ -68,6 +68,7 @@ Tutorial:
     Breakable Walls
     Supports
     Title Screen
+    Summoning
 
     Writing your own components
     Item System Hooks

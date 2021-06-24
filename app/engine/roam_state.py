@@ -17,7 +17,7 @@ class FreeRoamState(MapState):
 
     def begin(self):
         game.cursor.hide()
-    
+
         if game.level.roam and game.level.roam_unit:
             roam_unit_nid = game.level.roam_unit
             if self.roam_unit and self.roam_unit.nid != roam_unit_nid:
@@ -173,7 +173,7 @@ class FreeRoamState(MapState):
         """
         units = []
         for unit in game.units:
-            if unit.position and unit is not self.roam_unit and \
+            if unit.position and unit is not self.roam_unit and self.roam_unit and \
                     utils.calculate_distance(self.roam_unit.position, unit.position) < 1 and \
                     unit.team in ('player', 'other'):
                 units.append(unit)

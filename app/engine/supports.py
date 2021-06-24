@@ -281,7 +281,25 @@ def increment_end_chapter_supports():
     for pair in game.supports.support_pairs.values():
         pair.reset()
 
-def increment_end_turn_supports(team='player'):
+def increment_unit_end_turn_supports(unit):
+    if not game.game_vars.get('_supports'):
+        return
+    if not unit.position:
+        return
+    inc = DB.support_constants.value('end_turn_points')
+    if inc:
+        dist = DB.support_constants.value('growth_range')
+        units = [u for u in game.units if u.position and not u.generic and u.team == unit.team and u is not unit]
+        unit_nids = {unit.nid for unit in units}
+        for support_prefab in DB.support_pairs:
+            if (support_prefab.unit1 in unit_nids and support_prefab.unit2 == unit.nid) or \
+               (support_prefab.unit2 in unit_nids and support_prefab.unit1 == unit.nid):
+                unit1 = game.get_unit(support_prefab.unit1)
+                unit2 = game.get_unit(support_prefab.unit2)
+                if dist == 99 or utils.calculate_distance(unit1.position, unit2.position) <= dist:
+                    action.do(action.IncrementSupportPoints(support_prefab.nid, inc))
+
+def increment_team_end_turn_supports(team='player'):
     if not game.game_vars.get('_supports'):
         return
     inc = DB.support_constants.value('end_turn_points')

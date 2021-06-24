@@ -37,13 +37,22 @@ class PhaseController():
         for team in DB.teams:
             self.phase_in.append(PhaseIn(team))
 
-        self.current = 3 if game.turncount == 0 else 0
-        self.previous = 0
+        if DB.constants.value('initiative'):
+            self.current = 0
+            self.previous = 0
+        else:
+            self.current = 3 if game.turncount == 0 else 0
+            self.previous = 0
 
     def get_current(self):
-        return DB.teams[self.current]
+        if DB.constants.value('initiative'):
+            return game.initiative.get_current_unit().team
+        else:
+            return DB.teams[self.current]
 
     def get_previous(self):
+        if DB.constants.value('initiative'):
+            return game.initiative.get_previous_unit().team
         return DB.teams[self.previous]
 
     def set_player(self):
@@ -51,7 +60,15 @@ class PhaseController():
         self.previous = (self.current - 1) % len(DB.teams)
 
     def _next(self):
-        self.current = (self.current + 1) % len(DB.teams)
+        if DB.constants.value('initiative'):
+            self.current = self._team_int(game.initiative.get_current_unit().team)
+        else:
+            self.current = (self.current + 1) % len(DB.teams)
+
+    def _team_int(self, team: str) -> int:
+        if team in DB.teams:
+            return DB.teams.index(team)
+        return 1 # 1 is used instead of zero so that it will default to an AI turn
 
     def next(self):
         self.previous = self.current
@@ -60,9 +77,11 @@ class PhaseController():
             self._next()
             # Skip over any phases that no one is part of
             # but never skip player phase
-            while self.current != 0 and not any(self.get_current() == unit.team for unit in game.units if unit.position and 'Tile' not in unit.tags):
-                self._next()
-        else:   
+            if not DB.constants.value('initiative'):
+                while self.current != 0 and not any(self.get_current() == unit.team for unit in game.units if unit.position and 'Tile' not in unit.tags) \
+                        and not DB.constants.get('initiative').value:
+                    self._next()
+        else:
             self.current = 0
 
     def slide_in(self):
@@ -109,7 +128,7 @@ class PhaseIn():
             return surf
         current_time = engine.get_time()
         time_passed = min(current_time - self.starting_time, self.t_display)
-        
+
         max_opacity = 118
 
         # Blit the banner

@@ -67,6 +67,7 @@ Tutorial:
     Battle Save
     Breakable Walls
     Supports
+    Title Screen
 
     Writing your own components
     Item System Hooks

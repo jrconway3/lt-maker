@@ -61,6 +61,25 @@ class CombatCommand(QWidget):
     def data(self):
         return self._data
 
+    def create_offset_section(self, x=None, y=None):
+        offset_section = QGroupBox(self)
+        offset_section.setTitle("Offset")
+        offset_layout = QFormLayout()
+        self.x_box = QSpinBox()
+        self.x_box.setValue(0)
+        self.x_box.setRange(0, WINWIDTH)
+        self.x_box.setValue(x)
+        self.x_box.valueChanged.connect(self.on_value_changed)
+        offset_layout.addRow("X:", self.x_box)
+        self.y_box = QSpinBox()
+        self.y_box.setValue(0)
+        self.y_box.setRange(0, WINHEIGHT)
+        self.y_box.setValue(y)
+        self.y_box.valueChanged.connect(self.on_value_changed)
+        offset_layout.addRow("Y:", self.y_box)
+        offset_section.setLayout(offset_layout)
+        return offset_section
+
 class BasicCommand(CombatCommand):
     def create_editor(self, hbox):
         pass
@@ -123,6 +142,22 @@ class EffectCommand(CombatCommand):
             self._data.value = (None, )
         else:
             self._data.value = (effect_nid,)
+
+class EffectWithOffsetCommand(EffectCommand):
+    def create_editor(self, hbox):
+        super().create_editor(hbox)
+        offset_section = self.create_offset_section(self._data.value[1], self._data.value[2])
+        hbox.addWidget(offset_section)
+
+    def on_value_changed(self, val):
+        effect_nid = self.editor.currentText()
+        if effect_nid == 'None':
+            effect = None
+        else:
+            effect = effect_nid
+        x_val = int(self.x_box.value())
+        y_val = int(self.y_box.value())
+        self._data.value = (effect, x_val, y_val)
 
 class WaitForHitCommand(CombatCommand):
     def create_editor(self, hbox):
@@ -306,20 +341,7 @@ class FrameWithOffsetCommand(CombatCommand):
         self.button.clicked.connect(self.select_frame)
         hbox.addWidget(self.button)
 
-        offset_section = QGroupBox(self)
-        offset_section.setTitle("Offset")
-        offset_layout = QFormLayout()
-        self.x_box = QSpinBox()
-        self.x_box.setValue(0)
-        self.x_box.setRange(0, WINWIDTH)
-        self.x_box.valueChanged.connect(self.on_value_changed)
-        offset_layout.addRow("X:", self.x_box)
-        self.y_box = QSpinBox()
-        self.y_box.setValue(0)
-        self.y_box.setRange(0, WINHEIGHT)
-        self.y_box.valueChanged.connect(self.on_value_changed)
-        offset_layout.addRow("Y:", self.y_box)
-        offset_section.setLayout(offset_layout)
+        offset_section = self.create_offset_section(self._data.value[2], self._data.value[3])
         hbox.addWidget(offset_section)
 
     def on_value_changed(self, val):
@@ -372,6 +394,8 @@ def get_command_widget(command, parent):
         c = SoundCommand(command, parent)
     elif command.attr == ('effect',):
         c = EffectCommand(command, parent)
+    elif command.nid in ('effect_with_offset', 'under_effect_with_offset'):
+        c = EffectWithOffsetCommand(command, parent)
     elif command.nid == 'wait_for_hit':
         c = WaitForHitCommand(command, parent)
     elif command.nid in ('frame', 'over_frame', 'under_frame'):

@@ -1,4 +1,5 @@
 from app.utilities.data import Data
+from app.utilities import str_utils
 
 class CombatAnimationCommand():
     def __init__(self, nid=None, name='', attr=bool, value=(True,), tag=None, desc=''):
@@ -74,7 +75,8 @@ def parse_text(text: str) -> CombatAnimationCommand:
             command_nid = 'dual_frame'
         elif len(split_text) == 5:
             command_nid = 'frame_with_offset'
-            split_text = [split_text[0], split_text[1], split_text[2], split_text[4].split(',')]
+            vals = str_utils.intify(split_text[4])
+            split_text = [split_text[0], split_text[1], split_text[2], vals[0], vals[1]]
     elif command_nid == 'of':
         command_nid = 'over_frame'
     elif command_nid == 'uf':
@@ -88,6 +90,20 @@ def parse_text(text: str) -> CombatAnimationCommand:
     elif command_nid == 'screen_flash_white':
         command_nid = 'screen_blend'
         split_text.append('255,255,255')
+    elif command_nid == 'effect':
+        if len(split_text) > 2:
+            command_nid = 'effect_with_offset'
+            vals = str_utils.intify(split_text[2])
+            split_text.pop()
+            split_text.append(vals[0])
+            split_text.append(vals[1])
+    elif command_nid == 'under_effect':
+        if len(split_text) > 2:
+            command_nid = 'under_effect_with_offset'
+            vals = str_utils.intify(split_text[2])
+            split_text.pop()
+            split_text.append(vals[0])
+            split_text.append(vals[1])
     command = get_command(command_nid)
     if not command:
         return None
@@ -113,7 +129,7 @@ anim_commands = Data([
     CombatAnimationCommand('over_frame', 'Display Over Frame', (int, 'frame'), (0, None), 'frame', 'Displays the animation image above all other images for # of frames'),
     CombatAnimationCommand('under_frame', 'Display Under Frame', (int, 'frame'), (0, None), 'frame', 'Displays the animation image below all other images for # of frames'),
     CombatAnimationCommand('dual_frame', 'Display Dual Frame', (int, 'frame', 'frame'), (0, None, None), 'frame', 'Display two animation images at the same time for # of frames. The second is always the bottommost image drawn'),
-    CombatAnimationCommand('frame_with_offset', 'Display Frame With Offset', (int, 'frame', 0, 0), (0, None, 0, 0), 'frame', 'Displays the animation image with a custom (x, y) offset for # of frames'),
+    CombatAnimationCommand('frame_with_offset', 'Display Frame With Offset', (int, 'frame', int, int), (0, None, 0, 0), 'frame', 'Displays the animation image with a custom (x, y) offset for # of frames'),
     
     CombatAnimationCommand('sound', 'Play Sound', ('sound',), (None,), 'sound'),
     CombatAnimationCommand('stop_sound', 'Stop Sound', ('sound',), (None,), 'sound'),
@@ -145,6 +161,8 @@ anim_commands = Data([
     CombatAnimationCommand('under_effect', 'Show Effect Under Self', ('effect',), (None,), 'effect'),
     CombatAnimationCommand('enemy_effect', 'Show Effect On Enemy', ('effect',), (None,), 'effect'),
     CombatAnimationCommand('enemy_under_effect', 'Show Effect Under Enemy', ('effect',), (None,), 'effect'),
+    CombatAnimationCommand('effect_with_offset', 'Show Effect On Self With Offset', ('effect', int, int), (None, 0, 0), 'effect'),
+    CombatAnimationCommand('under_effect_with_offset', 'Show Effect Under Self With Offset', ('effect', int, int), (None, 0, 0), 'effect'),
     CombatAnimationCommand('clear_all_effects', 'Clear All Effects', None, None, 'effect'),
 
     CombatAnimationCommand('pan', 'Pan Screen', None, None, 'aesthetic3'),

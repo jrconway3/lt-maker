@@ -36,15 +36,15 @@ class BattleAnimation():
         unique_hash = effect.nid + '_' + palette_name + '_' + palette.nid
         child_effect = battle_anim_registry.get(unique_hash)
         if child_effect:
-            child_effect.unit = unit
-            child_effect.item = item
-            child_effect.clear()
+            image_directory = child_effect.image_directory
+            child_effect = cls(effect, palette_name, palette, unit, item, image_directory)
         else:
             child_effect = cls(effect, palette_name, palette, unit, item)
             battle_anim_registry[unique_hash] = child_effect
         return child_effect
 
-    def __init__(self, anim_prefab: WeaponAnimation, palette_name: str, palette: Palette, unit, item):
+    def __init__(self, anim_prefab: WeaponAnimation, palette_name: str,
+                 palette: Palette, unit, item, image_directory: dict = None):
         self.anim_prefab = anim_prefab
         self.palette_name = palette_name
         self.current_palette = palette
@@ -60,7 +60,10 @@ class BattleAnimation():
             self.load_full_image()
 
         # Apply palette to frames
-        self.apply_palette()
+        if image_directory:
+            self.image_directory = image_directory
+        else:
+            self.apply_palette()
 
         self.clear()
 
@@ -457,10 +460,24 @@ class BattleAnimation():
             child_effect = self.get_effect(effect)
             if child_effect:
                 self.child_effects.append(child_effect)
+        elif command.nid == 'effect_with_offset':
+            effect = values[0]
+            x_offset, y_offset = values[1], values[2]
+            child_effect = self.get_effect(effect)
+            if child_effect:
+                child_effect.effect_offset = (x_offset, y_offset)
+                self.child_effects.append(child_effect)
         elif command.nid == 'under_effect':
             effect = values[0]
             child_effect = self.get_effect(effect)
             if child_effect:
+                self.parent.under_child_effects.append(child_effect)
+        elif command.nid == 'under_effect_with_offset':
+            effect = values[0]
+            x_offset, y_offset = values[1], values[2]
+            child_effect = self.get_effect(effect)
+            if child_effect:
+                child_effect.effect_offset = (x_offset, y_offset)
                 self.parent.under_child_effects.append(child_effect)
         elif command.nid == 'enemy_effect':
             effect = values[0]

@@ -3552,7 +3552,7 @@
             },
             {
                 "nid": "101",
-                "variant": null,
+                "variant": "Female",
                 "level": 1,
                 "klass": "Mage",
                 "faction": "Soldier",

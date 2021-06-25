@@ -348,6 +348,8 @@ class CombatEffectProperties(CombatAnimProperties):
                 counter += 1
 
     def find_appropriate_combat_anim(self, pose_nid: str) -> tuple:
+        if pose_nid == 'Miss':
+            pose_nid = 'Attack'
         for combat_anim in RESOURCES.combat_anims:
             for weapon_anim in combat_anim.weapon_anims:
                 pose = weapon_anim.poses.get(pose_nid)
@@ -376,6 +378,6 @@ class CombatEffectProperties(CombatAnimProperties):
             
             timer.get_timer().stop()
             GAME_ACTIONS.test_combat(
-                weapon_anim, left_palette_name, left_palette, self.current.nid, 
-                weapon_anim, right_palette_name, right_palette, self.current.nid, current_pose_nid)
+                combat_anim, weapon_anim, left_palette_name, left_palette, self.current.nid, 
+                combat_anim, weapon_anim, right_palette_name, right_palette, self.current.nid, current_pose_nid)
             timer.get_timer().start()

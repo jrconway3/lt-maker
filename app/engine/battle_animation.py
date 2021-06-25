@@ -13,9 +13,36 @@ from app.resources.combat_palettes import Palette
 import logging
 
 battle_anim_speed = 1
+battle_anim_registry = {}
 
 class BattleAnimation():
     idle_poses = {'Stand', 'RangedStand', 'TransformStand'}
+
+    @classmethod
+    def get_anim(cls, combat_anim, weapon_anim, palette_name, palette, unit, item):
+        unique_hash = combat_anim.nid + '_' + weapon_anim.nid + '_' + palette_name + '_' + palette.nid
+        battle_anim = battle_anim_registry.get(unique_hash)
+        if battle_anim:
+            battle_anim.unit = unit
+            battle_anim.item = item
+            battle_anim.clear()
+        else:
+            battle_anim = cls(weapon_anim, palette_name, palette, unit, item)
+            battle_anim_registry[unique_hash] = battle_anim
+        return battle_anim
+
+    @classmethod
+    def get_effect_anim(cls, effect, palette_name, palette, unit, item):
+        unique_hash = effect.nid + '_' + palette_name + '_' + palette.nid
+        child_effect = battle_anim_registry.get(unique_hash)
+        if child_effect:
+            child_effect.unit = unit
+            child_effect.item = item
+            child_effect.clear()
+        else:
+            child_effect = cls(effect, palette_name, palette, unit, item)
+            battle_anim_registry[unique_hash] = child_effect
+        return child_effect
 
     def __init__(self, anim_prefab: WeaponAnimation, palette_name: str, palette: Palette, unit, item):
         self.anim_prefab = anim_prefab
@@ -30,20 +57,14 @@ class BattleAnimation():
 
         # Load frames as images
         if not anim_prefab.image and anim_prefab.frames:
-            # Only do load stuff if image does not exist already
-            image_full_path = anim_prefab.full_path
-            anim_prefab.image = engine.image_load(image_full_path, convert=True)
-            colors = self.current_palette.colors.values()
-            if COLORKEY in colors:
-                engine.set_colorkey(anim_prefab.image, COLORKEY, rleaccel=True)
-            else:  # Effects can use 0, 0, 0 as their colorkey
-                engine.set_colorkey(anim_prefab.image, (0, 0, 0), rleaccel=True)
-            for frame in anim_prefab.frames:
-                frame.image = engine.subsurface(anim_prefab.image, frame.rect)
+            self.load_full_image()
 
         # Apply palette to frames
         self.apply_palette()
 
+        self.clear()
+
+    def clear(self):
         self.state = 'inert'
         self.in_basic_state: bool = False  # Is animation in a basic state?
         self.processing = False
@@ -110,6 +131,18 @@ class BattleAnimation():
             self.poses['Miss'] = self.poses['Attack']
         if 'Critical' not in self.poses and 'Attack' in self.poses:
             self.poses['Critical'] = self.poses['Attack']
+
+    def load_full_image(self):
+        # Only do load stuff if image does not exist already
+        image_full_path = self.anim_prefab.full_path
+        self.anim_prefab.image = engine.image_load(image_full_path, convert=True)
+        colors = self.current_palette.colors.values()
+        if COLORKEY in colors:
+            engine.set_colorkey(self.anim_prefab.image, COLORKEY, rleaccel=True)
+        else:  # Effects can use 0, 0, 0 as their colorkey
+            engine.set_colorkey(self.anim_prefab.image, (0, 0, 0), rleaccel=True)
+        for frame in self.anim_prefab.frames:
+            frame.image = engine.subsurface(self.anim_prefab.image, frame.rect)
 
     def apply_palette(self):
         self.image_directory = {}
@@ -245,7 +278,7 @@ class BattleAnimation():
             else:  # Effect does not have a palette
                 palette = self.current_palette
 
-            child_effect = BattleAnimation(effect, self.palette_name, palette, self.unit, self.item)
+            child_effect = BattleAnimation.get_effect_anim(effect, self.palette_name, palette, self.unit, self.item)
             right = not self.right if enemy else self.right
             parent = self.parent.partner_anim if enemy else self.parent
             child_effect.pair(self.owner, self.partner_anim, right, self.at_range, parent=parent)
@@ -289,7 +322,6 @@ class BattleAnimation():
 
     def update(self):
         if self.state == 'run':
-            print("Current Pose", self.current_pose)
             # Read script
             if self.frame_count >= self.num_frames:
                 self.processing = True
@@ -350,7 +382,7 @@ class BattleAnimation():
             self.script_idx += 1
 
     def run_command(self, command):
-        print("Command", command.nid, command.value)
+        # print("Command", command.nid, command.value)
         self.in_basic_state = False
 
         values = command.value
@@ -758,5 +790,5 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
                     logging.warning("Could not find spell animation for effect %s in weapon anim %s", effect, weapon_anim_nid)
                     return None
 
-    battle_anim = BattleAnimation(weapon_anim, palette_name, palette, unit, item)
+    battle_anim = BattleAnimation.get_anim(res, weapon_anim, palette_name, palette, unit, item)
     return battle_anim

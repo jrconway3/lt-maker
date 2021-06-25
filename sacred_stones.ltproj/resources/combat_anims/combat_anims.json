@@ -1512,13 +1512,20 @@
                                 null
                             ],
                             [
+                                "frame",
+                                [
+                                    4,
+                                    "Sword_037"
+                                ]
+                            ],
+                            [
                                 "end_loop",
                                 null
                             ],
                             [
                                 "frame",
                                 [
-                                    10,
+                                    4,
                                     "Sword_037"
                                 ]
                             ],

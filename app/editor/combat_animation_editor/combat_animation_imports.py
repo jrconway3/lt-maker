@@ -8,6 +8,8 @@ from app.utilities import str_utils
 from app.resources.resources import RESOURCES
 from app.resources import combat_anims, combat_commands, combat_palettes
 
+from app.editor.settings import MainSettingsController
+
 import app.editor.utilities as editor_utilities
 
 def populate_palettes(current, images, nid):
@@ -201,6 +203,12 @@ def import_effect_from_legacy(fn: str):
     if current.nid in RESOURCES.combat_effects.keys():
         RESOURCES.combat_effects.remove_key(current.nid)
     RESOURCES.combat_effects.append(current)
+
+    # Need to save the full image somewhere
+    settings = MainSettingsController()
+    if os.path.basename(settings.get_current_project()) != 'default.ltproj':
+        RESOURCES.combat_effects.save_image(settings.get_current_project(), current)
+
     return current
 
 # === IMPORT FROM GBA ========================================================

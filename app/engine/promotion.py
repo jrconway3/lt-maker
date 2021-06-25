@@ -261,6 +261,10 @@ class PromotionState(State, MockCombat):
             self._finalize(engine.get_time())
         else:
             game.state.change('transition_in')
+
+        self.left_battle_anim.pair(self, self.right_battle_anim, False, 0)
+        self.right_battle_anim.pair(self, self.left_battle_anim, True, 0)
+
         return 'repeat'
 
     def begin(self):
@@ -278,8 +282,6 @@ class PromotionState(State, MockCombat):
 
         if self.state == 'init':
             if current_time > utils.frames2ms(25):
-                self.left_battle_anim.pair(self, self.right_battle_anim, False, 0)
-                self.right_battle_anim.pair(self, self.left_battle_anim, True, 0)
                 self.state = 'right'
                 self.start_anim('Promotion1')
 
@@ -338,10 +340,10 @@ class PromotionState(State, MockCombat):
 
         surf.blit(combat_surf, (0, 0))
 
-        self.foreground.draw(surf)
-
         if self.current_battle_anim:
             self.current_battle_anim.draw(surf)
+
+        self.foreground.draw(surf)
 
         return surf
 

@@ -171,7 +171,7 @@ class Foreground():
             foreground = self.foreground
             if self.fade_out:
                 alpha = 1 - self.foreground_frames / self.fade_out_frames
-                foreground = image_mods.make_translucent(self.foreground, alpha)
+                foreground = image_mods.make_translucent_blend(self.foreground, alpha * 255)
             # Always additive blend
             engine.blit(surf, foreground, (0, 0), blend=engine.BLEND_RGB_ADD)
             self.foreground_frames -= 1

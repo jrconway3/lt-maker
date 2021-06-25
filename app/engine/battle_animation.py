@@ -484,6 +484,13 @@ class BattleAnimation():
             child_effect = self.get_effect(effect, enemy=True)
             if child_effect and self.partner_anim:
                 self.partner_anim.child_effects.append(child_effect)
+        elif command.nid == 'enemy_effect_with_offset':
+            effect = values[0]
+            x_offset, y_offset = values[1], values[2]
+            child_effect = self.get_effect(effect, enemy=True)
+            if child_effect and self.partner_anim:
+                child_effect.effect_offset = (x_offset, y_offset)
+                self.partner_anim.child_effects.append(child_effect)
         elif command.nid == 'enemy_under_effect':
             effect = values[0]
             child_effect = self.get_effect(effect, enemy=True)
@@ -528,6 +535,27 @@ class BattleAnimation():
             num_frames = self.get_num_frames(values[0])
             color = values[1]
             self.flash(num_frames, color)
+        elif command.nid == 'parent_tint':
+            num_frames = self.get_num_frames(values[0])
+            color = values[1]
+            self.parent.flash(num_frames, color)
+        elif command.nid == 'parent_tint_blend':
+            num_frames = self.get_num_frames(values[0])
+            color1 = values[1]
+            color2 = values[2]
+            # Find 7 colors in between these colors
+            colors = [color1, 
+                      image_mods.blend_colors(color1, color2, 0.125),
+                      image_mods.blend_colors(color1, color2, 0.25),
+                      image_mods.blend_colors(color1, color2, 0.375),
+                      image_mods.blend_colors(color1, color2, 0.5),
+                      image_mods.blend_colors(color1, color2, 0.625),
+                      image_mods.blend_colors(color1, color2, 0.75),
+                      image_mods.blend_colors(color1, color2, 0.875),
+                      color2,
+                      ]
+            self.parent.flash_counter = num_frames
+            self.parent.flash_color = colors
         elif command.nid == 'enemy_tint':
             num_frames = self.get_num_frames(values[0])
             color = values[1]
@@ -558,6 +586,11 @@ class BattleAnimation():
             num_frames = self.get_num_frames(values[0])
             color = values[1]
             self.owner.screen_flash(num_frames, color)
+        elif command.nid == 'screen_blend_with_fade_out':
+            num_frames = self.get_num_frames(values[0])
+            num_fades = self.get_num_frames(values[1])
+            color = values[2]
+            self.owner.screen_flash(num_frames, color, num_fades)
 
         elif command.nid == 'platform_shake':
             self.owner.platform_shake()
@@ -697,9 +730,8 @@ class BattleAnimation():
 
     def handle_flash(self, image):
         if self.flash_color:
-            if not self.flash_image:
-                flash_color = self.flash_color[self.flash_counter % len(self.flash_color)]
-                self.flash_image = image_mods.change_color(image.convert_alpha(), flash_color)
+            flash_color = self.flash_color[self.flash_counter % len(self.flash_color)]
+            self.flash_image = image_mods.change_color(image.convert_alpha(), flash_color)
             self.flash_counter -= 1
             image = self.flash_image
             # done

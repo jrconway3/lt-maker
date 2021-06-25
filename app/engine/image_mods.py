@@ -43,7 +43,7 @@ def make_translucent_blend(image, alpha):
     alpha measured from 0 to 255, where 0 is fully opaque
     and 255 is fully transparent
     """
-    alpha = utils.clamp(alpha, 0, 255)
+    alpha = 255 - utils.clamp(alpha, 0, 255)
     image = engine.copy_surface(image)
     engine.fill(image, (alpha, alpha, alpha), None, engine.BLEND_RGB_MULT)
 

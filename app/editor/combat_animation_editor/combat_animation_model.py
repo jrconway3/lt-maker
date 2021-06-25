@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import qRgb, QPixmap, QIcon
+from PyQt5.QtGui import qRgb, QPixmap, QIcon, QBrush, QColor
 
 from app.utilities.data import Data
 from app.data.database import DB
@@ -7,6 +7,7 @@ from app.resources.resources import RESOURCES
 from app.resources import combat_anims
 
 from app.editor.base_database_gui import ResourceCollectionModel
+from app.editor.item_editor import item_model
 
 from app.extensions.custom_gui import DeletionDialog
 
@@ -114,8 +115,19 @@ class CombatEffectModel(ResourceCollectionModel):
             text = animation.nid
             return text
         elif role == Qt.DecorationRole:
-            # TODO create icon out of standing image
+            animation = self._data[index.row()]
+            text = animation.nid
+            item = DB.items.get(text)
+            if item:
+                pix = item_model.get_pixmap(item)
+                if pix:
+                    pix = pix.scaled(16, 16)
+                    return QIcon(pix)
             return None
+        elif role == Qt.ForegroundRole:
+            animation = self._data[index.row()]
+            if not animation.palettes:
+                return QBrush(QColor("red"))
         return None
 
     def create_new(self):

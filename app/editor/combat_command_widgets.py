@@ -104,7 +104,7 @@ class IntCommand(CombatCommand):
 
         self.editor = QSpinBox(self)
         self.editor.setMaximumWidth(40)
-        self.editor.setRange(1, 1024)
+        self.editor.setRange(0, 1024)
         self.editor.setValue(self._data.value[0])
         self.editor.valueChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
@@ -383,6 +383,83 @@ class ColorTimeCommand(CombatCommand):
         color = self.color.color().getRgb()
         self._data.value = (num_frames, color)
 
+class ColorTwoTimeCommand(CombatCommand):
+    def create_editor(self, hbox):
+        frame_box = QHBoxLayout()
+        label = QLabel("# Frames: ")
+        frame_box.addWidget(label)
+
+        self.num_frames = QSpinBox(self)
+        self.num_frames.setMaximumWidth(40)
+        self.num_frames.setRange(1, 1024)
+        self.num_frames.setValue(self._data.value[0])
+        self.num_frames.valueChanged.connect(self.on_value_changed)
+        frame_box.addWidget(self.num_frames)
+
+        fade_box = QHBoxLayout()
+        label = QLabel("# Fade Frames: ")
+        fade_box.addWidget(label)
+
+        self.num_fades = QSpinBox(self)
+        self.num_fades.setMaximumWidth(40)
+        self.num_fades.setRange(1, 1024)
+        self.num_fades.setValue(self._data.value[1])
+        self.num_fades.valueChanged.connect(self.on_value_changed)
+        fade_box.addWidget(self.num_fades)
+
+        left_box = QVBoxLayout()
+        left_box.addLayout(frame_box)
+        left_box.addLayout(fade_box)
+        hbox.addLayout(left_box)
+
+        self.color = ColorIcon(QColor(248, 248, 248), self)
+        if len(self._data.value) > 1:
+            new_color = QColor(*self._data.value[2])
+            self.color.change_color(new_color)
+        self.color.set_size(32)
+        self.color.colorChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.color)
+
+    def on_value_changed(self, val):
+        num_frames = int(self.num_frames.value())
+        num_fades = int(self.num_fades.value())
+        color = self.color.color().getRgb()
+        self._data.value = (num_frames, num_fades, color)
+
+class TwoColorTimeCommand(CombatCommand):
+    def create_editor(self, hbox):
+        label = QLabel("# Frames: ")
+        hbox.addWidget(label)
+
+        self.num_frames = QSpinBox(self)
+        self.num_frames.setMaximumWidth(40)
+        self.num_frames.setRange(1, 1024)
+        self.num_frames.setValue(self._data.value[0])
+        self.num_frames.valueChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.num_frames)
+
+        self.color1 = ColorIcon(QColor(0, 0, 0), self)
+        if len(self._data.value) > 1:
+            new_color = QColor(*self._data.value[1])
+            self.color1.change_color(new_color)
+        self.color1.set_size(32)
+        self.color1.colorChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.color1)
+
+        self.color2 = ColorIcon(QColor(248, 248, 248), self)
+        if len(self._data.value) > 2:
+            new_color = QColor(*self._data.value[2])
+            self.color2.change_color(new_color)
+        self.color2.set_size(32)
+        self.color2.colorChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.color2)
+
+    def on_value_changed(self, val):
+        num_frames = int(self.num_frames.value())
+        color1 = self.color1.color().getRgb()
+        color2 = self.color2.color().getRgb()
+        self._data.value = (num_frames, color1, color2)
+
 def get_command_widget(command, parent):
     if command.attr is None:
         c = BasicCommand(command, parent)
@@ -394,7 +471,7 @@ def get_command_widget(command, parent):
         c = SoundCommand(command, parent)
     elif command.attr == ('effect',):
         c = EffectCommand(command, parent)
-    elif command.nid in ('effect_with_offset', 'under_effect_with_offset'):
+    elif command.nid in ('effect_with_offset', 'under_effect_with_offset', 'enemy_effect_with_offset'):
         c = EffectWithOffsetCommand(command, parent)
     elif command.nid == 'wait_for_hit':
         c = WaitForHitCommand(command, parent)
@@ -404,8 +481,12 @@ def get_command_widget(command, parent):
         c = DualFrameCommand(command, parent)
     elif command.nid == 'frame_with_offset':
         c = FrameWithOffsetCommand(command, parent)
-    elif command.attr[0] is int and command.attr[1] == 'color':
+    elif len(command.attr) == 2 and command.attr[0] is int and command.attr[1] == 'color':
         c = ColorTimeCommand(command, parent)
+    elif len(command.attr) == 3 and command.attr[0] is int and command.attr[1] is int and command.attr[2] == 'color':
+        c = ColorTwoTimeCommand(command, parent)
+    elif len(command.attr) == 3 and command.attr[0] is int and command.attr[1] == 'color' and command.attr[2] == 'color':
+        c = TwoColorTimeCommand(command, parent)
     else:
         c = BasicCommand(command, parent)
     return c

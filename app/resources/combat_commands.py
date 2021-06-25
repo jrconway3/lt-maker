@@ -88,8 +88,21 @@ def parse_text(text: str) -> CombatAnimationCommand:
         command_nid = 'enemy_tint'
         split_text.append('255,255,255')
     elif command_nid == 'screen_flash_white':
-        command_nid = 'screen_blend'
         split_text.append('255,255,255')
+        if len(split_text) > 3:
+            command_nid = 'screen_blend_with_fade_out'
+        else:
+            command_nid = 'screen_blend'
+    elif command_nid == 'set_parent_opacity':
+        command_nid = 'parent_opacity'
+    elif command_nid == 'parent_tint_loop':
+        num_frames = split_text[1]
+        command_nid = 'parent_tint_blend'
+        split_text.clear()
+        split_text.append('parent_tint_blend')
+        split_text.append(num_frames)
+        split_text.append('0,0,0')
+        split_text.append('248,248,248')
     elif command_nid == 'effect':
         if len(split_text) > 2:
             command_nid = 'effect_with_offset'
@@ -104,7 +117,15 @@ def parse_text(text: str) -> CombatAnimationCommand:
             split_text.pop()
             split_text.append(vals[0])
             split_text.append(vals[1])
+    elif command_nid == 'enemy_effect':
+        if len(split_text) > 2:
+            command_nid = 'enemy_effect_with_offset'
+            vals = str_utils.intify(split_text[2])
+            split_text.pop()
+            split_text.append(vals[0])
+            split_text.append(vals[1])
     command = get_command(command_nid)
+    print(command)
     if not command:
         return None
     values = []
@@ -140,13 +161,16 @@ anim_commands = Data([
     CombatAnimationCommand('spell', 'Cast Spell', ('effect',), (None,), 'process'),
     CombatAnimationCommand('spell_hit', 'Spell Hit', None, None, 'process'),
 
-    CombatAnimationCommand('self_tint', 'Tint Self', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
-    CombatAnimationCommand('enemy_tint', 'Tint Enemy', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
-    CombatAnimationCommand('self_screen_dodge', 'Screen Dodge Self', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
-    CombatAnimationCommand('enemy_screen_dodge', 'Screen Dodge Enemy', (int, 'color'), (0, 248, 248, 248), 'aesthetic1'),
+    CombatAnimationCommand('self_tint', 'Tint Self', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
+    CombatAnimationCommand('parent_tint', 'Tint Parent', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
+    CombatAnimationCommand('enemy_tint', 'Tint Enemy', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
+    CombatAnimationCommand('parent_tint_blend', 'Tint Parent Between 2 Colors', (int, 'color', 'color'), (0, (0, 0, 0), (248, 248, 248)), 'aesthetic1'),
+    CombatAnimationCommand('self_screen_dodge', 'Screen Dodge Self', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
+    CombatAnimationCommand('enemy_screen_dodge', 'Screen Dodge Enemy', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
     CombatAnimationCommand('background_blend', 'Tint Background', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
     CombatAnimationCommand('foreground_blend', 'Tint Foreground', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
     CombatAnimationCommand('screen_blend', 'Tint Entire Screen', (int, 'color'), (0, (248, 248, 248)), 'aesthetic1'),
+    CombatAnimationCommand('screen_blend_with_fade_out', 'Tint Entire Screen (Fade Out Tint)', (int, int, 'color'), (0, 0, (248, 248, 248)), 'aesthetic1'),
     CombatAnimationCommand('opacity', 'Set Opacity', (int,), (0,), 'aesthetic1'),
     CombatAnimationCommand('parent_opacity', 'Set Parent Opacity', (int,), (0,), 'aesthetic1'),
 
@@ -163,6 +187,7 @@ anim_commands = Data([
     CombatAnimationCommand('enemy_under_effect', 'Show Effect Under Enemy', ('effect',), (None,), 'effect'),
     CombatAnimationCommand('effect_with_offset', 'Show Effect On Self With Offset', ('effect', int, int), (None, 0, 0), 'effect'),
     CombatAnimationCommand('under_effect_with_offset', 'Show Effect Under Self With Offset', ('effect', int, int), (None, 0, 0), 'effect'),
+    CombatAnimationCommand('enemy_effect_with_offset', 'Show Effect On Enemy With Offset', ('effect', int, int), (None, 0, 0), 'effect'),
     CombatAnimationCommand('clear_all_effects', 'Clear All Effects', None, None, 'effect'),
 
     CombatAnimationCommand('pan', 'Pan Screen', None, None, 'aesthetic3'),

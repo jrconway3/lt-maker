@@ -406,7 +406,7 @@ class AnimationCombat(BaseCombat, MockCombat):
     def finish(self):
         # Fade back music if and only if it was faded in
         if self.battle_music:
-            SOUNDTHREAD.fade_back()
+            SOUNDTHREAD.battle_fade_back(self.battle_music)
 
     def build_viewbox(self, current_time):
         vb_multiplier = utils.clamp(current_time / self.viewbox_time, 0, 1)
@@ -422,11 +422,11 @@ class AnimationCombat(BaseCombat, MockCombat):
         defender_battle = item_system.battle_music(self.defender, self.def_item, self.attacker, 'defense')
         battle_music = game.level.music['%s_battle' % self.attacker.team]
         if attacker_battle:
-            self.battle_music = SOUNDTHREAD.fade_in(attacker_battle)
+            self.battle_music = SOUNDTHREAD.battle_fade_in(attacker_battle)
         elif defender_battle:
-            self.battle_music = SOUNDTHREAD.fade_in(defender_battle)
+            self.battle_music = SOUNDTHREAD.battle_fade_in(defender_battle)
         elif battle_music:
-            self.battle_music = SOUNDTHREAD.fade_in(battle_music) 
+            self.battle_music = SOUNDTHREAD.battle_fade_in(battle_music) 
 
     def left_team(self):
         return self.left.team

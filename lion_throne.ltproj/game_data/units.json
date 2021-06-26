@@ -40,6 +40,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 true,
@@ -121,6 +122,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -202,6 +204,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -283,6 +286,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -364,6 +368,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -445,6 +450,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 true,
@@ -526,6 +532,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 true,
@@ -607,6 +614,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -688,6 +696,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -773,6 +782,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -858,6 +868,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -939,6 +950,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 true,
@@ -1016,6 +1028,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 true,
@@ -1093,6 +1106,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -1174,6 +1188,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -1257,6 +1272,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -1340,6 +1356,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -1423,6 +1440,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -1502,6 +1520,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -1585,6 +1604,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -1672,6 +1692,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -1755,6 +1776,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 true,
@@ -1842,6 +1864,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -1923,6 +1946,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -2010,6 +2034,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -2093,6 +2118,7 @@
             ]
         ],
         "learned_skills": [],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 true,
@@ -2181,6 +2207,7 @@
                 "Imperial Wards"
             ]
         ],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -2265,6 +2292,7 @@
                 "Imperial Wards"
             ]
         ],
+        "unit_notes": [],
         "wexp_gain": {
             "Sword": [
                 true,

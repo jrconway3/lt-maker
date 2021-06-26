@@ -119,7 +119,7 @@ class PaletteMenu(QListWidget):
     def new(self, index):
         palette_data = self.combat_anim.palettes
         new_name = str_utils.get_next_name("New", [p[0] for p in palette_data])
-        palette_data.insert(index.row() + 1, [new_name, RESOURCES.combat_palettes[0]])
+        palette_data.insert(index.row() + 1, [new_name, RESOURCES.combat_palettes[0].nid])
 
         self.set_current(self.combat_anim)
         self.set_palette(self.current_idx)

@@ -22,6 +22,7 @@ class CombatAnimDisplay(DatabaseTab):
         dialog = cls(data, title, right_frame, deletion_criteria,
                      collection_model, parent, button_text="Add New %s...",
                      view_type=ResourceListView)
+
         return dialog
 
 class CombatEffectDisplay(DatabaseTab):

@@ -136,8 +136,9 @@ class ClassProperties(QWidget):
         self.map_sprite_box.clicked.connect(self.select_map_sprite)
 
         self.map_sprite_auto_box = QPushButton()
-        self.map_sprite_auto_box.setIcon(QIcon(f"{icon_folder}/component_advanced.png"))
+        self.map_sprite_auto_box.setIcon(QIcon(f"{icon_folder}/autoassign.png"))
         self.map_sprite_auto_box.setMaximumWidth(32)
+        self.map_sprite_auto_box.setToolTip("Auto-assign map sprite with the same unique ID")
         self.map_sprite_auto_box.clicked.connect(self.autoselect_map_sprite)
 
         self.combat_anim_label = QLabel()
@@ -147,8 +148,9 @@ class ClassProperties(QWidget):
         self.combat_anim_box.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         self.combat_anim_auto_box = QPushButton()
-        self.combat_anim_auto_box.setIcon(QIcon(f"{icon_folder}/component_advanced.png"))
+        self.combat_anim_auto_box.setIcon(QIcon(f"{icon_folder}/autoassign.png"))
         self.combat_anim_auto_box.setMaximumWidth(32)
+        self.combat_anim_auto_box.setToolTip("Auto-assign combat animation with the same unique ID")
         self.combat_anim_auto_box.clicked.connect(self.autoselect_combat_anim)
         self.combat_anim_auto_box.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 

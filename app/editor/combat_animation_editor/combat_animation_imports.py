@@ -343,7 +343,7 @@ def import_from_gba(current, fn):
     print(tail)
     tail = tail.replace('_without_comment', '')
     
-    weapon_type = tail[:-4]
+    weapon_type = tail[:-4].lower().capitalize()
     if weapon_type not in weapon_types:
         QMessageBox.critical(None, "Error", "Weapon type %s not a supported weapon type!" % weapon_type)
         return

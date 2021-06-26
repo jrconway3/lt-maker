@@ -85,7 +85,7 @@
     ],
     [
         "auto_promote",
-        false
+        true
     ],
     [
         "generic_feats",

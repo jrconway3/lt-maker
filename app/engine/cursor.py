@@ -1,6 +1,7 @@
+from typing import Tuple
 from app.counters import generic3counter
 from app.utilities import utils
-from app.constants import TILEWIDTH, TILEHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT, TILEX, TILEY
 
 from app.utilities.utils import frames2ms
 from app.engine.sprites import SPRITES
@@ -36,6 +37,26 @@ class Cursor():
         self.stopped_at_move_border = False
 
         self.mouse_mode: bool = False
+
+        self._bounds: Tuple[int, int, int, int] = None
+        self.position = (self.bounds[0], self.bounds[1])
+
+    @property
+    def bounds(self) -> Tuple[int, int, int, int]:
+        """Boundaries of the cursor traversal. Useful if you don't want
+        the cursor to hover over the edges of the map. Format is
+        min left, min top, max right, max bottom, i.e. the furthest you can go
+        left, top, right, and bottom. Defaults to (0, 0, game.tilemap,width - 1, game.tilemap.height - 1)
+
+        Returns:
+            Tuple[int, int, int, int]: boundary for cursor
+        """
+        if self._bounds:
+            return self._bounds
+        elif game.tilemap:
+            return (0, 0, game.tilemap.width - 1, game.tilemap.height - 1)
+        else:
+            return (0, 0, TILEX, TILEY)
 
     def get_hover(self):
         unit = game.board.get_unit(self.position)
@@ -240,20 +261,20 @@ class Cursor():
             self.stopped_at_move_border = False
 
         # Handle keyboard first
-        if 'LEFT' in directions and self.position[0] > 0:
+        if 'LEFT' in directions and self.position[0] > self.bounds[0]:
             self.move(-1, 0)
             game.camera.cursor_x(self.position[0])
             self.mouse_mode = False
-        elif 'RIGHT' in directions and self.position[0] < game.tilemap.width - 1:
+        elif 'RIGHT' in directions and self.position[0] < self.bounds[2]:
             self.move(1, 0)
             game.camera.cursor_x(self.position[0])
             self.mouse_mode = False
 
-        if 'UP' in directions and self.position[1] > 0:
+        if 'UP' in directions and self.position[1] > self.bounds[1]:
             self.move(0, -1)
             game.camera.cursor_y(self.position[1])
             self.mouse_mode = False
-        elif 'DOWN' in directions and self.position[1] < game.tilemap.height - 1:
+        elif 'DOWN' in directions and self.position[1] < self.bounds[3]:
             self.move(0, 1)
             game.camera.cursor_y(self.position[1])
             self.mouse_mode = False

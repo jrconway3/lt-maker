@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
-from app.utilities.data import Data, Prefab
 from app.data.weapons import WexpGain
+from app.utilities.data import Data, Prefab
+
 
 @dataclass
 class UnitPrefab(Prefab):
@@ -9,6 +10,10 @@ class UnitPrefab(Prefab):
     name: str = None
     desc: str = None
     variant: str = None
+    generic: bool = None
+
+    ai: str = None
+    ai_group = None
 
     level: int = None
     klass: str = None

@@ -1,20 +1,17 @@
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QPixmap, QPainter, QColor, QBrush
-
 from enum import Enum
 
-from app.utilities import utils
-from app.sprites import SPRITES
-from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
-from app.resources.resources import RESOURCES
+from app.constants import TILEHEIGHT, TILEWIDTH, WINHEIGHT, WINWIDTH
 from app.data.database import DB
-
-from app.editor.settings import MainSettingsController
-
 from app.editor import timer
 from app.editor.class_editor import class_model
+from app.editor.settings import MainSettingsController
 from app.editor.tile_editor import tile_model
+from app.resources.resources import RESOURCES
+from app.sprites import SPRITES
+from app.utilities import utils
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QBrush, QColor, QPainter, QPen, QPixmap
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView
 
 
 class SimpleMapView(QGraphicsView):
@@ -25,7 +22,7 @@ class SimpleMapView(QGraphicsView):
     position_double_clicked = pyqtSignal(int, int)
     position_double_right_clicked = pyqtSignal(int, int)
     position_moved = pyqtSignal(int, int)
-    
+
     position_clicked_float = pyqtSignal(float, float)
 
     def __init__(self, window=None):
@@ -130,7 +127,7 @@ class SimpleMapView(QGraphicsView):
 
         if event.button() == Qt.MiddleButton:
             self.old_middle_pos = event.pos()
-                
+
     def mouseDoubleClickEvent(self, event):
         super().mouseDoubleClickEvent(event)
         scene_pos = self.mapToScene(event.pos())
@@ -183,7 +180,7 @@ class GlobalModeLevelMapView(SimpleMapView):
         self.overworld_flag: bool = False
 
     def set_current_level(self, nid, overworld=False):
-        self.overworld_flag = overworld  
+        self.overworld_flag = overworld
         super().set_current_level(nid)
 
     def paint_units(self):
@@ -208,7 +205,57 @@ class GlobalModeLevelMapView(SimpleMapView):
             return
         if not self.overworld_flag:
             self.paint_units()
+        if self.overworld_flag:
+            self.paint_roads(self.current_level)
+            self.paint_nodes(self.current_level)
         self.show_map()
+
+    def draw_node(self, painter, node, position, opacity=False):
+        icon_nid = node.icon
+        icon = RESOURCES.map_icons.get(icon_nid)
+        coord = position
+        pixmap = icon.get_pixmap()
+        # to support 16x16, 32x32, and 48x48 map icons, we offset them differently
+        offset = ( pixmap.height() / 16 - 1 ) * 8
+        if pixmap:
+            if opacity:
+                painter.setOpacity(0.33)
+            painter.drawImage(coord[0] * TILEWIDTH - offset,
+                              coord[1] * TILEHEIGHT - offset, pixmap.toImage())
+            painter.setOpacity(1.0)
+        else:
+            pass
+
+    def draw_road_segment(self, painter, start_position, end_position):
+        start_x = start_position[0] * TILEWIDTH + TILEWIDTH / 2
+        start_y = start_position[1] * TILEHEIGHT + TILEHEIGHT / 2
+        end_x = end_position[0] * TILEWIDTH + TILEWIDTH / 2
+        end_y = end_position[1] * TILEHEIGHT + TILEHEIGHT / 2
+
+        # draw the road segment
+        pen = QPen(QColor(80, 0, 0, 200), 2, style=Qt.DotLine)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setPen(pen)
+        painter.drawLine(start_x, start_y, end_x, end_y)
+
+    def paint_nodes(self, current_level):
+        if self.working_image:
+            painter = QPainter()
+            painter.begin(self.working_image)
+            for node in current_level.overworld_nodes:
+                if not node.pos:
+                    continue
+                self.draw_node(painter, node, node.pos)
+            painter.end()
+
+    def paint_roads(self, current_level):
+        if self.working_image:
+            painter = QPainter()
+            painter.begin(self.working_image)
+            for path in current_level.map_paths.values():
+                for i in range(len(path) - 1):
+                    self.draw_road_segment(painter, path[i], path[i+1])
+            painter.end()
 
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)

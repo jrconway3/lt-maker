@@ -1,17 +1,14 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QPixmap, QPainter, QPen
-
-from app.editor.map_view import SimpleMapView
-from app.data.overworld import OverworldPrefab
-
-from app.sprites import SPRITES
-from app.constants import TILEWIDTH, TILEHEIGHT
-from app.resources.resources import RESOURCES
-from app.data.database import DB
-
-from app.editor import timer
 import app.editor.utilities as editor_utilities
+from app.constants import TILEHEIGHT, TILEWIDTH
+from app.data.database import DB
+from app.data.overworld import OverworldPrefab
+from app.editor import timer
+from app.editor.map_view import SimpleMapView
 from app.editor.tile_editor import tile_model
+from app.resources.resources import RESOURCES
+from app.sprites import SPRITES
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor, QPainter, QPen, QPixmap
 
 
 class WorldMapView(SimpleMapView):
@@ -43,11 +40,24 @@ class WorldMapView(SimpleMapView):
         self.paint_roads(self.current_level)
         self.paint_nodes(self.current_level)
         self.paint_selected()
+        self.paint_border(self.current_level)
         self.show_map()
+
+    def paint_border(self, current_level: OverworldPrefab):
+        if self.working_image:
+            painter = QPainter()
+            painter.begin(self.working_image)
+            pixel_border_width = TILEWIDTH * current_level.border_tile_width
+            # draw top and left borders
+            painter.fillRect(0, 0, self.working_image.width(), pixel_border_width, QColor(160, 0, 0, 128))
+            painter.fillRect(0, 0, pixel_border_width, self.working_image.height(), QColor(160, 0, 0, 128))
+            # draw bottom and right borders
+            painter.fillRect(0, self.working_image.height() - pixel_border_width, self.working_image.width(), pixel_border_width, QColor(160, 0, 0, 128))
+            painter.fillRect(self.working_image.width() - pixel_border_width, 0, pixel_border_width, self.working_image.height(), QColor(160, 0, 0, 128))
+            painter.end()
 
     def draw_node(self, painter, node, position, opacity=False):
         icon_nid = node.icon
-        num = timer.get_timer().passive_counter.count
         icon = RESOURCES.map_icons.get(icon_nid)
         coord = position
         pixmap = icon.get_pixmap()

@@ -1,3 +1,4 @@
+from app.engine.game_counters import ANIMATION_COUNTERS
 from app import sprites
 from app.constants import WINWIDTH, WINHEIGHT
 from app.utilities import utils
@@ -382,7 +383,7 @@ class SupportDisplay():
                 elif DB.units.get(other_unit_nid):  # Not loaded into game yet
                     other_unit_prefab = DB.units.get(other_unit_nid)
                     map_sprite = unit_sprite.load_map_sprite(other_unit_prefab, 'black')
-                    image = map_sprite.passive[game.map_view.passive_sprite_counter.count].copy()
+                    image = map_sprite.passive[ANIMATION_COUNTERS.passive_sprite_counter.count].copy()
                     # name = other_unit_prefab.name
                     name = '---'
                     affinity = DB.affinities.get(other_unit_prefab.affinity)
@@ -532,7 +533,6 @@ class BaseSupportsState(State):
             game.state.change('transition_to')
 
     def update(self):
-        game.map_view.update()
         if self.menu and not self.display.draw_cursor:
             self.menu.update()
 

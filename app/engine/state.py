@@ -53,7 +53,6 @@ class MapState(State):
         game.cursor.update()
         game.camera.update()
         game.highlight.update()
-        game.map_view.update()
-        
+
         surf = game.map_view.draw(culled_rect)
         return surf

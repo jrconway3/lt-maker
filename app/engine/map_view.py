@@ -10,23 +10,7 @@ import time
 
 class MapView():
     def __init__(self):
-        self.passive_sprite_counter = generic3counter(frames2ms(32), frames2ms(4))
-        self.active_sprite_counter = generic3counter(frames2ms(13), frames2ms(6))
-        self.move_sprite_counter = simplecounter((frames2ms(10), frames2ms(5), frames2ms(10), frames2ms(5)))
-        self.fast_move_sprite_counter = simplecounter((frames2ms(6), frames2ms(3), frames2ms(6), frames2ms(3)))
-        self.attack_movement_counter = movement_counter()
-        self.arrow_counter = simplecounter((frames2ms(16), frames2ms(16), frames2ms(16)))
-        self.x2_counter = simplecounter([frames2ms(3)] * 18)
-
-    def update(self):
-        current_time = engine.get_time()
-        self.passive_sprite_counter.update(current_time)
-        self.active_sprite_counter.update(current_time)
-        self.move_sprite_counter.update(current_time)
-        self.fast_move_sprite_counter.update(current_time)
-        self.attack_movement_counter.update(current_time)
-        self.arrow_counter.update(current_time)
-        self.x2_counter.update(current_time)
+        pass
 
     def draw_units(self, surf, cull_rect, subsurface_rect=None):
         # Surf is always 240x160 WxH
@@ -48,7 +32,7 @@ class MapView():
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])
 
         topleft = cull_rect[0], cull_rect[1]
-        
+
         for unit in draw_units:
             unit.sprite.draw(unit_surf, topleft)
             if 'event' not in game.state.state_names():

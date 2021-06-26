@@ -541,7 +541,6 @@ class InfoMenuState(State):
 
         # Blit the unit's active/focus map sprite
         if not self.transparency:
-            game.map_view.update()  # For active sprite movement
             active_sprite = self.unit.sprite.create_image('active')
             x_pos = 81 - active_sprite.get_width()//2
             y_pos = WINHEIGHT - 61

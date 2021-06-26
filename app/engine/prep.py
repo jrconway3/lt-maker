@@ -44,7 +44,7 @@ class PrepMainState(MapState):
             possible_position = game.get_next_formation_spot()
             if 'Required' in unit.tags and possible_position and not unit.position:
                 action.ArriveOnMap(unit, possible_position).do()
-        
+
         # Force reset all units
         action.do(action.ResetAll([unit for unit in game.units if not unit.dead]))
 
@@ -177,7 +177,7 @@ class PrepPickUnitsState(State):
                     if unit.get_fatigue() >= equations.parser.max_fatigue(unit):
                         is_fatigued = True
                 if 'Blacklist' in unit.tags:  # Blacklisted unit can't be added
-                    is_fatigued = True  
+                    is_fatigued = True
                 if possible_position and not is_fatigued:
                     SOUNDTHREAD.play_sfx('Select 1')
                     action.do(action.ArriveOnMap(unit, possible_position))
@@ -196,7 +196,6 @@ class PrepPickUnitsState(State):
             game.state.change('transition_to')
 
     def update(self):
-        game.map_view.update()  # For menu
         self.menu.update()
 
     def draw_pick_units_card(self, surf):
@@ -457,7 +456,6 @@ class PrepManageState(State):
             convoy_funcs.optimize_all()
 
     def update(self):
-        game.map_view.update()
         self.menu.update()
 
     def draw(self, surf):
@@ -550,7 +548,6 @@ class PrepManageSelectState(State):
             game.state.back()
 
     def update(self):
-        game.map_view.update()
         self.menu.update()
         self.select_menu.update()
 
@@ -614,7 +611,6 @@ class PrepTradeSelectState(State):
             game.state.change('transition_to')
 
     def update(self):
-        game.map_view.update()
         self.menu.update()
 
     def draw(self, surf):
@@ -622,7 +618,7 @@ class PrepTradeSelectState(State):
             self.bg.draw(surf)
         menus.draw_unit_items(surf, (6, 72), self.unit, include_face=True, shimmer=2)
         menus.draw_unit_items(surf, (126, 72), self.menu.get_current(), include_face=True, right=False, shimmer=2)
-        
+
         self.menu.draw(surf)
 
         return surf
@@ -644,7 +640,7 @@ class PrepItemsState(State):
         self.unit = game.memory['current_unit']
         include_other_units_items = (self.name != 'supply_items')
         self.menu = menus.Convoy(self.unit, (WINWIDTH - 116, 40), include_other_units_items)
-        
+
         self.state = 'free'
         self.sub_menu = None
 

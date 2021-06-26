@@ -110,7 +110,6 @@ class AnimationCombat(BaseCombat, MockCombat):
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
         self.current_state = self.state
-        print("Animation Combat Update:", self.state)
 
         if self.state == 'init':
             self.start_combat()

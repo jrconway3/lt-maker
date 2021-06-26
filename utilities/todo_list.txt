@@ -1,7 +1,4 @@
 # Features
-Combat Animations
-    Test Animation Combat music
-    Generate full set of initial combat anims
 Overworld
 Base
     Arena, *Repair (in market)*, Forge (optional), Bonus Exp / Skills, Support, Codex (World Map, Achievements, Tactics) 

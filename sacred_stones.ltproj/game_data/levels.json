@@ -3454,8 +3454,8 @@
             "player_phase": "Shadow of the Enemy",
             "enemy_phase": null,
             "other_phase": null,
-            "player_battle": null,
-            "enemy_battle": null,
+            "player_battle": "Attack",
+            "enemy_battle": "Defense",
             "other_battle": null,
             "base": null
         },
@@ -3537,17 +3537,6 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": null,
-                "generic": false
-            },
-            {
-                "nid": "Vanessa",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    2,
-                    2
-                ],
                 "generic": false
             },
             {

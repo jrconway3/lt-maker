@@ -207,7 +207,8 @@ def import_effect_from_legacy(fn: str):
     # Need to save the full image somewhere
     settings = MainSettingsController()
     if os.path.basename(settings.get_current_project()) != 'default.ltproj':
-        RESOURCES.combat_effects.save_image(settings.get_current_project(), current)
+        path = os.path.join(settings.get_current_project(), 'resources', 'combat_effects')
+        RESOURCES.combat_effects.save_image(path, current)
 
     return current
 

@@ -134,6 +134,7 @@ class EffectAnimation():
 class CombatCatalog(ManifestCatalog):
     manifest = 'combat_anims.json'
     title = 'Combat Animations'
+    datatype = CombatAnimation
 
     def load(self, loc):
         combat_dict = self.read_manifest(os.path.join(loc, self.manifest))
@@ -160,12 +161,18 @@ class CombatCatalog(ManifestCatalog):
             self.save_image(loc, combat_anim)
         self.dump(loc)
 
-    def clean(self, loc):
-        pass  # TODO implement
+    def valid_files(self) -> set:
+        valid_filenames = set()
+        for combat_anim in self:
+            for weapon_anim in combat_anim.weapon_anims:
+                short_path = "%s-%s.png" % (combat_anim.nid, weapon_anim.nid)
+                valid_filenames.add(short_path)
+        return valid_filenames
 
 class CombatEffectCatalog(ManifestCatalog):
     manifest = 'combat_effects.json'
     title = 'Combat Effects'
+    datatype = EffectAnimation
 
     def load(self, loc):
         effect_dict = self.read_manifest(os.path.join(loc, self.manifest))
@@ -190,5 +197,9 @@ class CombatEffectCatalog(ManifestCatalog):
                 self.save_image(loc, effect_anim)
         self.dump(loc)
 
-    def clean(self, loc):
-        pass  # TODO implement
+    def valid_files(self) -> set:
+        valid_filenames = set()
+        for effect_anim in self:
+            short_path = '%s.png' % effect_anim.nid
+            valid_filenames.add(short_path)
+        return valid_filenames

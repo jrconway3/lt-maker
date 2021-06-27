@@ -9,6 +9,7 @@ from app.extensions.custom_gui import ComboBox
 from app.editor.combat_animation_editor.palette_model import PaletteModel
 
 class PaletteWidget(QWidget):
+    palette_name_changed = pyqtSignal(int)
     palette_nid_changed = pyqtSignal(int)
 
     def __init__(self, idx, combat_anim, parent=None):
@@ -26,6 +27,7 @@ class PaletteWidget(QWidget):
 
         self.name_label = QLineEdit(self)
         palette_name, palette_nid = self.current_combat_anim.palettes[self.idx]
+        self.name_label.editingFinished.connect(self.change_palette_name)
         self.name_label.setText(palette_name)
 
         self.palette_box = ComboBox(self)
@@ -33,13 +35,16 @@ class PaletteWidget(QWidget):
         self.palette_box.setModel(model)
         self.palette_box.view().setUniformItemSizes(True)
         self.palette_box.setValue(palette_nid)
-        self.palette_box.activated.connect(self.change_palette)
+        self.palette_box.activated.connect(self.change_palette_nid)
 
         layout.addWidget(radio_button)
         layout.addWidget(self.name_label)
         layout.addWidget(self.palette_box)
 
-    def change_palette(self):
+    def change_palette_name(self):
+        self.palette_name_changed.emit(self.idx)
+
+    def change_palette_nid(self):
         self.palette_nid_changed.emit(self.idx)
 
 class PaletteMenu(QListWidget):
@@ -80,6 +85,7 @@ class PaletteMenu(QListWidget):
 
             item = QListWidgetItem(self)
             pf = PaletteWidget(idx, combat_anim, self)
+            pf.palette_name_changed.connect(self.palette_name_changed)
             pf.palette_nid_changed.connect(self.palette_nid_changed)
             self.palette_widgets.append(pf)
             item.setSizeHint(pf.minimumSizeHint())
@@ -99,6 +105,12 @@ class PaletteMenu(QListWidget):
 
     def get_palette_widget(self):
         return self.palette_widgets[self.current_idx]
+
+    def palette_name_changed(self, idx):
+        print("PaletteMenu named changed")
+        print(self.palette_widgets[idx].name_label.text())
+        print(self.combat_anim.palettes)
+        self.combat_anim.palettes[idx][0] = self.palette_widgets[idx].name_label.text()
 
     def palette_nid_changed(self, idx):
         self.combat_anim.palettes[idx][1] = self.palette_widgets[idx].palette_box.currentText()

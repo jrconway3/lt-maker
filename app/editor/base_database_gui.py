@@ -219,7 +219,6 @@ class CollectionModel(QAbstractListModel):
 
     def append(self):
         new_item = self.create_new()
-        print(new_item)
         if not new_item:
             return
         view = self.window.view

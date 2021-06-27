@@ -31,7 +31,7 @@ def get_next_level_up(unit, custom_method=None) -> dict:
         level = unit.get_internal_level()
         rng = static_random.get_levelup(unit.nid, level)
         for nid in DB.stats.keys():
-            growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0) + difficulty_growth_bonus.get(nid)
+            growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0) + difficulty_growth_bonus.get(nid, 0)
 
             if method == 'Fixed':
                 if growth > 0:

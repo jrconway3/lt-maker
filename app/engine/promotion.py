@@ -261,9 +261,8 @@ class PromotionState(State, MockCombat):
             self._finalize(engine.get_time())
         else:
             game.state.change('transition_in')
-
-        self.left_battle_anim.pair(self, self.right_battle_anim, False, 0)
-        self.right_battle_anim.pair(self, self.left_battle_anim, True, 0)
+            self.left_battle_anim.pair(self, self.right_battle_anim, False, 0)
+            self.right_battle_anim.pair(self, self.left_battle_anim, True, 0)
 
         return 'repeat'
 

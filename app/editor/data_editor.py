@@ -157,9 +157,9 @@ class MultiDatabaseEditor(SingleDatabaseEditor):
         self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
         for tab in self.tabs:
             _type = tab.__class__.__name__
-            if tab.splitter:
+            if hasattr(tab, 'splitter') and tab.splitter:
                 self.settings.component_controller.set_state(_type, tab.splitter.saveState())
-            if hasattr(tab.right_frame, 'save_state'):
+            if hasattr(tab, 'right_frame') and hasattr(tab.right_frame, 'save_state'):
                 state = tab.right_frame.save_state()
                 right_frame_type = _type + '_right_frame'
                 if state:

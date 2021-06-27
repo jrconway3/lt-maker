@@ -340,6 +340,9 @@ def import_from_gba(current, fn):
                     'Bow', 'Magic', 'Staff', 'Monster', 'Dragonstone', 'Refresh'}
     print(fn)
     head, tail = os.path.split(fn)
+    # if any(bad_char in head for bad_char in ('[', ']', '*', '?', '!')):
+    #     QMessageBox.critical(None, "Error", "Bad character in filepath %s found. Remove all ('[', ']', '*', '?', '!') characters from the filepath." % head)
+    #     return
     print(tail)
     tail = tail.replace('_without_comment', '')
     
@@ -352,10 +355,19 @@ def import_from_gba(current, fn):
     elif weapon_type == 'Monster':
         weapon_type = 'Neutral'
 
-    image_paths = os.path.join(head, '*.png')
-    images = glob.glob(image_paths)
+    images = []
+    for image_fn in os.listdir(head):
+        if image_fn.endswith('.png'):
+            images.append(os.path.join(head, image_fn))
+    # image_paths = os.path.join(head, '*.png')
+    # print(image_paths)
+    # images = glob.glob(image_paths)
+    print(images)
     # Remove main sheet if it exists
     images = list(sorted([path for path in images if 'Sheet' not in os.path.split(path)[-1]]))
+    if not images:
+        QMessageBox.critical(None, "Error", "Cannot find valid images in %s!" % image_paths)
+        return
     # Convert to pixmaps
     pixmaps = {os.path.split(path)[-1][:-4]: QPixmap(path) for path in images}
     # Convert to GBA colors

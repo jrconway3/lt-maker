@@ -12,10 +12,17 @@ class Character():
     BRV: int = 0
     DEF: int = 0
 
-myrm = Character('Myrmidon', 5, 19, 11, 15, 11, 8, 2)
-fighter = Character('Fighter', 5, 29, 19, 7, 5, 4, 2)
-knight = Character('Knight', 5, 24, 15, 14, 2, 2, 7)
-merc = Character('Mercenary', 5, 26, 12, 16, 7, 6, 3)
+myrm = Character('Myrmidon', 5, 19, 11, 17, 13, 12, 2)
+fighter = Character('Fighter', 5, 29, 19, 9, 7, 6, 2)
+knight = Character('Knight', 5, 24, 15, 16, 4, 3, 8)
+merc = Character('Mercenary', 5, 26, 14, 18, 9, 9, 3)
+cavalier = Character('Cavalier', 5, 23, 14, 13, 8, 7, 3)
+peg_knight = Character('Peg Knight', 5, 17, 10, 15, 14, 11, 1)
+wyvern_knight = Character('Wyvern', 5, 27, 18, 12, 6, 8, 6)
+thief = Character('Thief', 5, 17, 9, 14, 15, 8, 1)
+soldier = Character('Soldier', 5, 20, 14, 15, 5, 1, 3)
+brigand = Character('Brigand', 5, 30, 18, 8, 6, 9, 0)
+lord = Character('Lord', 5, 25, 13, 15, 10, 10, 3)
 
 myrm20 = Character('Myrmidon', 20, 32, 20, 26, 25, 20, 6)
 fighter20 = Character('Fighter', 20, 46, 29, 15, 12, 14, 9)
@@ -42,6 +49,7 @@ def arena(u1, u2):
     print("%s KOs %s in %d rounds (min: %d rounds)" % (u1.name, u2.name, avg_num_rounds_to_ko1, min_num_rounds_to_ko1))
     print("%s KOs %s in %d rounds (min: %d rounds)" % (u2.name, u1.name, avg_num_rounds_to_ko2, min_num_rounds_to_ko2))
 
+"""
 arena(myrm, fighter)
 print("")
 arena(myrm, knight)
@@ -67,3 +75,8 @@ print("")
 arena(fighter, fighter)
 print("")
 arena(knight, knight)
+"""
+import itertools
+for pair in itertools.combinations([myrm, knight, fighter, merc, cavalier, peg_knight, wyvern_knight, thief, soldier, brigand, lord], 2):
+    print("")
+    arena(*pair)

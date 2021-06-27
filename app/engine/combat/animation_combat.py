@@ -419,7 +419,10 @@ class AnimationCombat(BaseCombat, MockCombat):
 
     def start_battle_music(self):
         attacker_battle = item_system.battle_music(self.attacker, self.main_item, self.defender, 'attack')
-        defender_battle = item_system.battle_music(self.defender, self.def_item, self.attacker, 'defense')
+        if self.def_item:
+            defender_battle = item_system.battle_music(self.defender, self.def_item, self.attacker, 'defense')
+        else:
+            defender_battle = None
         battle_music = game.level.music['%s_battle' % self.attacker.team]
         if attacker_battle:
             self.battle_music = SOUNDTHREAD.battle_fade_in(attacker_battle)
@@ -443,7 +446,7 @@ class AnimationCombat(BaseCombat, MockCombat):
             a_crit = 0
         a_stats = a_hit, a_mt, a_crit
 
-        if self.def_item:
+        if self.def_item and combat_calcs.can_counterattack(self.attacker, self.main_item, self.defender, self.def_item):
             d_hit = combat_calcs.compute_hit(self.defender, self.attacker, self.def_item, self.main_item, 'defense')
             d_mt = combat_calcs.compute_damage(self.defender, self.attacker, self.def_item, self.main_item, 'defense')
             if DB.constants.value('crit'):

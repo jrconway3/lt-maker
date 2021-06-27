@@ -3548,12 +3548,7 @@
                 "level": 1,
                 "klass": "Mage",
                 "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Fire",
-                        false
-                    ]
-                ],
+                "starting_items": [],
                 "team": "enemy",
                 "ai": "None",
                 "ai_group": null,

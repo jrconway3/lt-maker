@@ -98,7 +98,7 @@ class GameState():
             movement, death, ai_controller, map_view, ui_view
         # Systems
         self.cursor = cursor.Cursor()
-        self.camera = camera.Camera()
+        self.camera = camera.Camera(self)
         self.phase = phase.PhaseController()
         self.highlight = highlight.HighlightController()
         self.map_view = map_view.MapView()

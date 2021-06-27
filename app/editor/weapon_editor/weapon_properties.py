@@ -1,13 +1,13 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, \
     QMessageBox, QSpinBox, QStyledItemDelegate, QVBoxLayout, QHBoxLayout, \
-    QSpacerItem, QSizePolicy
+    QSpacerItem, QSizePolicy, QCheckBox
 from PyQt5.QtGui import QIcon
 
 from app.utilities import str_utils
 from app.data.database import DB
 from app.data.weapons import CombatBonusList
 
-from app.extensions.custom_gui import ComboBox, PropertyBox
+from app.extensions.custom_gui import ComboBox, PropertyBox, PropertyCheckBox
 from app.extensions.list_widgets import AppendMultiListWidget
 
 from app.editor.weapon_editor import weapon_model
@@ -42,6 +42,11 @@ class WeaponProperties(QWidget):
         name_section.addWidget(self.name_box)
 
         top_section.addLayout(name_section)
+
+        self.force_melee_anim_box = PropertyCheckBox("Force Melee Anim", QCheckBox, self)
+        self.force_melee_anim_box.edit.stateChanged.connect(self.force_melee_anim_changed)
+        self.force_melee_anim_box.setToolTip("Force this weapontype to use the melee animation at melee range, even with a ranged weapon. Ex. Javelins in GBA")
+        name_section.addWidget(self.force_melee_anim_box)
 
         attrs = ('weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attack_speed', 'defense_speed')
         self.rank_bonus = AppendMultiListWidget(CombatBonusList(), "Rank Bonus", attrs, RankBonusDelegate, self)
@@ -78,10 +83,14 @@ class WeaponProperties(QWidget):
         self.current.name = text
         self.window.update_list()
 
+    def force_melee_anim_changed(self, state):
+        self.current.force_melee_anim = bool(state)
+
     def set_current(self, current):
         self.current = current
         self.nid_box.edit.setText(current.nid)
         self.name_box.edit.setText(current.name)
+        self.force_melee_anim_box.edit.setChecked(bool(current.force_melee_anim))
         self.rank_bonus.set_current(current.rank_bonus)
         self.advantage.set_current(current.advantage)
         self.disadvantage.set_current(current.disadvantage)

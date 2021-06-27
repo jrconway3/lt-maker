@@ -3633,11 +3633,11 @@
                 "nid": "106",
                 "variant": null,
                 "level": 20,
-                "klass": "Myrmidon",
+                "klass": "Knight",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Sword",
+                        "Javelin",
                         false
                     ]
                 ],

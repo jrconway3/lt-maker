@@ -803,6 +803,7 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
         weapon_anim_nid = "Unarmed"
     else:
         weapon_type = item_system.weapon_type(unit, item)
+        weapon_prefab = DB.weapons.get(weapon_type)
         if not weapon_type:
             weapon_type = "Neutral"
         magic = item_funcs.is_magic(unit, item)
@@ -816,7 +817,10 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
         elif magic:
             weapon_anim_nid = "Magic" + weapon_type
         elif ranged:
-            weapon_anim_nid = "Ranged" + weapon_type
+            if distance <= 1 and weapon_prefab and weapon_prefab.force_melee_anim:
+                weapon_anim_nid = weapon_type
+            else:
+                weapon_anim_nid = "Ranged" + weapon_type
         else:
             weapon_anim_nid = weapon_type
         if magic and weapon_anim_nid not in res.weapon_anims.keys():

@@ -1,4 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QColorDialog, QVBoxLayout, \
+import os
+
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QFileDialog, QVBoxLayout, \
     QGraphicsView, QGraphicsScene, QLineEdit, QLabel, QSizePolicy, QPushButton, \
     QSpinBox, QMessageBox, QDialog
 from PyQt5.QtCore import Qt, pyqtSignal
@@ -6,6 +8,8 @@ from PyQt5.QtGui import QColor, QPen, QPixmap, QImage, QPainter
 
 from app.constants import WINWIDTH, WINHEIGHT
 from app.resources.resources import RESOURCES
+
+from app.editor.settings import MainSettingsController
 
 from app.editor import timer
 from app.utilities import utils, str_utils
@@ -493,6 +497,8 @@ class PaletteProperties(QWidget):
         self._data = self.window._data
         self.model = self.window.left_frame.model
 
+        self.settings = MainSettingsController()
+
         self.current_palette = None
         self.current_frame = None
 
@@ -500,9 +506,13 @@ class PaletteProperties(QWidget):
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
 
+        self.import_box = QPushButton("Import from PNG Image...")
+        self.import_box.clicked.connect(self.import_palette_from_image)
+
         left_frame = self.window.left_frame
         grid = left_frame.layout()
-        grid.addWidget(self.nid_box, 2, 0, 1, 2)
+        grid.addWidget(self.import_box, 2, 0, 1, 2)
+        grid.addWidget(self.nid_box, 3, 0, 1, 2)
         
         self.raw_view = AnimView(self)
         self.raw_view.static_size = True
@@ -601,3 +611,27 @@ class PaletteProperties(QWidget):
             painter.end()
             self.raw_view.set_image(QPixmap.fromImage(base_image))
             self.raw_view.show_image()
+
+    def import_palette_from_image(self):
+        starting_path = self.settings.get_last_open_path()
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Legacy Script Files", starting_path, "PNG Files (*.png);;All Files (*)")
+        if fns and ok:
+            parent_dir = os.path.split(fns[-1])[0]
+            self.settings.set_last_open_path(parent_dir)
+
+            did_import = False
+            for image_fn in fns:
+                if image_fn.endswith('.png'):
+                    head, tail = os.path.split(image_fn)
+                    palette_nid = tail[:-4]
+                    palette_nid = str_utils.get_next_name(palette_nid, RESOURCES.combat_palettes.keys())
+                    pix = QPixmap(image_fn)
+                    palette_colors = editor_utilities.find_palette(pix.toImage())
+                    new_palette = Palette(palette_nid)
+                    colors = {(int(idx % 8), int(idx / 8)): color for idx, color in enumerate(palette_colors)}
+                    new_palette.colors = colors
+                    RESOURCES.combat_palettes.append(new_palette)
+                    did_import = True
+            if did_import:
+                # Move view
+                self.model.move_to_bottom()

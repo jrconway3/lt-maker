@@ -214,13 +214,7 @@ class CollectionModel(QAbstractListModel):
         # self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
         self.layoutChanged.emit()
 
-    def create_new(self):
-        raise NotImplementedError
-
-    def append(self):
-        new_item = self.create_new()
-        if not new_item:
-            return
+    def move_to_bottom(self):
         view = self.window.view
         self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
         self.layoutChanged.emit()
@@ -228,6 +222,15 @@ class CollectionModel(QAbstractListModel):
         view.setCurrentIndex(last_index)
         view.scrollTo(last_index, QAbstractItemView.EnsureVisible)
         return last_index
+
+    def create_new(self):
+        raise NotImplementedError
+
+    def append(self):
+        new_item = self.create_new()
+        if not new_item:
+            return
+        return self.move_to_bottom()
 
     def new(self, idx):
         new_item = self.create_new()

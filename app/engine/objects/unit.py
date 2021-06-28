@@ -1,3 +1,6 @@
+from app.data.units import UnitPrefab
+from typing import Tuple
+from app.utilities.typing import NID
 from app.utilities import utils
 from app.utilities.data import Prefab
 from app.data.database import DB
@@ -7,8 +10,21 @@ from app.engine.game_state import game
 
 # Main unit object used by engine
 class UnitObject(Prefab):
+    def __init__(self):
+        self.nid: NID = None
+        self.position: Tuple[int, int] = None
+        self.team: str = None
+        self.party: NID = None
+        self.klass: NID = None
+        self.variant: str = None
+        self.level: int = None
+        self.exp: int = 0
+        self.generic: bool = None
+        self.ai = None
+        self.ai_group = None
+
     @classmethod
-    def from_prefab(cls, prefab):
+    def from_prefab(cls, prefab: UnitPrefab):
         self = cls()
         self.nid = prefab.nid
         if prefab.starting_position:

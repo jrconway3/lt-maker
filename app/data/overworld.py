@@ -13,7 +13,6 @@ from app.data.overworld_node import OverworldNodeCatalog, OverworldNodePrefab
 from app.resources.resources import RESOURCES
 from app.utilities.data import Data, Prefab
 
-
 class OverworldPrefab(Prefab):
     def __init__(self, nid: str, name: str):
         self.nid: str = nid

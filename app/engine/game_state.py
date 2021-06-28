@@ -94,10 +94,10 @@ class GameState():
         """
         Done on loading a level, whether from overworld, last level, save_state, etc.
         """
-        from app.engine import cursor, camera, phase, highlight, \
+        from app.engine import level_cursor, camera, phase, highlight, \
             movement, death, ai_controller, map_view, ui_view
         # Systems
-        self.cursor = cursor.Cursor()
+        self.cursor = level_cursor.LevelCursor(self)
         self.camera = camera.Camera(self)
         self.phase = phase.PhaseController()
         self.highlight = highlight.HighlightController()

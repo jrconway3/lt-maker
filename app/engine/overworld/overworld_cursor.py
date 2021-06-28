@@ -33,6 +33,12 @@ class OverworldCursor(BaseCursor):
         self._bounds = self.overworld.map_bounds()
         self.position = (self.get_bounds()[0], self.get_bounds()[1])
 
+    def set_speed_state(self, val: bool):
+        if val:
+            self._transition_speed = 2
+        else:
+            self._transition_speed = 1
+
     def autocursor(self, immediate):
         party_node = self.overworld.selected_party_node()
         if immediate:

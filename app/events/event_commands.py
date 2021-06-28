@@ -971,6 +971,8 @@ def restore_command(dat):
             return copy
     print("Couldn't restore event command!")
     print(nid, values, display_values)
+    if not display_values:
+        display_values = values
     return Comment([nid + ';' + str.join(';', display_values)])
 
 def parse_text(text):

@@ -77,7 +77,10 @@ def get_attacks(unit, item=None, force=False) -> set:
         return set()
 
     item_range = item_funcs.get_range(unit, item)
-    attacks = get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
+    if max(item_range) >= 99:
+        attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
+    else:
+        attacks = get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
     return attacks
 
 def get_possible_attacks(unit, valid_moves) -> set:
@@ -86,7 +89,10 @@ def get_possible_attacks(unit, valid_moves) -> set:
     for item in get_all_weapons(unit):
         item_range = item_funcs.get_range(unit, item)
         max_range = max(max_range, max(item_range))
-        attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
+        if max_range >= 99:
+            attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
+        else:
+            attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
 
     if DB.constants.value('line_of_sight'):
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))
@@ -98,7 +104,10 @@ def get_possible_spell_attacks(unit, valid_moves) -> set:
     for item in get_all_spells(unit):
         item_range = item_funcs.get_range(unit, item)
         max_range = max(max_range, max(item_range))
-        attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
+        if max_range >= 99:
+            attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
+        else:
+            attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
 
     if DB.constants.value('line_of_sight'):
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))

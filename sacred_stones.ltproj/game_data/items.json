@@ -5337,12 +5337,12 @@
                 "Sleep"
             ],
             [
-                "max_equation_range",
-                "MAGIC_RANGE"
-            ],
-            [
                 "target_enemy",
                 null
+            ],
+            [
+                "max_equation_range",
+                "MAGIC_RANGE"
             ]
         ]
     },

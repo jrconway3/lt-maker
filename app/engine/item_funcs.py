@@ -162,7 +162,9 @@ def get_range_string(unit, item):
     else:
         min_range = item_system.minimum_range(None, item)
         max_range = item_system.maximum_range(None, item)
-    if min_range != max_range:
+    if max_range >= 99:
+        rng = '%d+' % min_range
+    elif min_range != max_range:
         rng = '%d-%d' % (min_range, max_range)
     else:
         rng = '%d' % max_range

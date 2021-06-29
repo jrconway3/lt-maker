@@ -2,7 +2,6 @@ from app.data.database import DB
 from app.engine import (equations, item_funcs, item_system, line_of_sight,
                         pathfinding, skill_system)
 from app.engine.game_state import game
-from app.engine.movement import MovementManager
 from app.utilities import utils
 
 
@@ -127,7 +126,7 @@ def get_valid_moves(unit, force=False) -> set:
     # Assumes unit is on the map
     if not force and unit.finished:
         return set()
-
+    from app.engine.movement import MovementManager
     mtype = MovementManager.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
     width, height = game.tilemap.width, game.tilemap.height
@@ -142,6 +141,7 @@ def get_valid_moves(unit, force=False) -> set:
     return valid_moves
 
 def get_path(unit, position, ally_block=False) -> list:
+    from app.engine.movement import MovementManager
     mtype = MovementManager.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
 

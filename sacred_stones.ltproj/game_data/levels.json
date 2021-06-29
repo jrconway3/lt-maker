@@ -3633,6 +3633,10 @@
                     [
                         "Javelin",
                         false
+                    ],
+                    [
+                        "Knight Crest",
+                        false
                     ]
                 ],
                 "team": "player",

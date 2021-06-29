@@ -366,7 +366,7 @@ def import_from_gba(current, fn):
     # Remove main sheet if it exists
     images = list(sorted([path for path in images if 'Sheet' not in os.path.split(path)[-1]]))
     if not images:
-        QMessageBox.critical(None, "Error", "Cannot find valid images in %s!" % image_paths)
+        QMessageBox.critical(None, "Error", "Cannot find valid images in %s!" % head)
         return
     # Convert to pixmaps
     pixmaps = {os.path.split(path)[-1][:-4]: QPixmap(path) for path in images}

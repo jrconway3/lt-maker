@@ -65,7 +65,7 @@ class BaseCursor():
         elif self.tilemap:
             return (0, 0, self.tilemap.width - 1, self.tilemap.height - 1)
         else:
-            return (0, 0, TILEX, TILEY)
+            return (0, 0, TILEX - 1, TILEY - 1)
 
     @property
     def transition_duration(self):

@@ -193,7 +193,6 @@ class GameState():
                                 ui_view)
 
         # Systems
-        self.cursor = level_cursor.LevelCursor(self)
         self.camera = camera.Camera(self)
         self.phase = phase.PhaseController()
         self.highlight = highlight.HighlightController()
@@ -223,12 +222,14 @@ class GameState():
         from app.engine.objects.level import LevelObject
         from app.engine.objects.party import PartyObject
         from app.engine.objects.tilemap import TileMapObject
+        from app.engine.level_cursor import LevelCursor
 
         level_nid = str(level_nid)
         level_prefab = DB.levels.get(level_nid)
         tilemap_nid = level_prefab.tilemap
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
         tilemap = TileMapObject.from_prefab(tilemap_prefab)
+        self.cursor = LevelCursor(self)
         self.current_level = LevelObject.from_prefab(level_prefab, tilemap, self.unit_registry)
         if with_party:
             self.current_party = with_party

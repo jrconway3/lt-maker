@@ -2450,7 +2450,7 @@ class Event():
         # both node and entity exist
         if overworld_node_nid not in overworld.revealed_node_nids:
             # node isn't enabled yet
-            logging.error('{}: Node {} exists, but is not yet enabled in overworld {}.'.format('set_overworld_position', overworld_node_nid, overworld.nid))
+            logging.error('{}: Node {} exists, but is not yet enabled in overworld {}.'.format('set_overworld_position', overworld_node_nid, overworld._overworld.nid))
             return
         else:
             # both exist and node is enabled

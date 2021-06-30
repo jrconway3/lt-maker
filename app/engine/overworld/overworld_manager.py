@@ -273,7 +273,7 @@ class OverworldManager():
         """
         self.overworld_explored_graph = nx.Graph()
         for vis_node_nid in self._overworld.enabled_nodes:
-            self.overworld_explored_graph.add_node(vis_node_nid, node=self.node_objects[vis_node_nid])
+            self.overworld_explored_graph.add_node(vis_node_nid, node=self.nodes[vis_node_nid])
         for vis_road_nid in self._overworld.enabled_roads:
             road = self.roads[vis_road_nid]
             path = road.prefab

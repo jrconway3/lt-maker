@@ -58,11 +58,11 @@ class MapView():
         else:
             surf.blit(unit_surf, (0, 0))
 
-    def draw(self, culled_rect=None):
+    def draw(self, camera_cull=None, subsurface_cull=None):
         # start = time.time_ns()
         game.tilemap.update()
         # Camera Cull
-        cull_rect = int(game.camera.get_x() * TILEWIDTH), int(game.camera.get_y() * TILEHEIGHT), WINWIDTH, WINHEIGHT
+        cull_rect = camera_cull
         full_size = game.tilemap.width * TILEWIDTH, game.tilemap.height * TILEHEIGHT
 
         map_image = game.tilemap.get_full_image(cull_rect)
@@ -74,11 +74,11 @@ class MapView():
         surf = game.boundary.draw_fog_of_war(surf, full_size, cull_rect)
         surf = game.highlight.draw(surf, cull_rect)
 
-        if culled_rect:  # Forced smaller cull rect from animation combat black background
+        if subsurface_cull:  # Forced smaller cull rect from animation combat black background
             # Make sure it has a width
             # Make the cull rect even smaller
-            if culled_rect[2] > 0:
-                subsurface_rect = cull_rect[0] + culled_rect[0], cull_rect[1] + culled_rect[1], culled_rect[2], culled_rect[3]
+            if subsurface_cull[2] > 0:
+                subsurface_rect = cull_rect[0] + subsurface_cull[0], cull_rect[1] + subsurface_cull[1], subsurface_cull[2], subsurface_cull[3]
                 self.draw_units(surf, cull_rect, subsurface_rect)
             else:
                 pass # Don't draw units

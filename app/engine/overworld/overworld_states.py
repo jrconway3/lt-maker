@@ -92,9 +92,8 @@ class OverworldState(MapState):
         super().update()
 
     def draw(self, surf):
-        cull_rect = int(game.camera.get_x() * TILEWIDTH), int(game.camera.get_y() * TILEHEIGHT), WINWIDTH, WINHEIGHT
         if isinstance(game.map_view, OverworldMapView):
-            return super().draw(surf, cull_rect)
+            return super().draw(surf)
         else:
             return surf
 

@@ -7,7 +7,6 @@ from app.engine import engine
 from app.engine.graphics.ingame_ui.overworld_ui import OverworldTravelUI
 from app.engine.overworld.overworld_cursor import OverworldCursor
 
-
 class OverworldMapView():
     def __init__(self, overworld: OverworldManager=None, cursor: OverworldCursor=None):
         self.overworld = overworld
@@ -52,12 +51,12 @@ class OverworldMapView():
             if entity.display_position or entity.node.prefab.pos:
                 surf = entity.sprite.draw(surf, cull_rect)
 
-    def draw(self, cull_rect):
+    def draw(self, camera_cull=None, subsurface_cull=None):
         if not self.overworld:
             logging.error('%s: %s : no overworld to draw?', type(self).__name__, 'draw()')
             return engine.create_surface((WINWIDTH, WINHEIGHT))
         self.overworld.tilemap.update()
-
+        cull_rect = camera_cull
         full_size = self.overworld.tilemap.width * TILEWIDTH, self.overworld.tilemap.height * TILEHEIGHT
 
         # cut out our base

@@ -1,19 +1,109 @@
-import time
-import random
-from collections import Counter
-
-from app.constants import VERSION
+from __future__ import annotations
 from app.resources.resources import RESOURCES
-from app.data.database import DB
 
-from app.engine import state_machine, static_random
-from app.engine import config as cf
+import random
+import time
+from collections import Counter
+from ctypes import Union
+from typing import TYPE_CHECKING, Dict, List, Tuple
+
+if TYPE_CHECKING:
+    from app.engine import (ai_controller, death,
+        game_board, highlight, map_view, movement, phase,
+        promotion, ui_view, banner, boundary, camera, cursor,
+        initiative, records, save, supports, turnwheel, unit_sprite)
+    from app.engine.combat.simple_combat import SimpleCombat
+    from app.engine.graphics.ingame_ui.overworld_ui import OverworldTravelUI
+    from app.engine.overworld.overworld_movement_manager import \
+        OverworldMovementManager
+    from app.engine.overworld.overworld_manager import OverworldManager
+    from app.engine.overworld.overworld_map_view import OverworldMapView
+    from app.engine.objects.difficulty_mode import DifficultyModeObject
+    from app.engine.objects.item import ItemObject
+    from app.engine.objects.level import LevelObject
+    from app.engine.objects.overworld import OverworldObject
+    from app.engine.objects.party import PartyObject
+    from app.engine.objects.skill import SkillObject
+    from app.engine.objects.unit import UnitObject
+    from app.events.event_manager import EventManager
+    from app.events.regions import Region
+    from app.utilities.typing import NID
 
 import logging
 
+from app.constants import VERSION
+from app.data.database import DB
+from app.engine import config as cf
+from app.engine import state_machine, static_random
+
+
 class GameState():
     def __init__(self):
+        # define all GameState properties
+        self.memory: Dict = {}
+
+        self.state: state_machine.StateMachine = state_machine.StateMachine()
+
+        self.alerts: List[banner.Banner] = []
+
+        self.current_mode: DifficultyModeObject = None
+
+        # global variable stores
+        self.game_vars: Counter = None
+        self.level_vars: Counter = None
+        self.playtime: int = 0
+        self.current_save_slot: save.SaveSlot = None
+
+        # global registries
+        self.unit_registry: Dict[NID, UnitObject] = {}
+        self.item_registry: Dict[NID, ItemObject] = {}
+        self.skill_registry: Dict[NID, SkillObject] = {}
+        self.terrain_status_registry: Dict[NID, NID] = {}
+        self.region_registry: Dict[NID, Region] = {}
+        self.overworld_registry: Dict[NID, OverworldObject] = {}
+        self.parties: Dict[NID, PartyObject] = {}
+        self.unlocked_lore: List[NID] = []
+        self.already_triggered_events: List[NID] = []
+        self.market_items: set = []
+
+        # global controllers
+        self.supports: supports.SupportController = None
+        self.records: records.Recordkeeper = None
+
+        # 'current' state information, typically varies by level
+        self.current_level: LevelObject = None
+        self.current_overworld: NID = None
+        self.current_party: NID = None
+        self.turncount: int = 0
+        self.talk_options: List[Tuple[NID, NID]] = []
+        self.base_convos: Dict[NID, bool] = {}
+        self.action_log: turnwheel.ActionLog = None
+        self.events: EventManager = None
+        self.map_sprite_registry: Dict[NID, unit_sprite.MapSprite] = {}
+
+        # current-level controllers and game objects
+        self.board: game_board.GameBoard = None
+        self.cursor: cursor.BaseCursor = None
+        self.camera: camera.Camera = None
+        self.boundary: boundary.BoundaryInterface = None
+        self.phase: phase.PhaseController = None
+        self.highlight: highlight.HighlightController = None
+        self.initiative: initiative.InitiativeTracker = None
+        self.map_view: map_view.MapView = None
+        self.movement: movement.MovementManager | OverworldMovementManager = None
+        self.death: death.DeathManager = None
+        self.ui_view: ui_view.UIView = None
+        self.combat_instance: List[SimpleCombat] = []
+        self.exp_instance: List[Tuple[UnitObject, int, promotion.PromotionState, str]] = []
+        self.mana_instance = []
+        self.ai: ai_controller.AIController = None
+        self.overworld_controller: OverworldManager = None
+
         self.clear()
+
+    def is_displaying_overworld(self) -> bool:
+        from app.engine.overworld.overworld_map_view import OverworldMapView
+        return isinstance(self.map_view, OverworldMapView)
 
     def clear(self):
         self.game_vars = Counter()
@@ -62,12 +152,16 @@ class GameState():
         static_random.set_seed(random_seed)
         self.game_vars['_random_seed'] = random_seed
 
-        # Set up overworld  TODO
-        if DB.constants.value('overworld'):
-            self.overworld = None
-        else:
-            self.overworld = None
+        # initialize all parties
+        from app.engine.objects.party import PartyObject
+        for party_prefab in DB.parties.values():
+            nid, name, leader = party_prefab.nid, party_prefab.name, party_prefab.leader
+            self.parties[nid] = PartyObject(nid, name, leader)
 
+        # Initialize all overworlds and enter them into the registry
+        from app.engine.objects.overworld import OverworldObject
+        for overworld in DB.overworlds.values():
+            self.overworld_registry[overworld.nid] = OverworldObject.from_prefab(overworld, self.parties, self.unit_registry)
         self.supports = supports.SupportController()
         self.records = records.Recordkeeper()
         self.market_items = set()
@@ -94,8 +188,10 @@ class GameState():
         """
         Done on loading a level, whether from overworld, last level, save_state, etc.
         """
-        from app.engine import level_cursor, camera, phase, highlight, \
-            movement, death, ai_controller, map_view, ui_view
+        from app.engine import (ai_controller, camera, death, highlight,
+                                level_cursor, map_view, movement, phase,
+                                ui_view)
+
         # Systems
         self.cursor = level_cursor.LevelCursor(self)
         self.camera = camera.Camera(self)
@@ -125,8 +221,8 @@ class GameState():
 
         from app.engine.initiative import InitiativeTracker
         from app.engine.objects.level import LevelObject
-        from app.engine.objects.tilemap import TileMapObject
         from app.engine.objects.party import PartyObject
+        from app.engine.objects.tilemap import TileMapObject
 
         level_nid = str(level_nid)
         level_prefab = DB.levels.get(level_nid)
@@ -174,7 +270,7 @@ class GameState():
             self.register_skill(skill)
 
     def set_up_game_board(self, tilemap):
-        from app.engine import game_board, boundary
+        from app.engine import boundary, game_board
         self.board = game_board.GameBoard(tilemap)
         self.boundary = boundary.BoundaryInterface(tilemap.width, tilemap.height)
 
@@ -227,15 +323,15 @@ class GameState():
         return s_dict, meta_dict
 
     def load(self, s_dict):
-        from app.engine import turnwheel, records, save, supports, action
-        from app.events import event_manager
-
+        from app.engine import action, records, save, supports, turnwheel
+        from app.engine.objects.difficulty_mode import DifficultyModeObject
+        from app.engine.objects.overworld import OverworldObject
         from app.engine.objects.item import ItemObject
-        from app.engine.objects.skill import SkillObject
-        from app.engine.objects.unit import UnitObject
         from app.engine.objects.level import LevelObject
         from app.engine.objects.party import PartyObject
-        from app.engine.objects.difficulty_mode import DifficultyModeObject
+        from app.engine.objects.skill import SkillObject
+        from app.engine.objects.unit import UnitObject
+        from app.events import event_manager
         from app.events.regions import Region
 
         logging.info("Loading Game...")
@@ -259,6 +355,7 @@ class GameState():
         self.terrain_status_registry = s_dict.get('terrain_status_registry', {})
         self.region_registry = {region['nid']: Region.restore(region) for region in s_dict.get('regions', [])}
         self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
+
         # Handle subitems
         for item in self.item_registry.values():
             for subitem_uid in item.subitem_uids:
@@ -278,6 +375,15 @@ class GameState():
         self.already_triggered_events = s_dict.get('already_triggered_events', [])
         self.talk_options = s_dict.get('talk_options', [])
         self.base_convos = s_dict.get('base_convos', {})
+
+         # load all overworlds, or initialize them
+        if 'overworlds' in s_dict:
+            for overworld in s_dict['overworlds']:
+                overworld_obj = OverworldObject.restore(overworld, self)
+                self.overworld_registry[overworld_obj.nid] = overworld_obj
+        for overworld in DB.overworlds.values():
+            if overworld.nid not in self.overworld_registry:
+                self.overworld_registry[overworld.nid] = OverworldObject.from_prefab(overworld, self.parties, self.unit_registry)
 
         self.action_log = turnwheel.ActionLog.restore(s_dict['action_log'])
         if s_dict.get('supports'):
@@ -311,7 +417,8 @@ class GameState():
         self.events = event_manager.EventManager.restore(s_dict.get('events'))
 
     def clean_up(self):
-        from app.engine import item_system, skill_system, item_funcs, action, supports
+        from app.engine import (action, item_funcs, item_system, skill_system,
+                                supports)
 
         supports.increment_end_chapter_supports()
 
@@ -399,8 +506,13 @@ class GameState():
 
     @property
     def tilemap(self):
-        if self.current_level:
+        from app.engine.overworld.overworld_map_view import OverworldMapView
+        if self.is_displaying_overworld():
+            return self.overworld_controller.tilemap
+        elif self.current_level:
             return self.current_level.tilemap
+        else:
+            return None
 
     @property
     def mode(self):
@@ -584,7 +696,7 @@ class GameState():
         # Set "test" to True when you are just testing what would happen by moving
         # to a position (generally used for AI)
         """
-        from app.engine import skill_system, aura_funcs
+        from app.engine import aura_funcs, skill_system
         if unit.position:
             logging.debug("Arrive %s %s", unit.nid, unit.position)
             if not test:
@@ -726,6 +838,7 @@ def load_level(level_nid, save_loc):
     else:
         game.clear()
     import pickle
+
     from app.engine import save
     with open(save_loc, 'rb') as fp:
         s_dict = pickle.load(fp)

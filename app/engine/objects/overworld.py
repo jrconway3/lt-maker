@@ -14,9 +14,9 @@ if TYPE_CHECKING:
     from app.data.overworld_node import OverworldNodePrefab
     from app.engine.game_state import GameState
     from app.engine.objects.party import PartyObject
-    from app.engine.objects.tilemap import TileMapObject
     from app.engine.objects.unit import UnitObject
 
+from app.engine.objects.tilemap import TileMapObject
 from app.engine.overworld.overworld_map_sprites import (OverworldNodeSprite,
                                                         OverworldRoadSprite,
                                                         OverworldUnitSprite)
@@ -72,14 +72,13 @@ class OverworldEntityObject():
         entity.overworld = overworld
         entity.prefab = prefab
         entity.on_node = initial_node
-        entity.sprite = OverworldUnitSprite(entity.unit, entity)
 
         # create unit
         if prefab.leader_nid in unit_registry:
             entity.unit = unit_registry.get(prefab.leader_nid)
         else:
             entity.unit = DB.units.get(prefab.leader_nid)
-
+        entity.sprite = OverworldUnitSprite(entity.unit, entity)
         return entity
 
     def save(self):
@@ -250,7 +249,6 @@ class OverworldObject():
     @classmethod
     def from_prefab(cls, prefab: OverworldPrefab, party_registry: Dict[NID, PartyObject], unit_registry: Dict[NID, UnitObject]):
         overworld = cls()
-        overworld.music = prefab.get_music_resource()
         overworld.tilemap = TileMapObject.from_prefab(prefab.get_tilemap_resource())
         overworld.prefab = prefab
         for pnid, party in party_registry.items():

@@ -165,6 +165,9 @@ class Event():
             if perc < 0:
                 self.transition_state = None
 
+    def take_input(self, event):
+        pass
+
     def draw(self, surf):
         self.animations = [anim for anim in self.animations if not anim.update()]
         for anim in self.animations:

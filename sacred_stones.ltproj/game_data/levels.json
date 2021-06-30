@@ -3539,7 +3539,7 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Multi",
+                        "Lightning",
                         false
                     ]
                 ],
@@ -3656,6 +3656,29 @@
                     3
                 ],
                 "generic": false
+            },
+            {
+                "nid": "106",
+                "variant": null,
+                "level": 20,
+                "klass": "Pegasus_Knight",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    5,
+                    3
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [

@@ -166,6 +166,7 @@ def auto_level(unit, num_levels, starting_level=1, difficulty_growths=False):
     klass = DB.classes.get(unit.klass)
     unit.stats = {k: utils.clamp(v, 0, klass.max_stats.get(k, 30)) for (k, v) in unit.stats.items()}
     unit.set_hp(1000)  # Go back to full hp
+    unit.set_mana(1000)  # Go back to full mana
 
 def apply_stat_changes(unit, stat_changes: dict):
     """

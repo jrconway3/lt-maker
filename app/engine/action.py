@@ -1103,6 +1103,7 @@ class AutoLevel(Action):
         self.old_stats = self.unit.stats
         self.old_growth_points = self.unit.growth_points
         self.old_hp = self.unit.get_hp()
+        self.old_mana = self.unit.get_mana()
 
     def do(self):
         unit_funcs.auto_level(self.unit, self.diff, self.unit.get_internal_level())
@@ -1111,6 +1112,7 @@ class AutoLevel(Action):
         self.unit.stats = self.old_stats
         self.unit.growth_points = self.old_growth_points
         self.unit.set_hp(self.old_hp)
+        self.unit.set_mana(self.old_mana)
 
 
 class GrowthPointChange(Action):

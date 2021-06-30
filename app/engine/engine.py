@@ -62,7 +62,7 @@ def update_time():
     constants['current_time'] = pygame.time.get_ticks()
     constants['delta_t'] = constants['current_time'] - constants['last_time']
 
-def get_time():
+def get_time() -> int:
     return constants['current_time']
 
 def get_last_time():

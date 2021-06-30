@@ -54,6 +54,9 @@ class EventState(State):
             game.game_vars['_should_go_to_overworld'] = should_go_to_overworld
             if game.game_vars['_go_to_overworld_nid']:
                 game.game_vars['_next_overworld_nid'] = game.game_vars['_go_to_overworld_nid']
+            elif game.game_vars['_next_overworld_nid']:
+                # go to same overworld
+                pass
             else:
                 game.game_vars['_next_overworld_nid'] = DB.overworlds.values()[0].nid
 

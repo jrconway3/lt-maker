@@ -24,6 +24,7 @@ from app.engine.unit_sound import UnitSound
 from app.resources.sounds import Song
 from app.utilities.typing import NID, Point
 
+
 class OverworldNodeProperty():
     IS_NEXT_LEVEL = "IS_NEXT_LEVEL"
 

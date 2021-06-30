@@ -18,11 +18,13 @@ class OverworldManager():
     """A wrapper class that contains various functionality for manipulating
     and accessing the overworld data.
     """
-    def __init__(self, overworld: OverworldObject, cursor: OverworldCursor):
+    def __init__(self, overworld: OverworldObject, cursor: OverworldCursor = None):
         self._overworld = overworld
-        self.cursor = cursor
-        self.cursor.set_overworld_manager(self)
-
+        if cursor:
+            self.cursor = cursor
+            self.cursor.set_overworld_manager(self)
+        else:
+            self.cursor = None
         # generate useful structs
         self.nodes: Dict[NID, OverworldNodeObject] = {}
         self.roads: Dict[NID, RoadObject] = {}
@@ -41,9 +43,21 @@ class OverworldManager():
     def revealed_nodes(self) -> List[OverworldNodeObject]:
         return [self.nodes[nid] for nid in self._overworld.enabled_nodes]
 
+    def enable_node(self, node: OverworldNodeObject | NID):
+        if isinstance(node, OverworldNodeObject):
+            node = node.nid
+        self._overworld.enabled_nodes.add(node)
+        self.regenerate_explored_graph()
+
     @property
     def revealed_roads(self) -> List[RoadObject]:
         return [self.roads[nid] for nid in self._overworld.enabled_roads]
+
+    def enable_road(self, road: RoadObject | NID):
+        if isinstance(road, RoadObject):
+            road = road.nid
+        self._overworld.enabled_roads.add(road)
+        self.regenerate_explored_graph()
 
     @property
     def tilemap(self) -> TileMapObject:
@@ -85,7 +99,7 @@ class OverworldManager():
         if isinstance(node, OverworldNodeObject):
             node = node.nid
         try:
-            self._overworld.node_properties[node_nid].remove(prop)
+            self._overworld.node_properties[node].remove(prop)
         except:
             # node doesn't exist, prop doesn't exist, who cares?
             pass
@@ -240,7 +254,7 @@ class OverworldManager():
         for nid, node in self._overworld.prefab.overworld_nodes.items():
             self.nodes[nid] = OverworldNodeObject.from_prefab(node)
         for rid, road in self._overworld.prefab.map_paths.items():
-            self.roads[rid] = RoadObject.from_prefab(road)
+            self.roads[rid] = RoadObject.from_prefab(road, rid)
 
     def _initialize_graphs(self):
         self.overworld_full_graph = nx.Graph()

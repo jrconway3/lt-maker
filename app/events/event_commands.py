@@ -17,6 +17,7 @@ class Tags(Enum):
     MODIFY_UNIT_PROPERTIES = 'Modify Unit Properties'
     UNIT_GROUPS = 'Unit Groups'
     MISCELLANEOUS = 'Miscellaneous'
+    OVERWORLD = 'Overworld'
     HIDDEN = 'Hidden'
 
 class EventCommand(Prefab):
@@ -241,7 +242,7 @@ Extra flags:
         """
 
     keywords = ['Portrait', 'ScreenPosition']
-    optional_keywords = ['Slide', 'ExpressionList']
+    optional_keywords = ['Slide', 'ExpressionList', 'VerticalScreenPosition']
     flags = ["mirror", "low_priority", "immediate", "no_block"]
 
 class MultiAddPortrait(EventCommand):
@@ -304,6 +305,13 @@ class Speak(EventCommand):
     optional_keywords = ['ScreenPosition', 'Width', 'DialogVariant']
     flags = ['low_priority']
 
+class Narrate(EventCommand):
+    nid = "narrate"
+    tag = Tags.DIALOGUE_TEXT
+
+    keywords = ['Speaker', 'Text']
+    flags = ['no_block']
+
 class Transition(EventCommand):
     nid = "transition"
     nickname = "t"
@@ -330,15 +338,24 @@ class MoveCursor(EventCommand):
     nid = "move_cursor"
     nickname = "set_cursor"
     tag = Tags.CURSOR_CAMERA
+    desc = '''
+        Move cursor to position.
+
+        `Speed` is optional, and determines how many milliseconds it takes for the
+        camera to recenter. If left blank, will use default camera pan speed.
+    '''
 
     keywords = ["Position"]
+    optional_keywords = ['Speed']
     flags = ["immediate"]
+
 
 class CenterCursor(EventCommand):
     nid = "center_cursor"
     tag = Tags.CURSOR_CAMERA
 
     keywords = ["Position"]
+    optional_keywords = ['Speed']
     flags = ["immediate"]
 
 class FlickerCursor(EventCommand):
@@ -803,9 +820,10 @@ class SetPosition(EventCommand):
 class MapAnim(EventCommand):
     nid = 'map_anim'
     tag = Tags.TILEMAP
-
+    desc = ( 'Plays a map animation denoted by the nid *MapAnim* at *Position*. Optional args: a speed multiplier'
+             ' *Float*, which increases the length of time it takes to play the animation (larger is slower)')
     keywords = ["MapAnim", "Position"]
-    flags = ["no_block"]
+    optional_keywords = ["Float"]
 
 class ArrangeFormation(EventCommand):
     nid = 'arrange_formation'
@@ -954,6 +972,62 @@ class MoveInInitiative(EventCommand):
     desc = "Moves the initiative of the specified unit."
 
     keywords = ["Unit", "Integer"]
+
+class StartOverworldCinematic(EventCommand):
+    nid = 'overworld_cinematic'
+    tag = Tags.OVERWORLD
+    desc = 'Sets the background to the overworld, allowing us to create cutscenes set in the overworld'
+
+    optional_keywords = ['OverworldNID']
+
+class EndOverworldCinematic(EventCommand):
+    nid = 'overworld_cinematic_exit'
+    tag = Tags.OVERWORLD
+    desc = 'exits the overworld, setting the bg to the level once again'
+
+class OverworldSetPosition(EventCommand):
+    nid = 'set_overworld_position'
+    tag = Tags.OVERWORLD
+    desc = "Sets the position of a specific party in the overworld to a specific node in the overworld"
+
+    keywords = ['Party', 'OverworldLocation']
+
+class OverworldMoveUnit(EventCommand):
+    nid = 'overworld_move_unit'
+    nickname = 'omove'
+    tag = Tags.OVERWORLD
+    desc = ('Issues a move command *Party* to move from its current position to given *OverworldLocation*.'
+            'You can adjust the speed via the *Float* parameter - higher is slower (2 is twice as slow, 3 is thrice...)')
+
+    keywords = ["Party", "OverworldLocation"]
+    optional_keywords = ['Float']
+    flags = ['no_block', 'no_follow']
+
+class OverworldRevealNode(EventCommand):
+    nid = 'reveal_overworld_node'
+    tag = Tags.OVERWORLD
+    desc = ('Reveals an overworld node on the map: moves the camera to the new location, plays the animation, and fades in the nodes.'
+            'By default, fades in via animation; the *Bool* can be set to **True** to skip this anim.')
+
+    keywords = ['OverworldLocation']
+    optional_keywords = ['Bool']
+
+class OverworldRevealRoad(EventCommand):
+    nid = 'reveal_overworld_road'
+    tag = Tags.OVERWORLD
+    desc = ('Enables a road between two overworld nodes. *OverworldLocation* denotes the NID of a valid node. '
+            'By default, fades in via animation; the *Bool* can be set to **True** to skip this anim.')
+
+    keywords = ['OverworldLocation', 'OverworldLocation']
+    optional_keywords = ['Bool']
+
+class ToggleNarrationMode(EventCommand):
+    nid = 'toggle_narration_mode'
+    tag = Tags.DIALOGUE_TEXT
+    desc = ('Enter or exit a full-screen narration mode.')
+
+    keywords = ['Direction']
+    optional_keywords = ['Speed']
 
 def get_commands():
     return EventCommand.__subclasses__()

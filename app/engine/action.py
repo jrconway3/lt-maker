@@ -954,6 +954,65 @@ class RepairItem(Action):
         if self.old_c_uses is not None and self.item.c_uses:
             self.item.data['c_uses'] = self.old_c_uses
 
+class ChangeItemName(Action):
+    def __init__(self, item, name):
+        self.item = item
+        self.old_name = item.name
+        self.new_name = name
+
+    def do(self):
+        self.item.name = self.new_name
+
+    def reverse(self):
+        self.item.name = self.old_name
+
+class ChangeItemDesc(Action):
+    def __init__(self, item, desc):
+        self.item = item
+        self.old_desc = item.desc
+        self.new_desc = desc
+
+    def do(self):
+        self.item.desc = self.new_desc
+
+    def reverse(self):
+        self.item.desc = self.old_desc
+
+class AddItemToMultiItem(Action):
+    def __init__(self, unit, item, subitem):
+        self.unit = unit
+        self.item = item
+        self.subitem = subitem
+
+    def do(self):
+        self.subitem.owner_nid = self.unit.nid
+        self.item.subitem_uids.append(self.subitem.uid)
+        self.item.subitems.append(self.subitem)
+        self.subitem.parent_item = self.item
+
+    def reverse(self):
+        self.subitem.owner_nid = None
+        self.item.subitem_uids.remove(self.subitem.uid)
+        self.item.subitems.remove(self.subitem)
+        self.subitem.parent_item = None
+
+class RemoveItemFromMultiItem(Action):
+    def __init__(self, unit, item, subitem):
+        self.unit = unit
+        self.item = item
+        self.subitem = subitem
+
+    def do(self):
+        self.subitem.owner_nid = None
+        self.item.subitem_uids.remove(self.subitem.uid)
+        self.item.subitems.remove(self.subitem)
+        self.subitem.parent_item = None
+
+    def reverse(self):
+        self.subitem.owner_nid = self.unit.nid
+        self.item.subitem_uids.append(self.subitem.uid)
+        self.item.subitems.append(self.subitem)
+        self.subitem.parent_item = self.item
 
 class SetObjData(Action):
     def __init__(self, obj, keyword, value):

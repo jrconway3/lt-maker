@@ -280,7 +280,7 @@ class OverworldPartyOptionMenu(State):
 
     def start(self):
         game.cursor.hide()
-        options = ['Manage Items']
+        options = ['Base Camp']
         info_desc = ['Convoy_desc']
         ignore = [False]
 
@@ -306,8 +306,8 @@ class OverworldPartyOptionMenu(State):
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
-            if selection == 'Manage Items':
-                game.memory['next_state'] = 'base_manage'
+            if selection == 'Base Camp':
+                game.memory['next_state'] = 'base_main'
                 game.state.change('transition_to')
 
         elif event == 'INFO':

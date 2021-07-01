@@ -72,8 +72,7 @@ class GameState():
 
         # 'current' state information, typically varies by level
         self.current_level: LevelObject = None
-        self.current_overworld: NID = None
-        self.current_party: NID = None
+        self._current_party: NID = None
         self.turncount: int = 0
         self.talk_options: List[Tuple[NID, NID]] = []
         self.base_convos: Dict[NID, bool] = {}
@@ -507,6 +506,18 @@ class GameState():
     @property
     def level(self):
         return self.current_level
+
+    @property
+    def current_party(self):
+        if self.is_displaying_overworld() and self.overworld_controller.selected_entity.nid:
+            self._current_party = self.overworld_controller.selected_entity.nid
+        return self._current_party
+
+    @current_party.setter
+    def current_party(self, party_nid: NID):
+        self._current_party = party_nid
+        if self.overworld_controller:
+            self.overworld_controller.select_entity(self._current_party)
 
     @property
     def tilemap(self):

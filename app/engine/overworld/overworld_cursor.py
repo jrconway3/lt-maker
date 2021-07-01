@@ -39,7 +39,7 @@ class OverworldCursor(BaseCursor):
         else:
             self._transition_speed = 1
 
-    def autocursor(self, immediate):
+    def autocursor(self, immediate=False):
         party_node = self.overworld.selected_party_node()
         if immediate:
             self.set_pos(party_node.position)

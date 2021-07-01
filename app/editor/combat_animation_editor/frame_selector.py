@@ -8,7 +8,8 @@ from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter, qRgb
 from app.constants import WINWIDTH, WINHEIGHT
 
 from app import utilities
-from app.resources import combat_anims
+from app.resources import combat_anims, combat_palettes
+from app.resources.resources import RESOURCES
 
 from app.editor.settings import MainSettingsController
 
@@ -43,7 +44,7 @@ class FrameSelector(Dialog):
         self.combat_anim = combat_anim
         self.weapon_anim = weapon_anim
         self.current_palette_nid = self.window.get_current_palette()
-        # Get a referenceto the color change function
+        # Get a reference to the color change function
         self.frames = weapon_anim.frames
         if self.frames:
             self.current = self.frames[0]
@@ -77,12 +78,15 @@ class FrameSelector(Dialog):
 
         self.add_button = QPushButton("Add Frames...")
         self.add_button.clicked.connect(self.import_frames)
+        self.export_button = QPushButton("Export Frames...")
+        self.export_button.clicked.connect(self.export_frames)
 
         layout = QVBoxLayout()
         main_layout = QHBoxLayout()
         left_layout = QVBoxLayout()
         left_layout.addWidget(self.view)
         left_layout.addWidget(self.add_button)
+        left_layout.addWidget(self.export_button)
         right_layout = QVBoxLayout()
         right_layout.addWidget(self.display)
         right_layout.addWidget(offset_section)
@@ -93,54 +97,6 @@ class FrameSelector(Dialog):
         self.setLayout(layout)
 
         self.set_current(self.current)
-
-    def import_frames(self):
-        starting_path = self.settings.get_last_open_path()
-        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Frames", starting_path, "PNG Files (*.png);;All Files(*)")
-        if ok:
-            base_colors = combat_anims.base_palette.colors
-            pixmaps = []
-            crops = []
-            # Get files and crop them to right size
-            for fn in fns:
-                if fn.endswith('.png'):
-                    nid = os.path.split(fn)[-1][:-4]
-                    pix = QPixmap(fn)
-                    x, y, width, height = editor_utilities.get_bbox(pix.toImage())
-                    pix = pix.copy(x, y, width, height)
-                    pixmaps.append(pix)
-                    crops.append((x, y, width, height))
-                else:
-                    QMessageBox.critical(self.window, "File Type Error!", "Portrait must be PNG format!")
-
-            # Now determine palette to use for ingestion
-            palette_colors = editor_utilities.find_palette_from_multiple(pixmaps)
-            for palette in self.combat_anim.palettes:
-                if palette.is_similar(palette_colors):
-                    my_colors = palette.colors
-                    break
-            else:
-                print("Generating new palette...")
-                nid = utilities.get_next_name("New Palette", self.combat_anim.palettes.keys())
-                new_palette = combat_anims.Palette(nid, palette_colors)
-                self.combat_anim.palettes.append(new_palette)
-                my_colors = new_palette.colors
-            convert_dict = {qRgb(*a): qRgb(*b) for a, b in zip(my_colors, base_colors)}
-
-            for idx, pixmap in enumerate(pixmaps):
-                im = pix.toImage()
-                im = editor_utilities.color_convert(im, convert_dict)
-                pix = QPixmap.fromImage(im)
-                nid = utilities.get_next_name(nid, self.frames.keys())
-                x, y, width, height = crops[idx]
-                new_frame = combat_anims.Frame(nid, None, (x, y), pix)
-                self.frames.append(new_frame)
-                self.set_current(new_frame)
-
-            combat_animation_imports.update_weapon_anim_pixmap(self.weapon_anim)
-            self.model.layoutChanged.emit()
-            parent_dir = os.path.split(fns[-1])[0]
-            self.settings.set_last_open_path(parent_dir)
 
     def on_item_changed(self, curr, prev):
         if self.frames:
@@ -156,6 +112,15 @@ class FrameSelector(Dialog):
     def on_y_changed(self, val):
         self.current.offset = (self.current.offset[0], val)
         self.draw()
+
+    def export_frames(self):
+        starting_path = self.settings.get_last_open_path()
+        fn_dir = QFileDialog.getExistingDirectory(
+            self, "Export Frames", starting_path)
+        if fn_dir:
+            self.settings.set_last_open_path(fn_dir)
+            self.export(fn_dir)
+            QMessageBox.information(self, "Export Complete", "Export of frames complete!")
 
     def set_current(self, frame):
         self.current = frame
@@ -184,3 +149,81 @@ class FrameSelector(Dialog):
             return dlg.current, True
         else:
             return None, False
+
+    def import_frames(self):
+        starting_path = self.settings.get_last_open_path()
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Frames", starting_path, "PNG Files (*.png);;All Files(*)")
+        error = False
+        if fns and ok:
+            pixmaps = []
+            crops = []
+            nids = []
+            # Get files and crop them to right size
+            for fn in fns:
+                if fn.endswith('.png'):
+                    nid = os.path.split(fn)[-1][:-4]
+                    nids.append(nid)
+                    pix = QPixmap(fn)
+                    x, y, width, height = editor_utilities.get_bbox(pix.toImage())
+                    pix = pix.copy(x, y, width, height)
+                    pixmaps.append(pix)
+                    crops.append((x, y, width, height))
+                elif not error:
+                    error = True
+                    QMessageBox.critical(self.window, "File Type Error!", "Frame must be PNG format!")
+
+            # Now determine palette to use for ingestion
+            all_palette_colors = editor_utilities.find_palette_from_multiple([pix.toImage() for pix in pixmaps])
+            my_palette = None
+            for palette in self.combat_anim.palettes:
+                if palette.is_similar(all_palette_colors):
+                    my_palette = palette
+                    break
+            else:
+                print("Generating new palette...")
+                nid = utilities.get_next_name("New Palette", RESOURCES.combat_palettes.keys())
+                my_palette = combat_palettes.Palette(nid)
+                RESOURCES.combat_palettes.append(my_palette)
+                self.combat_anims.palettes.append(["New Palette", my_palette.nid])
+                colors = {(int(idx % 8), int(idx / 8)): color for idx, color in enumerate(all_palette_colors)}
+                my_palette.colors = colors
+
+            convert_dict = {qRgb(*color): qRgb(0, coord[0], coord[1]) for coord, color in my_palette.colors}
+            for idx, pixmap in enumerate(pixmaps):
+                im = pix.toImage()
+                im = editor_utilities.color_convert(im, convert_dict)
+                pix = QPixmap.fromImage(im)
+                nid = utilities.get_next_name(nids[idx], self.frames.keys())
+                x, y, width, height = crops[idx]
+                new_frame = combat_anims.Frame(nid, None, (x, y), pix)
+                self.frames.append(new_frame)
+                self.set_current(new_frame)
+
+            combat_animation_imports.update_weapon_anim_full_image(self.weapon_anim)
+            self.model.layoutChanged.emit()
+            
+            parent_dir = os.path.split(fns[-1])[0]
+            self.settings.set_last_open_path(parent_dir)
+
+    def export(self, fn_dir):
+        index = {}
+        for frame in self.frames:
+            index[frame.nid] = (frame.rect, frame.offset)
+            # Draw frame
+            base_image = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
+            base_image.fill(editor_utilities.qCOLORKEY)
+            painter = QPainter()
+            painter.begin(base_image)
+            pixmap = frame.pixmap
+            im = combat_animation_model.palette_swap(pixmap, self.current_palette_nid)
+            painter.drawImage(frame.offset[0], frame.offset[1], im)
+            painter.end()
+            path = os.path.join(fn_dir, '%s.png' % frame.nid)
+            base_image.save(path)
+
+        index_path = os.path.join(fn_dir, '%s-%s-Index.txt' % (self.combat_anim.nid, self.weapon_anim.nid))
+        with open(index_path, 'w') as fn:
+            frames = sorted(index.items())
+            for frame in frames:
+                nid, (rect, offset) = frame
+                fn.write('%s;%d,%d;%d,%d;%d,%d\n' % (nid, *rect, *offset))

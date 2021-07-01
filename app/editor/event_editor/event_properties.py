@@ -186,8 +186,8 @@ class CodeEditor(QPlainTextEdit):
         self.window = parent
         self.line_number_area = LineNumberArea(self)
 
-        settings = MainSettingsController()
-        theme = settings.get_theme()
+        self.settings = MainSettingsController()
+        theme = self.settings.get_theme()
         if theme == 0:
             self.line_number_color = Qt.darkGray
         else:
@@ -201,21 +201,25 @@ class CodeEditor(QPlainTextEdit):
         # Set tab to four spaces
         fm = QFontMetrics(self.font())
         self.setTabStopWidth(4 * fm.width(' '))
-                
-        # completer
+
         self.completer: event_autocompleter.Completer = None
-        self.setCompleter(event_autocompleter.Completer(parent=self))
-        self.textChanged.connect(self.complete)
-        self.textChanged.connect(self.display_function_hint)
-        self.prev_keyboard_press = None
-        
-        # function helper
         self.function_annotator: QLabel = QLabel(self)
-        self.function_annotator.setTextFormat(Qt.RichText)
-        self.function_annotator.setWordWrap(True)
-        with open(os.path.join(os.path.dirname(__file__),'event_styles.css'), 'r') as stylecss:
-            self.function_annotator.setStyleSheet(stylecss.read())
-        
+
+        if not bool(self.settings.get_event_autocomplete()):
+            return  # Event auto completer is turned off
+        else:
+            # completer
+            self.setCompleter(event_autocompleter.Completer(parent=self))
+            self.textChanged.connect(self.complete)
+            self.textChanged.connect(self.display_function_hint)
+            self.prev_keyboard_press = None
+
+            # function helper
+            self.function_annotator.setTextFormat(Qt.RichText)
+            self.function_annotator.setWordWrap(True)
+            with open(os.path.join(os.path.dirname(__file__),'event_styles.css'), 'r') as stylecss:
+                self.function_annotator.setStyleSheet(stylecss.read())
+
     def setCompleter(self, completer):
         if not completer:
             return
@@ -240,6 +244,8 @@ class CodeEditor(QPlainTextEdit):
         return tc.selectedText()
 
     def display_function_hint(self):
+        if not bool(self.settings.get_event_autocomplete()):
+            return  # Event auto completer is turned off
         tc = self.textCursor()
         line = tc.block().text()
         cursor_pos = tc.positionInBlock()
@@ -252,17 +258,17 @@ class CodeEditor(QPlainTextEdit):
         if self.prev_keyboard_press == Qt.Key_Return: # don't do hint on newline
             self.function_annotator.hide()
             return
-        
+
         if len(line) > 0 and line[cursor_pos - 1] == ';':
             self.function_annotator.show()
-                
+
         # determine which command and validator is under the cursor
         command = event_autocompleter.detect_command_under_cursor(line)
         validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos)
-        
+
         if not command or command == event_commands.Comment:
             return
-        
+
         hint_words = []
         hint_words.append(command.nid)
         hint_words = hint_words + command.keywords
@@ -271,7 +277,7 @@ class CodeEditor(QPlainTextEdit):
             hint_words.append('FLAGS')
         hint_cmd = ""
         hint_desc = ""
-        
+
         if validator == event_validators.EventFunction:
             self.function_annotator.hide()
             return
@@ -284,23 +290,23 @@ class CodeEditor(QPlainTextEdit):
                 if cursor_pos > 0 and command.flags:
                     hint_words[-1] = '<b>' + hint_words[-1] + '</b>'
                     hint_desc = 'Must be one of (`' + str.join('`,`', flags) + '`)'
-        
+
         hint_cmd = str.join(';', hint_words)
         # style both components
         hint_cmd = '<div class="command_text">' + hint_cmd + '</div>'
         hint_desc = '<div class="desc_text">' + hint_desc + '</div>'
-        
+
         style = """
             <style>
                 .command_text {font-family: 'Courier New', Courier, monospace;}
                 .desc_text {font-family: Arial, Helvetica, sans-serif;}
             </style>
         """
-        
+
         hint_text = style + hint_cmd + '<hr>' + hint_desc
         self.function_annotator.setText(hint_text)
         self.function_annotator.adjustSize()
-        
+
         # offset the position and display
         tc_top_right = self.mapTo(self.parent(), self.cursorRect(tc).topRight())
         height = self.function_annotator.height()
@@ -308,26 +314,29 @@ class CodeEditor(QPlainTextEdit):
         tc_top_right.setX(min(tc_top_right.x() + 15, self.width() - self.function_annotator.width()))
         self.function_annotator.move(tc_top_right)
 
-    def complete(self):        
+    def complete(self):
+        if not self.completer or not bool(self.settings.get_event_autocomplete()):
+            return  # Event auto completer is turned off
         tc = self.textCursor()
-        
         line = tc.block().text()
         cursor_pos = tc.positionInBlock()
-        
+
         if len(line) != cursor_pos:
             return  # Only do autocomplete on end of line
         if tc.blockNumber() <= 0 and cursor_pos <= 0:  # Remove if cursor is at the very top left of event
             return
         if self.prev_keyboard_press == Qt.Key_Backspace or self.prev_keyboard_press == Qt.Key_Return: # don't do autocomplete on backspace
             return
-        
+
         # determine what dictionary to use for completion
         validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos)
         autofill_dict = event_autocompleter.generate_wordlist_from_validator_type(validator, self.window.current.nid)
         if flags:
             autofill_dict = autofill_dict + event_autocompleter.generate_flags_wordlist(flags)
+        if len(autofill_dict) == 0:
+            return
         self.completer.setModel(QStringListModel(autofill_dict, self.completer))
-        
+
         # filter the dictionary and display the popup
         completionPrefix = self.textUnderCursor()
         self.completer.setCompletionPrefix(completionPrefix)
@@ -391,27 +400,22 @@ class CodeEditor(QPlainTextEdit):
         self.prev_keyboard_press = event.key()
         # Shift + Tab is not the same as catching a shift modifier + tab key
         # Shift + Tab is a Backtab
+        if self.completer:  # let the autocomplete handle the event first
+            stop_handling = self.completer.handleKeyPressEvent(event)
+            if stop_handling:
+                return
+        # autocomplete didn't handle the event, or doesn't consume it
+        # let the textbox handle
         if event.key() == Qt.Key_Tab:
-            if self.completer.popup().isVisible():
-                # If completer is up, Tab can auto-complete
-                completion = self.completer.popup().selectedIndexes()[0].data(Qt.DisplayRole)
-                self.completer.changeCompletion(completion)
-            else:  # Otherwise just normal tab (insert 4 spaces)
-                cur = self.textCursor()
-                cur.insertText("    ")
+            cur = self.textCursor()
+            cur.insertText("    ")
         elif event.key() == Qt.Key_Backspace:
-            # completer functionality, hides the completer
-            if self.completer.popup().isVisible():
-                self.completer.popup().hide()
-            # Always does Backspace as well
+            # autofill functionality, hides autofill windows
+            if self.function_annotator.isVisible():
+                self.function_annotator.hide()
             return super().keyPressEvent(event)
         elif event.key() == Qt.Key_Return:
-            # completer functionality, enters the selected suggestion
-            if self.completer.popup().isVisible():
-                completion = self.completer.popup().selectedIndexes()[0].data(Qt.DisplayRole)
-                self.completer.changeCompletion(completion)
-            else:
-                return super().keyPressEvent(event)
+            return super().keyPressEvent(event)
         elif event.key() == Qt.Key_Backtab:
             cur = self.textCursor()
             # Copy the current selection
@@ -450,6 +454,10 @@ class CodeEditor(QPlainTextEdit):
                     # It's not a tab, so reset the selection to what it was
                     cur.setPosition(anchor)
                     cur.setPosition(pos, QTextCursor.KeepAnchor)
+        elif event.key() == Qt.Key_Escape:
+            # autofill functionality, hides autofill windows
+            if self.function_annotator.isVisible():
+                self.function_annotator.hide()
         else:
             return super().keyPressEvent(event)
 
@@ -492,7 +500,7 @@ class EventCollection(QWidget):
         self.view.setEditTriggers(QAbstractItemView.NoEditTriggers)
         # self.view.currentChanged = self.on_item_changed
         self.view.selectionModel().selectionChanged.connect(self.on_item_changed)
-        
+
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
         self.button = QPushButton(button_text % self.title)
@@ -589,7 +597,7 @@ class EventCollection(QWidget):
             return
 
         last_index = self.model.index(self.model.rowCount() - 1, 0)
-        
+
         proxy_last_index = self.proxy_model.mapFromSource(last_index)
         self.view.setCurrentIndex(proxy_last_index)
         self.set_current_index(proxy_last_index)
@@ -722,7 +730,7 @@ class EventProperties(QWidget):
         self.priority_box.edit.setAlignment(Qt.AlignRight)
         self.priority_box.setToolTip("Higher Priority happens first")
         self.priority_box.edit.valueChanged.connect(self.priority_changed)
-        
+
         grid.addWidget(QHLine(), 3, 0, 1, 2)
         grid.addWidget(self.name_box, 4, 0, 1, 2)
         grid.addWidget(self.level_nid_box, 5, 0, 1, 2)
@@ -762,7 +770,7 @@ class EventProperties(QWidget):
         all_items = ["None"]
         all_custom_triggers = set()
         for level in DB.levels:
-            if level_nid == 'Global' or level_nid == level.nid: 
+            if level_nid == 'Global' or level_nid == level.nid:
                 for region in level.regions:
                     if region.region_type == 'event':
                         all_custom_triggers.add(region.sub_nid)
@@ -912,7 +920,7 @@ class EventProperties(QWidget):
                 logging.warning("NoneType in current.commands")
 
         self.text_box.setPlainText(text)
-    
+
     def hideEvent(self, event):
         self.close_map()
         self.close_commands()
@@ -973,7 +981,7 @@ class ShowCommandsDialog(QDialog):
         self.commands = event_commands.get_commands()
         self.categories = [category.value for category in event_commands.Tags]
         self._data = []
-        for category in self.categories:  
+        for category in self.categories:
             # Ignore hidden category
             if category == event_commands.Tags.HIDDEN.value:
                 continue
@@ -1012,7 +1020,7 @@ class ShowCommandsDialog(QDialog):
         splitter.setStyleSheet("QSplitter::handle:horizontal {background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc); border: 1px solid #777; width: 13px; margin-top: 2px; margin-bottom: 2px; border-radius: 4px;}")
         splitter.addWidget(left_frame)
         splitter.addWidget(self.desc_box)
-    
+
         main_layout = QHBoxLayout()
         main_layout.addWidget(splitter)
         self.setLayout(main_layout)
@@ -1038,7 +1046,7 @@ class ShowCommandsDialog(QDialog):
                     text = '**%s**' % command.nickname
                 else:
                     text = '**%s**' % command.nid
-                if command.keywords: 
+                if command.keywords:
                     text += ';' + ';'.join(command.keywords) + '\n\n'
                 else:
                     text += '\n\n'

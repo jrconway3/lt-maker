@@ -1,4 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QColorDialog, QVBoxLayout, \
+import os
+
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QFileDialog, QVBoxLayout, \
     QGraphicsView, QGraphicsScene, QLineEdit, QLabel, QSizePolicy, QPushButton, \
     QSpinBox, QMessageBox, QDialog
 from PyQt5.QtCore import Qt, pyqtSignal
@@ -6,6 +8,8 @@ from PyQt5.QtGui import QColor, QPen, QPixmap, QImage, QPainter
 
 from app.constants import WINWIDTH, WINHEIGHT
 from app.resources.resources import RESOURCES
+
+from app.editor.settings import MainSettingsController
 
 from app.editor import timer
 from app.utilities import utils, str_utils
@@ -33,11 +37,7 @@ class AnimView(IconView):
         pos = int(scene_pos.x()), int(scene_pos.y())
 
         # Need to get original frame with base palette
-        frame_nid = self.window.frame_nid
-        if not frame_nid:
-            return
-        weapon_anim = self.window.get_current_weapon_anim()
-        frame = weapon_anim.frames.get(frame_nid)
+        frame = self.window.current_frame
         if not frame:
             return
         offset_x, offset_y = frame.offset
@@ -46,24 +46,16 @@ class AnimView(IconView):
 
         if event.button() == Qt.LeftButton:
             base_color = self.get_color_at_pos(pixmap, pos)
-            palette = self.window.get_current_palette()
-            base_colors = combat_anims.base_palette.colors
+            palette = self.window.current_palette
+            if not palette:
+                return
+            base_colors = palette.colors.keys()
             if base_color not in base_colors:
                 print("Cannot find color: %s in %s" % (base_color, base_colors))
                 return
-            idx = base_colors.index(base_color)
-            dlg = QColorDialog()
-            c = palette.colors[idx]
+            c = palette.colors[base_color]
             print(c, flush=True)
-            dlg.setCurrentColor(QColor(*c))
-            if dlg.exec_():
-                new_color = QColor(dlg.currentColor())
-                print(new_color, flush=True)
-                color = new_color.getRgb()
-                print(color, flush=True)
-                palette_widget = self.window.palette_menu.get_palette_widget()
-                icon = palette_widget.color_icons[idx]
-                icon.change_color(new_color.name())
+            self.window.color_editor_widget.set_current(c)
 
 class ColorSelectorWidget(QGraphicsView):
     palette_size = 32
@@ -483,11 +475,11 @@ class WeaponAnimSelection(Dialog):
         main_layout.addWidget(self.buttonbox)
 
     def combat_changed(self, idx):
-        combat_text = self.combat_box.currentText()
+        combat_text = self.combat_box.edit.currentText()
         self.current_combat_anim = RESOURCES.combat_anims.get(combat_text)
         self.weapon_box.edit.clear()
         weapon_anims = self.current_combat_anim.weapon_anims
-        self.weapon_box.edit.addItems(weapon_anims[0])
+        self.weapon_box.edit.addItems([weapon_anim.nid for weapon_anim in weapon_anims])
 
     @classmethod
     def get(cls, parent):
@@ -505,6 +497,8 @@ class PaletteProperties(QWidget):
         self._data = self.window._data
         self.model = self.window.left_frame.model
 
+        self.settings = MainSettingsController()
+
         self.current_palette = None
         self.current_frame = None
 
@@ -512,9 +506,13 @@ class PaletteProperties(QWidget):
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
 
+        self.import_box = QPushButton("Import from PNG Image...")
+        self.import_box.clicked.connect(self.import_palette_from_image)
+
         left_frame = self.window.left_frame
         grid = left_frame.layout()
-        grid.addWidget(self.nid_box, 2, 0, 1, 2)
+        grid.addWidget(self.import_box, 2, 0, 1, 2)
+        grid.addWidget(self.nid_box, 3, 0, 1, 2)
         
         self.raw_view = AnimView(self)
         self.raw_view.static_size = True
@@ -592,7 +590,9 @@ class PaletteProperties(QWidget):
             self.color_editor_widget.setEnabled(True)
             self.color_editor_widget.set_current(QColor(*current))
         else:
-            self.color_editor_widget.setEnabled(False)
+            self.color_editor_widget.setEnabled(True)
+            self.color_editor_widget.set_current(QColor(0, 0, 0))
+            # self.color_editor_widget.setEnabled(False)
 
     def color_changed(self, color: QColor):
         if self.current_palette:
@@ -611,3 +611,27 @@ class PaletteProperties(QWidget):
             painter.end()
             self.raw_view.set_image(QPixmap.fromImage(base_image))
             self.raw_view.show_image()
+
+    def import_palette_from_image(self):
+        starting_path = self.settings.get_last_open_path()
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Legacy Script Files", starting_path, "PNG Files (*.png);;All Files (*)")
+        if fns and ok:
+            parent_dir = os.path.split(fns[-1])[0]
+            self.settings.set_last_open_path(parent_dir)
+
+            did_import = False
+            for image_fn in fns:
+                if image_fn.endswith('.png'):
+                    head, tail = os.path.split(image_fn)
+                    palette_nid = tail[:-4]
+                    palette_nid = str_utils.get_next_name(palette_nid, RESOURCES.combat_palettes.keys())
+                    pix = QPixmap(image_fn)
+                    palette_colors = editor_utilities.find_palette(pix.toImage())
+                    new_palette = Palette(palette_nid)
+                    colors = {(int(idx % 8), int(idx / 8)): color for idx, color in enumerate(palette_colors)}
+                    new_palette.colors = colors
+                    RESOURCES.combat_palettes.append(new_palette)
+                    did_import = True
+            if did_import:
+                # Move view
+                self.model.move_to_bottom()

@@ -325,7 +325,6 @@ def compute_hit(unit, target, item, def_item, mode):
         triangle_bonus -= int(disadv.avoid)
     hit += triangle_bonus
 
-
     # Three Houses style support bonus (only works on attack)
     if mode in ('attack', 'splash'):
         # Attacker's accuracy bonus
@@ -338,7 +337,6 @@ def compute_hit(unit, target, item, def_item, mode):
         for bonus in support_rank_bonuses:
             hit -= float(bonus.avoid)
     hit = int(hit)
-
 
     hit -= avoid(target, def_item, item)
 

@@ -34,7 +34,7 @@ class IgnoreDamage(SkillComponent):
 
 class LiveToServe(SkillComponent):
     nid = 'live_to_serve'
-    desc = "Unit will be healed X%% of amount healed"
+    desc = r"Unit will be healed X% of amount healed"
     tag = 'combat2'
 
     expose = Type.Float
@@ -42,12 +42,14 @@ class LiveToServe(SkillComponent):
 
     def after_hit(self, actions, playback, unit, item, target, mode):
         total_amount_healed = 0
-        playbacks = [p for p in playback if p[0] == 'heal_hit' and p[1] == self]
+        playbacks = [p for p in playback if p[0] == 'heal_hit' and p[1] is unit and p[3] is not unit]
         for p in playbacks:
             total_amount_healed += p[4]
 
         amount = int(total_amount_healed * self.value)
         if amount > 0:
+            true_heal = min(amount, unit.get_max_hp() - unit.get_hp())
+            playback.append(('heal_hit', unit, item, unit, true_heal, true_heal))
             actions.append(action.ChangeHP(unit, amount))
             actions.append(action.TriggerCharge(unit, self.skill))
 
@@ -185,6 +187,19 @@ class GiveStatusAfterAttack(SkillComponent):
             action.do(action.AddSkill(target, self.value, unit))
             action.do(action.TriggerCharge(unit, self.skill))
 
+class GiveStatusAfterHit(SkillComponent):
+    nid = 'give_status_after_hit'
+    desc = "Gives a status to target after hitting them"
+    tag = 'combat2'
+
+    expose = Type.Skill
+
+    def after_hit(self, actions, playback, unit, item, target, mode):
+        mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
+        if target and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
+            actions.append(action.AddSkill(target, self.value, unit))
+            actions.append(action.TriggerCharge(unit, self.skill))
+
 class GainSkillAfterKill(SkillComponent):
     nid = 'gain_skill_after_kill'
     desc = "Gives a skill to user after a kill"
@@ -222,3 +237,18 @@ class GainSkillAfterActiveKill(SkillComponent):
         if target and target.get_hp() <= 0 and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
             action.do(action.AddSkill(unit, self.value))
             action.do(action.TriggerCharge(unit, self.skill))
+
+class DelayInitiativeOrder(SkillComponent):
+    nid = 'delay_initiative_order'
+    desc = "Delays the target's next turn by X after hit. Cannot activate when unit is defending."
+    tag = 'combat2'
+
+    expose = Type.Int
+    value = 1
+    author = "KD"
+
+    def after_hit(self, actions, playback, unit, item, target, mode):
+        mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
+        if target and target.get_hp() <= 0 and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
+            actions.append(action.MoveInInitiative(target, self.value))
+            actions.append(action.TriggerCharge(unit, self.skill))

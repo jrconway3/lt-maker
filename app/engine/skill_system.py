@@ -34,6 +34,14 @@ class Defaults():
         return 1.0
 
     @staticmethod
+    def wexp_multiplier(unit1, unit2) -> float:
+        return 1.0
+
+    @staticmethod
+    def enemy_wexp_multiplier(unit1, unit2) -> float:
+        return 1.0
+
+    @staticmethod
     def steal_icon(unit1, unit2) -> bool:
         return False
 
@@ -119,7 +127,7 @@ exclusive_behaviours += formula
 # Takes in unit and item, returns default value
 item_behaviours = ('modify_buy_price', 'modify_sell_price', 'limit_maximum_range', 'modify_maximum_range')
 # Takes in unit and target, returns default value
-targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier', 'steal_icon', 'has_canto', 'empower_heal')
+targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier', 'wexp_multiplier', 'enemy_wexp_multiplier', 'steal_icon', 'has_canto', 'empower_heal')
 # Takes in unit, item returns bonus
 modify_hooks = (
     'modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid', 
@@ -137,7 +145,7 @@ simple_event_hooks = ('on_death',)
 # Takes in playback, unit, item, target
 combat_event_hooks = ('start_combat', 'cleanup_combat', 'end_combat', 'pre_combat', 'post_combat', 'test_on', 'test_off')
 # Takes in actions, playback, unit, item, target, mode
-subcombat_event_hooks = ('after_hit', 'after_take_hit')
+subcombat_event_hooks = ('after_hit', 'after_take_hit', 'start_sub_combat', 'end_sub_combat')
 # Takes in unit, item
 item_event_hooks = ('on_add_item', 'on_remove_item', 'on_equip_item', 'on_unequip_item')
 
@@ -278,25 +286,35 @@ def available(unit, item) -> bool:
                         return False
     return True
 
-def stat_change(unit, stat) -> int:
+def stat_change(unit, stat_nid) -> int:
     bonus = 0
     for skill in unit.skills:
         for component in skill.components:
             if component.defines('stat_change'):
                 if component.ignore_conditional or condition(skill, unit):
                     d = component.stat_change(unit)
-                    bonus += d.get(stat, 0)
+                    bonus += d.get(stat_nid, 0)
     return bonus
 
-def growth_change(unit, stat) -> int:
+def growth_change(unit, stat_nid) -> int:
     bonus = 0
     for skill in unit.skills:
         for component in skill.components:
             if component.defines('growth_change'):
                 if component.ignore_conditional or condition(skill, unit):
                     d = component.growth_change(unit)
-                    bonus += d.get(stat, 0)
+                    bonus += d.get(stat_nid, 0)
     return bonus
+
+def mana(playback, unit, item, target) -> int:
+    mana = 0
+    for skill in unit.skills:
+        for component in skill.components:
+            if component.defines('mana'):
+                if component.ignore_conditional or condition(skill, unit):
+                    d = component.mana(playback, unit, item, target)
+                    mana += d
+    return mana
 
 def can_unlock(unit, region) -> bool:
     for skill in unit.skills:
@@ -398,8 +416,9 @@ def get_combat_arts(unit):
         for component in skill.components:
             if component.defines('combat_art'):
                 combat_art = component.combat_art(unit)
-            if component.defines('combat_art_weapon_filter'):
-                combat_art_weapons = component.combat_art_weapon_filter(unit)
+            if component.defines('weapon_filter'):
+                combat_art_weapons = \
+                    [item for item in combat_art_weapons if component.weapon_filter(unit, item)]
             if component.defines('combat_art_set_max_range'):
                 combat_art_set_max_range = component.combat_art_set_max_range(unit)
             if component.defines('combat_art_modify_max_range'):

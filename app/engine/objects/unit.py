@@ -86,10 +86,12 @@ class UnitObject(Prefab):
 
         # Handle skills
         self.skills = []
+        global_skills = unit_funcs.get_global_skills(self)
+        self.skills += global_skills
         personal_skills = unit_funcs.get_personal_skills(self, prefab)
         self.skills += personal_skills
         class_skills = unit_funcs.get_starting_skills(self)
-        self.skills = personal_skills + class_skills
+        self.skills += class_skills
 
         # Handle items
         items = item_funcs.create_items(self, prefab.starting_items)
@@ -134,14 +136,14 @@ class UnitObject(Prefab):
         stat_bonus = game.mode.get_base_bonus(self)
         bonus = {nid: 0 for nid in DB.stats.keys()}
         for nid in DB.stats.keys():
-            bonus[nid] = utils.clamp(stat_bonus[nid], -self.stats[nid], klass.max_stats.get(nid, 30) - self.stats[nid])
+            bonus[nid] = utils.clamp(stat_bonus.get(nid, 0), -self.stats.get(nid, 0), klass.max_stats.get(nid, 30) - self.stats.get(nid, 0))
         if any(v != 0 for v in bonus.values()):
             unit_funcs.apply_stat_changes(self, bonus)
 
-        if self.generic:            
+        if self.generic:
             unit_funcs.auto_level(self, num_levels)
-        # Existing units would have leveled up different with bonus growths 
-        elif DB.constants.value('backpropagate_difficulty_growths'):  
+        # Existing units would have leveled up different with bonus growths
+        elif DB.constants.value('backpropagate_difficulty_growths'):
             difficulty_growth_bonus = game.mode.get_growth_bonus(self)
             if difficulty_growth_bonus:
                 unit_funcs.auto_level(self, num_levels, difficulty_growths=True)
@@ -172,10 +174,7 @@ class UnitObject(Prefab):
         self.current_hp = int(utils.clamp(val, 0, equations.parser.hitpoints(self)))
 
     def get_max_mana(self):
-        if 'MANA' in DB.equations:
-            return equations.parser.mana(self)
-        else:
-            return 0
+        return equations.parser.get_mana(self)
 
     def get_mana(self):
         return self.current_mana

@@ -44,3 +44,15 @@ class EmpowerHeal(SkillComponent):
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
+
+class ManaOnKill(SkillComponent):
+    nid = 'mana_on_kill'
+    desc = 'Gives +X mana on kill'
+    tag = 'advanced'
+
+    expose = Type.Int
+
+    def mana(self, playback, unit, item, target):
+        if target and target.is_dying:
+            return self.value
+        return 0

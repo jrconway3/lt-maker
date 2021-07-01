@@ -13,7 +13,7 @@ class OverworldPrefab(Prefab):
         self.tilemap = None               # Tilemap Nid - background\
         self.music = None                 # Music Nid
         self.overworld_nodes = OverworldNodeCatalog()
-        self.map_paths = {}               # dict that maps string points_to_key(start_point, end_point) to a 
+        self.map_paths = {}               # dict that maps string points_to_key(start_point, end_point) to a
                                           # list of coords that define the road between those two nodes
                                           # (See points_to_key function below)
 
@@ -34,7 +34,7 @@ class OverworldPrefab(Prefab):
     @classmethod
     def default(cls):
         return cls('0', 'Magvel')
-    
+
     @classmethod
     def points_to_key(cls, p1, p2):
         """Given two points, turns them into a string key
@@ -42,12 +42,12 @@ class OverworldPrefab(Prefab):
         Args:
             p1 Tuple(int, int): point 1 (in this context, usually starting point of a road)
             p2 Tuple(int, int): point 2 (usually end point)
-        
+
         Return:
             A string key corresponding to these tuples
         """
-        return str(p1) + '-' + str(p2)
-    
+        return str(tuple(p1)) + '-' + str(tuple(p2))
+
     @classmethod
     def string_to_tuples(cls, tstring):
         """Given a string of format '(a, b)-(c, d)', converts them into two tuples:

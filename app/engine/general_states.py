@@ -25,39 +25,71 @@ class TurnChangeState(MapState):
     name = 'turn_change'
 
     def begin(self):
-        if game.phase.get_current() == 'player':
-            supports.increment_end_turn_supports('player')
+        # handle end turn supports
+        if DB.constants.value('initiative') and game.initiative.get_current_unit().team == 'player':
+            supports.increment_unit_end_turn_supports(game.initiative.get_current_unit())
             game.memory['previous_cursor_position'] = game.cursor.position
+        elif game.phase.get_current() == 'player':
+            supports.increment_team_end_turn_supports('player')
+            game.memory['previous_cursor_position'] = game.cursor.position
+
         # Clear all previous states in state machine except me
         game.state.refresh()
         game.state.back()  # Turn Change should only last 1 frame
         return 'repeat'
 
     def end(self):
-        game.phase.next()  # Go to next phase
-        # If entering player phase
-        if game.phase.get_current() == 'player':
-            action.do(action.IncrementTurn())
-            action.do(action.UpdateRecords('turn', None))
+        if DB.constants.value('initiative'):
+            action.do(action.IncInitiativeTurn())
+            game.state.change('initiative_upkeep')
+            if game.initiative.at_start():
+                action.do(action.IncrementTurn())
+                game.events.trigger('turn_change')
+                if game.turncount - 1 <= 0:  # Beginning of the level
+                    game.events.trigger('level_start')
+        else:
+            game.phase.next()  # Go to next phase
+            # If entering player phase
+            if game.phase.get_current() == 'player':
+                action.do(action.IncrementTurn())
+                action.do(action.UpdateRecords('turn', None))
+                game.state.change('free')
+                game.state.change('status_upkeep')
+                game.state.change('phase_change')
+                # EVENTS TRIGGER HERE
+                game.events.trigger('turn_change')
+                if game.turncount - 1 <= 0:  # Beginning of the level
+                    game.events.trigger('level_start')
+            else:
+                game.state.change('ai')
+                game.state.change('status_upkeep')
+                game.state.change('phase_change')
+                # EVENTS TRIGGER HERE
+                if game.phase.get_current() == 'enemy':
+                    game.events.trigger('enemy_turn_change')
+                elif game.phase.get_current() == 'enemy2':
+                    game.events.trigger('enemy2_turn_change')
+                elif game.phase.get_current() == 'other':
+                    game.events.trigger('other_turn_change')
+
+    def take_input(self, event):
+        return 'repeat'
+
+class InitiativeUpkeep(MapState):
+    name = 'initiative_upkeep'
+
+    def begin(self):
+        game.state.back()
+        return 'repeat'
+
+    def end(self):
+        game.phase.next()
+        if game.initiative.get_current_unit().team == 'player':
             game.state.change('free')
-            game.state.change('status_upkeep')
-            game.state.change('phase_change')
-            # EVENTS TRIGGER HERE
-            game.events.trigger('turn_change')
-            if game.turncount - 1 <= 0:  # Beginning of the level
-                game.events.trigger('level_start')
         else:
             game.state.change('ai')
-            game.state.change('status_upkeep')
-            game.state.change('phase_change')
-            # game.state.change('end_step')
-            # EVENTS TRIGGER HERE
-            if game.phase.get_current() == 'enemy':
-                game.events.trigger('enemy_turn_change')
-            elif game.phase.get_current() == 'enemy2':
-                game.events.trigger('enemy2_turn_change')
-            elif game.phase.get_current() == 'other':
-                game.events.trigger('other_turn_change')
+        game.state.change('status_upkeep')
+        game.state.change('phase_change')
 
     def take_input(self, event):
         return 'repeat'
@@ -78,6 +110,11 @@ class PhaseChangeState(MapState):
         action.do(action.ResetAll([unit for unit in game.units if not unit.dead]))
         game.cursor.hide()
         game.phase.slide_in()
+
+        if DB.constants.value('initiative'):
+            unit = game.initiative.get_current_unit()
+            if unit.position:
+                game.cursor.set_pos(unit.position)
 
     def update(self):
         super().update()
@@ -112,7 +149,7 @@ class FreeState(MapState):
         if game.level.roam and game.level.roam_unit:
             game.state.change('free_roam')
             return 'repeat'
-            
+
         game.cursor.show()
         game.boundary.show()
         # The turnwheel will not be able to go before this moment
@@ -134,7 +171,7 @@ class FreeState(MapState):
             cur_pos = game.cursor.position
             cur_unit = game.board.get_unit(cur_pos)
             if cur_unit and not cur_unit.finished and 'Tile' not in cur_unit.tags and game.board.in_vision(cur_unit.position):
-                if skill_system.can_select(cur_unit):
+                if skill_system.can_select(cur_unit) and (not DB.constants.value('initiative') or game.initiative.get_current_unit() is cur_unit):
                     game.cursor.cur_unit = cur_unit
                     SOUNDTHREAD.play_sfx('Select 3')
                     game.state.change('move')
@@ -154,16 +191,25 @@ class FreeState(MapState):
 
         elif event == 'START':
             SOUNDTHREAD.play_sfx('Select 5')
-            game.state.change('minimap')
+            if DB.constants.value('initiative'):
+                game.initiative.toggle_draw()
+            else:
+                game.state.change('minimap')
 
     def update(self):
         super().update()
         game.highlight.handle_hover()
 
         # Auto-end turn
+        autoend_turn = False
         # Check to see if all ally units have completed their turns and no unit is active and the game is in the free state.
         if cf.SETTINGS['autoend_turn'] and any(unit.position for unit in game.units) and \
-                all(unit.finished for unit in game.units if unit.position and unit.team == 'player'):
+                (all(unit.finished for unit in game.units if unit.position and unit.team == 'player')):
+            autoend_turn = True
+        if DB.constants.value('initiative') and game.initiative.get_current_unit().finished:
+            autoend_turn = True
+
+        if autoend_turn:
             # End the turn
             logging.info('Autoending turn.')
             game.state.change('turn_change')
@@ -177,7 +223,6 @@ class FreeState(MapState):
 
 def suspend():
     game.state.back()
-    game.state.back()
     game.state.process_temp_state()
     logging.info('Suspending game...')
     save.suspend_game(game, 'suspend')
@@ -188,10 +233,9 @@ def suspend():
 
 def battle_save():
     game.state.back()
-    game.state.back()
     logging.info('Creating battle save...')
     game.memory['save_kind'] = 'battle'
-    game.state.change('title_save')
+    game.state.change('in_chapter_save')
     game.state.change('transition_out')
 
 class OptionMenuState(MapState):
@@ -266,9 +310,9 @@ class OptionMenuState(MapState):
                     game.memory['option_menu'] = self.menu
                     game.state.change('option_child')
                 else:
-                    if self.menu.owner == 'Suspend':
+                    if selection == 'Suspend':
                         suspend()
-                    elif self.menu.owner == 'Save':
+                    elif selection == 'Save':
                         battle_save()
             elif selection == 'Objective':
                 game.memory['next_state'] = 'objective_menu'
@@ -345,8 +389,10 @@ class OptionChildState(State):
                     game.state.change('ai')
                     return 'repeat'
                 elif self.menu.owner == 'Suspend':
+                    game.state.back()
                     suspend()
                 elif self.menu.owner == 'Save':
+                    game.state.back()
                     battle_save()
                 elif self.menu.owner == 'Discard' or self.menu.owner == 'Storage':
                     item = game.memory['option_item']
@@ -1429,8 +1475,7 @@ class ItemTargetingState(MapState):
 
 class CombatState(MapState):
     name = 'combat'
-    fuzz_background = image_mods.make_translucent(SPRITES.get('bg_black'), 0.25)
-    dark_fuzz_background = image_mods.make_translucent(SPRITES.get('bg_black'), 0.5)
+    fuzz_background = image_mods.make_translucent(SPRITES.get('bg_black'), 0.75)
 
     def start(self):
         game.cursor.hide()
@@ -1443,9 +1488,13 @@ class CombatState(MapState):
         self.is_animation_combat = isinstance(self.combat, interaction.AnimationCombat)
 
     def take_input(self, event):
-        if event == 'START' and not self.skip:
-            self.skip = True
-            self.combat.skip()
+        if event == 'START':
+            if self.skip:
+                self.skip = False
+                self.combat.end_skip()
+            else:
+                self.skip = True
+                self.combat.skip()
         elif event == 'BACK':
             # Arena
             pass
@@ -1461,10 +1510,18 @@ class CombatState(MapState):
 
     def draw(self, surf):
         if self.is_animation_combat:
-            pass
+            if self.combat.viewbox:
+                viewbox = self.combat.viewbox
+                viewbox_bg = self.fuzz_background.copy()
+                if viewbox[2] > 0:  # Width
+                    viewbox_bg.fill((0, 0, 0, 0), viewbox)
+                surf = super().draw(surf, culled_rect=viewbox)
+                surf.blit(viewbox_bg, (0, 0))
+            else:
+                surf = super().draw(surf)
         else:
             surf = super().draw(surf)
-            self.combat.draw(surf)
+        self.combat.draw(surf)
         return surf
 
 class DyingState(MapState):
@@ -1526,6 +1583,15 @@ class AIState(MapState):
         self.cur_group = None
 
     def get_next_unit(self):
+        # Initiative way
+        if DB.constants.value('initiative'):
+            current_unit = game.initiative.get_current_unit()
+            if current_unit.position and not current_unit.finished and not current_unit.has_run_ai:
+                return current_unit
+            else:
+                return None
+
+        # Normal way
         valid_units = [
             unit for unit in game.units if
             unit.position and

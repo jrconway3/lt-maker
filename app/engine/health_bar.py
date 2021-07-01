@@ -4,6 +4,7 @@ import app.utilities as utils
 from app.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX, TILEY
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
+from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, combat_calcs, icons, equations, skill_system, item_system
 from app.engine.game_state import game
 
@@ -45,6 +46,72 @@ class HealthBar():
                 self.set_hp(self.unit.get_hp())
                 self.old_hp = self.displayed_hp
                 self.transition_flag = False
+
+class CombatHealthBar(HealthBar):
+    full_hp_blip = SPRITES.get('full_hp_blip')
+    empty_hp_blip = SPRITES.get('empty_hp_blip')
+    end_hp_blip = engine.subsurface(full_hp_blip, (0, 0, 1, full_hp_blip.get_height()))
+    colors = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1]
+    speed = utils.frames2ms(2)
+    time_for_change_min = 0
+
+    def __init__(self, unit):
+        super().__init__(unit) 
+        self.color_tick = 0
+        self.heal_sound_update = 0   
+
+    def update(self, skip=False):
+        if self.displayed_hp < self.unit.get_hp():
+            self.speed = utils.frames2ms(4)  # Slower speed when increasing hp
+        else:
+            self.speed = utils.frames2ms(2)
+        super().update()
+        self.color_tick = int(engine.get_time() / 16.67) % len(self.colors)
+
+    def set_hp(self, val):
+        current_time = engine.get_time()
+        if self.displayed_hp < self.unit.get_hp() and current_time - self.heal_sound_update > self.speed:
+            self.heal_sound_update = current_time
+            SOUNDTHREAD.stop_sfx('HealBoop')
+            SOUNDTHREAD.play_sfx('HealBoop')
+        super().set_hp(val)
+
+    def big_number(self) -> bool:
+        return self.displayed_hp != self.unit.get_hp()
+
+    def done(self) -> bool:
+        return self.displayed_hp == self.unit.get_hp()
+
+    def draw(self, surf, left, top):
+        font = FONT['number-small2']
+        if self.big_number():
+            font = FONT['number-big2']
+        if self.displayed_hp <= 80:
+            font.blit_right(str(self.displayed_hp), surf, (left, top - 4))
+        else:
+            font.blit_right('??', surf, (left, top - 4))
+
+        full_hp_blip = engine.subsurface(self.full_hp_blip, (self.colors[self.color_tick] * 2, 0, 2, self.full_hp_blip.get_height()))
+        if self.unit.get_max_hp() <= 40:
+            for idx in range(self.displayed_hp):
+                surf.blit(full_hp_blip, (left + idx * 2 + 5, top + 1))
+            for idx in range(self.unit.get_max_hp() - self.displayed_hp):
+                surf.blit(self.empty_hp_blip, (left + (idx + self.displayed_hp) * 2 + 5, top + 1))
+            surf.blit(self.end_hp_blip, (left + self.unit.get_max_hp() * 2 + 5, top + 1))
+        else:
+            # Lower 40 hp
+            for idx in range(min(self.displayed_hp, 40)):
+                surf.blit(full_hp_blip, (left + idx * 2 + 5, top + 4))
+            for idx in range(max(40 - self.displayed_hp, 0)):
+                surf.blit(self.empty_hp_blip, (left + (idx + self.displayed_hp) * 2 + 5, top + 4))
+            surf.blit(self.end_hp_blip, (left + 40 * 2 + 5, top + 4))
+            # Upper 40 hp
+            for idx in range(utils.clamp(self.displayed_hp - 40, 0, 40)):
+                surf.blit(full_hp_blip, (left + idx * 2 + 5, top - 4))
+            right = utils.clamp(self.unit.get_max_hp(), 0, 80)
+            for idx in range(right - max(40, self.displayed_hp)):
+                surf.blit(self.empty_hp_blip, (left + (idx + max(self.displayed_hp - 40, 0)) * 2 + 5, top - 4))
+            surf.blit(self.end_hp_blip, (left + (right - 40) * 2 + 5, top - 4))
 
 class MapHealthBar(HealthBar):
     time_for_change_min = 200
@@ -171,6 +238,9 @@ class MapCombatInfo():
             self.current_shake_idx += 1
             if self.current_shake_idx > len(self.shake_set):
                 self.current_shake_idx = 0
+
+    def add_skill_icon(self, skill_icon):
+        self.skill_icons.append(skill_icon)
 
     def build_stat_surf(self):
         stat_surf = self.c_surf.copy()
@@ -333,7 +403,7 @@ class MapCombatInfo():
         # Draw skill icons
         for idx, skill_icon in enumerate(self.skill_icons):
             skill_icon.update()
-            x, y = self.true_position + width // 2, self.true_position[1] - 16 * idx * 16
+            x, y = self.true_position[0] + width // 2, self.true_position[1] - 16 + idx * 16
             skill_icon.draw(surf, (x, y))
         self.skill_icons = [s for s in self.skill_icons if not s.done]
 

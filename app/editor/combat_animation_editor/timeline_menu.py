@@ -105,23 +105,21 @@ class TimelineMenu(QWidget):
         self.setLayout(layout)
 
     def set_current_frames(self, frames):
-        print("Set Current Frames: ", frames)
         self.current_frames = frames
 
     def set_current_pose(self, pose):
-        print("Set Current Pose: ", pose)
         self.current_pose = pose
         self.current_idx = 0
         self._finished = False
 
         self.view.clear()
-        for idx, command in enumerate(self.current_pose.timeline):
-            self.add_command_widget(command)
+        if self.current_pose:
+            for idx, command in enumerate(self.current_pose.timeline):
+                self.add_command_widget(command)
 
         self.select(self.current_idx)
 
     def clear(self):
-        print("Timeline Menu Clear!")
         self.current_frames = None
         self.clear_pose()
 
@@ -137,7 +135,6 @@ class TimelineMenu(QWidget):
         self.view.scrollToItem(item, QAbstractItemView.EnsureVisible)
 
     def on_new_selection(self, curr, prev):
-        print("On New Selection: %s" % curr.row())
         self.current_idx = curr.row()
 
     def reset(self):
@@ -171,13 +168,15 @@ class TimelineMenu(QWidget):
         if start == end:
             return
         obj = self.current_pose.timeline.pop(start)
-        self.current_pose.timeline.insert(end, obj)
+        if start > end:
+            self.current_pose.timeline.insert(end, obj)
+        else:
+            self.current_pose.timeline.insert(end - 1, obj)
 
     def add_text(self):
         try:
             text = self.entry.text()
-            split_text = text.split(';')
-            command = combat_commands.parse_text(split_text)
+            command = combat_commands.parse_text(text)
             self.add_command(command)                
             self.entry.clear()
         except Exception:

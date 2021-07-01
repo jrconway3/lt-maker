@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import qRgb
+from PyQt5.QtGui import qRgb, QPixmap, QIcon, QBrush, QColor
 
 from app.utilities.data import Data
 from app.data.database import DB
@@ -7,6 +7,7 @@ from app.resources.resources import RESOURCES
 from app.resources import combat_anims
 
 from app.editor.base_database_gui import ResourceCollectionModel
+from app.editor.item_editor import item_model
 
 from app.extensions.custom_gui import DeletionDialog
 
@@ -15,11 +16,54 @@ from app.editor import utilities as editor_utilities
 
 def palette_swap(pixmap, palette_nid):
     palette = RESOURCES.combat_palettes.get(palette_nid)
+    if not palette:
+        return pixmap.toImage()
     im = pixmap.toImage()
     conv_dict = {qRgb(0, *coord): qRgb(*color[:3]) for coord, color in palette.colors.items()}
     im = editor_utilities.color_convert(im, conv_dict)
     im = editor_utilities.convert_colorkey(im)
     return im
+
+def get_combat_anim_icon(combat_anim_nid: str):
+    combat_anim = RESOURCES.combat_anims.get(combat_anim_nid)
+    if not combat_anim or not combat_anim.weapon_anims:
+        return None
+    weapon_anim = combat_anim.weapon_anims.get('Unarmed', combat_anim.weapon_anims[0])
+    pose = weapon_anim.poses.get('Stand')
+    if not pose:
+        return None
+
+    # Get palette and apply palette
+    if not combat_anim.palettes:
+        return None
+    palette_names = [palette[0] for palette in combat_anim.palettes]
+    if 'GenericBlue' in palette_names:
+        idx = palette_names.index('GenericBlue')
+        palette_name, palette_nid = combat_anim.palettes[idx]
+    else:
+        palette_name, palette_nid = combat_anim.palettes[0]
+    palette = RESOURCES.combat_palettes.get(palette_nid)
+    if not palette:
+        return None
+    colors = palette.colors
+    convert_dict = {qRgb(0, coord[0], coord[1]): qRgb(*color) for coord, color in colors.items()}
+
+    # Get first command that displays a frame
+    for command in pose.timeline:
+        if command.nid in ('frame', 'over_frame', 'under_frame', 'dual_frame'):
+            frame_nid = command.value[1]
+            frame = weapon_anim.frames.get(frame_nid)
+            if not frame:
+                continue
+            if not frame.pixmap:
+                frame.pixmap = QPixmap(weapon_anim.full_path).copy(*frame.rect)
+            pixmap = frame.pixmap
+            im = pixmap.toImage()
+            im = editor_utilities.color_convert(im, convert_dict)
+            im = editor_utilities.convert_colorkey(im)
+            pixmap = QPixmap.fromImage(im)
+            return pixmap
+    return None
 
 class CombatAnimModel(ResourceCollectionModel):
     def data(self, index, role):
@@ -30,8 +74,11 @@ class CombatAnimModel(ResourceCollectionModel):
             text = animation.nid
             return text
         elif role == Qt.DecorationRole:
-            # TODO create icon out of standing image
-            return None
+            animation = self._data[index.row()]
+            nid = animation.nid
+            pix = get_combat_anim_icon(nid)
+            if pix:
+                return QIcon(pix)
         return None
 
     def create_new(self):
@@ -57,4 +104,37 @@ class CombatAnimModel(ResourceCollectionModel):
                     klass.combat_anim_nid = None
             else:
                 return
+        super().delete(idx)
+
+class CombatEffectModel(ResourceCollectionModel):
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        if role == Qt.DisplayRole:
+            animation = self._data[index.row()]
+            text = animation.nid
+            return text
+        elif role == Qt.DecorationRole:
+            animation = self._data[index.row()]
+            text = animation.nid
+            item = DB.items.get(text)
+            if item:
+                pix = item_model.get_pixmap(item)
+                if pix:
+                    pix = pix.scaled(16, 16)
+                    return QIcon(pix)
+            return None
+        elif role == Qt.ForegroundRole:
+            animation = self._data[index.row()]
+            if not animation.palettes:
+                return QBrush(QColor("red"))
+        return None
+
+    def create_new(self):
+        nid = str_utils.get_next_name('New Combat Effect', self._data.keys())
+        new_anim = combat_anims.EffectAnimation(nid)
+        self._data.append(new_anim)
+        return new_anim
+
+    def delete(self, idx):
         super().delete(idx)

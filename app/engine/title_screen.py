@@ -763,6 +763,10 @@ class TitleSaveState(State):
     in_level = False
     show_map = False
 
+    bg = None
+    particles = None
+    menu = None
+
     def start(self):
         self.fluid = FluidScroll(128)
         imgs = RESOURCES.panoramas.get('title_background')
@@ -840,8 +844,10 @@ class TitleSaveState(State):
                 self.menu.set_name(self.menu.current_index, name)
             else:
                 next_level_nid = game.game_vars['_next_level_nid']
-                name = DB.levels.get(next_level_nid).name
-                self.menu.set_text(self.menu.current_index, name)
+                level = DB.levels.get(next_level_nid)
+                if level:
+                    name = level.name
+                    self.menu.set_text(self.menu.current_index, name)
             self.menu.set_color(self.menu.current_index, game.mode.color)
             
     def update(self):

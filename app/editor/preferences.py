@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QLabel, QVBoxLayout, QApplication, QDoubleSpinBox
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QApplication, QDoubleSpinBox, QCheckBox
 from PyQt5.QtCore import Qt
 
 from app import dark_theme
-from app.extensions.custom_gui import ComboBox, PropertyBox, Dialog
+from app.extensions.custom_gui import ComboBox, PropertyBox, PropertyCheckBox, Dialog
 
 from app.editor.settings import MainSettingsController
 
@@ -27,6 +27,7 @@ class PreferencesDialog(Dialog):
         self.saved_preferences['select_button'] = self.settings.get_select_button(Qt.LeftButton)
         self.saved_preferences['place_button'] = self.settings.get_place_button(Qt.RightButton)
         self.saved_preferences['theme'] = self.settings.get_theme(0)
+        self.saved_preferences['event_autocomplete'] = self.settings.get_event_autocomplete(1)
         self.saved_preferences['autosave_time'] = self.settings.get_autosave_time()
 
         self.available_options = name_to_button.keys()
@@ -50,15 +51,19 @@ class PreferencesDialog(Dialog):
         self.theme.edit.setValue(self.theme_options[self.saved_preferences['theme']])
         self.theme.edit.currentIndexChanged.connect(self.theme_changed)
 
+        self.autocomplete = PropertyCheckBox('Event Autocomplete', QCheckBox, self)
+        self.autocomplete.edit.setChecked(self.saved_preferences['event_autocomplete'])
+
         self.autosave = PropertyBox('Autosave Time (minutes)', QDoubleSpinBox, self)
         self.autosave.edit.setRange(0.5, 99)
-        self.autosave.edit.setValue(self.saved_preferences['autosave_time'])
+        self.autosave.edit.setValue(bool(self.saved_preferences['autosave_time']))
         self.autosave.edit.valueChanged.connect(self.autosave_time_changed)
 
         self.layout.addWidget(label)
         self.layout.addWidget(self.select)
         self.layout.addWidget(self.place)
         self.layout.addWidget(self.theme)
+        self.layout.addWidget(self.autocomplete)
         self.layout.addWidget(self.autosave)
         self.layout.addWidget(self.buttonbox)
 
@@ -93,6 +98,10 @@ class PreferencesDialog(Dialog):
         self.settings.set_select_button(name_to_button[self.select.edit.currentText()])
         self.settings.set_place_button(name_to_button[self.place.edit.currentText()])
         self.settings.set_theme(self.theme.edit.currentIndex())
+        # For some reason Qt doesn't save booleans correctly
+        # resorting to int
+        autocomplete = 1 if self.autocomplete.edit.isChecked() else 0
+        self.settings.set_event_autocomplete(autocomplete)
         self.settings.set_autosave_time(float(self.autosave.edit.value()))
         super().accept()
 

@@ -199,14 +199,15 @@ class BaseConvosChildState(State):
         topleft = game.memory['option_menu']
 
         self.menu = menus.Choice(selection, self.options, topleft)
-        # color = ['text-grey' if i else 'text-white' for i in ignore]
-        # self.menu.set_color(color)
         self.menu.set_ignore(ignore)
 
     def begin(self):
+        if not game.base_convos:
+            game.state.back()
+            return 'repeat'
+        self.options = [event_nid for event_nid in game.base_convos.keys()]
         ignore = [game.base_convos[event_nid] for event_nid in self.options]
-        # color = ['text-grey' if i else 'text-white' for i in ignore]
-        # self.menu.set_color(color)
+        self.menu.update_options(self.options)
         self.menu.set_ignore(ignore)
         base_music = game.game_vars.get('_base_music')
         if base_music:

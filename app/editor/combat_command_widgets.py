@@ -41,7 +41,7 @@ class CombatCommand(QWidget):
         hbox.addWidget(icon_label)
 
         name_label = QLabel(self._data.name)
-        hbox.addWidget(name_label)
+        hbox.addWidget(name_label, Qt.AlignLeft)
 
         self.create_editor(hbox)
 
@@ -61,6 +61,25 @@ class CombatCommand(QWidget):
     def data(self):
         return self._data
 
+    def create_offset_section(self, x=None, y=None):
+        offset_section = QGroupBox(self)
+        offset_section.setTitle("Offset")
+        offset_layout = QFormLayout()
+        self.x_box = QSpinBox()
+        self.x_box.setValue(0)
+        self.x_box.setRange(0, WINWIDTH)
+        self.x_box.setValue(x)
+        self.x_box.valueChanged.connect(self.on_value_changed)
+        offset_layout.addRow("X:", self.x_box)
+        self.y_box = QSpinBox()
+        self.y_box.setValue(0)
+        self.y_box.setRange(0, WINHEIGHT)
+        self.y_box.setValue(y)
+        self.y_box.valueChanged.connect(self.on_value_changed)
+        offset_layout.addRow("Y:", self.y_box)
+        offset_section.setLayout(offset_layout)
+        return offset_section
+
 class BasicCommand(CombatCommand):
     def create_editor(self, hbox):
         pass
@@ -71,11 +90,12 @@ class BasicCommand(CombatCommand):
 class BoolCommand(CombatCommand):
     def create_editor(self, hbox):
         self.editor = QCheckBox(self)
-        self.editor.setChecked(self._data.value)
-        self.editor.valueChanged.connect(self.on_value_changed)
+        self.editor.setChecked(self._data.value[0])
+        self.editor.stateChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
 
     def on_value_changed(self, val):
-        self._data.value = bool(val)
+        self._data.value = (bool(val),)
 
 class IntCommand(CombatCommand):
     def create_editor(self, hbox):
@@ -84,34 +104,60 @@ class IntCommand(CombatCommand):
 
         self.editor = QSpinBox(self)
         self.editor.setMaximumWidth(40)
-        self.editor.setRange(1, 1024)
-        self.editor.setValue(self._data.value)
+        self.editor.setRange(0, 1024)
+        self.editor.setValue(self._data.value[0])
         self.editor.valueChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
     def on_value_changed(self, val):
-        self._data.value = int(val)
+        self._data.value = (int(val),)
 
 class SoundCommand(CombatCommand):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
         self.editor.addItems([d.nid for d in RESOURCES.sfx])
-        self.editor.setValue(self._data.value)
-        self.editor.currentIndexChanged.connect(self.on_value_changed)
+        self.editor.setValue(self._data.value[0])
+        self.editor.activated.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
-    def on_value_changed(self, idx):
-        self._data.value = RESOURCES.sfx[idx].nid
+    def on_value_changed(self):
+        sfx_nid = self.editor.currentText()
+        self._data.value = (sfx_nid,)
 
 class EffectCommand(CombatCommand):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
-        self.editor.addItems([d.nid for d in RESOURCES.combat_effects])
-        self.editor.currentIndexChanged.connect(self.on_value_changed)
+        self.editor.addItems(['None'] + [d.nid for d in RESOURCES.combat_effects])
+        value = self._data.value[0]
+        if value:
+            self.editor.setValue(value)
+        else:
+            self.editor.setValue('None')
+        self.editor.activated.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
-    def on_value_changed(self, idx):
-        self._data.value = RESOURCES.combat_effects[idx].nid
+    def on_value_changed(self):
+        effect_nid = self.editor.currentText()
+        if effect_nid == 'None':
+            self._data.value = (None, )
+        else:
+            self._data.value = (effect_nid,)
+
+class EffectWithOffsetCommand(EffectCommand):
+    def create_editor(self, hbox):
+        super().create_editor(hbox)
+        offset_section = self.create_offset_section(self._data.value[1], self._data.value[2])
+        hbox.addWidget(offset_section)
+
+    def on_value_changed(self, val):
+        effect_nid = self.editor.currentText()
+        if effect_nid == 'None':
+            effect = None
+        else:
+            effect = effect_nid
+        x_val = int(self.x_box.value())
+        y_val = int(self.y_box.value())
+        self._data.value = (effect, x_val, y_val)
 
 class WaitForHitCommand(CombatCommand):
     def create_editor(self, hbox):
@@ -124,7 +170,7 @@ class WaitForHitCommand(CombatCommand):
         self.editor1.setMaximumWidth(100)
         self.editor1.setReadOnly(True)
         if self._data.value[0]:
-            self.frame.setText(self._data.value[0])
+            self.editor1.setText(self._data.value[0])
         self.editor1.textChanged.connect(self.on_value_changed)
         hbox1.addWidget(self.editor1)
 
@@ -138,7 +184,7 @@ class WaitForHitCommand(CombatCommand):
         self.editor2.setMaximumWidth(100)
         self.editor2.setReadOnly(True)
         if self._data.value[1]:
-            self.frame.setText(self._data.value[1])
+            self.editor2.setText(self._data.value[1])
         self.editor2.textChanged.connect(self.on_value_changed)
         hbox2.addWidget(self.editor2)
 
@@ -202,7 +248,7 @@ class FrameCommand(CombatCommand):
     def select_frame(self):
         combat_anim_editor = self.window.window
         weapon_anim = combat_anim_editor.get_current_weapon_anim()
-        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim)
+        res, ok = FrameSelector.get(combat_anim_editor.current, weapon_anim, combat_anim_editor)
         if ok:
             self.frame.setText(res.nid)
 
@@ -224,7 +270,7 @@ class DualFrameCommand(CombatCommand):
         self.editor1.setMaximumWidth(100)
         self.editor1.setReadOnly(True)
         if self._data.value[1]:
-            self.frame.setText(self._data.value[1])
+            self.editor1.setText(self._data.value[1])
         self.editor1.textChanged.connect(self.on_value_changed)
         hbox1.addWidget(self.editor1)
 
@@ -238,7 +284,7 @@ class DualFrameCommand(CombatCommand):
         self.editor2.setMaximumWidth(100)
         self.editor2.setReadOnly(True)
         if self._data.value[2]:
-            self.frame.setText(self._data.value[2])
+            self.editor2.setText(self._data.value[2])
         self.editor2.textChanged.connect(self.on_value_changed)
         hbox2.addWidget(self.editor2)
 
@@ -295,20 +341,7 @@ class FrameWithOffsetCommand(CombatCommand):
         self.button.clicked.connect(self.select_frame)
         hbox.addWidget(self.button)
 
-        offset_section = QGroupBox(self)
-        offset_section.setTitle("Offset")
-        offset_layout = QFormLayout()
-        self.x_box = QSpinBox()
-        self.x_box.setValue(0)
-        self.x_box.setRange(0, WINWIDTH)
-        self.x_box.valueChanged.connect(self.on_value_changed)
-        offset_layout.addRow("X:", self.x_box)
-        self.y_box = QSpinBox()
-        self.y_box.setValue(0)
-        self.y_box.setRange(0, WINHEIGHT)
-        self.y_box.valueChanged.connect(self.on_value_changed)
-        offset_layout.addRow("Y:", self.y_box)
-        offset_section.setLayout(offset_layout)
+        offset_section = self.create_offset_section(self._data.value[2], self._data.value[3])
         hbox.addWidget(offset_section)
 
     def on_value_changed(self, val):
@@ -338,26 +371,108 @@ class ColorTimeCommand(CombatCommand):
         hbox.addWidget(self.num_frames)
 
         self.color = ColorIcon(QColor(248, 248, 248), self)
+        if len(self._data.value) > 1:
+            new_color = QColor(*self._data.value[1])
+            self.color.change_color(new_color)
         self.color.set_size(32)
         self.color.colorChanged.connect(self.on_value_changed)
         hbox.addWidget(self.color)
 
     def on_value_changed(self, val):
-        num_frames = int(self.num_frame.value())
+        num_frames = int(self.num_frames.value())
         color = self.color.color().getRgb()
         self._data.value = (num_frames, color)
+
+class ColorTwoTimeCommand(CombatCommand):
+    def create_editor(self, hbox):
+        frame_box = QHBoxLayout()
+        label = QLabel("# Frames: ")
+        frame_box.addWidget(label)
+
+        self.num_frames = QSpinBox(self)
+        self.num_frames.setMaximumWidth(40)
+        self.num_frames.setRange(1, 1024)
+        self.num_frames.setValue(self._data.value[0])
+        self.num_frames.valueChanged.connect(self.on_value_changed)
+        frame_box.addWidget(self.num_frames)
+
+        fade_box = QHBoxLayout()
+        label = QLabel("# Fade Frames: ")
+        fade_box.addWidget(label)
+
+        self.num_fades = QSpinBox(self)
+        self.num_fades.setMaximumWidth(40)
+        self.num_fades.setRange(1, 1024)
+        self.num_fades.setValue(self._data.value[1])
+        self.num_fades.valueChanged.connect(self.on_value_changed)
+        fade_box.addWidget(self.num_fades)
+
+        left_box = QVBoxLayout()
+        left_box.addLayout(frame_box)
+        left_box.addLayout(fade_box)
+        hbox.addLayout(left_box)
+
+        self.color = ColorIcon(QColor(248, 248, 248), self)
+        if len(self._data.value) > 1:
+            new_color = QColor(*self._data.value[2])
+            self.color.change_color(new_color)
+        self.color.set_size(32)
+        self.color.colorChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.color)
+
+    def on_value_changed(self, val):
+        num_frames = int(self.num_frames.value())
+        num_fades = int(self.num_fades.value())
+        color = self.color.color().getRgb()
+        self._data.value = (num_frames, num_fades, color)
+
+class TwoColorTimeCommand(CombatCommand):
+    def create_editor(self, hbox):
+        label = QLabel("# Frames: ")
+        hbox.addWidget(label)
+
+        self.num_frames = QSpinBox(self)
+        self.num_frames.setMaximumWidth(40)
+        self.num_frames.setRange(1, 1024)
+        self.num_frames.setValue(self._data.value[0])
+        self.num_frames.valueChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.num_frames)
+
+        self.color1 = ColorIcon(QColor(0, 0, 0), self)
+        if len(self._data.value) > 1:
+            new_color = QColor(*self._data.value[1])
+            self.color1.change_color(new_color)
+        self.color1.set_size(32)
+        self.color1.colorChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.color1)
+
+        self.color2 = ColorIcon(QColor(248, 248, 248), self)
+        if len(self._data.value) > 2:
+            new_color = QColor(*self._data.value[2])
+            self.color2.change_color(new_color)
+        self.color2.set_size(32)
+        self.color2.colorChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.color2)
+
+    def on_value_changed(self, val):
+        num_frames = int(self.num_frames.value())
+        color1 = self.color1.color().getRgb()
+        color2 = self.color2.color().getRgb()
+        self._data.value = (num_frames, color1, color2)
 
 def get_command_widget(command, parent):
     if command.attr is None:
         c = BasicCommand(command, parent)
-    elif command.attr is bool:
+    elif command.attr == (bool,):
         c = BoolCommand(command, parent)
-    elif command.attr is int:
+    elif command.attr == (int,):
         c = IntCommand(command, parent)
-    elif command.attr == 'sound':
+    elif command.attr == ('sound',):
         c = SoundCommand(command, parent)
-    elif command.attr == 'effect':
+    elif command.attr == ('effect',):
         c = EffectCommand(command, parent)
+    elif command.nid in ('effect_with_offset', 'under_effect_with_offset', 'enemy_effect_with_offset'):
+        c = EffectWithOffsetCommand(command, parent)
     elif command.nid == 'wait_for_hit':
         c = WaitForHitCommand(command, parent)
     elif command.nid in ('frame', 'over_frame', 'under_frame'):
@@ -366,8 +481,12 @@ def get_command_widget(command, parent):
         c = DualFrameCommand(command, parent)
     elif command.nid == 'frame_with_offset':
         c = FrameWithOffsetCommand(command, parent)
-    elif command.attr[0] is int and command.attr[1] == 'color':
+    elif len(command.attr) == 2 and command.attr[0] is int and command.attr[1] == 'color':
         c = ColorTimeCommand(command, parent)
+    elif len(command.attr) == 3 and command.attr[0] is int and command.attr[1] is int and command.attr[2] == 'color':
+        c = ColorTwoTimeCommand(command, parent)
+    elif len(command.attr) == 3 and command.attr[0] is int and command.attr[1] == 'color' and command.attr[2] == 'color':
+        c = TwoColorTimeCommand(command, parent)
     else:
         c = BasicCommand(command, parent)
     return c

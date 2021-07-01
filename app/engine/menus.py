@@ -1203,8 +1203,9 @@ class Convoy():
                     all_items += items                
 
         sorted_dict = {}
-        for w_type in self.order[:-1]:
-            sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type] 
+        for w_type in self.order:
+            if w_type != 'Default':
+                sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type] 
         sorted_dict['Default'] = [item for item in all_items if item_system.weapon_type(self.unit, item) is None]
         for key, value in sorted_dict.items():
             value.sort(key=lambda item: item_system.special_sort(self.unit, item) or 0)

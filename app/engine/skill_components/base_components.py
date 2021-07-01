@@ -84,6 +84,26 @@ class EnemyExpMultiplier(SkillComponent):
     def enemy_exp_multiplier(self, unit1, unit2):
         return self.value
 
+class WexpMultiplier(SkillComponent):
+    nid = 'wexp_multiplier'
+    desc = "Unit receives a multiplier on wexp gained"
+    tag = 'base'
+
+    expose = Type.Float
+
+    def wexp_multiplier(self, unit1, unit2):
+        return self.value
+
+class EnemyWexpMultiplier(SkillComponent):
+    nid = 'enemy_wexp_multiplier'
+    desc = "Unit gives a multiplier to the wexp gained by others in combat"
+    tag = 'base'
+
+    expose = Type.Float
+
+    def enemy_wexp_multiplier(self, unit1, unit2):
+        return self.value
+
 class Locktouch(SkillComponent):
     nid = 'locktouch'
     desc = "Unit is able to unlock automatically"

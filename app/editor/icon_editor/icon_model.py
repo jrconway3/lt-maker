@@ -27,7 +27,7 @@ class IconModel(ResourceCollectionModel):
 
     def rowCount(self, parent=None):
         return len(self.sub_data)
-    
+
     def data(self, index, role):
         if not index.isValid():
             return None
@@ -182,7 +182,7 @@ class Icon32Model(Icon16Model):
                 pass
             else:
                 return
-        
+
         self.do_delete(nid)
 
     def on_nid_changed(self, old_nid, new_nid):
@@ -216,7 +216,7 @@ class Icon80Model(Icon16Model):
                 pass
             else:
                 return
-        
+
         self.do_delete(nid)
 
     def on_nid_changed(self, old_nid, new_nid):
@@ -229,11 +229,11 @@ class Icon80Model(Icon16Model):
 class MapIconModel(Icon16Model):
     database = RESOURCES.map_icons
     width, height = 48, 48
-    
+
     def __init__(self, data, window):
         super().__init__(data, window)
         self.sub_data = self._data
-    
+
     def create_new(self):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
@@ -290,7 +290,7 @@ class MapIconModel(Icon16Model):
             for node in overworld.overworld_nodes:
                 if node.nid == old_nid:
                     node.icon = new_nid
-                    
+
     def do_delete(self, nid):
         self.layoutAboutToBeChanged.emit()
         for i in self._data:

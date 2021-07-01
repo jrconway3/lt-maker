@@ -50,6 +50,7 @@ class StateMachine():
              'transition_double_pop': transitions.TransitionDoublePopState,
              'transition_to': transitions.TransitionToState,
              'turn_change': general_states.TurnChangeState,
+             'initiative_upkeep': general_states.InitiativeUpkeep,
              'free': general_states.FreeState,
              'option_menu': general_states.OptionMenuState,
              'option_child': general_states.OptionChildState,

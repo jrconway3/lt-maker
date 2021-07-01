@@ -59,6 +59,13 @@ class SingleListModel(VirtualListModel):
         last_index = self.index(self.rowCount() - 1, 0)
         self.window.view.setCurrentIndex(last_index)
 
+    def new(self, idx):
+        new_row = str_utils.get_next_name("New %s" % self.title, self._data)
+        self._data.insert(idx + 1, new_row)
+        self.layoutChanged.emit()
+        new_index = self.index(idx + 1, 0)
+        self.window.view.setCurrentIndex(new_index)
+
     def headerData(self, idx, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole:
             return None

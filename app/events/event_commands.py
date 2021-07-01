@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List
 from app.utilities.data import Prefab
 
 class Tags(Enum):
@@ -14,6 +15,7 @@ class Tags(Enum):
     REGION = 'Region'
     ADD_REMOVE_INTERACT_WITH_UNITS = 'Add/Remove/Interact with Units'
     MODIFY_UNIT_PROPERTIES = 'Modify Unit Properties'
+    MODIFY_ITEM_PROPERTIES = 'Modify Item Properties'
     UNIT_GROUPS = 'Unit Groups'
     MISCELLANEOUS = 'Miscellaneous'
     HIDDEN = 'Hidden'
@@ -31,9 +33,9 @@ class EventCommand(Prefab):
     values: list = []
     display_values: list = []
 
-    def __init__(self, values=None, disp_values=None):
-        self.values = values or []
-        self.display_values = disp_values or values or []
+    def __init__(self, values: List[str] = None, disp_values: List[str] = None):
+        self.values: List[str] = values or []
+        self.display_values: List[str] = disp_values or values or []
 
     def save(self):
         # Don't bother saving display values if they are identical
@@ -42,7 +44,7 @@ class EventCommand(Prefab):
         else:
             return self.nid, self.values, self.display_values
 
-    def to_plain_text(self):
+    def to_plain_text(self) -> str:
         if self.display_values:
             return ';'.join([self.nid] + self.display_values)
         else:
@@ -59,8 +61,9 @@ class Comment(EventCommand):
         """
 **Lines** starting with '#' will be ignored.
         """
-
-    def to_plain_text(self):
+    def to_plain_text(self) -> str:
+        if self.values and not self.values[0].startswith('#'):
+            self.values[0] = '#' + self.values[0]
         return self.values[0]
 
 class If(EventCommand):
@@ -480,6 +483,11 @@ class SetCurrentHP(EventCommand):
     tag = Tags.MODIFY_UNIT_PROPERTIES
     keywords = ["Unit", "PositiveInteger"]
 
+class SetCurrentMana(EventCommand):
+    nid = 'set_current_mana'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+    keywords = ["Unit", "PositiveInteger"]
+
 class Resurrect(EventCommand):
     nid = 'resurrect'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
@@ -545,6 +553,30 @@ class RemoveItem(EventCommand):
 
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner']
+
+class ChangeItemName(EventCommand):
+    nid = 'change_item_name'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    keywords = ["GlobalUnit", "Item", "String"]
+
+class ChangeItemDesc(EventCommand):
+    nid = 'change_item_desc'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    keywords = ["GlobalUnit", "Item", "String"]
+
+class AddItemToMultiItem(EventCommand):
+    nid = 'add_item_to_multiitem'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    keywords = ["GlobalUnit", "Item", "Item"]
+
+class RemoveItemFromMultiItem(EventCommand):
+    nid = 'remove_item_from_multiitem'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    keywords = ["GlobalUnit", "Item", "Item"]
 
 class GiveMoney(EventCommand):
     nid = 'give_money'
@@ -927,6 +959,26 @@ class ChangeRoamingUnit(EventCommand):
 
     keywords = ["Unit"]
 
+class CleanUpRoaming(EventCommand):
+    nid = 'clean_up_roaming'
+    tag = Tags.MISCELLANEOUS
+    desc = "Removes all units other than the roaming unit"
+
+    keywords = []
+
+class AddToInitiative(EventCommand):
+    nid = 'add_to_initiative'
+    tag = Tags.MISCELLANEOUS
+    desc = "Adds the specified unit to the specified point in the initiative order. 0 is the current initiative position."
+
+    keywords = ["Unit", "Integer"]
+
+class MoveInInitiative(EventCommand):
+    nid = 'move_in_initiative'
+    tag = Tags.MISCELLANEOUS
+    desc = "Moves the initiative of the specified unit."
+
+    keywords = ["Unit", "Integer"]
 
 def get_commands():
     return EventCommand.__subclasses__()
@@ -944,7 +996,7 @@ def restore_command(dat):
             return copy
     print("Couldn't restore event command!")
     print(nid, values, display_values)
-    return None
+    return Comment([nid + ';' + str.join(';', display_values)])
 
 def parse_text(text):
     if text.startswith('#'):
@@ -972,7 +1024,7 @@ def parse_text(text):
                     true_cmd_args.append(arg)
             copy = command(true_cmd_args, cmd_args)
             return copy
-    return None
+    return Comment([text])
 
 def parse(command):
     values = command.values

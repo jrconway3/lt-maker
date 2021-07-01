@@ -1,11 +1,13 @@
 from app.data.database import DB
 
-from app.engine import combat_calcs, item_system, skill_system, static_random, action, item_funcs
+from app.engine import combat_calcs, item_system, skill_system, static_random, item_funcs
 from app.engine.game_state import game
 
 import logging
 
 class SolverState():
+    name = None
+
     def get_next_state(self, solver):
         return None
 
@@ -22,6 +24,8 @@ class SolverState():
         return None
 
 class InitState(SolverState):
+    name = 'init'
+
     def get_next_state(self, solver):
         command = solver.get_script()
         if command == '--':
@@ -33,6 +37,9 @@ class InitState(SolverState):
             return self.process_command(command) 
 
 class AttackerState(SolverState):
+    name = 'attacker'
+    num_multiattacks = 1
+
     def get_next_state(self, solver):
         command = solver.get_script()
         if solver.attacker_alive() and solver.defender_alive():
@@ -45,10 +52,9 @@ class AttackerState(SolverState):
                     attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
                 else:
                     attacker_outspeed = defender_outspeed = 1
-                multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.defender, solver.main_item, 'attack')
             
                 if solver.item_has_uses() and \
-                        solver.num_subattacks < multiattacks:
+                        solver.num_subattacks < self.num_multiattacks:
                     return 'attacker'
                 elif solver.allow_counterattack() and \
                         solver.num_defends < defender_outspeed:
@@ -66,24 +72,36 @@ class AttackerState(SolverState):
 
     def process(self, solver, actions, playback):
         playback.append(('attacker_phase',))
+        # Check attack proc
+        skill_system.start_sub_combat(actions, playback, solver.attacker, solver.main_item, solver.defender, 'attack')
         for idx, item in enumerate(solver.items):
             defender = solver.defenders[idx]
             splash = solver.splashes[idx]
             target_pos = solver.target_positions[idx]
             if defender:
+                skill_system.start_sub_combat(actions, playback, defender, defender.get_weapon(), solver.attacker, 'defense')
                 solver.process(actions, playback, solver.attacker, defender, target_pos, item, defender.get_weapon(), 'attack')
+                skill_system.end_sub_combat(actions, playback, defender, defender.get_weapon(), solver.attacker, 'defense')
             for target in splash:
+                skill_system.start_sub_combat(actions, actions, playback, target, None, solver.attacker, 'defense')
                 solver.process(actions, playback, solver.attacker, target, target_pos, item, None, 'splash')
+                skill_system.end_sub_combat(actions, playback, target, None, solver.attacker, 'defense')
             # Make sure that we run on_hit even if otherwise unavailable
             if not defender and not splash:
                 solver.simple_process(actions, playback, solver.attacker, solver.attacker, target_pos, item, None, None)
         
         solver.num_subattacks += 1
-        multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.defender, solver.main_item, 'attack')
-        if solver.num_subattacks >= multiattacks:
+        self.num_multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.defender, solver.main_item, 'attack')
+        if solver.num_subattacks >= self.num_multiattacks:
             solver.num_attacks += 1
 
+        # End check attack proc
+        skill_system.end_sub_combat(actions, playback, solver.attacker, solver.main_item, solver.defender, 'attack')
+
 class DefenderState(SolverState):
+    name = 'defender'
+    num_multiattacks = 1
+
     def get_next_state(self, solver):
         command = solver.get_script()
         if solver.attacker_alive() and solver.defender_alive():
@@ -93,10 +111,10 @@ class DefenderState(SolverState):
                 else:
                     defender_outspeed = 1
                 attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
-                multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
+                # self.num_multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
                 
                 if solver.allow_counterattack() and \
-                        solver.num_subdefends < multiattacks:
+                        solver.num_subdefends < self.num_multiattacks:
                     return 'defender'    
                 elif solver.item_has_uses() and \
                         solver.num_attacks < attacker_outspeed:
@@ -114,12 +132,22 @@ class DefenderState(SolverState):
 
     def process(self, solver, actions, playback):
         playback.append(('defender_phase',))
+        # Check for proc skills
+        skill_system.start_sub_combat(actions, playback, solver.defender, solver.def_item, solver.attacker, 'attack')
+        skill_system.start_sub_combat(actions, playback, solver.attacker, solver.main_item, solver.defender, 'defense')
+
         solver.process(actions, playback, solver.defender, solver.attacker, solver.attacker.position, solver.def_item, solver.main_item, 'defense')
+
+        # Remove defending unit's proc skills (which is solver.attacker)
+        skill_system.end_sub_combat(actions, playback, solver.attacker, solver.main_item, solver.defender, 'defense')
         
         solver.num_subdefends += 1
-        multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
-        if solver.num_subdefends >= multiattacks:
+        self.num_multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
+        if solver.num_subdefends >= self.num_multiattacks:
             solver.num_defends += 1
+
+        # Remove attacking unit's proc skills (which is solver.defender)
+        skill_system.end_sub_combat(actions, playback, solver.defender, solver.def_item, solver.attacker, 'attack')
 
 class CombatPhaseSolver():
     states = {'init': InitState,
@@ -150,28 +178,24 @@ class CombatPhaseSolver():
         return self.state
 
     def do(self):
-        old_random_state = static_random.get_combat_random_state()
-        
         actions, playback = [], []
         self.state.process(self, actions, playback)
-
-        new_random_state = static_random.get_combat_random_state()
-        action.do(action.RecordRandomState(old_random_state, new_random_state))
-
         return actions, playback
 
-    def setup_next_state(self):
-        old_random_state = static_random.get_combat_random_state()
+    def get_next_state(self) -> str:
+        # This is just used to determine what the next state will be
+        if self.state:
+            return self.state.name
+        return None
 
+    def setup_next_state(self):
+        # Does actually change the state
         next_state = self.state.get_next_state(self)
         logging.debug("Next State: %s" % next_state)
         if next_state:
             self.state = self.states[next_state]()
         else:
             self.state = None
-            
-        new_random_state = static_random.get_combat_random_state()
-        action.do(action.RecordRandomState(old_random_state, new_random_state))
 
     def get_script(self):
         if self.script:

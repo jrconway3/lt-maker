@@ -92,6 +92,14 @@
         "expression": "CON"
     },
     {
+        "nid": "INITIATIVE",
+        "expression": "SPD"
+    },
+    {
+        "nid": "MANA",
+        "expression": "20"
+    },
+    {
         "nid": "ZERO",
         "expression": "0"
     }

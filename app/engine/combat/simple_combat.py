@@ -3,7 +3,7 @@ from app.data.database import DB
 
 from app.engine.combat.solver import CombatPhaseSolver
 
-from app.engine import action, skill_system, banner, item_system, item_funcs, supports
+from app.engine import action, skill_system, banner, item_system, item_funcs, supports, static_random
 from app.engine.game_state import game
 
 from app.engine.objects.unit import UnitObject
@@ -17,7 +17,7 @@ class SimpleCombat():
     Does the simple mechanical effects of combat without any effects
     """
 
-    def _full_setup(self, attacker: UnitObject, main_item: ItemObject, items: list, 
+    def _full_setup(self, attacker: UnitObject, main_item: ItemObject, items: list,
                     positions: list, main_target_positions: list, splash_positions: list):
         self.attacker: UnitObject = attacker
         self.main_item: ItemObject = main_item
@@ -76,6 +76,12 @@ class SimpleCombat():
     def get_from_full_playback(self, s):
         return [brush for brush in self.full_playback if brush[0] == s]
 
+    def skip(self):
+        pass
+
+    def end_skip(self):
+        pass
+
     def update(self) -> bool:
         self.clean_up()
         return True
@@ -96,16 +102,7 @@ class SimpleCombat():
         # attacker has attacked
         action.do(action.HasAttacked(self.attacker))
 
-        # Messages
-        if self.defender:
-            if skill_system.check_enemy(self.attacker, self.defender):
-                action.do(action.Message("%s attacked %s" % (self.attacker.name, self.defender.name)))
-            elif self.attacker is not self.defender:
-                action.do(action.Message("%s helped %s" % (self.attacker.name, self.defender.name)))
-            else:
-                action.do(action.Message("%s used %s" % (self.attacker.name, self.main_item.name)))
-        else:
-            action.do(action.Message("%s attacked" % self.attacker.name))
+        self.handle_messages()
 
         all_units = self._all_units()
 
@@ -131,6 +128,7 @@ class SimpleCombat():
         if self.defender and self.def_item and not self.defender.is_dying:
             self.handle_wexp(self.defender, self.def_item, self.attacker)
 
+        self.handle_mana(all_units)
         self.handle_exp()
 
         self.handle_records(self.full_playback, all_units)
@@ -143,6 +141,8 @@ class SimpleCombat():
         self.handle_broken_items(a_broke, d_broke)
 
     def start_combat(self):
+        self.initial_random_state = static_random.get_combat_random_state()
+
         game.events.trigger('combat_start', self.attacker, self.defender, self.main_item, self.attacker.position)
         skill_system.pre_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
 
@@ -157,7 +157,7 @@ class SimpleCombat():
             skill_system.pre_combat(self.full_playback, unit, None, None, 'defense')
 
         skill_system.start_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
-        item_system.start_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        item_system.start_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
 
         already_pre = [self.attacker]
         for idx, defender in enumerate(self.defenders):
@@ -166,7 +166,7 @@ class SimpleCombat():
                 def_item = self.def_items[idx]
                 skill_system.start_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
                 if def_item:
-                    item_system.start_combat(self.full_playback, defender, def_item, self.attacker)
+                    item_system.start_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
         for unit in self.all_splash:
             skill_system.start_combat(self.full_playback, unit, None, None, 'defense')
 
@@ -183,7 +183,7 @@ class SimpleCombat():
 
     def end_combat(self):
         skill_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
-        item_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender)
+        item_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         already_pre = [self.attacker]
         for idx, defender in enumerate(self.defenders):
             if defender and defender not in already_pre:
@@ -191,7 +191,7 @@ class SimpleCombat():
                 def_item = self.def_items[idx]
                 skill_system.end_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
                 if def_item:
-                    item_system.end_combat(self.full_playback, defender, def_item, self.attacker)
+                    item_system.end_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
         for unit in self.all_splash:
             skill_system.end_combat(self.full_playback, unit, None, self.attacker, 'defense')
 
@@ -205,6 +205,9 @@ class SimpleCombat():
         for unit in self.all_splash:
             skill_system.post_combat(self.full_playback, unit, None, self.attacker, 'defense')
 
+        self.final_random_state = static_random.get_combat_random_state()
+        action.do(action.RecordRandomState(self.initial_random_state, self.final_random_state))
+
     def _all_units(self) -> list:
         """
         Returns list of all units taking in this combat
@@ -217,6 +220,18 @@ class SimpleCombat():
             if unit is not self.attacker:
                 all_units.append(unit)
         return all_units
+
+    def handle_messages(self):
+        # Messages
+        if self.defender:
+            if skill_system.check_enemy(self.attacker, self.defender):
+                action.do(action.Message("%s attacked %s" % (self.attacker.name, self.defender.name)))
+            elif self.attacker is not self.defender:
+                action.do(action.Message("%s helped %s" % (self.attacker.name, self.defender.name)))
+            else:
+                action.do(action.Message("%s used %s" % (self.attacker.name, self.main_item.name)))
+        else:
+            action.do(action.Message("%s attacked" % self.attacker.name))
 
     def turnwheel_death_messages(self, units):
         messages = []
@@ -329,15 +344,37 @@ class SimpleCombat():
 
         if DB.constants.value('double_wexp'):
             for mark in marks:
-                if mark[2] and mark[2].is_dying and DB.constants.value('kill_wexp'):
-                    func(action.GainWexp(unit, item, wexp*2))
+                if mark[2]:
+                    multiplier = skill_system.wexp_multiplier(unit, mark[2]) * skill_system.enemy_wexp_multiplier(mark[2], unit)
                 else:
-                    func(action.GainWexp(unit, item, wexp))
+                    multiplier = skill_system.wexp_multiplier(unit, mark[2])
+                if mark[2] and mark[2].is_dying and DB.constants.value('kill_wexp'):
+                    func(action.GainWexp(unit, item, (wexp * 2) * multiplier))
+                else:
+                    func(action.GainWexp(unit, item, wexp * multiplier))
         elif marks:
-            if DB.constants.value('kill_wexp') and any(mark[2] and mark[2].is_dying for mark in marks):
-                func(action.GainWexp(unit, item, wexp*2))
+            if target:
+                multiplier = skill_system.wexp_multiplier(unit, target) * skill_system.enemy_wexp_multiplier(target, unit)
             else:
-                func(action.GainWexp(unit, item, wexp))
+                multiplier = skill_system.wexp_multiplier(unit, target)
+            if DB.constants.value('kill_wexp') and any(mark[2] and mark[2].is_dying for mark in marks):
+                func(action.GainWexp(unit, item, (wexp * 2) * multiplier))
+            else:
+                func(action.GainWexp(unit, item, wexp * multiplier))
+
+    def handle_mana(self, all_units):
+        if self.attacker.team == 'player':
+            total_mana = 0
+            for unit in all_units:
+                if unit is not self.attacker:
+                    total_mana += skill_system.mana(self.full_playback, self.attacker, self.main_item, unit)
+            # This is being left open - if something effects mana gain it will be done here
+            game.mana_instance.append((self.attacker, total_mana))
+
+        elif self.defender and self.defender.team == 'player':
+            # This is being left open - if something effects mana gain it will be done here
+            mana_gain = skill_system.mana(self.full_playback, self.defender, self.def_item, self.attacker)
+            game.mana_instance.append((self.defender, mana_gain))
 
     def handle_exp(self):
         # handle exp

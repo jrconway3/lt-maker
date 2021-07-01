@@ -15,6 +15,7 @@ from app.engine import dialog, engine, background, target_system, action, \
     evaluate, static_random, image_mods, icons
 from app.engine.combat import interaction
 from app.engine.objects.unit import UnitObject
+from app.engine.objects.item import ItemObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.animations import MapAnimation
 from app.engine.sound import SOUNDTHREAD
@@ -620,6 +621,18 @@ class Event():
         elif command.nid == 'remove_item':
             self.remove_item(command)
 
+        elif command.nid == 'change_item_name':
+            self.change_item_name(command)
+
+        elif command.nid == 'change_item_desc':
+            self.change_item_desc(command)
+
+        elif command.nid == 'add_item_to_multiitem':
+            self.add_item_to_multiitem(command)
+
+        elif command.nid == 'remove_item_from_multiitem':
+            self.remove_item_from_multiitem(command)
+
         elif command.nid == 'give_money':
             self.give_money(command)
 
@@ -723,6 +736,15 @@ class Event():
                 return
             hp = int(values[1])
             action.do(action.SetHP(unit, hp))
+
+        elif command.nid == 'set_current_mana':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            mana = int(values[1])
+            action.do(action.SetMana(unit, mana))
 
         elif command.nid == 'resurrect':
             values, flags = event_commands.parse(command)
@@ -1074,6 +1096,15 @@ class Event():
         elif command.nid == 'change_roaming_unit':
             self.change_roaming_unit(command)
 
+        elif command.nid == 'clean_up_roaming':
+            self.clean_up_roaming(command)
+
+        elif command.nid == 'add_to_initiative':
+            self.add_to_initiative(command)
+
+        elif command.nid == 'move_in_initiative':
+            self.move_in_initiative(command)
+
     def add_portrait(self, command):
         values, flags = event_commands.parse(command)
         name = values[0]
@@ -1299,6 +1330,9 @@ class Event():
         if not position:
             return None
 
+        if DB.constants.value('initiative'):
+            action.do(action.InsertInitiative(unit))
+
         self._place_unit(unit, position, entry_type)
 
     def move_unit(self, command):
@@ -1366,6 +1400,9 @@ class Event():
         else:
             remove_type = 'fade'
 
+        if DB.constants.value('initiative'):
+            action.do(action.RemoveInitiative(unit))
+
         if self.do_skip:
             action.do(action.LeaveMap(unit))
         elif remove_type == 'warp':
@@ -1383,6 +1420,9 @@ class Event():
         if not unit:
             logging.error("Couldn't find unit %s" % values[0])
             return
+
+        if DB.constants.value('initiative'):
+            action.do(action.RemoveInitiative(unit))
 
         if not unit.position:
             unit.dead = True
@@ -1463,6 +1503,8 @@ class Event():
             if not position:
                 logging.warning("Couldn't determine valid position for %s?", unit.nid)
                 continue
+            if DB.constants.value('initiative'):
+                action.do(action.InsertInitiative(unit))
             self._place_unit(unit, position, entry_type)
 
     def _move_unit(self, movement_type, placement, follow, unit, position):
@@ -1570,6 +1612,8 @@ class Event():
                 continue
 
             if self._add_unit_from_direction(unit, position, cardinal_direction, placement):
+                if DB.constants.value('initiative'):
+                    action.do(action.InsertInitiative(unit))
                 self._move_unit(movement_type, placement, follow, unit, position)
             else:
                 logging.error("Couldn't add unit %s to position %s" % (unit.nid, position))
@@ -1625,6 +1669,9 @@ class Event():
         for unit_nid in group.units:
             unit = game.get_unit(unit_nid)
             if unit.position:
+                if DB.constants.value('initiative'):
+                    action.do(action.RemoveInitiative(unit))
+
                 if self.do_skip:
                     action.do(action.LeaveMap(unit))
                 elif remove_type == 'warp':
@@ -1818,6 +1865,9 @@ class Event():
         if assign_unit:
             self.unit = new_unit
 
+        if DB.constants.value('initiative'):
+            action.do(action.InsertInitiative(unit))
+
         self._place_unit(new_unit, position, entry_type)
 
     def give_item(self, command):
@@ -1872,26 +1922,86 @@ class Event():
                 game.state.change('alert')
                 self.state = 'paused'
 
-    def remove_item(self, command):
-        values, flags = event_commands.parse(command)
+    def get_item_in_inventory(self, values):
         unit = self.get_unit(values[0])
         if not unit:
             logging.error("Couldn't find unit with nid %s" % values[0])
-            return
+            return None, None
         item_nid = values[1]
         if item_nid not in [item.nid for item in unit.items]:
             logging.error("Couldn't find item with nid %s" % values[1])
+            return None, None
+        item = [item for item in unit.items if item.nid == item_nid][0]
+        return unit, item
+
+    def remove_item(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
             return
         banner_flag = 'no_banner' not in flags
-        item = [item for item in unit.items if item.nid == item_nid][0]
 
         action.do(action.RemoveItem(unit, item))
         if banner_flag:
-            item = DB.items.get(item_nid)
+            item = DB.items.get(item.nid)
             b = banner.TakeItem(unit, item)
             game.alerts.append(b)
             game.state.change('alert')
             self.state = 'paused'
+
+    def change_item_name(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
+            return
+        name = values[2]
+
+        action.do(action.ChangeItemName(item, name))
+
+    def change_item_desc(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
+            return
+        desc = values[2]
+
+        action.do(action.ChangeItemDesc(item, desc))
+
+    def add_item_to_multiitem(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
+            return
+        if not item.multi_item:
+            logging.error("Item %s is not a multi-item!" % item.nid)
+            return
+        subitem_prefab = DB.items.get(values[2])
+        if not subitem_prefab:
+            logging.error("Couldn't find item with nid %s" % values[2])
+            return
+        # Create subitem
+        subitem = ItemObject.from_prefab(subitem_prefab)
+        for component in subitem.components:
+            component.item = item
+        item_system.init(subitem)
+        game.register_item(subitem)
+        action.do(action.AddItemToMultiItem(unit, item, subitem))
+
+    def remove_item_from_multiitem(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
+            return
+        if not item.multi_item:
+            logging.error("Item %s is not a multi-item!" % item.nid)
+            return
+        # Check if item in multiitem
+        subitem_nids = [subitem.nid for subitem in item.subitems]
+        if values[2] not in subitem_nids:
+            logging.error("Couldn't find subitem with nid %s" % values[2])
+            return
+        subitem = [subitem for subitem in item.subitems if subitem.nid == values[2]][0]
+        action.do(action.RemoveItemFromMultiItem(unit, item, subitem))
 
     def give_money(self, command):
         values, flags = event_commands.parse(command)
@@ -2246,11 +2356,11 @@ class Event():
 
         actions, playback = [], []
         # In order to proc uses, c_uses etc.
-        item_system.start_combat(playback, unit, chosen_item, None)
+        item_system.start_combat(playback, unit, chosen_item, None, None)
         item_system.on_hit(actions, playback, unit, chosen_item, None, self.position, None, True)
         for act in actions:
             action.do(act)
-        item_system.end_combat(playback, unit, chosen_item, None)
+        item_system.end_combat(playback, unit, chosen_item, None, None)
 
         if unit.get_hp() <= 0:
             # Force can't die unlocking stuff, because I don't want to deal with that nonsense
@@ -2304,6 +2414,31 @@ class Event():
                 game.level.roam_unit = values[0]
             else:
                 game.level.roam_unit = None
+
+    def clean_up_roaming(self, command):
+        # WARNING: Not currently turnwheel combatible
+        values, flags = event_commands.parse(command)
+        for unit in game.units:
+            if unit.position and not unit == game.level.roam_unit:
+                action.do(action.FadeOut(unit))
+        if DB.constants.value('initiative'):
+            game.initiative.clear()
+            game.initiative.insert_unit(game.level.roam_unit)
+
+    def add_to_initiative(self, command):
+        # WARNING: Not currently turnwheel combatible
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        pos = int(values[1])
+        if DB.constants.value('initiative'):
+            game.initiative.remove_unit(unit)
+            game.initiative.insert_at(unit, game.initiative.current_idx + pos)
+
+    def move_in_initiative(self, command):
+        values, flags = event_commands.parse(command)
+        unit = self.get_unit(values[0])
+        offset = int(values[1])
+        action.do(action.MoveInInitiative(unit, offset))
 
     def parse_pos(self, text):
         position = None

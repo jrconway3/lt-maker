@@ -42,6 +42,10 @@ class Defaults():
         return 1
 
     @staticmethod
+    def effect_animation(unit, item) -> str:
+        return None
+
+    @staticmethod
     def damage(unit, item) -> int:
         return None
 
@@ -104,7 +108,7 @@ false_hooks = ('is_weapon', 'is_spell', 'is_accessory', 'equippable',
 formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formula', 
            'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula')
 default_hooks = ('full_price', 'buy_price', 'sell_price', 'special_sort', 'num_targets', 'minimum_range', 'maximum_range',
-                 'weapon_type', 'weapon_rank', 'modify_weapon_triangle', 'damage', 'hit', 'crit')
+                 'weapon_type', 'weapon_rank', 'modify_weapon_triangle', 'damage', 'hit', 'crit', 'effect_animation')
 default_hooks += formula
 
 target_hooks = ('wexp', 'exp')
@@ -121,6 +125,7 @@ event_hooks = ('on_use', 'on_end_chapter', 'reverse_use',
                'on_equip_item', 'on_unequip_item', 'on_add_item', 'on_remove_item')
 
 combat_event_hooks = ('start_combat', 'end_combat')
+aesthetic_combat_hooks = ('battle_music', 'combat_effect')
 
 status_event_hooks = ('on_upkeep', 'on_endstep')
 
@@ -197,14 +202,14 @@ for hook in event_hooks:
     exec(func)
 
 for hook in combat_event_hooks:
-    func = """def %s(playback, unit, item, target):
+    func = """def %s(playback, unit, item, target, mode):
     for component in item.components:
         if component.defines('%s'):
-            component.%s(playback, unit, item, target)
+            component.%s(playback, unit, item, target, mode)
     if item.parent_item:
         for component in item.parent_item.components:
             if component.defines('%s'):
-                component.%s(playback, unit, item.parent_item, target)""" \
+                component.%s(playback, unit, item.parent_item, target, mode)""" \
         % (hook, hook, hook, hook, hook)
     exec(func)
 
@@ -218,6 +223,15 @@ for hook in status_event_hooks:
             if component.defines('%s'):
                 component.%s(actions, playback, unit, item.parent_item)""" \
         % (hook, hook, hook, hook, hook)
+    exec(func)
+
+for hook in aesthetic_combat_hooks:
+    func = """def %s(unit, item, target, mode):
+    for component in item.components:
+        if component.defines('%s'):
+            return component.%s(unit, item, target, mode)
+    return None""" \
+        % (hook, hook, hook)
     exec(func)
 
 def available(unit, item) -> bool:

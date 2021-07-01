@@ -13,17 +13,18 @@ from app.editor import timer
 from app.editor.custom_widgets import ClassBox
 from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.map_sprite_editor import map_sprite_model
+from app.editor.combat_animation_editor import combat_animation_model
 
-from app.data import weapons, stats, klass
+from app.data import klass
 
 from app.utilities import str_utils
 
-def get_map_sprite_icon(klass, num=0, current=False, team='player', variant=None):
+def get_map_sprite_icon(klass_obj, num=0, current=False, team='player', variant=None):
     res = None
     if variant:
-        res = RESOURCES.map_sprites.get(klass.map_sprite_nid + variant)
+        res = RESOURCES.map_sprites.get(klass_obj.map_sprite_nid + variant)
     if not variant or not res:
-        res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
+        res = RESOURCES.map_sprites.get(klass_obj.map_sprite_nid)
     if not res:
         return None
     if not res.standing_pixmap:
@@ -32,24 +33,10 @@ def get_map_sprite_icon(klass, num=0, current=False, team='player', variant=None
     pixmap = map_sprite_model.get_basic_icon(pixmap, num, current, team)
     return pixmap
 
-def get_combat_anim_icon(klass):
-    res = RESOURCES.combat_anims.get(klass.combat_anim_nid)
-    if not res:
+def get_combat_anim_icon(klass_obj):
+    if not klass_obj.combat_anim_nid:
         return None
-    res = res.weapon_anims.get('Unarmed', res.weapon_anims[0])
-    if 'Stand' not in res.poses:
-        return None
-    pose = res.poses.get('Stand')
-    for command in pose.timeline:
-        if command.nid == 'frame':
-            frame_nid = command.value[1]
-            if frame_nid in res.frames:
-                frame = res.frames.get(frame_nid)
-                if not frame.pixmap:
-                    frame.pixmap = QPixmap(frame.full_path)
-                pixmap = frame.pixmap
-                return pixmap
-    return None
+    return combat_animation_model.get_combat_anim_icon(klass_obj.combat_anim_nid)
 
 class ClassModel(DragDropCollectionModel):
     display_team = 'player'

@@ -12,6 +12,11 @@ def is_magic(unit, item) -> bool:
         return True
     return False
 
+def is_ranged(unit, item) -> bool:
+    if max(get_range(unit, item), default=0) > 1:
+        return True
+    return False
+
 def available(unit, item) -> bool:
     return item_system.available(unit, item) and skill_system.available(unit, item)
 
@@ -157,7 +162,9 @@ def get_range_string(unit, item):
     else:
         min_range = item_system.minimum_range(None, item)
         max_range = item_system.maximum_range(None, item)
-    if min_range != max_range:
+    if max_range >= 99:
+        rng = '%d+' % min_range
+    elif min_range != max_range:
         rng = '%d-%d' % (min_range, max_range)
     else:
         rng = '%d' % max_range

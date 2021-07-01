@@ -2,10 +2,9 @@ import copy
 import json
 
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QGridLayout, QPushButton, \
-    QSizePolicy, QSplitter, QMessageBox, QApplication
+    QSizePolicy, QSplitter, QMessageBox, QApplication, QAbstractItemView
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtCore import QAbstractListModel
-
 from app.editor import timer
 
 from app.utilities.data import Prefab
@@ -98,7 +97,6 @@ class DatabaseTab(QWidget):
 
         self.setWindowTitle('%s Editor' % self.title)
         self.setStyleSheet("font: 10pt;")
-
         self.left_frame = collection_type(
             deletion_criteria, collection_model, self, button_text=button_text, view_type=view_type)
         self.right_frame = right_frame(self)
@@ -216,6 +214,15 @@ class CollectionModel(QAbstractListModel):
         # self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
         self.layoutChanged.emit()
 
+    def move_to_bottom(self):
+        view = self.window.view
+        self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
+        self.layoutChanged.emit()
+        last_index = self.index(self.rowCount() - 1)
+        view.setCurrentIndex(last_index)
+        view.scrollTo(last_index, QAbstractItemView.EnsureVisible)
+        return last_index
+
     def create_new(self):
         raise NotImplementedError
 
@@ -223,12 +230,7 @@ class CollectionModel(QAbstractListModel):
         new_item = self.create_new()
         if not new_item:
             return
-        view = self.window.view
-        self.dataChanged.emit(self.index(0), self.index(self.rowCount()))
-        self.layoutChanged.emit()
-        last_index = self.index(self.rowCount() - 1)
-        view.setCurrentIndex(last_index)
-        return last_index
+        return self.move_to_bottom()
 
     def new(self, idx):
         new_item = self.create_new()

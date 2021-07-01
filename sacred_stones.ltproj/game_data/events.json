@@ -6268,11 +6268,9 @@
                 ]
             ],
             [
-                "give_bexp",
+                "comment",
                 [
-                    "17000",
-                    "",
-                    "Wow"
+                    "#give_bexp;17000;;Wow"
                 ]
             ],
             [
@@ -6282,9 +6280,9 @@
                 ]
             ],
             [
-                "base",
+                "comment",
                 [
-                    "Clearing"
+                    "#base;Clearing"
                 ]
             ],
             [
@@ -6565,6 +6563,13 @@
                 [
                     "EirikaSupport",
                     "True"
+                ]
+            ],
+            [
+                "add_unit",
+                [
+                    "101",
+                    "0,0"
                 ]
             ]
         ],

@@ -3454,8 +3454,8 @@
             "player_phase": "Shadow of the Enemy",
             "enemy_phase": null,
             "other_phase": null,
-            "player_battle": null,
-            "enemy_battle": null,
+            "player_battle": "Attack",
+            "enemy_battle": "Defense",
             "other_battle": null,
             "base": null
         },
@@ -3470,7 +3470,7 @@
             {
                 "nid": "Bone",
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
                     2,
@@ -3532,26 +3532,153 @@
                 "generic": false
             },
             {
-                "nid": "Moulder",
+                "nid": "101",
+                "variant": "",
+                "level": 1,
+                "klass": "Bishop",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Lightning",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    4,
+                    3
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "102",
+                "variant": null,
+                "level": 1,
+                "klass": "Myrmidon",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    4,
+                    4
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "104",
+                "variant": null,
+                "level": 1,
+                "klass": "Archer",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Bow",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    4,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "105",
+                "variant": null,
+                "level": 1,
+                "klass": "Archer",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Bow",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    3,
+                    13
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "107",
+                "variant": null,
+                "level": 1,
+                "klass": "Cleric",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Heal",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    3,
+                    6
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "Gilliam",
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
                     1,
-                    2
+                    3
                 ],
                 "generic": false
             },
             {
-                "nid": "Vanessa",
+                "nid": "106",
+                "variant": null,
+                "level": 20,
+                "klass": "Pegasus_Knight",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Lance",
+                        false
+                    ]
+                ],
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    2,
-                    2
+                    5,
+                    3
                 ],
-                "generic": false
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [

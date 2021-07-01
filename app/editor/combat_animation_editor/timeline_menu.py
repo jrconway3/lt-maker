@@ -168,7 +168,10 @@ class TimelineMenu(QWidget):
         if start == end:
             return
         obj = self.current_pose.timeline.pop(start)
-        self.current_pose.timeline.insert(end, obj)
+        if start > end:
+            self.current_pose.timeline.insert(end, obj)
+        else:
+            self.current_pose.timeline.insert(end - 1, obj)
 
     def add_text(self):
         try:

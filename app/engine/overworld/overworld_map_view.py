@@ -1,3 +1,4 @@
+from app.engine.objects.overworld import OverworldNodeProperty
 from app.engine.overworld.overworld_manager import OverworldManager
 import logging
 from typing import Tuple
@@ -17,7 +18,7 @@ class OverworldMapView():
         for node in self.overworld.revealed_nodes:
             node.sprite.update()
             if node.prefab.pos:
-                if 'next_objective' in self.overworld.node_props(node.nid):
+                if OverworldNodeProperty.IS_NEXT_LEVEL in self.overworld.node_props(node.nid):
                     surf = node.sprite.draw(surf, cull_rect, True)
                 else:
                     surf = node.sprite.draw(surf, cull_rect)
@@ -30,11 +31,11 @@ class OverworldMapView():
     def draw_entities(self, surf, cull_rect):
         overworld_entities = self.overworld.entities.values()
         # get rid of the unplaced entities
-        overworld_entities = [entity for entity in overworld_entities if entity.node is not None]
+        overworld_entities = [entity for entity in overworld_entities if entity.on_node is not None]
         # Only draw units within 2 tiles of cull_rect
         culled_entities = [entity for entity in overworld_entities if entity.sprite.draw_anyway() or
-                        (cull_rect[0] - TILEWIDTH*2 < (entity.display_position or entity.node.prefab.pos)[0] * TILEWIDTH < cull_rect[0] + cull_rect[2] + TILEWIDTH*2 and
-                         cull_rect[1] - TILEHEIGHT*2 < (entity.display_position or entity.node.prefab.pos)[1] * TILEHEIGHT < cull_rect[1] + cull_rect[3] + TILEHEIGHT*2)]
+                        (cull_rect[0] - TILEWIDTH*2 < entity.display_position[0] * TILEWIDTH < cull_rect[0] + cull_rect[2] + TILEWIDTH*2 and
+                         cull_rect[1] - TILEHEIGHT*2 < entity.display_position[1] * TILEHEIGHT < cull_rect[1] + cull_rect[3] + TILEHEIGHT*2)]
         for entity in culled_entities:
             # special behavior for the hovered entity
             if self.cursor:
@@ -48,7 +49,7 @@ class OverworldMapView():
 
             entity.sprite.update()
             entity.sound.update()
-            if entity.display_position or entity.node.prefab.pos:
+            if entity.display_position:
                 surf = entity.sprite.draw(surf, cull_rect)
 
     def draw(self, camera_cull=None, subsurface_cull=None):

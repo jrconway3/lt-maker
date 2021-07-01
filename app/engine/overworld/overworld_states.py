@@ -47,11 +47,13 @@ class OverworldState(MapState):
 
     def start(self):
         OverworldState.set_up_overworld_game_state()
-        game.cursor.show()
         self.begin_time = engine.get_time()
         game.cursor.set_pos(game.overworld_controller.selected_party_node().position)
         game.camera.force_center(*game.overworld_controller.selected_party_node().position)
         game.events.trigger('overworld_start', level_nid = game.game_vars['_next_level_nid'])
+
+    def begin(self):
+        game.cursor.show()
 
     def take_input(self, event):
         game.cursor.set_speed_state(INPUT.is_pressed('BACK'))
@@ -140,8 +142,9 @@ class OverworldMovementState(State):
         focal_unit_nid: NID = movement.get_following_unit()
         if focal_unit_nid:
             focal_unit = game.overworld_controller.entities[focal_unit_nid]
-            game.cursor.set_pos((int(focal_unit.display_position[0]), int(focal_unit.display_position[1])))
-            game.camera.set_center(*focal_unit.display_position)
+            unit_position = focal_unit.display_position
+            game.cursor.set_pos((round(unit_position[0]), round(unit_position[1])))
+            game.camera.set_center(*unit_position)
         if len(game.movement) <= 0:
             game.state.back()
             return 'repeat'

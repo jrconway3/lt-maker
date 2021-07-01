@@ -16,11 +16,11 @@ class OverworldMove(action.Action):
     def __init__(self, entity: OverworldEntityObject | NID, target_node: OverworldNodeObject | NID, overworld: OverworldManager, event=False, follow=True, speed_adj=1, remove_last=False):
         if isinstance(entity, OverworldEntityObject):
             entity = entity.nid
-        if isinstance(target_node, OverworldNodeObject):
-            target_node = target_node.nid
+        if isinstance(target_node, NID):
+            target_node = overworld.nodes[target_node]
         self.entity = overworld.entities[entity]
-        self.old_node = self.entity.node
-        self.new_node = overworld.nodes[target_node]
+        self.old_node = overworld.nodes[self.entity.on_node]
+        self.new_node = target_node
         self.speed_adj = speed_adj
 
         roads: List[RoadObject] = overworld.shortest_path(self.old_node, self.new_node)

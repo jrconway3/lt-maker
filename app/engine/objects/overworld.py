@@ -51,7 +51,6 @@ class OverworldNodeObject():
 class OverworldEntityObject():
     def __init__(self):
         # an OverworldEntityObject is just a wrapper around a unit that represents a party on the overworld.
-        self.overworld: OverworldObject = None   # overworld to which this belongs
         self.on_node: NID = None                 # NID of node on which the unit is standing
         self.prefab: PartyObject = None          # party object which this entity represents
         self.team: NID = 'player'                # team of party. @TODO: Implement non-player entities.
@@ -68,9 +67,8 @@ class OverworldEntityObject():
         self._display_position: Point = None        # ditto as above
 
     @classmethod
-    def from_prefab(cls, overworld: OverworldObject, initial_node: NID, prefab: PartyObject, unit_registry: Dict[NID, UnitObject]):
+    def from_prefab(cls, initial_node: NID, prefab: PartyObject, unit_registry: Dict[NID, UnitObject]):
         entity = cls()
-        entity.overworld = overworld
         entity.prefab = prefab
         entity.on_node = initial_node
 
@@ -89,13 +87,22 @@ class OverworldEntityObject():
         return s_dict
 
     @classmethod
-    def restore(cls, s_dict, parent: OverworldObject, game: GameState) -> OverworldEntityObject:
+    def restore(cls, s_dict, game: GameState) -> OverworldEntityObject:
         prefab_nid = s_dict['prefab_nid']
         party_prefab = game.parties.get(prefab_nid)
         on_node_nid = s_dict['on_node_nid']
-        entity_object = OverworldEntityObject.from_prefab(parent, on_node_nid, party_prefab, game.unit_registry)
+        entity_object = OverworldEntityObject.from_prefab(on_node_nid, party_prefab, game.unit_registry)
         entity_object.team = s_dict['team']
         return entity_object
+
+    @property
+    def position(self) -> Point:
+        if self.on_node:
+            for overworld in DB.overworlds.values():
+                node = overworld.overworld_nodes.get(self.on_node, None)
+                if node is not None:
+                    return node.pos
+        return None
 
     @property
     def display_position(self) -> Point:
@@ -113,32 +120,6 @@ class OverworldEntityObject():
     @property
     def nid(self) -> NID:
         return self.prefab.nid
-
-    @property
-    def node(self) -> Optional[OverworldNodeObject]:
-        """Returns the node object on which this entity exists.
-
-        Returns:
-            Optional[OverworldNodeObject]: Either the OverworldNodeObject on which the entity is standing,
-                or None if the entity is not on the map.
-        """
-        return self.overworld.get_node_by_nid(self.on_node)
-
-    @property
-    def position(self) -> Optional[Point]:
-        """Returns the position of the entity.
-
-        This ALWAYS returns either a valid node position, or None.
-
-        Returns:
-            Optional[Point]: The position of the entity, which is itself the position of a node,
-                or none, if this entity is not placed anywhere
-        """
-        node = self.overworld.get_node_by_nid(self.on_node)
-        if node:
-            return node.prefab.pos
-        else:
-            return None
 
     @property
     def sound(self):
@@ -253,11 +234,18 @@ class OverworldObject():
         overworld.tilemap = TileMapObject.from_prefab(prefab.get_tilemap_resource())
         overworld.prefab = prefab
         for pnid, party in party_registry.items():
-            overworld.overworld_entities[pnid] = OverworldEntityObject.from_prefab(overworld, None, party, unit_registry)
+            overworld.overworld_entities[pnid] = OverworldEntityObject.from_prefab(None, party, unit_registry)
         return overworld
 
     @property
     def selected_party(self) -> OverworldEntityObject:
+        if not self.selected_party_nid:
+            # select the first player party on the map
+            for entity in self.overworld_entities.values():
+                if entity.team == 'player':
+                    if entity.on_node is not None and entity.position:
+                        self.selected_party_nid = entity.nid
+                        break
         return self.overworld_entities[self.selected_party_nid]
 
     def save(self):
@@ -273,14 +261,14 @@ class OverworldObject():
 
     @classmethod
     def restore(cls, s_dict, game: GameState) -> OverworldObject:
-        overworld = OverworldObject.from_prefab(DB.overworlds.get(s_dict['prefab_nid']), game.parties.values(), game.unit_registry)
+        overworld = OverworldObject.from_prefab(DB.overworlds.get(s_dict['prefab_nid']), game.parties, game.unit_registry)
         overworld.tilemap = TileMapObject.restore(s_dict['tilemap'])
         overworld.enabled_nodes = set(s_dict['enabled_nodes'])
         overworld.enabled_roads = set(s_dict['enabled_roads'])
         overworld.node_properties = s_dict['node_properties']
 
         for entity in s_dict['overworld_entities']:
-            entity_obj = OverworldEntityObject.restore(entity, overworld, game)
+            entity_obj = OverworldEntityObject.restore(entity, game)
             overworld.overworld_entities[entity_obj.nid] = entity_obj
 
         overworld.selected_party_nid = s_dict['selected_party_nid']

@@ -2548,7 +2548,7 @@ class Event():
                         if focal_unit_nid:
                             focal_unit = game.overworld_controller.entities[focal_unit_nid]
                             unit_position = focal_unit.display_position
-                            game.cursor.set_pos((int(unit_position[0]), int(unit_position[1])))
+                            game.cursor.set_pos((round(unit_position[0]), round(unit_position[1])))
                             game.camera.set_center(*unit_position)
                         if len(self.overworld_movement_manager) <= 0:
                             return True

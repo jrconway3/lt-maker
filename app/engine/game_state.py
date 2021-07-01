@@ -284,6 +284,7 @@ class GameState():
                   'terrain_status_registry': self.terrain_status_registry,
                   'regions': [region.save() for region in self.region_registry.values()],
                   'level': self.current_level.save() if self.current_level else None,
+                  'overworlds': [overworld.save() for overworld in self.overworld_registry.values()],
                   'turncount': self.turncount,
                   'playtime': self.playtime,
                   'game_vars': self.game_vars,
@@ -405,6 +406,8 @@ class GameState():
             self.set_up_game_board(self.current_level.tilemap)
 
             self.generic()
+            from app.engine.level_cursor import LevelCursor
+            self.cursor = LevelCursor(self)
 
             # Now have units actually arrive on map
             for unit in self.units:

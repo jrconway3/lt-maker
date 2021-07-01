@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.engine.overworld.overworld_manager import OverworldManager
 from app.utilities.typing import Point
 from app.utilities.utils import tmult, tuple_add, tuple_sub
 from app.engine.sound import SOUNDTHREAD
@@ -38,7 +39,7 @@ class ShimmeringMinimapMarker():
         return surf
 
 class OverworldMinimap(uif.UIComponent):
-    def __init__(self, name: str, parent: uif.UIComponent = None, overworld: OverworldObject = None, cursor: OverworldCursor = None):
+    def __init__(self, name: str, parent: uif.UIComponent = None, overworld: OverworldManager = None, cursor: OverworldCursor = None):
         super().__init__(name=name, parent=parent)
 
         self.overworld = overworld
@@ -74,8 +75,8 @@ class OverworldMinimap(uif.UIComponent):
     def get_entity_positions(self) -> List[Tuple[bool, Point]]:
         entity_positions = []
         if self.overworld:
-            for entity in self.overworld.overworld_entities.values():
-                if entity.on_node:
+            for entity in self.overworld.entities.values():
+                if entity.on_node and entity.position:
                     if entity.team == 'player':
                         entity_positions.append((True, self.convert_overworld_pos_to_minimap_pos(entity.position)))
                     else:

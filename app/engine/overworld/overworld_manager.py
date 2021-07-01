@@ -43,6 +43,10 @@ class OverworldManager():
     def revealed_nodes(self) -> List[OverworldNodeObject]:
         return [self.nodes[nid] for nid in self._overworld.enabled_nodes]
 
+    @property
+    def revealed_node_nids(self) -> List[NID]:
+        return self._overworld.enabled_nodes
+
     def enable_node(self, node: OverworldNodeObject | NID):
         if isinstance(node, OverworldNodeObject):
             node = node.nid
@@ -148,7 +152,9 @@ class OverworldManager():
                                                 weight="weight")
         return [graph[node_path[i]][node_path[i+1]]['road'] for i in range(len(node_path) - 1)]
 
-    def entity_at(self, pos: Point) -> Optional[OverworldEntityObject]:
+    def entity_at(self, pos: Point | OverworldNodeObject) -> Optional[OverworldEntityObject]:
+        if isinstance(pos, OverworldNodeObject):
+            pos = pos.position
         for entity in self._overworld.overworld_entities.values():
             if entity.position == pos:
                 return entity
@@ -178,7 +184,7 @@ class OverworldManager():
         return None
 
     def selected_party_node(self) -> OverworldNodeObject:
-        return self._overworld.selected_party.node
+        return self.nodes[self._overworld.selected_party.on_node]
 
     def any_path(self, n1: OverworldNodeObject | NID,
                  n2: OverworldNodeObject | NID, force: bool = False) -> bool:

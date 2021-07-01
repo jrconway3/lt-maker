@@ -817,6 +817,7 @@ class TitleSaveState(State):
             save.suspend_game(game, game.memory['save_kind'], slot=self.menu.current_index)
 
         game.state.state.append(current_state)
+        game.state.change('transition_pop')
 
 
     def take_input(self, event):

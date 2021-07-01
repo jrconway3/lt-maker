@@ -229,10 +229,10 @@ class OverworldRoadSprite():
 class OverworldUnitSprite():
     def __init__(self, unit_object: UnitObject, parent: OverworldEntityObject):
         self.unit: UnitObject = unit_object
-        self.parent: OverworldEntityObject = parent # the Entity this sprite is associated with
         self.state = 'normal'                       # What state the image sprite is in
         self.image_state = 'passive'                # What the image looks like
         self.transition_state = 'normal'
+        self.parent = parent
 
         self.hovered: bool = False
 
@@ -252,14 +252,6 @@ class OverworldUnitSprite():
         self.animations = {}
 
         self.load_sprites()
-
-    @property
-    def position(self) -> Point:
-        if self.parent:
-            if self.parent.display_position:
-                return self.parent.display_position
-        else:
-            return (0, 0)
 
     def load_sprites(self):
         klass: Klass = DB.classes.get(self.unit.klass)
@@ -433,12 +425,14 @@ class OverworldUnitSprite():
         return image
 
     def get_topleft(self, cull_rect: Tuple[int, int, int, int]) -> Point:
-        x, y = self.position
+        x, y = self.parent.display_position
         left = x * TILEWIDTH + self.offset[0] - cull_rect[0]
         top = y * TILEHEIGHT + self.offset[1] - cull_rect[1]
         return (left, top)
 
     def draw(self, surf: Surface, cull_rect: Tuple[int, int, int, int]):
+        if not self.parent.display_position:
+            return surf
         current_time = engine.get_time()
         image = self.create_image(self.image_state)
         left, top = self.get_topleft(cull_rect)

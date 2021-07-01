@@ -60,6 +60,6 @@ class OverworldCursor(BaseCursor):
         entity = self.overworld.entity_at(self.position)
         return (entity, node)
 
-    def update(self):
+    def get_image(self):
         left = (ANIMATION_COUNTERS.fps6_360counter.count % 10) * TILEWIDTH * 2
-        self.image = engine.subsurface(self._sprite, (left, 0, 32, 32))
+        return engine.subsurface(self._sprite, (left, 0, 32, 32))

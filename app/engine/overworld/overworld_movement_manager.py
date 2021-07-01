@@ -71,7 +71,6 @@ class OverworldMovementManager():
             entity.sound.stop()
         entity.sprite.change_state('normal')
         entity.on_node = self.overworld.node_at(entity.temporary_position).nid
-        # Handle camera auto-follow
         if self.camera_follow == entity_nid:
             self.camera_follow = None
         if surprise:

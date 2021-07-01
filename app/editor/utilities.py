@@ -116,4 +116,4 @@ def get_bbox(image):
                 if y > max_y:
                     max_y = y
     # Returns x, y, width, height rect
-    return (min_x, min_y, max_x - min_x, max_y - min_y)
+    return (min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)

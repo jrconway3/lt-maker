@@ -37,7 +37,8 @@ class TimelineList(WidgetList):
     def duplicate(self, index):
         idx = index.row()
         command = self.index_list[idx]
-        self.window.insert_command(idx + 1, command)
+        new_command = command.__class__.copy(command)
+        self.window.insert_command(idx + 1, new_command)
 
     def delete(self, index):
         idx = index.row()

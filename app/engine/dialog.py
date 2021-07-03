@@ -52,7 +52,7 @@ class Dialog():
         if width:
             self.width = width
             self.width -= self.width%8
-            self.text_width = self.width - 24
+            self.text_width = max(8, self.width - 24)
             self.determine_height()
         elif self.portrait:
             self.determine_size()

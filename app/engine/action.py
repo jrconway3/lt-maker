@@ -1197,8 +1197,9 @@ class Promote(Action):
 
         self.unit.reset_sprite()
         self.unit.klass = self.new_klass
-        self.unit.set_exp(0)
-        self.unit.level = 1
+        if DB.constants.value('promote_level_reset'):
+            self.unit.set_exp(0)
+            self.unit.level = 1
 
         unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
 
@@ -1252,12 +1253,17 @@ class ClassChange(Action):
 
         self.unit.reset_sprite()
         self.unit.klass = self.new_klass
+        if DB.constants.value('class_change_level_reset'):
+            self.unit.set_exp(0)
+            self.unit.level = 1
 
         unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
 
     def reverse(self):
         self.unit.reset_sprite()
         self.unit.klass = self.old_klass
+        self.unit.set_exp(self.old_exp)
+        self.unit.level = self.old_level
 
         reverse_stat_changes = {k: -v for k, v in self.stat_changes.items()}
         unit_funcs.apply_stat_changes(self.unit, reverse_stat_changes)
@@ -1265,7 +1271,6 @@ class ClassChange(Action):
         for act in self.subactions:
             act.reverse()
         self.subactions.clear()
-
 
 class GainWexp(Action):
     def __init__(self, unit, item, wexp_gain):

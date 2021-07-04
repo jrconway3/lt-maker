@@ -204,6 +204,18 @@ class ClassItemComponent(BoolItemComponent):
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
+class AffinityItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        self.editor = ComboBox(self)
+        self.editor.setMaximumWidth(120)
+        for affinity in DB.affinities.values():
+            self.editor.addItem(affinity.nid)
+        if not self._data.value and DB.affinities:
+            self._data.value = DB.affinities[0].nid
+        self.editor.setValue(self._data.value)
+        self.editor.currentTextChanged.connect(self.on_value_changed)
+        hbox.addWidget(self.editor)
+
 class ItemItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         self.editor = ComboBox(self)
@@ -350,6 +362,10 @@ class ClassDelegate(UnitDelegate):
     data = DB.classes
     name = "Class"
 
+class AffinityDelegate(UnitDelegate):
+    data = DB.affinities
+    name = "Affinity"
+
 class TagDelegate(UnitDelegate):
     data = DB.tags
     name = "Tag"
@@ -425,6 +441,8 @@ def get_display_widget(component, parent):
         c = Color4ItemComponent(component, parent)
     elif component.expose == Type.Class:
         c = ClassItemComponent(component, parent)
+    elif component.expose == Type.Affinity:
+        c = AffinityItemComponent(component, parent)
     elif component.expose == Type.Item:
         c = ItemItemComponent(component, parent)
     elif component.expose == Type.Skill:
@@ -451,6 +469,8 @@ def get_display_widget(component, parent):
             delegate = UnitDelegate
         elif component.expose[1] == Type.Class:
             delegate = ClassDelegate
+        elif component.expose[1] == Type.Affinity:
+            delegate = AffinityDelegate
         elif component.expose[1] == Type.Tag:
             delegate = TagDelegate
         elif component.expose[1] == Type.Item:

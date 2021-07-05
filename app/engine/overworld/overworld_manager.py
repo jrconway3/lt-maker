@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
-import networkx as nx
-
 if TYPE_CHECKING:
     from .overworld_cursor import OverworldCursor
 
@@ -12,7 +10,7 @@ from app.engine.objects.overworld import (OverworldEntityObject,
                                           RoadObject)
 from app.engine.objects.tilemap import TileMapObject
 from app.utilities.typing import NID, Point
-
+from app.utilities.algorithms.ltgraph import LTGraph
 
 class OverworldManager():
     """A wrapper class that contains various functionality for manipulating
@@ -29,8 +27,8 @@ class OverworldManager():
         self.nodes: Dict[NID, OverworldNodeObject] = {}
         self.roads: Dict[NID, RoadObject] = {}
 
-        self.overworld_full_graph: nx.Graph = None
-        self.overworld_explored_graph: nx.Graph = None
+        self.overworld_full_graph: LTGraph[NID, OverworldNodeObject, RoadObject]  = None
+        self.overworld_explored_graph: LTGraph[NID, OverworldNodeObject, RoadObject] = None
 
         self._initialize_objects()
         self._initialize_graphs()
@@ -146,11 +144,8 @@ class OverworldManager():
         if neighbor_priority:
             if n1 in self.connected_nodes(n2, force):
                 return [self.get_road(n1, n2, force)]
-        node_path: List[NID] = nx.shortest_path(graph,
-                                                n1,
-                                                n2,
-                                                weight="weight")
-        return [graph[node_path[i]][node_path[i+1]]['road'] for i in range(len(node_path) - 1)]
+        node_path: List[NID] = graph.shortest_path(n1, n2)
+        return [graph[node_path[i]][node_path[i+1]].data for i in range(len(node_path) - 1)]
 
     def entity_at(self, pos: Point | OverworldNodeObject) -> Optional[OverworldEntityObject]:
         if isinstance(pos, OverworldNodeObject):
@@ -211,7 +206,7 @@ class OverworldManager():
             graph = self.overworld_explored_graph
 
         try:
-            return nx.has_path(graph, n1, n2)
+            return graph.has_path(n1, n2)
         except:
             return False
 
@@ -235,9 +230,9 @@ class OverworldManager():
         if force:
             graph = self.overworld_full_graph
         else:
-            graph = self.overworld_full_graph
+            graph = self.overworld_explored_graph
         try:
-            return graph[n1][n2]['road']
+            return graph[n1][n2].data
         except Exception:
             # node probably doesn't exist in graph
             return None
@@ -263,30 +258,30 @@ class OverworldManager():
             self.roads[rid] = RoadObject.from_prefab(road, rid)
 
     def _initialize_graphs(self):
-        self.overworld_full_graph = nx.Graph()
+        self.overworld_full_graph = LTGraph()
         for node in self.nodes.values():
-            self.overworld_full_graph.add_node(node.nid, node=node)
+            self.overworld_full_graph.add_vertex(node.nid, node)
         for road in self.roads.values():
             path = road.prefab
             start_node = self.node_at(path[0], True)
             end_node = self.node_at(path[-1], True)
             if start_node.nid and end_node.nid:
-                self.overworld_full_graph.add_edge(start_node.nid, end_node.nid, weight=road.tile_length, road=road)
+                self.overworld_full_graph.add_edge(start_node.nid, end_node.nid, data=road, weight=road.tile_length)
         self.regenerate_explored_graph()
 
     def regenerate_explored_graph(self):
         """Forcibly regenerates the graph representation of the visible overworld graph.
         """
-        self.overworld_explored_graph = nx.Graph()
+        self.overworld_explored_graph = LTGraph()
         for vis_node_nid in self._overworld.enabled_nodes:
-            self.overworld_explored_graph.add_node(vis_node_nid, node=self.nodes[vis_node_nid])
+            self.overworld_explored_graph.add_vertex(vis_node_nid, self.nodes[vis_node_nid])
         for vis_road_nid in self._overworld.enabled_roads:
             road = self.roads[vis_road_nid]
             path = road.prefab
             start_node = self.node_at(path[0])
             end_node = self.node_at(path[-1])
             if start_node and end_node:
-                self.overworld_explored_graph.add_edge(start_node.nid, end_node.nid, weight=road.tile_length, road=road)
+                self.overworld_explored_graph.add_edge(start_node.nid, end_node.nid, data=road, weight=road.tile_length)
 
     def map_size(self) -> Tuple[int, int]:
         return (self._overworld.tilemap.width, self._overworld.tilemap.height)

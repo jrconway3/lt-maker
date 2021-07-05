@@ -264,3 +264,17 @@ def check_focus(unit, limit=3) -> int:
                     utils.calculate_distance(unit.position, other.position) <= limit:
                 counter += 1
     return counter
+
+def check_flanked(unit) -> bool:
+    from app.engine import skill_system
+    from app.engine.game_state import game
+    if unit.position:
+        up = game.board.get_unit((unit.position[0], unit.position[1] - 1))
+        left = game.board.get_unit((unit.position[0] - 1, unit.position[1]))
+        right = game.board.get_unit((unit.position[0] + 1, unit.position[1]))
+        down = game.board.get_unit((unit.position[0], unit.position[1] + 1))
+        if up and down and skill_system.check_enemy(unit, up) and skill_system.check_enemy(unit, down):
+            return True
+        if left and right and skill_system.check_enemy(unit, left) and skill_system.check_enemy(unit, right):
+            return True
+    return False

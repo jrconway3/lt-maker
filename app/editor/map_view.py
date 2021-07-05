@@ -190,11 +190,12 @@ class GlobalModeLevelMapView(SimpleMapView):
         if self.working_image:
             painter = QPainter()
             painter.begin(self.working_image)
-            for unit in self.current_level.units:
-                if not unit.starting_position:
-                    continue
-                if unit.generic or unit.nid in DB.units.keys():
-                    self.draw_unit(painter, unit, unit.starting_position)
+            if self.current_level:
+                for unit in self.current_level.units:
+                    if not unit.starting_position:
+                        continue
+                    if unit.generic or unit.nid in DB.units.keys():
+                        self.draw_unit(painter, unit, unit.starting_position)
 
     def update_view(self, _=None):
         if self.current_level and not self.current_map:

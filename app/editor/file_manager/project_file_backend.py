@@ -161,9 +161,8 @@ class ProjectFileBackend():
         if os.path.exists(self.current_proj):
             RESOURCES.load(self.current_proj)
             DB.load(self.current_proj)
-            # DB.init_load()
-
-            # self.undo_stack.clear()
+            from app.engine import equations
+            equations.clear()
 
     def autosave(self):
         autosave_dir = os.path.abspath('autosave.ltproj')

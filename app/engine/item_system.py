@@ -432,6 +432,31 @@ def on_crit(actions, playback, unit, item, target, target_pos, mode, first_item)
         if not any(brush for brush in playback if brush[0] == 'crit_tint'):
             playback.append(('crit_tint', target, (255, 255, 255)))
 
+def on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, first_item):
+    for component in item.components:
+        if component.defines('on_glancing_hit'):
+            component.on_glancing_hit(actions, playback, unit, item, target, target_pos, mode)
+        elif component.defines('on_hit'):
+            component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+    if item.parent_item and first_item:
+        for component in item.parent_item.components:
+            if component.defines('on_glancing_hit'):
+                component.on_glancing_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+            elif component.defines('on_hit'):
+                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+
+    # Default playback
+    if target and find_hp(actions, target) <= 0:
+        playback.append(('shake', 2))
+        if not any(brush for brush in playback if brush[0] == 'hit_sound'):
+            playback.append(('hit_sound', 'Final Hit'))
+    else:
+        playback.append(('shake', 4))
+        if not any(brush[0] == 'hit_sound' for brush in playback):
+            playback.append(('hit_sound', 'No Damage'))
+    if target and not any(brush for brush in playback if brush[0] in ('unit_tint_add', 'unit_tint_sub')):
+        playback.append(('unit_tint_add', target, (255, 255, 255)))
+
 def on_miss(actions, playback, unit, item, target, target_pos, mode, first_item):
     for component in item.components:
         if component.defines('on_miss'):

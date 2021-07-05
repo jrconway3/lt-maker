@@ -91,4 +91,5 @@ constants = ConstantCatalog([
     Constant('heal_offset', "Modifies expected healing", int, 11, 'exp'),
     Constant('heal_min', "Min exp gained for healing", int, 11, 'exp'),
     # Hidden constants below
-    Constant('dark_sprites', "Use darker map sprites", bool, False, 'hidden')])
+    Constant('dark_sprites', "Use darker map sprites", bool, False, 'hidden'),
+    Constant('glancing_hit', "Chance to score a glancing hit", bool, False, 'hidden')])

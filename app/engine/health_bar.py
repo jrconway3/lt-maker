@@ -226,6 +226,8 @@ class MapCombatInfo():
             self.shake_set = [(3, 3), (0, 0), (0, 0), (3, 3), (-3, -3), (3, 3), (-3, -3), (0, 0)]
         elif num == 3:  # Crit
             self.shake_set = [(random.randint(-4, 4), random.randint(-4, 4)) for _ in range(16)] + [(0, 0)]
+        elif num == 4:  # Glancing hit
+            self.shake_set = [(-1, -1), (0, 0), (1, 1), (0, 0)]
 
     def reset_shake(self):
         self.shake_set = [(0, 0)]  # How the hp bar will shake

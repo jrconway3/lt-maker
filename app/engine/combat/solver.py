@@ -248,6 +248,11 @@ class CombatPhaseSolver():
                 item_system.on_crit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
                     playback.append(('mark_crit', attacker, defender, self.attacker, item))
+            elif DB.constants.value('glancing_hit') and roll >= to_hit - 20:
+                item_system.on_glancing_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
+                if defender:
+                    playback.append(('mark_hit', attacker, defender, self.attacker, item))
+                    playback.append(('mark_glancing_hit', attacker, defender, self.attacker, item))
             else:
                 item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:

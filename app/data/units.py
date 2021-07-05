@@ -10,10 +10,6 @@ class UnitPrefab(Prefab):
     name: str = None
     desc: str = None
     variant: str = None
-    generic: bool = None
-
-    ai: str = None
-    ai_group = None
 
     level: int = None
     klass: str = None

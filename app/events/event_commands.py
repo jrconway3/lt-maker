@@ -743,6 +743,12 @@ class IncrementSupportPoints(EventCommand):
 
     keywords = ['GlobalUnit', 'GlobalUnit', 'PositiveInteger']
 
+class UnlockSupportRank(EventCommand):
+    nid = 'unlock_support_rank'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    keywords = ['GlobalUnit', 'GlobalUnit', 'SupportRank']
+
 class AddMarketItem(EventCommand):
     nid = 'add_market_item'
     tag = Tags.GAME_VARS

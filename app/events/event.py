@@ -827,6 +827,32 @@ class Event():
                 logging.error("Couldn't find prefab for units %s and %s" % (unit1.nid, unit2.nid))
                 return
 
+        elif command.nid == 'unlock_support_rank':
+            values, flags = event_commands.parse(command)
+            unit1 = self.get_unit(values[0])
+            if not unit1:
+                unit1 = DB.units.get(values[0])
+            if not unit1:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            unit2 = self.get_unit(values[1])
+            if not unit2:
+                unit2 = DB.units.get(values[1])
+            if not unit2:
+                logging.error("Couldn't find unit %s" % values[1])
+                return
+            rank = values[2]
+            if rank not in DB.support_ranks.keys():
+                logging.error("Support rank %s not a valid rank!" % rank)
+                return
+            prefabs = DB.support_pairs.get_pairs(unit1.nid, unit2.nid)
+            if prefabs:
+                prefab = prefabs[0]
+                action.do(action.UnlockSupportRank(prefab.nid, rank))
+            else:
+                logging.error("Couldn't find prefab for units %s and %s" % (unit1.nid, unit2.nid))
+                return
+
         elif command.nid == 'add_market_item':
             values, flags = event_commands.parse(command)
             item = values[0]

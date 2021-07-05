@@ -616,6 +616,17 @@ class WeaponType(Validator):
         valids = [(weapon.name, weapon.nid) for weapon in DB.weapons.values()]
         return valids
 
+class SupportRank(Validator):
+    def validate(self, text, level):
+        if text in DB.support_ranks.keys():
+            return text
+        return None
+
+    @lru_cache()
+    def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
+        valids = [(None, rank.nid) for rank in DB.support_ranks.values()]
+        return valids
+
 class Layer(Validator):
     def validate(self, text, level):
         tilemap_prefab = RESOURCES.tilemaps.get(level.tilemap)

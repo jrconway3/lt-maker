@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import List
 
-from app.engine import action
 from app.engine.objects.overworld import OverworldEntityObject, OverworldNodeObject, RoadObject
 from .overworld_manager import OverworldManager
 from app.engine.overworld.overworld_movement_manager import \
@@ -9,7 +8,7 @@ from app.engine.overworld.overworld_movement_manager import \
 from app.utilities.typing import NID
 
 
-class OverworldMove(action.Action):
+class OverworldMove():
     """
     A user-issued move to a party on the overworld between two nodes.
     """
@@ -41,7 +40,7 @@ class OverworldMove(action.Action):
         self.event = event
         self.follow = follow
 
-    def do(self, movement_manager: OverworldMovementManager):
+    def queue(self, movement_manager: OverworldMovementManager):
         if self.path:
             movement_manager.begin_move(self.entity, self.path, self.event, self.follow, self.speed_adj)
 

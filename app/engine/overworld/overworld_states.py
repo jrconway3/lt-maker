@@ -85,7 +85,7 @@ class OverworldState(MapState):
                         game.camera.do_slow_pan(1000)
                         game.camera.set_center(party_node.position[0], party_node.position[1])
                         game.state.change('overworld_movement')
-                        movement.do(game.movement)
+                        movement.queue(game.movement)
             else:   # clicked on empty space, trigger the general menu
                 SOUNDTHREAD.play_sfx('Select 5')
                 game.state.change('overworld_game_option_menu')
@@ -164,7 +164,7 @@ class OverworldLevelTransition(State):
                                      game.overworld_controller.node_by_level(game.game_vars['_next_level_nid']).nid,
                                      game.overworld_controller)
             game.state.change('overworld_movement')
-            movement.do(game.movement)
+            movement.queue(game.movement)
         return 'repeat'
 
     def update(self):

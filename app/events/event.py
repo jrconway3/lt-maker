@@ -2531,13 +2531,13 @@ class Event():
                     return
                 elif block: # block event execution and resolve the movement
                     movement = OverworldMove(entity, selected_node, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj)
-                    movement.do(game.movement)
+                    movement.queue(game.movement)
                     self.state = 'paused'
                     game.state.change('overworld_movement')
                 else:               # resolve the movement in the background
                     self.overworld_movement_manager = OverworldMovementManager(game.overworld_controller)
                     movement = OverworldMove(entity.nid, selected_node.nid, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj)
-                    movement.do(self.overworld_movement_manager)
+                    movement.queue(self.overworld_movement_manager)
                     game.camera.do_slow_pan(1000)
                     def update_movement():
                         # make sure the camera is centered first

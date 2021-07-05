@@ -26,6 +26,14 @@ class Defaults():
         return unit2.position and unit1.team == unit2.team and check_ally(unit1, unit2)
 
     @staticmethod
+    def num_items_offset(unit) -> int:
+        return 0
+
+    @staticmethod
+    def num_accessories_offset(unit) -> int:
+        return 0
+
+    @staticmethod
     def exp_multiplier(unit1, unit2) -> float:
         return 1.0
 
@@ -122,7 +130,7 @@ default_behaviours = (
     'ignore_region_status', 'no_double', 'def_double', 'alternate_splash',
     'ignore_rescue_penalty', 'ignore_forced_movement', 'distant_counter')
 # Takes in unit, returns default value
-exclusive_behaviours = ('can_select', 'movement_type', 'sight_range', 'empower_splash')
+exclusive_behaviours = ('can_select', 'movement_type', 'sight_range', 'empower_splash', 'num_items_offset', 'num_accessories_offset')
 exclusive_behaviours += formula
 # Takes in unit and item, returns default value
 item_behaviours = ('modify_buy_price', 'modify_sell_price', 'limit_maximum_range', 'modify_maximum_range')

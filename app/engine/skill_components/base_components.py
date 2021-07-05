@@ -29,6 +29,20 @@ class CannotUseMagicItems(SkillComponent):
     def available(self, unit, item) -> bool:
         return not item_funcs.is_magic(unit, item)
 
+class AdditionalAccessories(SkillComponent):
+    nid = 'additional_accessories'
+    desc = "Unit can hold additional accessories rather than regular items"
+    tag = 'base'
+
+    expose = Type.Int
+    value = 2
+
+    def num_items_offset(self, unit) -> int:
+        return -1 * self.value
+
+    def num_accessories_offset(self, unit) -> int:
+        return self.value
+
 class IgnoreAlliances(SkillComponent):
     nid = 'ignore_alliances'
     desc = "Unit will treat all units as enemies"

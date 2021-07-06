@@ -23,7 +23,7 @@ def has_animation(attacker: UnitObject, item: ItemObject, main_target: tuple) ->
             (cf.SETTINGS['animation'] == 'Your Turn' and attacker.team == 'player') or \
             (cf.SETTINGS['animation'] == 'Combat Only' and skill_system.check_enemy(attacker, defender))
 
-    toggle_anim = INPUT.is_pressed('AUX')
+    toggle_anim = INPUT.is_pressed('START')
     if attacker is not defender and animation_wanted(attacker, defender) != toggle_anim:
         if attacker.position and defender.position:
             distance = utils.calculate_distance(attacker.position, defender.position)

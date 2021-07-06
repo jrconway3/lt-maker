@@ -52,10 +52,8 @@ class MementoEnemyPierceAOE(ItemComponent):
         pos = unit.position
         x_diff = position[0] - pos[0]
         y_diff = position[1] - pos[1]
-        x_diff *= 2
-        y_diff *= 2
         splash_positions = {(position[0] + x_diff, position[1] + y_diff)}
-        
+
         splash_positions = {pos for pos in splash_positions if game.tilemap.check_bounds(pos)}
         splash = [game.board.get_unit(pos) for pos in splash_positions]
         splash = [s.position for s in splash if s and skill_system.check_enemy(unit, s)]
@@ -66,8 +64,6 @@ class MementoEnemyPierceAOE(ItemComponent):
         pos = unit.position
         x_diff = position[0] - pos[0]
         y_diff = position[1] - pos[1]
-        x_diff *= 2
-        y_diff *= 2
         splash_positions = {(position[0] + x_diff, position[1] + y_diff)}
 
         splash_positions = {pos for pos in splash_positions if game.tilemap.check_bounds(pos)}

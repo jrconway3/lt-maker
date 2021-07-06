@@ -12724,17 +12724,6 @@
                 "generic": false
             },
             {
-                "nid": "Sam",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    8,
-                    6
-                ],
-                "generic": false
-            },
-            {
                 "nid": "106",
                 "variant": null,
                 "level": 10,
@@ -12834,15 +12823,7 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Rescue",
-                        false
-                    ],
-                    [
-                        "Warp",
-                        false
-                    ],
-                    [
-                        "Refresh",
+                        "Restore",
                         false
                     ]
                 ],

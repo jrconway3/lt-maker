@@ -450,7 +450,7 @@ class PrimaryAI():
             else:
                 tp += ai_priority
 
-            if item_system.damage(self.unit, item) and \
+            if item_system.damage(self.unit, item) is not None and \
                     skill_system.check_enemy(self.unit, main_target):
                 ai_priority = self.default_priority(main_target, item, move)
                 tp += ai_priority

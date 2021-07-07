@@ -717,42 +717,51 @@ class Take(Action):
 
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):
-    def __init__(self, item):
+    def __init__(self, item, party_nid=None):
         self.item = item
+        self.party_nid = party_nid
         self.owner_nid = self.item.owner_nid
 
     def do(self):
         self.item.change_owner(None)
-        game.party.convoy.append(self.item)
+        party = game.get_party(self.party_nid)
+        party.convoy.append(self.item)
 
     def reverse(self, gameStateObj):
-        game.party.convoy.remove(self.item)
+        party = game.get_party(self.party_nid)
+        party.convoy.remove(self.item)
         self.item.change_owner(self.owner_nid)
 
 
 class TakeItemFromConvoy(Action):
-    def __init__(self, unit, item):
+    def __init__(self, unit, item, party_nid=None):
         self.unit = unit
         self.item = item
+        self.party_nid = party_nid
 
     def do(self):
-        game.party.convoy.remove(self.item)
+        party = game.get_party(self.party_nid)
+        party.convoy.remove(self.item)
         self.unit.add_item(self.item)
 
     def reverse(self):
         self.unit.remove_item(self.item)
-        game.party.convoy.append(self.item)
+        party = game.get_party(self.party_nid)
+        party.convoy.append(self.item)
 
 
 class RemoveItemFromConvoy(Action):
-    def __init__(self, item):
+    def __init__(self, item, party_nid=None):
         self.item = item
+        self.party_nid = party_nid
 
     def do(self):
-        game.party.convoy.remove(self.item)
+        party = game.get_party(self.party_nid)
+        party.convoy.remove(self.item)
 
     def reverse(self):
-        game.party.convoy.append(self.item)
+        party = game.get_party(self.party_nid)
+        party.convoy.append(self.item)
 
 
 class MoveItem(Action):
@@ -1038,7 +1047,7 @@ class GainMoney(Action):
         self.old_money = None
 
     def do(self):
-        party = game.parties.get(self.party_nid)
+        party = game.get_party(self.party_nid)
         self.old_money = party.money
         # Can't go below zero
         if party.money + self.money < 0:
@@ -1046,8 +1055,27 @@ class GainMoney(Action):
         party.money += self.money
 
     def reverse(self):
-        party = game.parties.get(self.party_nid)
+        party = game.get_party(self.party_nid)
         party.money = self.old_money
+
+
+class GiveBexp(Action):
+    def __init__(self, party_nid, bexp):
+        self.party_nid = party_nid
+        self.bexp = bexp
+        self.old_bexp = None
+
+    def do(self):
+        party = game.get_party(self.party_nid)
+        self.old_bexp = party.bexp
+        # Can't go below zero
+        if party.bexp + self.bexp < 0:
+            self.bexp = -party.bexp
+        party.bexp += self.bexp
+
+    def reverse(self):
+        party = game.get_party(self.party_nid)
+        party.bexp = self.old_bexp
 
 
 class GainExp(Action):
@@ -1572,6 +1600,19 @@ class AIGroupPing(Action):
         self.unit.ai_group_active = self.old_ai_group_state
 
 
+class ChangeParty(Action):
+    def __init__(self, unit, party_nid: str):
+        self.unit = unit
+        self.party_nid = party_nid
+        self.old_party_nid = self.unit.party
+
+    def do(self):
+        self.unit.party = self.party_nid
+
+    def reverse(self):
+        self.unit.party = self.old_party_nid
+
+
 class ChangeTeam(Action):
     def __init__(self, unit, team):
         self.unit = unit
@@ -2072,24 +2113,6 @@ class RemoveSkill(Action):
             if skill.aura and self.unit.position:
                 aura_funcs.propagate_aura(self.unit, skill, game)
 
-
-class GiveBexp(Action):
-    def __init__(self, party_nid, bexp):
-        self.party_nid = party_nid
-        self.bexp = bexp
-        self.old_bexp = None
-
-    def do(self):
-        party = game.parties.get(self.party_nid)
-        self.old_bexp = party.bexp
-        # Can't go below zero
-        if party.bexp + self.bexp < 0:
-            self.bexp = -party.bexp
-        party.bexp += self.bexp
-
-    def reverse(self):
-        party = game.parties.get(self.party_nid)
-        party.bexp = self.old_bexp
 
 # === Master Functions for adding to the action log ===
 def do(action):

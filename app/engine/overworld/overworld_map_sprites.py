@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.engine.overworld.overworld_road_sprite import OverworldRoadSpriteWrapper
 
 import math
 from typing import Dict, TYPE_CHECKING
@@ -119,6 +120,7 @@ class OverworldRoadSprite():
 
     def __init__(self, road: RoadObject):
         self.road = road
+        self.road_sprite = OverworldRoadSpriteWrapper()
 
         self.transition_state = 'normal' # for fading
 
@@ -199,30 +201,29 @@ class OverworldRoadSprite():
         if self.redraw:
             # this redraws the entire road system instead of just on a cull; this is important for caching
             road_surf: Surface = engine.create_surface(full_size, True)
-            segments = self.road.get_segments(self.road.road_in_pixel_coords())
-            for segment in segments:
-                draw.line(road_surf, self.ROAD_UNDERLAY_COLOR, segment[0], segment[1], 3)
-                self.draw_dashed_line(road_surf, segment[0], segment[1], 2)
-
-            # blur road lines slightly for visual effect
-            surf_raw = engine.surf_to_raw(road_surf, 'RGBA')
-            blurred = Image.frombytes('RGBA', road_surf.get_size(), surf_raw, 'raw').filter(ImageFilter.GaussianBlur(radius=0.5))
-            road_surf_blurred = engine.raw_to_surf(blurred.tobytes('raw', 'RGBA'), road_surf.get_size(), 'RGBA')
-            self.cached_surf = road_surf_blurred
+            unpacked_road = OverworldRoadSpriteWrapper.road_to_full_points_list(self.road.prefab)
+            for i in range(len(unpacked_road)):
+                neighbors = []
+                if i != 0:
+                    neighbors.append(unpacked_road[i-1])
+                if i < len(unpacked_road) - 1:
+                    neighbors.append(unpacked_road[i + 1])
+                self.road_sprite.draw_tile(road_surf, unpacked_road[i], neighbors)
+            self.cached_surf = road_surf
             self.redraw = False
         else:
-            road_surf_blurred = self.cached_surf
+            road_surf = self.cached_surf
 
         if self.transition_state in ('fade_out'):
             progress = utils.clamp((self.transition_time - self.transition_counter) / self.transition_time, 0, 1)
-            road_surf_blurred = image_mods.make_translucent(road_surf_blurred.convert_alpha(), progress)
+            road_surf = image_mods.make_translucent(road_surf.convert_alpha(), progress)
         elif self.transition_state in ('fade_in'):
             progress = utils.clamp((self.transition_time - self.transition_counter) / self.transition_time, 0, 1)
             progress = 1 - progress
-            road_surf_blurred = image_mods.make_translucent(road_surf_blurred.convert_alpha(), progress)
+            road_surf = image_mods.make_translucent(road_surf.convert_alpha(), progress)
 
         # because the road drawing uses caching, it's better to cull manually here
-        culled_road_surf = road_surf_blurred.subsurface(Rect(cull_rect))
+        culled_road_surf = road_surf.subsurface(Rect(cull_rect))
         surf.blit(culled_road_surf, (0, 0))
         return surf
 

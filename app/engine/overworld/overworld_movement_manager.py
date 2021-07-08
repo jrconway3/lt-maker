@@ -30,8 +30,6 @@ class OverworldMovementManager():
         # set the entity's temporary position to begin with
         entity.temporary_position = path[-1]
         self.add(entity, path, event, follow, speed_adj)
-        entity.sprite.change_state('moving')
-        entity.sound.play()
 
     def __len__(self):
         return len(self.moving_entities)
@@ -108,6 +106,9 @@ class OverworldMovementManager():
         current_time = engine.get_time()
         for entity_nid in list(self.moving_entities.keys()):
             entity = self.overworld.entities[entity_nid]
+            if entity.sprite.state != 'moving':
+                entity.sprite.change_state('moving')
+                entity.sound.play()
             if not entity:
                 logging.error("Could not find entity with nid %s", entity_nid)
                 del self.moving_entities[entity_nid]
@@ -126,6 +127,11 @@ class OverworldMovementManager():
                 # set the position of the unit based on progress
                 unit_speed = cf.SETTINGS['unit_speed'] * OVERWORLD_MOVEMENT_SPEED_MULTIPLIER * data.speed_adj
                 percentage_progress = utils.clamp(progress / self._time_to_walk_segment(unit_speed, segment_being_traversed), 0, 1)
+
+            if percentage_progress <= 0: # brief pause, don't play sound
+                entity.sound.stop()
+            else:
+                entity.sound.play()
 
             if percentage_progress < 1: # we're still in the middle of walking a segment
                 # update its display position

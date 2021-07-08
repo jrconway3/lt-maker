@@ -30,24 +30,21 @@ README
 Build into Executable guide -> Make sure Pyinstaller is installed
 
 Tutorial:
-    Event overview (what are the valid events) (triggers, unit, position, etc)
-        How do events work
-            Trigger
-            Condition Check
-        like on death, you can do unit.nid == 'prim' if prim died
-        Base events
-        Talk events
-        Death events
-        Fight quote events
-        Region events
-    How to set up basic region events (like Village, Shop, Chest, Escape)
-    Setting up Leadership stars
-    Battle Save
+    Getting Started
+        Editor
+        These are the main components
+            Databases
+            Resources
+            Events
+            Level Tabs
+            Testing the game
+        Save the game as a new project
+        Here's where you can find help
+            Wiki
+            Discord
     Breakable Walls
-    Supports
     Title Screen
     Summoning
-    Choices
 
     Writing your own components
     Item System Hooks

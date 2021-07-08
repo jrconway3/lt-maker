@@ -9,7 +9,6 @@ from app.engine.game_counters import ANIMATION_COUNTERS
 from app.engine.objects.unit import UnitObject
 from app.engine.unit_sprite import MapSprite
 from app.sprites import SPRITES
-from PIL import Image, ImageFilter
 from pygame import Rect, draw, gfxdraw, math
 
 if TYPE_CHECKING:

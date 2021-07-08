@@ -2075,14 +2075,15 @@ class RemoveSkill(Action):
         self.old_owner_nid = None
         self.reset_action = ResetUnitVars(self.unit)
 
-    def do(self):
+    def _remove(self, true_remove=True):
         self.removed_skills.clear()
         if isinstance(self.skill, str):
             for skill in self.unit.skills[:]:
                 if skill.nid == self.skill:
                     self.unit.skills.remove(skill)
                     skill_system.on_remove(self.unit, skill)
-                    skill_system.on_true_remove(self.unit, skill)
+                    if true_remove:
+                        skill_system.on_true_remove(self.unit, skill)
                     skill.owner_nid = None
                     self.removed_skills.append(skill)
                     if skill.aura and self.unit.position:
@@ -2091,7 +2092,8 @@ class RemoveSkill(Action):
             if self.skill in self.unit.skills:
                 self.unit.skills.remove(self.skill)
                 skill_system.on_remove(self.unit, self.skill)
-                skill_system.on_true_remove(self.unit, self.skill)
+                if true_remove:
+                    skill_system.on_true_remove(self.unit, self.skill)
                 self.skill.owner_nid = None
                 self.removed_skills.append(self.skill)
                 if self.skill.aura and self.unit.position:
@@ -2103,6 +2105,14 @@ class RemoveSkill(Action):
         self.reset_action.execute()
         if game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit)
+
+    def do(self):
+        # Actually call on true remove hook
+        self._remove(True)
+
+    def execute(self):
+        # Don't call on true remove hook
+        self._remove(False)
 
     def reverse(self):
         self.reset_action.reverse()

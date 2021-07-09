@@ -82,6 +82,8 @@ BLEND_RGBA_ADD = pygame.BLEND_RGBA_ADD
 BLEND_RGBA_SUB = pygame.BLEND_RGBA_SUB
 BLEND_RGBA_MULT = pygame.BLEND_RGBA_MULT
 
+Surface = pygame.Surface
+
 def blit(dest, source, pos=(0, 0), mask=None, blend=0):
     dest.blit(source, pos, mask, blend)
 

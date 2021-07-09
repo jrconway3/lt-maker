@@ -3,16 +3,14 @@ from __future__ import annotations
 import logging
 from enum import Enum
 from typing import List
-
 from app.constants import TILEHEIGHT, TILEWIDTH
 from app.engine import engine
 from app.sprites import SPRITES
 from app.utilities.enums import Direction
 from app.utilities.typing import Point
 from app.utilities.utils import dot_product, tmult, tuple_add, tuple_sub
-from pygame import Surface
+from app.engine.engine import Surface
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QTransform
-
 
 class RoadSpriteDrawMode(Enum):
     EDITOR = 0

@@ -5,11 +5,11 @@ from app.utilities.data import Data, Prefab
 
 
 class OverworldNodePrefab(Prefab):
-    def __init__(self, nid: str, name: str, pos: str, icon: str = MapIconCatalog.DEFAULT()):
+    def __init__(self, nid: str, name: str, pos: str, icon: str = None):
         self.nid: str = nid
         self.name: str = name
         self.pos: Tuple[int, int] = pos             # tuple of location pair
-        self.icon: str = icon           # icon nid (see map_icons.json for a manifest)
+        self.icon: str = icon or MapIconCatalog.DEFAULT()           # icon nid (see map_icons.json for a manifest)
         self.level: str = None          # level associated
 
     def save_attr(self, name, value):

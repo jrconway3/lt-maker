@@ -2546,6 +2546,7 @@ class Event():
                     movement = OverworldMove(entity.nid, selected_node.nid, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj)
                     movement.queue(self.overworld_movement_manager)
                     game.camera.do_slow_pan(1000)
+                    game.camera.set_center(entity.position[0], entity.position[1])
                     def update_movement():
                         # make sure the camera is centered first
                         if not game.camera.at_rest():

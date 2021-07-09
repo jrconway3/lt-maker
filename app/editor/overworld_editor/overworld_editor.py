@@ -21,7 +21,7 @@ from app.utilities import str_utils, utils
 from app.utilities.typing import Point
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction, QDockWidget, QMainWindow
+from PyQt5.QtWidgets import QAction, QDockWidget, QMainWindow, QLabel, QFrame
 
 from .node_properties import NodePropertiesMenu
 from .overworld_properties import OverworldPropertiesMenu
@@ -278,6 +278,27 @@ class OverworldEditor(QMainWindow):
         self.setCentralWidget(self.map_view)
         self._initialize_docks()
 
+        self.create_statusbar()
+
+    def create_statusbar(self):
+        self.status_bar = self.statusBar()
+        self.position_bar = QLabel("", self)
+        self.position_bar.setFrameStyle(QFrame.Panel | QFrame.Sunken)
+        self.position_bar.setMinimumWidth(100)
+        self.status_bar.addPermanentWidget(self.position_bar)
+
+    def set_position_bar(self, pos):
+        if pos:
+            self.position_bar.setText("Position (%d, %d)" % (pos[0], pos[1]))
+        else:
+            self.position_bar.setText("")
+
+    def set_message(self, msg):
+        if msg:
+            self.status_bar.showMessage(msg)
+        else:
+            self.status_bar.clearMessage()
+
     def _initialize_docks(self):
         self.docks = {}
 
@@ -312,10 +333,12 @@ class OverworldEditor(QMainWindow):
     def on_node_tab_select(self, visible):
         if visible:
             self.edit_mode = OverworldEditorEditMode.NODES
+            self.set_message("L-click to select a node or road. R-click to place a road, L-click to cancel current road. Del to delete current selected object. Double L-click to create a new node.")
 
     def on_property_tab_select(self, visible):
         if visible:
             self.edit_mode = OverworldEditorEditMode.NONE
+            self.set_message("Edit Overworld Properties")
 
     def update_view(self, _=None):
         self.map_view.update_view()
@@ -324,8 +347,6 @@ class OverworldEditor(QMainWindow):
         self.state_manager.subscribe_to_key(OverworldEditor.__name__, 'selected_overworld', self.set_current_overworld)
         self.state_manager.subscribe_to_key(OverworldEditor.__name__, 'ui_refresh_signal', self.update_view)
         self.state_manager.subscribe_to_key(WorldMapView.__name__, 'selected_overworld', self.map_view.set_current_level)
-
-
 
     """=========MainEditorWindow related functions========="""
 

@@ -17,8 +17,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QPainter, QPen, QPixmap, QImage, QTransform
 
 class WorldMapView(SimpleMapView):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, window=None):
+        super().__init__(window)
         self.selected = None
         self.possible_road_endpoint: Point = None
         self.road_sprite = RoadSpriteWrapper()
@@ -198,5 +198,6 @@ class WorldMapView(SimpleMapView):
     # these two are in the superclass but are useless in this context, override just in case
     def paint_units(self, current_level):
         pass
+
     def draw_unit(self, painter, unit, position, opacity=False):
         pass

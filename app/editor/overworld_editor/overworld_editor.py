@@ -123,6 +123,7 @@ class OverworldEditor(QMainWindow):
             self.select_object_on_map(x, y)
 
     def on_map_hover(self, x, y):
+        self.set_position_bar((x, y))
         if self.selected_object.type == OverworldEditorInternalTypes.UNFINISHED_ROAD:
             self.map_view.set_ghost_road_endpoint(self.lock_angle(self.selected_object.obj[-1], (x, y)))
         elif self.selected_object.type == OverworldEditorInternalTypes.MAP_NODE:
@@ -192,6 +193,10 @@ class OverworldEditor(QMainWindow):
                     closest_obj_type = OverworldEditorInternalTypes.FINISHED_ROAD
 
         self.selected_object = SelectedObject(type=closest_obj_type, obj=closest_obj)
+        if closest_obj_type == OverworldEditorInternalTypes.FINISHED_ROAD:
+            self.set_message("Selected road")
+        elif closest_obj_type == OverworldEditorInternalTypes.MAP_NODE:
+            self.set_message("Selected map node: %s" % closest_obj.nid)
 
     def lock_angle(self, prev_point: Point, next_point: Point) -> Point:
         """Roads can only run either horizontal/vertical, or in 45 degree angles.

@@ -1,7 +1,6 @@
 from app.engine.objects.overworld import OverworldNodeProperty
 from app.engine.overworld.overworld_manager import OverworldManager
 import logging
-from typing import Tuple
 
 from app.constants import TILEHEIGHT, TILEWIDTH, WINHEIGHT, WINWIDTH
 from app.engine import engine
@@ -9,7 +8,7 @@ from app.engine.graphics.ingame_ui.overworld_ui import OverworldTravelUI
 from app.engine.overworld.overworld_cursor import OverworldCursor
 
 class OverworldMapView():
-    def __init__(self, overworld: OverworldManager=None, cursor: OverworldCursor=None):
+    def __init__(self, overworld: OverworldManager = None, cursor: OverworldCursor = None):
         self.overworld = overworld
         self.cursor = cursor
         self.overworld_ui = OverworldTravelUI(overworld, cursor)
@@ -33,9 +32,10 @@ class OverworldMapView():
         # get rid of the unplaced entities
         overworld_entities = [entity for entity in overworld_entities if entity.on_node is not None]
         # Only draw units within 2 tiles of cull_rect
-        culled_entities = [entity for entity in overworld_entities if entity.sprite.draw_anyway() or
-                        (cull_rect[0] - TILEWIDTH*2 < entity.display_position[0] * TILEWIDTH < cull_rect[0] + cull_rect[2] + TILEWIDTH*2 and
-                         cull_rect[1] - TILEHEIGHT*2 < entity.display_position[1] * TILEHEIGHT < cull_rect[1] + cull_rect[3] + TILEHEIGHT*2)]
+        culled_entities = \
+            [entity for entity in overworld_entities if entity.sprite.draw_anyway() or
+             (cull_rect[0] - TILEWIDTH*2 < entity.display_position[0] * TILEWIDTH < cull_rect[0] + cull_rect[2] + TILEWIDTH*2 and
+              cull_rect[1] - TILEHEIGHT*2 < entity.display_position[1] * TILEHEIGHT < cull_rect[1] + cull_rect[3] + TILEHEIGHT*2)]
         for entity in culled_entities:
             # special behavior for the hovered entity
             if self.cursor:

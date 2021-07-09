@@ -25,6 +25,7 @@ from app.engine import dialog, engine, background, target_system, action, \
     evaluate, static_random, image_mods, icons
 from app.engine.combat import interaction
 from app.engine.objects.unit import UnitObject
+from app.engine.objects.item import ItemObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.animations import MapAnimation
 from app.engine.sound import SOUNDTHREAD
@@ -677,6 +678,18 @@ class Event():
         elif command.nid == 'remove_item':
             self.remove_item(command)
 
+        elif command.nid == 'change_item_name':
+            self.change_item_name(command)
+
+        elif command.nid == 'change_item_desc':
+            self.change_item_desc(command)
+
+        elif command.nid == 'add_item_to_multiitem':
+            self.add_item_to_multiitem(command)
+
+        elif command.nid == 'remove_item_from_multiitem':
+            self.remove_item_from_multiitem(command)
+
         elif command.nid == 'give_money':
             self.give_money(command)
 
@@ -708,6 +721,18 @@ class Event():
                 action.do(action.ChangeAI(unit, values[1]))
             else:
                 logging.error("Couldn't find AI %s" % values[1])
+                return
+
+        elif command.nid == 'change_party':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            if values[1] in DB.parties.keys():
+                action.do(action.ChangeParty(unit, values[1]))
+            else:
+                logging.error("Couldn't find Party %s" % values[1])
                 return
 
         elif command.nid == 'change_team':
@@ -879,6 +904,32 @@ class Event():
                 logging.error("Couldn't find prefab for units %s and %s" % (unit1.nid, unit2.nid))
                 return
 
+        elif command.nid == 'unlock_support_rank':
+            values, flags = event_commands.parse(command)
+            unit1 = self.get_unit(values[0])
+            if not unit1:
+                unit1 = DB.units.get(values[0])
+            if not unit1:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            unit2 = self.get_unit(values[1])
+            if not unit2:
+                unit2 = DB.units.get(values[1])
+            if not unit2:
+                logging.error("Couldn't find unit %s" % values[1])
+                return
+            rank = values[2]
+            if rank not in DB.support_ranks.keys():
+                logging.error("Support rank %s not a valid rank!" % rank)
+                return
+            prefabs = DB.support_pairs.get_pairs(unit1.nid, unit2.nid)
+            if prefabs:
+                prefab = prefabs[0]
+                action.do(action.UnlockSupportRank(prefab.nid, rank))
+            else:
+                logging.error("Couldn't find prefab for units %s and %s" % (unit1.nid, unit2.nid))
+                return
+
         elif command.nid == 'add_market_item':
             values, flags = event_commands.parse(command)
             item = values[0]
@@ -986,6 +1037,9 @@ class Event():
             else:
                 self.wait_time = engine.get_time() + anim.get_wait()
                 self.state = 'waiting'
+
+        elif command.nid == 'merge_parties':
+            self.merge_parties(command)
 
         elif command.nid == 'arrange_formation':
             self.arrange_formation()
@@ -1994,26 +2048,86 @@ class Event():
                 game.state.change('alert')
                 self.state = 'paused'
 
-    def remove_item(self, command):
-        values, flags = event_commands.parse(command)
+    def get_item_in_inventory(self, values):
         unit = self.get_unit(values[0])
         if not unit:
             logging.error("Couldn't find unit with nid %s" % values[0])
-            return
+            return None, None
         item_nid = values[1]
         if item_nid not in [item.nid for item in unit.items]:
             logging.error("Couldn't find item with nid %s" % values[1])
+            return None, None
+        item = [item for item in unit.items if item.nid == item_nid][0]
+        return unit, item
+
+    def remove_item(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
             return
         banner_flag = 'no_banner' not in flags
-        item = [item for item in unit.items if item.nid == item_nid][0]
 
         action.do(action.RemoveItem(unit, item))
         if banner_flag:
-            item = DB.items.get(item_nid)
+            item = DB.items.get(item.nid)
             b = banner.TakeItem(unit, item)
             game.alerts.append(b)
             game.state.change('alert')
             self.state = 'paused'
+
+    def change_item_name(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
+            return
+        name = values[2]
+
+        action.do(action.ChangeItemName(item, name))
+
+    def change_item_desc(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
+            return
+        desc = values[2]
+
+        action.do(action.ChangeItemDesc(item, desc))
+
+    def add_item_to_multiitem(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
+            return
+        if not item.multi_item:
+            logging.error("Item %s is not a multi-item!" % item.nid)
+            return
+        subitem_prefab = DB.items.get(values[2])
+        if not subitem_prefab:
+            logging.error("Couldn't find item with nid %s" % values[2])
+            return
+        # Create subitem
+        subitem = ItemObject.from_prefab(subitem_prefab)
+        for component in subitem.components:
+            component.item = item
+        item_system.init(subitem)
+        game.register_item(subitem)
+        action.do(action.AddItemToMultiItem(unit, item, subitem))
+
+    def remove_item_from_multiitem(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
+            return
+        if not item.multi_item:
+            logging.error("Item %s is not a multi-item!" % item.nid)
+            return
+        # Check if item in multiitem
+        subitem_nids = [subitem.nid for subitem in item.subitems]
+        if values[2] not in subitem_nids:
+            logging.error("Couldn't find subitem with nid %s" % values[2])
+            return
+        subitem = [subitem for subitem in item.subitems if subitem.nid == values[2]][0]
+        action.do(action.RemoveItemFromMultiItem(unit, item, subitem))
 
     def give_money(self, command):
         values, flags = event_commands.parse(command)
@@ -2305,6 +2419,35 @@ class Event():
             new_region.only_once = True
 
         action.do(action.AddRegion(new_region))
+
+    def merge_parties(self, command):
+        values, flags = event_commands.parse(command)
+        host, guest = values[0], values[1]
+        if host not in DB.parties.keys():
+            logging.error("Could not locate party %s" % host)
+            return
+        if guest not in DB.parties.keys():
+            logging.error("Could not locate party %s" % guest)
+            return
+        guest_party = game.get_party(guest)
+        # Merge units
+        for unit in game.units:
+            if unit.party == guest:
+                action.do(action.ChangeParty(unit, host))
+        # Merge items
+        for item in guest_party.convoy:
+            action.do(action.RemoveItemFromConvoy(item, guest))
+            action.do(action.PutItemInConvoy(item, host))
+        # Merge money
+        # host.money += guest.money
+        action.do(action.GainMoney(host, guest_party.money))
+        # guest.money -= guest.money
+        action.do(action.GainMoney(guest, -guest_party.money))
+        # Merge bexp
+        # host.bexp += guest.bexp
+        action.do(action.GiveBexp(host, guest_party.bexp))
+        # guest.bexp -= guest.bexp
+        action.do(action.GiveBexp(guest, -guest_party.bexp))
 
     def arrange_formation(self):
         """

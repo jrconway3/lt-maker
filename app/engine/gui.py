@@ -86,16 +86,24 @@ class SkillIcon():
         self.text = self.skill.name
         self.text_width = self.font.width(self.text)
         icon = icons.get_icon(self.skill)
-        if self.small:
-            self.surf = icon
+        if icon:
+            if self.small:
+                self.surf = icon
+            else:
+                self.surf = engine.create_surface((self.text_width + 22, 16), transparent=True)
+                if self.right:
+                    self.font.blit(self.text, self.surf, (20, 0))
+                    self.surf.blit(icon, (0, 0))
+                else:
+                    self.font.blit(self.text, self.surf, (0, 0))
+                    self.surf.blit(icon, (self.text_width + 4, 0))
         else:
             self.surf = engine.create_surface((self.text_width + 22, 16), transparent=True)
             if self.right:
                 self.font.blit(self.text, self.surf, (20, 0))
-                self.surf.blit(icon, (0, 0))
             else:
                 self.font.blit(self.text, self.surf, (0, 0))
-                self.surf.blit(icon, (self.text_width + 4, 0))
+
         self.image = self.surf
 
         self.start_time = engine.get_time()

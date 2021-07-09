@@ -42,6 +42,10 @@ class Defaults():
         return 1
 
     @staticmethod
+    def effect_animation(unit, item) -> str:
+        return None
+
+    @staticmethod
     def damage(unit, item) -> int:
         return None
 
@@ -104,7 +108,7 @@ false_hooks = ('is_weapon', 'is_spell', 'is_accessory', 'equippable',
 formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formula', 
            'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula')
 default_hooks = ('full_price', 'buy_price', 'sell_price', 'special_sort', 'num_targets', 'minimum_range', 'maximum_range',
-                 'weapon_type', 'weapon_rank', 'modify_weapon_triangle', 'damage', 'hit', 'crit')
+                 'weapon_type', 'weapon_rank', 'modify_weapon_triangle', 'damage', 'hit', 'crit', 'effect_animation')
 default_hooks += formula
 
 target_hooks = ('wexp', 'exp')
@@ -427,6 +431,31 @@ def on_crit(actions, playback, unit, item, target, target_pos, mode, first_item)
                 playback.append(('hit_sound', 'Critical Hit ' + str(random.randint(1, 2))))
         if not any(brush for brush in playback if brush[0] == 'crit_tint'):
             playback.append(('crit_tint', target, (255, 255, 255)))
+
+def on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, first_item):
+    for component in item.components:
+        if component.defines('on_glancing_hit'):
+            component.on_glancing_hit(actions, playback, unit, item, target, target_pos, mode)
+        elif component.defines('on_hit'):
+            component.on_hit(actions, playback, unit, item, target, target_pos, mode)
+    if item.parent_item and first_item:
+        for component in item.parent_item.components:
+            if component.defines('on_glancing_hit'):
+                component.on_glancing_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+            elif component.defines('on_hit'):
+                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+
+    # Default playback
+    if target and find_hp(actions, target) <= 0:
+        playback.append(('shake', 2))
+        if not any(brush for brush in playback if brush[0] == 'hit_sound'):
+            playback.append(('hit_sound', 'Final Hit'))
+    else:
+        playback.append(('shake', 4))
+        if not any(brush[0] == 'hit_sound' for brush in playback):
+            playback.append(('hit_sound', 'No Damage'))
+    if target and not any(brush for brush in playback if brush[0] in ('unit_tint_add', 'unit_tint_sub')):
+        playback.append(('unit_tint_add', target, (255, 255, 255)))
 
 def on_miss(actions, playback, unit, item, target, target_pos, mode, first_item):
     for component in item.components:

@@ -567,10 +567,6 @@ class UIView():
 
             # Blit name
             running_height += 16
-            icon = icons.get_icon(spell)
-            if icon:
-                icon = item_system.item_icon_mod(attacker, spell, defender, icon)
-                bg_surf.blit(icon, (8, running_height))
             name_width = FONT['text-white'].width(spell.name)
             FONT['text-white'].blit(spell.name, bg_surf, (52 - name_width//2, running_height))
 
@@ -634,6 +630,11 @@ class UIView():
         surf.blit(self.spell_info_disp, topleft)
         if defender:
             surf.blit(unit_surf, u_topleft)
+
+        icon = icons.get_icon(spell)
+        if icon:
+            icon = item_system.item_icon_mod(attacker, spell, defender, icon)
+            surf.blit(icon, (topleft[0] + 8, topleft[1] + self.spell_info_disp.get_height() - 20))
 
         # Turns off combat conditionals
         skill_system.test_off([], attacker, spell, defender, 'attack')

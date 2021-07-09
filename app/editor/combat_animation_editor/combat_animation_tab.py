@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QWidget
 
 from app.resources.resources import RESOURCES
 
@@ -22,6 +22,31 @@ class CombatAnimDisplay(DatabaseTab):
         dialog = cls(data, title, right_frame, deletion_criteria,
                      collection_model, parent, button_text="Add New %s...",
                      view_type=ResourceListView)
+
+        return dialog
+
+class SimpleCombatAnimProperties(QWidget):
+    def __init__(self, parent, current=None):
+        QWidget.__init__(self, parent)
+        self.window = parent
+        self.current = current
+
+    def set_current(self, current):
+        self.current = current
+
+class SimpleCombatAnimDisplay(DatabaseTab):
+    @classmethod
+    def create(cls, parent=None):
+        data = RESOURCES.combat_anims
+        title = "Combat Animation"
+        right_frame = SimpleCombatAnimProperties
+        collection_model = CombatAnimModel
+        deletion_criteria = None
+
+        dialog = cls(data, title, right_frame, deletion_criteria,
+                     collection_model, parent, button_text="Add New %s...",
+                     view_type=ResourceListView)
+
         return dialog
 
 class CombatEffectDisplay(DatabaseTab):
@@ -45,7 +70,7 @@ def get_full_editor() -> MultiResourceEditor:
     return editor
 
 def get_animations() -> tuple:
-    window = SingleResourceEditor(CombatAnimDisplay, ['combat_anims'])
+    window = SingleResourceEditor(SimpleCombatAnimDisplay, ['combat_anims'])
     result = window.exec_()
     if result == QDialog.Accepted:
         selected_combat_anim = window.tab.right_frame.current

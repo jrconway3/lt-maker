@@ -2,7 +2,8 @@ from app.engine.game_counters import ANIMATION_COUNTERS
 import math
 
 from app.constants import TILEWIDTH, TILEHEIGHT, COLORKEY
-from app.data.palettes import gray_colors, enemy_colors, other_colors, enemy2_colors, black_colors
+from app.data.palettes import gray_colors, enemy_colors, other_colors, enemy2_colors, black_colors, \
+    player_dark_colors, enemy_dark_colors, gray_dark_colors
 
 from app.resources.resources import RESOURCES
 from app.data.database import DB
@@ -40,9 +41,15 @@ class MapSprite():
 
     def convert_to_team_colors(self, map_sprite):
         if self.team == 'player':
-            return map_sprite.standing_image, map_sprite.moving_image
+            if DB.constants.value('dark_sprites'):
+                conversion_dict = player_dark_colors
+            else:
+                return map_sprite.standing_image, map_sprite.moving_image
         elif self.team == 'enemy':
-            conversion_dict = enemy_colors
+            if DB.constants.value('dark_sprites'):
+                conversion_dict = enemy_dark_colors
+            else:
+                conversion_dict = enemy_colors
         elif self.team == 'enemy2':
             conversion_dict = enemy2_colors
         elif self.team == 'other':
@@ -54,7 +61,11 @@ class MapSprite():
             image_mods.color_convert(map_sprite.moving_image, conversion_dict)
 
     def create_gray(self, imgs):
-        imgs = [image_mods.color_convert(img, gray_colors) for img in imgs]
+        if DB.constants.value('dark_sprites'):
+            color = gray_dark_colors
+        else:
+            color = gray_colors
+        imgs = [image_mods.color_convert(img, color) for img in imgs]
         for img in imgs:
             engine.set_colorkey(img, COLORKEY, rleaccel=True)
         return imgs

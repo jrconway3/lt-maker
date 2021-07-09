@@ -124,15 +124,21 @@ def get_all_tradeable_items(unit) -> list:
             items.append(item)
     return items
 
+def get_num_items(unit) -> int:
+    return DB.constants.value('num_items') + skill_system.num_items_offset(unit)
+
+def get_num_accessories(unit) -> int:
+    return DB.constants.value('num_accessories') + skill_system.num_accessories_offset(unit)
+
 def too_much_in_inventory(unit) -> bool:
-    return len(unit.accessories) > DB.constants.value('num_accessories') or \
-        len(unit.nonaccessories) > DB.constants.value('num_items')
+    return len(unit.accessories) > get_num_accessories(unit) or \
+        len(unit.nonaccessories) > get_num_items(unit)
 
 def inventory_full(unit, item) -> bool:
     if item_system.is_accessory(unit, item):
-        return len(unit.accessories) >= DB.constants.value('num_accessories')
+        return len(unit.accessories) >= get_num_accessories(unit)
     else:
-        return len(unit.nonaccessories) >= DB.constants.value('num_items')
+        return len(unit.nonaccessories) >= get_num_items(unit)
 
 def get_range(unit, item) -> set:
     min_range, max_range = 0, 0
@@ -162,7 +168,9 @@ def get_range_string(unit, item):
     else:
         min_range = item_system.minimum_range(None, item)
         max_range = item_system.maximum_range(None, item)
-    if min_range != max_range:
+    if max_range >= 99:
+        rng = '%d+' % min_range
+    elif min_range != max_range:
         rng = '%d-%d' % (min_range, max_range)
     else:
         rng = '%d' % max_range

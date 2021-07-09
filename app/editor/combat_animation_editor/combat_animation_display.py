@@ -601,6 +601,9 @@ class CombatAnimProperties(QWidget):
     def get_current_palette(self):
         return self.palette_menu.get_palette()
 
+    def get_combat_palette(self):
+        return self.palette_menu.get_palette()
+
     def modify_for_palette(self, pixmap: QPixmap) -> QImage:
         current_palette_nid = self.get_current_palette()
         return palette_swap(pixmap, current_palette_nid)
@@ -857,7 +860,12 @@ class CombatAnimProperties(QWidget):
             return
         palette_names = [palette[0] for palette in palettes]
         palette_nids = [palette[1] for palette in palettes]
-        if 'GenericBlue' in palette_names:
+        current_palette_nid = self.get_combat_palette()
+        if current_palette_nid in palette_nids:
+            idx = palette_nids.index(current_palette_nid)
+            right_palette_name = palette_names[idx]
+            right_palette_nid = palette_nids[idx]
+        elif 'GenericBlue' in palette_names:
             idx = palette_names.index('GenericBlue')
             right_palette_name = 'GenericBlue'
             right_palette_nid = palette_nids[idx]

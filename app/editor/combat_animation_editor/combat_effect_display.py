@@ -359,6 +359,9 @@ class CombatEffectProperties(CombatAnimProperties):
                             return combat_anim, weapon_anim
         return None, None
 
+    def get_combat_palette(self):
+        return None
+
     def test_combat(self):
         if self.current:
             current_pose_nid = self.pose_box.currentText()

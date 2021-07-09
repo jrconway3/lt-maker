@@ -106,6 +106,8 @@ class SimpleCombat():
 
         all_units = self._all_units()
 
+        self.cleanup_combat()
+
         # Handle death
         for unit in all_units:
             if unit.get_hp() <= 0:
@@ -116,7 +118,6 @@ class SimpleCombat():
         self.turnwheel_death_messages(all_units)
 
         self.handle_state_stack()
-        self.cleanup_combat()
         game.events.trigger('combat_end', self.attacker, self.defender, self.main_item, self.attacker.position)
         self.handle_item_gain(all_units)
 

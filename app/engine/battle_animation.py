@@ -504,6 +504,8 @@ class BattleAnimation():
                 effect = values[0]
             elif isinstance(self.item, str):
                 effect = self.item
+            elif self.unit and item_system.effect_animation(self.unit, self.item):
+                effect = item_system.effect_animation(self.unit, self.item)
             else:
                 effect = self.item.nid
             child_effect = self.get_effect(effect)
@@ -784,7 +786,7 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
     else:
         class_obj = DB.classes.get(unit.klass)
     combat_anim_nid = class_obj.combat_anim_nid
-    if unit.variant:
+    if combat_anim_nid and unit.variant:
         combat_anim_nid += unit.variant
     res = RESOURCES.combat_anims.get(combat_anim_nid)
     if not res:  # Try without unit variant
@@ -803,6 +805,7 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
         weapon_anim_nid = "Unarmed"
     else:
         weapon_type = item_system.weapon_type(unit, item)
+        weapon_prefab = DB.weapons.get(weapon_type)
         if not weapon_type:
             weapon_type = "Neutral"
         magic = item_funcs.is_magic(unit, item)
@@ -816,7 +819,10 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
         elif magic:
             weapon_anim_nid = "Magic" + weapon_type
         elif ranged:
-            weapon_anim_nid = "Ranged" + weapon_type
+            if distance <= 1 and weapon_prefab and weapon_prefab.force_melee_anim:
+                weapon_anim_nid = weapon_type
+            else:
+                weapon_anim_nid = "Ranged" + weapon_type
         else:
             weapon_anim_nid = weapon_type
         if magic and weapon_anim_nid not in res.weapon_anims.keys():
@@ -835,6 +841,8 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
             if command.nid == 'spell':
                 if command.value[0]:
                     effect = command.value[0]
+                elif unit and item_system.effect_animation(unit, item):
+                    effect = item_system.effect_animation(unit, item)
                 else:
                     effect = item.nid
                 if effect not in RESOURCES.combat_effects.keys():

@@ -169,7 +169,6 @@ class GameState():
         self.sweep()
         self.generic()
 
-
     def sweep(self):
         """
         Cleans up variables that need to be reset at the end of each level
@@ -219,7 +218,6 @@ class GameState():
 
         from app.engine.initiative import InitiativeTracker
         from app.engine.objects.level import LevelObject
-        from app.engine.objects.party import PartyObject
         from app.engine.objects.tilemap import TileMapObject
         from app.engine.level_cursor import LevelCursor
 
@@ -237,11 +235,7 @@ class GameState():
 
         # Build party object for new parties
         if self.current_party not in self.parties:
-            party_prefab = DB.parties.get(self.current_party)
-            if not party_prefab:
-                party_prefab = DB.parties[0]
-            nid, name, leader = party_prefab.nid, party_prefab.name, party_prefab.leader
-            self.parties[self.current_party] = PartyObject(nid, name, leader)
+            self.build_party(self.current_party)
 
         # Assign every unit the levels party if they don't already have one
         for unit in self.current_level.units:
@@ -377,7 +371,7 @@ class GameState():
         self.talk_options = s_dict.get('talk_options', [])
         self.base_convos = s_dict.get('base_convos', {})
 
-         # load all overworlds, or initialize them
+        # load all overworlds, or initialize them
         if 'overworlds' in s_dict:
             for overworld in s_dict['overworlds']:
                 overworld_obj = OverworldObject.restore(overworld, self)
@@ -521,7 +515,6 @@ class GameState():
 
     @property
     def tilemap(self):
-        from app.engine.overworld.overworld_map_view import OverworldMapView
         if self.is_displaying_overworld():
             return self.overworld_controller.tilemap
         elif self.current_level:
@@ -549,6 +542,21 @@ class GameState():
     @property
     def party(self):
         return self.parties[self.current_party]
+
+    def get_party(self, party_nid: str = None):
+        if not party_nid:
+            party_nid = self.current_party
+        if party_nid not in self.parties:
+            self.build_party(party_nid)
+        return self.parties[party_nid]
+
+    def build_party(self, party_nid):
+        from app.engine.objects.party import PartyObject
+        party_prefab = DB.parties.get(party_nid)
+        if not party_prefab:
+            party_prefab = DB.parties[0]
+        nid, name, leader = party_prefab.nid, party_prefab.name, party_prefab.leader
+        self.parties[self.current_party] = PartyObject(nid, name, leader)
 
     @property
     def units(self):
@@ -604,9 +612,6 @@ class GameState():
     def get_region(self, region_nid):
         region = self.region_registry.get(region_nid)
         return region
-
-    def get_party(self, party_nid):
-        return self.parties.get(party_nid)
 
     def get_all_units(self):
         return [unit for unit in self.level.units if unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]

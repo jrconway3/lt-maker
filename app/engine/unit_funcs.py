@@ -31,7 +31,7 @@ def get_next_level_up(unit, custom_method=None) -> dict:
         level = unit.get_internal_level()
         rng = static_random.get_levelup(unit.nid, level)
         for nid in DB.stats.keys():
-            growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0) + difficulty_growth_bonus.get(nid)
+            growth = unit.growths[nid] + unit.growth_bonus(nid) + klass.growth_bonus.get(nid, 0) + difficulty_growth_bonus.get(nid, 0)
 
             if method == 'Fixed':
                 if growth > 0:
@@ -46,7 +46,7 @@ def get_next_level_up(unit, custom_method=None) -> dict:
             elif method == 'Dynamic':
                 _dynamic_levelup(rng, unit, level, stat_changes, unit.growth_points, nid, growth)
 
-        stat_changes[nid] = utils.clamp(stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid, 30) - unit.stats[nid])
+            stat_changes[nid] = utils.clamp(stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid, 30) - unit.stats[nid])
 
     return stat_changes
 
@@ -166,6 +166,7 @@ def auto_level(unit, num_levels, starting_level=1, difficulty_growths=False):
     klass = DB.classes.get(unit.klass)
     unit.stats = {k: utils.clamp(v, 0, klass.max_stats.get(k, 30)) for (k, v) in unit.stats.items()}
     unit.set_hp(1000)  # Go back to full hp
+    unit.set_mana(1000)  # Go back to full mana
 
 def apply_stat_changes(unit, stat_changes: dict):
     """
@@ -263,3 +264,17 @@ def check_focus(unit, limit=3) -> int:
                     utils.calculate_distance(unit.position, other.position) <= limit:
                 counter += 1
     return counter
+
+def check_flanked(unit) -> bool:
+    from app.engine import skill_system
+    from app.engine.game_state import game
+    if unit.position:
+        up = game.board.get_unit((unit.position[0], unit.position[1] - 1))
+        left = game.board.get_unit((unit.position[0] - 1, unit.position[1]))
+        right = game.board.get_unit((unit.position[0] + 1, unit.position[1]))
+        down = game.board.get_unit((unit.position[0], unit.position[1] + 1))
+        if up and down and skill_system.check_enemy(unit, up) and skill_system.check_enemy(unit, down):
+            return True
+        if left and right and skill_system.check_enemy(unit, left) and skill_system.check_enemy(unit, right):
+            return True
+    return False

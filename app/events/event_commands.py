@@ -15,6 +15,7 @@ class Tags(Enum):
     REGION = 'Region'
     ADD_REMOVE_INTERACT_WITH_UNITS = 'Add/Remove/Interact with Units'
     MODIFY_UNIT_PROPERTIES = 'Modify Unit Properties'
+    MODIFY_ITEM_PROPERTIES = 'Modify Item Properties'
     UNIT_GROUPS = 'Unit Groups'
     MISCELLANEOUS = 'Miscellaneous'
     OVERWORLD = 'Overworld'
@@ -570,6 +571,30 @@ class RemoveItem(EventCommand):
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner']
 
+class ChangeItemName(EventCommand):
+    nid = 'change_item_name'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    keywords = ["GlobalUnit", "Item", "String"]
+
+class ChangeItemDesc(EventCommand):
+    nid = 'change_item_desc'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    keywords = ["GlobalUnit", "Item", "String"]
+
+class AddItemToMultiItem(EventCommand):
+    nid = 'add_item_to_multiitem'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    keywords = ["GlobalUnit", "Item", "Item"]
+
+class RemoveItemFromMultiItem(EventCommand):
+    nid = 'remove_item_from_multiitem'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    keywords = ["GlobalUnit", "Item", "Item"]
+
 class GiveMoney(EventCommand):
     nid = 'give_money'
     tag = Tags.GAME_VARS
@@ -624,6 +649,12 @@ class ChangeAI(EventCommand):
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
     keywords = ["GlobalUnit", "AI"]
+
+class ChangeParty(EventCommand):
+    nid = 'change_party'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    keywords = ["GlobalUnit", "Party"]
 
 class ChangeTeam(EventCommand):
     nid = 'change_team'
@@ -735,6 +766,12 @@ class IncrementSupportPoints(EventCommand):
 
     keywords = ['GlobalUnit', 'GlobalUnit', 'PositiveInteger']
 
+class UnlockSupportRank(EventCommand):
+    nid = 'unlock_support_rank'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    keywords = ['GlobalUnit', 'GlobalUnit', 'SupportRank']
+
 class AddMarketItem(EventCommand):
     nid = 'add_market_item'
     tag = Tags.GAME_VARS
@@ -824,6 +861,16 @@ class MapAnim(EventCommand):
              ' *Float*, which increases the length of time it takes to play the animation (larger is slower)')
     keywords = ["MapAnim", "Position"]
     optional_keywords = ["Float"]
+
+class MergeParties(EventCommand):
+    nid = 'merge_parties'
+    tag = Tags.MISCELLANEOUS
+    # Merges the second party onto the first party
+    # The second will still exist, but will have no money, bexp, 
+    # items in convoy, or units associated with it
+    # The first will gain all of those properties
+
+    keywords = ["Party", "Party"]
 
 class ArrangeFormation(EventCommand):
     nid = 'arrange_formation'

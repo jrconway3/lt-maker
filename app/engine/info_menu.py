@@ -835,7 +835,8 @@ class InfoMenuState(State):
                     surf.blit(SPRITES.get('equipment_highlight'), (8, height + 8))
                 item_option = menu_options.FullItemOption(idx, item)
             item_option.draw(surf, 8, height)
-            self.info_graph.register((96 + 8, DB.constants.value('num_items') * 16 + idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment', first=(idx == 0 and not self.unit.nonaccessories))
+            y_pos = item_funcs.get_num_items(self.unit) * 16 + idx * 16 + 24
+            self.info_graph.register((96 + 8, y_pos, 120, 16), item_option.get_help_box(), 'equipment', first=(idx == 0 and not self.unit.nonaccessories))
 
         # Battle stats
         battle_surf = SPRITES.get('battle_info')

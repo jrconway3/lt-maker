@@ -57,8 +57,9 @@ class CombatHealthBar(HealthBar):
     time_for_change_min = 0
 
     def __init__(self, unit):
-        super().__init__(unit)
+        super().__init__(unit) 
         self.color_tick = 0
+        self.heal_sound_update = 0   
 
     def update(self, skip=False):
         if self.displayed_hp < self.unit.get_hp():
@@ -69,7 +70,10 @@ class CombatHealthBar(HealthBar):
         self.color_tick = int(engine.get_time() / 16.67) % len(self.colors)
 
     def set_hp(self, val):
-        if self.displayed_hp < self.unit.get_hp():
+        current_time = engine.get_time()
+        if self.displayed_hp < self.unit.get_hp() and current_time - self.heal_sound_update > self.speed:
+            self.heal_sound_update = current_time
+            SOUNDTHREAD.stop_sfx('HealBoop')
             SOUNDTHREAD.play_sfx('HealBoop')
         super().set_hp(val)
 
@@ -117,7 +121,8 @@ class MapHealthBar(HealthBar):
     health_bar = SPRITES.get('map_health_bar')
 
     def draw(self, surf, left, top):
-        fraction_hp = utils.clamp(self.displayed_hp / self.total_hp, 0, 1)
+        total = max(1, self.total_hp)
+        fraction_hp = utils.clamp(self.displayed_hp / total, 0, 1)
         index_pixel = int(12 * fraction_hp) + 1
 
         surf.blit(self.health_outline, (left, top + 13))
@@ -132,7 +137,8 @@ class MapCombatHealthBar(HealthBar):
     health_bar = SPRITES.get('health_bar')
 
     def draw(self, surf):
-        fraction_hp = utils.clamp(self.displayed_hp / self.total_hp, 0, 1)
+        total = max(1, self.total_hp)
+        fraction_hp = utils.clamp(self.displayed_hp / total, 0, 1)
         index_pixel = int(50 * fraction_hp)
         position = 25, 22
         surf.blit(engine.subsurface(self.health_bar, (0, 0, index_pixel, 2)), position)
@@ -223,6 +229,8 @@ class MapCombatInfo():
             self.shake_set = [(3, 3), (0, 0), (0, 0), (3, 3), (-3, -3), (3, 3), (-3, -3), (0, 0)]
         elif num == 3:  # Crit
             self.shake_set = [(random.randint(-4, 4), random.randint(-4, 4)) for _ in range(16)] + [(0, 0)]
+        elif num == 4:  # Glancing hit
+            self.shake_set = [(-1, -1), (0, 0), (1, 1), (0, 0)]
 
     def reset_shake(self):
         self.shake_set = [(0, 0)]  # How the hp bar will shake

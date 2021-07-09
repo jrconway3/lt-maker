@@ -237,17 +237,6 @@ class OverworldObject():
             overworld.overworld_entities[pnid] = OverworldEntityObject.from_prefab(None, party, unit_registry)
         return overworld
 
-    @property
-    def selected_party(self) -> OverworldEntityObject:
-        if not self.selected_party_nid:
-            # select the first player party on the map
-            for entity in self.overworld_entities.values():
-                if entity.team == 'player':
-                    if entity.on_node is not None and entity.position:
-                        self.selected_party_nid = entity.nid
-                        break
-        return self.overworld_entities[self.selected_party_nid]
-
     def save(self):
         s_dict = {'tilemap': self.tilemap.save(),
                   'enabled_nodes': list(self.enabled_nodes),

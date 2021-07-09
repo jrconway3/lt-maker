@@ -188,7 +188,7 @@ class GameState():
         Done on loading a level, whether from overworld, last level, save_state, etc.
         """
         from app.engine import (ai_controller, camera, death, highlight,
-                                level_cursor, map_view, movement, phase,
+                                map_view, movement, phase,
                                 ui_view)
 
         # Systems

@@ -67,7 +67,14 @@ class OverworldManager():
 
     @property
     def selected_entity(self) -> OverworldEntityObject:
-        return self.entities.get(self._overworld.selected_party_nid)
+        if not self._overworld.selected_party_nid:
+            # select the first player party on the map
+            for entity in self._overworld.overworld_entities.values():
+                if entity.team == 'player':
+                    if entity.on_node is not None and entity.position:
+                        self._overworld.selected_party_nid = entity.nid
+                        break
+        return self.entities[self._overworld.selected_party_nid]
 
     def select_entity(self, party: OverworldEntityObject | NID):
         if isinstance(party, OverworldEntityObject):
@@ -179,7 +186,7 @@ class OverworldManager():
         return None
 
     def selected_party_node(self) -> OverworldNodeObject:
-        return self.nodes[self._overworld.selected_party.on_node]
+        return self.nodes[self.selected_entity.on_node]
 
     def any_path(self, n1: OverworldNodeObject | NID,
                  n2: OverworldNodeObject | NID, force: bool = False) -> bool:

@@ -3,6 +3,7 @@ from app.engine.overworld.overworld_movement_manager import OverworldMovementMan
 from typing import Callable, Dict, List
 from app.engine.graphics.dialog.narration_dialogue import NarrationDialogue
 from app.engine.overworld.overworld_actions import OverworldMove
+from app.engine.overworld.overworld_map_view import OverworldMapView
 from app.engine.objects.overworld import OverworldNodeObject
 from app.utilities.typing import NID
 import app.engine.graphics.ui_framework as uif
@@ -1802,6 +1803,12 @@ class Event():
 
         tilemap = TileMapObject.from_prefab(tilemap_prefab)
         game.level.tilemap = tilemap
+        if isinstance(game.map_view, OverworldMapView):
+            # we were in the overworld before this, so we should probably reset cursor and such
+            from app.engine import level_cursor, map_view, movement
+            game.cursor = level_cursor.LevelCursor(game)
+            game.movement =  movement.MovementManager()
+            game.map_view = map_view.MapView()
         game.set_up_game_board(game.level.tilemap)
 
         # If we're reloading the map

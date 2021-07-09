@@ -7,7 +7,7 @@ from typing import List, TYPE_CHECKING, Tuple
 from app.constants import COLORKEY, WINHEIGHT
 
 if TYPE_CHECKING:
-    from pygame import Surface
+    from app.engine.engine import Surface
 
 from app.engine.sprites import SPRITES
 from app.engine import config as cf
@@ -28,13 +28,14 @@ class NarrationDialogue(uif.UIComponent):
         # initialize the animated top bar and bottom text area
         # create the box sprite
         narration_window_sprite: Surface = SPRITES.get('narration_window').convert()
-        engine.set_colorkey(narration_window_sprite, COLORKEY)
         top_height = narration_window_sprite.get_height() // 2
         bottom_height = narration_window_sprite.get_height() - top_height
         width = narration_window_sprite.get_width()
 
         top_sprite = engine.subsurface(narration_window_sprite, (0, 0, width, top_height))
         bottom_sprite = engine.subsurface(narration_window_sprite, (0, top_height, width, bottom_height))
+        engine.set_colorkey(top_sprite, COLORKEY)
+        engine.set_colorkey(bottom_sprite, COLORKEY)
 
         self.top_bar: uif.UIComponent = uif.UIComponent.from_existing_surf(top_sprite)
         self.top_bar.props.v_alignment = uif.VAlignment.TOP
@@ -63,11 +64,16 @@ class NarrationDialogue(uif.UIComponent):
         fade_out = uif.fade_anim(1, 0.2, anim_duration, True, uif.InterpolationType.LOGARITHMIC, skew=0.1)
         fade_in = uif.fade_anim(0.2, 1, anim_duration, False, uif.InterpolationType.LOGARITHMIC, skew=3)
 
-        translate_offscreen_down = uif.translate_anim((0, 0), (0, WINHEIGHT/2), disable_after=True, duration=anim_duration, interp_mode=uif.InterpolationType.LOGARITHMIC, skew=0.1) + fade_out
-        translate_onscreen_up = uif.translate_anim((0, WINHEIGHT/2), (0, 0), duration=anim_duration, interp_mode=uif.InterpolationType.LOGARITHMIC, skew=3) + fade_in
+        log_interp = uif.InterpolationType.LOGARITHMIC
+        translate_offscreen_down = \
+            uif.translate_anim((0, 0), (0, WINHEIGHT/2), disable_after=True, duration=anim_duration, interp_mode=log_interp, skew=0.1) + fade_out
+        translate_onscreen_up = \
+            uif.translate_anim((0, WINHEIGHT/2), (0, 0), duration=anim_duration, interp_mode=log_interp, skew=3) + fade_in
 
-        translate_offscreen_up = uif.translate_anim((0, 0), (0, -WINHEIGHT/2), disable_after=True, duration=anim_duration, interp_mode=uif.InterpolationType.LOGARITHMIC, skew=0.1) + fade_out
-        translate_onscreen_down = uif.translate_anim((0, -WINHEIGHT/2), (0, 0), duration=anim_duration, interp_mode=uif.InterpolationType.LOGARITHMIC, skew=3) + fade_in
+        translate_offscreen_up = \
+            uif.translate_anim((0, 0), (0, -WINHEIGHT/2), disable_after=True, duration=anim_duration, interp_mode=log_interp, skew=0.1) + fade_out
+        translate_onscreen_down = \
+            uif.translate_anim((0, -WINHEIGHT/2), (0, 0), duration=anim_duration, interp_mode=log_interp, skew=3) + fade_in
 
         self.top_bar.save_animation(translate_offscreen_up, '!exit')
         self.top_bar.save_animation(translate_onscreen_down, '!enter')
@@ -79,9 +85,10 @@ class NarrationDialogue(uif.UIComponent):
         # init dialogue sound 'anim'
         def play_sound(c: uif.DialogTextComponent, anim_time, delta_time):
             play_sound.time_since_last_sound += delta_time
-            if play_sound.time_since_last_sound > 32 and cf.SETTINGS['talk_boop']:
+            if cf.SETTINGS['talk_boop'] and play_sound.time_since_last_sound > 32:
                 self.time_since_last_sound = 0
                 SOUNDTHREAD.play_sfx('Talk_Boop')
+                
         play_sound.time_since_last_sound = 0
 
         dialog_sound = uif.UIAnimation(do_anim=play_sound)

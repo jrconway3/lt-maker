@@ -1,4 +1,4 @@
-from app.editor.overworld_editor.road_sprite_wrapper import RoadSpriteDrawMode, RoadSpriteWrapper
+from app.editor.overworld_editor.road_sprite_wrapper import RoadSpriteWrapper
 from enum import Enum
 import logging
 from typing import List
@@ -15,12 +15,13 @@ from app.sprites import SPRITES
 from app.utilities.typing import Point
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QPainter, QPen, QPixmap, QImage, QTransform
+
 class WorldMapView(SimpleMapView):
     def __init__(self):
         super().__init__()
         self.selected = None
         self.possible_road_endpoint: Point = None
-        self.road_sprite = RoadSpriteWrapper(mode=RoadSpriteDrawMode.EDITOR)
+        self.road_sprite = RoadSpriteWrapper()
 
     def set_current_level(self, overworld_nid):
         overworld = DB.overworlds.get(overworld_nid)

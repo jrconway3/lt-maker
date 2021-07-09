@@ -99,7 +99,7 @@ def scroll_to_next_line_anim(duration: int=500, disable_after=False,
     else:
         return UIAnimation(halt_condition=should_stop, do_anim=do_scroll, after_anim=after_translation)
 
-def type_line_anim(time_per_char: int=50, halting_sequence: str ='{w}'):
+def type_line_anim(time_per_char: int = 50, halting_sequence: str ='{w}'):
     def start_next_line(c: TextComponent, *args):
         # if we're at the stopped sequence, then let's just get over it
         if (c.is_index_at_sequence(c.num_visible_chars, halting_sequence)):
@@ -111,7 +111,7 @@ def type_line_anim(time_per_char: int=50, halting_sequence: str ='{w}'):
         while type_next_character.time_since_last_char > time_per_char:
             # as long as we haven't finished a line and we're not max lines:
             if ((not c.is_index_at_end_of_line(c.num_visible_chars) or c.lines_displayed != c.props.max_lines)
-                and not c.is_index_at_sequence(c.num_visible_chars, halting_sequence)):
+                    and not c.is_index_at_sequence(c.num_visible_chars, halting_sequence)):
                 c.num_visible_chars += 1
                 type_next_character.time_since_last_char -= time_per_char
             # we finished a line, and we're on the maximum line; it's time to scroll to make some space
@@ -124,7 +124,7 @@ def type_line_anim(time_per_char: int=50, halting_sequence: str ='{w}'):
 
     def halt(c: TextComponent, *args) -> bool:
         if (c.is_index_at_sequence(c.num_visible_chars, halting_sequence) or
-            c.num_visible_chars == len(c.wrapped_text)):
+                c.num_visible_chars == len(c.wrapped_text)):
             return True
         else:
             return False

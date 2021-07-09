@@ -11,7 +11,7 @@ from app.engine.graphics.ui_framework.ui_framework_styling import UIMetric
 from app.utilities.utils import clamp
 
 if TYPE_CHECKING:
-    from pygame import Surface
+    from app.engine.engine import Surface
 
 from ..ui_framework import ComponentProperties, ResizeMode, UIComponent
 
@@ -21,12 +21,14 @@ class TextProperties(ComponentProperties):
     """
     def __init__(self):
         super().__init__()
-        self.font: BmpFont = FONT['text-white']         # self-explanatory: the font
-        self.line_break_size: str = '0px'               # if the text component is multiline, how much space
-                                                        # is between the two lines. Can be percentage or pixel value.
-
-        self.max_lines: int = 2                         # maximum number of lines to split the text over, if max_width is set.
-                                                        # if 0, then it will
+        # self-explanatory: the font
+        self.font: BmpFont = FONT['text-white']
+        # if the text component is multiline, how much space
+        # is between the two lines. Can be percentage or pixel value.
+        self.line_break_size: str = '0px'           
+        # maximum number of lines to split the text over, if max_width is set.
+        # if 0, then it will
+        self.max_lines: int = 2                       
 
 class TextComponent(UIComponent):
     """A component consisting purely of text

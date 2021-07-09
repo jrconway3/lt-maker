@@ -299,7 +299,6 @@ class Dialog():
                     self.portrait.talk()
 
     def play_talk_boop(self):
-        # SOUNDTHREAD.stop_sfx('Talk_Boop')
         if cf.SETTINGS['talk_boop'] and engine.get_true_time() - self.last_sound_update > 32:
             self.last_sound_update = engine.get_true_time()
             SOUNDTHREAD.play_sfx('Talk_Boop')

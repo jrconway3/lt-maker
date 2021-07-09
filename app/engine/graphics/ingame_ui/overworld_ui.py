@@ -6,7 +6,7 @@ from app.engine.objects.overworld import OverworldNodeObject, OverworldEntityObj
 import app.engine.graphics.ui_framework as uif
 
 from typing import Tuple
-from pygame import Surface, Color
+from app.engine.engine import Surface
 from app.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
 
 from app.engine.sprites import SPRITES
@@ -15,7 +15,7 @@ from app.engine.game_state import game
 class OverworldTravelUI():
     legal_states = ('overworld')
 
-    def __init__(self, overworld: OverworldObject=None, cursor: OverworldCursor=None):
+    def __init__(self, overworld: OverworldObject = None, cursor: OverworldCursor = None):
         # initialize components
         self.location_title: uif.UIComponent = uif.UIComponent(name="location title")
         self.location_title.props.bg = SPRITES.get('world_map_location_box')
@@ -110,13 +110,13 @@ class OverworldTravelUI():
         if not self.minimap.enabled:
             self.minimap.enter()
         if (game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1 and
-            game.cursor.position[1] > TILEY // 2 + game.camera.get_y() - 1):
+                game.cursor.position[1] > TILEY // 2 + game.camera.get_y() - 1):
             # if cursor is in the bottom right
             if self.minimap.props.h_alignment == uif.HAlignment.RIGHT:
                 # if we're also in the right - get out of dodge
                 self.minimap.queue_animation(names=['translate_down', 'change_alignment', 'translate_up'])
         elif (game.cursor.position[0] < TILEX // 2 + game.camera.get_x() and
-              game.cursor.position[1] > TILEY // 2 + game.camera.get_y() - 1):
+                game.cursor.position[1] > TILEY // 2 + game.camera.get_y() - 1):
             # cursor is in the bottom left
             if self.minimap.props.h_alignment != uif.HAlignment.RIGHT:
                 # then we leave the left

@@ -8,7 +8,7 @@ from app.engine.game_state import GameState
 from app.engine.input_manager import INPUT
 from app.engine.sprites import SPRITES
 from app.utilities.utils import frames2ms
-from pygame import Surface
+from app.engine.engine import Surface
 
 
 class LevelCursor(BaseCursor):

@@ -980,11 +980,6 @@ class StartOverworldCinematic(EventCommand):
 
     optional_keywords = ['OverworldNID']
 
-class EndOverworldCinematic(EventCommand):
-    nid = 'overworld_cinematic_exit'
-    tag = Tags.OVERWORLD
-    desc = 'exits the overworld, setting the bg to the level once again'
-
 class OverworldSetPosition(EventCommand):
     nid = 'set_overworld_position'
     tag = Tags.OVERWORLD

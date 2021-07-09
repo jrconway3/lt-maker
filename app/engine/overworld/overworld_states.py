@@ -1,7 +1,6 @@
 import logging
 
 import app.engine.config as cf
-from app.constants import TILEHEIGHT, TILEWIDTH, WINHEIGHT, WINWIDTH
 from app.data.database import DB
 from app.engine import engine, menus
 from app.engine.fluid_scroll import FluidScroll

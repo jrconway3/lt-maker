@@ -11,7 +11,7 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.sprites import SPRITES
 from app.utilities.enums import Direction
 from app.utilities.utils import frames2ms
-from pygame import Surface
+from app.engine.engine import Surface
 
 class BaseCursor():
     """Basic Cursor Class, contains universal cursor functionality.

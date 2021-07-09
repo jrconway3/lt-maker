@@ -1,18 +1,15 @@
 from __future__ import annotations
-from app.editor.overworld_editor.road_sprite_wrapper import RoadSpriteDrawMode, RoadSpriteWrapper
 
-import math
-from typing import Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from app.data.klass import Klass
 from app.engine.game_counters import ANIMATION_COUNTERS
 from app.engine.objects.unit import UnitObject
 from app.engine.unit_sprite import MapSprite
 from app.sprites import SPRITES
-from pygame import Rect, draw, gfxdraw, math
 
 if TYPE_CHECKING:
-    from pygame import Surface
+    from app.engine.engine import Surface
     from app.engine.objects.overworld import OverworldEntityObject, RoadObject
 
 from typing import Tuple
@@ -20,14 +17,14 @@ from typing import Tuple
 from app.constants import TILEHEIGHT, TILEWIDTH
 from app.data.database import DB
 from app.data.overworld_node import OverworldNodePrefab
+from app.engine.overworld.overworld_road_sprite_wrapper import OverworldRoadSpriteWrapper
 from app.engine import engine, image_mods
 from app.engine.animations import MapAnimation
-from app.engine.game_state import game
 from app.engine.sound import SOUNDTHREAD
 from app.resources.map_icons import MapIcon
 from app.resources.resources import RESOURCES
 from app.utilities import utils
-from app.utilities.typing import NID, Point
+from app.utilities.typing import Point
 
 
 class FlagSprite():
@@ -119,7 +116,7 @@ class OverworldRoadSprite():
 
     def __init__(self, road: RoadObject):
         self.road = road
-        self.road_sprite = RoadSpriteWrapper(mode=RoadSpriteDrawMode.ENGINE)
+        self.road_sprite = OverworldRoadSpriteWrapper()
 
         self.transition_state = 'normal' # for fading
 
@@ -148,59 +145,11 @@ class OverworldRoadSprite():
     def update(self):
         self.update_transition()
 
-    def draw_dashed_line(self, surf: Surface, start: Point, end: Point,
-                         thickness: float, dash_length: int = 4, dash_spacing: int = 0):
-        """A single road segment appears as a straight, DASHED, THICK, ANTI-ALIASED line.
-        In order to simulate this with pygame, we must use pygame's polygon-drawing capability.
-        This calculates the four corners of each dash polygon and draws them in sequence.
-
-        Args:
-            surf (Surface): surface on which to draw
-            start (Point): start point of segment
-            end (Point): end point of segment
-            thickness (float): thickness of line
-            dash_length (int): optional, length of a dash (default 4px)
-            dash_spacing (int): optional, space between dashes (default 4px)
-        """
-        if dash_spacing == 0: # it's not even dashed, don't bother
-            draw.line(surf, self.ROAD_COLOR, start, end, int(thickness))
-            return
-
-        radius = thickness / 2
-
-        # draw road: first, draw two circles to serve as the terminal points of the line
-        draw.circle(surf, self.ROAD_COLOR, start, radius)
-        draw.circle(surf, self.ROAD_COLOR, end, radius)
-
-        # next, draw the dashes
-        segment_length = utils.magnitude(utils.tuple_sub(end, start))
-        segment_dir = utils.normalize(utils.tuple_sub(end, start))
-        segment_perp = (segment_dir[1], segment_dir[0] * -1)
-
-        dash_space_length = dash_length + dash_spacing
-        num_dashes = math.ceil(segment_length / (dash_space_length))
-        for i in range(num_dashes):
-            dash_start: Point = utils.tuple_add(start, utils.tmult(segment_dir, dash_space_length * i))
-            dash_end: Point = utils.tuple_add(dash_start, utils.tmult(segment_dir, dash_length))
-
-            # make sure we don't overshoot
-            if utils.magnitude(utils.tuple_sub(dash_end, start)) > segment_length:
-                dash_end = end
-
-            # generate the four points for the dash
-            a = utils.tuple_add(dash_start, utils.tmult(segment_perp, radius))
-            b = utils.tuple_sub(dash_start, utils.tmult(segment_perp, radius))
-            c = utils.tuple_add(dash_end, utils.tmult(segment_perp, radius))
-            d = utils.tuple_sub(dash_end, utils.tmult(segment_perp, radius))
-
-            gfxdraw.aapolygon(surf, (b, a, c, d), self.ROAD_COLOR)
-            gfxdraw.filled_polygon(surf, (b, a, c, d), self.ROAD_COLOR)
-
     def draw(self, surf: Surface, full_size: Tuple[int, int], cull_rect: Tuple[int, int, int, int]):
         if self.redraw:
             # this redraws the entire road system instead of just on a cull; this is important for caching
             road_surf: Surface = engine.create_surface(full_size, True)
-            unpacked_road = RoadSpriteWrapper.road_to_full_points_list(self.road.prefab)
+            unpacked_road = OverworldRoadSpriteWrapper.road_to_full_points_list(self.road.prefab)
             for i in range(len(unpacked_road)):
                 neighbors = []
                 if i != 0:
@@ -222,7 +171,7 @@ class OverworldRoadSprite():
             road_surf = image_mods.make_translucent(road_surf.convert_alpha(), progress)
 
         # because the road drawing uses caching, it's better to cull manually here
-        culled_road_surf = road_surf.subsurface(Rect(cull_rect))
+        culled_road_surf = engine.subsurface(road_surf, cull_rect)
         surf.blit(culled_road_surf, (0, 0))
         return surf
 

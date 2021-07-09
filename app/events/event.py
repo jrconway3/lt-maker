@@ -1807,7 +1807,7 @@ class Event():
             # we were in the overworld before this, so we should probably reset cursor and such
             from app.engine import level_cursor, map_view, movement
             game.cursor = level_cursor.LevelCursor(game)
-            game.movement =  movement.MovementManager()
+            game.movement = movement.MovementManager()
             game.map_view = map_view.MapView()
         game.set_up_game_board(game.level.tilemap)
 
@@ -2435,9 +2435,6 @@ class Event():
             overworld_nid = DB.overworlds.values()[0].nid
         from app.engine.overworld.overworld_states import OverworldState
         OverworldState.set_up_overworld_game_state(overworld_nid)
-
-    def end_overworld_cinematic(self, command):
-        game.generic()
 
     def set_overworld_position(self, command):
         values, flags = event_commands.parse(command)

@@ -7,9 +7,8 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 
 from app.constants import WINHEIGHT, WINWIDTH
 from app.engine import engine
+from app.engine.engine import Surface
 from app.utilities.typing import Color4
-
-from pygame import Surface
 
 from .premade_animations.animation_templates import toggle_anim
 from .ui_framework_animation import UIAnimation, animated

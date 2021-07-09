@@ -1,5 +1,5 @@
 from __future__ import annotations
-from app.engine.overworld.overworld_road_sprite import OverworldRoadSpriteWrapper
+from app.editor.overworld_editor.road_sprite_wrapper import RoadSpriteDrawMode, RoadSpriteWrapper
 
 import math
 from typing import Dict, TYPE_CHECKING
@@ -119,7 +119,7 @@ class OverworldRoadSprite():
 
     def __init__(self, road: RoadObject):
         self.road = road
-        self.road_sprite = OverworldRoadSpriteWrapper()
+        self.road_sprite = RoadSpriteWrapper(mode=RoadSpriteDrawMode.ENGINE)
 
         self.transition_state = 'normal' # for fading
 
@@ -200,7 +200,7 @@ class OverworldRoadSprite():
         if self.redraw:
             # this redraws the entire road system instead of just on a cull; this is important for caching
             road_surf: Surface = engine.create_surface(full_size, True)
-            unpacked_road = OverworldRoadSpriteWrapper.road_to_full_points_list(self.road.prefab)
+            unpacked_road = RoadSpriteWrapper.road_to_full_points_list(self.road.prefab)
             for i in range(len(unpacked_road)):
                 neighbors = []
                 if i != 0:

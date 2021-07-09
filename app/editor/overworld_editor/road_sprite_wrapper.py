@@ -1,14 +1,24 @@
-import logging
-from app.constants import TILEHEIGHT, TILEWIDTH
-from typing import List
-from pygame import Surface
-from app.sprites import SPRITES
-from app.engine import engine
-from app.utilities.typing import Point
-from app.utilities.enums import Direction
-from app.utilities.utils import dot_product, tuple_sub, tmult, tuple_add
+from __future__ import annotations
 
-class OverworldRoadSpriteWrapper():
+import logging
+from enum import Enum
+from typing import List
+
+from app.constants import TILEHEIGHT, TILEWIDTH
+from app.engine import engine
+from app.sprites import SPRITES
+from app.utilities.enums import Direction
+from app.utilities.typing import Point
+from app.utilities.utils import dot_product, tmult, tuple_add, tuple_sub
+from pygame import Surface
+from PyQt5.QtGui import QImage, QPainter, QPixmap, QTransform
+
+
+class RoadSpriteDrawMode(Enum):
+    EDITOR = 0
+    ENGINE = 1
+
+class RoadSpriteWrapper():
     """Not a real class, just factoring out some sprite-specific logic.
     If you don't have `overworld_routes.png` open as you're reading this code,
     it will make 0 sense.
@@ -19,17 +29,23 @@ class OverworldRoadSpriteWrapper():
     # since those seem like a pain, so I'm leaving them as a future todo
     SPRITESHEET_DIMENSIONS = (64, 8)
 
-    def __init__(self):
+    def __init__(self, mode=RoadSpriteDrawMode.EDITOR):
+        self.mode: RoadSpriteDrawMode = mode
         road_sprite = SPRITES['overworld_routes']
         self.sprite_dict = {}
         if road_sprite:
+            if not road_sprite.pixmap:
+                road_sprite.pixmap = QPixmap(road_sprite.full_path)
             if not road_sprite.image:
                 road_sprite.image = engine.image_load(road_sprite.full_path)
         self.road_sprite = road_sprite
         if self.road_sprite:
-            self.subsprites: List[Surface] = []
+            self.subsprites: List[Surface | QImage] = []
             for x in range(0, self.SPRITESHEET_DIMENSIONS[0], self.SPRITE_DIMENSIONS[0]):
-                self.subsprites.append(engine.subsurface(road_sprite.image, (x, 0, 8, 8)))
+                if self.mode == RoadSpriteDrawMode.EDITOR:
+                    self.subsprites.append(road_sprite.pixmap.toImage().copy(x, 0, 8, 8))
+                else:
+                    self.subsprites.append(engine.subsurface(road_sprite.image, (x, 0, 8, 8)))
             self.htop = self.subsprites[1]
             self.hbot = self.subsprites[2]
             self.vleft = self.subsprites[3]
@@ -40,6 +56,22 @@ class OverworldRoadSpriteWrapper():
 
     def has_image(self) -> bool:
         return self.road_sprite is not None
+
+    def rotate(self, sprite : QImage | Surface, angle: float) -> QImage | Surface:
+        if isinstance(sprite, QImage):
+            return sprite.transformed(QTransform().rotate(angle))
+        elif isinstance(sprite, Surface):
+            return engine.transform_rotate(sprite, 90)
+
+    def draw(self, pos: Point, sprite: QImage | Surface, draw_engine: QPainter | Surface):
+        if self.mode == RoadSpriteDrawMode.EDITOR:
+            painter: QPainter = draw_engine
+            sprite: QImage = sprite
+            painter.drawImage(*pos, sprite)
+        else:
+            surf: Surface = draw_engine
+            sprite: Surface = sprite
+            surf.blit(sprite, pos)
 
     @classmethod
     def road_to_full_points_list(cls, road: List[Point]) -> List[Point]:
@@ -69,7 +101,7 @@ class OverworldRoadSpriteWrapper():
         unpacked.append(road[-1])
         return unpacked
 
-    def _draw_straight(self, surf: Surface, tile_pos: Point, direction: Direction):
+    def _draw_straight(self, draw_engine: QPainter, tile_pos: Point, direction: Direction):
         left, top = tile_pos[0] * TILEWIDTH, tile_pos[1] * TILEHEIGHT
         off_x, off_y = TILEWIDTH / 2, TILEHEIGHT / 2
         # quadrants oriented like cartesian plane
@@ -79,19 +111,19 @@ class OverworldRoadSpriteWrapper():
         q4 = (left + off_x, top + off_y)
 
         if direction == Direction.UP:
-            surf.blit(self.vleft, q2)
-            surf.blit(self.vright, q1)
+            self.draw(q2, self.vleft, draw_engine)
+            self.draw(q1, self.vright, draw_engine)
         elif direction == Direction.DOWN:
-            surf.blit(self.vleft, q3)
-            surf.blit(self.vright, q4)
+            self.draw(q3, self.vleft, draw_engine)
+            self.draw(q4, self.vright, draw_engine)
         elif direction == Direction.LEFT:
-            surf.blit(self.htop, q2)
-            surf.blit(self.hbot, q3)
+            self.draw(q2, self.htop, draw_engine)
+            self.draw(q3, self.hbot, draw_engine)
         elif direction == Direction.RIGHT:
-            surf.blit(self.htop, q1)
-            surf.blit(self.hbot, q4)
+            self.draw(q1, self.htop, draw_engine)
+            self.draw(q4, self.hbot, draw_engine)
 
-    def _draw_diagonal(self, surf: Surface, tile_pos: Point, direction: Direction, is_vertical_right_angle: bool=False):
+    def _draw_diagonal(self, draw_engine: QPainter, tile_pos: Point, direction: Direction, is_vertical_right_angle: bool=False):
         # shorthand
         left, top = tile_pos[0] * TILEWIDTH, tile_pos[1] * TILEHEIGHT
         off_x, off_y = TILEWIDTH / 2, TILEHEIGHT / 2
@@ -107,38 +139,38 @@ class OverworldRoadSpriteWrapper():
             sprite = self.diag_main
         elif direction == Direction.UP_RIGHT:
             quadrant = q1
-            sprite = engine.transform_rotate(self.diag_main, 90)
+            sprite = self.rotate(self.diag_main, 90)
         elif direction == Direction.DOWN_LEFT:
             quadrant = q3
-            sprite = engine.transform_rotate(self.diag_main, 90)
+            sprite = self.rotate(self.diag_main, 90)
         elif direction == Direction.DOWN_RIGHT:
             quadrant = q4
             sprite = self.diag_main
 
-        surf.blit(sprite, quadrant)
+        self.draw(quadrant, sprite, draw_engine)
         x, y = quadrant
         if is_vertical_right_angle:
             if quadrant == q1:
-                surf.blit(engine.transform_rotate(self.diag_corner, 270), (x, y - off_y))
-                surf.blit(engine.transform_rotate(self.diag_corner, 270))
+                self.draw((x, y - off_y), self.rotate(self.diag_corner, 270), draw_engine)
+                self.draw((x - off_x, y), self.rotate(self.diag_corner, 270), draw_engine)
             elif quadrant == q2:
-                surf.blit(engine.transform_rotate(self.diag_corner, 0), (x, y - off_y))
-                surf.blit(engine.transform_rotate(self.diag_corner, 0), (x + off_x, y))
+                self.draw((x, y - off_y), self.rotate(self.diag_corner, 0), draw_engine)
+                self.draw((x + off_x, y), self.rotate(self.diag_corner, 0), draw_engine)
             elif quadrant == q3:
-                surf.blit(engine.transform_rotate(self.diag_corner, 90), (x, y + off_y))
-                surf.blit(engine.transform_rotate(self.diag_corner, 90), (x + off_x, y))
+                self.draw((x, y + off_y), self.rotate(self.diag_corner, 90), draw_engine)
+                self.draw((x + off_x, y), self.rotate(self.diag_corner, 90), draw_engine)
             elif quadrant == q4:
-                surf.blit(engine.transform_rotate(self.diag_corner, 180), (x, y + off_y))
-                surf.blit(engine.transform_rotate(self.diag_corner, 180), (x - off_x, y))
+                self.draw((x, y + off_y), self.rotate(self.diag_corner, 180), draw_engine)
+                self.draw((x - off_x, y), self.rotate(self.diag_corner, 180), draw_engine)
         else:
             if quadrant in [q1, q3]:
-                surf.blit(engine.transform_rotate(self.diag_corner, 270), (x, y - off_y))
-                surf.blit(engine.transform_rotate(self.diag_corner, 90), (x, y + off_y))
+                self.draw((x, y - off_y), self.rotate(self.diag_corner, 270), draw_engine)
+                self.draw((x, y + off_y), self.rotate(self.diag_corner, 90), draw_engine)
             else:
-                surf.blit(engine.transform_rotate(self.diag_corner, 0), (x, y - off_y))
-                surf.blit(engine.transform_rotate(self.diag_corner, 180), (x, y + off_y))
+                self.draw((x, y - off_y), self.rotate(self.diag_corner, 0), draw_engine)
+                self.draw((x, y + off_y), self.rotate(self.diag_corner, 180), draw_engine)
 
-    def _draw_turn(self, surf: Surface, tile_pos: Point, directions: List[Direction]):
+    def _draw_turn(self, draw_engine: QPainter | Surface, tile_pos: Point, directions: List[Direction]):
         # shorthand
         left, top = tile_pos[0] * TILEWIDTH, tile_pos[1] * TILEHEIGHT
         off_x, off_y = TILEWIDTH / 2, TILEHEIGHT / 2
@@ -150,24 +182,24 @@ class OverworldRoadSpriteWrapper():
 
         if Direction.UP in directions:
             if Direction.LEFT in directions: # up left
-                surf.blit(engine.transform_rotate(self.right_angle, 90), q2)
-                surf.blit(self.hbot, q3)
-                surf.blit(self.vright, q1)
+                self.draw(q2, self.rotate(self.right_angle, 90), draw_engine)
+                self.draw(q3, self.hbot, draw_engine)
+                self.draw(q1, self.vright, draw_engine)
             else: # up right
-                surf.blit(engine.transform_rotate(self.right_angle, 180), q1)
-                surf.blit(self.vleft, q2)
-                surf.blit(self.hbot, q4)
+                self.draw(q1, self.rotate(self.right_angle, 180), draw_engine)
+                self.draw(q2, self.vleft, draw_engine)
+                self.draw(q4, self.hbot, draw_engine)
         else:
             if Direction.LEFT in directions: # down left
-                surf.blit(engine.transform_rotate(self.right_angle), q3)
-                surf.blit(self.htop, q2)
-                surf.blit(self.vright, q4)
+                self.draw(q3, self.right_angle, draw_engine)
+                self.draw(q2, self.htop, draw_engine)
+                self.draw(q4, self.vright, draw_engine)
             else: # down right
-                surf.blit(engine.transform_rotate(self.right_angle, 270), q4)
-                surf.blit(self.htop, q1)
-                surf.blit(self.vleft, q3)
+                self.draw(q4, self.rotate(self.right_angle, 270), draw_engine)
+                self.draw(q1, self.htop, draw_engine)
+                self.draw(q3, self.vleft, draw_engine)
 
-    def draw_tile(self, surf: Surface, tile_pos: Point, neighbor_points: List[Point]):
+    def draw_tile(self, draw_engine: QPainter | Surface, tile_pos: Point, neighbor_points: List[Point]):
         """I apologize to anyone who has to read this code."""
         """Note: `neighbor_points` can be very far away, they are just used to establish angle"""
         if not self.has_image():
@@ -183,8 +215,7 @@ class OverworldRoadSpriteWrapper():
             is_perpendicular = dot_product(vec_a, vec_b) == 0
             if is_perpendicular and (0 in vec_a or 0 in vec_b): # right angle, draw corner
                 direcs = [Direction.parse_map_direction(v[0], v[1]) for v in [vec_a, vec_b]]
-                print(direcs)
-                self._draw_turn(surf, tile_pos, direcs)
+                self._draw_turn(draw_engine, tile_pos, direcs)
                 return
             elif is_perpendicular and not (0 in vec_a or 0 in vec_b): # right angle but diagonal
                 if Direction.which_vertical_dir(Direction.parse_map_direction(*vec_a)) != Direction.which_vertical_dir(Direction.parse_map_direction(*vec_b)):
@@ -193,6 +224,6 @@ class OverworldRoadSpriteWrapper():
         for point in neighbor_points:
             direc = Direction.parse_map_direction(*tuple_sub(point, tile_pos))
             if direc in [Direction.UP, Direction.DOWN, Direction.RIGHT, Direction.LEFT]:
-                self._draw_straight(surf, tile_pos, direc)
+                self._draw_straight(draw_engine, tile_pos, direc)
             else: # diagonal
-                self._draw_diagonal(surf, tile_pos, direc, is_diagonal_vertical_right_angle)
+                self._draw_diagonal(draw_engine, tile_pos, direc, is_diagonal_vertical_right_angle)

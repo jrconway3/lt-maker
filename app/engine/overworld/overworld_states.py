@@ -43,7 +43,6 @@ class OverworldState(MapState):
         if game.game_vars.get('_next_level_nid'):
             next_level_node_nid = game.overworld_controller.node_by_level(game.game_vars.get('_next_level_nid')).nid
             game.overworld_controller.set_node_property(next_level_node_nid, OverworldNodeProperty.IS_NEXT_LEVEL, True)
-        game.set_up_game_board(game.tilemap)
 
     def start(self):
         OverworldState.set_up_overworld_game_state()

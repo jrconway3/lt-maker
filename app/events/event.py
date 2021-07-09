@@ -349,6 +349,8 @@ class Event():
         self.hurry_up()
         self.text_boxes.clear()
         self.should_remain_blocked.clear()
+        while self.should_update:
+            self.should_update = [to_update for to_update in self.should_update if not to_update()]
 
     def hurry_up(self):
         if self.text_boxes:
@@ -1781,6 +1783,13 @@ class Event():
             return
 
         reload_map = 'reload' in flags
+        if reload_map and game.is_displaying_overworld(): # just go back to the level
+            from app.engine import level_cursor, map_view, movement
+            game.cursor = level_cursor.LevelCursor(game)
+            game.movement =  movement.MovementManager()
+            game.map_view = map_view.MapView()
+            return
+
         if len(values) > 1 and values[1]:
             position_offset = tuple(str_utils.intify(values[1]))
         else:
@@ -1803,7 +1812,7 @@ class Event():
 
         tilemap = TileMapObject.from_prefab(tilemap_prefab)
         game.level.tilemap = tilemap
-        if isinstance(game.map_view, OverworldMapView):
+        if game.is_displaying_overworld():
             # we were in the overworld before this, so we should probably reset cursor and such
             from app.engine import level_cursor, map_view, movement
             game.cursor = level_cursor.LevelCursor(game)

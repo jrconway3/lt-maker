@@ -8,8 +8,6 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 from app.constants import WINHEIGHT, WINWIDTH
 from app.engine import engine
 from app.utilities.typing import Color4
-from PIL import Image
-from PIL.Image import LANCZOS, new
 
 from pygame import Surface
 
@@ -698,9 +696,7 @@ class UIComponent():
 
     def _create_bg_surf(self) -> Surface:
         """Generates the background surf for this component of identical dimension
-        as the component itself. If the background image isn't the same size as the component,
-        and we want to rescale, then we will use PIL to rescale. Because rescaling is expensive,
-        we'll be making use of limited caching here.
+        as the component itself.
 
         Returns:
             Surface: A surface of size self.width x self.height, containing a scaled background image.
@@ -711,16 +707,9 @@ class UIComponent():
             return surf
         else:
             if not self.cached_background or not self.cached_background.get_size() == self.tsize:
-                if self.props.bg_resize_mode == ResizeMode.AUTO:
-                    bg_raw = engine.surf_to_raw(self.props.bg, 'RGBA')
-                    pil_bg = Image.frombytes('RGBA', self.props.bg.get_size(), bg_raw, 'raw')
-                    pil_bg = pil_bg.resize(self.tsize, resample=LANCZOS)
-                    bg_scaled = engine.raw_to_surf(pil_bg.tobytes('raw', 'RGBA'), self.tsize, 'RGBA')
-                    self.cached_background = bg_scaled
-                else:
-                    base = engine.create_surface(self.tsize, True)
-                    base.blit(self.props.bg, (0, 0))
-                    self.cached_background = base
+                base = engine.create_surface(self.tsize, True)
+                base.blit(self.props.bg, (0, 0))
+                self.cached_background = base
             return self.cached_background
 
     def to_surf(self) -> Surface:

@@ -1776,11 +1776,7 @@ class Event():
         Cannot be turnwheeled
         """
         values, flags = event_commands.parse(command)
-        tilemap_nid = values[0]
-        tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
-        if not tilemap_prefab:
-            logging.error("Couldn't find tilemap %s" % tilemap_nid)
-            return
+
 
         reload_map = 'reload' in flags
         if reload_map and game.is_displaying_overworld(): # just go back to the level
@@ -1788,6 +1784,14 @@ class Event():
             game.cursor = level_cursor.LevelCursor(game)
             game.movement =  movement.MovementManager()
             game.map_view = map_view.MapView()
+            return
+
+        if not len(values) > 0:
+            return
+        tilemap_nid = values[0]
+        tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
+        if not tilemap_prefab:
+            logging.error("Couldn't find tilemap %s" % tilemap_nid)
             return
 
         if len(values) > 1 and values[1]:

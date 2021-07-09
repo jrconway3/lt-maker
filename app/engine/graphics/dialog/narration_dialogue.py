@@ -101,7 +101,7 @@ class NarrationDialogue(uif.UIComponent):
             # write the next part of the current line
             self.text.queue_animation(names=['play_text'])
 
-    def push_text(self, narrator:str , text: str):
+    def push_text(self, narrator: str, text: str):
         self.acknowledged = False
         self.text.should_display_waiting_cursor = True
         if not self.done_writing_current_text():

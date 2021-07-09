@@ -194,7 +194,7 @@ class Event():
                     break
                 else:
                     # resume execution and clear blockers
-                    self.should_remain_blocked = []
+                    self.should_remain_blocked.clear()
                     self.state = 'processing'
 
         # Handle transition
@@ -2516,7 +2516,7 @@ class Event():
         follow = 'no_follow' not in flags
         block = 'no_block' not in flags
 
-        if len(values) > 2:
+        if len(values) > 2 and values[2]:
             speed_adj = int(values[2])
         else:
             speed_adj = 5
@@ -2539,6 +2539,7 @@ class Event():
                     movement = OverworldMove(entity.nid, selected_node.nid, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj)
                     movement.queue(self.overworld_movement_manager)
                     game.camera.do_slow_pan(1000)
+
                     def update_movement():
                         # make sure the camera is centered first
                         if not game.camera.at_rest():
@@ -2553,6 +2554,7 @@ class Event():
                         if len(self.overworld_movement_manager) <= 0:
                             return True
                         return False
+
                     self.should_update.append(update_movement)
 
     def toggle_narration(self, command):
@@ -2637,7 +2639,6 @@ class Event():
         unit = self.get_unit(values[0])
         offset = int(values[1])
         action.do(action.MoveInInitiative(unit, offset))
-
 
     def parse_pos(self, text):
         position = None

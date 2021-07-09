@@ -57,7 +57,7 @@ class OverworldNodeSprite():
 
     def load_sprites(self):
         if not self.map_icon.image:
-          self.map_icon.image = engine.image_load(self.map_icon.full_path)
+            self.map_icon.image = engine.image_load(self.map_icon.full_path)
 
     def set_transition(self, new_state):
         self.transition_state = new_state
@@ -180,21 +180,21 @@ class OverworldRoadSprite():
         dash_space_length = dash_length + dash_spacing
         num_dashes = math.ceil(segment_length / (dash_space_length))
         for i in range(num_dashes):
-          dash_start: Point = utils.tuple_add(start, utils.tmult(segment_dir, dash_space_length * i))
-          dash_end: Point =  utils.tuple_add(dash_start, utils.tmult(segment_dir, dash_length))
+            dash_start: Point = utils.tuple_add(start, utils.tmult(segment_dir, dash_space_length * i))
+            dash_end: Point = utils.tuple_add(dash_start, utils.tmult(segment_dir, dash_length))
 
-          # make sure we don't overshoot
-          if utils.magnitude(utils.tuple_sub(dash_end, start)) > segment_length:
-            dash_end = end
+            # make sure we don't overshoot
+            if utils.magnitude(utils.tuple_sub(dash_end, start)) > segment_length:
+                dash_end = end
 
-          # generate the four points for the dash
-          a = utils.tuple_add(dash_start, utils.tmult(segment_perp, radius))
-          b = utils.tuple_sub(dash_start, utils.tmult(segment_perp, radius))
-          c = utils.tuple_add(dash_end, utils.tmult(segment_perp, radius))
-          d = utils.tuple_sub(dash_end, utils.tmult(segment_perp, radius))
+            # generate the four points for the dash
+            a = utils.tuple_add(dash_start, utils.tmult(segment_perp, radius))
+            b = utils.tuple_sub(dash_start, utils.tmult(segment_perp, radius))
+            c = utils.tuple_add(dash_end, utils.tmult(segment_perp, radius))
+            d = utils.tuple_sub(dash_end, utils.tmult(segment_perp, radius))
 
-          gfxdraw.aapolygon(surf, (b, a, c, d), self.ROAD_COLOR)
-          gfxdraw.filled_polygon(surf, (b, a, c, d), self.ROAD_COLOR)
+            gfxdraw.aapolygon(surf, (b, a, c, d), self.ROAD_COLOR)
+            gfxdraw.filled_polygon(surf, (b, a, c, d), self.ROAD_COLOR)
 
     def draw(self, surf: Surface, full_size: Tuple[int, int], cull_rect: Tuple[int, int, int, int]):
         if self.redraw:

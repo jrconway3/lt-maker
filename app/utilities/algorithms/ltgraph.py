@@ -118,7 +118,7 @@ class LTGraph(Generic[V, D, E]):
             self._path_dict[v2] = {}
 
         # and run djikstra from v1 to v2
-        visited : Dict[V, float] = {}
+        visited: Dict[V, float] = {}
         prev_step: Dict[V, V] = {}
         dist_from_v1 = {vert_id: math.inf for vert_id in self.vertices.keys()}
         dist_from_v1[v1] = 0
@@ -158,14 +158,13 @@ class LTGraph(Generic[V, D, E]):
 
     def clear_cache(self):
         # usually we want to regenerate all paths after adding nodes
-        self._path_dict = {}
+        self._path_dict.clear()
 
     def __getitem__(self, value: V) -> LTVertex[V, D, E]:
         return self.vertices[value]
 
-    def __setitem__(self, index: V,  vertex: LTVertex[V, D, E]):
+    def __setitem__(self, index: V, vertex: LTVertex[V, D, E]):
         self.vertices[index] = vertex
 
     def __repr__(self):
         return repr(self.vertices)
-

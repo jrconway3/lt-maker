@@ -1,9 +1,9 @@
 import logging
 from app.constants import TILEHEIGHT, TILEWIDTH
 from typing import List
-from pygame import Surface
 from app.sprites import SPRITES
 from app.engine import engine
+from app.engine.engine import Surface
 from app.utilities.typing import Point
 from app.utilities.enums import Direction
 from app.utilities.utils import dot_product, tuple_sub, tmult, tuple_add

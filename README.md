@@ -1,4 +1,4 @@
-![Logo](/utilities/screenshots/logo_final_512x512.png)
+![Logo](/utilities/readme/logo_final_512x512.png)
 
 Lex Talionis is a game engine and editor for creating your own custom Fire Emblem fangame. If you've wanted to make your own Fire Emblem fangame but were fed up with the hackery that's required to master ROM-hacking, or you just want to work with total control over the code itself, Lex Talionis is for you.
 

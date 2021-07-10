@@ -53,6 +53,8 @@ class UnitPrefab(Prefab):
     def save_attr(self, name, value):
         if name in ('bases', 'growths'):
             return value.copy()  # So we don't make a copy
+        elif name == 'learned_skills':
+            return [val.copy() for val in value]  # So we don't make a copy
         elif name == 'wexp_gain':
             return {k: v.save() for (k, v) in self.wexp_gain.items()}
         else:

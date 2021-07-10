@@ -28,24 +28,3 @@ Get rid of on_add and on_remove in skill_system
 # Release
 README
 Build into Executable guide -> Make sure Pyinstaller is installed
-
-Tutorial:
-    Getting Started
-        Editor
-        These are the main components
-            Databases
-            Resources
-            Events
-            Level Tabs
-            Testing the game
-        Save the game as a new project
-        Here's where you can find help
-            Wiki
-            Discord
-    Breakable Walls
-    Title Screen
-    Summoning
-
-    Writing your own components
-    Item System Hooks
-    Skill System Hooks

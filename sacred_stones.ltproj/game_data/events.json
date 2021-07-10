@@ -6876,6 +6876,10 @@
                 ]
             ],
             [
+                "battle_save",
+                []
+            ],
+            [
                 "add_lore",
                 [
                     "Eirika"

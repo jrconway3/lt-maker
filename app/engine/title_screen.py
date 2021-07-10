@@ -10,7 +10,7 @@ from app.engine.fonts import FONT
 from app.engine.state import State
 from app.engine.background import PanoramaBackground
 from app.engine import engine, save, image_mods, banner, \
-    menus, particles, base_surf, dialog, text_funcs
+    menus, particles, base_surf, dialog, text_funcs, gui
 from app.engine import config as cf
 from app import autoupdate
 from app.engine.fluid_scroll import FluidScroll
@@ -31,6 +31,11 @@ class TitleStartState(State):
         imgs = RESOURCES.panoramas.get('title_background')
         self.bg = PanoramaBackground(imgs) if imgs else None
         game.memory['title_bg'] = self.bg
+        press_start_sprite = SPRITES.get('press_start')
+        if press_start_sprite:
+            self.press_start = gui.Logo(press_start_sprite, (WINWIDTH//2, 4*WINHEIGHT//5))
+        else:
+            self.press_start = None
 
         self.particles = None
         if DB.constants.value('title_particles'):
@@ -65,7 +70,11 @@ class TitleStartState(State):
             self.particles.update()
             self.particles.draw(surf)
         if self.logo:
-            engine.blit_center(surf, self.logo)
+            engine.blit(surf, self.logo, (WINWIDTH//2 - self.logo.get_width()//2, WINHEIGHT//2 - self.logo.get_height()//2 - 20))
+        if self.press_start:
+            self.press_start.update()
+            self.press_start.draw(surf)
+        FONT['text-white'].blit(text_funcs.translate('_attribution'), surf, (4, WINHEIGHT - 16))
         return surf
 
 class TitleMainState(State):

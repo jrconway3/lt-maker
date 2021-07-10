@@ -52,12 +52,15 @@ class LevelCursor(BaseCursor):
         self.draw_state = 1
 
     def combat_show(self):
+        super().show()
         self.draw_state = 2
 
     def set_turnwheel_sprite(self):
+        super().show()
         self.draw_state = 3
 
     def formation_show(self):
+        super().show()
         self.draw_state = 4
 
     def set_speed_state(self, val: bool):

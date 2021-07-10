@@ -214,10 +214,12 @@ class GlobalModeLevelMapView(SimpleMapView):
     def draw_node(self, painter, node, position, opacity=False):
         icon_nid = node.icon
         icon = RESOURCES.map_icons.get(icon_nid)
+        if not icon:
+            return
         coord = position
         pixmap = icon.get_pixmap()
         # to support 16x16, 32x32, and 48x48 map icons, we offset them differently
-        offset = ( pixmap.height() / 16 - 1 ) * 8
+        offset = (pixmap.height() / 16 - 1) * 8
         if pixmap:
             if opacity:
                 painter.setOpacity(0.33)

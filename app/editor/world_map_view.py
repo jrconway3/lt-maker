@@ -70,6 +70,8 @@ class WorldMapView(SimpleMapView):
     def draw_node(self, painter, node, position, opacity=False):
         icon_nid = node.icon
         icon = RESOURCES.map_icons.get(icon_nid)
+        if not icon:
+            return
         coord = position
         pixmap = icon.get_pixmap()
         pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
@@ -117,6 +119,8 @@ class WorldMapView(SimpleMapView):
             painter.begin(self.working_image)
             for node in current_level.overworld_nodes:
                 if not node.pos:
+                    continue
+                if not node.icon:
                     continue
                 self.draw_node(painter, node, node.pos)
             painter.end()

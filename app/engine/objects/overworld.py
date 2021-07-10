@@ -231,10 +231,13 @@ class OverworldObject():
     @classmethod
     def from_prefab(cls, prefab: OverworldPrefab, party_registry: Dict[NID, PartyObject], unit_registry: Dict[NID, UnitObject]):
         overworld = cls()
-        overworld.tilemap = TileMapObject.from_prefab(prefab.get_tilemap_resource())
+        tilemap_prefab = prefab.get_tilemap_resource()
+        if tilemap_prefab:
+            overworld.tilemap = TileMapObject.from_prefab(tilemap_prefab)
         overworld.prefab = prefab
         for pnid, party in party_registry.items():
-            overworld.overworld_entities[pnid] = OverworldEntityObject.from_prefab(None, party, unit_registry)
+            overworld_party = OverworldEntityObject.from_prefab(None, party, unit_registry)
+            overworld.overworld_entities[pnid] = overworld_party
         return overworld
 
     def save(self):

@@ -2,15 +2,15 @@
 
 Lex Talionis is a game engine and editor for creating your own custom Fire Emblem fangame. If you've wanted to make your own Fire Emblem fangame but were fed up with the hackery that's required to master ROM-hacking, or you just want to work with total control over the code itself, Lex Talionis is for you.
 
-![TitleScreen](/utilities/screenshots/title_screen.png)
-![AOE](/utilities/screenshots/aoe.gif)
-![ActivatedSkill](/utilities/screenshots/activated_skill.gif)
-![Turnwheel](/utilities/screenshots/turnwheel.gif)
-![Conversation](/utilities/screenshots/conversation.png) 
-![EnemyRange](/utilities/screenshots/enemy_range.png) 
-![MultiPromotion](/utilities/screenshots/multi_promotion.png)
-![Aura](/utilities/screenshots/aura.png)
-![Base](/utilities/screenshots/base.png)
+![TitleScreen](/utilities/readme/title_screen.png)
+![AOE](/utilities/readme/aoe.gif)
+![ActivatedSkill](/utilities/readme/activated_skill.gif)
+![Turnwheel](/utilities/readme/turnwheel.gif)
+![Conversation](/utilities/readme/conversation.png) 
+![EnemyRange](/utilities/readme/enemy_range.png) 
+![MultiPromotion](/utilities/readme/multi_promotion.png)
+![Aura](/utilities/readme/aura.png)
+![Base](/utilities/readme/base.png)
 
 Lex Talionis was originally released without a dedicated graphical editor, which meant all game creation was done through modification of text files and xml files. But no longer!
 
@@ -18,7 +18,7 @@ LT-maker is the easy-to-use but powerful editor built on top of the Lex Talionis
 
 ## Getting Started
 
-![EditorScreenshot](utilities/screenshots/editor_screenshot.png)
+![EditorScreenshot](utilities/readme/editor_screenshot.png)
 
 LT-maker includes two sample projects. The default project contains the first six chapters of the Sacred Stones. You should modify this project to build your own game. LT-maker also includes the Lion Throne, which is an original fangame created during development of the legacy Lex Talionis engine. It has been recreated in LT-maker and should be used freely as reference.
 

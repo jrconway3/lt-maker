@@ -865,7 +865,7 @@ class MergeParties(EventCommand):
     nid = 'merge_parties'
     tag = Tags.MISCELLANEOUS
     # Merges the second party onto the first party
-    # The second will still exist, but will have no money, bexp, 
+    # The second will still exist, but will have no money, bexp,
     # items in convoy, or units associated with it
     # The first will gain all of those properties
 
@@ -1090,7 +1090,19 @@ def restore_command(dat):
         display_values = values
     return Comment([nid + ';' + str.join(';', display_values)])
 
-def parse_text(text):
+def parse_text(text: str, strict=False) -> EventCommand:
+    """parses a line into a command
+
+    Args:
+        text (str): text to be parsed
+        strict (bool, optional): whether invalid command should be parsed as comments, or None.
+        This defaults to false; usually, invalid commands are caused by engine version mismatch,
+        and parsing them as None will erase the user's hard work. Parsing them as comments allows them to be
+        preserved harmlessly. However, in certain cases - such as event validation - strict will be useful.
+
+    Returns:
+        EventCommand: parsed command
+    """
     if text.startswith('#'):
         return Comment([text])
     arguments = text.split(';')
@@ -1116,7 +1128,10 @@ def parse_text(text):
                     true_cmd_args.append(arg)
             copy = command(true_cmd_args, cmd_args)
             return copy
-    return Comment([text])
+    if strict:
+        return None
+    else:
+        return Comment([text])
 
 def parse(command):
     values = command.values

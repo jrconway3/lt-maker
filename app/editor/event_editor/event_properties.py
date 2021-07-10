@@ -140,7 +140,7 @@ class Highlighter(QSyntaxHighlighter):
 
     def validate_line(self, line) -> list:
         try:
-            command = event_commands.parse_text(line)
+            command = event_commands.parse_text(line, strict=True)
             if command:
                 true_values, flags = event_commands.parse(command)
                 broken_args = []

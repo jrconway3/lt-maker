@@ -86,7 +86,7 @@ class NarrationDialogue(uif.UIComponent):
         def play_sound(c: uif.DialogTextComponent, anim_time, delta_time):
             play_sound.time_since_last_sound += delta_time
             if cf.SETTINGS['talk_boop'] and play_sound.time_since_last_sound > 32:
-                self.time_since_last_sound = 0
+                play_sound.time_since_last_sound = 0
                 SOUNDTHREAD.play_sfx('Talk_Boop')
                 
         play_sound.time_since_last_sound = 0

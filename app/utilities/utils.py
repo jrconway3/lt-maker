@@ -201,6 +201,21 @@ def raytrace(pos1: tuple, pos2: tuple) -> list:
             error += dx
         n -= 1
     return tiles
+    
+def get_positions_in_area(c_pos, rng=0) -> list:
+    #This method returns a list of positions within an aoe of size rng, centered at position c_pos
+    if rng == 0:
+        return [c_pos]
+    else:
+        _range = range
+        pos = set()
+        for r in _range(1, rng+1):
+            for x in _range(-r, r+1):
+                pos_x = x if x >= 0 else -x
+                for y in [(r - pos_x), -(r - pos_x)]:
+                    pos.add((c_pos[0] + x, c_pos[1] + y))
+        pos.add(c_pos)
+        return pos
 
 # Testing
 if __name__ == '__main__':

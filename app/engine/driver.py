@@ -12,6 +12,10 @@ def start(title, from_editor=False):
     engine.init()
     icon = engine.image_load('favicon.ico')
     engine.set_icon(icon)
+
+    from app.engine import sprites
+    sprites.load_images()
+
     # Hack to get icon to show up in windows
     try:
         import ctypes
@@ -45,9 +49,6 @@ def save_screenshot(raw_events: list, surf):
 def run(game):
     from app.engine.sound import SOUNDTHREAD
     from app.engine.input_manager import INPUT
-    from app.engine import sprites
-
-    sprites.load_images()
     
     SOUNDTHREAD.reset()
     SOUNDTHREAD.set_music_volume(cf.SETTINGS['music_volume'])
@@ -85,9 +86,6 @@ def run(game):
 def run_combat(mock_combat):
     from app.engine.sound import SOUNDTHREAD
     from app.engine.input_manager import INPUT
-    from app.engine import sprites
-
-    sprites.load_images()
     
     SOUNDTHREAD.reset()
     SOUNDTHREAD.set_music_volume(cf.SETTINGS['music_volume'])

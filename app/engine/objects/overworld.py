@@ -256,12 +256,12 @@ class OverworldObject():
         return s_dict
 
     @classmethod
-    def restore(cls, s_dict, game: GameState) -> OverworldObject:
+    def restore(cls, s_dict: Dict, game: GameState) -> OverworldObject:
         overworld = OverworldObject.from_prefab(DB.overworlds.get(s_dict['prefab_nid']), game.parties, game.unit_registry)
         overworld.tilemap = TileMapObject.restore(s_dict['tilemap'])
         overworld.enabled_nodes = set(s_dict['enabled_nodes'])
         overworld.enabled_roads = set(s_dict['enabled_roads'])
-        overworld.node_properties = s_dict['node_properties']
+        overworld.node_properties = s_dict.get('node_properties', {})
 
         for entity in s_dict['overworld_entities']:
             entity_obj = OverworldEntityObject.restore(entity, game)

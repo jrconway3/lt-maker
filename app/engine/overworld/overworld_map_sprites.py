@@ -310,7 +310,6 @@ class OverworldUnitSprite():
         self.update_transition()
 
     def update_state(self):
-        current_time = engine.get_time()
         if self.state == 'normal':
             self.offset = [0, 0]
             if self.hovered:

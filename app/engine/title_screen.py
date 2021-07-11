@@ -518,14 +518,19 @@ class TitleRestartState(TitleLoadState):
         elif event == 'SELECT':
             selection = self.menu.current_index
             save_slot = save.RESTART_SLOTS[selection]
+            save_slot_main = save.SAVE_SLOTS[selection]
             if save_slot.kind:
                 SOUNDTHREAD.play_sfx('Save')
                 logging.info("Loading game...")
                 game.build_new()
-                save.load_game(game, save_slot)
                 # Restart level
-                next_level_nid = game.game_vars['_next_level_nid']
-                game.start_level(next_level_nid)
+                if save_slot_main.kind == 'overworld':
+                    save.load_game(game, save_slot_main)
+                    game.load_states(['overworld'])
+                else:
+                    save.load_game(game, save_slot)
+                    next_level_nid = game.game_vars['_next_level_nid']
+                    game.start_level(next_level_nid)
                 game.memory['transition_from'] = 'Restart Level'
                 game.memory['title_menu'] = self.menu
                 game.state.change('title_wait')

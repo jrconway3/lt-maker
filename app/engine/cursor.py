@@ -175,7 +175,7 @@ class BaseCursor():
                 else:
                     self.camera.cursor_x(self.position[0])
                     self.camera.cursor_y(self.position[1])
-            self.move(dx, dy, mouse=from_mouse, sound=bool(mouse_position))
+            self.move(dx, dy, mouse=from_mouse, sound=True)
 
     def update(self):
         # update offset for movement

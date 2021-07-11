@@ -24,6 +24,7 @@ from app.engine.unit_sound import UnitSound
 from app.resources.sounds import Song
 from app.utilities.typing import NID, Point
 
+import logging
 
 class OverworldNodeProperty():
     IS_NEXT_LEVEL = "IS_NEXT_LEVEL"
@@ -76,7 +77,11 @@ class OverworldEntityObject():
             entity.unit = unit_registry.get(prefab.leader_nid)
         else:
             entity.unit = DB.units.get(prefab.leader_nid)
-        entity.sprite = OverworldUnitSprite(entity.unit, entity)
+        if entity.unit:
+            entity.sprite = OverworldUnitSprite(entity.unit, entity)
+        else:
+            logging.error("OverworldEntityObject cannot find unit %s", prefab.leader_nid)
+            entity.sprite = None
         return entity
 
     def save(self):

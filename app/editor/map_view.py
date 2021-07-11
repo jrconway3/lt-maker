@@ -1,3 +1,4 @@
+from app.editor.overworld_editor.road_sprite_wrapper import RoadSpriteWrapper
 from enum import Enum
 
 from app.constants import TILEHEIGHT, TILEWIDTH, WINHEIGHT, WINWIDTH
@@ -178,6 +179,7 @@ class GlobalModeLevelMapView(SimpleMapView):
     def __init__(self, window=None):
         super().__init__(window)
         self.overworld_flag: bool = False
+        self.road_sprite = RoadSpriteWrapper()
 
     def set_current_level(self, nid, overworld=False):
         self.overworld_flag = overworld
@@ -229,17 +231,6 @@ class GlobalModeLevelMapView(SimpleMapView):
         else:
             pass
 
-    def draw_road_segment(self, painter, start_position, end_position):
-        start_x = start_position[0] * TILEWIDTH + TILEWIDTH / 2
-        start_y = start_position[1] * TILEHEIGHT + TILEHEIGHT / 2
-        end_x = end_position[0] * TILEWIDTH + TILEWIDTH / 2
-        end_y = end_position[1] * TILEHEIGHT + TILEHEIGHT / 2
-
-        # draw the road segment
-        pen = QPen(QColor(80, 0, 0, 200), 2, style=Qt.DotLine)
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.setPen(pen)
-        painter.drawLine(start_x, start_y, end_x, end_y)
 
     def paint_nodes(self, current_level):
         if self.working_image:
@@ -256,8 +247,14 @@ class GlobalModeLevelMapView(SimpleMapView):
             painter = QPainter()
             painter.begin(self.working_image)
             for path in current_level.map_paths.values():
-                for i in range(len(path) - 1):
-                    self.draw_road_segment(painter, path[i], path[i+1])
+                unpacked_path = RoadSpriteWrapper.road_to_full_points_list(path)
+                for i in range(len(unpacked_path)):
+                    neighbors = []
+                    if i != 0:
+                        neighbors.append(unpacked_path[i - 1])
+                    if i < len(unpacked_path) - 1:
+                        neighbors.append(unpacked_path[i + 1])
+                    self.road_sprite.draw_tile(painter, unpacked_path[i], neighbors)
             painter.end()
 
     def mouseMoveEvent(self, event):

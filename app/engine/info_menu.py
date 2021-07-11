@@ -821,22 +821,23 @@ class InfoMenuState(State):
 
         # Blit accessories
         for idx, item in enumerate(self.unit.accessories):
-            height = DB.constants.value('num_items') * 16 + idx * 16 + 24
+            aidx = item_funcs.get_num_items(self.unit) + idx
+            y_pos = aidx * 16 + 24
             if item.multi_item and any(subitem is accessory for subitem in item.subitems):
-                surf.blit(SPRITES.get('equipment_highlight'), (8, height + 8))
+                surf.blit(SPRITES.get('equipment_highlight'), (8, y_pos + 8))
                 for subitem in item.subitems:
                     if subitem is accessory:
-                        item_option = menu_options.FullItemOption(idx, subitem)
+                        item_option = menu_options.FullItemOption(aidx, subitem)
                         break
                 else:  # Shouldn't happen
-                    item_option = menu_options.FullItemOption(idx, item)
+                    item_option = menu_options.FullItemOption(aidx, item)
             else:
                 if item is accessory:
-                    surf.blit(SPRITES.get('equipment_highlight'), (8, height + 8))
-                item_option = menu_options.FullItemOption(idx, item)
-            item_option.draw(surf, 8, height)
-            y_pos = item_funcs.get_num_items(self.unit) * 16 + idx * 16 + 24
-            self.info_graph.register((96 + 8, y_pos, 120, 16), item_option.get_help_box(), 'equipment', first=(idx == 0 and not self.unit.nonaccessories))
+                    surf.blit(SPRITES.get('equipment_highlight'), (8, y_pos + 8))
+                item_option = menu_options.FullItemOption(aidx, item)
+            item_option.draw(surf, 8, y_pos)
+            first = (idx == 0 and not self.unit.nonaccessories)
+            self.info_graph.register((96 + 8, y_pos, 120, 16), item_option.get_help_box(), 'equipment', first=first)
 
         # Battle stats
         battle_surf = SPRITES.get('battle_info')

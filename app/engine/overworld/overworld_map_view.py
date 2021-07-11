@@ -15,6 +15,8 @@ class OverworldMapView():
 
     def draw_nodes(self, surf, cull_rect):
         for node in self.overworld.revealed_nodes:
+            if not node.sprite:
+                return
             node.sprite.update()
             if node.prefab.pos:
                 if OverworldNodeProperty.IS_NEXT_LEVEL in self.overworld.node_props(node.nid):
@@ -30,7 +32,7 @@ class OverworldMapView():
     def draw_entities(self, surf, cull_rect):
         overworld_entities = self.overworld.entities.values()
         # get rid of the unplaced entities
-        overworld_entities = [entity for entity in overworld_entities if entity.on_node is not None]
+        overworld_entities = [entity for entity in overworld_entities if entity.sprite and entity.on_node is not None]
         # Only draw units within 2 tiles of cull_rect
         culled_entities = \
             [entity for entity in overworld_entities if entity.sprite.draw_anyway() or

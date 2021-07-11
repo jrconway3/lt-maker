@@ -56,7 +56,6 @@ class OverworldEntityObject():
         self.team: NID = 'player'                # team of party. @TODO: Implement non-player entities.
         self.sprite: OverworldUnitSprite = None    # sprite for the entity
 
-
         # private data
         self.unit: UnitObject | UnitPrefab = None   # Unit data for this entity
         self._sound: UnitSound = None               # sound associated
@@ -143,8 +142,8 @@ class RoadObject():
         """
         segments = []
         for i in range(len(road) - 1):
-          segment = (road[i], road[i+1])
-          segments.append(segment)
+            segment = (road[i], road[i+1])
+            segments.append(segment)
         return segments
 
     def road_in_pixel_coords(self) -> List[Point]:
@@ -157,9 +156,9 @@ class RoadObject():
         """
         pix_list = []
         for point in self.prefab:
-          pix_x = point[0] * TILEWIDTH + TILEWIDTH / 2
-          pix_y = point[1] * TILEHEIGHT + TILEHEIGHT / 2
-          pix_list.append((pix_x, pix_y))
+            pix_x = point[0] * TILEWIDTH + TILEWIDTH / 2
+            pix_y = point[1] * TILEHEIGHT + TILEHEIGHT / 2
+            pix_list.append((pix_x, pix_y))
         return pix_list
 
     @property

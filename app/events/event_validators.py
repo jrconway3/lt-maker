@@ -375,8 +375,10 @@ class Position(Validator):
 
     def valid_overworld_nids(self) -> Dict[str, NID]:
         # list of all valid nids in overworld
+        nids = {}
         for overworld in DB.overworlds.values():
-            nids = {node.name: node.nid for node in overworld.overworld_nodes.values()}
+            node_nids = {node.name: node.nid for node in overworld.overworld_nodes.values()}
+            nids.update(node_nids)
         party_nids = {party.name: party.nid for party in DB.parties.values()}
         nids.update(party_nids)
         return nids

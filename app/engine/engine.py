@@ -3,6 +3,7 @@ from typing import Tuple
 
 import pygame
 import pygame.image
+import pygame.time
 
 from app.constants import WINWIDTH, WINHEIGHT, FPS
 from app.engine import config as cf
@@ -237,7 +238,10 @@ def get_mouse_focus():
 # === loop functions ===
 DISPLAYSURF = None
 SCREENSIZE = (WINWIDTH * cf.SETTINGS['screen_size'], WINHEIGHT * cf.SETTINGS['screen_size'])
-FPSCLOCK = pygame.time.Clock()
 
-def tick():
-    return FPSCLOCK.tick(FPS)
+class Clock():
+    def __init__(self) -> None:
+        self.clock = pygame.time.Clock()
+
+    def tick(self) -> int:
+        return self.clock.tick(FPS)

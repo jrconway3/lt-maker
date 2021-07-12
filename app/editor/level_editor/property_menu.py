@@ -221,6 +221,14 @@ class PropertiesMenu(QWidget):
         if ok and res:
             nid = res.nid
             self.current.tilemap = nid
+            # Reset the positions of units who are now off the side of the map
+            for unit in self.current.units:
+                if unit.starting_position:
+                    if unit.starting_position[0] >= res.width or unit.starting_position[1] >= res.height:
+                        unit.starting_position = None
+            # Reset any illegal positions for groups
+            for group in self.current.unit_groups:
+                group.positions = {k: v for k, v in group.positions.items() if v[0] < res.width and v[1] < res.height}
             self.state_manager.change_and_broadcast('ui_refresh_signal', None)
 
     def access_units(self):

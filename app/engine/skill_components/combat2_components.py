@@ -262,7 +262,7 @@ class Recoil(SkillComponent):
     value = 0
     author = 'Lord_Tweed'
 
-    def post_combat(self, playback, unit, item, target, mode):
+    def end_combat(self, playback, unit, item, target, mode):
         if target and skill_system.check_enemy(unit, target):
             end_health = unit.get_hp() - self.value
             action.do(action.SetHP(unit, max(1, end_health)))

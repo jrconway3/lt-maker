@@ -277,7 +277,10 @@ class PrepFormationState(MapState):
 
         elif event == 'START':
             SOUNDTHREAD.play_sfx('Select 5')
-            game.state.change('minimap')
+            if DB.constants.value('initiative'):
+                game.initiative.toggle_draw()
+            else:
+                game.state.change('minimap')
 
     def update(self):
         super().update()

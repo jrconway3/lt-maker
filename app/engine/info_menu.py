@@ -254,6 +254,7 @@ class InfoMenuState(State):
         self.reset_surfs()
 
         # For transitions between states
+        self.rescuer = None  # Keeps track of the rescuer if we are looking at the traveler
         self.next_unit = None
         self.next_state = None
         self.scroll_offset_x = 0
@@ -343,8 +344,11 @@ class InfoMenuState(State):
                     else:
                         self.info_graph.set_current_state('personal_data')
             elif event == 'BACK':
-                self.back()
-                return
+                if self.rescuer:
+                    self.move_up()
+                else:
+                    self.back()
+                    return
             elif event == 'SELECT':
                 mouse_position = INPUT.get_mouse_position()
                 if mouse_position:
@@ -357,6 +361,9 @@ class InfoMenuState(State):
                         self.move_up()
                     elif mouse_y >= WINHEIGHT - 16:
                         self.move_down()
+                if not self.transition:  # Some of the above move commands could cause transition
+                    if self.unit.traveler:
+                        self.move_traveler()
 
             if 'RIGHT' in directions:
                 self.move_right()
@@ -394,8 +401,12 @@ class InfoMenuState(State):
     def move_down(self):
         SOUNDTHREAD.play_sfx('Status_Character')
         if self.scroll_units:
-            index = self.scroll_units.index(self.unit)
-            new_index = (index + 1) % len(self.scroll_units)
+            if self.rescuer:
+                new_index = self.scroll_units.index(self.rescuer)
+                self.rescuer = None
+            else:
+                index = self.scroll_units.index(self.unit)
+                new_index = (index + 1) % len(self.scroll_units)
             self.next_unit = self.scroll_units[new_index]
             if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
                 self.state = 'personal_data'
@@ -405,13 +416,26 @@ class InfoMenuState(State):
     def move_up(self):
         SOUNDTHREAD.play_sfx('Status_Character')
         if self.scroll_units:
-            index = self.scroll_units.index(self.unit)
-            new_index = (index - 1) % len(self.scroll_units)
+            if self.rescuer:
+                new_index = self.scroll_units.index(self.rescuer)
+                self.rescuer = None
+            else:
+                index = self.scroll_units.index(self.unit)
+                new_index = (index - 1) % len(self.scroll_units)
             self.next_unit = self.scroll_units[new_index]
             if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
                 self.state = 'personal_data'
                 self.switch_logo('personal_data')
             self.transition = 'UP'
+
+    def move_traveler(self):
+        SOUNDTHREAD.play_sfx('Status_Character')
+        self.rescuer = self.unit
+        self.next_unit = self.unit.traveler
+        if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
+            self.state = 'personal_data'
+            self.switch_logo('personal_data')
+        self.transition = 'DOWN'
 
     def handle_mouse(self):
         mouse_position = INPUT.get_mouse_position()

@@ -397,7 +397,10 @@ class Event():
 
         elif command.nid == 'sound':
             sound = command.values[0]
-            SOUNDTHREAD.play_sfx(sound)
+            volume = 1
+            if len(command.values) > 1 and command.values[1]:
+                volume = float(command.values[1])
+            SOUNDTHREAD.play_sfx(sound, volume=volume)
 
         elif command.nid == 'change_music':
             phase = command.values[0]

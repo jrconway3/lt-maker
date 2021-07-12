@@ -213,6 +213,7 @@ Plays the _Sound_ once.
         """
 
     keywords = ['Sound']
+    optional_keywords = ['Volume']
 
 class ChangeMusic(EventCommand):
     nid = 'change_music'

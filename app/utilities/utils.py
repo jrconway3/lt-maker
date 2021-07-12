@@ -8,11 +8,6 @@ def frames_to_ms(num_frames: int) -> int:
     return int(16.67 * num_frames)
 frames2ms = frames_to_ms  # Alternate name
 
-def frames_to_ms(num_frames: int) -> int:
-    """at 60 fps, each frame would happen in 16.67 ms"""
-    return int(16.67 * num_frames)
-frames2ms = frames_to_ms  # Alternate name
-
 class Multiset(Counter):
     def __contains__(self, item):
         return self[item] > 0
@@ -201,21 +196,6 @@ def raytrace(pos1: tuple, pos2: tuple) -> list:
             error += dx
         n -= 1
     return tiles
-    
-def get_positions_in_area(c_pos, rng=0) -> list:
-    #This method returns a list of positions within an aoe of size rng, centered at position c_pos
-    if rng == 0:
-        return [c_pos]
-    else:
-        _range = range
-        pos = set()
-        for r in _range(1, rng+1):
-            for x in _range(-r, r+1):
-                pos_x = x if x >= 0 else -x
-                for y in [(r - pos_x), -(r - pos_x)]:
-                    pos.add((c_pos[0] + x, c_pos[1] + y))
-        pos.add(c_pos)
-        return pos
 
 # Testing
 if __name__ == '__main__':

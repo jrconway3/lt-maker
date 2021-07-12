@@ -2,7 +2,7 @@ from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
 from app.utilities import utils
-from app.engine import action, skill_system
+from app.engine import action, skill_system, target_system
 from app.engine.game_state import game
 
 class Miracle(SkillComponent):
@@ -255,7 +255,7 @@ class DelayInitiativeOrder(SkillComponent):
 
 class Recoil(SkillComponent):
     nid = 'recoil'
-    desc = "Unit takes non-lethal damage after combat"
+    desc = "Unit takes non-lethal damage after combat with an enemy"
     tag = 'combat2'
 
     expose = Type.Int
@@ -263,12 +263,9 @@ class Recoil(SkillComponent):
     author = 'Lord_Tweed'
 
     def post_combat(self, playback, unit, item, target, mode):
-        if not skill_system.check_ally(unit, target):
+        if target and skill_system.check_enemy(unit, target):
             end_health = unit.get_hp() - self.value
-            if end_health >= 1:
-                action.do(action.SetHP(unit, end_health))
-            else:
-                action.do(action.SetHP(unit, 1))
+            action.do(action.SetHP(unit, max(1, end_health)))
             action.do(action.TriggerCharge(unit, self.skill))
 
 class PostCombatDamage(SkillComponent):
@@ -280,21 +277,18 @@ class PostCombatDamage(SkillComponent):
     value = 0
     author = 'Lord_Tweed'
 
-    def post_combat(self, playback, unit, item, target, mode):
-        if target and not skill_system.check_ally(unit, target):
+    def end_combat(self, playback, unit, item, target, mode):
+        if target and skill_system.check_enemy(unit, target):
             end_health = target.get_hp() - self.value
-            if end_health >= 1:
-                action.do(action.SetHP(target, end_health))
-            else:
-                action.do(action.SetHP(target, 1))
+            action.do(action.SetHP(target, max(1, end_health)))
             action.do(action.TriggerCharge(unit, self.skill))
 
-    def post_combat_damage(self):
+    def post_combat_damage(self) -> int:
         return self.value
 
 class PostCombatDamageAOE(SkillComponent):
     nid = 'post_combat_damage_aoe'
-    desc = 'Post-Combat damage will also hit teammates within this AOE range.'
+    desc = 'Post-Combat damage will also hit other enemies within this AOE range.'
     tag = 'combat2'
     paired_with = ('post_combat_damage', )
 
@@ -302,19 +296,17 @@ class PostCombatDamageAOE(SkillComponent):
     value = 0
     author = 'Lord_Tweed'
 
-    def post_combat(self, playback, unit, item, target, mode):
-        if target and not skill_system.check_ally(unit, target):
-            locations = utils.get_positions_in_area(target.position, self.value)
+    def end_combat(self, playback, unit, item, target, mode):
+        if target and skill_system.check_enemy(unit, target):
+            r = set(range(self.value))
+            locations = target_system.get_shell({target.position}, r, game.tilemap.width, game.tilemap.height)
             damage = get_pc_damage(unit, self.skill)
             if damage > 0:
                 for loc in locations:
                     target2 = game.board.get_unit(loc)
-                    if target2 and target2 is not target and skill_system.check_ally(target, target2):
+                    if target2 and target2 is not target and skill_system.check_enemy(unit, target2):
                         end_health = target2.get_hp() - damage
-                        if end_health >= 1:
-                            action.do(action.SetHP(target2, end_health))
-                        else:
-                            action.do(action.SetHP(target2, 1))
+                        action.do(action.SetHP(target2, max(1, end_health)))
 
 def get_pc_damage(unit, skill) -> int:
     for component in skill.components:

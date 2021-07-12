@@ -8,11 +8,6 @@ def frames_to_ms(num_frames: int) -> int:
     return int(16.67 * num_frames)
 frames2ms = frames_to_ms  # Alternate name
 
-def frames_to_ms(num_frames: int) -> int:
-    """at 60 fps, each frame would happen in 16.67 ms"""
-    return int(16.67 * num_frames)
-frames2ms = frames_to_ms  # Alternate name
-
 class Multiset(Counter):
     def __contains__(self, item):
         return self[item] > 0

@@ -12737,29 +12737,6 @@
                 "generic": false
             },
             {
-                "nid": "104",
-                "variant": null,
-                "level": 5,
-                "klass": "Dragoon",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Lance",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Pursue",
-                "ai_group": null,
-                "starting_position": [
-                    3,
-                    11
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
                 "nid": "107",
                 "variant": null,
                 "level": 5,

@@ -2546,8 +2546,26 @@
                 []
             ],
             [
+                "comment",
+                [
+                    ""
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Let's have some fun in the overworld"
+                ]
+            ],
+            [
                 "change_background",
                 []
+            ],
+            [
+                "comment",
+                [
+                    "# This command is necessary to load the overworld tilemap"
+                ]
             ],
             [
                 "overworld_cinematic",
@@ -2556,6 +2574,12 @@
                 ],
                 [
                     "Magvel (0)"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# The next two commands are self-explanatory. You'll use these to manipulate overworld data."
                 ]
             ],
             [
@@ -2578,6 +2602,24 @@
                 [
                     "Eirika's Group (Eirika)",
                     "Border Mulan (0)"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    ""
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Here are examples of overworld animations and sounds."
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Notice that they are the same as the normal tilemap commands."
                 ]
             ],
             [
@@ -2643,6 +2685,24 @@
                 ]
             ],
             [
+                "comment",
+                [
+                    ""
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Because narration is more involved than dialogue, we need some different commands"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# to animate the narration window in."
+                ]
+            ],
+            [
                 "toggle_narration_mode",
                 [
                     "open",
@@ -2701,7 +2761,7 @@
                 ]
             ],
             [
-                "overworld_cinematic_exit",
+                "comment",
                 [
                     ""
                 ]

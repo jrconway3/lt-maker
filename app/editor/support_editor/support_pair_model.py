@@ -33,6 +33,8 @@ class SupportPairModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if role == Qt.DisplayRole:
             support_pair = self._data[index.row()]
             text = support_pair.nid
@@ -46,7 +48,7 @@ class SupportPairModel(DragDropCollectionModel):
 
     def delete(self, idx):
         # Delete watchers
-        # None needed -- Nothing else in editor/data uses support pairs 
+        # None needed -- Nothing else in editor/data uses support pairs
         super().delete(idx)
 
     def on_nid_changed(self, old_value, new_value):

@@ -23,6 +23,8 @@ class FrameModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if role == Qt.DisplayRole:
             frame = self._data[index.row()]
             text = frame.nid
@@ -202,7 +204,7 @@ class FrameSelector(Dialog):
 
             combat_animation_imports.update_weapon_anim_full_image(self.weapon_anim)
             self.model.layoutChanged.emit()
-            
+
             parent_dir = os.path.split(fns[-1])[0]
             self.settings.set_last_open_path(parent_dir)
 

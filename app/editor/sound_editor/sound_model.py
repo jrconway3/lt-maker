@@ -31,6 +31,8 @@ class SoundModel(TableModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             d = self._data[index.row()]
             str_attr = self.rows[index.column()]

@@ -28,6 +28,8 @@ class SkillModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if role == Qt.DisplayRole:
             skill = self._data[index.row()]
             text = skill.nid

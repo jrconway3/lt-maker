@@ -431,7 +431,7 @@ class InfoMenuState(State):
     def move_traveler(self):
         SOUNDTHREAD.play_sfx('Status_Character')
         self.rescuer = self.unit
-        self.next_unit = self.unit.traveler
+        self.next_unit = game.get_unit(self.unit.traveler)
         if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
             self.state = 'personal_data'
             self.switch_logo('personal_data')

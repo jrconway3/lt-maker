@@ -1,6 +1,8 @@
 import logging
 from typing import Any, Tuple
 
+from pygame import math
+
 from app.constants import TILEHEIGHT, TILEWIDTH, TILEX, TILEY
 from app.engine import engine
 from app.engine.camera import Camera
@@ -10,7 +12,7 @@ from app.engine.objects.tilemap import TileMapObject
 from app.engine.sound import SOUNDTHREAD
 from app.engine.sprites import SPRITES
 from app.utilities.enums import Direction
-from app.utilities.utils import frames2ms
+from app.utilities.utils import frames2ms, tclamp, tmult, tuple_sub
 from app.engine.engine import Surface
 
 class BaseCursor():
@@ -41,9 +43,10 @@ class BaseCursor():
         self.offset_x, self.offset_y = 0, 0
         self._transition_duration = 250
         self._transition_speed = 1
-        self._transition_remaining = 0
-        self._transition_direction = Direction.UP
-        self._transition_start = engine.get_time()
+        self._transition_remaining: Tuple[int, int] = (0, 0)
+        self._transition_direction: Tuple[Direction, Direction] = (Direction.LEFT, Direction.UP)
+        curr_time = engine.get_time()
+        self._transition_start: Tuple[int, int] = (curr_time, curr_time)
 
     def hide(self):
         self.visible = False
@@ -73,7 +76,8 @@ class BaseCursor():
 
     @property
     def transition_progress(self):
-        return max(self._transition_remaining / self.transition_duration, 0)
+        remaining_transition = tmult(self._transition_remaining, 1 / self.transition_duration)
+        return tclamp(remaining_transition, (0, 0), (1, 1))
 
     def get_image(self) -> Surface:
         """Returns the current image of the cursor.
@@ -126,9 +130,15 @@ class BaseCursor():
                 SOUNDTHREAD.play_sfx('Select 5')
 
         # queue transition
-        self._transition_start = engine.get_time()
-        self._transition_direction = Direction.parse_map_direction(dx, dy)
-        self._transition_remaining = self.transition_duration
+        transition_start = engine.get_time()
+        if dx != 0:
+            self._transition_direction = (Direction.parse_map_direction(dx, 0), self._transition_direction[1])
+            self._transition_remaining = (self.transition_duration, self._transition_remaining[1])
+            self._transition_start = (transition_start, self._transition_start[1])
+        if dy != 0:
+            self._transition_direction = (self._transition_direction[0], Direction.parse_map_direction(0, dy))
+            self._transition_remaining = (self._transition_remaining[0], self.transition_duration)
+            self._transition_start = (self._transition_start[0], transition_start)
 
     def take_input(self):
         self.fluid.update()
@@ -168,6 +178,7 @@ class BaseCursor():
 
         if dx != 0 or dy != 0:
             # adjust camera accordingly
+            self.move(dx, dy, mouse=from_mouse, sound=True)
             if self.camera:
                 if from_mouse:
                     self.camera.mouse_x(self.position[0])
@@ -175,18 +186,18 @@ class BaseCursor():
                 else:
                     self.camera.cursor_x(self.position[0])
                     self.camera.cursor_y(self.position[1])
-            self.move(dx, dy, mouse=from_mouse, sound=True)
 
     def update(self):
         # update offset for movement
-        if self._transition_remaining > 0:
+        if self._transition_remaining != (0, 0):
             # update transition time
             current_time = engine.get_time()
-            dt = current_time - self._transition_start
-            self._transition_remaining = max(0, self._transition_remaining - dt)
+            xdt = current_time - self._transition_start[0]
+            ydt = current_time - self._transition_start[1]
+            self._transition_remaining = tuple_sub(self._transition_remaining, (xdt, ydt))
             # update offset based on progress
-            ox = TILEWIDTH * self.transition_progress * Direction.which_horizontal_dir(self._transition_direction)
-            oy = TILEHEIGHT * -1 * self.transition_progress * Direction.which_vertical_dir(self._transition_direction)
+            ox = TILEWIDTH * self.transition_progress[0] * Direction.which_horizontal_dir(self._transition_direction[0])
+            oy = TILEHEIGHT * -1 * self.transition_progress[1] * Direction.which_vertical_dir(self._transition_direction[1])
             self.offset_x, self.offset_y = ox, oy
         else:
             self.offset_x, self.offset_y = 0, 0

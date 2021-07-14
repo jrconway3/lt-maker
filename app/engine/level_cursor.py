@@ -243,6 +243,7 @@ class LevelCursor(BaseCursor):
 
         if dx != 0 or dy != 0:
             # adjust camera accordingly
+            self.move(dx, dy, mouse=from_mouse)
             if self.camera:
                 if from_mouse:
                     self.camera.mouse_x(self.position[0])
@@ -250,7 +251,6 @@ class LevelCursor(BaseCursor):
                 else:
                     self.camera.cursor_x(self.position[0])
                     self.camera.cursor_y(self.position[1])
-            self.move(dx, dy, mouse=from_mouse)
 
     def get_image(self) -> Surface:
         self.cursor_counter.update(engine.get_time())

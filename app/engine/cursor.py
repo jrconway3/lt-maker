@@ -177,7 +177,7 @@ class BaseCursor():
                     self.camera.cursor_y(self.position[1])
             self.move(dx, dy, mouse=from_mouse, sound=True)
 
-    def update(self):
+    def update_offset(self):
         # update offset for movement
         if self._transition_remaining > 0:
             # update transition time
@@ -192,10 +192,11 @@ class BaseCursor():
             self.offset_x, self.offset_y = 0, 0
 
     def draw(self, surf: Surface, cull_rect: Tuple[int, int, int, int]):
-        self.update()
+        self.update_offset()
         if self.visible:
+            image = self.get_image()
             x, y = self.position
-            left = x * TILEWIDTH - max(0, (self.get_image().get_width() - 16)//2) - self.offset_x
-            top = y * TILEHEIGHT - max(0, (self.get_image().get_height() - 16)//2) - self.offset_y
-            surf.blit(self.get_image(), (left - cull_rect[0], top - cull_rect[1]))
+            left = x * TILEWIDTH - max(0, (image.get_width() - 16)//2) - self.offset_x
+            top = y * TILEHEIGHT - max(0, (image.get_height() - 16)//2) - self.offset_y
+            surf.blit(image, (left - cull_rect[0], top - cull_rect[1]))
         return surf

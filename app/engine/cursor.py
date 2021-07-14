@@ -1,8 +1,6 @@
 import logging
 from typing import Any, Tuple
 
-from pygame import math
-
 from app.constants import TILEHEIGHT, TILEWIDTH, TILEX, TILEY
 from app.engine import engine
 from app.engine.camera import Camera
@@ -12,7 +10,7 @@ from app.engine.objects.tilemap import TileMapObject
 from app.engine.sound import SOUNDTHREAD
 from app.engine.sprites import SPRITES
 from app.utilities.enums import Direction
-from app.utilities.utils import frames2ms, tclamp, tmult, tuple_sub
+from app.utilities.utils import frames2ms, tclamp, tmult
 from app.engine.engine import Surface
 
 class BaseCursor():
@@ -41,7 +39,7 @@ class BaseCursor():
 
         # used for animating between squares
         self.offset_x, self.offset_y = 0, 0
-        self._transition_duration = 250
+        self._transition_duration = frames2ms(4)
         self._transition_speed = 1
         self._transition_remaining: Tuple[int, int] = (0, 0)
         self._transition_direction: Tuple[Direction, Direction] = (Direction.LEFT, Direction.UP)
@@ -131,13 +129,17 @@ class BaseCursor():
 
         # queue transition
         transition_start = engine.get_time()
+        if mouse:
+            duration = self.transition_duration / 2
+        else:
+            duration = self.transition_duration
         if dx != 0:
             self._transition_direction = (Direction.parse_map_direction(dx, 0), self._transition_direction[1])
-            self._transition_remaining = (self.transition_duration, self._transition_remaining[1])
+            self._transition_remaining = (duration, self._transition_remaining[1])
             self._transition_start = (transition_start, self._transition_start[1])
         if dy != 0:
             self._transition_direction = (self._transition_direction[0], Direction.parse_map_direction(0, dy))
-            self._transition_remaining = (self._transition_remaining[0], self.transition_duration)
+            self._transition_remaining = (self._transition_remaining[0], duration)
             self._transition_start = (self._transition_start[0], transition_start)
 
     def take_input(self):
@@ -194,11 +196,13 @@ class BaseCursor():
             current_time = engine.get_time()
             xdt = current_time - self._transition_start[0]
             ydt = current_time - self._transition_start[1]
-            self._transition_remaining = tuple_sub(self._transition_remaining, (xdt, ydt))
+            self._transition_remaining = (
+                max(0, self._transition_remaining[0] - xdt),
+                max(0, self._transition_remaining[1] - ydt))
             # update offset based on progress
             ox = TILEWIDTH * self.transition_progress[0] * Direction.which_horizontal_dir(self._transition_direction[0])
             oy = TILEHEIGHT * -1 * self.transition_progress[1] * Direction.which_vertical_dir(self._transition_direction[1])
-            self.offset_x, self.offset_y = ox, oy
+            self.offset_x, self.offset_y = ox * 0.75, oy * 0.75
         else:
             self.offset_x, self.offset_y = 0, 0
 

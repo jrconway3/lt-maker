@@ -51,7 +51,6 @@ class MapState(State):
         pass
 
     def draw(self, surf, culled_rect=None):
-        game.cursor.update()
         game.camera.update()
         game.highlight.update()
 

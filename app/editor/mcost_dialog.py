@@ -355,8 +355,6 @@ class GridModel(QAbstractTableModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole:
             return self._data.get((index.column(), index.row()))
         elif role == Qt.TextAlignmentRole:
@@ -389,8 +387,6 @@ class MovementCostModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole:
             mtype = self._data.terrain_types[index.row()]
             return mtype
@@ -403,8 +399,6 @@ class MovementClassModel(CollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole:
             mtype = self._data.unit_types[index.row()]
             return mtype

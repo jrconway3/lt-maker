@@ -7,8 +7,6 @@ class StatTypeModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole:
             stat_type = self._data[index.row()]
             text = stat_type.nid + ": " + stat_type.name

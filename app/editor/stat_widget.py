@@ -29,8 +29,6 @@ class MultiEditTableView(QTableView):
         index = self.indexAt(pos)
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
 
         menu = QMenu(self)
         menu.addAction(self.copy_action)
@@ -189,8 +187,6 @@ class StatModel(VirtualListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             row = self._data[index.row()]  # row is a dict
             key = self._columns[index.column()]
@@ -374,8 +370,6 @@ class ClassStatAveragesModel(VirtualListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole:
             maxim, avg = self.get_data(index)
             return min(maxim, avg)

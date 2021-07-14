@@ -27,8 +27,6 @@ class TileSetModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             tileset = self._data[index.row()]
             text = tileset.nid
@@ -138,8 +136,6 @@ class TileMapModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             tilemap = self._data[index.row()]
             text = tilemap.nid

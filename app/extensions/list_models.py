@@ -77,8 +77,6 @@ class SingleListModel(VirtualListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             return self._data[index.row()]
         return None
@@ -119,8 +117,6 @@ class DoubleListModel(VirtualListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             data = self._data[index.row()]
             return data[index.column()]
@@ -191,8 +187,6 @@ class MultiAttrListModel(VirtualListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if index.column() in self.checked_columns:
             if role == Qt.CheckStateRole:
                 data = self._data[index.row()]

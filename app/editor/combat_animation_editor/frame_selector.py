@@ -23,8 +23,6 @@ class FrameModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole:
             frame = self._data[index.row()]
             text = frame.nid

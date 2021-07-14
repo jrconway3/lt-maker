@@ -56,8 +56,6 @@ class WexpModel(VirtualListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             weapon = self._columns[index.column()]
             wexp_gain = self._data.get(weapon.nid)

@@ -46,8 +46,6 @@ class MapSpriteModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             map_sprite = self._data[index.row()]
             text = map_sprite.nid

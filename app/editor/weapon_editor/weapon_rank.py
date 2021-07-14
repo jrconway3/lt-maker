@@ -96,8 +96,6 @@ class WexpGainMultiAttrModel(DefaultMultiAttrListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.EditRole:
-            return self._data[index.row()]
         if index.column() in self.checked_columns:
             if role == Qt.CheckStateRole:
                 weapon_key = DB.weapons.keys()[index.row()]

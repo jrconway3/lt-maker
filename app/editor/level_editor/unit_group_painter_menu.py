@@ -274,10 +274,12 @@ class SelectUnitDialog(Dialog):
 
 class GroupUnitModel(DragDropCollectionModel):
     allow_delete_last_obj = True
-    
+
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if role == Qt.DisplayRole:
             unit_nid = self._data[index.row()]
             text = str(unit_nid)
@@ -287,7 +289,7 @@ class GroupUnitModel(DragDropCollectionModel):
             return text
         elif role == Qt.DecorationRole:
             unit_nid = self._data[index.row()]
-            unit = self.window.window.current_level.units.get(unit_nid)            
+            unit = self.window.window.current_level.units.get(unit_nid)
             if not unit:
                 return None
             # Don't draw any units which have been deleted in editor

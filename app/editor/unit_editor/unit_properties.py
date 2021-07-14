@@ -56,6 +56,8 @@ class WexpModel(VirtualListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             weapon = self._columns[index.column()]
             wexp_gain = self._data.get(weapon.nid)
@@ -298,7 +300,7 @@ class UnitProperties(QWidget):
         view = self.unit_stat_widget.view
         selected_indexes = view.selectionModel().selectedIndexes()
         my_klass = DB.classes.get(self.current.klass)
-        
+
         if not selected_indexes:
             # Select all
             topLeft = model.index(0, 0)

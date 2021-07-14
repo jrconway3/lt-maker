@@ -206,8 +206,8 @@ class CombatAnimProperties(QWidget):
         self.export_anim_button = QPushButton("Export...")
         self.export_anim_button.clicked.connect(self.export_anim)
 
-        self.window.left_frame.layout().addWidget(self.import_anim_button, 2, 0)
-        self.window.left_frame.layout().addWidget(self.export_anim_button, 2, 1)
+        self.window.left_frame.layout().addWidget(self.import_anim_button, 3, 0)
+        self.window.left_frame.layout().addWidget(self.export_anim_button, 3, 1)
         frame_layout.addWidget(self.import_from_lt_button)
         frame_layout.addWidget(self.import_from_gba_button)
         frame_layout.addWidget(self.import_png_button)

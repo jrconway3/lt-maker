@@ -77,6 +77,8 @@ class SingleListModel(VirtualListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             return self._data[index.row()]
         return None
@@ -96,8 +98,8 @@ class DoubleListModel(VirtualListModel):
     """
     Handles a simple list of 2-tuples/lists
     Where the second column is a number
-    Used for Type.Dict in item_component editor and 
-    skill_component editor. 
+    Used for Type.Dict in item_component editor and
+    skill_component editor.
     """
     def __init__(self, data, headers, parent=None):
         super().__init__(parent)
@@ -117,6 +119,8 @@ class DoubleListModel(VirtualListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             data = self._data[index.row()]
             return data[index.column()]
@@ -187,6 +191,8 @@ class MultiAttrListModel(VirtualListModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if index.column() in self.checked_columns:
             if role == Qt.CheckStateRole:
                 data = self._data[index.row()]

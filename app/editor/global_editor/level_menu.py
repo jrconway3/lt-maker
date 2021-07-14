@@ -88,6 +88,8 @@ class LevelModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if role == Qt.DisplayRole:
             level = self._data[index.row()]
             text = level.nid + " : " + level.name
@@ -100,7 +102,7 @@ class LevelModel(DragDropCollectionModel):
                 img = QIcon(pix)
                 return img
         return None
-    
+
     def create_new(self):
         nids = [level.nid for level in DB.levels]
         nid = str(str_utils.get_next_int("0", nids))

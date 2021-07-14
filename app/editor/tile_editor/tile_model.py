@@ -27,6 +27,8 @@ class TileSetModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             tileset = self._data[index.row()]
             text = tileset.nid
@@ -36,7 +38,7 @@ class TileSetModel(ResourceCollectionModel):
             pixmap = tileset.pixmap
             return QIcon(pixmap)
         return None
-        
+
     def create_new(self):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
@@ -58,7 +60,7 @@ class TileSetModel(ResourceCollectionModel):
                     new_tileset.set_pixmap(pix)
                     RESOURCES.tilesets.append(new_tileset)
                 else:
-                    QMessageBox.critical(self.window, "File Type Error!", "Tileset must be PNG format!") 
+                    QMessageBox.critical(self.window, "File Type Error!", "Tileset must be PNG format!")
             parent_dir = os.path.split(fns[-1])[0]
             settings.set_last_open_path(parent_dir)
         return new_tileset
@@ -136,6 +138,8 @@ class TileMapModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if role == Qt.DisplayRole or role == Qt.EditRole:
             tilemap = self._data[index.row()]
             text = tilemap.nid
@@ -155,7 +159,7 @@ class TileMapModel(ResourceCollectionModel):
         create_tilemap_pixmap(new_tilemap)
         RESOURCES.tilemaps.append(new_tilemap)
         self.layoutChanged.emit()
-        
+
     def delete(self, idx):
         # Check to see what is using me?
         res = self._data[idx]

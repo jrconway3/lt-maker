@@ -44,6 +44,8 @@ class ClassModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
+        if role == Qt.EditRole:
+            return self._data[index.row()]
         if role == Qt.DisplayRole:
             klass = self._data[index.row()]
             text = klass.nid
@@ -122,7 +124,7 @@ class ClassModel(DragDropCollectionModel):
         wexp_gain = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}
         new_class = klass.Klass(
             nid, name, "", 1, movement_group, None, [], [], 20,
-            bases, growths, growth_bonus, promotion, max_stats, 
+            bases, growths, growth_bonus, promotion, max_stats,
             [], wexp_gain)
         DB.classes.append(new_class)
         return new_class

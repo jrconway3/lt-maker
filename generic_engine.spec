@@ -3,16 +3,12 @@ import sys
 
 block_cipher = None
 
-name = sys.argv[3]
-project = name + '.ltproj'
-
 a = Analysis(['run_engine.py'],
              pathex=['.'],
              binaries=[],
              datas=[('saves/save_storage.txt', 'saves'),
                     ('resources', 'resources'),
                     ('sprites', 'sprites'),
-                    (project, project),
                     ('favicon.ico', '.'),
                     ('app', 'app')],
              hiddenimports=[],
@@ -44,7 +40,7 @@ def remove_from_list(input, keys):
 exe = EXE(pyz,
           a.scripts,
           exclude_binaries=True,
-          name=name,
+          name='lt_engine',
           debug=False,
           strip=False,
           upx=True,
@@ -56,4 +52,4 @@ coll = COLLECT(exe,
                a.datas,
                strip=False,
                upx=True,
-               name=name)
+               name='lt_engine')

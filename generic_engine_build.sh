@@ -1,20 +1,13 @@
-# Build Script for lt_engine
+# Build Script for generric lt_engine
 # source ./venv/Scripts/activate
-if [ "$#" -ne 1 ];
-then 
-    echo 'Error: expected one argument (name of the project)'
-    exit 2
-fi
-name=$1
 
-pyinstaller -y engine.spec "$name"
-rm -rf "../$name"
-mkdir "../$name"
-# mkdir "../$name/$name"
-mv "dist/$name" "../$name/$name"
+pyinstaller -y generic_engine.spec lt_engine
+rm -rf ../lt_engine
+mkdir ../lt_engine
+mv dist/lt_engine ../lt_engine/lt_engine
 # cp utilities/audio_dlls/* "../$name/$name"
 # cp -r favicon.ico "../$name/$name"
-cp utilities/install/double_click_to_play.bat "../$name"
+cp utilities/install/double_click_to_play.bat ../lt_engine
 # cp autoupdater.exe ../lt_engine/lt_engine
 # cp autoupdater.py "../$name/$name"
 
@@ -33,7 +26,7 @@ do
 done < "$constants"
 touch metadata.txt
 echo "$version" > metadata.txt
-cp metadata.txt "../$name/$name"
+cp metadata.txt ../lt_engine/lt_engine
 
 # Now zip up directory
 # rm -f "../$name.zip"

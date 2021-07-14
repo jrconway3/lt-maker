@@ -20,7 +20,7 @@ import logging
 
 class Collection(QWidget):
     def __init__(self, deletion_criteria, collection_model: Type[DragDropCollectionModel], parent,
-                 button_text="Create %s", view_type: Type[RightClickListView]=RightClickListView):
+                 button_text="Create %s", view_type: Type[RightClickListView] = RightClickListView):
         super().__init__(parent)
         self.window = parent
 
@@ -46,7 +46,7 @@ class Collection(QWidget):
         self.button.clicked.connect(self.model.append)
 
         self.filter_field = QLineEdit()
-        self.filter_field.setPlaceholderText('Filter by any keyword, or by "nid"')
+        self.filter_field.setPlaceholderText('Filter by keyword, or by "nid"')
         self.filter_field.textChanged.connect(self.on_filter_changed)
 
         grid.addWidget(self.filter_field, 0, 0, 1, 2)
@@ -56,15 +56,15 @@ class Collection(QWidget):
         if self.window.allow_import_from_lt:
             self.import_button = QPushButton("Import Legacy data file...")
             self.import_button.clicked.connect(self.window.import_data)
-            grid.addWidget(self.import_button, 2, 0, 1, 2)
+            grid.addWidget(self.import_button, 3, 0, 1, 2)
 
         if self.window.allow_copy_and_paste:
             self.copy_button = QPushButton("Copy to clipboard")
             self.copy_button.clicked.connect(self.window.copy_data)
-            grid.addWidget(self.copy_button, 3, 0)
+            grid.addWidget(self.copy_button, 4, 0)
             self.paste_button = QPushButton("Paste from clipboard")
             self.paste_button.clicked.connect(self.window.paste_data)
-            grid.addWidget(self.paste_button, 3, 1)
+            grid.addWidget(self.paste_button, 4, 1)
 
     def on_filter_changed(self, text: str):
         text = text.replace(' ', '')
@@ -76,18 +76,19 @@ class Collection(QWidget):
         try:
             for i in range(self.model.rowCount()):
                 self.view.setRowHidden(i, False)
-                idx = self.model.index(i)
+                index = self.model.index(i)
 
                 # if quotations are used == strict mode
                 match = False
                 if len(text) > 2 and text.startswith('"'):
-                    text = text[1:-1]
-                    name: str = self.model.data(idx, Qt.DisplayRole)
-                    if text.lower() in name.lower():
+                    match_text = text[1:-1]
+                    name: str = self.model.data(index, Qt.DisplayRole)
+                    if match_text.lower() in name.lower():
                         match = True
                 else: # search every subfield for occurrences of this string
-                    item = self.model.data(idx, Qt.EditRole)
-                    for attr in [attr for attr in dir(item) if not callable(getattr(item, attr)) and not attr.startswith("__")]:
+                    item = self.model._data[index.row()]
+                    item_attrs = [attr for attr in dir(item) if not callable(getattr(item, attr)) and not attr.startswith("__")]
+                    for attr in item_attrs:
                         field = getattr(item, attr)
                         if isinstance(field, str):
                             if text.lower() in field.lower():

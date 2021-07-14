@@ -63,8 +63,8 @@ class CombatAnimProperties(QWidget):
         else:
             icon_folder = 'icons/dark_icons'
 
-        weapon_row = self.weapon_box(icon_folder)
-        pose_row = self.pose_box(icon_folder)
+        weapon_row = self.set_up_weapon_box(icon_folder)
+        pose_row = self.set_up_pose_box(icon_folder)
 
         self.info_form.addRow("Unique ID", self.nid_box)
         self.info_form.addRow("Weapon", weapon_row)
@@ -147,7 +147,7 @@ class CombatAnimProperties(QWidget):
         self.button_section.addWidget(label, Qt.AlignRight)
         self.button_section.addWidget(self.speed_box, Qt.AlignRight)
 
-    def weapon_box(self, icon_folder):
+    def set_up_weapon_box(self, icon_folder):
         weapon_row = QHBoxLayout()
         self.weapon_box = ComboBox()
         self.weapon_box.currentIndexChanged.connect(self.weapon_changed)
@@ -168,7 +168,7 @@ class CombatAnimProperties(QWidget):
         weapon_row.addWidget(self.delete_weapon_button)
         return weapon_row
 
-    def pose_box(self, icon_folder):
+    def set_up_pose_box(self, icon_folder):
         pose_row = QHBoxLayout()
         self.pose_box = ComboBox()
         self.pose_box.currentIndexChanged.connect(self.pose_changed)

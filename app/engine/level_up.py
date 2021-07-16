@@ -217,7 +217,7 @@ class ExpState(State):
                     self.unit, self.stat_changes, self.old_level, self.unit.level)
             if self.level_up_screen.update(current_time):
                 game.state.back()
-                game.events.trigger('unit_level_up', self.unit)
+                game.events.trigger('unit_level_up', self.unit, unit2=self.stat_changes)
                 if self.combat_object:
                     self.combat_object.lighten_ui()
 

@@ -982,9 +982,10 @@ class InfoMenuState(State):
     def create_fatigue_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT))
         max_fatigue = max(1, equations.parser.max_fatigue(self.unit))
-        build_groove(surf, (27, WINHEIGHT - 9), 88, utils.clamp(self.unit.fatigue / max_fatigue, 0, 1))
-        FONT['text-blue'].blit(str(self.unit.fatigue) + '/' + str(max_fatigue), surf, (56, WINHEIGHT - 17))
-        FONT['text-yellow'].blit('Ftg', surf, (8, WINHEIGHT - 17))
+        fatigue = self.unit.get_fatigue()
+        build_groove(surf, (27, WINHEIGHT - 9), 88, utils.clamp(fatigue / max_fatigue, 0, 1))
+        FONT['text-blue'].blit(str(fatigue) + '/' + str(max_fatigue), surf, (56, WINHEIGHT - 17))
+        FONT['text-yellow'].blit(text_funcs.translate('Ftg'), surf, (8, WINHEIGHT - 17))
 
         return surf
 

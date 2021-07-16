@@ -484,6 +484,8 @@ class GameState():
 
         # Handle player death
         for unit in self.unit_registry.values():
+            if unit.dead:
+                action.do(action.ChangeFatigue(unit, -unit.get_fatigue()))  # Reset fatigue
             if unit.dead and unit.team == 'player':
                 if not game.current_mode.permadeath:
                     unit.dead = False  # Resurrect unit

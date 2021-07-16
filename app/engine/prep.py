@@ -174,7 +174,7 @@ class PrepPickUnitsState(State):
                 possible_position = game.get_next_formation_spot()
                 is_fatigued = False
                 if DB.constants.value('fatigue') and game.game_vars.get('_fatigue') == 1:
-                    if unit.get_fatigue() >= equations.parser.max_fatigue(unit):
+                    if unit.get_fatigue() >= unit.get_max_fatigue():
                         is_fatigued = True
                 if 'Blacklist' in unit.tags:  # Blacklisted unit can't be added
                     is_fatigued = True
@@ -219,10 +219,10 @@ class PrepPickUnitsState(State):
         bg_surf = base_surf.create_base_surf(132, 24)
         topleft = (110, 128 + 4)
         unit = self.menu.get_current()
-        if unit.get_fatigue() >= equations.parser.max_fatigue(unit):
-            text = text_funcs.translate('Fatigued')
-        elif 'Blacklist' in unit.tags:
+        if 'Blacklist' in unit.tags:
             text = text_funcs.translate('Away')
+        elif unit.get_fatigue() >= unit.get_max_fatigue():
+            text = text_funcs.translate('Fatigued')
         else:
             text = text_funcs.translate('Ready!')
         FONT['text-white'].blit_center(text, bg_surf, (66, 4))
@@ -234,7 +234,7 @@ class PrepPickUnitsState(State):
         menus.draw_unit_items(surf, (4, 44), self.menu.get_current(), include_top=True)
 
         self.draw_pick_units_card(surf)
-        if DB.constants.value('fatigue') and game.game_vars.get('_fatigue') == 1:
+        if DB.constants.value('fatigue') and game.game_vars.get('_fatigue'):
             self.draw_fatigue_card(surf)
 
         self.menu.draw(surf)

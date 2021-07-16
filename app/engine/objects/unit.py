@@ -198,11 +198,14 @@ class UnitObject(Prefab):
     def set_mana(self, val):
         self.current_mana = int(utils.clamp(val, 0, equations.parser.get_mana(self)))
 
+    def get_max_fatigue(self):
+        return equations.parser.max_fatigue(self)
+
     def get_fatigue(self):
         return self.current_fatigue
 
     def set_fatigue(self, val):
-        self.current_fatigue = int(utils.clamp(val, 0, equations.parser.get_fatigue(self)))
+        self.current_fatigue = int(max(val, 0))
 
     def get_exp(self):
         return self.exp

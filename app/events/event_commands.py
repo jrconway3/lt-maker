@@ -505,6 +505,11 @@ class SetCurrentMana(EventCommand):
     tag = Tags.MODIFY_UNIT_PROPERTIES
     keywords = ["Unit", "PositiveInteger"]
 
+class AddFatigue(EventCommand):
+    nid = 'add_fatigue'
+    tags = Tags.MODIFY_UNIT_PROPERTIES
+    keywords = ["Unit", "Integer"]
+
 class Resurrect(EventCommand):
     nid = 'resurrect'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS

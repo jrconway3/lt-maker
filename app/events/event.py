@@ -820,6 +820,14 @@ class Event():
             mana = int(values[1])
             action.do(action.SetMana(unit, mana))
 
+        elif command.nid == 'add_fatigue':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            fatigue = int(values[1])
+            action.do(action.ChangeFatigue(unit, fatigue))
 
         elif command.nid == 'resurrect':
             values, flags = event_commands.parse(command)
@@ -2473,6 +2481,9 @@ class Event():
         player_units = game.get_units_in_party()
         stuck_units = [unit for unit in player_units if unit.position and not game.check_for_region(unit.position, 'formation')]
         unstuck_units = [unit for unit in player_units if unit not in stuck_units and not game.check_for_region(unit.position, 'formation')]
+        unstuck_units = [unit for unit in unstuck_units if 'Blacklist' not in unit.tags]
+        if DB.constants.value('fatigue') and game.game_vars.get('_fatigue') == 1:
+            unstuck_units = [unit for unit in unstuck_units if unit.get_fatigue() < unit.get_max_fatigue()]
         num_slots = game.level_vars.get('_prep_slots')
         all_formation_spots = game.get_open_formation_spots()
         if num_slots is None:

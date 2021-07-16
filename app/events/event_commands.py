@@ -990,6 +990,25 @@ class TriggerScript(EventCommand):
     keywords = ["Event"]
     optional_keywords = ["GlobalUnit", "GlobalUnit"]
 
+class LoopUnits(EventCommand):
+    nid = 'loop_units'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+The first argument to this command should be a Python expression that evaluates to a list of unit nids.
+
+This command will run the designated event script for each unit in the list.
+
+Example:
+```
+# This gives all player units 1 fatigue using the Gain Fatigue Event script
+loop_units;[unit.nid for unit in game.get_player_units()];Gain Fatigue Event
+```
+        """
+
+    keywords = ["String", "Event"]
+
 class ChangeRoaming(EventCommand):
     nid = 'change_roaming'
     tag = Tags.MISCELLANEOUS

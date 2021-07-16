@@ -76,7 +76,7 @@ class Wexp(ItemComponent):
 
 class Fatigue(ItemComponent):
     nid = 'fatigue'
-    desc = "Item gives extra fatigue to user on while using"
+    desc = "Item gives extra fatigue to user while using"
     tag = 'exp'
 
     expose = Type.Int

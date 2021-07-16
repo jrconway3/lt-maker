@@ -1205,6 +1205,9 @@ class Event():
         elif command.nid == 'trigger_script':
             self.trigger_script(command)
 
+        elif command.nid == 'loop_units':
+            self.loop_units(command)
+
         elif command.nid == 'change_roaming':
             self.change_roaming(command)
 
@@ -2578,6 +2581,20 @@ class Event():
         if not valid_events:
             logging.error("Couldn't find any valid events matching name %s" % trigger_script)
             return
+
+    def loop_units(self, command):
+        unit_list_str = command.values[0]
+        try:
+            unit_list = evaluate.evaluate(unit_list_str)
+        except Exception as e:
+            logging.error("%s: Could not evalute {%s}" % (e, unit_list_str))
+            return
+        if not unit_list:
+            logging.warning("No units returned for list: %s" % (unit_list_str))
+            return
+        for unit_nid in reversed(unit_list):
+            macro_command = event_commands.TriggerScript(command.values[1], unit_nid)
+            self.commands.insert(self.command_idx + 1, macro_command)
 
     def change_roaming(self, command):
         values, flags = event_commands.parse(command)

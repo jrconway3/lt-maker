@@ -32,7 +32,12 @@ class OverworldState(MapState):
         from .overworld_movement_manager import OverworldMovementManager
 
         if not overworld_to_load:
-            overworld_to_load: NID = game.game_vars['_next_overworld_nid']
+            if game.game_vars['_next_overworld_nid'] is not None:
+                overworld_to_load: NID = game.game_vars['_next_overworld_nid']
+            else:
+                # we really shouldn't be here
+                game.state.back()
+                return
         game.cursor = OverworldCursor(game.camera)
         game.overworld_controller = OverworldManager(game.overworld_registry[overworld_to_load], game.cursor)
         game.movement = OverworldMovementManager(game.overworld_controller)

@@ -628,8 +628,8 @@ class Inventory(Choice):
         # Assumes all options are Item Objects
         accessories = [option for option in options if item_system.is_accessory(self.owner, option)]
         items = [option for option in options if option not in accessories]
-        num_items = DB.constants.value('num_items')
-        num_accessories = DB.constants.value('num_accessories')
+        num_items = item_funcs.get_num_items(self.owner)
+        num_accessories = item_funcs.get_num_accessories(self.owner)
         # Get items
         for idx, item in enumerate(items):
             option = menu_options.ItemOption(idx, item)
@@ -1203,8 +1203,9 @@ class Convoy():
                     all_items += items                
 
         sorted_dict = {}
-        for w_type in self.order[:-1]:
-            sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type] 
+        for w_type in self.order:
+            if w_type != 'Default':
+                sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type] 
         sorted_dict['Default'] = [item for item in all_items if item_system.weapon_type(self.unit, item) is None]
         for key, value in sorted_dict.items():
             value.sort(key=lambda item: item_system.special_sort(self.unit, item) or 0)

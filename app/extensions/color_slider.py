@@ -6,6 +6,8 @@ from PyQt5.QtGui import QColor, QPen, QPainter, QBrush, QPixmap, QLinearGradient
 
 from app.utilities import utils
 
+# Inspired by sections of code from https://github.com/mortalis13/Qt-Color-Picker-Qt
+
 def drawRoundRect(painter: QPainter, rect: QRectF, border_size: int, border_radius: int, border_color: QColor):
     pen = QPen()
     pen.setWidth(border_size)
@@ -272,7 +274,7 @@ class RGBSlider(ColorSlider):
 
 class HSVSlider(ColorSlider):
     max_hue = 360
-    max_sv = 100
+    max_sv = 255
     ratio = 1/max_hue
 
     hueChanged = pyqtSignal(QColor)

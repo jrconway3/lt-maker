@@ -122,7 +122,7 @@ class DisplayExpResults(QWidget):
         self.level1.setMaximumWidth(60)
         self.level1.setAlignment(Qt.AlignRight)
         self.level1.valueChanged.connect(self.update_parameters)
-        
+
         self.level2 = QSpinBox(self)
         self.level2.setValue(10)
         self.level2.setRange(1, 255)
@@ -351,7 +351,7 @@ class ConstantDatabase(DatabaseTab):
         self.left_frame.setLayout(self.layout)
 
         bool_section = QGroupBox(self)
-        bool_constants = Data([d for d in self._data if d.attr == bool])
+        bool_constants = Data([d for d in self._data if d.attr == bool and not d.tag == 'hidden'])
         self.bool_model = BoolConstantsModel(bool_constants, self)
         bool_view = QTreeView()
         bool_view.setModel(self.bool_model)
@@ -415,7 +415,7 @@ class ConstantDatabase(DatabaseTab):
         section = QGroupBox(self)
         layout = QVBoxLayout()
         section.setLayout(layout)
-        
+
         for constant_nid in constants:
             constant = self._data.get(constant_nid)
             if not constant:

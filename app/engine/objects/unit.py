@@ -1,3 +1,6 @@
+from app.data.units import UnitPrefab
+from typing import Tuple
+from app.utilities.typing import NID
 from app.utilities import utils
 from app.utilities.data import Prefab
 from app.data.database import DB
@@ -7,43 +10,56 @@ from app.engine.game_state import game
 
 # Main unit object used by engine
 class UnitObject(Prefab):
+    def __init__(self):
+        self.nid: NID = None
+        self.position: Tuple[int, int] = None
+        self.team: str = None
+        self.party: NID = None
+        self.klass: NID = None
+        self.variant: str = None
+        self.level: int = None
+        self.exp: int = 0
+        self.generic: bool = None
+        self.ai = None
+        self.ai_group = None
+
     @classmethod
-    def from_prefab(cls, prefab):
+    def from_prefab(cls, prefab: UnitPrefab):
         self = cls()
-        self.nid = prefab.nid
+        self.nid: str = prefab.nid
         if prefab.starting_position:
             self.position = self.previous_position = tuple(prefab.starting_position)
         else:
             self.position = self.previous_position = None
-        self.team = prefab.team
-        self.party = None
-        self.klass = prefab.klass
-        self.variant = prefab.variant
-        self.level = prefab.level
-        self.exp = 0
-        self.generic = prefab.generic
+        self.team: str = prefab.team
+        self.party: str = None
+        self.klass: str = prefab.klass
+        self.variant: str = prefab.variant
+        self.level: int = prefab.level
+        self.exp: int = 0
+        self.generic: bool = prefab.generic
 
-        self.ai = prefab.ai
-        self.ai_group = prefab.ai_group
+        self.ai: str = prefab.ai
+        self.ai_group: str = prefab.ai_group
 
         self.paired_partner = None
         self.guard_gauge = 0
 
         if self.generic:
-            self.faction = prefab.faction
-            self.name = DB.factions.get(self.faction).name
-            self.desc = DB.factions.get(self.faction).desc
+            self.faction: str = prefab.faction
+            self.name: str = DB.factions.get(self.faction).name
+            self.desc: str = DB.factions.get(self.faction).desc
             self._tags = []
             klass_obj = DB.classes.get(self.klass)
             bases = klass_obj.bases
             growths = klass_obj.growths
-            self.stats = {stat_nid: bases.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
-            self.growths = {stat_nid: growths.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
+            self.stats: dict = {stat_nid: bases.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
+            self.growths: dict = {stat_nid: growths.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
             weapon_gain = klass_obj.wexp_gain
-            self.wexp = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
-            self.portrait_nid = None
-            self.affinity = None
-            self.notes = []
+            self.wexp: dict = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
+            self.portrait_nid: str = None
+            self.affinity: str = None
+            self.notes: list = []
         else:
             self.faction = None
             self.name = prefab.name

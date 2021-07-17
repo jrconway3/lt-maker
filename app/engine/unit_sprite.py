@@ -1,7 +1,9 @@
+from app.engine.game_counters import ANIMATION_COUNTERS
 import math
 
 from app.constants import TILEWIDTH, TILEHEIGHT, COLORKEY
-from app.data.palettes import gray_colors, enemy_colors, other_colors, enemy2_colors, black_colors
+from app.data.palettes import gray_colors, enemy_colors, other_colors, enemy2_colors, black_colors, \
+    player_dark_colors, enemy_dark_colors, gray_dark_colors
 
 from app.resources.resources import RESOURCES
 from app.data.database import DB
@@ -39,9 +41,15 @@ class MapSprite():
 
     def convert_to_team_colors(self, map_sprite):
         if self.team == 'player':
-            return map_sprite.standing_image, map_sprite.moving_image
+            if DB.constants.value('dark_sprites'):
+                conversion_dict = player_dark_colors
+            else:
+                return map_sprite.standing_image, map_sprite.moving_image
         elif self.team == 'enemy':
-            conversion_dict = enemy_colors
+            if DB.constants.value('dark_sprites'):
+                conversion_dict = enemy_dark_colors
+            else:
+                conversion_dict = enemy_colors
         elif self.team == 'enemy2':
             conversion_dict = enemy2_colors
         elif self.team == 'other':
@@ -53,7 +61,11 @@ class MapSprite():
             image_mods.color_convert(map_sprite.moving_image, conversion_dict)
 
     def create_gray(self, imgs):
-        imgs = [image_mods.color_convert(img, gray_colors) for img in imgs]
+        if DB.constants.value('dark_sprites'):
+            color = gray_dark_colors
+        else:
+            color = gray_colors
+        imgs = [image_mods.color_convert(img, color) for img in imgs]
         for img in imgs:
             engine.set_colorkey(img, COLORKEY, rleaccel=True)
         return imgs
@@ -112,7 +124,7 @@ class UnitSprite():
 
     def reset(self):
         self.offset = [0, 0]
-        game.map_view.attack_movement_counter.reset()
+        ANIMATION_COUNTERS.attack_movement_counter.reset()
 
     def add_animation(self, animation_nid):
         anim = RESOURCES.animations.get(animation_nid)
@@ -284,8 +296,8 @@ class UnitSprite():
             else:
                 self.image_state = 'passive'
         elif self.state == 'combat_anim':
-            self.offset[0] = utils.clamp(self.net_position[0], -1, 1) * game.map_view.attack_movement_counter.value()
-            self.offset[1] = utils.clamp(self.net_position[1], -1, 1) * game.map_view.attack_movement_counter.value()
+            self.offset[0] = utils.clamp(self.net_position[0], -1, 1) * ANIMATION_COUNTERS.attack_movement_counter.value()
+            self.offset[1] = utils.clamp(self.net_position[1], -1, 1) * ANIMATION_COUNTERS.attack_movement_counter.value()
         elif self.state == 'chosen':
             self.net_position = game.cursor.position[0] - self.unit.position[0], game.cursor.position[1] - self.unit.position[1]
             self.handle_net_position(self.net_position)
@@ -345,13 +357,13 @@ class UnitSprite():
         if self.unit.is_dying:
             return image[0].copy()
         elif state == 'passive' or state == 'gray':
-            return image[game.map_view.passive_sprite_counter.count].copy()
+            return image[ANIMATION_COUNTERS.passive_sprite_counter.count].copy()
         elif state == 'active':
-            return image[game.map_view.active_sprite_counter.count].copy()
+            return image[ANIMATION_COUNTERS.active_sprite_counter.count].copy()
         elif state == 'combat_anim':
-            return image[game.map_view.fast_move_sprite_counter.count].copy()
+            return image[ANIMATION_COUNTERS.fast_move_sprite_counter.count].copy()
         else:
-            return image[game.map_view.move_sprite_counter.count].copy()
+            return image[ANIMATION_COUNTERS.move_sprite_counter.count].copy()
 
     def create_image(self, state):
         if not self.map_sprite:  # This shouldn't happen, but if it does...
@@ -474,7 +486,7 @@ class UnitSprite():
                                       'combat_targeting', 'item_targeting'):
             cur_unit = game.cursor.cur_unit
         elif game.state.current() == 'free_roam':
-            cur_unit = game.state.state[-1].can_talk()
+            cur_unit = game.get_unit(game.level.roam_unit)
         if not cur_unit:
             return surf
         map_markers = SPRITES.get('map_markers')

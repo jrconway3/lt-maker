@@ -2,91 +2,76 @@
     [
         "Chapter Sound",
         false,
-        false,
-        10.543991088867188
+        false
     ],
     [
         "Distant Roads",
         false,
-        false,
-        108.78333282470703
+        false
     ],
     [
         "Quiet Burn",
         false,
-        true,
-        146.2334747314453
+        true
     ],
     [
         "Shadow of the Enemy",
         false,
-        false,
-        48.018798828125
+        false
     ],
     [
         "Main Theme",
         false,
-        false,
-        182.0353546142578
+        false
     ],
     [
         "Grasp at Victory",
         false,
-        false,
-        86.00923156738281
+        false
     ],
     [
         "Attack",
         false,
-        false,
-        54.00922775268555
+        false
     ],
     [
         "Defense",
         false,
-        false,
-        61.01004409790039
+        false
     ],
     [
         "The Battle Must Be Won",
         false,
-        false,
-        56.02065658569336
+        false
     ],
     [
         "Healing",
         false,
-        false,
-        33.006778717041016
+        false
     ],
     [
         "Combat Preparation",
         false,
-        false,
-        137.0263671875
+        false
     ],
     [
         "Shops",
         false,
-        false,
-        39.01494216918945
+        false
     ],
     [
         "Armory",
         false,
-        false,
-        39.01494216918945
+        false
     ],
     [
         "Game Over",
         false,
-        false,
-        35.01820755004883
+        false
     ],
     [
         "In Sorrows Shroud",
         false,
-        false,
-        60.017391204833984
+        false
     ]
 ]

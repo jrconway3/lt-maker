@@ -1,3 +1,4 @@
+from app.engine.game_counters import ANIMATION_COUNTERS
 from app.utilities import utils
 from app.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
 from app.data.database import DB
@@ -176,7 +177,7 @@ class UIView():
         y_offset = 0
         surf = engine.subsurface(SPRITES.get('bg_black').copy(), (0, 0, WINWIDTH, 40))
         surf = image_mods.make_translucent(surf, .75)
-        
+
         current_unit = game.initiative.get_current_unit()
         unit_list = game.initiative.unit_line[:]
         current_idx = game.initiative.current_idx
@@ -401,6 +402,22 @@ class UIView():
 
         return surf
 
+    def draw_adv_arrows(self, surf, attacker, defender, weapon, def_weapon, topleft):
+        adv = combat_calcs.compute_advantage(attacker, defender, weapon, def_weapon)
+        disadv = combat_calcs.compute_advantage(attacker, defender, weapon, def_weapon, False)
+
+        up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (ANIMATION_COUNTERS.arrow_counter.count * 7, 0, 7, 10))
+        down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (ANIMATION_COUNTERS.arrow_counter.count * 7, 10, 7, 10))
+
+        if adv and adv.modification > 0:
+            surf.blit(up_arrow, topleft)
+        elif adv and adv.modification < 0:
+            surf.blit(down_arrow, topleft)
+        elif disadv and disadv.modification > 0:
+            surf.blit(down_arrow, topleft)
+        elif disadv and disadv.modification < 0:
+            surf.blit(up_arrow, topleft)
+
     def draw_attack_info(self, surf, attacker, weapon, defender):
         # Turns on appropriate combat conditionals to get an accurate read
         skill_system.test_on([], attacker, weapon, defender, 'attack')
@@ -441,43 +458,18 @@ class UIView():
 
         # Advantage arrows
         if skill_system.check_enemy(attacker, defender):
-            adv = combat_calcs.compute_advantage(attacker, defender, weapon, defender.get_weapon())
-            disadv = combat_calcs.compute_advantage(attacker, defender, weapon, defender.get_weapon(), False)
-
-            up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
-            down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
-
-            if adv and adv.modification > 0:
-                surf.blit(up_arrow, (topleft[0] + 13, topleft[1] + 8))
-            elif adv and adv.modification < 0:
-                surf.blit(down_arrow, (topleft[0] + 13, topleft[1] + 8))
-            elif disadv and disadv.modification > 0:
-                surf.blit(down_arrow, (topleft[0] + 13, topleft[1] + 8))
-            elif disadv and disadv.modification < 0:
-                surf.blit(up_arrow, (topleft[0] + 13, topleft[1] + 8))
+            self.draw_adv_arrows(surf, attacker, defender, weapon, defender.get_weapon(), (topleft[0] + 13, topleft[1] + 8))
 
             y_pos = topleft[1] + 105
             if not crit:
                 y_pos -= 16
             if not grandmaster:
                 y_pos -= 16
-            adv = combat_calcs.compute_advantage(defender, attacker, defender.get_weapon(), weapon)
-            disadv = combat_calcs.compute_advantage(defender, attacker, defender.get_weapon(), weapon, False)
 
-            up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
-            down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
-
-            if adv and adv.modification > 0:
-                surf.blit(up_arrow, (topleft[0] + 61, y_pos))
-            elif adv and adv.modification < 0:
-                surf.blit(down_arrow, (topleft[0] + 61, y_pos))
-            elif disadv and disadv.modification > 0:
-                surf.blit(down_arrow, (topleft[0] + 61, y_pos))
-            elif disadv and disadv.modification < 0:
-                surf.blit(up_arrow, (topleft[0] + 61, y_pos))
+            self.draw_adv_arrows(surf, defender, attacker, defender.get_weapon(), weapon, (topleft[0] + 61, y_pos))
 
         # Doubling
-        count = game.map_view.x2_counter.count
+        count = ANIMATION_COUNTERS.x2_counter.count
         x2_pos_player = (topleft[0] + 59 + self.x_positions[count], topleft[1] + 38 + self.y_positions[count])
         x2_pos_enemy = (topleft[0] + 20 + self.x_positions[count], topleft[1] + 38 + self.y_positions[count])
 
@@ -575,10 +567,6 @@ class UIView():
 
             # Blit name
             running_height += 16
-            icon = icons.get_icon(spell)
-            if icon:
-                icon = item_system.item_icon_mod(attacker, spell, defender, icon)
-                bg_surf.blit(icon, (8, running_height))
             name_width = FONT['text-white'].width(spell.name)
             FONT['text-white'].blit(spell.name, bg_surf, (52 - name_width//2, running_height))
 
@@ -642,6 +630,11 @@ class UIView():
         surf.blit(self.spell_info_disp, topleft)
         if defender:
             surf.blit(unit_surf, u_topleft)
+
+        icon = icons.get_icon(spell)
+        if icon:
+            icon = item_system.item_icon_mod(attacker, spell, defender, icon)
+            surf.blit(icon, (topleft[0] + 8, topleft[1] + self.spell_info_disp.get_height() - 20))
 
         # Turns off combat conditionals
         skill_system.test_off([], attacker, spell, defender, 'attack')

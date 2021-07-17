@@ -76,6 +76,7 @@ class Resources():
 
         # Load custom sprites for the UI
         # This should overwrite the regular sprites in the "/sprites" folder
+        sprites.reset()
         sprites.load_sprites(os.path.join(self.main_folder, 'custom_sprites'))
 
         if specific:

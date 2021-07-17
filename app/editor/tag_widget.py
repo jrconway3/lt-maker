@@ -46,7 +46,7 @@ class TagMultiModel(MultiAttrListModel):
                 klass.tags = [new_value if elem == old_value else elem for elem in klass.tags]
 
 class TagDialog(MultiAttrListDialog):
-    locked_vars = {"AutoPromote", "NoAutoPromote", "Boss", "ZeroMove", "Lord", "Tile"}
+    locked_vars = {"AutoPromote", "NoAutoPromote", "Boss", "Lord", "Tile"}
 
     @classmethod
     def create(cls, parent=None):

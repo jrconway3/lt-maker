@@ -99,7 +99,7 @@ class WeaponModel(DragDropCollectionModel):
         nids = [d.nid for d in self._data]
         nid = name = str_utils.get_next_name("New Weapon Type", nids)
         new_weapon = weapons.WeaponType(
-            nid, name, weapons.CombatBonusList(),
+            nid, name, False, weapons.CombatBonusList(),
             weapons.CombatBonusList(), weapons.CombatBonusList())
         DB.weapons.append(new_weapon)
         return new_weapon

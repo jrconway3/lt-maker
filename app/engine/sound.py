@@ -16,9 +16,6 @@ class Song():
 
         self.channel = None
 
-    def battle(self):
-        return self.battle
-
 class MusicDict(dict):
     def preload(self, nids):
         for nid in nids:
@@ -388,16 +385,34 @@ class SoundController():
         oldest_channel.set_fade_in_time(fade_in)
         oldest_channel.set_current_song(song, num_plays)
 
+    def battle_fade_in(self, next_song, fade=400):
+        song = MUSIC.get(next_song)
+        if not song:
+            logging.warning("Song does not exist")
+            return None
+        if song.battle:
+            self.crossfade(fade)
+            return song
+        else:
+            return self.fade_in(next_song, fade_in=fade, from_start=True)
+
+    def battle_fade_back(self, song):
+        if song.battle:
+            self.crossfade()
+        else:
+            self.fade_back()
+
     def crossfade(self, fade=400):
         self.current_channel.set_fade_in_time(fade)
         self.current_channel.set_fade_out_time(fade)
         self.current_channel.crossfade()
+        return True
 
     def fade_in(self, next_song, num_plays=-1, fade_in=400, from_start=False):
         logging.info("Fade in %s" % next_song)
         next_song = MUSIC.get(next_song)
         if not next_song:
-            logging.info("Song does not exist")
+            logging.warning("Song does not exist")
             return None
 
         is_playing = self.is_playing()
@@ -493,10 +508,11 @@ class SoundController():
             self.reset_timers()
             self.pause()
 
-    def play_sfx(self, sound, loop=False):
+    def play_sfx(self, sound, loop=False, volume=1):
         sfx = SFX.get(sound)
         if sfx:
-            sfx.set_volume(self.global_sfx_volume)
+            vol = utils.clamp(self.global_sfx_volume * volume, 0, 1)
+            sfx.set_volume(vol)
             if loop:
                 sfx.play(-1)
             else:

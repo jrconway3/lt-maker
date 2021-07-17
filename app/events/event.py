@@ -1,4 +1,14 @@
+from app.utilities.algorithms.interpolation import cubic_easing, tcubic_easing
+from app.engine.overworld.overworld_movement_manager import OverworldMovementManager
+from typing import Callable, Dict, List
+from app.engine.graphics.dialog.narration_dialogue import NarrationDialogue
+from app.engine.overworld.overworld_actions import OverworldMove
+from app.engine.overworld.overworld_map_view import OverworldMapView
+from app.engine.objects.overworld import OverworldNodeObject
+from app.utilities.typing import NID
+import app.engine.graphics.ui_framework as uif
 import re
+import app.engine.config as cf
 
 from app.constants import WINWIDTH, WINHEIGHT
 from app.utilities import utils, str_utils
@@ -15,6 +25,7 @@ from app.engine import dialog, engine, background, target_system, action, \
     evaluate, static_random, image_mods, icons
 from app.engine.combat import interaction
 from app.engine.objects.unit import UnitObject
+from app.engine.objects.item import ItemObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.animations import MapAnimation
 from app.engine.sound import SOUNDTHREAD
@@ -32,6 +43,10 @@ screen_positions = {'OffscreenLeft': -96,
                     'Right': 144,
                     'FarRight': 168,
                     'OffscreenRight': 240}
+
+vertical_screen_positions = {'Top': 0,
+                             'Middle': 40,
+                             'Bottom': 80}
 
 class Event():
     _transition_speed = 250
@@ -55,9 +70,10 @@ class Event():
         self.position = position
         self.region = region
 
-        self.portraits = {}
+        self.portraits: Dict[str, EventPortrait] = {}
         self.text_boxes = []
         self.other_boxes = []
+        self.overlay_ui = uif.UIComponent.create_base_component()
 
         self.prev_state = None
         self.state = 'processing'
@@ -65,7 +81,7 @@ class Event():
         self.turnwheel_flag = 0  # Whether to enter the turnwheel state after this event is finished
         self.battle_save_flag = 0  # Whether to enter the battle save state after this event is finished
 
-        self.wait_time = 0
+        self.wait_time: int = 0
 
         # Handles keeping the order that unit sprites should be drawn
         self.priority_counter = 1
@@ -84,6 +100,17 @@ class Event():
 
         # For map animations
         self.animations = []
+
+        # a way of passing key input events down to individual events
+        # map between name of listener, and listener function
+        self.functions_listening_for_input: Dict[str, Callable[[str]]] = {}
+
+        # a way for any arbitrary event to block state processing until an arbitrary condition is fulfilled
+        self.should_remain_blocked: List[Callable[[], bool]] = []
+
+        # a method of queueing unblocked actions that require updating (e.g. movement)
+        # update functions should return False once they are finished (so they can be removed from the queue)
+        self.should_update: List[Callable[[], bool]] = []
 
     @property
     def unit1(self):
@@ -120,6 +147,8 @@ class Event():
 
     def update(self):
         current_time = engine.get_time()
+        # update all internal updates, remove the ones that are finished
+        self.should_update = [to_update for to_update in self.should_update if not to_update()]
 
         # Can move through its own internal state up to 5 times in a frame
         counter = 0
@@ -156,6 +185,20 @@ class Event():
             elif self.state == 'complete':
                 break
 
+            elif self.state == 'blocked':
+                # state is blocked; try to unblock
+                should_still_be_blocked = False
+                for check_still_blocked in self.should_remain_blocked:
+                    if check_still_blocked(): # we haven't fulfilled unblock conditions
+                        should_still_be_blocked = True
+                        break
+                if should_still_be_blocked:
+                    break
+                else:
+                    # resume execution and clear blockers
+                    self.should_remain_blocked.clear()
+                    self.state = 'processing'
+
         # Handle transition
         if self.transition_state:
             perc = (current_time - self.transition_update) / self.transition_speed
@@ -164,6 +207,20 @@ class Event():
             self.transition_progress = utils.clamp(perc, 0, 1)
             if perc < 0:
                 self.transition_state = None
+
+    def take_input(self, event):
+        if event == 'START' or event == 'BACK':
+            SOUNDTHREAD.play_sfx('Select 4')
+            self.skip(event == 'START')
+
+        elif event == 'SELECT' or event == 'RIGHT' or event == 'DOWN':
+            if self.state == 'dialog':
+                if not cf.SETTINGS['talk_boop']:
+                    SOUNDTHREAD.play_sfx('Select 1')
+                self.hurry_up()
+
+        for listener in self.functions_listening_for_input.values():
+            listener(event)
 
     def draw(self, surf):
         self.animations = [anim for anim in self.animations if not anim.update()]
@@ -198,6 +255,9 @@ class Event():
             for dialog_box in to_draw:
                 dialog_box.update()
                 dialog_box.draw(surf)
+            # draw all uiframework elements
+            ui_surf = self.overlay_ui.to_surf()
+            surf.blit(ui_surf, (0, 0))
 
         # Fade to black
         if self.transition_state:
@@ -289,6 +349,9 @@ class Event():
         self.transition_state = None
         self.hurry_up()
         self.text_boxes.clear()
+        self.should_remain_blocked.clear()
+        while self.should_update:
+            self.should_update = [to_update for to_update in self.should_update if not to_update()]
 
     def hurry_up(self):
         if self.text_boxes:
@@ -334,7 +397,10 @@ class Event():
 
         elif command.nid == 'sound':
             sound = command.values[0]
-            SOUNDTHREAD.play_sfx(sound)
+            volume = 1
+            if len(command.values) > 1 and command.values[1]:
+                volume = float(command.values[1])
+            SOUNDTHREAD.play_sfx(sound, volume=volume)
 
         elif command.nid == 'change_music':
             phase = command.values[0]
@@ -458,11 +524,16 @@ class Event():
             if not position:
                 logging.error("Could not determine position from %s" % values[0])
                 return
+
             game.cursor.set_pos(position)
             if 'immediate' in flags or self.do_skip:
                 game.camera.force_xy(*position)
             else:
-                game.camera.set_xy(*position)
+                if len(values) > 1:
+                    # we are using a custom camera speed
+                    duration = int(values[1])
+                    game.camera.do_slow_pan(duration)
+                game.camera.set_center(*position)
                 game.state.change('move_camera')
                 self.state = 'paused'  # So that the message will leave the update loop
 
@@ -612,6 +683,18 @@ class Event():
         elif command.nid == 'remove_item':
             self.remove_item(command)
 
+        elif command.nid == 'change_item_name':
+            self.change_item_name(command)
+
+        elif command.nid == 'change_item_desc':
+            self.change_item_desc(command)
+
+        elif command.nid == 'add_item_to_multiitem':
+            self.add_item_to_multiitem(command)
+
+        elif command.nid == 'remove_item_from_multiitem':
+            self.remove_item_from_multiitem(command)
+
         elif command.nid == 'give_money':
             self.give_money(command)
 
@@ -643,6 +726,18 @@ class Event():
                 action.do(action.ChangeAI(unit, values[1]))
             else:
                 logging.error("Couldn't find AI %s" % values[1])
+                return
+
+        elif command.nid == 'change_party':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            if values[1] in DB.parties.keys():
+                action.do(action.ChangeParty(unit, values[1]))
+            else:
+                logging.error("Couldn't find Party %s" % values[1])
                 return
 
         elif command.nid == 'change_team':
@@ -724,6 +819,7 @@ class Event():
                 return
             mana = int(values[1])
             action.do(action.SetMana(unit, mana))
+
 
         elif command.nid == 'resurrect':
             values, flags = event_commands.parse(command)
@@ -808,8 +904,33 @@ class Event():
             prefabs = DB.support_pairs.get_pairs(unit1.nid, unit2.nid)
             if prefabs:
                 prefab = prefabs[0]
-                print(prefab.nid, inc)
                 action.do(action.IncrementSupportPoints(prefab.nid, inc))
+            else:
+                logging.error("Couldn't find prefab for units %s and %s" % (unit1.nid, unit2.nid))
+                return
+
+        elif command.nid == 'unlock_support_rank':
+            values, flags = event_commands.parse(command)
+            unit1 = self.get_unit(values[0])
+            if not unit1:
+                unit1 = DB.units.get(values[0])
+            if not unit1:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            unit2 = self.get_unit(values[1])
+            if not unit2:
+                unit2 = DB.units.get(values[1])
+            if not unit2:
+                logging.error("Couldn't find unit %s" % values[1])
+                return
+            rank = values[2]
+            if rank not in DB.support_ranks.keys():
+                logging.error("Support rank %s not a valid rank!" % rank)
+                return
+            prefabs = DB.support_pairs.get_pairs(unit1.nid, unit2.nid)
+            if prefabs:
+                prefab = prefabs[0]
+                action.do(action.UnlockSupportRank(prefab.nid, rank))
             else:
                 logging.error("Couldn't find prefab for units %s and %s" % (unit1.nid, unit2.nid))
                 return
@@ -908,15 +1029,22 @@ class Event():
                 logging.error("Could not find map animtion %s" % nid)
                 return
             pos = self.parse_pos(values[1])
+            if len(values) > 2:
+                speed_mult = int(values[2])
+            else:
+                speed_mult = 1
             anim = RESOURCES.animations.get(nid)
-            anim = MapAnimation(anim, pos)
+            anim = MapAnimation(anim, pos, speed_adj=speed_mult)
             self.animations.append(anim)
 
-            if 'no_block' in flags:
+            if 'no_block' in flags or self.do_skip:
                 pass
             else:
                 self.wait_time = engine.get_time() + anim.get_wait()
                 self.state = 'waiting'
+
+        elif command.nid == 'merge_parties':
+            self.merge_parties(command)
 
         elif command.nid == 'arrange_formation':
             self.arrange_formation()
@@ -1075,6 +1203,27 @@ class Event():
         elif command.nid == 'change_roaming_unit':
             self.change_roaming_unit(command)
 
+        elif command.nid == 'overworld_cinematic':
+            self.start_overworld_cinematic(command)
+
+        elif command.nid == 'set_overworld_position':
+            self.set_overworld_position(command)
+
+        elif command.nid == 'reveal_overworld_node':
+            self.reveal_overworld_node(command)
+
+        elif command.nid == 'reveal_overworld_road':
+            self.reveal_overworld_road(command)
+
+        elif command.nid == 'overworld_move_unit':
+            self.overworld_move_unit(command)
+
+        elif command.nid == 'toggle_narration_mode':
+            self.toggle_narration(command)
+
+        elif command.nid == 'narrate':
+            self.overworld_speak(command)
+
         elif command.nid == 'clean_up_roaming':
             self.clean_up_roaming(command)
 
@@ -1102,8 +1251,12 @@ class Event():
             return False
 
         pos = values[1]
+        if len(values) > 4 and values[4]: # there's a vertical position as well
+            vert_pos = values[4]
+        else:
+            vert_pos = 'Bottom'
         if pos in screen_positions:
-            position = [screen_positions[pos], 80]
+            position = [screen_positions[pos], vertical_screen_positions[vert_pos]]
             mirror = 'Left' in pos
         else:
             position = [int(p) for p in pos.split(',')]
@@ -1307,10 +1460,8 @@ class Event():
         position = self.check_placement(unit, position, placement)
         if not position:
             return None
-
         if DB.constants.value('initiative'):
             action.do(action.InsertInitiative(unit))
-
         self._place_unit(unit, position, entry_type)
 
     def move_unit(self, command):
@@ -1377,10 +1528,8 @@ class Event():
             remove_type = values[1]
         else:
             remove_type = 'fade'
-
         if DB.constants.value('initiative'):
             action.do(action.RemoveInitiative(unit))
-
         if self.do_skip:
             action.do(action.LeaveMap(unit))
         elif remove_type == 'warp':
@@ -1646,10 +1795,9 @@ class Event():
             remove_type = 'fade'
         for unit_nid in group.units:
             unit = game.get_unit(unit_nid)
+            if DB.constants.value('initiative'):
+                action.do(action.RemoveInitiative(unit))
             if unit.position:
-                if DB.constants.value('initiative'):
-                    action.do(action.RemoveInitiative(unit))
-
                 if self.do_skip:
                     action.do(action.LeaveMap(unit))
                 elif remove_type == 'warp':
@@ -1685,13 +1833,24 @@ class Event():
         Cannot be turnwheeled
         """
         values, flags = event_commands.parse(command)
+
+
+        reload_map = 'reload' in flags
+        if reload_map and game.is_displaying_overworld(): # just go back to the level
+            from app.engine import level_cursor, map_view, movement
+            game.cursor = level_cursor.LevelCursor(game)
+            game.movement =  movement.MovementManager()
+            game.map_view = map_view.MapView()
+            return
+
+        if not len(values) > 0:
+            return
         tilemap_nid = values[0]
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
         if not tilemap_prefab:
             logging.error("Couldn't find tilemap %s" % tilemap_nid)
             return
 
-        reload_map = 'reload' in flags
         if len(values) > 1 and values[1]:
             position_offset = tuple(str_utils.intify(values[1]))
         else:
@@ -1714,6 +1873,12 @@ class Event():
 
         tilemap = TileMapObject.from_prefab(tilemap_prefab)
         game.level.tilemap = tilemap
+        if game.is_displaying_overworld():
+            # we were in the overworld before this, so we should probably reset cursor and such
+            from app.engine import level_cursor, map_view, movement
+            game.cursor = level_cursor.LevelCursor(game)
+            game.movement = movement.MovementManager()
+            game.map_view = map_view.MapView()
         game.set_up_game_board(game.level.tilemap)
 
         # If we're reloading the map
@@ -1842,7 +2007,6 @@ class Event():
         game.full_register(new_unit)
         if assign_unit:
             self.unit = new_unit
-
         if DB.constants.value('initiative'):
             action.do(action.InsertInitiative(unit))
 
@@ -1900,26 +2064,86 @@ class Event():
                 game.state.change('alert')
                 self.state = 'paused'
 
-    def remove_item(self, command):
-        values, flags = event_commands.parse(command)
+    def get_item_in_inventory(self, values):
         unit = self.get_unit(values[0])
         if not unit:
             logging.error("Couldn't find unit with nid %s" % values[0])
-            return
+            return None, None
         item_nid = values[1]
         if item_nid not in [item.nid for item in unit.items]:
             logging.error("Couldn't find item with nid %s" % values[1])
+            return None, None
+        item = [item for item in unit.items if item.nid == item_nid][0]
+        return unit, item
+
+    def remove_item(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
             return
         banner_flag = 'no_banner' not in flags
-        item = [item for item in unit.items if item.nid == item_nid][0]
 
         action.do(action.RemoveItem(unit, item))
         if banner_flag:
-            item = DB.items.get(item_nid)
+            item = DB.items.get(item.nid)
             b = banner.TakeItem(unit, item)
             game.alerts.append(b)
             game.state.change('alert')
             self.state = 'paused'
+
+    def change_item_name(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
+            return
+        name = values[2]
+
+        action.do(action.ChangeItemName(item, name))
+
+    def change_item_desc(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
+            return
+        desc = values[2]
+
+        action.do(action.ChangeItemDesc(item, desc))
+
+    def add_item_to_multiitem(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
+            return
+        if not item.multi_item:
+            logging.error("Item %s is not a multi-item!" % item.nid)
+            return
+        subitem_prefab = DB.items.get(values[2])
+        if not subitem_prefab:
+            logging.error("Couldn't find item with nid %s" % values[2])
+            return
+        # Create subitem
+        subitem = ItemObject.from_prefab(subitem_prefab)
+        for component in subitem.components:
+            component.item = item
+        item_system.init(subitem)
+        game.register_item(subitem)
+        action.do(action.AddItemToMultiItem(unit, item, subitem))
+
+    def remove_item_from_multiitem(self, command):
+        values, flags = event_commands.parse(command)
+        unit, item = self.get_item_in_inventory(values)
+        if not unit or not item:
+            return
+        if not item.multi_item:
+            logging.error("Item %s is not a multi-item!" % item.nid)
+            return
+        # Check if item in multiitem
+        subitem_nids = [subitem.nid for subitem in item.subitems]
+        if values[2] not in subitem_nids:
+            logging.error("Couldn't find subitem with nid %s" % values[2])
+            return
+        subitem = [subitem for subitem in item.subitems if subitem.nid == values[2]][0]
+        action.do(action.RemoveItemFromMultiItem(unit, item, subitem))
 
     def give_money(self, command):
         values, flags = event_commands.parse(command)
@@ -2212,6 +2436,35 @@ class Event():
 
         action.do(action.AddRegion(new_region))
 
+    def merge_parties(self, command):
+        values, flags = event_commands.parse(command)
+        host, guest = values[0], values[1]
+        if host not in DB.parties.keys():
+            logging.error("Could not locate party %s" % host)
+            return
+        if guest not in DB.parties.keys():
+            logging.error("Could not locate party %s" % guest)
+            return
+        guest_party = game.get_party(guest)
+        # Merge units
+        for unit in game.units:
+            if unit.party == guest:
+                action.do(action.ChangeParty(unit, host))
+        # Merge items
+        for item in guest_party.convoy:
+            action.do(action.RemoveItemFromConvoy(item, guest))
+            action.do(action.PutItemInConvoy(item, host))
+        # Merge money
+        # host.money += guest.money
+        action.do(action.GainMoney(host, guest_party.money))
+        # guest.money -= guest.money
+        action.do(action.GainMoney(guest, -guest_party.money))
+        # Merge bexp
+        # host.bexp += guest.bexp
+        action.do(action.GiveBexp(host, guest_party.bexp))
+        # guest.bexp -= guest.bexp
+        action.do(action.GiveBexp(guest, -guest_party.bexp))
+
     def arrange_formation(self):
         """
         # Takes all the units that can be placed on a formation spot that aren't already
@@ -2333,6 +2586,199 @@ class Event():
             else:
                 game.level.roam_unit = None
 
+    def start_overworld_cinematic(self, command):
+        values, flags = event_commands.parse(command)
+        if values:
+            overworld_nid = values[0]
+        else:
+            overworld_nid = DB.overworlds.values()[0].nid
+        from app.engine.overworld.overworld_states import OverworldState
+        OverworldState.set_up_overworld_game_state(overworld_nid)
+
+    def set_overworld_position(self, command):
+        values, flags = event_commands.parse(command)
+        party_nid: NID = values[0]
+        overworld_node_nid: NID = values[1]
+        entity_exists = False
+        node_exists = False
+        overworld = game.overworld_controller
+        entity = overworld.entities[party_nid]
+        node = overworld.nodes[overworld_node_nid]
+        if entity is None or node is None:
+            if not entity_exists:
+                logging.error('{}: Party with NID {} not found.'.format('set_overworld_position', party_nid))
+            if not node_exists:
+                logging.error('{}: Node with NID {} not found.'.format('set_overworld_position', overworld_node_nid))
+            return
+        # both node and entity exist
+        if overworld_node_nid not in overworld.revealed_node_nids:
+            # node isn't enabled yet
+            logging.error('{}: Node {} exists, but is not yet enabled in overworld {}.'.format('set_overworld_position', overworld_node_nid, overworld._overworld.nid))
+            return
+        else:
+            # both exist and node is enabled
+            # move the entity
+            entity.on_node = node.nid
+            return
+
+    def reveal_overworld_node(self, command):
+        values, flags = event_commands.parse(command)
+        overworld_node_nid: NID = values[0]
+        if len(values) > 1:
+            force = values[1]
+        else:
+            force = False
+        overworld = game.overworld_controller
+        node = overworld.nodes[overworld_node_nid]
+        if not node:
+            logging.error('{}: Node with NID {} not found'.format('reveal_overworld_node', overworld_node_nid))
+            return
+        overworld.enable_node(overworld_node_nid)
+        if not force and not self.do_skip:
+            node.sprite.set_transition('fade_in')
+            self.wait_time = engine.get_time() + node.sprite.transition_time
+            self.state = 'waiting'
+
+    def reveal_overworld_road(self, command):
+        values, flags = event_commands.parse(command)
+        node_1_nid: NID = values[0]
+        node_2_nid: NID = values[1]
+        if len(values) > 2:
+            force = values[2]
+        else:
+            force = False
+        overworld = game.overworld_controller
+        # both nodes should be enabled
+        if node_1_nid not in overworld.revealed_node_nids or node_2_nid not in overworld.revealed_node_nids:
+            return
+        # both nodes should be neighbors
+        if node_2_nid not in overworld.connected_nodes(node_1_nid, force=True):
+            return
+
+        road = overworld.get_road(node_1_nid, node_2_nid, True)
+        if not road:
+            logging.error('{}: Road between nodes {} and {} not found'.format('reveal_overworld_road', node_1_nid, node_2_nid))
+            return
+        overworld.enable_road(road.nid)
+        if not force and not self.do_skip:
+            road.sprite.set_transition('fade_in')
+            self.wait_time = engine.get_time() + road.sprite.transition_time
+            self.state = 'waiting'
+
+    def overworld_move_unit(self, command):
+        values, flags = event_commands.parse(command)
+        entity = game.overworld_controller.entities[values[0]]
+        if not entity:
+            logging.error("%s: Couldn't find entity %s", "overworld_move_unit", values[0])
+            return
+        if not entity.position:
+            logging.error("Unit not on map!")
+            return
+
+        target_node_nid = values[1]
+        follow = 'no_follow' not in flags
+        block = 'no_block' not in flags
+
+        if len(values) > 2 and values[2]:
+            speed_adj = int(values[2])
+        else:
+            speed_adj = 5
+
+        # queue the movement
+        selected_node: OverworldNodeObject = game.overworld_controller.nodes[target_node_nid]
+        if selected_node:
+            entity_node = game.overworld_controller.nodes[entity.on_node]
+            if game.overworld_controller.any_path(entity_node, selected_node): # if there is a path from the unit to this node
+                if self.do_skip: # we are skipping; resolve this instantly
+                    entity.on_node = selected_node.nid
+                    return
+                elif block: # block event execution and resolve the movement
+                    movement = OverworldMove(entity, selected_node, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj)
+                    movement.queue(game.movement)
+                    self.state = 'paused'
+                    game.state.change('overworld_movement')
+                else:               # resolve the movement in the background
+                    self.overworld_movement_manager = OverworldMovementManager(game.overworld_controller)
+                    movement = OverworldMove(entity.nid, selected_node.nid, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj)
+                    movement.queue(self.overworld_movement_manager)
+                    game.camera.do_slow_pan(1000)
+                    game.camera.set_center(entity.position[0], entity.position[1])
+                    
+                    def update_movement():
+                        # make sure the camera is centered first
+                        if not game.camera.at_rest():
+                            return
+                        self.overworld_movement_manager.update()
+                        focal_unit_nid = self.overworld_movement_manager.get_following_unit()
+                        if focal_unit_nid:
+                            focal_unit = game.overworld_controller.entities[focal_unit_nid]
+                            unit_position = focal_unit.display_position
+                            game.cursor.set_pos((round(unit_position[0]), round(unit_position[1])))
+                            game.camera.set_center(*unit_position)
+                        if len(self.overworld_movement_manager) <= 0:
+                            return True
+                        return False
+
+                    self.should_update.append(update_movement)
+
+    def toggle_narration(self, command):
+        values, flags = event_commands.parse(command)
+        toggle_which = values[0].lower()
+        if len(values) > 1:
+            anim_duration = int(values[1])
+        else:
+            anim_duration = 1000
+        # initialize if the component doesn't exist
+        if not self.overlay_ui.has_child('event_narration'):
+            narration_component = NarrationDialogue('event_narration', self.overlay_ui, anim_duration)
+            self.overlay_ui.add_child(narration_component)
+            narration_component.disable()
+        else:
+            narration_component: NarrationDialogue = self.overlay_ui.get_child('event_narration')
+
+        # animate in or out
+        if not self.do_skip:
+            if toggle_which == 'open':
+
+                narration_component.enter()
+                self.wait_time = engine.get_time() + anim_duration
+                self.state = 'waiting'
+            else:
+                narration_component: NarrationDialogue = self.overlay_ui.get_child('event_narration')
+                narration_component.exit()
+                self.wait_time = engine.get_time() + anim_duration
+                self.state = 'waiting'
+
+    def overworld_speak(self, command):
+        if not self.overlay_ui.has_child('event_narration'):
+            logging.error("%s: Not currently in overworld narration mode", "overworld_speak")
+            return
+
+        narration_component: NarrationDialogue = self.overlay_ui.get_child('event_narration')
+
+        values, flags = event_commands.parse(command)
+        narrator = values[0]
+        dialogue = values[1]
+
+        # add the hurry up handler if it doesn't already exist
+        if 'event_narration_listener' not in self.functions_listening_for_input:
+            def handle_input(event):
+                narration_component.hurry_up(event)
+            self.functions_listening_for_input['event_narration_listener'] = handle_input
+
+        dialogue = self._evaluate_evals(dialogue)
+        dialogue = self._evaluate_vars(dialogue)
+
+        narration_component.push_text(narrator, dialogue)
+        if 'no_block' in flags or self.do_skip:
+            pass
+        else:
+            # block state execution while dialogue resolves
+            def should_block():
+                return not narration_component.finished()
+            self.should_remain_blocked.append(should_block)
+            self.state = 'blocked'
+
     def clean_up_roaming(self, command):
         # WARNING: Not currently turnwheel combatible
         values, flags = event_commands.parse(command)
@@ -2364,8 +2810,10 @@ class Event():
             position = tuple(int(_) for _ in text.split(','))
         elif text == '{position}':
             position = self.position
-        elif self.get_unit(text):
+        elif not game.is_displaying_overworld() and self.get_unit(text):
             position = self.get_unit(text).position
+        elif game.is_displaying_overworld() and self.get_overworld_location_of_object(text):
+            position = self.get_overworld_location_of_object(text).position
         else:
             valid_regions = \
                 [tuple(region.position) for region in game.level.regions
@@ -2382,3 +2830,16 @@ class Event():
             return self.unit2
         else:
             return game.get_unit(text)
+
+    def get_overworld_location_of_object(self, text, entity_only=False, node_only=False) -> OverworldNodeObject:
+        if game.overworld_controller:
+            if not node_only and text in game.overworld_controller.entities:
+                entity_at_nid = game.overworld_controller.entities[text]
+                if entity_at_nid:
+                    return entity_at_nid.node
+
+            if not entity_only and text in game.overworld_controller.nodes:
+                node_at_nid = game.overworld_controller.nodes[text]
+                if node_at_nid:
+                    return node_at_nid
+        return None

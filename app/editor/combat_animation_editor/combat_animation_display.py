@@ -1,4 +1,6 @@
-import time, os, pickle
+import time, os, glob
+import json
+import pickle
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QWidget, QGroupBox, QFormLayout, QSpinBox, QFileDialog, \
@@ -8,8 +10,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QIcon, QPainter
 
 from app.constants import WINWIDTH, WINHEIGHT
+from app.resources import combat_anims, combat_palettes
+from app.resources.resources import RESOURCES
 from app.data.database import DB
-from app.resources import combat_anims
 
 from app.editor.settings import MainSettingsController
 
@@ -23,8 +26,18 @@ import app.editor.combat_animation_editor.combat_animation_imports as combat_ani
 from app.extensions.custom_gui import ComboBox
 
 import app.editor.utilities as editor_utilities
-from app import utilities
-                
+from app.utilities import str_utils
+
+# Game interface
+import app.editor.game_actions.game_actions as GAME_ACTIONS
+
+def populate_anim_pixmaps(combat_anim):
+    for weapon_anim in combat_anim.weapon_anims:
+        weapon_anim.pixmap = QPixmap(weapon_anim.full_path)
+        for frame in weapon_anim.frames:
+            x, y, width, height = frame.rect
+            frame.pixmap = weapon_anim.pixmap.copy(x, y, width, height)
+
 class CombatAnimProperties(QWidget):
     def __init__(self, parent, current=None):
         QWidget.__init__(self, parent)
@@ -33,12 +46,41 @@ class CombatAnimProperties(QWidget):
 
         # Populate resources
         for combat_anim in self._data:
-            for weapon_anim in combat_anim.weapon_anims:
-                weapon_anim.pixmap = QPixmap(weapon_anim.full_path)
-                for frame in weapon_anim.frames:
-                    x, y, width, height = frame.rect
-                    frame.pixmap = weapon_anim.pixmap.copy(x, y, width, height)
+            populate_anim_pixmaps(combat_anim)
 
+        self.control_setup(current)
+
+        self.info_form = QFormLayout()
+
+        self.nid_box = QLineEdit()
+        self.nid_box.textChanged.connect(self.nid_changed)
+        self.nid_box.editingFinished.connect(self.nid_done_editing)
+
+        self.settings = MainSettingsController()
+        theme = self.settings.get_theme(0)
+        if theme == 0:
+            icon_folder = 'icons/icons'
+        else:
+            icon_folder = 'icons/dark_icons'
+
+        weapon_row = self.set_up_weapon_box(icon_folder)
+        pose_row = self.set_up_pose_box(icon_folder)
+
+        self.info_form.addRow("Unique ID", self.nid_box)
+        self.info_form.addRow("Weapon", weapon_row)
+        self.info_form.addRow("Pose", pose_row)
+
+        self.build_frames()
+        self.set_layout()
+
+    def save_state(self) -> str:
+        return [self.main_splitter.saveState(), self.right_splitter.saveState()]
+
+    def restore_state(self, state):
+        self.main_splitter.restoreState(state[0])
+        self.right_splitter.restoreState(state[1])
+
+    def control_setup(self, current):
         self.current = current
         self.playing = False
         self.paused = False
@@ -60,10 +102,10 @@ class CombatAnimProperties(QWidget):
         self.palette_menu = PaletteMenu(self)
         self.timeline_menu = TimelineMenu(self)
 
-        view_section = QVBoxLayout()
+        self.view_section = QVBoxLayout()
 
-        button_section = QHBoxLayout()
-        button_section.setAlignment(Qt.AlignTop)
+        self.button_section = QHBoxLayout()
+        self.button_section.setAlignment(Qt.AlignTop)
 
         self.play_button = QToolButton(self)
         self.play_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
@@ -78,34 +120,34 @@ class CombatAnimProperties(QWidget):
         self.loop_button.clicked.connect(self.loop_clicked)
         self.loop_button.setCheckable(True)
 
+        self.export_button = QToolButton(self)
+        self.export_button.setIcon(self.style().standardIcon(QStyle.SP_DirLinkIcon))
+        self.export_button.clicked.connect(self.export_clicked)
+        self.export_button.setToolTip("Export Animation as PNGs...")
+
+        self.test_combat_button = QToolButton(self)
+        self.test_combat_button.setIcon(QIcon('favicon.ico'))
+        self.test_combat_button.clicked.connect(self.test_combat)
+        self.test_combat_button.setToolTip("Display Animation in Engine")
+
         label = QLabel("FPS ")
         label.setAlignment(Qt.AlignRight)
 
         self.speed_box = QSpinBox(self)
-        self.speed_box.setValue(30)
+        self.speed_box.setValue(60)
         self.speed_box.setRange(1, 240)
         self.speed_box.valueChanged.connect(self.speed_changed)
 
-        button_section.addWidget(self.play_button)
-        button_section.addWidget(self.stop_button)
-        button_section.addWidget(self.loop_button)
-        button_section.addSpacing(40)
-        button_section.addWidget(label, Qt.AlignRight)
-        button_section.addWidget(self.speed_box, Qt.AlignRight)
+        self.button_section.addWidget(self.play_button)
+        self.button_section.addWidget(self.stop_button)
+        self.button_section.addWidget(self.loop_button)
+        self.button_section.addWidget(self.export_button)
+        self.button_section.addWidget(self.test_combat_button)
+        self.button_section.addSpacing(40)
+        self.button_section.addWidget(label, Qt.AlignRight)
+        self.button_section.addWidget(self.speed_box, Qt.AlignRight)
 
-        info_form = QFormLayout()
-
-        self.nid_box = QLineEdit()
-        self.nid_box.textChanged.connect(self.nid_changed)
-        self.nid_box.editingFinished.connect(self.nid_done_editing)
-
-        self.settings = MainSettingsController()
-        theme = self.settings.get_theme(0)
-        if theme == 0:
-            icon_folder = 'icons/icons'
-        else:
-            icon_folder = 'icons/dark_icons'
-
+    def set_up_weapon_box(self, icon_folder):
         weapon_row = QHBoxLayout()
         self.weapon_box = ComboBox()
         self.weapon_box.currentIndexChanged.connect(self.weapon_changed)
@@ -124,7 +166,9 @@ class CombatAnimProperties(QWidget):
         weapon_row.addWidget(self.new_weapon_button)
         weapon_row.addWidget(self.duplicate_weapon_button)
         weapon_row.addWidget(self.delete_weapon_button)
+        return weapon_row
 
+    def set_up_pose_box(self, icon_folder):
         pose_row = QHBoxLayout()
         self.pose_box = ComboBox()
         self.pose_box.currentIndexChanged.connect(self.pose_changed)
@@ -143,49 +187,55 @@ class CombatAnimProperties(QWidget):
         pose_row.addWidget(self.new_pose_button)
         pose_row.addWidget(self.duplicate_pose_button)
         pose_row.addWidget(self.delete_pose_button)
+        return pose_row
 
-        info_form.addRow("Unique ID", self.nid_box)
-        info_form.addRow("Weapon", weapon_row)
-        info_form.addRow("Pose", pose_row)
-
-        frame_group_box = QGroupBox()
-        frame_group_box.setTitle("Image Frames")
+    def build_frames(self):
+        self.frame_group_box = QGroupBox()
+        self.frame_group_box.setTitle("Image Frames")
         frame_layout = QVBoxLayout()
-        frame_group_box.setLayout(frame_layout)
-        self.import_from_lt_button = QPushButton("Import Lion Throne Weapon Animation...")
-        self.import_from_lt_button.clicked.connect(self.import_lion_throne)
+        self.frame_group_box.setLayout(frame_layout)
+        self.import_from_lt_button = QPushButton("Import Legacy Weapon Animation...")
+        self.import_from_lt_button.clicked.connect(self.import_legacy)
         self.import_from_gba_button = QPushButton("Import GBA Weapon Animation...")
         self.import_from_gba_button.clicked.connect(self.import_gba)
-        self.import_from_gba_button.setEnabled(False)
         self.import_png_button = QPushButton("View Frames...")
         self.import_png_button.clicked.connect(self.select_frame)
+
+        self.import_anim_button = QPushButton("Import...")
+        self.import_anim_button.clicked.connect(self.import_anim)
+        self.export_anim_button = QPushButton("Export...")
+        self.export_anim_button.clicked.connect(self.export_anim)
+
+        self.window.left_frame.layout().addWidget(self.import_anim_button, 3, 0)
+        self.window.left_frame.layout().addWidget(self.export_anim_button, 3, 1)
         frame_layout.addWidget(self.import_from_lt_button)
         frame_layout.addWidget(self.import_from_gba_button)
         frame_layout.addWidget(self.import_png_button)
 
-        view_section.addWidget(self.anim_view)
-        view_section.addLayout(button_section)
-        view_section.addLayout(info_form)
-        view_section.addWidget(frame_group_box)
+    def set_layout(self):
+        self.view_section.addWidget(self.anim_view)
+        self.view_section.addLayout(self.button_section)
+        self.view_section.addLayout(self.info_form)
+        self.view_section.addWidget(self.frame_group_box)
 
         view_frame = QFrame()
-        view_frame.setLayout(view_section)
+        view_frame.setLayout(self.view_section)
 
-        main_splitter = QSplitter(self)
-        main_splitter.setChildrenCollapsible(False)
+        self.main_splitter = QSplitter(self)
+        self.main_splitter.setChildrenCollapsible(False)
 
-        right_splitter = QSplitter(self)
-        right_splitter.setOrientation(Qt.Vertical)
-        right_splitter.setChildrenCollapsible(False)
-        right_splitter.addWidget(self.palette_menu)
-        right_splitter.addWidget(self.timeline_menu)
+        self.right_splitter = QSplitter(self)
+        self.right_splitter.setOrientation(Qt.Vertical)
+        self.right_splitter.setChildrenCollapsible(False)
+        self.right_splitter.addWidget(self.palette_menu)
+        self.right_splitter.addWidget(self.timeline_menu)
 
-        main_splitter.addWidget(view_frame)
-        main_splitter.addWidget(right_splitter)
+        self.main_splitter.addWidget(view_frame)
+        self.main_splitter.addWidget(self.right_splitter)
 
         final_section = QHBoxLayout()
         self.setLayout(final_section)
-        final_section.addWidget(main_splitter)
+        final_section.addWidget(self.main_splitter)
 
         timer.get_timer().tick_elapsed.connect(self.tick)
 
@@ -225,6 +275,16 @@ class CombatAnimProperties(QWidget):
     def speed_changed(self, val):
         pass
 
+    def export_clicked(self):
+        if self.current:
+            starting_path = self.settings.get_last_open_path()
+            fn_dir = QFileDialog.getExistingDirectory(
+                self, "Export Current Animation", starting_path)
+            if fn_dir:
+                self.settings.set_last_open_path(fn_dir)
+                self.export_all_frames(fn_dir)
+                QMessageBox.information(self, "Export Complete", "Export of frames complete!")
+
     def nid_changed(self, text):
         self.current.nid = text
         self.window.update_list()
@@ -233,7 +293,7 @@ class CombatAnimProperties(QWidget):
         other_nids = [d.nid for d in self._data if d is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'ID %s already in use' % self.current.nid)
-            self.current.nid = utilities.get_next_name(self.current.nid, other_nids)
+            self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
         self.on_nid_changed(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
         self.window.update_list()
@@ -261,11 +321,11 @@ class CombatAnimProperties(QWidget):
         self.timeline_menu.setEnabled(b)
         self.duplicate_pose_button.setEnabled(b)
         self.delete_pose_button.setEnabled(b)
+        self.export_button.setEnabled(b)
+        self.test_combat_button.setEnabled(b)
 
     def weapon_changed(self, idx):
-        print("weapon_changed", idx)
         weapon_nid = self.weapon_box.currentText()
-        print(weapon_nid)
         weapon_anim = self.current.weapon_anims.get(weapon_nid)
         if not weapon_anim:
             self.pose_box.clear()
@@ -274,13 +334,8 @@ class CombatAnimProperties(QWidget):
             self.has_pose(False)
             return
         self.has_weapon(True)
-        print("Weapon Animation Frames")
-        print(weapon_anim.frames, flush=True)
         self.timeline_menu.set_current_frames(weapon_anim.frames)
         if weapon_anim.poses:
-            print("We have poses!")
-            print(weapon_anim.poses)
-            print(weapon_anim.nid)
             poses = self.reset_pose_box(weapon_anim)
             current_pose_nid = self.pose_box.currentText()
             current_pose = poses.get(current_pose_nid)
@@ -318,7 +373,7 @@ class CombatAnimProperties(QWidget):
             new_nid, ok = QInputDialog.getText(self, "Custom Weapon Animation", "Enter New Name for Weapon: ")
             if not new_nid or not ok:
                 return
-            new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
+            new_nid = str_utils.get_next_name(new_nid, self.current.weapon_anims.keys())
         new_weapon = combat_anims.WeaponAnimation(new_nid)
         self.current.weapon_anims.append(new_weapon)
         self.weapon_box.addItem(new_nid)
@@ -334,7 +389,7 @@ class CombatAnimProperties(QWidget):
             new_nid, ok = QInputDialog.getText(self, "Custom Weapon Animation", "Enter New Name for Weapon: ")
             if not new_nid or not ok:
                 return
-            new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
+            new_nid = str_utils.get_next_name(new_nid, self.current.weapon_anims.keys())
 
         current_weapon_nid = self.weapon_box.currentText()
         current_weapon = self.current.weapon_anims.get(current_weapon_nid)
@@ -348,7 +403,7 @@ class CombatAnimProperties(QWidget):
             current_weapon.pixmap = None
             has_pixmap = True
 
-            for index in range(0,len(current_weapon.frames)):
+            for index in range(len(current_weapon.frames)):
                 frame = current_weapon.frames[index]
                 frame.pixmap = None
 
@@ -410,8 +465,7 @@ class CombatAnimProperties(QWidget):
                 items.remove(pose_nid)
         return items
 
-    def add_new_pose(self):
-        weapon_anim = self.get_current_weapon_anim()
+    def make_pose(self, weapon_anim) -> str:
         items = self.get_available_pose_types(weapon_anim)
 
         new_nid, ok = QInputDialog.getItem(self, "New Pose", "Select Pose", items, 0, False)
@@ -421,7 +475,15 @@ class CombatAnimProperties(QWidget):
             new_nid, ok = QInputDialog.getText(self, "Custom Pose", "Enter New Name for Pose: ")
             if not new_nid or not ok:
                 return
-            new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
+            new_nid = str_utils.get_next_name(new_nid, self.current.weapon_anims.keys())
+        return new_nid
+
+    def add_new_pose(self):
+        weapon_anim = self.get_current_weapon_anim()
+        new_nid = self.make_pose(weapon_anim)
+        if not new_nid:
+            return
+        
         new_pose = combat_anims.Pose(new_nid)
         weapon_anim.poses.append(new_pose)
         self.pose_box.addItem(new_nid)
@@ -429,16 +491,9 @@ class CombatAnimProperties(QWidget):
 
     def duplicate_pose(self):
         weapon_anim = self.get_current_weapon_anim()
-        items = self.get_available_pose_types(weapon_anim)
-
-        new_nid, ok = QInputDialog.getItem(self, "New Pose", "Select Pose", items, 0, False)
-        if not new_nid or not ok:
+        new_nid = self.make_pose(weapon_anim)
+        if not new_nid:
             return
-        if new_nid == "Custom":
-            new_nid, ok = QInputDialog.getText(self, "Custom Pose", "Enter New Name for Pose: ")
-            if not new_nid or not ok:
-                return
-            new_nid = utilities.get_next_name(new_nid, self.current.weapon_anims.keys())
 
         current_pose_nid = self.pose_box.currentText()
         current_pose = weapon_anim.poses.get(current_pose_nid)
@@ -478,23 +533,37 @@ class CombatAnimProperties(QWidget):
             self.pose_box.setValue(poses[0].nid)
         return poses
 
-    def import_lion_throne(self):
-        settings = MainSettingsController()
-        starting_path = settings.get_last_open_path()
-        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Lion Throne Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
-        if ok:
+    def import_legacy(self):
+        starting_path = self.settings.get_last_open_path()
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Legacy Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")
+        if fns and ok:
+            parent_dir = os.path.split(fns[-1])[0]
+            self.settings.set_last_open_path(parent_dir)
+
             for fn in fns:
                 if fn.endswith('-Script.txt'):
-                    combat_animation_imports.import_from_lion_throne(self.current, fn)
+                    combat_animation_imports.import_from_legacy(self.current, fn)
+
             # Reset
             self.set_current(self.current)
             if self.current.weapon_anims:
                 self.weapon_box.setValue(self.current.weapon_anims[-1].nid)
-            parent_dir = os.path.split(fns[-1])[0]
-            settings.set_last_open_path(parent_dir)
 
     def import_gba(self):
-        pass
+        starting_path = self.settings.get_last_open_path()
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Legacy Script Files", starting_path, "Text Files (*.txt);;All Files (*)")
+        if fns and ok:
+            parent_dir = os.path.split(fns[-1])[0]
+            self.settings.set_last_open_path(parent_dir)
+
+            for fn in fns:
+                if fn.endswith('.txt'):
+                    combat_animation_imports.import_from_gba(self.current, fn)
+
+            # Reset
+            self.set_current(self.current)
+            if self.current.weapon_anims:
+                self.weapon_box.setValue(self.current.weapon_anims[-1].nid)
 
     def select_frame(self):
         weapon_anim = self.get_current_weapon_anim()
@@ -503,7 +572,6 @@ class CombatAnimProperties(QWidget):
             dlg.exec_()
 
     def set_current(self, current):
-        print("Set Current!")
         self.stop()
 
         self.current = current
@@ -531,6 +599,9 @@ class CombatAnimProperties(QWidget):
             self.timeline_menu.clear_pose()
 
     def get_current_palette(self):
+        return self.palette_menu.get_palette()
+
+    def get_combat_palette(self):
         return self.palette_menu.get_palette()
 
     def modify_for_palette(self, pixmap: QPixmap) -> QImage:
@@ -572,6 +643,7 @@ class CombatAnimProperties(QWidget):
 
     def do_command(self, command):
         self.custom_frame_offset = None
+        self.under_frame_nid = None
         if command.nid in ('frame', 'over_frame', 'under_frame'):
             num_frames, image = command.value
             self.num_frames = num_frames
@@ -579,7 +651,7 @@ class CombatAnimProperties(QWidget):
             self.processing = False
             self.frame_nid = image
         elif command.nid == 'wait':
-            self.num_frames = command.value
+            self.num_frames = command.value[0]
             self.last_update = self.next_update
             self.processing = False
             self.frame_nid = None
@@ -597,6 +669,13 @@ class CombatAnimProperties(QWidget):
             self.processing = False
             self.frame_nid = image
             self.custom_frame_offset = (x, y)
+        elif command.nid == 'wait_for_hit':
+            image1, image2 = command.value
+            self.num_frames = 27
+            self.last_update = self.next_update
+            self.processing = False
+            self.frame_nid = image1
+            self.under_frame_nid = image2
         else:
             pass
 
@@ -617,26 +696,218 @@ class CombatAnimProperties(QWidget):
                 frame = weapon_anim.frames.get(self.frame_nid)
                 if frame:
                     if self.custom_frame_offset:
-                        offset_x, offset_y = self.frame_offset
+                        offset_x, offset_y = self.custom_frame_offset
                     else:
                         offset_x, offset_y = frame.offset
                     actor_im = self.modify_for_palette(frame.pixmap)
         if self.under_frame_nid:
             weapon_anim = self.get_current_weapon_anim()
             if weapon_anim:
-                frame = weapon_anim.frames.get(self.frame_nid)
+                frame = weapon_anim.frames.get(self.under_frame_nid)
                 if frame:
                     under_offset_x, under_offset_y = frame.offset
                     under_actor_im = self.modify_for_palette(frame.pixmap)
 
+        self.set_anim_view(actor_im, (offset_x, offset_y), under_actor_im, (under_offset_x, under_offset_y))
+
+    def set_anim_view(self, actor_im, offset, under_actor_im, under_offset):
+        offset_x, offset_y = offset
+        under_offset_x, under_offset_y = under_offset
         base_image = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
         base_image.fill(editor_utilities.qCOLORKEY)
-        if actor_im:
+        if actor_im or under_actor_im:
             painter = QPainter()
             painter.begin(base_image)
             if under_actor_im:
                 painter.drawImage(under_offset_x, under_offset_y, under_actor_im)
-            painter.drawImage(offset_x, offset_y, actor_im)
+            if actor_im:
+                painter.drawImage(offset_x, offset_y, actor_im)
             painter.end()
         self.anim_view.set_image(QPixmap.fromImage(base_image))
         self.anim_view.show_image()
+
+    def import_palettes(self, fn_dir) -> dict:
+        palette_path = os.path.join(fn_dir, '*_palette.json')
+        palettes = sorted(glob.glob(palette_path))
+        if not palettes:
+            QMessageBox.warning(self, "File Not Found", "Could not find any valid *_palette.json Palette files.")
+        palette_nid_swap = {}
+        for palette_fn in palettes:
+            with open(palette_fn) as load_file:
+                data = json.load(load_file)
+            palette = combat_palettes.Palette.restore(data)
+            new_nid = str_utils.get_next_name(palette.nid, RESOURCES.combat_palettes.keys())
+            if new_nid != palette.nid:
+                palette_nid_swap[palette.nid] = new_nid
+                palette.nid = new_nid
+            RESOURCES.combat_palettes.append(palette)
+        return palette_nid_swap
+
+    def import_anim(self):
+        # Ask user for location
+        starting_path = self.settings.get_last_open_path()
+        fn_dir = QFileDialog.getExistingDirectory(
+            self, "Import *.ltanim", starting_path)
+        if not fn_dir:
+            return
+        self.settings.set_last_open_path(fn_dir)
+        # Determine the palettes in the folder
+        palette_nid_swap = self.import_palettes(fn_dir)
+        # Determine the combat_anims in the folder
+        anim_path = os.path.join(fn_dir, '*_anim.json')
+        anims = sorted(glob.glob(anim_path))
+        if not anims:
+            QMessageBox.warning(self, "File Not Found", "Could not find any valid *_anim.json Combat Animation files.")
+        for anim_fn in anims:
+            with open(anim_fn) as load_file:
+                data = json.load(load_file)
+            anim = combat_anims.CombatAnimation.restore(data)
+            for weapon_anim in anim.weapon_anims:
+                short_path = "%s-%s.png" % (anim.nid, weapon_anim.nid)
+                weapon_anim.set_full_path(os.path.join(fn_dir, short_path))
+            anim.nid = str_utils.get_next_name(anim.nid, RESOURCES.combat_anims.keys())
+            # Update any palette references that changed
+            for idx, palette in enumerate(anim.palettes[:]):
+                name, nid = palette
+                if nid in palette_nid_swap:
+                    anim.palettes[idx][1] = palette_nid_swap[nid]
+            populate_anim_pixmaps(anim)
+            RESOURCES.combat_anims.append(anim)
+        # Print done import! Import complete!
+        self.window.update_list()
+        QMessageBox.information(self, "Import Complete", "Import of combat animation %s complete!" % fn_dir)
+
+    def export_anim(self):
+        # Ask user for location
+        if not self.current:
+            return
+        starting_path = self.settings.get_last_open_path()
+        fn_dir = QFileDialog.getExistingDirectory(
+            self, "Export Current Combat Animation", starting_path)
+        if not fn_dir:
+            return
+        self.settings.set_last_open_path(fn_dir)
+        # Create folder at location named effect_nid.lteffect
+        path = os.path.join(fn_dir, '%s.ltanim' % self.current.nid)
+        if not os.path.exists(path):
+            os.mkdir(path)
+        
+        # Store all of this in anim_nid.ltanim folder
+        # Gather reference to images for this effect
+        RESOURCES.combat_anims.save_image(path, self.current)
+        # Serialize into json form
+        serialized_data = self.current.save()
+        serialized_path = os.path.join(path, '%s_anim.json' % self.current.nid)
+        with open(serialized_path, 'w') as serialize_file:
+            json.dump(serialized_data, serialize_file, indent=4)
+        # Gather reference to palettes
+        palette_nids = [palette[1] for palette in self.current.palettes]
+        for palette_nid in palette_nids:
+            palette = RESOURCES.combat_palettes.get(palette_nid)
+            if not palette:
+                continue
+            # Serialize into json form
+            serialized_data = palette.save()
+            serialized_path = os.path.join(path, '%s_palette.json' % palette_nid)
+            with open(serialized_path, 'w') as serialize_file:
+                json.dump(serialized_data, serialize_file, indent=4)
+        # Print done export! Export to %s complete!
+        QMessageBox.information(self, "Export Complete", "Export of combat animation to %s complete!" % path)
+
+    def export_all_frames(self, fn_dir: str):
+        weapon_anim = self.get_current_weapon_anim()
+        poses = weapon_anim.poses
+        current_pose_nid = self.pose_box.currentText()
+        current_pose = poses.get(current_pose_nid)
+        counter = 0
+        for command in current_pose.timeline:
+            self.processing = True
+            self.do_command(command)
+            if self.processing:  # Don't bother drawing anything if we are still processing
+                continue
+            im = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
+            im.fill(editor_utilities.qCOLORKEY)
+            frame, under_frame = None, None
+            if self.under_frame_nid:
+                under_frame = weapon_anim.frames.get(self.under_frame_nid)
+                under_offset_x, under_offset_y = under_frame.offset
+                under_frame = self.modify_for_palette(under_frame.pixmap)
+            if self.frame_nid:
+                frame = weapon_anim.frames.get(self.frame_nid)
+                if self.custom_frame_offset:
+                    offset_x, offset_y = self.custom_frame_offset
+                else:
+                    offset_x, offset_y = frame.offset
+                frame = self.modify_for_palette(frame.pixmap)
+            if frame or under_frame:
+                painter = QPainter()
+                painter.begin(im)
+                if under_frame:
+                    painter.drawImage(under_offset_x, under_offset_y, under_frame)
+                if frame:
+                    painter.drawImage(offset_x, offset_y, frame)
+                painter.end()
+            for i in range(self.num_frames):
+                path = '%s_%s_%s_%04d.png' % (self.current.nid, weapon_anim.nid, current_pose.nid, counter)
+                full_path = os.path.join(fn_dir, path)
+                im.save(full_path)
+                counter += 1
+
+    def get_test_palettes(self, combat_anim):
+        palettes = combat_anim.palettes
+        if not palettes:
+            print("No palettes!")
+            return
+        palette_names = [palette[0] for palette in palettes]
+        palette_nids = [palette[1] for palette in palettes]
+        current_palette_nid = self.get_combat_palette()
+        if current_palette_nid in palette_nids:
+            idx = palette_nids.index(current_palette_nid)
+            right_palette_name = palette_names[idx]
+            right_palette_nid = palette_nids[idx]
+        elif 'GenericBlue' in palette_names:
+            idx = palette_names.index('GenericBlue')
+            right_palette_name = 'GenericBlue'
+            right_palette_nid = palette_nids[idx]
+        else:
+            right_palette_name = palette_names[0]
+            right_palette_nid = palette_nids[0]
+        if 'GenericRed' in palette_names:
+            idx = palette_names.index('GenericRed')
+            left_palette_name = 'GenericRed'
+            left_palette_nid = palette_nids[idx]
+        elif len(palette_nids) > 1:
+            left_palette_nid = palette_nids[1]
+            left_palette_name = palette_names[1]
+        else:
+            left_palette_nid = palette_nids[0]
+            left_palette_name = palette_names[0]
+        right_palette = RESOURCES.combat_palettes.get(right_palette_nid)
+        left_palette = RESOURCES.combat_palettes.get(left_palette_nid)
+        return left_palette_name, left_palette, right_palette_name, right_palette
+
+    def test_combat(self):
+        if self.current:
+            weapon_nid = self.weapon_box.currentText()
+            weapon_anim = self.current.weapon_anims.get(weapon_nid)
+            if not weapon_anim:
+                return
+            current_pose_nid = self.pose_box.currentText()
+            if 'Stand' in weapon_anim.poses.keys() and 'Attack' in weapon_anim.poses.keys():
+                pass
+            else:
+                print("Missing Stand or Attack pose!")
+                return
+            
+            left_palette_name, left_palette, right_palette_name, right_palette = self.get_test_palettes(self.current)
+
+            item_nid = None
+            for item in DB.items:
+                if item.magic and item.nid in RESOURCES.combat_effects.keys():
+                    item_nid = item.nid
+            
+            timer.get_timer().stop()
+            GAME_ACTIONS.test_combat(
+                self.current, weapon_anim, left_palette_name, left_palette, item_nid, 
+                self.current, weapon_anim, right_palette_name, right_palette, item_nid, current_pose_nid)
+            timer.get_timer().start()

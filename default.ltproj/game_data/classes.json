@@ -19,7 +19,8 @@
             "DEF": 0,
             "CON": 5,
             "MOV": 5,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "growths": {
             "HP": 65,
@@ -31,7 +32,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -43,7 +45,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -55,7 +58,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -67,7 +71,9 @@
             "DEF": 20,
             "CON": 20,
             "MOV": 15,
-            "RES": 20
+            "RES": 20,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -140,7 +146,8 @@
             "DEF": 3,
             "CON": 5,
             "MOV": 5,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "growths": {
             "HP": 90,
@@ -152,7 +159,8 @@
             "DEF": 15,
             "CON": 0,
             "MOV": 0,
-            "RES": 20
+            "RES": 20,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -164,7 +172,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -176,7 +185,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -188,7 +198,9 @@
             "DEF": 20,
             "CON": 20,
             "MOV": 15,
-            "RES": 20
+            "RES": 20,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -235,7 +247,7 @@
             0
         ],
         "map_sprite_nid": "EirikaLord",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Eirika Lord"
     },
     {
         "nid": "Eirika_Great_Lord",
@@ -261,7 +273,8 @@
             "DEF": 5,
             "RES": 0,
             "CON": 7,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 90,
@@ -273,7 +286,8 @@
             "DEF": 15,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -285,7 +299,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 4,
@@ -297,7 +312,8 @@
             "DEF": 3,
             "RES": 5,
             "CON": 2,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -309,7 +325,9 @@
             "DEF": 22,
             "RES": 25,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -385,7 +403,8 @@
             "DEF": 6,
             "RES": 0,
             "CON": 8,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 90,
@@ -397,7 +416,8 @@
             "DEF": 15,
             "RES": 15,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -409,7 +429,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -421,7 +442,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -433,7 +455,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -505,7 +529,8 @@
             "DEF": 5,
             "RES": 0,
             "CON": 10,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 90,
@@ -517,7 +542,8 @@
             "DEF": 15,
             "RES": 15,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -529,7 +555,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 4,
@@ -541,7 +568,8 @@
             "DEF": 2,
             "RES": 5,
             "CON": 2,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -553,7 +581,9 @@
             "DEF": 23,
             "RES": 23,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -627,7 +657,8 @@
             "DEF": 0,
             "RES": 1,
             "CON": 4,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 45,
@@ -639,7 +670,8 @@
             "DEF": 0,
             "RES": 13,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -651,7 +683,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -663,7 +696,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -675,7 +709,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -754,7 +790,8 @@
             "DEF": 2,
             "CON": 8,
             "MOV": 5,
-            "RES": 1
+            "RES": 1,
+            "LEAD": 0
         },
         "growths": {
             "HP": 70,
@@ -766,7 +803,8 @@
             "DEF": 15,
             "CON": 0,
             "MOV": 0,
-            "RES": 20
+            "RES": 20,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -778,7 +816,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -790,7 +829,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -802,7 +842,9 @@
             "DEF": 20,
             "CON": 20,
             "MOV": 15,
-            "RES": 20
+            "RES": 20,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -849,7 +891,7 @@
             0
         ],
         "map_sprite_nid": "Myrmidon",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Myrmidon"
     },
     {
         "nid": "Swordmaster",
@@ -873,7 +915,8 @@
             "DEF": 5,
             "RES": 3,
             "CON": 9,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 65,
@@ -885,7 +928,8 @@
             "DEF": 15,
             "RES": 22,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -897,7 +941,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 5,
@@ -909,7 +954,8 @@
             "DEF": 2,
             "RES": 1,
             "CON": 2,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -921,7 +967,9 @@
             "DEF": 22,
             "RES": 25,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -973,7 +1021,7 @@
             0
         ],
         "map_sprite_nid": "Swordmaster",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Swordmaster"
     },
     {
         "nid": "Mercenary",
@@ -1000,7 +1048,8 @@
             "DEF": 4,
             "RES": 0,
             "CON": 9,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -1012,7 +1061,8 @@
             "DEF": 18,
             "RES": 30,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -1024,7 +1074,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -1036,7 +1087,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -1048,7 +1100,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -1095,7 +1149,7 @@
             0
         ],
         "map_sprite_nid": "Mercenary",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Mercenary"
     },
     {
         "nid": "Hero",
@@ -1119,7 +1173,8 @@
             "DEF": 8,
             "RES": 3,
             "CON": 11,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 75,
@@ -1131,7 +1186,8 @@
             "DEF": 20,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -1143,7 +1199,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 4,
@@ -1155,7 +1212,8 @@
             "DEF": 2,
             "RES": 2,
             "CON": 2,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -1167,7 +1225,9 @@
             "DEF": 25,
             "RES": 24,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -1214,7 +1274,7 @@
             0
         ],
         "map_sprite_nid": "Hero",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Vanguard"
     },
     {
         "nid": "Thief",
@@ -1241,7 +1301,8 @@
             "DEF": 2,
             "RES": 0,
             "CON": 6,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 50,
@@ -1253,7 +1314,8 @@
             "DEF": 5,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -1265,7 +1327,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -1277,7 +1340,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -1289,7 +1353,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -1341,7 +1407,7 @@
             0
         ],
         "map_sprite_nid": "Thief",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Thief"
     },
     {
         "nid": "Assassin",
@@ -1365,7 +1431,8 @@
             "DEF": 2,
             "RES": 0,
             "CON": 8,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 50,
@@ -1377,7 +1444,8 @@
             "DEF": 5,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -1389,7 +1457,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 3,
@@ -1401,7 +1470,8 @@
             "DEF": 2,
             "RES": 2,
             "CON": 2,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -1413,7 +1483,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -1460,7 +1532,7 @@
             0
         ],
         "map_sprite_nid": "Assassin",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Assassin"
     },
     {
         "nid": "Rogue",
@@ -1484,7 +1556,8 @@
             "DEF": 2,
             "RES": 0,
             "CON": 7,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 50,
@@ -1496,7 +1569,8 @@
             "DEF": 5,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -1508,7 +1582,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 2,
@@ -1520,7 +1595,8 @@
             "DEF": 2,
             "RES": 2,
             "CON": 1,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -1532,7 +1608,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -1605,7 +1683,8 @@
             "DEF": 0,
             "RES": 1,
             "CON": 6,
-            "MOV": 4
+            "MOV": 4,
+            "LEAD": 0
         },
         "growths": {
             "HP": 75,
@@ -1617,7 +1696,8 @@
             "DEF": 25,
             "RES": 35,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -1629,7 +1709,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -1641,7 +1722,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -1653,7 +1735,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -1722,7 +1806,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 6,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -1734,7 +1819,8 @@
             "DEF": 12,
             "RES": 15,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -1746,7 +1832,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -1758,7 +1845,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -1770,7 +1858,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -1817,7 +1907,7 @@
             0
         ],
         "map_sprite_nid": "Soldier",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Soldier"
     },
     {
         "nid": "Cavalier",
@@ -1845,7 +1935,8 @@
             "DEF": 6,
             "CON": 9,
             "MOV": 7,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "growths": {
             "HP": 75,
@@ -1857,7 +1948,8 @@
             "DEF": 15,
             "CON": 0,
             "MOV": 0,
-            "RES": 15
+            "RES": 15,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -1869,7 +1961,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -1881,7 +1974,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -1893,7 +1987,9 @@
             "DEF": 20,
             "CON": 25,
             "MOV": 15,
-            "RES": 20
+            "RES": 20,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -1945,7 +2041,7 @@
             0
         ],
         "map_sprite_nid": "Cavalier",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Cavalier"
     },
     {
         "nid": "Paladin",
@@ -1970,7 +2066,8 @@
             "DEF": 8,
             "CON": 11,
             "MOV": 8,
-            "RES": 6
+            "RES": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 70,
@@ -1982,7 +2079,8 @@
             "DEF": 12,
             "CON": 0,
             "MOV": 0,
-            "RES": 25
+            "RES": 25,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -1994,7 +2092,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 2,
@@ -2006,7 +2105,8 @@
             "DEF": 2,
             "CON": 2,
             "MOV": -99,
-            "RES": 2
+            "RES": 2,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -2018,7 +2118,9 @@
             "DEF": 25,
             "CON": 25,
             "MOV": 15,
-            "RES": 26
+            "RES": 26,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -2070,7 +2172,7 @@
             0
         ],
         "map_sprite_nid": "Paladin",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Paladin"
     },
     {
         "nid": "Great_Knight",
@@ -2096,7 +2198,8 @@
             "DEF": 11,
             "RES": 3,
             "CON": 13,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 70,
@@ -2108,7 +2211,8 @@
             "DEF": 21,
             "RES": 22,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -2120,7 +2224,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 3,
@@ -2132,7 +2237,8 @@
             "DEF": 2,
             "RES": 2,
             "CON": 4,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -2144,7 +2250,9 @@
             "DEF": 29,
             "RES": 26,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -2224,7 +2332,8 @@
             "DEF": 3,
             "RES": 2,
             "CON": 5,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 65,
@@ -2236,7 +2345,8 @@
             "DEF": 12,
             "RES": 35,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -2248,7 +2358,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -2260,7 +2371,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -2272,7 +2384,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -2353,7 +2467,8 @@
             "DEF": 5,
             "RES": 4,
             "CON": 6,
-            "MOV": 8
+            "MOV": 8,
+            "LEAD": 0
         },
         "growths": {
             "HP": 60,
@@ -2365,7 +2480,8 @@
             "DEF": 12,
             "RES": 30,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -2377,7 +2493,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 5,
@@ -2389,7 +2506,8 @@
             "DEF": 2,
             "RES": 2,
             "CON": 1,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -2401,7 +2519,9 @@
             "DEF": 23,
             "RES": 26,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -2484,7 +2604,8 @@
             "DEF": 9,
             "CON": 13,
             "MOV": 4,
-            "RES": 1
+            "RES": 1,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -2496,7 +2617,8 @@
             "DEF": 28,
             "CON": 0,
             "MOV": 0,
-            "RES": 20
+            "RES": 20,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -2508,7 +2630,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -2520,7 +2643,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -2532,7 +2656,9 @@
             "DEF": 20,
             "CON": 20,
             "MOV": 15,
-            "RES": 20
+            "RES": 20,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -2579,7 +2705,7 @@
             0
         ],
         "map_sprite_nid": "Knight",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Knight"
     },
     {
         "nid": "General",
@@ -2603,7 +2729,8 @@
             "DEF": 13,
             "RES": 4,
             "CON": 11,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 75,
@@ -2615,7 +2742,8 @@
             "DEF": 23,
             "RES": 25,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -2627,7 +2755,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 4,
@@ -2639,7 +2768,8 @@
             "DEF": 3,
             "RES": 3,
             "CON": 2,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -2651,7 +2781,9 @@
             "DEF": 30,
             "RES": 26,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -2698,7 +2830,7 @@
             0
         ],
         "map_sprite_nid": "General",
-        "combat_anim_nid": null
+        "combat_anim_nid": "General"
     },
     {
         "nid": "Journeyman",
@@ -2723,7 +2855,8 @@
             "DEF": 1,
             "RES": 0,
             "CON": 8,
-            "MOV": 4
+            "MOV": 4,
+            "LEAD": 0
         },
         "growths": {
             "HP": 85,
@@ -2735,7 +2868,8 @@
             "DEF": 18,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -2747,7 +2881,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -2759,7 +2894,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -2771,7 +2907,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -2843,7 +2981,8 @@
             "DEF": 2,
             "CON": 11,
             "MOV": 5,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "growths": {
             "HP": 85,
@@ -2855,7 +2994,8 @@
             "DEF": 15,
             "CON": 0,
             "MOV": 0,
-            "RES": 15
+            "RES": 15,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -2867,7 +3007,8 @@
             "DEF": 0,
             "CON": 0,
             "MOV": 0,
-            "RES": 0
+            "RES": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 2,
@@ -2879,7 +3020,8 @@
             "DEF": 0,
             "CON": 3,
             "MOV": -99,
-            "RES": 1
+            "RES": 1,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -2891,7 +3033,9 @@
             "DEF": 20,
             "CON": 20,
             "MOV": 15,
-            "RES": 20
+            "RES": 20,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -2938,7 +3082,7 @@
             0
         ],
         "map_sprite_nid": "Fighter",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Fighter"
     },
     {
         "nid": "Warrior",
@@ -2960,7 +3104,8 @@
             "DEF": 5,
             "RES": 0,
             "CON": 13,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -2972,7 +3117,8 @@
             "DEF": 16,
             "RES": 17,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -2984,7 +3130,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 3,
@@ -2996,7 +3143,8 @@
             "DEF": 3,
             "RES": 3,
             "CON": 2,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -3008,7 +3156,9 @@
             "DEF": 26,
             "RES": 22,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -3055,7 +3205,7 @@
             0
         ],
         "map_sprite_nid": "Warrior",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Warrior"
     },
     {
         "nid": "Pirate",
@@ -3079,7 +3229,8 @@
             "DEF": 3,
             "RES": 0,
             "CON": 10,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 75,
@@ -3091,7 +3242,8 @@
             "DEF": 10,
             "RES": 13,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -3103,7 +3255,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 2,
@@ -3115,7 +3268,8 @@
             "DEF": 1,
             "RES": 0,
             "CON": 2,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -3127,7 +3281,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -3174,7 +3330,7 @@
             0
         ],
         "map_sprite_nid": "Pirate",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Raider"
     },
     {
         "nid": "Berserker",
@@ -3196,7 +3352,8 @@
             "DEF": 6,
             "RES": 0,
             "CON": 13,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 75,
@@ -3208,7 +3365,8 @@
             "DEF": 10,
             "RES": 13,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -3220,7 +3378,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 4,
@@ -3232,7 +3391,8 @@
             "DEF": 2,
             "RES": 2,
             "CON": 3,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -3244,7 +3404,9 @@
             "DEF": 23,
             "RES": 21,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -3296,7 +3458,7 @@
             0
         ],
         "map_sprite_nid": "Berserker",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Berserker"
     },
     {
         "nid": "Brigand",
@@ -3320,7 +3482,8 @@
             "DEF": 3,
             "RES": 0,
             "CON": 12,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 82,
@@ -3332,7 +3495,8 @@
             "DEF": 10,
             "RES": 13,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -3344,7 +3508,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -3356,7 +3521,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -3368,7 +3534,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -3415,7 +3583,7 @@
             0
         ],
         "map_sprite_nid": "Brigand",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Brigand"
     },
     {
         "nid": "Archer",
@@ -3440,7 +3608,8 @@
             "DEF": 3,
             "RES": 0,
             "CON": 7,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 70,
@@ -3452,7 +3621,8 @@
             "DEF": 15,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -3464,7 +3634,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -3476,7 +3647,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -3488,7 +3660,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -3535,7 +3709,7 @@
             0
         ],
         "map_sprite_nid": "Archer",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Archer"
     },
     {
         "nid": "Sniper",
@@ -3557,7 +3731,8 @@
             "DEF": 5,
             "RES": 3,
             "CON": 8,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 65,
@@ -3569,7 +3744,8 @@
             "DEF": 15,
             "RES": 25,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -3581,7 +3757,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 4,
@@ -3593,7 +3770,8 @@
             "DEF": 2,
             "RES": 3,
             "CON": 1,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -3605,7 +3783,9 @@
             "DEF": 25,
             "RES": 24,
             "CON": 20,
-            "MOV": 30
+            "MOV": 30,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -3657,7 +3837,7 @@
             0
         ],
         "map_sprite_nid": "Sniper",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Sniper"
     },
     {
         "nid": "Ranger",
@@ -3682,7 +3862,8 @@
             "DEF": 6,
             "RES": 4,
             "CON": 9,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 60,
@@ -3694,7 +3875,8 @@
             "DEF": 15,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -3706,7 +3888,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 3,
@@ -3718,7 +3901,8 @@
             "DEF": 3,
             "RES": 3,
             "CON": 3,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -3730,7 +3914,9 @@
             "DEF": 24,
             "RES": 25,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -3806,7 +3992,8 @@
             "DEF": 1,
             "RES": 5,
             "CON": 6,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 50,
@@ -3818,7 +4005,8 @@
             "DEF": 8,
             "RES": 40,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -3830,7 +4018,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 1,
@@ -3842,7 +4031,8 @@
             "DEF": 0,
             "RES": 2,
             "CON": 1,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -3854,7 +4044,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -3901,7 +4093,7 @@
             0
         ],
         "map_sprite_nid": "Monk",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Tactician"
     },
     {
         "nid": "Cleric",
@@ -3925,7 +4117,8 @@
             "DEF": 1,
             "RES": 6,
             "CON": 5,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 50,
@@ -3937,7 +4130,8 @@
             "DEF": 8,
             "RES": 50,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -3949,7 +4143,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -3961,7 +4156,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -3973,7 +4169,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -4020,7 +4218,7 @@
             0
         ],
         "map_sprite_nid": "Cleric",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Cleric"
     },
     {
         "nid": "Bishop",
@@ -4042,7 +4240,8 @@
             "DEF": 3,
             "RES": 9,
             "CON": 7,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 45,
@@ -4054,7 +4253,8 @@
             "DEF": 8,
             "RES": 50,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -4066,7 +4266,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 3,
@@ -4078,7 +4279,8 @@
             "DEF": 3,
             "RES": 2,
             "CON": 2,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -4090,7 +4292,9 @@
             "DEF": 22,
             "RES": 30,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -4142,7 +4346,7 @@
             0
         ],
         "map_sprite_nid": "Bishop",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Bishop"
     },
     {
         "nid": "Mage",
@@ -4167,7 +4371,8 @@
             "DEF": 3,
             "RES": 4,
             "CON": 5,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 55,
@@ -4179,7 +4384,8 @@
             "DEF": 5,
             "RES": 40,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -4191,7 +4397,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 1,
@@ -4203,7 +4410,8 @@
             "DEF": 1,
             "RES": 2,
             "CON": 1,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -4215,7 +4423,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -4262,7 +4472,7 @@
             0
         ],
         "map_sprite_nid": "Mage",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Mage"
     },
     {
         "nid": "Sage",
@@ -4284,7 +4494,8 @@
             "DEF": 5,
             "RES": 6,
             "CON": 7,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 45,
@@ -4296,7 +4507,8 @@
             "DEF": 10,
             "RES": 40,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -4308,7 +4520,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 4,
@@ -4320,7 +4533,8 @@
             "DEF": 3,
             "RES": 3,
             "CON": 1,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -4332,7 +4546,9 @@
             "DEF": 21,
             "RES": 25,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -4379,7 +4595,7 @@
             0
         ],
         "map_sprite_nid": "Sage",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Sage"
     },
     {
         "nid": "Shaman",
@@ -4401,7 +4617,8 @@
             "DEF": 2,
             "RES": 5,
             "CON": 7,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 50,
@@ -4413,7 +4630,8 @@
             "DEF": 10,
             "RES": 40,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -4425,7 +4643,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 1,
@@ -4437,7 +4656,8 @@
             "DEF": 1,
             "RES": 2,
             "CON": 2,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -4449,7 +4669,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -4496,7 +4718,7 @@
             0
         ],
         "map_sprite_nid": "Shaman",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Shaman"
     },
     {
         "nid": "Mage Knight",
@@ -4520,7 +4742,8 @@
             "DEF": 5,
             "RES": 6,
             "CON": 8,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 45,
@@ -4532,7 +4755,8 @@
             "DEF": 10,
             "RES": 40,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -4544,7 +4768,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 4,
@@ -4556,7 +4781,8 @@
             "DEF": 2,
             "RES": 2,
             "CON": 3,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -4568,7 +4794,9 @@
             "DEF": 24,
             "RES": 28,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -4620,7 +4848,7 @@
             0
         ],
         "map_sprite_nid": "MageKnight",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Strategist"
     },
     {
         "nid": "Troubadour",
@@ -4647,7 +4875,8 @@
             "DEF": 2,
             "RES": 5,
             "CON": 5,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 50,
@@ -4659,7 +4888,8 @@
             "DEF": 12,
             "RES": 40,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -4671,7 +4901,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -4683,7 +4914,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -4695,7 +4927,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -4772,7 +5006,8 @@
             "DEF": 4,
             "RES": 8,
             "CON": 6,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 45,
@@ -4784,7 +5019,8 @@
             "DEF": 10,
             "RES": 40,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -4796,7 +5032,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -4808,7 +5045,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -4820,7 +5058,9 @@
             "DEF": 24,
             "RES": 28,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -4901,7 +5141,8 @@
             "DEF": 8,
             "RES": 0,
             "CON": 10,
-            "MOV": 7
+            "MOV": 7,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -4913,7 +5154,8 @@
             "DEF": 25,
             "RES": 17,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -4925,7 +5167,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -4937,7 +5180,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -4949,7 +5193,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -5005,7 +5251,7 @@
             0
         ],
         "map_sprite_nid": "WyvernRider",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Wyvern Knight"
     },
     {
         "nid": "Wyvern Lord",
@@ -5031,7 +5277,8 @@
             "DEF": 10,
             "RES": 2,
             "CON": 11,
-            "MOV": 8
+            "MOV": 8,
+            "LEAD": 0
         },
         "growths": {
             "HP": 75,
@@ -5043,7 +5290,8 @@
             "DEF": 20,
             "RES": 17,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -5055,7 +5303,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 4,
@@ -5067,7 +5316,8 @@
             "DEF": 2,
             "RES": 0,
             "CON": 1,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -5079,7 +5329,9 @@
             "DEF": 28,
             "RES": 23,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -5135,7 +5387,7 @@
             0
         ],
         "map_sprite_nid": "WyvernLord",
-        "combat_anim_nid": null
+        "combat_anim_nid": "Wyvern Lord"
     },
     {
         "nid": "Wyvern Knight",
@@ -5161,7 +5413,8 @@
             "DEF": 7,
             "RES": 2,
             "CON": 9,
-            "MOV": 8
+            "MOV": 8,
+            "LEAD": 0
         },
         "growths": {
             "HP": 65,
@@ -5173,7 +5426,8 @@
             "DEF": 15,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -5185,7 +5439,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 3,
@@ -5197,7 +5452,8 @@
             "DEF": 0,
             "RES": 1,
             "CON": 0,
-            "MOV": -99
+            "MOV": -99,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -5209,7 +5465,9 @@
             "DEF": 24,
             "RES": 23,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -5287,7 +5545,8 @@
             "DEF": 3,
             "RES": 8,
             "CON": 7,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 45,
@@ -5299,7 +5558,8 @@
             "DEF": 10,
             "RES": 25,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -5311,7 +5571,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -5323,7 +5584,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -5335,7 +5597,9 @@
             "DEF": 30,
             "RES": 30,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -5408,7 +5672,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 6,
-            "MOV": 4
+            "MOV": 4,
+            "LEAD": 0
         },
         "growths": {
             "HP": 95,
@@ -5420,7 +5685,8 @@
             "DEF": 10,
             "RES": 13,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -5432,7 +5698,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -5444,7 +5711,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -5456,7 +5724,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -5527,7 +5797,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 6,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 85,
@@ -5539,7 +5810,8 @@
             "DEF": 10,
             "RES": 13,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -5551,7 +5823,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -5563,7 +5836,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -5575,7 +5849,9 @@
             "DEF": 24,
             "RES": 22,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -5648,7 +5924,8 @@
             "DEF": 3,
             "RES": 0,
             "CON": 7,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 80,
@@ -5660,7 +5937,8 @@
             "DEF": 12,
             "RES": 15,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -5672,7 +5950,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -5684,7 +5963,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -5696,7 +5976,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -5767,7 +6049,8 @@
             "DEF": 5,
             "RES": 2,
             "CON": 9,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 85,
@@ -5779,7 +6062,8 @@
             "DEF": 10,
             "RES": 13,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -5791,7 +6075,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -5803,7 +6088,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -5815,7 +6101,9 @@
             "DEF": 22,
             "RES": 23,
             "CON": 25,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -5888,7 +6176,8 @@
             "DEF": 3,
             "RES": 0,
             "CON": 6,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 70,
@@ -5900,7 +6189,8 @@
             "DEF": 15,
             "RES": 15,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -5912,7 +6202,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -5924,7 +6215,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -5936,7 +6228,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -6007,7 +6301,8 @@
             "DEF": 5,
             "RES": 2,
             "CON": 8,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 65,
@@ -6019,7 +6314,8 @@
             "DEF": 15,
             "RES": 20,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -6031,7 +6327,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -6043,7 +6340,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -6055,7 +6353,9 @@
             "DEF": 25,
             "RES": 23,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -6129,7 +6429,8 @@
             "DEF": 2,
             "RES": 4,
             "CON": 4,
-            "MOV": 5
+            "MOV": 5,
+            "LEAD": 0
         },
         "growths": {
             "HP": 50,
@@ -6141,7 +6442,8 @@
             "DEF": 10,
             "RES": 28,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -6153,7 +6455,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -6165,7 +6468,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -6177,7 +6481,9 @@
             "DEF": 20,
             "RES": 20,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -6254,7 +6560,8 @@
             "DEF": 3,
             "RES": 47,
             "CON": 5,
-            "MOV": 6
+            "MOV": 6,
+            "LEAD": 0
         },
         "growths": {
             "HP": 45,
@@ -6266,7 +6573,8 @@
             "DEF": 10,
             "RES": 28,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -6278,7 +6586,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -6290,7 +6599,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 60,
@@ -6302,7 +6612,9 @@
             "DEF": 20,
             "RES": 29,
             "CON": 20,
-            "MOV": 15
+            "MOV": 15,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [],
         "wexp_gain": {
@@ -6373,7 +6685,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growths": {
             "HP": 0,
@@ -6385,7 +6698,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -6397,7 +6711,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -6409,7 +6724,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 30,
@@ -6421,7 +6737,9 @@
             "DEF": 30,
             "RES": 30,
             "CON": 30,
-            "MOV": 30
+            "MOV": 30,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [
@@ -6501,7 +6819,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growths": {
             "HP": 0,
@@ -6513,7 +6832,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "growth_bonus": {
             "HP": 0,
@@ -6525,7 +6845,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "promotion": {
             "HP": 0,
@@ -6537,7 +6858,8 @@
             "DEF": 0,
             "RES": 0,
             "CON": 0,
-            "MOV": 0
+            "MOV": 0,
+            "LEAD": 0
         },
         "max_stats": {
             "HP": 30,
@@ -6549,7 +6871,9 @@
             "DEF": 30,
             "RES": 30,
             "CON": 30,
-            "MOV": 30
+            "MOV": 30,
+            "LEAD": 60,
+            "New Stat": 30
         },
         "learned_skills": [
             [

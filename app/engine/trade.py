@@ -14,7 +14,7 @@ class TradeState(MapState):
         game.cursor.hide()
         self.initiator = game.cursor.cur_unit
         self.initiator.sprite.change_state('chosen')
-        self.partner = game.cursor.get_hover()
+        self.partner = game.memory['trade_partner']
 
         self.menu = menus.Trade(self.initiator, self.partner, self.initiator.items, self.partner.items)
 

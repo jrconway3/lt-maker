@@ -87,6 +87,7 @@ class MapEditorView(QGraphicsView):
         self.right_selection = {}  # Dictionary of tile_sprites
 
         self.draw_autotiles = True
+        self.draw_gridlines = True
 
         timer.get_timer().tick_elapsed.connect(self.tick)
 
@@ -119,15 +120,16 @@ class MapEditorView(QGraphicsView):
         painter = QPainter()
         painter.begin(image)
         # Draw grid lines
-        painter.setPen(QPen(QColor(0, 0, 0, 128), 1, Qt.DotLine))
-        for x in range(self.tilemap.width):
-            painter.drawLine(x * TILEWIDTH, 0, x * TILEWIDTH, self.tilemap.height * TILEHEIGHT)
-        for y in range(self.tilemap.height):
-            painter.drawLine(0, y * TILEHEIGHT, self.tilemap.width * TILEWIDTH, y * TILEHEIGHT)
+        if self.draw_gridlines:
+            painter.setPen(QPen(QColor(0, 0, 0, 128), 1, Qt.DotLine))
+            for x in range(self.tilemap.width):
+                painter.drawLine(x * TILEWIDTH, 0, x * TILEWIDTH, self.tilemap.height * TILEHEIGHT)
+            for y in range(self.tilemap.height):
+                painter.drawLine(0, y * TILEHEIGHT, self.tilemap.width * TILEWIDTH, y * TILEHEIGHT)
 
         # Draw cursor...
         if not self.window.terrain_mode:
-            if self.right_selecting:  
+            if self.right_selecting:
                 # Currently holding down right click and selecting area
                 self.draw_selection(painter)
             elif self.right_selection:
@@ -173,7 +175,7 @@ class MapEditorView(QGraphicsView):
             for coord in coords:
                 im = tileset.subpixmaps[coord].toImage()
                 rel_coord = coord[0] - topleft[0], coord[1] - topleft[1]
-                true_pos = mouse_pos[0] + rel_coord[0], mouse_pos[1] + rel_coord[1]                
+                true_pos = mouse_pos[0] + rel_coord[0], mouse_pos[1] + rel_coord[1]
                 painter.drawImage(true_pos[0] * TILEWIDTH,
                                   true_pos[1] * TILEHEIGHT,
                                   im)
@@ -273,7 +275,7 @@ class MapEditorView(QGraphicsView):
 
     def flood_fill_terrain(self, tile_pos):
         if not self.tilemap.check_bounds(tile_pos):
-            return 
+            return
 
         coords_to_replace = set()
 
@@ -308,7 +310,7 @@ class MapEditorView(QGraphicsView):
 
     def flood_fill_tile(self, tile_pos):
         if not self.tilemap.check_bounds(tile_pos):
-            return 
+            return
 
         coords_to_replace = set()
 
@@ -576,6 +578,10 @@ class MapEditor(QDialog):
         self.show_autotiles_action.setCheckable(True)
         self.show_autotiles_action.setChecked(True)
 
+        self.show_gridlines_action = QAction(QIcon(f"{icon_folder}/gridlines.png"), "Show GridLines", self, triggered=self.gridline_toggle)
+        self.show_gridlines_action.setCheckable(True)
+        self.show_gridlines_action.setChecked(True)
+
     def void_right_selection(self):
         self.view.right_selection.clear()
 
@@ -604,6 +610,7 @@ class MapEditor(QDialog):
         self.toolbar.addAction(self.resize_action)
         self.toolbar.addAction(self.terrain_action)
         self.toolbar.addAction(self.export_as_png_action)
+        self.toolbar.addAction(self.show_gridlines_action)
         self.toolbar.addAction(self.show_autotiles_action)
 
     def set_current(self, current):  # Current is a TileMapPrefab
@@ -624,6 +631,9 @@ class MapEditor(QDialog):
         else:
             self.terrain_painter_menu.hide()
 
+    def gridline_toggle(self, val):
+        self.view.draw_gridlines = val
+
     def autotile_toggle(self, val):
         self.view.draw_autotiles = val
 
@@ -635,9 +645,9 @@ class MapEditor(QDialog):
             image = draw_tilemap(self.current, autotile_fps=0)
             starting_path = self.settings.get_last_open_path()
             fn, ok = QFileDialog.getSaveFileName(
-                self, "Export Current Image", starting_path, 
+                self, "Export Current Image", starting_path,
                 "PNG Files (*.png)")
-            if ok:
+            if fn and ok:
                 image.save(fn)
                 parent_dir = os.path.split(fn)[0]
                 self.settings.set_last_open_path(parent_dir)
@@ -756,7 +766,7 @@ class ResizeDialog(Dialog):
         painter.begin(base_image)
         painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
         # Draw regular square around
-        highest_dim = max([self.width_box.value(), self.height_box.value(), 
+        highest_dim = max([self.width_box.value(), self.height_box.value(),
                            self.current.width, self.current.height])
         new_offset_x = int(self.x_box.value() / highest_dim * 200)
         new_offset_y = int(self.y_box.value() / highest_dim * 200)
@@ -1164,7 +1174,7 @@ class TileSetView(MapEditorView):
                 color = QColor(0, 255, 255, 128)
                 rect = QRect(coord[0] * self.tilewidth, coord[1] * self.tileheight, TILEWIDTH, TILEHEIGHT)
                 painter.fillRect(rect, color)
-            
+
         # Draw grid lines
         painter.setPen(QPen(Qt.white, 1, Qt.SolidLine))
         for x in range(self.tileset.width):
@@ -1201,7 +1211,7 @@ class TileSetView(MapEditorView):
                 new_coord = (x + left, y + top)
                 if self.tileset.check_bounds(new_coord):
                     self.current_coords.add(new_coord)
-            
+
     def mouseMoveEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
         tile_pos = int(scene_pos.x() // self.tilewidth), \
@@ -1217,7 +1227,7 @@ class TileSetView(MapEditorView):
 
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() + offset.y())
             self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + offset.x())
-            
+
     def mouseReleaseEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
         tile_pos = int(scene_pos.x() // self.tilewidth), \

@@ -24,7 +24,7 @@ class ManifestCatalog(Data[M]):
     filetype = '.png'
     manifest = None  # To be implemented
     title = ''  # To be implemented
-    datatype = None  # To be implement
+    datatype = None  # To be implemented
 
     def load(self, loc):
         resource_dict = self.read_manifest(os.path.join(loc, self.manifest))
@@ -55,10 +55,13 @@ class ManifestCatalog(Data[M]):
         self.dump(loc)
 
     def make_copy(self, old_full_path, new_full_path):
-        if os.path.exists(new_full_path) and filecmp.cmp(old_full_path, new_full_path, shallow=False):
-            pass  # Identical files
+        if os.path.exists(old_full_path):
+            if os.path.exists(new_full_path) and filecmp.cmp(old_full_path, new_full_path, shallow=False):
+                pass  # Identical files
+            else:
+                shutil.copy(old_full_path, new_full_path)
         else:
-            shutil.copy(old_full_path, new_full_path)
+            print("%s does not exist" % old_full_path)
 
     def valid_files(self) -> set:
         return {datum.nid + self.filetype for datum in self}

@@ -13,6 +13,8 @@ class Trigger(object):
 all_triggers = Data([
     Trigger('level_start'),
     Trigger('level_end'),
+    Trigger('overworld_start'),
+    Trigger('level_select'),
     Trigger('turn_change'),
     Trigger('enemy_turn_change'),
     Trigger('enemy2_turn_change'),

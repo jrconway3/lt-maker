@@ -233,6 +233,8 @@ class ItemOption(BasicOption):
         if icon:
             surf.blit(icon, (x + 2, y))
         main_font, uses_font = self.get_color()
+        if FONT[main_font].width(self.item.name) > 60:
+            main_font = main_font.replace('text', 'narrow')
         FONT[main_font].blit(self.item.name, surf, (x + 20, y))
         uses_string = '--'
         if self.item.uses:
@@ -276,6 +278,9 @@ class FullItemOption(ItemOption):
         if icon:
             surf.blit(icon, (x + 2, y))
         main_font, uses_font = self.get_color()
+        width = FONT[main_font].width(self.item.name)
+        if width > 60:
+            main_font = main_font.replace('text', 'narrow')
         FONT[main_font].blit(self.item.name, surf, (x + 20, y))
 
         uses_string_a = '--'
@@ -306,6 +311,9 @@ class ValueItemOption(ItemOption):
         if icon:
             surf.blit(icon, (x + 2, y))
         main_font, uses_font = self.get_color()
+        width = FONT[main_font].width(self.item.name)
+        if width > 60:
+            main_font = main_font.replace('text', 'narrow')
         FONT[main_font].blit(self.item.name, surf, (x + 20, y))
 
         uses_string = '--'
@@ -392,6 +400,8 @@ class UnitOption(BasicOption):
 
     def draw_text(self, surf, x, y):
         font = self.get_color()
+        if FONT[font].width(self.unit.name) > 44:
+            font = font.replace('text', 'narrow')
         FONT[font].blit(self.unit.name, surf, (x + 20, y))
 
     def draw(self, surf, x, y):
@@ -443,8 +453,13 @@ class LoreOption(BasicOption):
         return self.color
 
     def draw(self, surf, x, y):
-        font = FONT[self.get_color()]
+        main_font = self.get_color()
         if self.ignore:
-            font.blit(self.lore.category, surf, (x + 6, y))
+            s = self.lore.category
         else:
-            font.blit(self.display_text, surf, (x + 6, y))
+            s = self.display_text
+        width = FONT[main_font].width(s)
+        if width > 78:
+            main_font = main_font.replace('text', 'narrow')
+        font = FONT[main_font]
+        font.blit(s, surf, (x + 6, y))

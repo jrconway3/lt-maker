@@ -1,8 +1,9 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QPainter, QColor
 
 from app.resources.resources import RESOURCES
 
+from app.utilities import utils
 from app.utilities.data import Data
 
 from app.resources.combat_palettes import Palette
@@ -11,8 +12,18 @@ from app.editor.base_database_gui import DragDropCollectionModel
 from app.utilities import str_utils
 
 def get_palette_pixmap(palette) -> QPixmap:
-    # TODO
-    return QPixmap()
+    painter = QPainter()
+    main_pixmap = QPixmap(32, 32)
+    main_pixmap.fill(QColor(0, 0, 0, 0))
+    painter.begin(main_pixmap)
+    colors = palette.colors.values()
+    colors = sorted(colors, key=lambda color: utils.rgb2hsv(*color)[0])
+    for idx, color in enumerate(colors[:16]):
+        left = idx % 4
+        top = idx // 4
+        painter.fillRect(left * 8, top * 8, 8, 8, QColor(*color))
+    painter.end()
+    return main_pixmap
 
 class PaletteModel(DragDropCollectionModel):
     def data(self, index, role):
@@ -56,7 +67,7 @@ class PaletteModel(DragDropCollectionModel):
     def on_nid_changed(self, old_nid, new_nid):
         # What uses combat palettes
         for combat_anim in RESOURCES.combat_anims:
-            if old_nid in combat_anim.palettes:
-                idx = combat_anim.palettes.index(old_nid)
-                combat_anim.palettes.remove(old_nid)
-                combat_anim.palettes.insert(idx, new_nid)
+            palette_nids = [palette[1] for palette in combat_anim.palettes]
+            if old_nid in palette_nids:
+                idx = palette_nids.index(old_nid)
+                combat_anim.palettes[idx][1] = new_nid

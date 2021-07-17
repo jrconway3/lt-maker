@@ -2147,7 +2147,7 @@
                 null
             ],
             [
-                "combat_art_allowed_weapons",
+                "allowed_weapons",
                 "item_system.is_weapon(unit, item) and not item_funcs.is_magic(unit, item)"
             ],
             [
@@ -2211,7 +2211,7 @@
                 null
             ],
             [
-                "combat_art_allowed_weapons",
+                "allowed_weapons",
                 "item_system.weapon_type(unit, item) in ('Sword', 'Axe') and 1 in item_funcs.get_range(unit, item)"
             ],
             [
@@ -2419,7 +2419,7 @@
                 40
             ],
             [
-                "combat_art_allowed_weapons",
+                "allowed_weapons",
                 "item_system.is_weapon(unit, item)"
             ]
         ]
@@ -2479,7 +2479,7 @@
                 40
             ],
             [
-                "combat_art_allowed_weapons",
+                "allowed_weapons",
                 "item_system.is_weapon(unit, item)"
             ]
         ]

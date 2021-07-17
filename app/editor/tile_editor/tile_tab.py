@@ -88,7 +88,7 @@ class TileMapDatabase(TileTab):
             map_editor.exec_()
             tile_model.create_tilemap_pixmap(current_tilemap)
 
-def get_tilesets():
+def get_tilesets() -> tuple:
     window = SingleResourceEditor(TileSetDatabase, ["tilesets"])
     result = window.exec_()
     if result == QDialog.Accepted:
@@ -97,7 +97,7 @@ def get_tilesets():
     else:
         return None, False
 
-def get_tilemaps():
+def get_tilemaps() -> tuple:
     window = SingleResourceEditor(TileMapDatabase, ["tilemaps"])
     result = window.exec_()
     if result == QDialog.Accepted:
@@ -106,9 +106,11 @@ def get_tilemaps():
     else:
         return None, False
 
-def get_full_editor():
-    return MultiResourceEditor((TileSetDatabase, TileMapDatabase), 
-                               ("tilesets", "tilemaps"))
+def get_full_editor() -> MultiResourceEditor:
+    editor = MultiResourceEditor((TileSetDatabase, TileMapDatabase), 
+                                 ("tilesets", "tilemaps"))
+    editor.setWindowTitle("Tile Editor")
+    return editor
 
 # Testing
 # Run "python -m app.editor.tile_editor.tile_tab" from main directory

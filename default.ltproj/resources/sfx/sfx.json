@@ -1,1092 +1,874 @@
 [
     [
         "Aircalibur",
-        "Anima",
-        2.066734790802002
+        "Anima"
     ],
     [
         "FireBall",
-        "Anima",
-        0.5403174757957458
+        "Anima"
     ],
     [
         "Bolting1",
-        "Anima",
-        1.2382313013076782
+        "Anima"
     ],
     [
         "Bolting2",
-        "Anima",
-        3.684217691421509
+        "Anima"
     ],
     [
         "ElfireHit",
-        "Anima",
-        0.8439229130744934
+        "Anima"
     ],
     [
         "Fimbulvetr1",
-        "Anima",
-        2.5197958946228027
+        "Anima"
     ],
     [
         "Fimbulvetr2",
-        "Anima",
-        0.43936508893966675
+        "Anima"
     ],
     [
         "FireCharge",
-        "Anima",
-        0.5696825385093689
+        "Anima"
     ],
     [
         "FireHit",
-        "Anima",
-        0.8359637260437012
+        "Anima"
     ],
     [
         "Forblaze1",
-        "Anima",
-        3.1739001274108887
+        "Anima"
     ],
     [
         "Forblaze2",
-        "Anima",
-        2.216031789779663
+        "Anima"
     ],
     [
         "Gust",
-        "Anima",
-        1.0606802701950073
+        "Anima"
     ],
     [
         "Thunder",
-        "Anima",
-        1.5868027210235596
+        "Anima"
     ],
     [
         "Wind",
-        "Anima",
-        1.8076417446136475
+        "Anima"
     ],
     [
         "WindWave",
-        "Anima",
-        0.7325623631477356
+        "Anima"
     ],
     [
         "Apocalypse1",
-        "Dark",
-        3.1769161224365234
+        "Dark"
     ],
     [
         "Apocalypse2",
-        "Dark",
-        6.384172439575195
+        "Dark"
     ],
     [
         "Apocalypse3",
-        "Dark",
-        4.3412017822265625
+        "Dark"
     ],
     [
         "EckesachsRanged",
-        "Dark",
-        0.6051474213600159
+        "Dark"
     ],
     [
         "Eclipse1",
-        "Dark",
-        2.014852523803711
+        "Dark"
     ],
     [
         "Eclipse2",
-        "Dark",
-        2.014852523803711
+        "Dark"
     ],
     [
         "Eclipse3",
-        "Dark",
-        1.1017913818359375
+        "Dark"
     ],
     [
         "Ereshkigal1",
-        "Dark",
-        3.735623598098755
+        "Dark"
     ],
     [
         "Ereshkigal2",
-        "Dark",
-        1.9520634412765503
+        "Dark"
     ],
     [
         "Fenrir1",
-        "Dark",
-        3.030566930770874
+        "Dark"
     ],
     [
         "Fenrir2",
-        "Dark",
-        2.2569613456726074
+        "Dark"
     ],
     [
         "Fenrir3",
-        "Dark",
-        1.3409523963928223
+        "Dark"
     ],
     [
         "Fenrir4",
-        "Dark",
-        1.6697052717208862
+        "Dark"
     ],
     [
         "Flux1",
-        "Dark",
-        1.7086848020553589
+        "Dark"
     ],
     [
         "Flux2",
-        "Dark",
-        1.8892062902450562
+        "Dark"
     ],
     [
         "Gespenst1",
-        "Dark",
-        1.6683673858642578
+        "Dark"
     ],
     [
         "Gespenst2",
-        "Dark",
-        1.7231745719909668
+        "Dark"
     ],
     [
         "Gespenst3",
-        "Dark",
-        0.9091383218765259
+        "Dark"
     ],
     [
         "Gleipnir",
-        "Dark",
-        5.522199630737305
+        "Dark"
     ],
     [
         "GleipnirHit",
-        "Dark",
-        0.7153061032295227
+        "Dark"
     ],
     [
         "Luna1",
-        "Dark",
-        0.8655328750610352
+        "Dark"
     ],
     [
         "Luna2",
-        "Dark",
-        3.1949660778045654
+        "Dark"
     ],
     [
         "Naglfar",
-        "Dark",
-        6.676802635192871
+        "Dark"
     ],
     [
         "NaglfarHit",
-        "Dark",
-        1.8227664232254028
+        "Dark"
     ],
     [
         "Nosferatu1",
-        "Dark",
-        0.9275736808776855
+        "Dark"
     ],
     [
         "Nosferatu2",
-        "Dark",
-        1.171791434288025
+        "Dark"
     ],
     [
         "Nosferatu3",
-        "Dark",
-        1.0220861434936523
+        "Dark"
     ],
     [
         "Aura1",
-        "Light",
-        1.4129478931427002
+        "Light"
     ],
     [
         "Aura2",
-        "Light",
-        1.829614520072937
+        "Light"
     ],
     [
         "Aura3",
-        "Light",
-        2.9402947425842285
+        "Light"
     ],
     [
         "Aureola1",
-        "Light",
-        6.052267551422119
+        "Light"
     ],
     [
         "Aureola2",
-        "Light",
-        1.031337857246399
+        "Light"
     ],
     [
         "Aureola3",
-        "Light",
-        2.039433002471924
+        "Light"
     ],
     [
         "Divine1",
-        "Light",
-        1.6207709312438965
+        "Light"
     ],
     [
         "Divine2",
-        "Light",
-        1.106621265411377
+        "Light"
     ],
     [
         "Divine3",
-        "Light",
-        1.7381858825683594
+        "Light"
     ],
     [
         "Ivaldi1",
-        "Light",
-        0.7869160771369934
+        "Light"
     ],
     [
         "Ivaldi2",
-        "Light",
-        6.184807300567627
+        "Light"
     ],
     [
         "Lightning1",
-        "Light",
-        1.4853968620300293
+        "Light"
     ],
     [
         "Lightning2",
-        "Light",
-        1.596825361251831
+        "Light"
     ],
     [
         "Luce1",
-        "Light",
-        0.5542176961898804
+        "Light"
     ],
     [
         "Luce2",
-        "Light",
-        2.0300679206848145
+        "Light"
     ],
     [
         "Luce3",
-        "Light",
-        2.149501085281372
+        "Light"
     ],
     [
         "Purge1",
-        "Light",
-        0.5455555319786072
+        "Light"
     ],
     [
         "Purge2",
-        "Light",
-        0.5576871037483215
+        "Light"
     ],
     [
         "Purge3",
-        "Light",
-        1.1909070014953613
+        "Light"
     ],
     [
         "Purge4",
-        "Light",
-        1.2896825075149536
+        "Light"
     ],
     [
         "Shine",
-        "Light",
-        1.6286168098449707
+        "Light"
     ],
     [
         "Map_Step_Armor1",
-        "Map_Sounds",
-        0.15498866140842438
+        "Map_Sounds"
     ],
     [
         "Map_Step_Armor2",
-        "Map_Sounds",
-        0.16346938908100128
+        "Map_Sounds"
     ],
     [
         "Map_Step_FDragon",
-        "Map_Sounds",
-        0.21092970669269562
+        "Map_Sounds"
     ],
     [
         "Map_Step_Flier",
-        "Map_Sounds",
-        0.22249433398246765
+        "Map_Sounds"
     ],
     [
         "Map_Step_Infantry1",
-        "Map_Sounds",
-        0.129274383187294
+        "Map_Sounds"
     ],
     [
         "Map_Step_Infantry2",
-        "Map_Sounds",
-        0.13321995735168457
+        "Map_Sounds"
     ],
     [
         "Map_Step_Mounted1",
-        "Map_Sounds",
-        0.09984126687049866
+        "Map_Sounds"
     ],
     [
         "Map_Step_Mounted2",
-        "Map_Sounds",
-        0.16893424093723297
+        "Map_Sounds"
     ],
     [
         "Map_Step_Mounted3",
-        "Map_Sounds",
-        0.16074830293655396
+        "Map_Sounds"
     ],
     [
         "CrimsonEye",
-        "Monster",
-        5.863038539886475
+        "Monster"
     ],
     [
         "DemonLight",
-        "Monster",
-        6.420317649841309
+        "Monster"
     ],
     [
         "DemonLightHit",
-        "Monster",
-        2.77496600151062
+        "Monster"
     ],
     [
         "DemonSurge",
-        "Monster",
-        3.133310556411743
+        "Monster"
     ],
     [
         "EvilEye",
-        "Monster",
-        3.1230838298797607
+        "Monster"
     ],
     [
         "Shadowshot",
-        "Monster",
-        4.564399242401123
+        "Monster"
     ],
     [
         "ShadowshotHit",
-        "Monster",
-        1.4517459869384766
+        "Monster"
     ],
     [
         "Stone",
-        "Monster",
-        2.319070339202881
+        "Monster"
     ],
     [
         "StoneHit",
-        "Monster",
-        2.213764190673828
+        "Monster"
     ],
     [
         "DebuffRecover",
-        "Staff",
-        0.8530158996582031
+        "Staff"
     ],
     [
         "HealBoop",
-        "Staff",
-        0.33696144819259644
+        "Staff"
     ],
     [
         "MapHeal",
-        "Staff",
-        1.7332426309585571
+        "Staff"
     ],
     [
         "Poison",
-        "Staff",
-        0.6348752975463867
+        "Staff"
     ],
     [
         "PureWater",
-        "Staff",
-        0.7971882224082947
+        "Staff"
     ],
     [
         "Rally",
-        "Staff",
-        0.6124262809753418
+        "Staff"
     ],
     [
         "Torch",
-        "Staff",
-        1.7137187719345093
+        "Staff"
     ],
     [
         "Barrier",
-        "Staff",
-        3.326984167098999
+        "Staff"
     ],
     [
         "Berserk",
-        "Staff",
-        1.6823129653930664
+        "Staff"
     ],
     [
         "Fortify",
-        "Staff",
-        3.734693765640259
+        "Staff"
     ],
     [
         "Hammerne",
-        "Staff",
-        3.127596378326416
+        "Staff"
     ],
     [
         "Heal1",
-        "Staff",
-        0.7821542024612427
+        "Staff"
     ],
     [
         "Heal2",
-        "Staff",
-        0.7698412537574768
+        "Staff"
     ],
     [
         "HealInit",
-        "Staff",
-        0.8589115738868713
+        "Staff"
     ],
     [
         "Mend",
-        "Staff",
-        0.8587528467178345
+        "Staff"
     ],
     [
         "Recover",
-        "Staff",
-        0.828049898147583
+        "Staff"
     ],
     [
         "Restore",
-        "Staff",
-        4.107891082763672
+        "Staff"
     ],
     [
         "Silence1",
-        "Staff",
-        1.8528571128845215
+        "Staff"
     ],
     [
         "Silence2",
-        "Staff",
-        1.5588208436965942
+        "Staff"
     ],
     [
         "SilenceCrack",
-        "Staff",
-        0.8508843779563904
+        "Staff"
     ],
     [
         "Sleep1",
-        "Staff",
-        0.9927210807800293
+        "Staff"
     ],
     [
         "Sleep2",
-        "Staff",
-        1.3376190662384033
+        "Staff"
     ],
     [
         "UnlockStaff",
-        "Staff",
-        2.158503293991089
+        "Staff"
     ],
     [
         "Warp",
-        "Staff",
-        2.0629706382751465
+        "Staff"
     ],
     [
         "WarpEnd",
-        "Staff",
-        1.175283432006836
+        "Staff"
     ],
     [
         "Armor Shift",
-        null,
-        0.3846712112426758
+        null
     ],
     [
         "Attack Hit 1",
-        "Attack",
-        0.3106575906276703
+        "Attack"
     ],
     [
         "Attack Hit 2",
-        "Attack",
-        0.28346937894821167
+        "Attack"
     ],
     [
         "Attack Hit 3",
-        "Attack",
-        0.3019954562187195
+        "Attack"
     ],
     [
         "Attack Hit 4",
-        null,
-        0.2868480682373047
+        null
     ],
     [
         "Attack Hit 5",
-        null,
-        0.2931519150733948
+        null
     ],
     [
         "Attack Miss 2",
-        null,
-        0.23206348717212677
+        null
     ],
     [
         "Attack Miss 3",
-        null,
-        0.47464853525161743
+        null
     ],
     [
         "Axe Pull",
-        null,
-        0.20351473987102509
+        null
     ],
     [
         "Axe Push",
-        null,
-        0.10111111402511597
+        null
     ],
     [
         "Battle Cry",
-        null,
-        2.0
+        null
     ],
     [
         "BindingBladeRanged",
-        null,
-        1.2324943542480469
+        null
     ],
     [
         "Bow Miss",
-        null,
-        0.49761903285980225
+        null
     ],
     [
         "Bow",
-        null,
-        0.4627891182899475
+        null
     ],
     [
         "BrightFlash",
-        null,
-        2.524625778198242
+        null
     ],
     [
         "CombatDeath",
-        null,
-        0.7165079116821289
+        null
     ],
     [
         "Critical Hit 1",
-        null,
-        0.7950113415718079
+        null
     ],
     [
         "Critical Hit 2",
-        null,
-        0.7742403745651245
+        null
     ],
     [
         "Critical Kill",
-        null,
-        0.7602267861366272
+        null
     ],
     [
         "CritInit",
-        null,
-        0.3780725598335266
+        null
     ],
     [
         "CyclopsCrit",
-        null,
-        0.6090022921562195
+        null
     ],
     [
         "Dance1",
-        null,
-        3.2123355865478516
+        null
     ],
     [
         "Dance2",
-        null,
-        1.3644897937774658
+        null
     ],
     [
         "Death",
-        null,
-        0.7106575965881348
+        null
     ],
     [
         "DruidCrit",
-        null,
-        1.2984126806259155
+        null
     ],
     [
         "Error",
-        null,
-        1.098095178604126
+        null
     ],
     [
         "Experience Gain Old",
-        null,
-        1.2279818058013916
+        null
     ],
     [
         "Experience Gain",
-        null,
-        0.033877551555633545
+        null
     ],
     [
         "Final Hit",
-        null,
-        0.466802716255188
+        null
     ],
     [
         "First Stat Up",
-        null,
-        0.6790022850036621
+        null
     ],
     [
         "Foot Step",
-        null,
-        0.12290249764919281
+        null
     ],
     [
         "FormationSelect",
-        null,
-        1.7993197441101074
+        null
     ],
     [
         "General Step",
-        null,
-        0.9944217801094055
+        null
     ],
     [
         "GoldExchange",
-        null,
-        1.3758050203323364
+        null
     ],
     [
         "Heavy Foot Steps 1",
-        null,
-        0.5281178951263428
+        null
     ],
     [
         "Heavy Spear Spin",
-        null,
-        0.28267574310302734
+        null
     ],
     [
         "Heavy Wing Flap",
-        null,
-        0.33473923802375793
+        null
     ],
     [
         "Horse Step 1",
-        null,
-        0.34839001297950745
+        null
     ],
     [
         "Horse Step 2",
-        null,
-        0.24943310022354126
+        null
     ],
     [
         "Horse Step 3",
-        null,
-        0.2448979616165161
+        null
     ],
     [
         "Horse Steps",
-        null,
-        0.3088662028312683
+        null
     ],
     [
         "HP_Recovery",
-        null,
-        0.4151020348072052
+        null
     ],
     [
         "Info In",
-        null,
-        1.3517913818359375
+        null
     ],
     [
         "Info Out",
-        null,
-        1.2451927661895752
+        null
     ],
     [
         "Intro",
-        null,
-        8.076598167419434
+        null
     ],
     [
         "Item",
-        null,
-        1.435011386871338
+        null
     ],
     [
         "ItemBreak",
-        null,
-        1.7866439819335938
+        null
     ],
     [
         "Knight Step",
-        null,
-        0.3796825408935547
+        null
     ],
     [
         "Legendary Weapon",
-        null,
-        0.5280952453613281
+        null
     ],
     [
         "Level Up",
-        null,
-        1.481383204460144
+        null
     ],
     [
         "Level_Up_Level",
-        null,
-        0.7840816378593445
+        null
     ],
     [
         "Light Foot Steps 1",
-        null,
-        0.27437642216682434
+        null
     ],
     [
         "Long Wing Flap",
-        null,
-        0.45319727063179016
+        null
     ],
     [
         "Map In",
-        null,
-        1.1662812232971191
+        null
     ],
     [
         "Map Out",
-        null,
-        1.2522449493408203
+        null
     ],
     [
         "Message",
-        null,
-        0.3101133704185486
+        null
     ],
     [
         "Miss",
-        null,
-        0.18394558131694794
+        null
     ],
     [
         "MonkRune",
-        null,
-        0.5377777814865112
+        null
     ],
     [
         "Neigh",
-        null,
-        2.026825428009033
+        null
     ],
     [
         "Next Turn",
-        null,
-        1.348231315612793
+        null
     ],
     [
         "No Damage",
-        null,
-        0.3870294690132141
+        null
     ],
     [
         "Promotion1",
-        null,
-        1.522040843963623
+        null
     ],
     [
         "Promotion2",
-        null,
-        1.1307482719421387
+        null
     ],
     [
         "Promotion3",
-        null,
-        2.075510263442993
+        null
     ],
     [
         "PromotionCrackle",
-        null,
-        0.27673467993736267
+        null
     ],
     [
         "Quintessence",
-        null,
-        1.5202040672302246
+        null
     ],
     [
         "RefreshDance",
-        null,
-        4.1049885749816895
+        null
     ],
     [
         "RefreshDanceMap",
-        null,
-        1.6605215072631836
+        null
     ],
     [
         "RefreshFlute",
-        null,
-        3.3759636878967285
+        null
     ],
     [
         "RefreshFluteMap",
-        null,
-        1.7704308032989502
+        null
     ],
     [
         "SageCrit",
-        null,
-        1.6719274520874023
+        null
     ],
     [
         "SageRune",
-        null,
-        0.5895237922668457
+        null
     ],
     [
         "Save",
-        null,
-        1.4478003978729248
+        null
     ],
     [
         "Select 1",
-        null,
-        0.17789115011692047
+        null
     ],
     [
         "Select 2",
-        null,
-        0.17462584376335144
+        null
     ],
     [
         "Select 3",
-        null,
-        0.28988662362098694
+        null
     ],
     [
         "Select 4",
-        null,
-        0.36233559250831604
+        null
     ],
     [
         "Select 5",
-        null,
-        0.13310657441616058
+        null
     ],
     [
         "Select 6",
-        null,
-        0.09612245112657547
+        null
     ],
     [
         "ShamanRune",
-        null,
-        2.491405963897705
+        null
     ],
     [
         "Sheathe",
-        null,
-        0.20040816068649292
+        null
     ],
     [
         "SkillActivate",
-        null,
-        0.5431746244430542
+        null
     ],
     [
         "StageClear",
-        null,
-        3.8933334350585938
+        null
     ],
     [
         "Start",
-        null,
-        1.6913378238677979
+        null
     ],
     [
         "Stat Up",
-        null,
-        0.3570067882537842
+        null
     ],
     [
         "Status_Character",
-        null,
-        0.322857141494751
+        null
     ],
     [
         "Status_Page_Change",
-        null,
-        0.9888208508491516
+        null
     ],
     [
         "Step Back 1",
-        null,
-        0.17818593978881836
+        null
     ],
     [
         "StrategistRune",
-        null,
-        0.6863038539886475
+        null
     ],
     [
         "Summon 2",
-        null,
-        1.2301586866378784
+        null
     ],
     [
         "Summon",
-        null,
-        1.2493196725845337
+        null
     ],
     [
         "Sword Whoosh",
-        null,
-        0.2580045461654663
+        null
     ],
     [
         "Throw 1",
-        null,
-        0.790975034236908
+        null
     ],
     [
         "Throw 2",
-        null,
-        0.20648525655269623
+        null
     ],
     [
         "Throw 3",
-        null,
-        0.8196825385093689
+        null
     ],
     [
         "TradeRight",
-        null,
-        0.6822448968887329
+        null
     ],
     [
         "TurnwheelIn1",
-        null,
-        0.7044217586517334
+        null
     ],
     [
         "TurnwheelIn2",
-        null,
-        1.071587324142456
+        null
     ],
     [
         "TurnwheelOut",
-        null,
-        2.158095121383667
+        null
     ],
     [
         "TurnwheelTurn",
-        null,
-        1.98285710811615
+        null
     ],
     [
         "Unlock",
-        null,
-        0.2568480670452118
+        null
     ],
     [
         "Unsheathe",
-        null,
-        0.23160997033119202
+        null
     ],
     [
         "ValkyrieCharge",
-        null,
-        1.6838548183441162
+        null
     ],
     [
         "VillageDestroyed",
-        null,
-        0.6705895662307739
+        null
     ],
     [
         "Wall Attack",
-        null,
-        0.4811791479587555
+        null
     ],
     [
         "Weapon Click",
-        null,
-        0.7397732138633728
+        null
     ],
     [
         "Weapon Pull",
-        null,
-        0.19541950523853302
+        null
     ],
     [
         "Weapon Push",
-        null,
-        0.19900226593017578
+        null
     ],
     [
         "Weapon Shine",
-        null,
-        0.7988208532333374
+        null
     ],
     [
         "Weapon Swing",
-        null,
-        0.790975034236908
+        null
     ],
     [
         "Whistle",
-        "Fluf",
-        0.7024036049842834
+        "Fluf"
     ],
     [
         "Talk_Boop",
-        null,
-        0.03256235644221306
+        null
     ]
 ]

@@ -223,7 +223,6 @@ class FreeState(MapState):
 
 def suspend():
     game.state.back()
-    game.state.back()
     game.state.process_temp_state()
     logging.info('Suspending game...')
     save.suspend_game(game, 'suspend')
@@ -234,10 +233,9 @@ def suspend():
 
 def battle_save():
     game.state.back()
-    game.state.back()
     logging.info('Creating battle save...')
     game.memory['save_kind'] = 'battle'
-    game.state.change('title_save')
+    game.state.change('in_chapter_save')
     game.state.change('transition_out')
 
 class OptionMenuState(MapState):
@@ -312,9 +310,9 @@ class OptionMenuState(MapState):
                     game.memory['option_menu'] = self.menu
                     game.state.change('option_child')
                 else:
-                    if self.menu.owner == 'Suspend':
+                    if selection == 'Suspend':
                         suspend()
-                    elif self.menu.owner == 'Save':
+                    elif selection == 'Save':
                         battle_save()
             elif selection == 'Objective':
                 game.memory['next_state'] = 'objective_menu'
@@ -391,8 +389,10 @@ class OptionChildState(State):
                     game.state.change('ai')
                     return 'repeat'
                 elif self.menu.owner == 'Suspend':
+                    game.state.back()
                     suspend()
                 elif self.menu.owner == 'Save':
+                    game.state.back()
                     battle_save()
                 elif self.menu.owner == 'Discard' or self.menu.owner == 'Storage':
                     item = game.memory['option_item']
@@ -1088,6 +1088,10 @@ class TargetingState(MapState):
 
         self.pennant = banner.Pennant(self.ability.name + '_desc')
 
+        # Only used for Trade ability, to enable trading
+        # with rescued units
+        self.traveler_mode = False  # Should we be targeting the traveler?
+
     def begin(self):
         game.cursor.combat_show()
         self.cur_unit.sprite.change_state('chosen')
@@ -1098,18 +1102,30 @@ class TargetingState(MapState):
 
         if 'DOWN' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
+            if self.ability.name == 'Trade':
+                current_target = game.cursor.get_hover()
+                traveler = current_target.traveler
+                if traveler and game.get_unit(traveler).team == self.cur_unit.team:
+                    self.traveler_mode = True
+                else:
+                    new_position = self.selection.get_down(game.cursor.position)
+                    game.cursor.set_pos(new_position)
             new_position = self.selection.get_down(game.cursor.position)
             game.cursor.set_pos(new_position)
         elif 'UP' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
             new_position = self.selection.get_up(game.cursor.position)
             game.cursor.set_pos(new_position)
         if 'LEFT' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
             new_position = self.selection.get_left(game.cursor.position)
             game.cursor.set_pos(new_position)
         elif 'RIGHT' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
             new_position = self.selection.get_right(game.cursor.position)
             game.cursor.set_pos(new_position)
 
@@ -1123,10 +1139,16 @@ class TargetingState(MapState):
 
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
+            unit = game.cursor.get_hover()
+            if self.traveler_mode:
+                game.memory['trade_partner'] = game.get_unit(unit.traveler)
+            else:
+                game.memory['trade_partner'] = unit
             self.ability.do(self.cur_unit)
 
         elif event == 'AUX':
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
             new_position = self.selection.get_next(game.cursor.position)
             game.cursor.set_pos(new_position)
 
@@ -1194,7 +1216,10 @@ class TargetingState(MapState):
                     self.draw_give_preview(traveler, give_to, surf)
         elif self.ability.name == 'Trade':
             unit = game.cursor.get_hover()
-            game.ui_view.draw_trade_preview(unit, surf)
+            if self.traveler_mode:
+                game.ui_view.draw_trade_preview(game.get_unit(unit.traveler), surf)
+            else:
+                game.ui_view.draw_trade_preview(unit, surf)
         elif self.ability.name == 'Steal':
             unit = game.cursor.get_hover()
             game.ui_view.draw_trade_preview(unit, surf)
@@ -1475,8 +1500,7 @@ class ItemTargetingState(MapState):
 
 class CombatState(MapState):
     name = 'combat'
-    fuzz_background = image_mods.make_translucent(SPRITES.get('bg_black'), 0.25)
-    dark_fuzz_background = image_mods.make_translucent(SPRITES.get('bg_black'), 0.5)
+    fuzz_background = image_mods.make_translucent(SPRITES.get('bg_black'), 0.75)
 
     def start(self):
         game.cursor.hide()
@@ -1489,9 +1513,13 @@ class CombatState(MapState):
         self.is_animation_combat = isinstance(self.combat, interaction.AnimationCombat)
 
     def take_input(self, event):
-        if event == 'START' and not self.skip:
-            self.skip = True
-            self.combat.skip()
+        if event == 'START':
+            if self.skip:
+                self.skip = False
+                self.combat.end_skip()
+            else:
+                self.skip = True
+                self.combat.skip()
         elif event == 'BACK':
             # Arena
             pass
@@ -1507,10 +1535,18 @@ class CombatState(MapState):
 
     def draw(self, surf):
         if self.is_animation_combat:
-            pass
+            if self.combat.viewbox:
+                viewbox = self.combat.viewbox
+                viewbox_bg = self.fuzz_background.copy()
+                if viewbox[2] > 0:  # Width
+                    viewbox_bg.fill((0, 0, 0, 0), viewbox)
+                surf = super().draw(surf, culled_rect=viewbox)
+                surf.blit(viewbox_bg, (0, 0))
+            else:
+                surf = super().draw(surf)
         else:
             surf = super().draw(surf)
-            self.combat.draw(surf)
+        self.combat.draw(surf)
         return surf
 
 class DyingState(MapState):

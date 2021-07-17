@@ -717,42 +717,51 @@ class Take(Action):
 
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):
-    def __init__(self, item):
+    def __init__(self, item, party_nid=None):
         self.item = item
+        self.party_nid = party_nid
         self.owner_nid = self.item.owner_nid
 
     def do(self):
         self.item.change_owner(None)
-        game.party.convoy.append(self.item)
+        party = game.get_party(self.party_nid)
+        party.convoy.append(self.item)
 
     def reverse(self, gameStateObj):
-        game.party.convoy.remove(self.item)
+        party = game.get_party(self.party_nid)
+        party.convoy.remove(self.item)
         self.item.change_owner(self.owner_nid)
 
 
 class TakeItemFromConvoy(Action):
-    def __init__(self, unit, item):
+    def __init__(self, unit, item, party_nid=None):
         self.unit = unit
         self.item = item
+        self.party_nid = party_nid
 
     def do(self):
-        game.party.convoy.remove(self.item)
+        party = game.get_party(self.party_nid)
+        party.convoy.remove(self.item)
         self.unit.add_item(self.item)
 
     def reverse(self):
         self.unit.remove_item(self.item)
-        game.party.convoy.append(self.item)
+        party = game.get_party(self.party_nid)
+        party.convoy.append(self.item)
 
 
 class RemoveItemFromConvoy(Action):
-    def __init__(self, item):
+    def __init__(self, item, party_nid=None):
         self.item = item
+        self.party_nid = party_nid
 
     def do(self):
-        game.party.convoy.remove(self.item)
+        party = game.get_party(self.party_nid)
+        party.convoy.remove(self.item)
 
     def reverse(self):
-        game.party.convoy.append(self.item)
+        party = game.get_party(self.party_nid)
+        party.convoy.append(self.item)
 
 
 class MoveItem(Action):
@@ -954,6 +963,65 @@ class RepairItem(Action):
         if self.old_c_uses is not None and self.item.c_uses:
             self.item.data['c_uses'] = self.old_c_uses
 
+class ChangeItemName(Action):
+    def __init__(self, item, name):
+        self.item = item
+        self.old_name = item.name
+        self.new_name = name
+
+    def do(self):
+        self.item.name = self.new_name
+
+    def reverse(self):
+        self.item.name = self.old_name
+
+class ChangeItemDesc(Action):
+    def __init__(self, item, desc):
+        self.item = item
+        self.old_desc = item.desc
+        self.new_desc = desc
+
+    def do(self):
+        self.item.desc = self.new_desc
+
+    def reverse(self):
+        self.item.desc = self.old_desc
+
+class AddItemToMultiItem(Action):
+    def __init__(self, unit, item, subitem):
+        self.unit = unit
+        self.item = item
+        self.subitem = subitem
+
+    def do(self):
+        self.subitem.owner_nid = self.unit.nid
+        self.item.subitem_uids.append(self.subitem.uid)
+        self.item.subitems.append(self.subitem)
+        self.subitem.parent_item = self.item
+
+    def reverse(self):
+        self.subitem.owner_nid = None
+        self.item.subitem_uids.remove(self.subitem.uid)
+        self.item.subitems.remove(self.subitem)
+        self.subitem.parent_item = None
+
+class RemoveItemFromMultiItem(Action):
+    def __init__(self, unit, item, subitem):
+        self.unit = unit
+        self.item = item
+        self.subitem = subitem
+
+    def do(self):
+        self.subitem.owner_nid = None
+        self.item.subitem_uids.remove(self.subitem.uid)
+        self.item.subitems.remove(self.subitem)
+        self.subitem.parent_item = None
+
+    def reverse(self):
+        self.subitem.owner_nid = self.unit.nid
+        self.item.subitem_uids.append(self.subitem.uid)
+        self.item.subitems.append(self.subitem)
+        self.subitem.parent_item = self.item
 
 class SetObjData(Action):
     def __init__(self, obj, keyword, value):
@@ -979,7 +1047,7 @@ class GainMoney(Action):
         self.old_money = None
 
     def do(self):
-        party = game.parties.get(self.party_nid)
+        party = game.get_party(self.party_nid)
         self.old_money = party.money
         # Can't go below zero
         if party.money + self.money < 0:
@@ -987,8 +1055,27 @@ class GainMoney(Action):
         party.money += self.money
 
     def reverse(self):
-        party = game.parties.get(self.party_nid)
+        party = game.get_party(self.party_nid)
         party.money = self.old_money
+
+
+class GiveBexp(Action):
+    def __init__(self, party_nid, bexp):
+        self.party_nid = party_nid
+        self.bexp = bexp
+        self.old_bexp = None
+
+    def do(self):
+        party = game.get_party(self.party_nid)
+        self.old_bexp = party.bexp
+        # Can't go below zero
+        if party.bexp + self.bexp < 0:
+            self.bexp = -party.bexp
+        party.bexp += self.bexp
+
+    def reverse(self):
+        party = game.get_party(self.party_nid)
+        party.bexp = self.old_bexp
 
 
 class GainExp(Action):
@@ -1044,6 +1131,7 @@ class AutoLevel(Action):
         self.old_stats = self.unit.stats
         self.old_growth_points = self.unit.growth_points
         self.old_hp = self.unit.get_hp()
+        self.old_mana = self.unit.get_mana()
 
     def do(self):
         unit_funcs.auto_level(self.unit, self.diff, self.unit.get_internal_level())
@@ -1052,6 +1140,7 @@ class AutoLevel(Action):
         self.unit.stats = self.old_stats
         self.unit.growth_points = self.old_growth_points
         self.unit.set_hp(self.old_hp)
+        self.unit.set_mana(self.old_mana)
 
 
 class GrowthPointChange(Action):
@@ -1120,7 +1209,9 @@ class Promote(Action):
         wexp_gain = DB.classes.get(self.new_klass).wexp_gain
         self.new_wexp = {nid: 0 for nid in DB.weapons.keys()}
         for weapon in DB.weapons:
-            self.new_wexp[weapon.nid] = wexp_gain[weapon.nid].wexp_gain
+            gain = wexp_gain.get(weapon.nid)
+            if gain:
+                self.new_wexp[weapon.nid] = gain.wexp_gain
 
         self.subactions = []
 
@@ -1134,8 +1225,9 @@ class Promote(Action):
 
         self.unit.reset_sprite()
         self.unit.klass = self.new_klass
-        self.unit.set_exp(0)
-        self.unit.level = 1
+        if DB.constants.value('promote_level_reset'):
+            self.unit.set_exp(0)
+            self.unit.level = 1
 
         unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
 
@@ -1189,12 +1281,17 @@ class ClassChange(Action):
 
         self.unit.reset_sprite()
         self.unit.klass = self.new_klass
+        if DB.constants.value('class_change_level_reset'):
+            self.unit.set_exp(0)
+            self.unit.level = 1
 
         unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
 
     def reverse(self):
         self.unit.reset_sprite()
         self.unit.klass = self.old_klass
+        self.unit.set_exp(self.old_exp)
+        self.unit.level = self.old_level
 
         reverse_stat_changes = {k: -v for k, v in self.stat_changes.items()}
         unit_funcs.apply_stat_changes(self.unit, reverse_stat_changes)
@@ -1202,7 +1299,6 @@ class ClassChange(Action):
         for act in self.subactions:
             act.reverse()
         self.subactions.clear()
-
 
 class GainWexp(Action):
     def __init__(self, unit, item, wexp_gain):
@@ -1502,6 +1598,19 @@ class AIGroupPing(Action):
 
     def reverse(self):
         self.unit.ai_group_active = self.old_ai_group_state
+
+
+class ChangeParty(Action):
+    def __init__(self, unit, party_nid: str):
+        self.unit = unit
+        self.party_nid = party_nid
+        self.old_party_nid = self.unit.party
+
+    def do(self):
+        self.unit.party = self.party_nid
+
+    def reverse(self):
+        self.unit.party = self.old_party_nid
 
 
 class ChangeTeam(Action):
@@ -1966,13 +2075,15 @@ class RemoveSkill(Action):
         self.old_owner_nid = None
         self.reset_action = ResetUnitVars(self.unit)
 
-    def do(self):
+    def _remove(self, true_remove=True):
         self.removed_skills.clear()
         if isinstance(self.skill, str):
             for skill in self.unit.skills[:]:
                 if skill.nid == self.skill:
                     self.unit.skills.remove(skill)
                     skill_system.on_remove(self.unit, skill)
+                    if true_remove:
+                        skill_system.on_true_remove(self.unit, skill)
                     skill.owner_nid = None
                     self.removed_skills.append(skill)
                     if skill.aura and self.unit.position:
@@ -1981,6 +2092,8 @@ class RemoveSkill(Action):
             if self.skill in self.unit.skills:
                 self.unit.skills.remove(self.skill)
                 skill_system.on_remove(self.unit, self.skill)
+                if true_remove:
+                    skill_system.on_true_remove(self.unit, self.skill)
                 self.skill.owner_nid = None
                 self.removed_skills.append(self.skill)
                 if self.skill.aura and self.unit.position:
@@ -1993,6 +2106,14 @@ class RemoveSkill(Action):
         if game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit)
 
+    def do(self):
+        # Actually call on true remove hook
+        self._remove(True)
+
+    def execute(self):
+        # Don't call on true remove hook
+        self._remove(False)
+
     def reverse(self):
         self.reset_action.reverse()
         for skill in self.removed_skills:
@@ -2002,24 +2123,6 @@ class RemoveSkill(Action):
             if skill.aura and self.unit.position:
                 aura_funcs.propagate_aura(self.unit, skill, game)
 
-
-class GiveBexp(Action):
-    def __init__(self, party_nid, bexp):
-        self.party_nid = party_nid
-        self.bexp = bexp
-        self.old_bexp = None
-
-    def do(self):
-        party = game.parties.get(self.party_nid)
-        self.old_bexp = party.bexp
-        # Can't go below zero
-        if party.bexp + self.bexp < 0:
-            self.bexp = -party.bexp
-        party.bexp += self.bexp
-
-    def reverse(self):
-        party = game.parties.get(self.party_nid)
-        party.bexp = self.old_bexp
 
 # === Master Functions for adding to the action log ===
 def do(action):

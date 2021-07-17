@@ -2,7 +2,7 @@ from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
 from app.utilities import utils
-from app.engine import action
+from app.engine import action, skill_system, target_system
 from app.engine.game_state import game
 
 class Miracle(SkillComponent):
@@ -34,7 +34,7 @@ class IgnoreDamage(SkillComponent):
 
 class LiveToServe(SkillComponent):
     nid = 'live_to_serve'
-    desc = "Unit will be healed X%% of amount healed"
+    desc = r"Unit will be healed X% of amount healed"
     tag = 'combat2'
 
     expose = Type.Float
@@ -42,12 +42,14 @@ class LiveToServe(SkillComponent):
 
     def after_hit(self, actions, playback, unit, item, target, mode):
         total_amount_healed = 0
-        playbacks = [p for p in playback if p[0] == 'heal_hit' and p[1] == self]
+        playbacks = [p for p in playback if p[0] == 'heal_hit' and p[1] is unit and p[3] is not unit]
         for p in playbacks:
             total_amount_healed += p[4]
 
         amount = int(total_amount_healed * self.value)
         if amount > 0:
+            true_heal = min(amount, unit.get_max_hp() - unit.get_hp())
+            playback.append(('heal_hit', unit, item, unit, true_heal, true_heal))
             actions.append(action.ChangeHP(unit, amount))
             actions.append(action.TriggerCharge(unit, self.skill))
 
@@ -250,3 +252,64 @@ class DelayInitiativeOrder(SkillComponent):
         if target and target.get_hp() <= 0 and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
             actions.append(action.MoveInInitiative(target, self.value))
             actions.append(action.TriggerCharge(unit, self.skill))
+
+class Recoil(SkillComponent):
+    nid = 'recoil'
+    desc = "Unit takes non-lethal damage after combat with an enemy"
+    tag = 'combat2'
+
+    expose = Type.Int
+    value = 0
+    author = 'Lord_Tweed'
+
+    def end_combat(self, playback, unit, item, target, mode):
+        if target and skill_system.check_enemy(unit, target):
+            end_health = unit.get_hp() - self.value
+            action.do(action.SetHP(unit, max(1, end_health)))
+            action.do(action.TriggerCharge(unit, self.skill))
+
+class PostCombatDamage(SkillComponent):
+    nid = 'post_combat_damage'
+    desc = "Target takes non-lethal damage after combat"
+    tag = 'combat2'
+
+    expose = Type.Int
+    value = 0
+    author = 'Lord_Tweed'
+
+    def end_combat(self, playback, unit, item, target, mode):
+        if target and skill_system.check_enemy(unit, target):
+            end_health = target.get_hp() - self.value
+            action.do(action.SetHP(target, max(1, end_health)))
+            action.do(action.TriggerCharge(unit, self.skill))
+
+    def post_combat_damage(self) -> int:
+        return self.value
+
+class PostCombatDamageAOE(SkillComponent):
+    nid = 'post_combat_damage_aoe'
+    desc = 'Post-Combat damage will also hit other enemies within this AOE range.'
+    tag = 'combat2'
+    paired_with = ('post_combat_damage', )
+
+    expose = Type.Int
+    value = 0
+    author = 'Lord_Tweed'
+
+    def end_combat(self, playback, unit, item, target, mode):
+        if target and skill_system.check_enemy(unit, target):
+            r = set(range(self.value))
+            locations = target_system.get_shell({target.position}, r, game.tilemap.width, game.tilemap.height)
+            damage = get_pc_damage(unit, self.skill)
+            if damage > 0:
+                for loc in locations:
+                    target2 = game.board.get_unit(loc)
+                    if target2 and target2 is not target and skill_system.check_enemy(unit, target2):
+                        end_health = target2.get_hp() - damage
+                        action.do(action.SetHP(target2, max(1, end_health)))
+
+def get_pc_damage(unit, skill) -> int:
+    for component in skill.components:
+        if component.defines('post_combat_damage'):
+            return component.post_combat_damage()
+    return 0  # 0 is default

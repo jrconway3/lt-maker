@@ -43,7 +43,7 @@ def make_translucent_blend(image, alpha):
     alpha measured from 0 to 255, where 0 is fully opaque
     and 255 is fully transparent
     """
-    alpha = utils.clamp(alpha, 0, 255)
+    alpha = 255 - utils.clamp(alpha, 0, 255)
     image = engine.copy_surface(image)
     engine.fill(image, (alpha, alpha, alpha), None, engine.BLEND_RGB_MULT)
 
@@ -74,7 +74,7 @@ def make_white(image, white):
 
     return image
 
-def change_color(image, color):
+def change_color(image, color: tuple):
     """
     Additively blends a color with the image
     """
@@ -144,6 +144,21 @@ def blend_colors(color1, color2, t):
         new_color.append(int(chroma * t) + color1[idx])
 
     return new_color
+
+def screen_dodge(image, color):
+    image = engine.copy_surface(image)
+    # Invert image
+    inv = engine.copy_surface(image)
+    engine.fill(inv, (255, 255, 255))
+    inv.blit(image, (0, 0), None, engine.BLEND_RGBA_SUB)
+    # Multiply with new color
+    inv_color = tuple([256 - c for c in color])
+    engine.fill(inv, inv_color, None, engine.BLEND_RGBA_MULT)
+    # Invert image again
+    new_inv = engine.copy_surface(inv)
+    engine.fill(new_inv, (255, 255, 255))
+    new_inv.blit(inv, (0, 0), None, engine.BLEND_RGBA_SUB)
+    return new_inv
 
 def resize(image, scale):
     x_scale, y_scale = scale

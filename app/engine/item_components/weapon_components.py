@@ -96,6 +96,18 @@ class Damage(ItemComponent):
             playback.append(('hit_sound', 'No Damage'))
             playback.append(('hit_anim', 'MapNoDamage', target))
 
+    def on_glancing_hit(self, actions, playback, unit, item, target, target_pos, mode):
+        damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
+        damage = damage // 2
+
+        true_damage = min(damage, target.get_hp())
+        actions.append(action.ChangeHP(target, -damage))
+
+        # For animation
+        playback.append(('damage_hit', unit, item, target, damage, true_damage))
+        if damage == 0:
+            playback.append(('hit_anim', 'MapNoDamage', target))
+
     def on_crit(self, actions, playback, unit, item, target, target_pos, mode):
         damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode, crit=True)
 
@@ -131,3 +143,14 @@ class Weight(ItemComponent):
 
     def modify_defense_speed(self, unit, item):
         return -1 * max(0, self.value - equations.parser.constitution(unit))
+
+class Unwieldy(ItemComponent):
+    nid = 'Unwieldy'
+    desc = "Item lowers unit's defense by X"
+    tag = 'weapon'
+
+    expose = Type.Int
+    value = 0
+
+    def modify_defense(self, unit, item):
+        return -1 * self.value

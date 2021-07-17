@@ -1,7 +1,7 @@
 from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
-from app.engine import equations, action, item_funcs, static_random
+from app.engine import equations, action, item_funcs, static_random, skill_system
 from app.engine.game_state import game
 
 class Ability(SkillComponent):
@@ -40,6 +40,10 @@ class CombatArt(SkillComponent):
     def combat_art(self, unit):
         return self.value
 
+    def start_combat(self, playback, unit, item, target, mode):
+        if self._action:
+            playback.append(('attack_pre_proc', unit, self._action.skill_obj))
+
     def on_activation(self, unit):
         # I don't think this needs to use an action
         # because there will be no point in the turnwheel
@@ -58,6 +62,8 @@ class CombatArt(SkillComponent):
         if self.skill.data.get('active'):
             action.do(action.TriggerCharge(unit, self.skill))
         self.skill.data['active'] = False
+
+    def post_combat(self, playback, unit, item, target, mode):
         if self._action:
             action.do(action.RemoveSkill(unit, self._action.skill_obj))
         self._action = None
@@ -76,25 +82,20 @@ class AutomaticCombatArt(SkillComponent):
     def on_endstep(self, actions, playback, unit):
         actions.append(action.RemoveSkill(unit, self.value))
 
-class CombatArtAllowedWeapons(SkillComponent):
-    nid = 'combat_art_allowed_weapons'
-    desc = "Defines what weapons are actually allowed"
+class AllowedWeapons(SkillComponent):
+    nid = 'allowed_weapons'
+    desc = "Defines what weapons are allowed for combat art or proc skill"
     tag = 'advanced'
-    paired_with = ('combat_art', )
 
     expose = Type.String
 
-    def combat_art_weapon_filter(self, unit) -> list:
+    def weapon_filter(self, unit, item) -> bool:
         from app.engine import evaluate
-        good_weapons = []
-        for item in item_funcs.get_all_items(unit):
-            if item_funcs.available(unit, item):
-                try:
-                    if bool(evaluate.evaluate(self.value, unit, item=item)):
-                        good_weapons.append(item)
-                except:
-                    print("Couldn't evaluate conditional: %s" % self.value)
-        return good_weapons
+        try:
+            return bool(evaluate.evaluate(self.value, unit, item=item))
+        except Exception as e:
+            print("Couldn't evaluate conditional {%s} %s" % (self.value, e))
+        return False
 
 class CombatArtSetMaxRange(SkillComponent):
     nid = 'combat_art_set_max_range'
@@ -124,41 +125,105 @@ def get_proc_rate(unit, skill) -> int:
             return component.proc_rate(unit)
     return 100  # 100 is default
 
+def get_weapon_filter(skill, unit, item) -> bool:
+    for component in skill.components:
+        if component.defines('weapon_filter'):
+            return component.weapon_filter(unit, item)
+    return True
+            
 class AttackProc(SkillComponent):
     nid = 'attack_proc'
-    desc = "Allows skill to proc when about to attack"
+    desc = "Allows skill to proc on a single attacking strike"
     tag = 'advanced'
 
     expose = Type.Skill
     _did_action = False
 
-    def start_sub_combat(self, unit, item, target, mode):
-        proc_rate = get_proc_rate(unit, self.skill)
-        if static_random.get_combat() < proc_rate:
-            action.do(action.AddSkill(unit, self.value))
-            self._did_action = True
-
-    def end_sub_combat(self, unit, item, target, mode):
+    def start_sub_combat(self, actions, playback, unit, item, target, mode):
+        if mode == 'attack' and target and skill_system.check_enemy(unit, target):
+            if not get_weapon_filter(self.skill, unit, item):
+                return
+            proc_rate = get_proc_rate(unit, self.skill)
+            if static_random.get_combat() < proc_rate:
+                act = action.AddSkill(unit, self.value)
+                action.do(act)
+                playback.append(('attack_proc', unit, act.skill_obj))
+                self._did_action = True
+        
+    def end_sub_combat(self, actions, playback, unit, item, target, mode):
         if self._did_action:
             action.do(action.RemoveSkill(unit, self.value))
 
 class DefenseProc(SkillComponent):
     nid = 'defense_proc'
-    desc = "Allows skill to proc when defending"
+    desc = "Allows skill to proc when defending a single strike"
     tag = 'advanced'
 
     expose = Type.Skill
     _did_action = False
 
-    def start_sub_combat(self, unit, item, target, mode):
-        proc_rate = get_proc_rate(unit, self.skill)
-        if static_random.get_combat() < proc_rate:
-            action.do(action.AddSkill(unit, self.value))
-            self._did_action = True
-
-    def end_sub_combat(self, unit, item, target, mode):
+    def start_sub_combat(self, actions, playback, unit, item, target, mode):
+        if mode == 'defense' and target and skill_system.check_enemy(unit, target):
+            if not get_weapon_filter(self.skill, unit, item):
+                return
+            proc_rate = get_proc_rate(unit, self.skill)
+            if static_random.get_combat() < proc_rate:
+                act = action.AddSkill(unit, self.value)
+                action.do(act)
+                playback.append(('defense_proc', unit, act.skill_obj))
+                self._did_action = True
+        
+    def end_sub_combat(self, actions, playback, unit, item, target, mode):
         if self._did_action:
             action.do(action.RemoveSkill(unit, self.value))
+
+class AttackPreProc(SkillComponent):
+    nid = 'attack_pre_proc'
+    desc = "Allows skill to proc when initiating combat. Lasts entire combat."
+    tag = 'advanced'
+
+    expose = Type.Skill
+    _did_action = False
+
+    def start_combat(self, playback, unit, item, target, mode):
+        if mode == 'attack' and target and skill_system.check_enemy(unit, target):
+            if not get_weapon_filter(self.skill, unit, item):
+                return
+            proc_rate = get_proc_rate(unit, self.skill)
+            if static_random.get_combat() < proc_rate:
+                act = action.AddSkill(unit, self.value)
+                action.do(act)
+                playback.append(('attack_pre_proc', unit, act.skill_obj))
+                self._did_action = True
+        
+    def end_combat(self, playback, unit, item, target, mode):
+        if self._did_action:
+            action.do(action.RemoveSkill(unit, self.value))
+            self._did_action = False
+
+class DefensePreProc(SkillComponent):
+    nid = 'defense_pre_proc'
+    desc = "Allows skill to proc when defending in combat. Lasts entire combat."
+    tag = 'advanced'
+
+    expose = Type.Skill
+    _did_action = False
+
+    def start_combat(self, playback, unit, item, target, mode):
+        if mode == 'defense' and target and skill_system.check_enemy(unit, target):
+            if not get_weapon_filter(self.skill, unit, item):
+                return
+            proc_rate = get_proc_rate(unit, self.skill)
+            if static_random.get_combat() < proc_rate:
+                act = action.AddSkill(unit, self.value)
+                action.do(act)
+                playback.append(('defense_pre_proc', unit, act.skill_obj))
+                self._did_action = True
+        
+    def end_combat(self, playback, unit, item, target, mode):
+        if self._did_action:
+            action.do(action.RemoveSkill(unit, self.value))
+            self._did_action = False
 
 class ProcRate(SkillComponent):
     nid = 'proc_rate'

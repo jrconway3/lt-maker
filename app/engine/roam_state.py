@@ -24,6 +24,7 @@ class FreeRoamState(MapState):
                 self.rationalize()  # Rationalize original unit
                 # Now get the new one
                 self.roam_unit = game.get_unit(roam_unit_nid)
+                game.cursor.cur_unit = self.roam_unit
                 # Roam unit is no longer consider to be on the board
                 game.leave(self.roam_unit)
             elif self.roam_unit:
@@ -31,6 +32,7 @@ class FreeRoamState(MapState):
                 pass
             else:
                 self.roam_unit = game.get_unit(roam_unit_nid)
+                game.cursor.cur_unit = self.roam_unit
                 # Roam unit is no longer consider to be on the board
                 game.leave(self.roam_unit)
 
@@ -38,7 +40,8 @@ class FreeRoamState(MapState):
             # No roam unit assigned, time to go
             self.rationalize()
 
-        if not self.roam_unit:
+        if not self.roam_unit or not self.roam_unit.position:
+            game.level.roam = False
             # Leave this state
             game.state.back()
             return 'repeat'
@@ -171,7 +174,7 @@ class FreeRoamState(MapState):
         """
         units = []
         for unit in game.units:
-            if unit.position and unit != self.roam_unit and self.roam_unit and \
+            if unit.position and unit is not self.roam_unit and self.roam_unit and \
                     utils.calculate_distance(self.roam_unit.position, unit.position) < 1 and \
                     unit.team in ('player', 'other'):
                 units.append(unit)

@@ -34,6 +34,8 @@ class MapCombat(SimpleCombat):
         self.damage_numbers = []
         self.health_bars = {}
 
+        self.first_phase = True
+
     def skip(self):
         self._skip = True
         self.attacker.sprite.reset()
@@ -62,6 +64,10 @@ class MapCombat(SimpleCombat):
                 self.state_machine.setup_next_state()
                 return False
             self._build_health_bars()
+            if self.first_phase:
+                self.set_up_pre_proc_animation('attack_pre_proc')
+                self.set_up_pre_proc_animation('defense_pre_proc')
+                self.first_phase = False
 
             # Camera
             if self.get_from_playback('defender_phase'):
@@ -90,6 +96,10 @@ class MapCombat(SimpleCombat):
                 game.cursor.combat_show()
             else:
                 game.cursor.hide()
+            # Handle proc effects
+            self.set_up_proc_animation('attack_proc')
+            self.set_up_proc_animation('defense_proc')
+
             self.state = 'start_anim'
             self.last_update = engine.get_time()
 
@@ -232,6 +242,8 @@ class MapCombat(SimpleCombat):
                 SOUNDTHREAD.play_sfx(sound)
             elif brush[0] == 'shake':
                 shake = brush[1]
+                if 'attack_proc' in [brush[0] for brush in self.playback]:
+                    shake = 3  # Force critical type shake
                 for health_bar in self.health_bars.values():
                     health_bar.shake(shake)
             elif brush[0] == 'hit_anim':
@@ -274,6 +286,25 @@ class MapCombat(SimpleCombat):
         """
         for act in self.actions:
             action.do(act)
+
+    def set_up_proc_animation(self, mark_type):
+        marks = self.get_from_playback(mark_type)
+        for mark in marks:
+            self.add_proc_icon(mark)
+
+    def set_up_pre_proc_animation(self, mark_type):
+        marks = self.get_from_full_playback(mark_type)
+        for mark in marks:
+            self.add_proc_icon(mark)
+
+    def add_proc_icon(self, mark):
+        unit = mark[1]
+        skill = mark[2]
+        if unit in self.health_bars:
+            health_bar = self.health_bars[unit]
+            right = health_bar.ordering == 'right' or health_bar.ordering == 'middle'
+            skill_icon = gui.SkillIcon(skill, right)
+            health_bar.add_skill_icon(skill_icon)
 
     def _end_phase(self):
         pass

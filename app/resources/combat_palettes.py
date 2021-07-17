@@ -11,6 +11,15 @@ class Palette(Prefab):
         # Color indices are generally (0, 1) -> (240, 160, 240), etc.
         self.colors = {(0, 0): COLORKEY}
 
+    def is_similar(self, colors) -> bool:
+        counter = 0
+        my_colors = [color for coord, color in self.colors.items()]
+        for color in colors:
+            if color in my_colors:
+                counter += 1
+        # Similar if more than 75% of colors match
+        return counter / len(colors) > .75
+
     def save(self):
         return (self.nid, list(self.colors.items()))
 
@@ -37,8 +46,4 @@ class PaletteCatalog(ManifestCatalog[Palette]):
     def save(self, loc):
         # No need to finagle with full paths
         # Because Palettes don't have any connection to any actual file.
-        import time
-        start = time.time_ns()/1e6
         self.dump(loc)
-        end = time.time_ns()/1e6
-        print("Time Taken: %s ms" % (end - start))

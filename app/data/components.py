@@ -21,7 +21,11 @@ class Type(IntEnum):
     Equation = 16  # Stored as Nids
     MovementType = 17  # Stored as Nid
     Sound = 18  # Stored as Nid
-    AI = 19  # Sotred as Nid
+    AI = 19  # Stored as Nid
+    Music = 20  # Stored as Nid
+    CombatAnimation = 21  # Stored as Nid
+    EffectAnimation = 22  # Stored as Nid
+    Affinity = 23  # Stored as Nid
     Event = 80
     List = 100
     Dict = 101  # Item followed by integer

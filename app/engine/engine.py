@@ -3,6 +3,7 @@ from typing import Tuple
 
 import pygame
 import pygame.image
+import pygame.time
 
 from app.constants import WINWIDTH, WINHEIGHT, FPS
 from app.engine import config as cf
@@ -11,7 +12,7 @@ import logging
 
 constants = {'current_time': 0,
              'last_time': 0,
-             'last_fps': 0,
+             'delta_t': 0,
              'standalone': True,
              'running': True}
 
@@ -57,11 +58,12 @@ def on_end(crash=False):
 
 # === timing functions ===
 def update_time():
+    # All measured in milliseconds
     constants['last_time'] = constants['current_time']
     constants['current_time'] = pygame.time.get_ticks()
-    constants['last_fps'] = constants['current_time'] - constants['last_time']
+    constants['delta_t'] = constants['current_time'] - constants['last_time']
 
-def get_time():
+def get_time() -> int:
     return constants['current_time']
 
 def get_last_time():
@@ -71,7 +73,7 @@ def get_true_time():
     return pygame.time.get_ticks()
 
 def get_delta():
-    return constants['last_fps']
+    return constants['delta_t']
 
 # === drawing functions ===
 BLEND_RGB_ADD = pygame.BLEND_RGB_ADD
@@ -80,6 +82,8 @@ BLEND_RGB_MULT = pygame.BLEND_RGB_MULT
 BLEND_RGBA_ADD = pygame.BLEND_RGBA_ADD
 BLEND_RGBA_SUB = pygame.BLEND_RGBA_SUB
 BLEND_RGBA_MULT = pygame.BLEND_RGBA_MULT
+
+Surface = pygame.Surface
 
 def blit(dest, source, pos=(0, 0), mask=None, blend=0):
     dest.blit(source, pos, mask, blend)
@@ -184,6 +188,7 @@ key_map = {"enter": pygame.K_RETURN,
            "tab": pygame.K_TAB,
            "backspace": pygame.K_BACKSPACE,
            "pageup": pygame.K_PAGEUP,
+           "f12": pygame.K_F12,
            "`": pygame.K_BACKQUOTE,
            "1": pygame.K_1,
            "2": pygame.K_2,
@@ -233,7 +238,10 @@ def get_mouse_focus():
 # === loop functions ===
 DISPLAYSURF = None
 SCREENSIZE = (WINWIDTH * cf.SETTINGS['screen_size'], WINHEIGHT * cf.SETTINGS['screen_size'])
-FPSCLOCK = pygame.time.Clock()
 
-def tick():
-    return FPSCLOCK.tick(FPS)
+class Clock():
+    def __init__(self) -> None:
+        self.clock = pygame.time.Clock()
+
+    def tick(self) -> int:
+        return self.clock.tick(FPS)

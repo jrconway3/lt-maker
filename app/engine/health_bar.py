@@ -4,8 +4,10 @@ import app.utilities as utils
 from app.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT, TILEX, TILEY
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
+from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, combat_calcs, icons, equations, skill_system, item_system
 from app.engine.game_state import game
+from app.engine.game_counters import ANIMATION_COUNTERS
 
 class HealthBar():
     time_for_change_min = 200
@@ -46,6 +48,72 @@ class HealthBar():
                 self.old_hp = self.displayed_hp
                 self.transition_flag = False
 
+class CombatHealthBar(HealthBar):
+    full_hp_blip = SPRITES.get('full_hp_blip')
+    empty_hp_blip = SPRITES.get('empty_hp_blip')
+    end_hp_blip = engine.subsurface(full_hp_blip, (0, 0, 1, full_hp_blip.get_height()))
+    colors = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1]
+    speed = utils.frames2ms(2)
+    time_for_change_min = 0
+
+    def __init__(self, unit):
+        super().__init__(unit) 
+        self.color_tick = 0
+        self.heal_sound_update = 0   
+
+    def update(self, skip=False):
+        if self.displayed_hp < self.unit.get_hp():
+            self.speed = utils.frames2ms(4)  # Slower speed when increasing hp
+        else:
+            self.speed = utils.frames2ms(2)
+        super().update()
+        self.color_tick = int(engine.get_time() / 16.67) % len(self.colors)
+
+    def set_hp(self, val):
+        current_time = engine.get_time()
+        if self.displayed_hp < self.unit.get_hp() and current_time - self.heal_sound_update > self.speed:
+            self.heal_sound_update = current_time
+            SOUNDTHREAD.stop_sfx('HealBoop')
+            SOUNDTHREAD.play_sfx('HealBoop')
+        super().set_hp(val)
+
+    def big_number(self) -> bool:
+        return self.displayed_hp != self.unit.get_hp()
+
+    def done(self) -> bool:
+        return self.displayed_hp == self.unit.get_hp()
+
+    def draw(self, surf, left, top):
+        font = FONT['number-small2']
+        if self.big_number():
+            font = FONT['number-big2']
+        if self.displayed_hp <= 80:
+            font.blit_right(str(self.displayed_hp), surf, (left, top - 4))
+        else:
+            font.blit_right('??', surf, (left, top - 4))
+
+        full_hp_blip = engine.subsurface(self.full_hp_blip, (self.colors[self.color_tick] * 2, 0, 2, self.full_hp_blip.get_height()))
+        if self.unit.get_max_hp() <= 40:
+            for idx in range(self.displayed_hp):
+                surf.blit(full_hp_blip, (left + idx * 2 + 5, top + 1))
+            for idx in range(self.unit.get_max_hp() - self.displayed_hp):
+                surf.blit(self.empty_hp_blip, (left + (idx + self.displayed_hp) * 2 + 5, top + 1))
+            surf.blit(self.end_hp_blip, (left + self.unit.get_max_hp() * 2 + 5, top + 1))
+        else:
+            # Lower 40 hp
+            for idx in range(min(self.displayed_hp, 40)):
+                surf.blit(full_hp_blip, (left + idx * 2 + 5, top + 4))
+            for idx in range(max(40 - self.displayed_hp, 0)):
+                surf.blit(self.empty_hp_blip, (left + (idx + self.displayed_hp) * 2 + 5, top + 4))
+            surf.blit(self.end_hp_blip, (left + 40 * 2 + 5, top + 4))
+            # Upper 40 hp
+            for idx in range(utils.clamp(self.displayed_hp - 40, 0, 40)):
+                surf.blit(full_hp_blip, (left + idx * 2 + 5, top - 4))
+            right = utils.clamp(self.unit.get_max_hp(), 0, 80)
+            for idx in range(right - max(40, self.displayed_hp)):
+                surf.blit(self.empty_hp_blip, (left + (idx + max(self.displayed_hp - 40, 0)) * 2 + 5, top - 4))
+            surf.blit(self.end_hp_blip, (left + (right - 40) * 2 + 5, top - 4))
+
 class MapHealthBar(HealthBar):
     time_for_change_min = 200
     speed = utils.frames2ms(1)
@@ -53,7 +121,8 @@ class MapHealthBar(HealthBar):
     health_bar = SPRITES.get('map_health_bar')
 
     def draw(self, surf, left, top):
-        fraction_hp = utils.clamp(self.displayed_hp / self.total_hp, 0, 1)
+        total = max(1, self.total_hp)
+        fraction_hp = utils.clamp(self.displayed_hp / total, 0, 1)
         index_pixel = int(12 * fraction_hp) + 1
 
         surf.blit(self.health_outline, (left, top + 13))
@@ -68,7 +137,8 @@ class MapCombatHealthBar(HealthBar):
     health_bar = SPRITES.get('health_bar')
 
     def draw(self, surf):
-        fraction_hp = utils.clamp(self.displayed_hp / self.total_hp, 0, 1)
+        total = max(1, self.total_hp)
+        fraction_hp = utils.clamp(self.displayed_hp / total, 0, 1)
         index_pixel = int(50 * fraction_hp)
         position = 25, 22
         surf.blit(engine.subsurface(self.health_bar, (0, 0, index_pixel, 2)), position)
@@ -159,6 +229,8 @@ class MapCombatInfo():
             self.shake_set = [(3, 3), (0, 0), (0, 0), (3, 3), (-3, -3), (3, 3), (-3, -3), (0, 0)]
         elif num == 3:  # Crit
             self.shake_set = [(random.randint(-4, 4), random.randint(-4, 4)) for _ in range(16)] + [(0, 0)]
+        elif num == 4:  # Glancing hit
+            self.shake_set = [(-1, -1), (0, 0), (1, 1), (0, 0)]
 
     def reset_shake(self):
         self.shake_set = [(0, 0)]  # How the hp bar will shake
@@ -171,6 +243,9 @@ class MapCombatInfo():
             self.current_shake_idx += 1
             if self.current_shake_idx > len(self.shake_set):
                 self.current_shake_idx = 0
+
+    def add_skill_icon(self, skill_icon):
+        self.skill_icons.append(skill_icon)
 
     def build_stat_surf(self):
         stat_surf = self.c_surf.copy()
@@ -287,8 +362,8 @@ class MapCombatInfo():
                 adv = combat_calcs.compute_advantage(self.unit, self.target, self.item, self.target.get_weapon())
                 disadv = combat_calcs.compute_advantage(self.unit, self.target, self.item, self.target.get_weapon(), False)
 
-                up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
-                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
+                up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (ANIMATION_COUNTERS.arrow_counter.count * 7, 0, 7, 10))
+                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (ANIMATION_COUNTERS.arrow_counter.count * 7, 10, 7, 10))
 
                 if adv and adv.modification > 0:
                     bg_surf.blit(up_arrow, (11, 7))
@@ -333,7 +408,7 @@ class MapCombatInfo():
         # Draw skill icons
         for idx, skill_icon in enumerate(self.skill_icons):
             skill_icon.update()
-            x, y = self.true_position + width // 2, self.true_position[1] - 16 * idx * 16
+            x, y = self.true_position[0] + width // 2, self.true_position[1] - 16 + idx * 16
             skill_icon.draw(surf, (x, y))
         self.skill_icons = [s for s in self.skill_icons if not s.done]
 

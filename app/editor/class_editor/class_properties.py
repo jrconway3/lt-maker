@@ -1,15 +1,18 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
-    QVBoxLayout, QLabel, QTextEdit
-from PyQt5.QtGui import QFontMetrics
+    QVBoxLayout, QLabel, QTextEdit, QSizePolicy
+from PyQt5.QtGui import QFontMetrics, QIcon
 from PyQt5.QtCore import Qt
 
+from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.extensions.custom_gui import PropertyBox, ComboBox, QHLine
 from app.extensions.list_widgets import AppendMultiListWidget, MultiDictWidget
 from app.extensions.list_models import ReverseDoubleListModel
 from app.extensions.multi_select_combo_box import MultiSelectComboBox
+
+from app.editor.settings import MainSettingsController
 
 from app.editor.tag_widget import TagDialog
 from app.editor.stat_widget import StatListWidget, StatAverageDialog, ClassStatAveragesModel
@@ -19,7 +22,7 @@ from app.editor.icons import ItemIcon80
 
 from app.editor.class_editor import class_model
 from app.editor.map_sprite_editor import map_sprite_tab
-# from app.editor.combat_anim_editor import combat_anim_tab
+from app.editor.combat_animation_editor import combat_animation_tab
 
 from app.editor import timer
 
@@ -31,6 +34,13 @@ class ClassProperties(QWidget):
         self.window = parent
         self.model = self.window.left_frame.model
         self._data = self.window._data
+
+        self.settings = MainSettingsController()
+        theme = self.settings.get_theme(0)
+        if theme == 0:
+            icon_folder = 'icons/icons'
+        else:
+            icon_folder = 'icons/dark_icons'
 
         self.current = current
 
@@ -45,11 +55,6 @@ class ClassProperties(QWidget):
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
         main_section.addWidget(self.nid_box, 0, 2)
-
-        # self.short_name_box = PropertyBox("Short Display Name", QLineEdit, self)
-        # self.short_name_box.edit.setMaxLength(10)
-        # self.short_name_box.edit.textChanged.connect(self.short_name_changed)
-        # name_section.addWidget(self.short_name_box)
 
         self.name_box = PropertyBox("Display Name", QLineEdit, self)
         self.name_box.edit.setMaxLength(13)
@@ -130,11 +135,24 @@ class ClassProperties(QWidget):
         self.map_sprite_box = QPushButton("Choose Map Sprite...")
         self.map_sprite_box.clicked.connect(self.select_map_sprite)
 
+        self.map_sprite_auto_box = QPushButton()
+        self.map_sprite_auto_box.setIcon(QIcon(f"{icon_folder}/autoassign.png"))
+        self.map_sprite_auto_box.setMaximumWidth(32)
+        self.map_sprite_auto_box.setToolTip("Auto-assign map sprite with the same unique ID")
+        self.map_sprite_auto_box.clicked.connect(self.autoselect_map_sprite)
+
         self.combat_anim_label = QLabel()
-        self.combat_anim_label.setMaximumWidth(64)
+        self.combat_anim_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         self.combat_anim_box = QPushButton("Choose Combat Animation...")
         self.combat_anim_box.clicked.connect(self.select_combat_anim)
-        self.combat_anim_box.setEnabled(False)
+        self.combat_anim_box.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+
+        self.combat_anim_auto_box = QPushButton()
+        self.combat_anim_auto_box.setIcon(QIcon(f"{icon_folder}/autoassign.png"))
+        self.combat_anim_auto_box.setMaximumWidth(32)
+        self.combat_anim_auto_box.setToolTip("Auto-assign combat animation with the same unique ID")
+        self.combat_anim_auto_box.clicked.connect(self.autoselect_combat_anim)
+        self.combat_anim_auto_box.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         total_section = QVBoxLayout()
         total_section.addLayout(top_section)
@@ -152,10 +170,12 @@ class ClassProperties(QWidget):
         map_sprite_section = QHBoxLayout()
         map_sprite_section.addWidget(self.map_sprite_label)
         map_sprite_section.addWidget(self.map_sprite_box)
+        map_sprite_section.addWidget(self.map_sprite_auto_box)
         right_section.addLayout(map_sprite_section)
         combat_anim_section = QHBoxLayout()
         combat_anim_section.addWidget(self.combat_anim_label)
         combat_anim_section.addWidget(self.combat_anim_box)
+        combat_anim_section.addWidget(self.combat_anim_auto_box)
         right_section.addLayout(combat_anim_section)
         right_widget = QWidget()
         right_widget.setLayout(right_section)
@@ -270,13 +290,38 @@ class ClassProperties(QWidget):
             self.map_sprite_label.setPixmap(pix)
             self.window.update_list()
 
+    def autoselect_map_sprite(self):
+        nid = self.current.nid
+        res = RESOURCES.map_sprites.get(nid)
+        if res:
+            nid = res.nid
+            self.current.map_sprite_nid = nid
+            pix = class_model.get_map_sprite_icon(self.current, num=0)
+            self.map_sprite_label.setPixmap(pix)
+            self.window.update_list()
+
     def select_combat_anim(self):
-        res, ok = combat_anim_tab.get()
-        if ok:
+        res, ok = combat_animation_tab.get_animations()
+        if res and ok:
             nid = res.nid
             self.current.combat_anim_nid = nid
             pix = class_model.get_combat_anim_icon(self.current)
-            self.combat_anim_label.setPixmap(pix)
+            if pix:
+                self.combat_anim_label.setPixmap(pix)
+            self.window.update_list()
+        else:  # Use to clear the combat animation -- since this can be reasonable
+            self.current.combat_anim_nid = None
+            self.combat_anim_label.clear()
+
+    def autoselect_combat_anim(self):
+        nid = self.current.nid
+        res = RESOURCES.combat_anims.get(nid)
+        if res:
+            nid = res.nid
+            self.current.combat_anim_nid = nid
+            pix = class_model.get_combat_anim_icon(self.current)
+            if pix:
+                self.combat_anim_label.setPixmap(pix)
             self.window.update_list()
 
     def set_current(self, current):

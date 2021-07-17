@@ -1,8 +1,9 @@
-from app.utilities import utils
 from app.data.database import DB
-from app.engine import pathfinding, skill_system, equations, \
-    item_funcs, item_system, line_of_sight
+from app.engine import (equations, item_funcs, item_system, line_of_sight,
+                        pathfinding, skill_system)
 from app.engine.game_state import game
+from app.utilities import utils
+
 
 # Consider making these sections faster
 def get_shell(valid_moves: set, potential_range: set, width: int, height: int) -> set:
@@ -77,7 +78,10 @@ def get_attacks(unit, item=None, force=False) -> set:
         return set()
 
     item_range = item_funcs.get_range(unit, item)
-    attacks = get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
+    if max(item_range) >= 99:
+        attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
+    else:
+        attacks = get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
     return attacks
 
 def get_possible_attacks(unit, valid_moves) -> set:
@@ -86,7 +90,10 @@ def get_possible_attacks(unit, valid_moves) -> set:
     for item in get_all_weapons(unit):
         item_range = item_funcs.get_range(unit, item)
         max_range = max(max_range, max(item_range))
-        attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
+        if max_range >= 99:
+            attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
+        else:
+            attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
 
     if DB.constants.value('line_of_sight'):
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))
@@ -98,7 +105,10 @@ def get_possible_spell_attacks(unit, valid_moves) -> set:
     for item in get_all_spells(unit):
         item_range = item_funcs.get_range(unit, item)
         max_range = max(max_range, max(item_range))
-        attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
+        if max_range >= 99:
+            attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
+        else:
+            attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
 
     if DB.constants.value('line_of_sight'):
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))
@@ -125,8 +135,8 @@ def get_valid_moves(unit, force=False) -> set:
     # Assumes unit is on the map
     if not force and unit.finished:
         return set()
-
-    mtype = game.movement.get_movement_group(unit)
+    from app.engine.movement import MovementManager
+    mtype = MovementManager.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
     width, height = game.tilemap.width, game.tilemap.height
     pass_through = skill_system.pass_through(unit)
@@ -140,7 +150,8 @@ def get_valid_moves(unit, force=False) -> set:
     return valid_moves
 
 def get_path(unit, position, ally_block=False) -> list:
-    mtype = game.movement.get_movement_group(unit)
+    from app.engine.movement import MovementManager
+    mtype = MovementManager.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
 
     width, height = game.tilemap.width, game.tilemap.height

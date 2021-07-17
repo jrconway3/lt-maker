@@ -125,3 +125,11 @@ class MaximumEquationRange(ItemComponent):
         from app.engine import equations
         value = equations.parser.get(self.value, unit)
         return int(value)
+
+class GlobalRange(ItemComponent):
+    nid = 'global_range'
+    desc = "Item has no maximum range"
+    tag = 'target'
+
+    def maximum_range(self, unit, item) -> int:
+        return 99

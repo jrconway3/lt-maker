@@ -37,7 +37,7 @@ def find_and_run_project():
     for name in os.listdir('./'):
         if name.endswith(proj):
             name = name.replace(proj, '')
-            if name != 'autosave':
+            if name not in ('autosave',):
                 main(name)
 
 if __name__ == '__main__':

@@ -121,12 +121,7 @@
                 false
             ]
         ],
-        "learned_skills": [
-            [
-                1,
-                "SoS_Adept"
-            ]
-        ],
+        "learned_skills": [],
         "unit_notes": [],
         "wexp_gain": {
             "Sword": [
@@ -290,12 +285,7 @@
                 false
             ]
         ],
-        "learned_skills": [
-            [
-                1,
-                "SoS_Exploit"
-            ]
-        ],
+        "learned_skills": [],
         "unit_notes": [],
         "wexp_gain": {
             "Sword": [
@@ -959,16 +949,7 @@
                 false
             ]
         ],
-        "learned_skills": [
-            [
-                1,
-                "SoS_Overkill"
-            ],
-            [
-                1,
-                "SoS_Dark_Drain"
-            ]
-        ],
+        "learned_skills": [],
         "unit_notes": [],
         "wexp_gain": {
             "Sword": [

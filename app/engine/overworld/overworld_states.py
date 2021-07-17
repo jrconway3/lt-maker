@@ -37,6 +37,7 @@ class OverworldState(MapState):
             else:
                 # we really shouldn't be here
                 game.state.back()
+                return
         game.cursor = OverworldCursor(game.camera)
         game.overworld_controller = OverworldManager(game.overworld_registry[overworld_to_load], game.cursor)
         game.movement = OverworldMovementManager(game.overworld_controller)

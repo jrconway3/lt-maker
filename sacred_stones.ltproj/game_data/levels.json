@@ -3487,7 +3487,7 @@
             },
             {
                 "nid": "Eirika",
-                "team": "enemy",
+                "team": "player",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [

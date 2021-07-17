@@ -7,10 +7,10 @@ class Ability():
     def targets(unit) -> set:
         return set()
 
-    @staticmethod        
+    @staticmethod
     def highlights(unit) -> bool:
         return False
-    
+
     @staticmethod
     def do(unit):
         pass
@@ -23,7 +23,7 @@ class AttackAbility(Ability):
         if unit.has_attacked:
             return set()
         return target_system.get_all_weapon_targets(unit)
-    
+
     @staticmethod
     def highlights(unit) -> bool:
         valid_attacks = target_system.get_possible_attacks(unit, {unit.position})
@@ -91,7 +91,7 @@ class SupportAbility(Ability):
         action.do(action.HasTraded(unit))
         did_trigger = game.events.trigger('on_support', unit, u, rank, unit.position)
         action.do(action.UnlockSupportRank(pair.nid, rank))
-        
+
 class DropAbility(Ability):
     name = "Drop"
 
@@ -208,7 +208,7 @@ class TradeAbility(Ability):
         # Can't trade at all
         if not DB.constants.value('trade'):
             return set()
-            
+
         adj_allies = target_system.get_adj_allies(unit)
         adj = set([u.position for u in adj_allies if unit.team == u.team])
         if unit.traveler:
@@ -217,6 +217,26 @@ class TradeAbility(Ability):
 
     @staticmethod
     def do(unit):
+        game.state.change('trade')
+
+class PairUpAbility(Ability):
+    name = 'Pair Up'
+
+    @staticmethod
+    def targets(unit) -> set:
+        # Pair up not enabled
+        if not DB.constants.value('pairup'):
+            return set()
+        if unit.traveler or unit.paired_partner:
+            return set()
+
+        adj_allies = target_system.get_adj_allies(unit)
+        adj = set([u.position for u in adj_allies if unit.team == u.team and not u.paired_partner])
+        return adj
+
+    @staticmethod
+    def do(unit):
+        # Change this later
         game.state.change('trade')
 
 ABILITIES = Ability.__subclasses__()

@@ -26,6 +26,9 @@ class UnitObject(Prefab):
         self.ai = prefab.ai
         self.ai_group = prefab.ai_group
 
+        self.paired_partner = None
+        self.guard_gauge = 0
+
         if self.generic:
             self.faction = prefab.faction
             self.name = DB.factions.get(self.faction).name

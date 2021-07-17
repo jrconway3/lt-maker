@@ -39,6 +39,7 @@ constants = ConstantCatalog([
     Constant('turnwheel', "Turnwheel", bool, False, 'features'),
     Constant('initiative', "Per Unit Initiative Order", bool, False, 'features'),
     Constant('fatigue', "Fatigue", bool, False, 'features'),
+    Constant('pairup', "Pair Up", bool, False, 'features'),
     Constant('lead', "Global Leadership Stars", bool, False, 'features'),
     Constant('bexp', "Bonus Experience", bool, False, 'features'),
     Constant('rd_bexp_lvl', "Always gain 3 stat-ups when using Bonus Exp.", bool, False, 'features'),

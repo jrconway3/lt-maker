@@ -40,6 +40,7 @@ screen_positions = {'OffscreenLeft': -96,
                     'CenterLeft': 24,
                     'CenterRight': 120,
                     'MidRight': 120,
+                    'LevelUpRight': 140,
                     'Right': 144,
                     'FarRight': 168,
                     'OffscreenRight': 240}
@@ -2595,7 +2596,7 @@ class Event():
             logging.warning("No units returned for list: %s" % (unit_list_str))
             return
         for unit_nid in reversed(unit_list):
-            macro_command = event_commands.TriggerScript(command.values[1], unit_nid)
+            macro_command = event_commands.TriggerScript([command.values[1], unit_nid])
             self.commands.insert(self.command_idx + 1, macro_command)
 
     def change_roaming(self, command):

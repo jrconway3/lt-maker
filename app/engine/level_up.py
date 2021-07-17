@@ -214,7 +214,7 @@ class ExpState(State):
         elif self.state.get_state() == 'level_screen':
             if not self.level_up_screen:
                 self.level_up_screen = LevelUpScreen(
-                    self.unit, self.stat_changes, self.old_level, self.unit.level)
+                    self, self.unit, self.stat_changes, self.old_level, self.unit.level)
             if self.level_up_screen.update(current_time):
                 game.state.back()
                 game.events.trigger('unit_level_up', self.unit, unit2=self.stat_changes)
@@ -332,7 +332,8 @@ class LevelUpScreen():
 
     underline = SPRITES.get('stat_underline')
 
-    def __init__(self, unit, stat_changes, old_level, new_level):
+    def __init__(self, parent, unit, stat_changes, old_level, new_level):
+        self.parent = parent
         self.unit = unit
         self.stat_list = [stat_changes.get(nid, 0) for nid in DB.stats.keys()]
         self.stat_list = self.stat_list[:8]  # Can only show first 8 stats on level up
@@ -410,6 +411,7 @@ class LevelUpScreen():
         elif self.state == 'get_next_spark':
             done = self.inc_spark()
             if done:
+                game.events.trigger('during_unit_level_up', self.unit, unit2=self.parent.stat_changes)
                 self.state = 'level_up_wait'
                 self.start_time = current_time
             else:

@@ -602,13 +602,13 @@ Creates a new instance of a unit and, optionally, places it on the map. _Unit_ p
 
 Several optional keywords can be provided to modify the unit and/or place it on the map. 
 
-Optional keywords can be specified to place the unit on the map. The first _String_ value sets the unit's nid, if a specific nid is desired. The second _String_ value, if provided, sets the unit's level. The _Position_ value indicates the map coordinates that the unit will be placed at. _EntryType_ defines which placement animation is used. Finally, _Placement_ defines the behavior that occurs if the chosen map position is already occupied.
+Optional keywords can be specified to place the unit on the map. The _String_ value sets the unit's nid, if a specific nid is desired. The _Condition_ value, if provided, sets the unit's level. The _Position_ value indicates the map coordinates that the unit will be placed at. _EntryType_ defines which placement animation is used. Finally, _Placement_ defines the behavior that occurs if the chosen map position is already occupied.
         """
 
     # Unit template
     keywords = ["Unit"]
     # New unit nid (which can be ''), Unit level, position, entrytype, placement
-    optional_keywords = ["String", "String", "Position", "EntryType", "Placement"]
+    optional_keywords = ["String", "Condition", "Position", "EntryType", "Placement"]
 
 class AddUnit(EventCommand):
     nid = 'add_unit'
@@ -1062,13 +1062,13 @@ class AutolevelTo(EventCommand):
 
     desc = \
         """
-Levels _GlobalUnit_ up to a level specified by _String_. If _String_ is less than the unit's current level, this does nothing.
+Levels _GlobalUnit_ up to a level specified by _Condition_. If _Condition_ is less than the unit's current level, this does nothing.
 
 If the _hidden_ flag is set, the unit still gains the effects of the indicated level-ups, but its actual level is not incremented. In other words, the unit gets more powerful but remains at the same level.
         """
 
     # Second argument is level that is eval'd
-    keywords = ["GlobalUnit", "String"]
+    keywords = ["GlobalUnit", "Condition"]
     # Whether to actually change the unit's level
     flags = ["hidden"]
 
@@ -1078,10 +1078,10 @@ class SetModeAutolevels(EventCommand):
 
     desc = \
         """
-Changes the number of additional levels that enemy units gain from the difficulty mode setting. This can be used to grant a higher number of bonus levels to enemies later in the game to maintain a resonable difficulty curve. _String_ specifies the number of levels to be granted. If the _hidden_ flag is set, enemy units will still gain the effects of the indicated level-ups, but their actual level is not incremented. In other words, the units get more powerful but remains at the same level.
+Changes the number of additional levels that enemy units gain from the difficulty mode setting. This can be used to grant a higher number of bonus levels to enemies later in the game to maintain a resonable difficulty curve. _Condition_ specifies the number of levels to be granted. If the _hidden_ flag is set, enemy units will still gain the effects of the indicated level-ups, but their actual level is not incremented. In other words, the units get more powerful but remains at the same level.
         """
 
-    keywords = ["String"]
+    keywords = ["Condition"]
     # Whether to actually change the unit's level
     flags = ["hidden"]
 
@@ -1376,10 +1376,10 @@ class SetPosition(EventCommand):
 
     desc = \
         """
-Stores a given position (_String_) as the event's home position. It can later be referenced in this event script using {position}.
+Stores a given position (_Condition_) as the event's home position. It can later be referenced in this event script using {position}.
         """
 
-    keywords = ["String"]
+    keywords = ["Condition"]
 
 class MapAnim(EventCommand):
     nid = 'map_anim'
@@ -1616,7 +1616,7 @@ loop_units;[unit.nid for unit in game.get_player_units()];Gain Fatigue Event
 ```
         """
 
-    keywords = ["String", "Event"]
+    keywords = ["Condition", "Event"]
 
 class ChangeRoaming(EventCommand):
     nid = 'change_roaming'

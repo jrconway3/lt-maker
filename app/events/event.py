@@ -2591,7 +2591,11 @@ class Event():
         if values:
             overworld_nid = values[0]
         else:
-            overworld_nid = DB.overworlds.values()[0].nid
+            if DB.overworlds.values():
+                overworld_nid = DB.overworlds.values()[0].nid
+            else:
+                logging.error('No overworlds in the DB - why are you calling the overworld command?')
+                return
         from app.engine.overworld.overworld_states import OverworldState
         OverworldState.set_up_overworld_game_state(overworld_nid)
 
@@ -2703,7 +2707,7 @@ class Event():
                     movement.queue(self.overworld_movement_manager)
                     game.camera.do_slow_pan(1000)
                     game.camera.set_center(entity.position[0], entity.position[1])
-                    
+
                     def update_movement():
                         # make sure the camera is centered first
                         if not game.camera.at_rest():

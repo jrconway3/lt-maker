@@ -61,6 +61,10 @@ class ProjectFileBackend():
             fn, ok = QFileDialog.getSaveFileName(self.parent, "Save Project", starting_path,
                                                  "All Files (*)")
             if ok:
+                # Make sure you can't save as "autosave" or "default"
+                if os.path.split(fn)[-1] in ('autosave.ltproj', 'default.ltproj', 'autosave', 'default'):
+                    QMessageBox.critical(self.parent, "Save Error", "You cannot save project as <b>default.ltproj</b> or <b>autosave.ltproj</b>!\nChoose another name.")
+                    return False
                 if fn.endswith('.ltproj'):
                     self.current_proj = fn
                 else:

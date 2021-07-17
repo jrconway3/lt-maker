@@ -265,6 +265,16 @@ class RemovePortrait(EventCommand):
     nickname = "r"
     tag = Tags.PORTRAIT
 
+    desc = \
+        """
+Removes a portrait from the screen.
+
+Extra flags:
+
+1. _immediate_: Portrait will disappear instantly and will not fade out.
+2. _no_block_: Portrait will fade out, but will not pause execution of event script while doing so.
+        """
+
     keywords = ['Portrait']
     flags = ["immediate", "no_block"]
 
@@ -273,12 +283,27 @@ class MultiRemovePortrait(EventCommand):
     nickname = "rr"
     tag = Tags.PORTRAIT
 
+    desc = \
+        """
+Removes multiple portraits from the screen simultaneously.
+        """
+
     keywords = ['Portrait', 'Portrait']
     optional_keywords = ['Portrait', 'Portrait']
 
 class MovePortrait(EventCommand):
     nid = "move_portrait"
     tag = Tags.PORTRAIT
+
+    desc = \
+        """
+Causes a portrait to "walk" from one screen position to another.
+
+Extra flags:
+
+1. _immediate_: Portrait will teleport instantly to the new position.
+2. _no_block_: Portrait will walk as normal, but will not pause execution of event script while doing so.
+        """
 
     keywords = ['Portrait', 'ScreenPosition']
     flags = ["immediate", "no_block"]
@@ -288,6 +313,11 @@ class BopPortrait(EventCommand):
     nickname = "bop"
     tag = Tags.PORTRAIT
 
+    desc = \
+        """
+Causes a portrait to briefly bob up and down. Often used to illustrate a surprised or shocked reaction. If the _no_block_ flag is set, portrait bopping will not pause execution of event script.
+        """
+
     keywords = ['Portrait']
     flags = ["no_block"]
 
@@ -296,12 +326,36 @@ class Expression(EventCommand):
     nickname = "e"
     tag = Tags.PORTRAIT
 
+    desc = \
+        """
+Changes a portrait's facial expression.
+        """
+
     keywords = ['Portrait', 'ExpressionList']
 
 class Speak(EventCommand):
     nid = "speak"
     nickname = "s"
     tag = Tags.DIALOGUE_TEXT
+
+    desc = \
+        """
+Causes the _Speaker_ to speak some _Text_. If _Speaker_ is a portrait nid that is currently displayed on screen, _Text_ will appear in a speech bubble from that portrait. If _Speaker_ is left blank, _Text_ will appear in a box with no name label. For all other values of _Speaker_, _Text_ will appear in a box with the _Speaker_ as the name label.
+
+The pipe | symbol can be used within the _Text_ body to insert a line break.
+
+The _DialogVariant_ optional keyword changes how the text is displayed graphically:
+
+1. _thought_bubble_: causes the text to be in a cloud-like thought bubble instead of a speech bubble.
+2. _noir_: causes the speech bubble to be dark grey with white text.
+3. _hint_: causes the text to be displayed in a hint box similar to tutorial information.
+4. _narration_: causes the text to be displayed in a blue narration box at the bottom of the screen. No name label will be displayed.
+5. _narration_top_: same as _narration_ but causes the text box to be displayed at the top of the screen.
+
+Extra flags:
+
+1. _low_priority_: The speaker's portrait will not be moved in front of other overlapping portraits.
+        """
 
     keywords = ['Speaker', 'Text']
     optional_keywords = ['ScreenPosition', 'Width', 'DialogVariant']
@@ -311,6 +365,15 @@ class Narrate(EventCommand):
     nid = "narrate"
     tag = Tags.DIALOGUE_TEXT
 
+    desc = \
+        """
+Causes text to be displayed in the whole-screen narration frame. Before using this command, the narration frame must be phased in using **toggle_narration_mode**.
+
+Extra flags:
+
+1. _no_block_: The event script will continue to execute while the narration text is being displayed.
+        """
+
     keywords = ['Speaker', 'Text']
     flags = ['no_block']
 
@@ -318,6 +381,11 @@ class Transition(EventCommand):
     nid = "transition"
     nickname = "t"
     tag = Tags.BG_FG
+
+    desc = \
+        """
+If a scene is currently displayed, it is faded out to a black screen. The next use of this function will fade the scene back into view. The optional _speed_ and _Color3_ keywords control the speed and color of the transition.
+        """
 
     optional_keywords = ['Direction', 'Speed', 'Color3']
 
@@ -327,6 +395,11 @@ class Background(EventCommand):
     nickname = "b"
     tag = Tags.BG_FG
 
+    desc = \
+        """
+Changes the dialogue scene's background image to _Panorama_. If no _Panorama_ is specified, the current background is removed without being replaced. Displayed portraits are also removed unless the _keep_portraits_ flag is set.
+        """
+
     optional_keywords = ['Panorama']
     flags = ["keep_portraits"]
 
@@ -334,18 +407,26 @@ class DispCursor(EventCommand):
     nid = "disp_cursor"
     tag = Tags.CURSOR_CAMERA
 
+    desc = \
+        """
+Toggles whether the game's cursor is displayed.
+        """
+
     keywords = ["Bool"]
 
 class MoveCursor(EventCommand):
     nid = "move_cursor"
     nickname = "set_cursor"
     tag = Tags.CURSOR_CAMERA
-    desc = '''
-        Move cursor to position.
 
-        `Speed` is optional, and determines how many milliseconds it takes for the
-        camera to recenter. If left blank, will use default camera pan speed.
-    '''
+    desc = \
+        """
+Moves the cursor to the map coordinate given by _Position_. The optional _Speed_ keyword changes how fast the cursor moves.
+
+Extra flags:
+
+1. _immediate_: Causes the cursor to immediately jump to the target coordinates.
+        """
 
     keywords = ["Position"]
     optional_keywords = ['Speed']
@@ -356,6 +437,11 @@ class CenterCursor(EventCommand):
     nid = "center_cursor"
     tag = Tags.CURSOR_CAMERA
 
+    desc = \
+        """
+Similar to **move_cursor** except that it attempts to center the screen on the new cursor position to the greatest extent possible.
+        """
+
     keywords = ["Position"]
     optional_keywords = ['Speed']
     flags = ["immediate"]
@@ -365,6 +451,11 @@ class FlickerCursor(EventCommand):
     nickname = 'highlight'
     tag = Tags.CURSOR_CAMERA
 
+    desc = \
+        """
+Causes the cursor to briefly blink on and off at the indicated _Position_.
+        """
+
     keywords = ["Position"]
     flags = ["immediate"]
 
@@ -372,11 +463,21 @@ class GameVar(EventCommand):
     nid = 'game_var'
     tag = Tags.GAME_VARS
 
+    desc = \
+        """
+Creates a game variable or changes its value. Game variables are preserved between chapters. The _Nid_ is the variable's identifier, and the _Condition_ is the value that is given to the variable. _Condition_ can be a number or a Python expression.
+        """
+
     keywords = ["Nid", "Condition"]
 
 class IncGameVar(EventCommand):
     nid = 'inc_game_var'
     tag = Tags.GAME_VARS
+
+    desc = \
+        """
+Increments a game variable by one, or by a Python expression provided using the _Condition_ optional keyword.
+        """
 
     keywords = ["Nid"]
     optional_keywords = ["Condition"]
@@ -385,11 +486,21 @@ class LevelVar(EventCommand):
     nid = 'level_var'
     tag = Tags.LEVEL_VARS
 
+    desc = \
+        """
+Creates a level-specific variable or changes its value. Level variables are deleted upon completion of a chapter. The _Nid_ is the variable's identifier, and the _Condition_ is the value that is given to the variable. _Condition_ can be a number or a Python expression.
+        """
+
     keywords = ["Nid", "Condition"]
 
 class IncLevelVar(EventCommand):
     nid = 'inc_level_var'
     tag = Tags.LEVEL_VARS
+
+    desc = \
+        """
+Increments a level variable by one, or by a Python expression provided using the _Condition_ optional keyword.
+        """
 
     keywords = ["Nid"]
     optional_keywords = ["Condition"]
@@ -398,13 +509,28 @@ class WinGame(EventCommand):
     nid = 'win_game'
     tag = Tags.LEVEL_VARS
 
+    desc = \
+        """
+Ends the current chapter in victory.
+        """
+
 class LoseGame(EventCommand):
     nid = 'lose_game'
     tag = Tags.LEVEL_VARS
 
+    desc = \
+        """
+Ends the current chapter in defeat. The game over screen will be displayed.
+        """
+
 class ActivateTurnwheel(EventCommand):
     nid = 'activate_turnwheel'
     tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+Brings up the turnwheel interface to allow the player to roll back turns. The optional _bool_ keyword controls whether the player is forced to turn back time, or whether it's optional (default = true = forced to).
+        """
 
     # Whether to force the player to move the turnwheel back
     # defaults to true
@@ -414,9 +540,23 @@ class BattleSave(EventCommand):
     nid = 'battle_save'
     tag = Tags.MISCELLANEOUS
 
+    desc = \
+        """
+The player is given the option of saving the game mid-battle. This can be useful if the player chose Classic Mode, as he or she would otherwise only be able to suspend and not save mid-battle.
+        """
+
 class ChangeTilemap(EventCommand):
     nid = 'change_tilemap'
     tag = Tags.TILEMAP
+
+    desc = \
+        """
+Changes the current map to a different layout (_Tilemap_). If the _reload_ flag is set, the currently deployed units will be placed at their same positions on the new tilemap. If a _PositionOffset_ is given, the units will be reloaded but shifted by +x,+y.
+
+Instead of reloading the units from their current positions, a second _Tilemap_ optional keyword can be specified. In this case, unit deployment will be loaded from that tilemap's data instead of from the current map.
+
+Note that this command cannot be turnwheel'ed. Players attempting to use the turnwheel will find that they cannot turn time back past the point when this command was executed.
+        """
 
     # How much to offset placed units by
     # Which tilemap to load the unit positions from
@@ -426,6 +566,13 @@ class ChangeTilemap(EventCommand):
 class LoadUnit(EventCommand):
     nid = 'load_unit'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
+
+    desc = \
+        """
+Loads a unique (non-generic) unit from memory. This does not place the unit on the map. If the unit already exists in the game's memory, this command will do nothing. 
+
+Optionally, the loaded unit can be assigned to a _Team_ and given an _AI_ preset. If not specified, defaults of Player team and no AI script are applied.
+        """
 
     keywords = ["UniqueUnit"]
     optional_keywords = ["Team", "AI"]

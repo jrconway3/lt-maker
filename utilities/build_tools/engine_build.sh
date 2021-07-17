@@ -7,7 +7,10 @@ then
 fi
 name=$1
 
+cp ./utilities/build_tools/engine.spec .
 pyinstaller -y engine.spec "$name"
+rm -f engine.spec
+
 rm -rf "../$name"
 mkdir "../$name"
 # mkdir "../$name/$name"
@@ -15,8 +18,6 @@ mv "dist/$name" "../$name/$name"
 # cp utilities/audio_dlls/* "../$name/$name"
 # cp -r favicon.ico "../$name/$name"
 cp utilities/install/double_click_to_play.bat "../$name"
-# cp autoupdater.exe ../lt_engine/lt_engine
-# cp autoupdater.py "../$name/$name"
 
 # Get version
 version="0.1"

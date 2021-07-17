@@ -49,7 +49,10 @@ def save_screenshot(raw_events: list, surf):
 
 def run(game):
     from app.engine.sound import SOUNDTHREAD
+    from app.engine.game_counters import ANIMATION_COUNTERS
     from app.engine.input_manager import INPUT
+
+    ANIMATION_COUNTERS.reset()
 
     SOUNDTHREAD.reset()
     SOUNDTHREAD.set_music_volume(cf.SETTINGS['music_volume'])

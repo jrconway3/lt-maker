@@ -384,7 +384,7 @@ class Transition(EventCommand):
 
     desc = \
         """
-If a scene is currently displayed, it is faded out to a black screen. The next use of this function will fade the scene back into view. The optional _speed_ and _Color3_ keywords control the speed and color of the transition.
+If a scene is currently displayed, it is faded out to a black screen. The next use of this function will fade the scene back into view. The optional _Speed_ and _Color3_ keywords control the speed and color of the transition.
         """
 
     optional_keywords = ['Direction', 'Speed', 'Color3']
@@ -581,6 +581,13 @@ class MakeGeneric(EventCommand):
     nid = 'make_generic'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
 
+    desc = \
+        """
+Fabricates a new generic unit from scratch. This does not place instances of the new unit on the map. The required keywords are in the following order: nid to be given to the unit (_String_), the unit's class (_Klass_), the unit's level (_String_), and the unit's _Team_.
+
+Several optional keywords can also be provided to further modify the new unit: _AI_ defines an AI preset to be given to the unit, _Faction_ assignes the unit to one of the factions for the chapter, the unit can be given an animation variant (_String_), and finally the unit can be given an inventory of items (_ItemList_).
+        """
+
     # Nid, class, level, team, ai, faction, anim variant
     keywords = ["String", "Klass", "String", "Team"]
     optional_keywords = ["AI", "Faction", "String", "ItemList"]
@@ -588,15 +595,32 @@ class MakeGeneric(EventCommand):
 class CreateUnit(EventCommand):
     nid = 'create_unit'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
-    # Unit template and new unit nid (can be '')
-    keywords = ["Unit", "String"]
-    # Unit level, position, entrytype, placement
-    optional_keywords = ["String", "Position", "EntryType", "Placement"]
+
+    desc = \
+        """
+Creates a new instance of a unit and, optionally, places it on the map. _Unit_ points to the unit template to be used. A new nid can be assigned using _String_ (can be empty: '').
+
+Several optional keywords can be provided to modify the unit and/or place it on the map. 
+
+Optional keywords can be specified to place the unit on the map. The first _String_ value sets the unit's nid, if a specific nid is desired. The second _String_ value, if provided, sets the unit's level. The _Position_ value indicates the map coordinates that the unit will be placed at. _EntryType_ defines which placement animation is used. Finally, _Placement_ defines the behavior that occurs if the chosen map position is already occupied.
+        """
+
+    # Unit template
+    keywords = ["Unit"]
+    # New unit nid (which can be ''), Unit level, position, entrytype, placement
+    optional_keywords = ["String", "String", "Position", "EntryType", "Placement"]
 
 class AddUnit(EventCommand):
     nid = 'add_unit'
     nickname = 'add'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
+
+    desc = \
+        """
+Places _Unit_ on the map. The unit must be in the chapter's data or otherwise have been loaded into memory (see **load_unit** or **make_generic**). 
+
+The optional keywords define how the unit is placed. _Position_ indicates the map coordinates that the unit will be placed at. _EntryType_ defines which placement animation is used. _Placement_ defines the behavior that occurs if the chosen map position is already occupied. If no placement information is provided, the unit will attempt to be placed at its starting location from the chapter data (if any).
+        """
 
     keywords = ["Unit"]
     optional_keywords = ["Position", "EntryType", "Placement"]
@@ -605,6 +629,15 @@ class MoveUnit(EventCommand):
     nid = 'move_unit'
     nickname = 'move'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
+
+    desc = \
+        """
+Causes _Unit_ to move to a new position on the map.
+
+The optional keywords define how the movement occurs. _Position_ indicates the target map coordinates. _MovementType_ selects the method of movement. _Placement_ defines the behavior that occurs if the chosen map position is already occupied.
+
+The _no_block_ optional flag causes the event script to continue to execute while the unit is moving. The _no_follow_ flag prevents the camera from tracking the unit as it moves.
+        """
 
     keywords = ["Unit"]
     optional_keywords = ["Position", "MovementType", "Placement"]
@@ -615,6 +648,11 @@ class RemoveUnit(EventCommand):
     nickname = 'remove'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
 
+    desc = \
+        """
+Removes _Unit_ from the map. The optional _RemoveType_ keyword specifies the method of removal.
+        """
+
     keywords = ["Unit"]
     optional_keywords = ["RemoveType"]
 
@@ -623,6 +661,11 @@ class KillUnit(EventCommand):
     nickname = 'kill'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
 
+    desc = \
+        """
+Causes _Unit_ to be removed from the map and marked as dead. The _immediate_ flag causes this to occur instantly without the normal map death animation.
+        """
+
     keywords = ["Unit"]
     flags = ['immediate']
 
@@ -630,14 +673,29 @@ class RemoveAllUnits(EventCommand):
     nid = 'remove_all_units'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
 
+    desc = \
+        """
+Removes all units from the map.
+        """
+
 class RemoveAllEnemies(EventCommand):
     nid = 'remove_all_enemies'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
+
+    desc = \
+        """
+Removes all units in the enemy team from the map.
+        """
 
 class InteractUnit(EventCommand):
     nid = 'interact_unit'
     nickname = 'interact'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
+
+    desc = \
+        """
+Initiates a battle between two units. A _CombatScript_ can optionally be provided to ensure a pre-set outcome to the battle. _Ability_ can be used to specify which item or ability the attacker will use.
+        """
 
     keywords = ["Unit", "Unit"]
     optional_keywords = ["CombatScript", "Ability"]
@@ -645,41 +703,89 @@ class InteractUnit(EventCommand):
 class SetCurrentHP(EventCommand):
     nid = 'set_current_hp'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets _Unit_'s hit points to _PositiveInteger_.
+        """
+
     keywords = ["Unit", "PositiveInteger"]
 
 class SetCurrentMana(EventCommand):
     nid = 'set_current_mana'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets _Unit_'s mana to _PositiveInteger_.
+        """
+
     keywords = ["Unit", "PositiveInteger"]
 
 class AddFatigue(EventCommand):
     nid = 'add_fatigue'
     tags = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Modify _Unit_'s current fatigue level by _Integer_.
+        """
     keywords = ["Unit", "Integer"]
 
 class Resurrect(EventCommand):
     nid = 'resurrect'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
+
+    desc = \
+        """
+Brings a dead unit back to life. This does not place the unit on the map.
+        """
+
     keywords = ["GlobalUnit"]
 
 class Reset(EventCommand):
     nid = 'reset'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Refreshes the unit so that it can act again this turn.
+        """
+
     keywords = ["Unit"]
 
 class HasAttacked(EventCommand):
     nid = 'has_attacked'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets the unit's state as having already attacked this turn.
+        """
+
     keywords = ["Unit"]
 
 class HasTraded(EventCommand):
     nid = 'has_traded'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets the unit's state as having already traded this turn. The unit can still attack, but can no longer move.
+        """
+
     keywords = ['Unit']
 
 class AddGroup(EventCommand):
     nid = 'add_group'
     tag = Tags.UNIT_GROUPS
+
+    desc = \
+        """
+Adds a unit group to the map. This will use the group's starting position data in the chapter by default. Alternatively, a separate unit group nid can be provided as _StartingGroup_ to cause the units to be placed at this other group's starting position. _EntryType_ selects the method of placement, and _Placement_ defines the behavior that occurs if any of the chosen map positions are already occupied. 
+
+If the _create_ flag is set, a copy of each unit will be created and deployed instead of using the unit itself.
+        """
 
     keywords = ["Group"]
     optional_keywords = ["StartingGroup", "EntryType", "Placement"]
@@ -688,6 +794,13 @@ class AddGroup(EventCommand):
 class SpawnGroup(EventCommand):
     nid = 'spawn_group'
     tag = Tags.UNIT_GROUPS
+
+    desc = \
+        """
+Causes a unit _Group_ to arrive on the map from one of the _CardinalDirection_s. _EntryType_ selects the method of placement, and _Placement_ defines the behavior that occurs if any of the chosen map positions are already occupied.
+
+If the _create_ flag is set, a copy of each unit will be created and deployed instead of using the unit itself. _no_block_ causes the script to continue executing while the units appear on the map. _no_follow_ prevents the camera from focusing on the point where the units enter the map.
+        """
 
     keywords = ["Group", "CardinalDirection", "StartingGroup"]
     optional_keywords = ["EntryType", "Placement"]
@@ -698,6 +811,13 @@ class MoveGroup(EventCommand):
     nickname = 'morph_group'
     tag = Tags.UNIT_GROUPS
 
+    desc = \
+        """
+Causes a unit _Group_ to move to a new set of map positions specified using a different group's nid (_StartingGroup_). _MovementType_ selects the method of movement, and _Placement_ defines the behavior that occurs if any of the chosen map positions are already occupied.
+
+If the _no_block_ flag is set, the script will continue to execute while the units move. _no_follow_ prevents the camera from following the movement of the units.
+        """
+
     keywords = ["Group", "StartingGroup"]
     optional_keywords = ["MovementType", "Placement"]
     flags = ['no_block', 'no_follow']
@@ -706,12 +826,24 @@ class RemoveGroup(EventCommand):
     nid = 'remove_group'
     tag = Tags.UNIT_GROUPS
 
+    desc = \
+        """
+Removes a unit _Group_ from the map. _RemoveType_ selects the method of removal.
+        """
+
     keywords = ["Group"]
     optional_keywords = ["RemoveType"]
 
 class GiveItem(EventCommand):
     nid = 'give_item'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Gives a new copy of _Item_ to _GlobalUnit_. If the _no_banner_ flag is set, there will not be a banner announcing that "X unit got a Y item!".
+
+If the unit's inventory is full, the player will be given the option of which item to send to the convoy. If the _no_choice_ flag is set, the new item will be automatically sent to the convoy in this case without prompting the player. The _droppable_ flag determines whether the item is set as a "droppable" item (generally only given to enemy units).
+        """
 
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner', 'no_choice', 'droppable']
@@ -720,6 +852,11 @@ class RemoveItem(EventCommand):
     nid = 'remove_item'
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
+    desc = \
+        """
+Removes _Item_ from the inventory of _GlobalUnit_. If the _no_banner_ flag is set, there will not be a banner announcing that "X unit lost a Y item!".
+        """
+
     keywords = ["GlobalUnit", "Item"]
     flags = ['no_banner']
 
@@ -727,11 +864,21 @@ class ChangeItemName(EventCommand):
     nid = 'change_item_name'
     tag = Tags.MODIFY_ITEM_PROPERTIES
 
+    desc = \
+        """
+Changes the name of _Item_ in the inventory of _GlobalUnit_ to _String_.
+        """
+
     keywords = ["GlobalUnit", "Item", "String"]
 
 class ChangeItemDesc(EventCommand):
     nid = 'change_item_desc'
     tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Changes the description of _Item_ in the inventory of _GlobalUnit_ to _String_.
+        """
 
     keywords = ["GlobalUnit", "Item", "String"]
 
@@ -739,17 +886,32 @@ class AddItemToMultiItem(EventCommand):
     nid = 'add_item_to_multiitem'
     tag = Tags.MODIFY_ITEM_PROPERTIES
 
+    desc = \
+        """
+Adds a new item to an existing multi-item in the inventory of _GlobalUnit_. The first _Item_ specifies the multi-item, and the second _Item_ specifies the nid of the item to be added.
+        """
+
     keywords = ["GlobalUnit", "Item", "Item"]
 
 class RemoveItemFromMultiItem(EventCommand):
     nid = 'remove_item_from_multiitem'
     tag = Tags.MODIFY_ITEM_PROPERTIES
 
+    desc = \
+        """
+Removes an item from an existing multi-item in the inventory of _GlobalUnit_. The first _Item_ specifies the multi-item, and the second _Item_ specifies the nid of the item to be removed.
+        """
+
     keywords = ["GlobalUnit", "Item", "Item"]
 
 class GiveMoney(EventCommand):
     nid = 'give_money'
     tag = Tags.GAME_VARS
+
+    desc = \
+        """
+Gives _Integer_ amount of money to the indicated _Party_. If _Party_ is not specified, the player's current party will be used. If the _no_banner_ flag is set, there will not be a banner announcing that the player "received X gold!".
+        """
 
     keywords = ["Integer"]
     optional_keywords = ["Party"]
@@ -759,6 +921,11 @@ class GiveBexp(EventCommand):
     nid = 'give_bexp'
     tag = Tags.GAME_VARS
 
+    desc = \
+        """
+Gives bonus experience of the amount defined by _Condition_ (can just be a number) to the indicated _Party_. If _Party_ is not specified, the player's current party will be used. The optional _String_ keyword specifies what text is shown to the player in the banner. If _String_ is not specified, the banner will state "Got X BEXP". If the _no_banner_ flag is set, the player will not be informed that the bonus experience was awarded.
+        """
+
     keywords = ["Condition"]
     optional_keywords = ["Party", "String"]
     flags = ['no_banner']
@@ -767,17 +934,32 @@ class GiveExp(EventCommand):
     nid = 'give_exp'
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
+    desc = \
+        """
+Gives a _PositiveInteger_ amount of experience to _GlobalUnit_.
+        """
+
     keywords = ["GlobalUnit", "PositiveInteger"]
 
 class SetExp(EventCommand):
     nid = 'set_exp'
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
+    desc = \
+        """
+Sets _GlobalUnit_'s current experience amount to _PositiveInteger_.
+        """
+
     keywords = ["GlobalUnit", "PositiveInteger"]
 
 class GiveWexp(EventCommand):
     nid = 'give_wexp'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Gives a _PositiveInteger_ amount of weapon experience in _WeaponType_ to _GlobalUnit_. If the _no_banner_ flag is set, the player will not be informed that weapon experience was awarded.
+        """
 
     keywords = ["GlobalUnit", "WeaponType", "Integer"]
     flags = ['no_banner']
@@ -786,12 +968,22 @@ class GiveSkill(EventCommand):
     nid = 'give_skill'
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
+    desc = \
+        """
+_GlobalUnit_ gains _Skill_. If the _no_banner_ flag is set, the player will not be informed of this.
+        """
+
     keywords = ["GlobalUnit", "Skill"]
     flags = ['no_banner']
 
 class RemoveSkill(EventCommand):
     nid = 'remove_skill'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+_GlobalUnit_ loses _Skill_. If the _no_banner_ flag is set, the player will not be informed of this.
+        """
 
     keywords = ["GlobalUnit", "Skill"]
     flags = ['no_banner']
@@ -800,39 +992,81 @@ class ChangeAI(EventCommand):
     nid = 'change_ai'
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
+    desc = \
+        """
+Sets the _AI_ used by _GlobalUnit_.
+        """
+
     keywords = ["GlobalUnit", "AI"]
 
 class ChangeParty(EventCommand):
     nid = 'change_party'
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
+    desc = \
+        """
+Changes the _Party_ of _GlobalUnit_. Used for games in which the player's units are divided into multiple parties.
+        """
+
     keywords = ["GlobalUnit", "Party"]
 
 class ChangeTeam(EventCommand):
     nid = 'change_team'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Changes _GlobalUnit_'s _Team_. For example, this can recruit an enemy unit to the player's team in a Talk event script.
+        """
+
     keywords = ["GlobalUnit", "Team"]
 
 class ChangePortrait(EventCommand):
     nid = 'change_portrait'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Changes _GlobalUnit_'s portrait to the one specified by _PortraitNid_.
+        """
+
     keywords = ["GlobalUnit", "PortraitNid"]
 
 class ChangeStats(EventCommand):
     nid = 'change_stats'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+    
+    desc = \
+        """
+Changes the stats (STR, SKL, etc.) of _GlobalUnit_. The _StatList_ defines the changes to be applied. This will display the unit's stat changes similarly to a level-up unless the _immediate_ flag is set.
+        """
+
     keywords = ["GlobalUnit", "StatList"]
     flags = ['immediate']
 
 class SetStats(EventCommand):
     nid = 'set_stats'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets the stats (STR, SKL, etc.) of _GlobalUnit_ to specific values defined in _StatList_. This will display the unit's stat changes similarly to a level-up unless the _immediate_ flag is set.
+        """
+
     keywords = ["GlobalUnit", "StatList"]
     flags = ['immediate']
 
 class AutolevelTo(EventCommand):
     nid = 'autolevel_to'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Levels _GlobalUnit_ up to a level specified by _String_. If _String_ is less than the unit's current level, this does nothing.
+
+If the _hidden_ flag is set, the unit still gains the effects of the indicated level-ups, but its actual level is not incremented. In other words, the unit gets more powerful but remains at the same level.
+        """
+
     # Second argument is level that is eval'd
     keywords = ["GlobalUnit", "String"]
     # Whether to actually change the unit's level
@@ -841,6 +1075,12 @@ class AutolevelTo(EventCommand):
 class SetModeAutolevels(EventCommand):
     nid = 'set_mode_autolevels'
     tag = Tags.GAME_VARS
+
+    desc = \
+        """
+Changes the number of additional levels that enemy units gain from the difficulty mode setting. This can be used to grant a higher number of bonus levels to enemies later in the game to maintain a resonable difficulty curve. _String_ specifies the number of levels to be granted. If the _hidden_ flag is set, enemy units will still gain the effects of the indicated level-ups, but their actual level is not incremented. In other words, the units get more powerful but remains at the same level.
+        """
+
     keywords = ["String"]
     # Whether to actually change the unit's level
     flags = ["hidden"]
@@ -848,12 +1088,24 @@ class SetModeAutolevels(EventCommand):
 class Promote(EventCommand):
     nid = 'promote'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Promotes _GlobalUnit_ into a specified class (_Klass_) or, if no _Klass_ is given, the unit promotes as normal using its promotion data.
+        """
+
     keywords = ["GlobalUnit"]
     optional_keywords = ["Klass"]
 
 class ChangeClass(EventCommand):
     nid = 'change_class'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Changes _GlobalUnit_ into a specified class (_Klass_) or, if no _Klass_ is given, the unit class changes as normal using its alternative class data.
+        """
+
     keywords = ["GlobalUnit"]
     optional_keywords = ["Klass"]
 
@@ -861,11 +1113,21 @@ class AddTag(EventCommand):
     nid = 'add_tag'
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
+    desc = \
+        """
+Adds a _Tag_ to _GlobalUnit_. Examples would include "Lord", "Armor", "Boss", etc.
+        """
+
     keywords = ["GlobalUnit", "Tag"]
 
 class RemoveTag(EventCommand):
     nid = 'remove_tag'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Removes a _Tag_ from _GlobalUnit_.
+        """
 
     keywords = ["GlobalUnit", "Tag"]
 
@@ -873,17 +1135,33 @@ class AddTalk(EventCommand):
     nid = 'add_talk'
     tag = Tags.LEVEL_VARS
 
+    desc = \
+        """
+Adds the ability for the two indicated units to "Talk" in the current chapter. The first _Unit_ will be able to initiate conversation with the second _Unit_.
+        """
+
     keywords = ["Unit", "Unit"]
 
 class RemoveTalk(EventCommand):
     nid = 'remove_talk'
     tag = Tags.LEVEL_VARS
 
+    desc = \
+        """
+Removes the ability for the two indicated units to "Talk" in the current chapter. You probably want to use this after the dialogue scene between the two units.
+        """
+
     keywords = ["Unit", "Unit"]
 
 class AddLore(EventCommand):
     nid = 'add_lore'
     nickname = 'unlock_lore'
+
+    desc = \
+        """
+Unlocks the player's ability to read the specified game _Lore_ entry.
+        """
+
     tag = Tags.GAME_VARS
 
     keywords = ["Lore"]
@@ -892,11 +1170,21 @@ class RemoveLore(EventCommand):
     nid = 'remove_lore'
     tag = Tags.GAME_VARS
 
+    desc = \
+        """
+Removes the player's ability to read the specified game _Lore_ entry.
+        """
+
     keywords = ["Lore"]
 
 class AddBaseConvo(EventCommand):
     nid = 'add_base_convo'
     tag = Tags.LEVEL_VARS
+
+    desc = \
+        """
+Unlocks a base conversation specified by _String_ for later viewing by the player.
+        """
 
     keywords = ["String"]
 
@@ -904,11 +1192,21 @@ class IgnoreBaseConvo(EventCommand):
     nid = 'ignore_base_convo'
     tag = Tags.LEVEL_VARS
 
+    desc = \
+        """
+Sets the base conversation specified by _String_ to unselectable and greyed-out, but still visible. You usually want to use this at the end of a base convo to prevent the player from viewing it again.
+        """
+
     keywords = ["String"]
 
 class RemoveBaseConvo(EventCommand):
     nid = 'remove_base_convo'
     tag = Tags.LEVEL_VARS
+
+    desc = \
+        """
+Removes the base conversation specified by _String_ from the list entirely unless it is later re-added using **add_base_convo**.
+        """
 
     keywords = ["String"]
 
@@ -916,11 +1214,21 @@ class IncrementSupportPoints(EventCommand):
     nid = 'increment_support_points'
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
+    desc = \
+        """
+Adds _PositiveInteger_ amount of support points between the two specified units.
+        """
+
     keywords = ['GlobalUnit', 'GlobalUnit', 'PositiveInteger']
 
 class UnlockSupportRank(EventCommand):
     nid = 'unlock_support_rank'
     tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Unlocks the specific _SupportRank_ between the two specified units.
+        """
 
     keywords = ['GlobalUnit', 'GlobalUnit', 'SupportRank']
 
@@ -928,17 +1236,34 @@ class AddMarketItem(EventCommand):
     nid = 'add_market_item'
     tag = Tags.GAME_VARS
 
+    desc = \
+        """
+Adds _Item_ to the list of purchaseable goods in the base's market.
+        """
+
     keywords = ["Item"]
 
 class RemoveMarketItem(EventCommand):
     nid = 'remove_market_item'
     tag = Tags.GAME_VARS
 
+    desc = \
+        """
+Removes _Item_ from the list of purchaseable goods in the base's market.
+        """
+
     keywords = ["Item"]
 
 class AddRegion(EventCommand):
     nid = 'add_region'
     tag = Tags.REGION
+
+    desc = \
+        """
+Adds a new region to the map that can be referenced by events. _Nid_ will be the new regions identifier. _Position_ is the map coordinate desired for the upper-left corner of the new region. _Size_ is the dimensions of the new region. _RegionType_ defines the type of region that is created (status region, etc.).
+
+The optional _String_ keyword can be used to specify the sub-region type. When set, the _only_once_ flag prevents multiples of the same region from being created.
+        """
 
     keywords = ["Nid", "Position", "Size", "RegionType"]
     optional_keywords = ["String"]
@@ -948,17 +1273,32 @@ class RegionCondition(EventCommand):
     nid = 'region_condition'
     tag = Tags.REGION
 
+    desc = \
+        """
+Modifies the trigger _Condition_ for the event-type region specified by _Nid_.
+        """
+
     keywords = ["Nid", "Condition"]
 
 class RemoveRegion(EventCommand):
     nid = 'remove_region'
     tag = Tags.REGION
 
+    desc = \
+        """
+Removes the region specified by _Nid_.
+        """
+
     keywords = ["Nid"]
 
 class ShowLayer(EventCommand):
     nid = 'show_layer'
     tag = Tags.TILEMAP
+
+    desc = \
+        """
+Causes the specified map _Layer_ to be displayed. The optional _LayerTransition_ keyword controls whether the layer fades in (default) or is immediately displayed.
+        """
 
     keywords = ["Layer"]
     optional_keywords = ["LayerTransition"]
@@ -967,6 +1307,11 @@ class HideLayer(EventCommand):
     nid = 'hide_layer'
     tag = Tags.TILEMAP
 
+    desc = \
+        """
+Causes the specified map _Layer_ to be hidden. The optional _LayerTransition_ keyword controls whether the layer fades out (default) or is immediately hidden.
+        """
+
     keywords = ["Layer"]
     optional_keywords = ["LayerTransition"]
 
@@ -974,11 +1319,21 @@ class AddWeather(EventCommand):
     nid = 'add_weather'
     tag = Tags.TILEMAP
 
+    desc = \
+        """
+Adds the specified _Weather_ to the current map.
+        """
+
     keywords = ["Weather"]
 
 class RemoveWeather(EventCommand):
     nid = 'remove_weather'
     tag = Tags.TILEMAP
+
+    desc = \
+        """
+Removes the specified _Weather_ from the current map.
+        """
 
     keywords = ["Weather"]
 
@@ -986,11 +1341,21 @@ class ChangeObjectiveSimple(EventCommand):
     nid = 'change_objective_simple'
     tag = Tags.LEVEL_VARS
 
+    desc = \
+        """
+Changes the simple version of the chapter's objective text to _String_.
+        """
+
     keywords = ["String"]
 
 class ChangeObjectiveWin(EventCommand):
     nid = 'change_objective_win'
     tag = Tags.LEVEL_VARS
+
+    desc = \
+        """
+Changes the victory condition of the chapter's objective text to _String_.
+        """
 
     keywords = ["String"]
 
@@ -998,11 +1363,21 @@ class ChangeObjectiveLoss(EventCommand):
     nid = 'change_objective_loss'
     tag = Tags.LEVEL_VARS
 
+    desc = \
+        """
+Changes the defeat condition of the chapter's objective text to _String_.
+        """
+
     keywords = ["String"]
 
 class SetPosition(EventCommand):
     nid = 'set_position'
     tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+Stores a given position (_String_) as the event's home position. It can later be referenced in this event script using {position}.
+        """
 
     keywords = ["String"]
 
@@ -1022,6 +1397,11 @@ class MergeParties(EventCommand):
     # items in convoy, or units associated with it
     # The first will gain all of those properties
 
+    desc = \
+        """
+Merges two parties together. The second specified party's units, money, and bonus experience will be added to the first specified party. Note that the second party will still exist but will now be empty.
+        """
+
     keywords = ["Party", "Party"]
 
 class ArrangeFormation(EventCommand):
@@ -1029,15 +1409,30 @@ class ArrangeFormation(EventCommand):
     tag = Tags.MISCELLANEOUS
     # Puts units on formation tiles automatically
 
+    desc = \
+        """
+Places units on the map's formation tiles automatically.
+        """
+
 class Prep(EventCommand):
     nid = 'prep'
     tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+Display the prep screen. _Bool_ sets whether the "Pick Units" menu will be available in the prep screen. The optional _Music_ keyword specifies the music track that will be played during the preparations menu.
+        """
 
     optional_keywords = ["Bool", "Music"]  # Pick units
 
 class Base(EventCommand):
     nid = 'base'
     tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+When called, the player is sent to the Base menu. The _Panorama_ and _Music_ keywords specify the background image and the music track that will be played for the base.
+        """
 
     keywords = ["Panorama"]
     optional_keywords = ["Music"]
@@ -1046,12 +1441,24 @@ class Shop(EventCommand):
     nid = 'shop'
     tag = Tags.MISCELLANEOUS
 
+    desc = \
+        """
+Causes _Unit_ to enter a shop that sells _ItemList_ items. The optional _ShopFlavor_ keyword determines whether the shop appears as a vendor or an armory.
+        """
+
     keywords = ["Unit", "ItemList"]
     optional_keywords = ["ShopFlavor"]
 
 class Choice(EventCommand):
     nid = 'choice'
     tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+Presents the player with a menu in which he/she can choose from several options. An example would be the choice to go with Eirika or Ephraim in The Sacred Stones.
+
+_Nid_ is the name of this choice, which can be checked later to recall the player's decision. _String_ is the text describing the choice, such as "which will you choose?" _StringList_ specifies the different options that the player can choose among. The optional _Orientation_ keyword specifies whether the options are displayed as a vertical list or side-by-side.
+        """
 
     keywords = ['Nid', 'String', 'StringList']
     optional_keywords = ['Orientation']
@@ -1060,11 +1467,21 @@ class ChapterTitle(EventCommand):
     nid = 'chapter_title'
     tag = Tags.MISCELLANEOUS
 
+    desc = \
+        """
+Brings up the chapter title screen, optionally with the specified _Music_ and chapter name (_String_).
+        """
+
     optional_keywords = ["Music", "String"]
 
 class Alert(EventCommand):
     nid = 'alert'
     tag = Tags.DIALOGUE_TEXT
+
+    desc = \
+        """
+Displays the text given in _String_ in an alert box. This is used for events such as "The switch was pulled!".
+        """
 
     keywords = ["String"]
 
@@ -1072,13 +1489,28 @@ class VictoryScreen(EventCommand):
     nid = 'victory_screen'
     tag = Tags.MISCELLANEOUS
 
+    desc = \
+        """
+Displays the chapter's victory screen. Congratulations!
+        """
+
 class RecordsScreen(EventCommand):
     nid = 'records_screen'
     tag = Tags.MISCELLANEOUS
 
+    desc = \
+        """
+Displays the game's records screen.
+        """
+
 class LocationCard(EventCommand):
     nid = 'location_card'
     tag = Tags.DIALOGUE_TEXT
+
+    desc = \
+        """
+Used to display text (_String_) in the upper-left corner of the screen. This is often used to indicate the current location shown, such as "Castle Ostia".
+        """
 
     keywords = ["String"]
 
@@ -1086,12 +1518,22 @@ class Credits(EventCommand):
     nid = 'credits'
     tag = Tags.DIALOGUE_TEXT
 
+    desc = \
+        """
+Display a line of credits. The first _String_ specifies the credit type ("Director"). The second _String_ is a comma-delimited list of credits ("Spielberg,Tarantino"). If the _no_split_ flag is set, the list will not be split based on the commas in _String_. The _wait_ and _center_ flags modify how the credit line is displayed.
+        """
+
     keywords = ["String", "String"]
     flags = ['wait', 'center', 'no_split']
 
 class Ending(EventCommand):
     nid = 'ending'
     tag = Tags.DIALOGUE_TEXT
+
+    desc = \
+        """
+Displays the epilogue text for a character. _Portrait_ is the portrait to be displayed, the first _String_ is the name displayed (ex: "Marcus, Badass Paladin"), the second _String_ is the block of text describing what happened to the character.
+        """
 
     keywords = ["Portrait", "String", "String"]
 
@@ -1116,11 +1558,21 @@ class Unlock(EventCommand):
     nid = 'unlock'
     tag = Tags.REGION
 
+    desc = \
+        """
+A convenient wrapper function that combines **find_unlock** and **spend_unlock**. This is ususally used in a region's event script to cause _Unit_ to spend a key to unlock the current region.
+        """
+
     keywords = ["Unit"]
 
 class FindUnlock(EventCommand):
     nid = 'find_unlock'
     tag = Tags.HIDDEN
+
+    desc = \
+        """
+Use **unlock** instead.
+        """
 
     keywords = ["Unit"]
 
@@ -1128,11 +1580,21 @@ class SpendUnlock(EventCommand):
     nid = 'spend_unlock'
     tag = Tags.HIDDEN
 
+    desc = \
+        """
+Use **unlock** instead.
+        """
+
     keywords = ["Unit"]
 
 class TriggerScript(EventCommand):
     nid = 'trigger_script'
     tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+Executes the event script specified by _Event_. Can optionally feed two _GlobalUnits_ into the script as {unit} and {unit2}.
+        """
 
     keywords = ["Event"]
     optional_keywords = ["GlobalUnit", "GlobalUnit"]

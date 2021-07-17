@@ -1980,7 +1980,9 @@ class Event():
             return
         # Get input
         assign_unit = False
-        unit_nid = values[1]
+        unit_nid = None
+        if len(values) > 1 and values[1]:
+            unit_nid = values[1]
         if not unit_nid:
             unit_nid = str_utils.get_next_int('201', [unit.nid for unit in game.units])
             assign_unit = True

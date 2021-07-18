@@ -3,6 +3,8 @@ from typing import List, Tuple
 
 from app.events import event_commands, event_validators
 from app.utilities.typing import NID
+from app.editor.settings import MainSettingsController
+
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QCompleter
 
@@ -12,6 +14,8 @@ class Completer(QCompleter):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.settings = MainSettingsController()
+        
         self.setFilterMode(Qt.MatchContains)
         self.activated.connect(self.changeCompletion)
 
@@ -28,9 +32,9 @@ class Completer(QCompleter):
         Returns:
             bool: whether or not the event should be consumed.
         """
-        if event.key() == Qt.Key_Tab:
+        if event.key() == self.settings.get_autocomplete_button(Qt.Key_Tab):
             if self.popup().isVisible() and len(self.popup().selectedIndexes()) > 0:
-                # If completer is up, Tab can auto-complete
+                # If completer is up, Tab/Enter can auto-complete
                 completion = self.popup().selectedIndexes()[0].data(Qt.DisplayRole)
                 self.changeCompletion(completion)
                 return True # should not enter a tab
@@ -38,12 +42,6 @@ class Completer(QCompleter):
             # autofill functionality, hides autofill windows
             if self.popup().isVisible():
                 self.popup().hide()
-        elif event.key() == Qt.Key_Return:
-            # completer functionality, enters the selected suggestion
-            if self.popup().isVisible() and len(self.popup().selectedIndexes()) > 0:
-                completion = self.popup().selectedIndexes()[0].data(Qt.DisplayRole)
-                self.changeCompletion(completion)
-                return True # should not do an enter
         elif event.key() == Qt.Key_Escape:
             if self.popup().isVisible():
                 self.popup().hide()

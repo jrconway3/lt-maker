@@ -490,19 +490,16 @@ class ResetUnitVars(Action):
         self.unit = unit
         self.old_current_hp = self.unit.get_hp()
         self.old_current_mana = self.unit.get_mana()
-        self.old_current_fatigue = self.unit.get_fatigue()
         self.old_movement_left = self.unit.movement_left
 
     def do(self):
         self.unit.set_hp(min(self.unit.get_hp(), equations.parser.hitpoints(self.unit)))
         self.unit.set_mana(min(self.unit.get_mana(), equations.parser.get_mana(self.unit)))
-        self.unit.set_fatigue(min(self.unit.get_fatigue(), equations.parser.get_fatigue(self.unit)))
         self.unit.movement_left = min(self.unit.movement_left, equations.parser.movement(self.unit))
 
     def reverse(self):
         self.unit.set_hp(self.old_current_hp)
         self.unit.set_mana(self.old_current_mana)
-        self.unit.set_fatigue(self.old_current_fatigue)
         self.unit.movement_left = self.old_movement_left
 
 
@@ -1442,6 +1439,40 @@ class SetMana(Action):
 
     def reverse(self):
         self.unit.set_mana(self.old_mana)
+
+class ChangeFatigue(Action):
+    def __init__(self, unit, num):
+        self.unit = unit
+        self.num = num
+        self.old_fatigue = self.unit.get_fatigue()
+        self.subactions = []
+
+    def do(self):
+        self.subactions.clear()
+        if skill_system.ignore_fatigue(self.unit):
+            return
+
+        self.unit.set_fatigue(self.old_fatigue + self.num)
+
+        if game.game_vars.get('_fatigue') == 2:
+            if 'Fatigued' in DB.skills.keys():
+                if self.unit.get_fatigue() >= self.unit.get_max_fatigue():
+                    self.subactions.append(AddSkill(self.unit, 'Fatigued'))
+                elif 'Fatigued' in [skill.nid for skill in self.unit.skills]:
+                    self.subactions.append(RemoveSkill(self.unit, 'Fatigued'))
+            if 'Rested' in DB.skills.keys():
+                if self.unit.get_fatigue() < self.unit.get_max_fatigue():
+                    self.subactions.append(AddSkill(self.unit, 'Rested'))
+                elif 'Rested' in [skill.nid for skill in self.unit.skills]:
+                    self.subactions.append(RemoveSkill(self.unit, 'Rested'))
+
+        for action in self.subactions:
+            action.do()
+
+    def reverse(self):
+        for action in self.subactions:
+            action.reverse()
+        self.unit.set_fatigue(self.old_fatigue)
 
 class Die(Action):
     def __init__(self, unit):

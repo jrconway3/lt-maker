@@ -46,6 +46,9 @@ class TurnChangeState(MapState):
                 action.do(action.IncrementTurn())
                 game.events.trigger('turn_change')
                 if game.turncount - 1 <= 0:  # Beginning of the level
+                    for unit in game.get_all_units_in_party():
+                        # Give out fatigue statuses if necessary at the beginning of the level
+                        action.do(action.ChangeFatigue(unit, 0))
                     game.events.trigger('level_start')
         else:
             game.phase.next()  # Go to next phase
@@ -59,6 +62,9 @@ class TurnChangeState(MapState):
                 # EVENTS TRIGGER HERE
                 game.events.trigger('turn_change')
                 if game.turncount - 1 <= 0:  # Beginning of the level
+                    for unit in game.get_all_units_in_party():
+                        # Give out fatigue statuses if necessary at the beginning of the level
+                        action.do(action.ChangeFatigue(unit, 0))
                     game.events.trigger('level_start')
             else:
                 game.state.change('ai')
@@ -97,6 +103,11 @@ class InitiativeUpkeep(MapState):
 class PhaseChangeState(MapState):
     name = 'phase_change'
 
+    def refresh_fatigue(self):
+        refresh_these = [unit for unit in game.get_all_units_in_party() if not unit.position]
+        for unit in refresh_these:
+            action.do(action.ChangeFatigue(unit, -unit.get_fatigue()))
+
     def begin(self):
         self.save_state()
         logging.info("Phase Change Start")
@@ -107,6 +118,8 @@ class PhaseChangeState(MapState):
         # units reset, etc.
         phase.fade_out_phase_music()
         action.do(action.LockTurnwheel(game.phase.get_current() != 'player'))
+        if DB.constants.value('fatigue') and game.turncount == 1 and game.phase.get_current() == 'player':
+            self.refresh_fatigue()
         action.do(action.ResetAll([unit for unit in game.units if not unit.dead]))
         game.cursor.hide()
         game.phase.slide_in()

@@ -280,7 +280,23 @@ class SwapAbility(Ability):
         action.do(action.SwapPaired(unit, u))
         game.cursor.cur_unit = u
         game.state.change('menu')
-        #game.cursor.set_pos(u.position)
+
+class TransferAbility(Ability):
+    name = 'Transfer'
+
+    @staticmethod
+    def targets(unit) -> set:
+        if DB.constants.get('pairup'):
+            adj_allies = target_system.get_adj_allies(unit)
+            adj = set([u.position for u in adj_allies if unit.team == u.team and (u.paired_partner or unit.paired_partner)])
+            return adj
+        return set()
+
+    def do(unit):
+        u = game.board.get_unit(game.cursor.position)
+        action.do(action.HasTraded(unit))
+        action.do(action.Transfer(unit, u))
+        game.state.change('menu')
 
 ABILITIES = Ability.__subclasses__()
 PRIMARY_ABILITIES = ABILITIES[:3]

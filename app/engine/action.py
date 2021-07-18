@@ -876,6 +876,29 @@ class BuiltGuard(Action):
     def reverse(self):
         self.unit.built_guard = not self.unit.built_guard
 
+class Transfer(Action):
+    def __init__(self, unit, other):
+        self.unit = unit
+        self.first_partner = unit.paired_partner
+        self.first_gauge = self.unit.guard_gauge
+        self.other = other
+        self.other_gauge = other.guard_gauge
+
+    def do(self):
+        self.unit.paired_partner = self.other.paired_partner
+        self.unit.guard_gauge = self.other.guard_gauge//2
+        self.other.paired_partner = self.first_partner
+        self.other.guard_gauge = self.first_gauge//2
+
+        self.unit.has_given = True
+
+    def reverse(self):
+        self.other.paired_partner = self.unit.paired_partner
+        self.other.guard_gauge = self.other_gauge
+        self.unit.paired_partner = self.first_partner
+        self.unit.guard_gauge = self.first_gauge
+        self.unit.has_given = False
+
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):
     def __init__(self, item, party_nid=None):

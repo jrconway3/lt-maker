@@ -102,6 +102,29 @@
                     8
                 ],
                 "generic": false
+            },
+            {
+                "nid": "103",
+                "variant": null,
+                "level": 1,
+                "klass": "Paladin",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    3,
+                    2
+                ],
+                "name": null,
+                "desc": null,
+                "generic": true
             }
         ],
         "regions": [],

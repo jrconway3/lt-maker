@@ -1304,6 +1304,32 @@ class CombatTargetingState(MapState):
         closest_pos = self.selection.get_closest(game.cursor.position)
         game.cursor.set_pos(closest_pos)
 
+        # Sets dual strik variables and chooses attacker dual strike
+        self.attacker_assist = None
+        self.defender_assist = None
+        if DB.constants.value('pairup'):
+            self.adj_allies = target_system.get_adj_allies(self.cur_unit)
+            # best_choice = None
+            for ally in self.adj_allies:
+                if not ally.get_weapon():
+                    self.adj_allies.remove(ally)
+            # Replace with a formula later
+            if self.adj_allies:
+                self.attacker_assist = self.adj_allies[0]
+
+            # Determines the assisting units for the defender and keeps AOE from having dual strike
+            if self.num_targets > 1:
+                self.attacker_assist = None
+            elif self.num_targets == 1 and game.board.get_unit(closest_pos) and DB.constants.value('pairup'):
+                adj_allies = target_system.get_adj_allies(game.board.get_unit(closest_pos))
+                # best_choice = None
+                for ally in adj_allies:
+                    if not ally.get_weapon():
+                        adj_allies.remove(ally)
+                # Replace with a formula later
+                if adj_allies:
+                    self.defender_assist = adj_allies[0]
+
         # Reset these
         game.memory['sequence_item_index'] = 0
         game.memory['prev_targets'] = []
@@ -1371,6 +1397,7 @@ class CombatTargetingState(MapState):
                 self.selection.remove_target(game.cursor.position)
                 closest_pos = self.selection.get_closest(game.cursor.position)
                 game.cursor.set_pos(closest_pos)
+
             self.begin()
             self.display_single_attack()
         elif self.parent_item and self.sequence_item_index < len(self.parent_item.sequence_item.value) - 1:
@@ -1405,11 +1432,20 @@ class CombatTargetingState(MapState):
             game.cursor.set_pos(mouse_position)
 
         if event == 'AUX':
-            new_position = self.selection.get_next(game.cursor.position)
-            game.cursor.set_pos(new_position)
-            SOUNDTHREAD.play_sfx('Select 6')
-            game.ui_view.reset_info()
-            self.display_single_attack()
+            if not DB.constants.value('pairup'):
+                new_position = self.selection.get_next(game.cursor.position)
+                game.cursor.set_pos(new_position)
+                SOUNDTHREAD.play_sfx('Select 6')
+                game.ui_view.reset_info()
+                self.display_single_attack()
+            elif len(self.adj_allies) > 1 and self.num_targets == 1:
+                i = self.adj_allies.index(self.attacker_assist)
+                if i + 1 == len(self.adj_allies):
+                    self.attacker_assist = self.adj_allies[0]
+                else:
+                    self.attacker_assist = self.adj_allies[i + 1]
+                game.ui_view.reset_info()
+                self.display_single_attack()
 
         elif event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
@@ -1454,7 +1490,7 @@ class CombatTargetingState(MapState):
             if item_system.targets_items(self.cur_unit, self.item):
                 game.ui_view.draw_trade_preview(target_unit, surf)
             elif item_system.is_weapon(self.cur_unit, self.item):
-                game.ui_view.draw_attack_info(surf, self.cur_unit, self.item, target_unit)
+                game.ui_view.draw_attack_info(surf, self.cur_unit, self.item, target_unit, self.attacker_assist, self.defender_assist)
             else:
                 game.ui_view.draw_spell_info(surf, self.cur_unit, self.item, target_unit)
 

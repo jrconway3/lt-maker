@@ -310,7 +310,7 @@ class UIView():
         self.attack_info_disp = None
         self.spell_info_disp = None
 
-    def create_attack_info(self, attacker, weapon, defender):
+    def create_attack_info(self, attacker, weapon, defender, a_assist=None, d_assist=None):
         def blit_num(surf, num, x_pos, y_pos):
             if num is None:
                 FONT['text-blue'].blit_right('--', surf, (x_pos, y_pos))
@@ -336,6 +336,61 @@ class UIView():
             color = 'red'
         final = prefix + infix + ('_' if infix else '') + color
         surf = SPRITES.get(final).copy()
+
+        if DB.constants.value('pairup'):
+            # This is where the dual attack info will be shown
+            if not defender.paired_partner and a_assist:
+                prefix = 'assist_info_'
+                if grandmaster:
+                    infix = 'grandmaster'
+                elif crit_flag:
+                    infix = 'crit'
+                else:
+                    infix = ''
+                color = utils.get_team_color(attacker.team)
+                final = prefix + infix + ('_' if infix else '') + color
+                surf.blit(SPRITES.get(final).copy(), (80, 0))
+
+                mt = combat_calcs.compute_assist_damage(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
+                if grandmaster:
+                    hit = combat_calcs.compute_hit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
+                    blit_num(surf, int(mt * float(hit) / 100), 120, 1)
+                else:
+                    blit_num(surf, mt, 120, 1)
+                    hit = combat_calcs.compute_hit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
+                    blit_num(surf, hit, 120, 17)
+                    # Blit crit if applicable
+                    if crit_flag:
+                        c = combat_calcs.compute_crit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
+                        blit_num(surf, c, 120, 33)
+
+            if not attacker.paired_partner and d_assist and defender.get_weapon() and \
+                    combat_calcs.can_counterattack(attacker, weapon, defender, defender.get_weapon()):
+                prefix = 'assist_info_'
+                if grandmaster:
+                    infix = 'grandmaster'
+                elif crit_flag:
+                    infix = 'crit'
+                else:
+                    infix = ''
+                color = utils.get_team_color(defender.team)
+                if color not in ('red', 'purple'):
+                    color = 'red'
+                final = prefix + infix + ('_' if infix else '') + color
+                surf.blit(SPRITES.get(final).copy(), (80, 70))
+
+                mt = combat_calcs.compute_assist_damage(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense')
+                if grandmaster:
+                    hit = combat_calcs.compute_hit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense')
+                    blit_num(surf, int(mt * float(hit) / 100), 120, 71)
+                else:
+                    blit_num(surf, mt, 120, 71)
+                    hit = combat_calcs.compute_hit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense')
+                    blit_num(surf, hit, 120, 87)
+                    # Blit crit if applicable
+                    if crit_flag:
+                        c = combat_calcs.compute_crit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense')
+                        blit_num(surf, c, 120, 103)
 
         # Name
         width = FONT['text-white'].width(attacker.name)
@@ -418,12 +473,12 @@ class UIView():
         elif disadv and disadv.modification < 0:
             surf.blit(up_arrow, topleft)
 
-    def draw_attack_info(self, surf, attacker, weapon, defender):
+    def draw_attack_info(self, surf, attacker, weapon, defender, a_assist=None, d_assist=None):
         # Turns on appropriate combat conditionals to get an accurate read
         skill_system.test_on([], attacker, weapon, defender, 'attack')
 
         if not self.attack_info_disp:
-            self.attack_info_disp = self.create_attack_info(attacker, weapon, defender)
+            self.attack_info_disp = self.create_attack_info(attacker, weapon, defender, a_assist, d_assist)
 
         grandmaster = game.mode.rng_choice == 'Grandmaster'
         crit = DB.constants.get('crit').value

@@ -455,6 +455,68 @@ def compute_damage(unit, target, item, def_item, mode, crit=False):
 
     return int(max(DB.constants.get('min_damage').value, might))
 
+def compute_assist_damage(unit, target, item, def_item, mode, crit=False):
+    '''Nearly identical but for dual strike units. Damage is halved at the end'''
+    if not item:
+        return None
+
+    might = damage(unit, item)
+    if might is None:
+        return None
+
+    # Handles things like effective damage
+    might += item_system.dynamic_damage(unit, item, target, mode)
+
+    # Weapon Triangle
+    triangle_bonus = 0
+    adv = compute_advantage(unit, target, item, def_item)
+    disadv = compute_advantage(unit, target, item, def_item, False)
+    if adv:
+        triangle_bonus += int(adv.damage)
+    if disadv:
+        triangle_bonus += int(disadv.damage)
+
+    adv = compute_advantage(target, unit, def_item, item)
+    disadv = compute_advantage(target, unit, def_item, item, False)
+    if adv:
+        triangle_bonus -= int(adv.resist)
+    if disadv:
+        triangle_bonus -= int(disadv.resist)
+    might += triangle_bonus
+
+    # Three Houses style support bonus (only works on attack)
+    if mode in ('attack', 'splash'):
+        # Attacker's damage bonus
+        support_rank_bonuses, support_allies = get_support_rank_bonus(unit, target)
+        for bonus in support_rank_bonuses:
+            might += float(bonus.damage)
+    if mode == 'defense':
+        # Attacker's resist bonus
+        support_rank_bonuses, support_allies = get_support_rank_bonus(target, unit)
+        for bonus in support_rank_bonuses:
+            might -= float(bonus.resist)
+    might = int(might)
+
+    total_might = might
+
+    might -= defense(target, def_item, item)
+
+    if crit or skill_system.crit_anyway(unit):
+        might *= equations.parser.crit_mult(unit)
+        for _ in range(equations.parser.crit_add(unit)):
+            might += total_might
+
+    might += skill_system.dynamic_damage(unit, item, target, mode)
+    might -= skill_system.dynamic_resist(target, item, unit, mode)
+
+    might *= skill_system.damage_multiplier(unit, item, target, mode)
+    might *= skill_system.resist_multiplier(target, item, unit, mode)
+
+    if DB.constants.value('pairup') and target.paired_partner:
+        might = 0
+
+    return int(max(DB.constants.get('min_damage').value, might//2)) # Divided by two since it's dual strike
+
 def outspeed(unit, target, item, def_item, mode) -> bool:
     if not item:
         return 1

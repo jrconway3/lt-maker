@@ -2085,6 +2085,8 @@ class AddSkill(Action):
 
     def reverse(self):
         self.reset_action.reverse()
+        if not self.skill_obj:
+            return
         if self.skill_obj in self.unit.skills:
             self.unit.skills.remove(self.skill_obj)
             skill_system.on_remove(self.unit, self.skill_obj)

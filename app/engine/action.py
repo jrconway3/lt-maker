@@ -189,8 +189,8 @@ class Swap(Action):
         self.unit2 = unit2
         self.pos1 = unit1.position
         self.pos2 = unit2.position
-        self.update_fow_action1 = UpdateFogOfWar(self.unit)
-        self.update_fow_action2 = UpdateFogOfWar(self.unit)
+        self.update_fow_action1 = UpdateFogOfWar(self.unit1)
+        self.update_fow_action2 = UpdateFogOfWar(self.unit2)
 
     def do(self):
         game.leave(self.unit1)
@@ -719,12 +719,17 @@ class PairUp(Action):
         self.unit = unit
         self.target = target
         self.old_pos = self.unit.position
+        self.subactions = []
 
     def do(self):
         self.target.paired_partner = self.unit.nid
 
+        self.subactions.append(Reset(self.unit))
         game.leave(self.unit)
         self.unit.position = None
+
+        for action in self.subactions:
+            action.do()
 
     def execute(self):
         self.target.paired_partner = self.unit.nid
@@ -732,10 +737,57 @@ class PairUp(Action):
         game.leave(self.unit)
         self.unit.position = None
 
+        for action in self.subactions:
+            action.execute()
+
     def reverse(self):
         self.unit.position = self.old_pos
         game.arrive(self.unit)
         self.target.paired_partner = None
+
+        for action in self.subactions:
+            action.reverse()
+
+class SwapPaired(Action):
+    def __init__(self, unit1, unit2):
+        self.unit1 = unit1
+        self.unit2 = unit2
+        self.pos1 = unit1.position
+        self.pos2 = unit2.position
+        self.update_fow_action1 = UpdateFogOfWar(self.unit1)
+        self.update_fow_action2 = UpdateFogOfWar(self.unit2)
+
+    def do(self):
+        self.unit1.paired_partner = None
+        self.unit2.paired_partner = self.unit1.nid
+        self.unit2.guard_gauge = self.unit1.guard_gauge
+        game.leave(self.unit1)
+        game.leave(self.unit2)
+        self.unit1.position, self.unit2.position = self.pos2, self.pos1
+        game.arrive(self.unit2)
+        game.arrive(self.unit1)
+        # self.unit2.paired_partner = self.unit1
+        self.update_fow_action1.do()
+        self.update_fow_action2.do()
+        if not self.unit2.lead_unit:
+            self.unit2.has_moved = True
+
+    def reverse(self):
+        self.unit1.paired_partner = self.unit2.nid
+        self.unit2.paired_partner = None
+        self.update_fow_action1.reverse()
+        self.update_fow_action2.reverse()
+        game.leave(self.unit1)
+        game.leave(self.unit2)
+        self.unit1.position, self.unit2.position = self.pos1, self.pos2
+        game.arrive(self.unit2)
+        game.arrive(self.unit1)
+        if not self.unit1.lead_unit:
+            self.unit1.has_moved = True
+
+        '''
+        self.unit1.paired_partner = None
+        self.unit2.paired_partner = self.unit1'''
 
 # This is shamelessly copied from Drop, but I've kept it separate in case a madlad wants Rescue and Pair Up
 class Separate(Action):

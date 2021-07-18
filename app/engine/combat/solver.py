@@ -234,8 +234,10 @@ class CombatPhaseSolver():
 
         # Increment gauge
         if DB.constants.value('pairup'):
-            action.do(action.UseGauge(attacker, attacker.gauge_inc))
-            action.do(action.UseGauge(defender, defender.gauge_inc))
+            if attacker.paired_partner:
+                action.do(action.UseGauge(attacker, attacker.gauge_inc))
+            if defender.paired_partner:
+                action.do(action.UseGauge(defender, defender.gauge_inc))
 
         if roll < to_hit:
             crit = False

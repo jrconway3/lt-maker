@@ -457,6 +457,10 @@ class MoveState(MapState):
         if cur_unit.previous_position != cur_unit.position:
             action.do(action.SetPreviousPosition(cur_unit))
 
+        # To keep track of for swapping
+        if cur_unit.paired_partner:
+            cur_unit.lead_unit = True
+
         if cur_unit.has_traded:
             self.valid_moves = target_system.get_valid_moves(cur_unit)
             game.highlight.display_moves(self.valid_moves, light=False)
@@ -600,7 +604,7 @@ class MoveCameraState(MapState):
 class MenuState(MapState):
     name = 'menu'
     menu = None
-    normal_options = {'Item', 'Wait', 'Take', 'Give', 'Rescue', 'Trade', 'Drop', 'Visit', 'Armory', 'Vendor', 'Spells', 'Attack', 'Steal', 'Shove'}
+    normal_options = {'Item', 'Wait', 'Take', 'Give', 'Rescue', 'Trade', 'Drop', 'Visit', 'Armory', 'Vendor', 'Spells', 'Attack', 'Steal', 'Shove', 'Pair Up', 'Swap', 'Separate'}
 
     def begin(self):
         # Play this here because there's a gap in sound while unit is moving
@@ -716,6 +720,13 @@ class MenuState(MapState):
                     game.state.change('free')
                     self.cur_unit.wait()
             else:
+                # Reverse Swap here
+                if not self.cur_unit.lead_unit and self.cur_unit.paired_partner:
+                    self.cur_unit.lead_unit = False
+                    u = game.get_unit(self.cur_unit.paired_partner)
+                    action.do(action.SwapPaired(self.cur_unit, u))
+                    self.cur_unit = u
+                    game.cursor.cur_unit = u
                 if self.cur_unit.current_move:
                     action.reverse(self.cur_unit.current_move)
                     self.cur_unit.current_move = None

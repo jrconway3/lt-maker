@@ -240,7 +240,6 @@ class PairUpAbility(Ability):
         action.do(action.PairUp(unit, u))
         game.state.change('free')
         game.cursor.set_pos(u.position)
-        unit.wait()
 
 class SeparateAbility(Ability):
     name = 'Separate'
@@ -264,7 +263,24 @@ class SeparateAbility(Ability):
         action.do(action.Separate(unit, u, game.cursor.position))
         game.state.change('free')
         game.cursor.set_pos(unit.position)
+        u.wait()
         unit.wait()
+
+class SwapAbility(Ability):
+    name = 'Swap'
+
+    @staticmethod
+    def targets(unit) -> set:
+        if unit.paired_partner:
+            return {unit.position}
+        return set()
+
+    def do(unit):
+        u = game.get_unit(unit.paired_partner)
+        action.do(action.SwapPaired(unit, u))
+        game.cursor.cur_unit = u
+        game.state.change('menu')
+        #game.cursor.set_pos(u.position)
 
 ABILITIES = Ability.__subclasses__()
 PRIMARY_ABILITIES = ABILITIES[:3]

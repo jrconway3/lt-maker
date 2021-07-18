@@ -113,7 +113,7 @@ def accuracy(unit, item=None):
     if equation == 'HIT':
         equation = skill_system.accuracy_formula(unit)
     accuracy += equations.parser.get(equation, unit)
-    
+
     weapon_rank_bonus = get_weapon_rank_bonus(unit, item)
     if weapon_rank_bonus:
         accuracy += int(weapon_rank_bonus.accuracy)
@@ -169,7 +169,7 @@ def crit_accuracy(unit, item=None):
     if equation == 'CRIT_HIT':
         equation = skill_system.crit_accuracy_formula(unit)
     crit_accuracy += equations.parser.get(equation, unit)
-    
+
     weapon_rank_bonus = get_weapon_rank_bonus(unit, item)
     if weapon_rank_bonus:
         crit_accuracy += int(weapon_rank_bonus.crit)
@@ -307,7 +307,7 @@ def compute_hit(unit, target, item, def_item, mode):
 
     # Handles things like effective accuracy
     hit += item_system.dynamic_accuracy(unit, item, target, mode)
-    
+
     # Weapon Triangle
     triangle_bonus = 0
     adv = compute_advantage(unit, target, item, def_item)
@@ -355,7 +355,7 @@ def compute_crit(unit, target, item, def_item, mode):
 
     # Handles things like effective accuracy
     crit += item_system.dynamic_crit_accuracy(unit, item, target, mode)
-    
+
     # Weapon Triangle
     triangle_bonus = 0
     adv = compute_advantage(unit, target, item, def_item)
@@ -448,6 +448,11 @@ def compute_damage(unit, target, item, def_item, mode, crit=False):
 
     might *= skill_system.damage_multiplier(unit, item, target, mode)
     might *= skill_system.resist_multiplier(target, item, unit, mode)
+
+    if DB.constants.value('pairup') and target.guard_gauge == target.max_guard:
+        might = 0
+        # Prevents damage if there's a dual guard, but the gauge is set to 0 elsewhere since it's an action. Maybe change?
+
     return int(max(DB.constants.get('min_damage').value, might))
 
 def outspeed(unit, target, item, def_item, mode) -> bool:

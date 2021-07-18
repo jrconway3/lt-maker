@@ -546,7 +546,8 @@ class ResetAll(Action):
 class HasAttacked(Reset):
     def do(self):
         self.unit.has_attacked = True
-
+        if DB.constants.value('pairup'):
+            self.unit.built_guard = True
 
 class HasTraded(Reset):
     def do(self):
@@ -735,6 +736,93 @@ class PairUp(Action):
         self.unit.position = self.old_pos
         game.arrive(self.unit)
         self.target.paired_partner = None
+
+# This is shamelessly copied from Drop, but I've kept it separate in case a madlad wants Rescue and Pair Up
+class Separate(Action):
+    def __init__(self, unit, droppee, pos):
+        self.unit = unit
+        self.droppee = droppee
+        self.pos = pos
+        self.droppee_wait_action = Wait(self.droppee)
+        self.old_gauge = self.unit.guard_gauge
+        self.subactions = []
+
+    def do(self):
+        self.subactions.clear()
+        self.droppee.position = self.pos
+        game.arrive(self.droppee)
+        self.droppee.sprite.change_state('normal')
+        self.droppee_wait_action.do()
+
+        self.unit.paired_partner = None
+        self.unit.guard_gauge = 0
+        self.unit.has_dropped = True
+
+        self.subactions.append(RemoveSkill(self.unit, "Rescue"))
+        for action in self.subactions:
+            action.do()
+
+        if utils.calculate_distance(self.unit.position, self.pos) == 1:
+            self.droppee.sprite.set_transition('fake_in')
+            self.droppee.sprite.offset = [(self.unit.position[0] - self.pos[0]) * TILEWIDTH,
+                                          (self.unit.position[1] - self.pos[1]) * TILEHEIGHT]
+
+    def execute(self):
+        self.droppee.position = self.pos
+        game.arrive(self.droppee)
+        self.droppee.sprite.change_state('normal')
+        self.droppee_wait_action.execute()
+
+        for action in self.subactions:
+            action.execute()
+
+        self.unit.paired_partner = None
+        self.unit.guard_gauge = 0
+        self.unit.has_dropped = True
+
+    def reverse(self):
+        self.unit.paired_partner = self.droppee.nid
+        self.unit.guard_gauge = self.old_gauge
+
+        self.droppee_wait_action.reverse()
+        game.leave(self.droppee)
+        self.droppee.position = None
+        self.unit.has_dropped = False
+
+        for action in self.subactions:
+            action.reverse()
+
+class UseGauge(Action):
+    def __init__(self, unit, amount=0):
+        self.unit = unit
+        self.amount = amount
+        self.old_gauge = unit.guard_gauge
+
+    def do(self):
+        if not self.amount:
+            self.unit.guard_gauge = 0
+        else:
+            self.unit.guard_gauge += self.amount
+            if self.unit.guard_gauge > self.unit.max_guard:
+                self.unit.guard_gauge = self.unit.max_guard
+            elif self.unit.guard_gauge < 0:
+                self.unit.guard_gauge = 0
+
+    def reverse(self):
+        self.unit.guard_gauge = self.old_gauge
+
+class BuiltGuard(Action):
+    '''
+    Has its own action because it's only check between turns instead of phases.
+    '''
+    def __init__(self, unit):
+        self.unit = unit
+
+    def do(self):
+        self.unit.built_guard = not self.unit.built_guard
+
+    def reverse(self):
+        self.unit.built_guard = not self.unit.built_guard
 
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):

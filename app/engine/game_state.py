@@ -429,6 +429,9 @@ class GameState():
             if unit.traveler:
                 unit.traveler = None
                 action.execute(action.RemoveSkill(unit, 'Rescue'))
+            if unit.paired_partner:
+                unit.paired_partner = None
+            unit.guard_gauge = 0
             unit.set_hp(1000)  # Set to full health
             unit.set_mana(1000)  # Set to full mana
             unit.position = None

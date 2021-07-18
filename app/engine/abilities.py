@@ -242,6 +242,30 @@ class PairUpAbility(Ability):
         game.cursor.set_pos(u.position)
         unit.wait()
 
+class SeparateAbility(Ability):
+    name = 'Separate'
+
+    @staticmethod
+    def targets(unit) -> set:
+        if DB.constants.get('pairup') and unit.paired_partner and not unit.has_attacked:
+            good_pos = set()
+            adj_positions = target_system.get_adjacent_positions(unit.position)
+            u = game.get_unit(unit.paired_partner)
+            for adj_pos in adj_positions:
+                if not game.board.get_unit(adj_pos) and game.movement.check_traversable(u, adj_pos):
+                    good_pos.add(adj_pos)
+            return good_pos
+        return set()
+
+    @staticmethod
+    def do(unit):
+        game.state.change('menu')
+        u = game.get_unit(unit.paired_partner)
+        action.do(action.Separate(unit, u, game.cursor.position))
+        game.state.change('free')
+        game.cursor.set_pos(unit.position)
+        unit.wait()
+
 ABILITIES = Ability.__subclasses__()
 PRIMARY_ABILITIES = ABILITIES[:3]
 OTHER_ABILITIES = ABILITIES[3:]

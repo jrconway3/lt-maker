@@ -42,9 +42,6 @@ class UnitObject(Prefab):
         self.ai: str = prefab.ai
         self.ai_group: str = prefab.ai_group
 
-        self.paired_partner = None
-        self.guard_gauge = 0
-
         if self.generic:
             self.faction: str = prefab.faction
             self.name: str = DB.factions.get(self.faction).name
@@ -89,6 +86,11 @@ class UnitObject(Prefab):
         self.movement_left = 0
 
         self.traveler = None
+
+        self.paired_partner = None
+        self.guard_gauge = 10 # Remember to set back to 0
+        self.built_guard = False # A bool to check if guard should be subtracted at turn end
+        self.get_guard_info()
 
         # -- Other properties
         self.dead = False
@@ -224,6 +226,10 @@ class UnitObject(Prefab):
 
     def get_stat(self, stat_nid):
         return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)
+
+    def get_guard_info(self):
+        self.max_guard = equations.parser.get_max_guard(self)
+        self.gauge_inc = equations.parser.get_gauge_inc(self)
 
     @property
     def sprite(self):
@@ -485,6 +491,11 @@ class UnitObject(Prefab):
                   'current_mana': self.current_mana,
                   'current_fatigue': self.current_fatigue,
                   'traveler': self.traveler,
+                  'paired_partner': self.paired_partner,
+                  'guard_gauge': self.guard_gauge,
+                  'built_guard': self.built_guard,
+                  'max_guard': self.max_guard,
+                  'gauge_inc': self.gauge_inc,
                   'dead': self.dead,
                   'action_state': self.get_action_state(),
                   'ai_group_active': self.ai_group_active,
@@ -538,6 +549,11 @@ class UnitObject(Prefab):
         self.movement_left = equations.parser.movement(self)
 
         self.traveler = s_dict['traveler']
+        self.paired_partner = s_dict['paired_partner']
+        self.guard_gauge = s_dict['guard_gauge']
+        self.built_guard = s_dict['built_guard']
+        self.max_guard = s_dict['max_guard']
+        self.gauge_inc = s_dict['gauge_inc']
 
         self.equipped_weapon = None
         self.equipped_accessory = None

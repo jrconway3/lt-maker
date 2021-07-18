@@ -2819,8 +2819,8 @@
         "name": "O'Neill",
         "desc": "A troop leader in Grado's army.",
         "variant": null,
-        "level": 4,
-        "klass": "Fighter",
+        "level": 20,
+        "klass": "Cavalier",
         "tags": [
             "Boss"
         ],
@@ -2852,7 +2852,7 @@
         },
         "starting_items": [
             [
-                "Iron Axe",
+                "Iron Lance",
                 false
             ]
         ],
@@ -2865,7 +2865,7 @@
             ],
             "Lance": [
                 false,
-                0
+                71
             ],
             "Axe": [
                 true,

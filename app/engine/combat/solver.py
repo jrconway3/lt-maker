@@ -1,6 +1,6 @@
 from app.data.database import DB
 
-from app.engine import combat_calcs, item_system, skill_system, static_random, item_funcs
+from app.engine import combat_calcs, item_system, skill_system, static_random, item_funcs, action
 from app.engine.game_state import game
 
 import logging
@@ -34,7 +34,7 @@ class InitState(SolverState):
             else:
                 return 'attacker'
         else:
-            return self.process_command(command) 
+            return self.process_command(command)
 
 class AttackerState(SolverState):
     name = 'attacker'
@@ -52,7 +52,7 @@ class AttackerState(SolverState):
                     attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
                 else:
                     attacker_outspeed = defender_outspeed = 1
-            
+
                 if solver.item_has_uses() and \
                         solver.num_subattacks < self.num_multiattacks:
                     return 'attacker'
@@ -89,7 +89,7 @@ class AttackerState(SolverState):
             # Make sure that we run on_hit even if otherwise unavailable
             if not defender and not splash:
                 solver.simple_process(actions, playback, solver.attacker, solver.attacker, target_pos, item, None, None)
-        
+
         solver.num_subattacks += 1
         self.num_multiattacks = combat_calcs.compute_multiattacks(solver.attacker, solver.defender, solver.main_item, 'attack')
         if solver.num_subattacks >= self.num_multiattacks:
@@ -112,10 +112,10 @@ class DefenderState(SolverState):
                     defender_outspeed = 1
                 attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
                 # self.num_multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
-                
+
                 if solver.allow_counterattack() and \
                         solver.num_subdefends < self.num_multiattacks:
-                    return 'defender'    
+                    return 'defender'
                 elif solver.item_has_uses() and \
                         solver.num_attacks < attacker_outspeed:
                     solver.num_subattacks = 0
@@ -140,7 +140,7 @@ class DefenderState(SolverState):
 
         # Remove defending unit's proc skills (which is solver.attacker)
         skill_system.end_sub_combat(actions, playback, solver.attacker, solver.main_item, solver.defender, 'defense')
-        
+
         solver.num_subdefends += 1
         self.num_multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
         if solver.num_subdefends >= self.num_multiattacks:
@@ -154,8 +154,8 @@ class CombatPhaseSolver():
               'attacker': AttackerState,
               'defender': DefenderState}
 
-    def __init__(self, attacker, main_item, items, defenders, 
-                 splashes, target_positions, defender, def_item, 
+    def __init__(self, attacker, main_item, items, defenders,
+                 splashes, target_positions, defender, def_item,
                  script=None):
         self.attacker = attacker
         self.main_item = main_item
@@ -164,7 +164,7 @@ class CombatPhaseSolver():
         self.splashes = splashes
         self.target_positions = target_positions
         self.defender = defender
-        self.def_item = def_item        
+        self.def_item = def_item
 
         self.state = InitState()
         self.num_attacks, self.num_defends = 0, 0
@@ -232,6 +232,11 @@ class CombatPhaseSolver():
         else:
             roll = self.generate_roll()
 
+        # Increment gauge
+        if DB.constants.value('pairup'):
+            action.do(action.UseGauge(attacker, attacker.gauge_inc))
+            action.do(action.UseGauge(defender, defender.gauge_inc))
+
         if roll < to_hit:
             crit = False
             if DB.constants.value('crit') or skill_system.crit_anyway(attacker) or self.current_command in ('crit1', 'crit2'):
@@ -257,6 +262,9 @@ class CombatPhaseSolver():
                 item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
                     playback.append(('mark_hit', attacker, defender, self.attacker, item))
+            # Gauge is set to 0. Damage is negated elsewhere
+            if DB.constants.value('pairup') and defender.guard_gauge == defender.max_guard:
+                action.do(action.UseGauge(defender))
             item_system.after_hit(actions, playback, attacker, item, defender, mode)
             skill_system.after_hit(actions, playback, attacker, item, defender, mode)
         else:
@@ -267,7 +275,7 @@ class CombatPhaseSolver():
     def simple_process(self, actions, playback, attacker, defender, def_pos, item, def_item, mode):
         # Is the item I am processing the first one?
         first_item = item is self.main_item or item is self.items[0]
-        
+
         item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
         if defender:
             playback.append(('mark_hit', attacker, defender, self.attacker, item))
@@ -290,3 +298,21 @@ class CombatPhaseSolver():
 
     def target_item_has_uses(self):
         return self.defender and self.def_item and item_funcs.available(self.defender, self.def_item)
+
+    def increment_guard_gauge(self, unit):
+        # Not permanent but works for now
+        if isinstance(unit, list):
+            for u in unit:
+                mg = u.max_guard
+                gi = u.gauge_inc
+                if u.paired_partner and u.guard_gauge != mg:
+                    u.guard_gauge += gi
+                    if u.guard_gauge > mg:
+                        u.guard_gauge = mg
+        else:
+            mg = unit.max_guard
+            gi = unit.gauge_inc
+            if unit.paired_partner and unit.guard_gauge != mg:
+                unit.guard_gauge += gi
+                if unit.guard_gauge > mg:
+                    unit.guard_gauge = mg

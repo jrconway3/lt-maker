@@ -1140,6 +1140,8 @@ class TargetingState(MapState):
             if self.ability.name == 'Trade':
                 current_target = game.cursor.get_hover()
                 traveler = current_target.traveler
+                if not traveler:
+                    traveler = current_target.paired_partner
                 if traveler and game.get_unit(traveler).team == self.cur_unit.team:
                     self.traveler_mode = True
                 else:
@@ -1175,7 +1177,10 @@ class TargetingState(MapState):
             SOUNDTHREAD.play_sfx('Select 1')
             unit = game.cursor.get_hover()
             if self.traveler_mode:
-                game.memory['trade_partner'] = game.get_unit(unit.traveler)
+                if unit.traveler:
+                    game.memory['trade_partner'] = game.get_unit(unit.traveler)
+                else:
+                    game.memory['trade_partner'] = game.get_unit(unit.paired_partner)
             else:
                 game.memory['trade_partner'] = unit
             self.ability.do(self.cur_unit)
@@ -1251,7 +1256,10 @@ class TargetingState(MapState):
         elif self.ability.name == 'Trade':
             unit = game.cursor.get_hover()
             if self.traveler_mode:
-                game.ui_view.draw_trade_preview(game.get_unit(unit.traveler), surf)
+                if unit.traveler:
+                    game.ui_view.draw_trade_preview(game.get_unit(unit.traveler), surf)
+                else:
+                    game.ui_view.draw_trade_preview(game.get_unit(unit.paired_partner), surf)
             else:
                 game.ui_view.draw_trade_preview(unit, surf)
         elif self.ability.name == 'Steal':

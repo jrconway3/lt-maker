@@ -4,7 +4,7 @@ import sys
 block_cipher = None
 
 a = Analysis(['run_editor.py'],
-             pathex=['../..'],
+             pathex=['.'],
              binaries=[],
              datas=[('saves/save_storage.txt', 'saves'),
                     ('resources', 'resources'),

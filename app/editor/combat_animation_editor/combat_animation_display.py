@@ -31,6 +31,8 @@ from app.utilities import str_utils
 # Game interface
 import app.editor.game_actions.game_actions as GAME_ACTIONS
 
+import logging
+
 def populate_anim_pixmaps(combat_anim):
     for weapon_anim in combat_anim.weapon_anims:
         weapon_anim.pixmap = QPixmap(weapon_anim.full_path)
@@ -558,8 +560,13 @@ class CombatAnimProperties(QWidget):
 
             for fn in fns:
                 if fn.endswith('.txt'):
-                    combat_animation_imports.import_from_gba(self.current, fn)
-
+                    try:
+                        combat_animation_imports.import_from_gba(self.current, fn)
+                    except Exception as e:
+                        logging.exception(e)
+                        logging.error("Error encountered during import from gba of %s" % fn)
+                        QMessageBox.critical(self, "Import Error", "Error encountered during import of %s" % fn)
+                        return
             # Reset
             self.set_current(self.current)
             if self.current.weapon_anims:

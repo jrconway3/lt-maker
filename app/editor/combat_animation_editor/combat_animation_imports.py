@@ -836,7 +836,9 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
 
         else:  # Frame
             try:
-                num_frames, _, png_name = line.split()
+                s_l = line.split()
+                num_frames = s_l[0]
+                png_name = ' '.join(s_l[2:])
             except ValueError:
                 logging.error('Cannot parse "%s"! Skipping over this line...' % line)
                 continue

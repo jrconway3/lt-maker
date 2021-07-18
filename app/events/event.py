@@ -40,6 +40,7 @@ screen_positions = {'OffscreenLeft': -96,
                     'CenterLeft': 24,
                     'CenterRight': 120,
                     'MidRight': 120,
+                    'LevelUpRight': 140,
                     'Right': 144,
                     'FarRight': 168,
                     'OffscreenRight': 240}
@@ -820,6 +821,14 @@ class Event():
             mana = int(values[1])
             action.do(action.SetMana(unit, mana))
 
+        elif command.nid == 'add_fatigue':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            fatigue = int(values[1])
+            action.do(action.ChangeFatigue(unit, fatigue))
 
         elif command.nid == 'resurrect':
             values, flags = event_commands.parse(command)
@@ -1196,6 +1205,9 @@ class Event():
 
         elif command.nid == 'trigger_script':
             self.trigger_script(command)
+
+        elif command.nid == 'loop_units':
+            self.loop_units(command)
 
         elif command.nid == 'change_roaming':
             self.change_roaming(command)
@@ -1969,7 +1981,9 @@ class Event():
             return
         # Get input
         assign_unit = False
-        unit_nid = values[1]
+        unit_nid = None
+        if len(values) > 1 and values[1]:
+            unit_nid = values[1]
         if not unit_nid:
             unit_nid = str_utils.get_next_int('201', [unit.nid for unit in game.units])
             assign_unit = True
@@ -2473,6 +2487,9 @@ class Event():
         player_units = game.get_units_in_party()
         stuck_units = [unit for unit in player_units if unit.position and not game.check_for_region(unit.position, 'formation')]
         unstuck_units = [unit for unit in player_units if unit not in stuck_units and not game.check_for_region(unit.position, 'formation')]
+        unstuck_units = [unit for unit in unstuck_units if 'Blacklist' not in unit.tags]
+        if DB.constants.value('fatigue') and game.game_vars.get('_fatigue') == 1:
+            unstuck_units = [unit for unit in unstuck_units if unit.get_fatigue() < unit.get_max_fatigue()]
         num_slots = game.level_vars.get('_prep_slots')
         all_formation_spots = game.get_open_formation_spots()
         if num_slots is None:
@@ -2568,6 +2585,20 @@ class Event():
             logging.error("Couldn't find any valid events matching name %s" % trigger_script)
             return
 
+    def loop_units(self, command):
+        unit_list_str = command.values[0]
+        try:
+            unit_list = evaluate.evaluate(unit_list_str)
+        except Exception as e:
+            logging.error("%s: Could not evalute {%s}" % (e, unit_list_str))
+            return
+        if not unit_list:
+            logging.warning("No units returned for list: %s" % (unit_list_str))
+            return
+        for unit_nid in reversed(unit_list):
+            macro_command = event_commands.TriggerScript([command.values[1], unit_nid])
+            self.commands.insert(self.command_idx + 1, macro_command)
+
     def change_roaming(self, command):
         values, flags = event_commands.parse(command)
         val = values[0].lower()
@@ -2591,7 +2622,11 @@ class Event():
         if values:
             overworld_nid = values[0]
         else:
-            overworld_nid = DB.overworlds.values()[0].nid
+            if DB.overworlds.values():
+                overworld_nid = DB.overworlds.values()[0].nid
+            else:
+                logging.error('No overworlds in the DB - why are you calling the overworld command?')
+                return
         from app.engine.overworld.overworld_states import OverworldState
         OverworldState.set_up_overworld_game_state(overworld_nid)
 
@@ -2703,7 +2738,7 @@ class Event():
                     movement.queue(self.overworld_movement_manager)
                     game.camera.do_slow_pan(1000)
                     game.camera.set_center(entity.position[0], entity.position[1])
-                    
+
                     def update_movement():
                         # make sure the camera is centered first
                         if not game.camera.at_rest():

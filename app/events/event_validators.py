@@ -202,7 +202,7 @@ class Tag(Validator):
         return valids
 
 class ScreenPosition(Validator):
-    valid_positions = ["OffscreenLeft", "FarLeft", "Left", "MidLeft", "CenterLeft", "CenterRight", "MidRight", "Right", "FarRight", "OffscreenRight"]
+    valid_positions = ["OffscreenLeft", "FarLeft", "Left", "MidLeft", "CenterLeft", "CenterRight", "MidRight", "LevelUpRight", "Right", "FarRight", "OffscreenRight"]
 
     desc = ("determines where to add the portrait to the screen."
             "Available options are (`OffscreenLeft`, `FarLeft`, "

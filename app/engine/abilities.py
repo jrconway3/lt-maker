@@ -263,7 +263,6 @@ class SeparateAbility(Ability):
         action.do(action.Separate(unit, u, game.cursor.position))
         game.state.change('free')
         game.cursor.set_pos(unit.position)
-        u.wait()
         unit.wait()
 
 class SwapAbility(Ability):

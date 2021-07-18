@@ -725,6 +725,7 @@ class PairUp(Action):
         self.target.paired_partner = self.unit.nid
 
         self.subactions.append(Reset(self.unit))
+        skill_system.on_pairup(self.unit, self.target)
         game.leave(self.unit)
         self.unit.position = None
 
@@ -744,6 +745,7 @@ class PairUp(Action):
         self.unit.position = self.old_pos
         game.arrive(self.unit)
         self.target.paired_partner = None
+        skill_system.on_separate(self.unit, self.target)
 
         for action in self.subactions:
             action.reverse()
@@ -760,7 +762,10 @@ class SwapPaired(Action):
     def do(self):
         self.unit1.paired_partner = None
         self.unit2.paired_partner = self.unit1.nid
+        skill_system.on_separate(self.unit2, self.unit1)
+        skill_system.on_pairup(self.unit1, self.unit2)
         self.unit2.guard_gauge = self.unit1.guard_gauge
+
         game.leave(self.unit1)
         game.leave(self.unit2)
         self.unit1.position, self.unit2.position = self.pos2, self.pos1
@@ -775,6 +780,9 @@ class SwapPaired(Action):
     def reverse(self):
         self.unit1.paired_partner = self.unit2.nid
         self.unit2.paired_partner = None
+        skill_system.on_separate(self.unit1, self.unit2)
+        skill_system.on_pairup(self.unit2, self.unit1)
+
         self.update_fow_action1.reverse()
         self.update_fow_action2.reverse()
         game.leave(self.unit1)
@@ -785,9 +793,6 @@ class SwapPaired(Action):
         if not self.unit1.lead_unit:
             self.unit1.has_moved = True
 
-        '''
-        self.unit1.paired_partner = None
-        self.unit2.paired_partner = self.unit1'''
 
 # This is shamelessly copied from Drop, but I've kept it separate in case a madlad wants Rescue and Pair Up
 class Separate(Action):
@@ -810,7 +815,7 @@ class Separate(Action):
         self.unit.guard_gauge = 0
         self.unit.has_dropped = True
 
-        self.subactions.append(RemoveSkill(self.unit, "Rescue"))
+        skill_system.on_separate(self.droppee, self.unit)
         for action in self.subactions:
             action.do()
 
@@ -825,6 +830,7 @@ class Separate(Action):
         self.droppee.sprite.change_state('normal')
         self.droppee_wait_action.execute()
 
+        skill_system.on_separate(self.droppee, self.unit)
         for action in self.subactions:
             action.execute()
 
@@ -841,6 +847,7 @@ class Separate(Action):
         self.droppee.position = None
         self.unit.has_dropped = False
 
+        skill_system.on_pairup(self.droppee, self.unit)
         for action in self.subactions:
             action.reverse()
 
@@ -885,19 +892,39 @@ class Transfer(Action):
         self.other_gauge = other.guard_gauge
 
     def do(self):
+        if self.unit.paired_partner:
+            skill_system.on_separate(game.get_unit(self.unit.paired_partner), self.unit)
+        if self.other.paired_partner:
+            skill_system.on_separate(game.get_unit(self.other.paired_partner), self.other)
+
         self.unit.paired_partner = self.other.paired_partner
         self.unit.guard_gauge = self.other.guard_gauge//2
         self.other.paired_partner = self.first_partner
         self.other.guard_gauge = self.first_gauge//2
 
+        if self.first_partner:
+            skill_system.on_pairup(game.get_unit(self.first_partner), self.other)
+        if self.unit.paired_partner:
+            skill_system.on_pairup(game.get_unit(self.unit.paired_partner), self.unit)
+
         self.unit.has_given = True
 
     def reverse(self):
+        if self.unit.paired_partner:
+            skill_system.on_separate(game.get_unit(self.unit.paired_partner), self.unit)
+        if self.other.paired_partner:
+            skill_system.on_separate(game.get_unit(self.other.paired_partner), self.other)
+
         self.other.paired_partner = self.unit.paired_partner
         self.other.guard_gauge = self.other_gauge
         self.unit.paired_partner = self.first_partner
         self.unit.guard_gauge = self.first_gauge
         self.unit.has_given = False
+
+        if self.first_partner:
+            skill_system.on_pairup(game.get_unit(self.first_partner), self.unit)
+        if self.other.paired_partner:
+            skill_system.on_pairup(game.get_unit(self.other.paired_partner), self.other)
 
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):

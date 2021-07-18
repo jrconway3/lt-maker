@@ -45,7 +45,12 @@
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "pairuptest"
+            ]
+        ],
         "unit_notes": [
             [
                 "Likes",

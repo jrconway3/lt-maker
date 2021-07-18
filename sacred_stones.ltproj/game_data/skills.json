@@ -1093,5 +1093,25 @@
                 1.0
             ]
         ]
+    },
+    {
+        "nid": "pairuptest",
+        "name": "pairuptest",
+        "desc": "",
+        "icon_nid": "Affinity",
+        "icon_index": [
+            0,
+            1
+        ],
+        "components": [
+            [
+                "pairup_bonus",
+                "Defense +5"
+            ],
+            [
+                "class_skill",
+                null
+            ]
+        ]
     }
 ]

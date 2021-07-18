@@ -714,6 +714,44 @@ class Take(Action):
         for action in self.subactions:
             action.reverse()
 
+# === PAIR UP ACTIONS =======================================================
+
+class PairUp(Action):
+    def __init__(self, unit, target):
+        self.unit = unit
+        self.target = target
+        self.old_pos = self.unit.position
+        self.subactions = []
+
+    def do(self):
+        self.subactions.clear()
+        self.target.paired_partner = self.unit.nid
+
+        game.leave(self.unit)
+        self.unit.position = None
+        # self.unit.has_rescued = True
+
+        for action in self.subactions:
+            action.do()
+
+    def execute(self):
+        self.target.paired_partner = self.unit.nid
+
+        game.leave(self.unit)
+        self.unit.position = None
+        # self.unit.has_rescued = True
+
+        for action in self.subactions:
+            action.execute()
+
+    def reverse(self):
+        self.unit.position = self.old_pos
+        game.arrive(self.unit)
+        self.target.paired_partner = None
+        # self.unit.has_rescued = False
+
+        for action in self.subactions:
+            action.reverse()
 
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):

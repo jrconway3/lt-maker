@@ -236,8 +236,11 @@ class PairUpAbility(Ability):
 
     @staticmethod
     def do(unit):
-        # Change this later
-        game.state.change('trade')
+        u = game.board.get_unit(game.cursor.position)
+        action.do(action.PairUp(unit, u))
+        game.state.change('free')
+        game.cursor.set_pos(unit.position)
+        unit.wait()
 
 ABILITIES = Ability.__subclasses__()
 PRIMARY_ABILITIES = ABILITIES[:3]

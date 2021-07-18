@@ -723,8 +723,10 @@ class InfoMenuState(State):
             true_idx = idx + len(right_stats)
 
             if stat == 'TRV':
-                if self.unit.traveler:
+                if self.unit.traveler or self.unit.paired_partner:
                     trav = game.get_unit(self.unit.traveler)
+                    if self.unit.traveler is None:
+                        trav = game.get_unit(self.unit.paired_partner)
                     FONT['text-blue'].blit(trav.name, surf, (96, 16 * true_idx + 24))
                 else:
                     FONT['text-blue'].blit('--', surf, (96, 16 * true_idx + 24))

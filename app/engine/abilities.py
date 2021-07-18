@@ -239,7 +239,7 @@ class PairUpAbility(Ability):
         u = game.board.get_unit(game.cursor.position)
         action.do(action.PairUp(unit, u))
         game.state.change('free')
-        game.cursor.set_pos(unit.position)
+        game.cursor.set_pos(u.position)
         unit.wait()
 
 ABILITIES = Ability.__subclasses__()

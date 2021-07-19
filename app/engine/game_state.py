@@ -1,10 +1,8 @@
 from __future__ import annotations
-from app.resources.resources import RESOURCES
 
 import random
 import time
 from collections import Counter
-from ctypes import Union
 from typing import TYPE_CHECKING, Dict, List, Tuple
 
 if TYPE_CHECKING:
@@ -13,11 +11,9 @@ if TYPE_CHECKING:
         promotion, ui_view, banner, boundary, camera, cursor,
         initiative, records, save, supports, turnwheel, unit_sprite)
     from app.engine.combat.simple_combat import SimpleCombat
-    from app.engine.graphics.ingame_ui.overworld_ui import OverworldTravelUI
     from app.engine.overworld.overworld_movement_manager import \
         OverworldMovementManager
     from app.engine.overworld.overworld_manager import OverworldManager
-    from app.engine.overworld.overworld_map_view import OverworldMapView
     from app.engine.objects.difficulty_mode import DifficultyModeObject
     from app.engine.objects.item import ItemObject
     from app.engine.objects.level import LevelObject
@@ -29,13 +25,14 @@ if TYPE_CHECKING:
     from app.events.regions import Region
     from app.utilities.typing import NID
 
-import logging
-
 from app.constants import VERSION
 from app.data.database import DB
+from app.data.difficulty_modes import GrowthOption, PermadeathOption
 from app.engine import config as cf
 from app.engine import state_machine, static_random
+from app.resources.resources import RESOURCES
 
+import logging
 
 class GameState():
     def __init__(self):
@@ -187,8 +184,7 @@ class GameState():
         Done on loading a level, whether from overworld, last level, save_state, etc.
         """
         from app.engine import (ai_controller, camera, death, highlight,
-                                map_view, movement, phase,
-                                ui_view)
+                                map_view, movement, phase, ui_view)
 
         # Systems
         self.camera = camera.Camera(self)
@@ -217,9 +213,9 @@ class GameState():
         logging.debug("Starting Level %s", level_nid)
 
         from app.engine.initiative import InitiativeTracker
+        from app.engine.level_cursor import LevelCursor
         from app.engine.objects.level import LevelObject
         from app.engine.objects.tilemap import TileMapObject
-        from app.engine.level_cursor import LevelCursor
 
         level_nid = str(level_nid)
         level_prefab = DB.levels.get(level_nid)
@@ -320,9 +316,9 @@ class GameState():
     def load(self, s_dict):
         from app.engine import action, records, save, supports, turnwheel
         from app.engine.objects.difficulty_mode import DifficultyModeObject
-        from app.engine.objects.overworld import OverworldObject
         from app.engine.objects.item import ItemObject
         from app.engine.objects.level import LevelObject
+        from app.engine.objects.overworld import OverworldObject
         from app.engine.objects.party import PartyObject
         from app.engine.objects.skill import SkillObject
         from app.engine.objects.unit import UnitObject
@@ -531,15 +527,15 @@ class GameState():
     def default_mode(self):
         from app.engine.objects.difficulty_mode import DifficultyModeObject
         first_mode = DB.difficulty_modes[0]
-        if first_mode.permadeath_choice == 'Player Choice':
+        if first_mode.permadeath_choice == PermadeathOption.PLAYER_CHOICE:
             permadeath = False
         else:
-            permadeath = first_mode.permadeath_choice == 'Classic'
-        if first_mode.growths_choice == 'Player Choice':
-            growths = 'Fixed'
+            permadeath = first_mode.permadeath_choice == PermadeathOption.CLASSIC
+        if first_mode.growths_choice == GrowthOption.PLAYER_CHOICE:
+            growths = GrowthOption.FIXED
         else:
             growths = first_mode.growths_choice
-        return DifficultyModeObject(first_mode.nid, permadeath, growths)
+        return DifficultyModeObject.from_prefab(first_mode)
 
     @property
     def party(self):

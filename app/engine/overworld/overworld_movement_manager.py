@@ -68,7 +68,8 @@ class OverworldMovementManager():
         if entity.sound:
             entity.sound.stop()
         entity.sprite.change_state('normal')
-        entity.on_node = self.overworld.node_at(entity.temporary_position).nid
+        if self.overworld.node_at(entity.temporary_position):
+            entity.on_node = self.overworld.node_at(entity.temporary_position).nid
         if self.camera_follow == entity_nid:
             self.camera_follow = None
         if surprise:
@@ -77,6 +78,20 @@ class OverworldMovementManager():
 
         # clear the temporary position
         entity.temporary_position = None
+        entity.display_position = None
+
+    def finish_all_movement(self):
+        for entity_nid, data in self.moving_entities.items():
+            entity = self.overworld.entities[entity_nid]
+            destination = data.path[0]
+            if self.overworld.node_at(destination):
+                entity.on_node = self.overworld.node_at(destination).nid
+            if entity.sound:
+                entity.sound.stop()
+            entity.sprite.change_state('normal')
+            entity.temporary_position = None
+            entity.display_position = None
+        self.moving_entities = {}
 
     def interrupt_movement(self, nid: NID):
         """It is possible that we may want to cut specific entities' queued movements short.
@@ -140,7 +155,7 @@ class OverworldMovementManager():
                 entity.display_position = utils.tuple_add(utils.tmult(direction, percentage_progress), entity_position)
                 # update its direction
                 entity.sprite.update_sprite_direction(direction)
-            if percentage_progress >= 1:
+            else:
                 # we've finished walking a segment of the path
                 data.last_update = current_time + data.linger
                 new_position = data.path.pop()

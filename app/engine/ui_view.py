@@ -366,6 +366,7 @@ class UIView():
 
             if not attacker.paired_partner and d_assist and defender.get_weapon() and \
                     combat_calcs.can_counterattack(attacker, weapon, defender, defender.get_weapon()):
+                # Defender's dual attack
                 prefix = 'assist_info_'
                 if grandmaster:
                     infix = 'grandmaster'

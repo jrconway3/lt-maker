@@ -163,7 +163,12 @@
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "hit-100"
+            ]
+        ],
         "unit_notes": [],
         "wexp_gain": {
             "Sword": [

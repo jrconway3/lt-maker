@@ -1308,6 +1308,7 @@ class CombatTargetingState(MapState):
         self.attacker_assist = None
         self.defender_assist = None
         if DB.constants.value('pairup'):
+            # Players default dual strike partner
             self.adj_allies = target_system.get_adj_allies(self.cur_unit)
             # best_choice = None
             for ally in self.adj_allies:
@@ -1383,6 +1384,10 @@ class CombatTargetingState(MapState):
                 targets = [self.prev_targets]
             else:
                 targets = self.prev_targets
+
+        self.cur_unit.strike_partner = self.attacker_assist
+        if len(targets) == 1:
+            game.board.get_unit(targets[0]).strike_partner = self.defender_assist
 
         combat = interaction.engage(self.cur_unit, targets, main_item)
         game.combat_instance.append(combat)

@@ -53,6 +53,8 @@ class AttackerState(SolverState):
                 else:
                     attacker_outspeed = defender_outspeed = 1
 
+                if solver.attacker.strike_partner:
+                    return 'attacker_partner'
                 if solver.item_has_uses() and \
                         solver.num_subattacks < self.num_multiattacks:
                     return 'attacker'
@@ -82,6 +84,11 @@ class AttackerState(SolverState):
                 skill_system.start_sub_combat(actions, playback, defender, defender.get_weapon(), solver.attacker, 'defense')
                 solver.process(actions, playback, solver.attacker, defender, target_pos, item, defender.get_weapon(), 'attack')
                 skill_system.end_sub_combat(actions, playback, defender, defender.get_weapon(), solver.attacker, 'defense')
+
+                #if solver.attacker.strike_partner:
+                    # Checks for dual strike partner for attacker. No interaction with gauge code because you can't get here if enemy is dual guarded
+                #    solver.process(actions, playback, solver.attacker.strike_partner, defender, target_pos, item, defender.get_weapon(), 'attack')
+
             for target in splash:
                 skill_system.start_sub_combat(actions, playback, target, None, solver.attacker, 'defense')
                 solver.process(actions, playback, solver.attacker, target, target_pos, item, None, 'splash')
@@ -97,6 +104,65 @@ class AttackerState(SolverState):
 
         # End check attack proc
         skill_system.end_sub_combat(actions, playback, solver.attacker, solver.main_item, solver.defender, 'attack')
+
+class AttackerPartnerState(SolverState):
+    name = 'attacker_partner'
+    num_multiattacks = 1
+
+    def get_next_state(self, solver):
+        command = solver.get_script()
+        if solver.attacker_alive() and solver.defender_alive():
+            if command == '--':
+                if solver.defender:
+                    if DB.constants.value('def_double') or skill_system.def_double(solver.defender):
+                        defender_outspeed = combat_calcs.outspeed(solver.defender, solver.attacker, solver.def_item, solver.main_item, 'defense')
+                    else:
+                        defender_outspeed = 1
+                    attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
+                else:
+                    attacker_outspeed = defender_outspeed = 1
+
+                if solver.item_has_uses() and \
+                        solver.num_subattacks < self.num_multiattacks:
+                    return 'attacker'
+                elif solver.allow_counterattack() and \
+                        solver.num_defends < defender_outspeed:
+                    solver.num_subdefends = 0
+                    return 'defender'
+                elif solver.item_has_uses() and \
+                        solver.num_attacks < attacker_outspeed:
+                    solver.num_subattacks = 0
+                    return 'attacker'
+                return None
+            else:
+                return self.process_command(command)
+        else:
+            return None
+
+    def process(self, solver, actions, playback):
+        playback.append(('attacker_phase',))
+        # Check attack proc
+        atk_p = solver.attacker.strike_partner
+        skill_system.start_sub_combat(actions, playback, atk_p, solver.main_item, solver.defender, 'attack')
+        for idx, item in enumerate(solver.items):
+            defender = solver.defenders[idx]
+            splash = solver.splashes[idx]
+            target_pos = solver.target_positions[idx]
+            if defender:
+                skill_system.start_sub_combat(actions, playback, defender, defender.get_weapon(), atk_p, 'defense')
+                solver.process(actions, playback, atk_p, defender, target_pos, item, defender.get_weapon(), 'attack')
+                skill_system.end_sub_combat(actions, playback, defender, defender.get_weapon(), atk_p, 'defense')
+
+            for target in splash:
+                skill_system.start_sub_combat(actions, playback, target, None, atk_p, 'defense')
+                solver.process(actions, playback, atk_p, target, target_pos, item, None, 'splash')
+                skill_system.end_sub_combat(actions, playback, target, None, atk_p, 'defense')
+            # Make sure that we run on_hit even if otherwise unavailable
+            if not defender and not splash:
+                solver.simple_process(actions, playback, atk_p, atk_p, target_pos, item, None, None)
+
+        # End check attack proc
+        skill_system.end_sub_combat(actions, playback, atk_p, solver.main_item, solver.defender, 'attack')
 
 class DefenderState(SolverState):
     name = 'defender'
@@ -138,6 +204,10 @@ class DefenderState(SolverState):
 
         solver.process(actions, playback, solver.defender, solver.attacker, solver.attacker.position, solver.def_item, solver.main_item, 'defense')
 
+        if solver.defender.strike_partner:
+            # Checks for dual strike partner for attacker. No interaction with gauge code because you can't get here if enemy is dual guarded
+            solver.process(actions, playback, solver.defender.strike_partner, solver.attacker, solver.attacker.position, solver.def_item, solver.main_item, 'defense')
+
         # Remove defending unit's proc skills (which is solver.attacker)
         skill_system.end_sub_combat(actions, playback, solver.attacker, solver.main_item, solver.defender, 'defense')
 
@@ -152,7 +222,8 @@ class DefenderState(SolverState):
 class CombatPhaseSolver():
     states = {'init': InitState,
               'attacker': AttackerState,
-              'defender': DefenderState}
+              'defender': DefenderState,
+              'attacker_partner': AttackerPartnerState}
 
     def __init__(self, attacker, main_item, items, defenders,
                  splashes, target_positions, defender, def_item,
@@ -300,21 +371,3 @@ class CombatPhaseSolver():
 
     def target_item_has_uses(self):
         return self.defender and self.def_item and item_funcs.available(self.defender, self.def_item)
-
-    def increment_guard_gauge(self, unit):
-        # Not permanent but works for now
-        if isinstance(unit, list):
-            for u in unit:
-                mg = u.max_guard
-                gi = u.gauge_inc
-                if u.paired_partner and u.guard_gauge != mg:
-                    u.guard_gauge += gi
-                    if u.guard_gauge > mg:
-                        u.guard_gauge = mg
-        else:
-            mg = unit.max_guard
-            gi = unit.gauge_inc
-            if unit.paired_partner and unit.guard_gauge != mg:
-                unit.guard_gauge += gi
-                if unit.guard_gauge > mg:
-                    unit.guard_gauge = mg

@@ -1113,5 +1113,45 @@
                 null
             ]
         ]
+    },
+    {
+        "nid": "hit-100",
+        "name": "hit-100",
+        "desc": "testing purposes",
+        "icon_nid": "",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "class_skill",
+                null
+            ],
+            [
+                "hit",
+                -111
+            ]
+        ]
+    },
+    {
+        "nid": "hit+100",
+        "name": "hit+100",
+        "desc": "",
+        "icon_nid": "",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "class_skill",
+                null
+            ],
+            [
+                "hit",
+                100
+            ]
+        ]
     }
 ]

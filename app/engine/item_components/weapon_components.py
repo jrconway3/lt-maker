@@ -85,7 +85,11 @@ class Damage(ItemComponent):
         return False
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
-        damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
+        if playback and (playback[0] == ('attacker_partner_phase',) or \
+                playback[0] == ('defender_partner_phase',)):
+            damage = combat_calcs.compute_assist_damage(unit, target, item, target.get_weapon(), mode)
+        else:
+            damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
 
         true_damage = min(damage, target.get_hp())
         actions.append(action.ChangeHP(target, -damage))

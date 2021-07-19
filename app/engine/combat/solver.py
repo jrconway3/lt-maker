@@ -179,6 +179,8 @@ class DefenderState(SolverState):
                 attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
                 # self.num_multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
 
+                if solver.defender.strike_partner:
+                    return 'defender_partner'
                 if solver.allow_counterattack() and \
                         solver.num_subdefends < self.num_multiattacks:
                     return 'defender'
@@ -204,10 +206,6 @@ class DefenderState(SolverState):
 
         solver.process(actions, playback, solver.defender, solver.attacker, solver.attacker.position, solver.def_item, solver.main_item, 'defense')
 
-        if solver.defender.strike_partner:
-            # Checks for dual strike partner for attacker. No interaction with gauge code because you can't get here if enemy is dual guarded
-            solver.process(actions, playback, solver.defender.strike_partner, solver.attacker, solver.attacker.position, solver.def_item, solver.main_item, 'defense')
-
         # Remove defending unit's proc skills (which is solver.attacker)
         skill_system.end_sub_combat(actions, playback, solver.attacker, solver.main_item, solver.defender, 'defense')
 
@@ -219,11 +217,60 @@ class DefenderState(SolverState):
         # Remove attacking unit's proc skills (which is solver.defender)
         skill_system.end_sub_combat(actions, playback, solver.defender, solver.def_item, solver.attacker, 'attack')
 
+class DefenderPartnerState(SolverState):
+    name = 'defender_partner'
+    num_multiattacks = 1
+
+    def get_next_state(self, solver):
+        command = solver.get_script()
+        if solver.attacker_alive() and solver.defender_alive():
+            if command == '--':
+                if DB.constants.value('def_double') or skill_system.def_double(solver.defender):
+                    defender_outspeed = combat_calcs.outspeed(solver.defender, solver.attacker, solver.def_item, solver.main_item, 'defense')
+                else:
+                    defender_outspeed = 1
+                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
+                # self.num_multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
+
+                if solver.allow_counterattack() and \
+                        solver.num_subdefends < self.num_multiattacks:
+                    return 'defender'
+                elif solver.item_has_uses() and \
+                        solver.num_attacks < attacker_outspeed:
+                    solver.num_subattacks = 0
+                    return 'attacker'
+                elif solver.allow_counterattack() and \
+                        solver.num_defends < defender_outspeed:
+                    solver.num_subdefends = 0
+                    return 'defender'
+                return None
+            else:
+                return self.process_command(command)
+        else:
+            return None
+
+    def process(self, solver, actions, playback):
+        playback.append(('defender_partner_phase',))
+        def_p = solver.defender.strike_partner
+        # Check for proc skills
+        skill_system.start_sub_combat(actions, playback, def_p, solver.def_item, solver.attacker, 'attack')
+        skill_system.start_sub_combat(actions, playback, solver.attacker, solver.main_item, def_p, 'defense')
+
+        solver.process(actions, playback, def_p, solver.attacker, solver.attacker.position, solver.def_item, solver.main_item, 'defense')
+
+        # Remove defending unit's proc skills (which is solver.attacker)
+        skill_system.end_sub_combat(actions, playback, solver.attacker, solver.main_item, def_p, 'defense')
+
+        # Remove attacking unit's proc skills (which is solver.defender)
+        skill_system.end_sub_combat(actions, playback, def_p, solver.def_item, solver.attacker, 'attack')
+
+
 class CombatPhaseSolver():
     states = {'init': InitState,
               'attacker': AttackerState,
               'defender': DefenderState,
-              'attacker_partner': AttackerPartnerState}
+              'attacker_partner': AttackerPartnerState,
+              'defender_partner': DefenderPartnerState}
 
     def __init__(self, attacker, main_item, items, defenders,
                  splashes, target_positions, defender, def_item,

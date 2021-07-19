@@ -432,18 +432,18 @@ def on_crit(actions, playback, unit, item, target, target_pos, mode, first_item)
         if not any(brush for brush in playback if brush[0] == 'crit_tint'):
             playback.append(('crit_tint', target, (255, 255, 255)))
 
-def on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, first_item, assist=False):
+def on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, first_item):
     for component in item.components:
         if component.defines('on_glancing_hit'):
-            component.on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, assist)
+            component.on_glancing_hit(actions, playback, unit, item, target, target_pos, mode)
         elif component.defines('on_hit'):
-            component.on_hit(actions, playback, unit, item, target, target_pos, mode, assist)
+            component.on_hit(actions, playback, unit, item, target, target_pos, mode)
     if item.parent_item and first_item:
         for component in item.parent_item.components:
             if component.defines('on_glancing_hit'):
-                component.on_glancing_hit(actions, playback, unit, item.parent_item, target, target_pos, mode, assist)
+                component.on_glancing_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
             elif component.defines('on_hit'):
-                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode, assist)
+                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
 
     # Default playback
     if target and find_hp(actions, target) <= 0:

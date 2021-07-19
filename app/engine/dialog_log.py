@@ -72,8 +72,8 @@ class DialogLog:
         """
         return re.sub(r'({\w*})|(\|)|(;)/', ' ', s)
 
-    @staticmethod
-    def restore(entries: List[Tuple[str, str]]):
-        d = DialogLog()
+    @classmethod
+    def restore(cls, entries: List[Tuple[str, str]]):
+        d = cls()
         d.load(entries)
         return d

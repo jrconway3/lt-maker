@@ -37,7 +37,7 @@ class DialogLogContainer(UIComponent):
     def __init__(self, name, parent=None):
         super().__init__(name=name, parent=parent)
         self.props.layout = UILayoutType.LIST
-        self.props.bg_color: Color4 = (33, 33, 33, 225)
+        self.props.bg_color = (33, 33, 33, 225)
         self.props.list_style = ListLayoutStyle.COLUMN
         self.text_objects: List[TextComponent] = []
         self.scroll_height = self.parent.height

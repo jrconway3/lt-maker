@@ -189,8 +189,8 @@ class Swap(Action):
         self.unit2 = unit2
         self.pos1 = unit1.position
         self.pos2 = unit2.position
-        self.update_fow_action1 = UpdateFogOfWar(self.unit)
-        self.update_fow_action2 = UpdateFogOfWar(self.unit)
+        self.update_fow_action1 = UpdateFogOfWar(self.unit1)
+        self.update_fow_action2 = UpdateFogOfWar(self.unit2)
 
     def do(self):
         game.leave(self.unit1)

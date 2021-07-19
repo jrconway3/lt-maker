@@ -92,6 +92,20 @@ class GBAStealIcon(StealIcon, SkillComponent):
             return False
         return True
 
+class AlternateBattleAnim(SkillComponent):
+    nid = 'alternate_battle_anim'
+    desc = "Use a specific pose when attacking in an animation combat (except on miss)"
+    tag = 'aesthetic'
+
+    expose = Type.String
+    value = 'Critical'
+
+    def alternate_battle_pose(self, playback, unit, item, target):
+        marks = [mark[0] for mark in playback]
+        if 'mark_hit' in marks or 'mark_crit' in marks:
+            return self.value
+        return None
+
 """  # Need to wait for Combat Animations implementation
 class PreCombatEffect(SkillComponent):
     nid = 'pre_combat_effect'

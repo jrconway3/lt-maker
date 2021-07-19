@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pygame
-
 from app.engine.fonts import FONT
 from app.constants import WINWIDTH, WINHEIGHT
 
@@ -14,18 +12,15 @@ class DialogEntryComponent(UIComponent):
     def __init__(self, name, speaker, text, parent=None):
         super().__init__(name=name, parent=parent)
 
-        self.horizontal_padding = 5
-        self.vertical_padding = 10
-
         self.props.layout = UILayoutType.LIST
 
         self.props.list_style = ListLayoutStyle.COLUMN
         self.speaker = TextComponent("speaker", speaker, self)
-        self.speaker.padding = (self.horizontal_padding, 0, 0, 0)
+        self.speaker.padding = (5, 0, 0, 0)
         self.speaker.set_font(FONT['text-yellow'])
 
         self.text = TextComponent("dialog text", text, self)
-        self.text.padding = (self.horizontal_padding, self.horizontal_padding, 0, self.vertical_padding)
+        self.text.padding = (5, 5, 0, 10)
         self.text.set_num_lines(0)
         self.size = self.calculate_size()
 
@@ -42,14 +37,10 @@ class DialogLogContainer(UIComponent):
     def __init__(self, name, parent=None):
         super().__init__(name=name, parent=parent)
         self.props.layout = UILayoutType.LIST
-        self.props.bg_color = pygame.Color(33,33,33, 225)
+        self.props.bg_color: Color4 = (33, 33, 33, 225)
         self.props.list_style = ListLayoutStyle.COLUMN
         self.text_objects: List[TextComponent] = []
         self.scroll_height = self.parent.height
-
-    def _init_animations(self):
-        scroll_all_the_way = component_scroll_anim(('0%', '0%'), ('0%','100%'), 3000)
-        self.save_animation(scroll_all_the_way, 'scroll_all')
 
     def scroll_up_down(self, dist):
         self.scroll = (self.scroll[0], self.scroll[1] + dist)

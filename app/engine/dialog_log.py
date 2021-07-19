@@ -72,8 +72,8 @@ class DialogLog:
         """
         return re.sub(r'({\w*})|(\|)|(;)/', ' ', s)
 
-# Shorthand creating and loading from tuple.
-def load_from_entries(entries: List[Tuple[str, str]]):
-    d = DialogLog()
-    d.load(entries)
-    return d
+    @staticmethod
+    def restore(entries: List[Tuple[str, str]]):
+        d = DialogLog()
+        d.load(entries)
+        return d

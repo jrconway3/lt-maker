@@ -183,7 +183,7 @@ class GameState():
         self.base_convos = {}
         self.action_log = turnwheel.ActionLog()
         self.events = event_manager.EventManager()
-        game.dialog_log.clear()
+        self.dialog_log.clear()
 
     def generic(self):
         """
@@ -371,9 +371,7 @@ class GameState():
         self.parties = {party_data['nid']: PartyObject.restore(party_data) for party_data in s_dict['parties']}
         self.market_items = s_dict.get('market_items', set())
         self.unlocked_lore = s_dict.get('unlocked_lore', [])
-        self.dialog_log = s_dict.get('dialog_log', dialog_log.DialogLog())
-        if isinstance(self.dialog_log, list):
-            self.dialog_log = dialog_log.load_from_entries(self.dialog_log)
+        self.dialog_log = dialog_log.DialogLog.restore(s_dict.get('dialog_log', []))
 
         self.already_triggered_events = s_dict.get('already_triggered_events', [])
         self.talk_options = s_dict.get('talk_options', [])

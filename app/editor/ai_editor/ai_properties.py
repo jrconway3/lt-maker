@@ -75,31 +75,38 @@ class UnitSpecification(QWidget):
 
         self.setLayout(self.layout)
 
-    def unit_spec_changed(self):
+    def unit_spec_changed(self, recurse=True):
         unit_spec = self.box1.currentText()
         self.box2.setEnabled(True)
         self.except_check_box.setEnabled(True)
         if unit_spec == "Class":
             self.box2.setCurrentIndex(1)
-            self.sub_spec_changed()
+            if recurse:
+                self.sub_spec_changed()
         elif unit_spec == "Tag":
             self.box2.setCurrentIndex(2)
-            self.sub_spec_changed()
+            if recurse:
+                self.sub_spec_changed()
         elif unit_spec == "Name":
             self.box2.setCurrentIndex(3)
-            self.sub_spec_changed()
+            if recurse:
+                self.sub_spec_changed()
         elif unit_spec == "Team":
             self.box2.setCurrentIndex(4)
-            self.sub_spec_changed()
+            if recurse:
+                self.sub_spec_changed()
         elif unit_spec == "Faction":
             self.box2.setCurrentIndex(5)
-            self.sub_spec_changed()
+            if recurse:
+                self.sub_spec_changed()
         elif unit_spec == "Party":
             self.box2.setCurrentIndex(6)
-            self.sub_spec_changed()
+            if recurse:
+                self.sub_spec_changed()
         elif unit_spec == "ID":
             self.box2.setCurrentIndex(7)
-            self.sub_spec_changed()
+            if recurse:
+                self.sub_spec_changed()
         else:
             self.box2.setCurrentIndex(0)
             self.box2.setEnabled(False)
@@ -121,11 +128,12 @@ class UnitSpecification(QWidget):
         self.except_check_box.setChecked(bool(self.window.current.invert_targeting))
         if target_spec:
             self.box1.setValue(target_spec[0])
+            self.unit_spec_changed(recurse=False)
             self.box2.currentWidget().setValue(target_spec[1])
         else:
             self.box1.setValue("All")
+            self.unit_spec_changed(recurse=False)
             self.except_check_box.setEnabled(False)
-        self.unit_spec_changed()
 
 class EventSpecification(QWidget):
     def __init__(self, parent=None):

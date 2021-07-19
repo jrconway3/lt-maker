@@ -100,7 +100,7 @@ class AlternateBattleAnim(SkillComponent):
     expose = Type.String
     value = 'Critical'
 
-    def alternate_battle_pose(self, playback, unit, item, target):
+    def alternate_battle_pose(self, playback, unit, item, target, mode):
         marks = [mark[0] for mark in playback]
         if 'mark_hit' in marks or 'mark_crit' in marks:
             return self.value

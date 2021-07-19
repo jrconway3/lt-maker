@@ -515,8 +515,9 @@ class AnimationCombat(BaseCombat, MockCombat):
                 self.current_battle_anim = self.left_battle_anim
             else:
                 self.current_battle_anim = self.right_battle_anim
+        mode = 'attack' if attacking_unit is self.attacker else 'defense'
         alternate_pose = skill_system.alternate_battle_pose(
-            self.playback, attacking_unit, self.current_battle_anim.item, defending_unit)
+            self.playback, attacking_unit, self.current_battle_anim.item, defending_unit, mode)
         if alternate_pose and self.current_battle_anim.has_anim(alternate_pose):
             self.current_battle_anim.start_anim(alternate_pose)
         elif self.get_from_playback('mark_crit'):

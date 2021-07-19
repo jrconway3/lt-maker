@@ -1,2 +1,0 @@
-- Have you tried saving and reloading the game to see if the dialog log persists through a save?
-- And have you checked turnwheeling back an event, and make sure the dialog log represents the current point time

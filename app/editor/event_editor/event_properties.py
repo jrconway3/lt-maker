@@ -326,6 +326,11 @@ class CodeEditor(QPlainTextEdit):
         if tc.blockNumber() <= 0 and cursor_pos <= 0:  # Remove if cursor is at the very top left of event
             return
         if self.prev_keyboard_press == Qt.Key_Backspace or self.prev_keyboard_press == Qt.Key_Return: # don't do autocomplete on backspace
+            try:
+                if self.completer.popup().isVisible():
+                    self.completer.popup().hide()
+            except: # popup doesn't exist?
+                pass
             return
 
         # determine what dictionary to use for completion

@@ -1,38 +1,35 @@
-from app.utilities.algorithms.interpolation import cubic_easing, tcubic_easing
-from app.engine.overworld.overworld_movement_manager import OverworldMovementManager
+import logging
+import re
 from typing import Callable, Dict, List
+
+import app.engine.config as cf
+import app.engine.graphics.ui_framework as uif
+from app.constants import WINHEIGHT, WINWIDTH
+from app.data.database import DB
+from app.data.level_units import GenericUnit, UniqueUnit
+from app.engine import (action, background, banner, dialog, engine, evaluate,
+                        icons, image_mods, item_funcs, item_system,
+                        skill_system, static_random, target_system, unit_funcs)
+from app.engine.animations import MapAnimation
+from app.engine.combat import interaction
+from app.engine.game_state import game
 from app.engine.graphics.dialog.narration_dialogue import NarrationDialogue
+from app.engine.objects.item import ItemObject
+from app.engine.objects.overworld import OverworldNodeObject
+from app.engine.objects.tilemap import TileMapObject
+from app.engine.objects.unit import UnitObject
 from app.engine.overworld.overworld_actions import OverworldMove
 from app.engine.overworld.overworld_map_view import OverworldMapView
-from app.engine.objects.overworld import OverworldNodeObject
-from app.utilities.typing import NID
-import app.engine.graphics.ui_framework as uif
-import re
-import app.engine.config as cf
-
-from app.constants import WINWIDTH, WINHEIGHT
-from app.utilities import utils, str_utils
-
-from app.resources.resources import RESOURCES
-
-from app.data.database import DB
-from app.events import event_commands, regions
-from app.events.event_portrait import EventPortrait
-from app.data.level_units import UniqueUnit, GenericUnit
-
-from app.engine import dialog, engine, background, target_system, action, \
-    item_funcs, item_system, banner, skill_system, unit_funcs, \
-    evaluate, static_random, image_mods, icons
-from app.engine.combat import interaction
-from app.engine.objects.unit import UnitObject
-from app.engine.objects.item import ItemObject
-from app.engine.objects.tilemap import TileMapObject
-from app.engine.animations import MapAnimation
+from app.engine.overworld.overworld_movement_manager import \
+    OverworldMovementManager
 from app.engine.sound import SOUNDTHREAD
 from app.engine.game_state import game
-
-
-import logging
+from app.events import event_commands, regions
+from app.events.event_portrait import EventPortrait
+from app.resources.resources import RESOURCES
+from app.utilities import str_utils, utils
+from app.utilities.algorithms.interpolation import cubic_easing, tcubic_easing
+from app.utilities.typing import NID
 
 screen_positions = {'OffscreenLeft': -96,
                     'FarLeft': -24,
@@ -41,6 +38,7 @@ screen_positions = {'OffscreenLeft': -96,
                     'CenterLeft': 24,
                     'CenterRight': 120,
                     'MidRight': 120,
+                    'LevelUpRight': 140,
                     'Right': 144,
                     'FarRight': 168,
                     'OffscreenRight': 240}
@@ -111,7 +109,9 @@ class Event():
 
         # a method of queueing unblocked actions that require updating (e.g. movement)
         # update functions should return False once they are finished (so they can be removed from the queue)
-        self.should_update: List[Callable[[], bool]] = []
+        # they should receive an argument that represents whether or not we're in skip mode to facilitate skipping
+        # and avoid infinite loops.
+        self.should_update: List[Callable[[bool], bool]] = []
 
     @property
     def unit1(self):
@@ -149,7 +149,7 @@ class Event():
     def update(self):
         current_time = engine.get_time()
         # update all internal updates, remove the ones that are finished
-        self.should_update = [to_update for to_update in self.should_update if not to_update()]
+        self.should_update = [to_update for to_update in self.should_update if not to_update(self.do_skip)]
 
         # Can move through its own internal state up to 5 times in a frame
         counter = 0
@@ -353,7 +353,7 @@ class Event():
         self.text_boxes.clear()
         self.should_remain_blocked.clear()
         while self.should_update:
-            self.should_update = [to_update for to_update in self.should_update if not to_update()]
+            self.should_update = [to_update for to_update in self.should_update if not to_update(self.do_skip)]
 
     def hurry_up(self):
         if self.text_boxes:
@@ -822,6 +822,14 @@ class Event():
             mana = int(values[1])
             action.do(action.SetMana(unit, mana))
 
+        elif command.nid == 'add_fatigue':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            fatigue = int(values[1])
+            action.do(action.ChangeFatigue(unit, fatigue))
 
         elif command.nid == 'resurrect':
             values, flags = event_commands.parse(command)
@@ -1198,6 +1206,9 @@ class Event():
 
         elif command.nid == 'trigger_script':
             self.trigger_script(command)
+
+        elif command.nid == 'loop_units':
+            self.loop_units(command)
 
         elif command.nid == 'change_roaming':
             self.change_roaming(command)
@@ -1972,7 +1983,9 @@ class Event():
             return
         # Get input
         assign_unit = False
-        unit_nid = values[1]
+        unit_nid = None
+        if len(values) > 1 and values[1]:
+            unit_nid = values[1]
         if not unit_nid:
             unit_nid = str_utils.get_next_int('201', [unit.nid for unit in game.units])
             assign_unit = True
@@ -2476,6 +2489,9 @@ class Event():
         player_units = game.get_units_in_party()
         stuck_units = [unit for unit in player_units if unit.position and not game.check_for_region(unit.position, 'formation')]
         unstuck_units = [unit for unit in player_units if unit not in stuck_units and not game.check_for_region(unit.position, 'formation')]
+        unstuck_units = [unit for unit in unstuck_units if 'Blacklist' not in unit.tags]
+        if DB.constants.value('fatigue') and game.game_vars.get('_fatigue') == 1:
+            unstuck_units = [unit for unit in unstuck_units if unit.get_fatigue() < unit.get_max_fatigue()]
         num_slots = game.level_vars.get('_prep_slots')
         all_formation_spots = game.get_open_formation_spots()
         if num_slots is None:
@@ -2571,6 +2587,20 @@ class Event():
             logging.error("Couldn't find any valid events matching name %s" % trigger_script)
             return
 
+    def loop_units(self, command):
+        unit_list_str = command.values[0]
+        try:
+            unit_list = evaluate.evaluate(unit_list_str)
+        except Exception as e:
+            logging.error("%s: Could not evalute {%s}" % (e, unit_list_str))
+            return
+        if not unit_list:
+            logging.warning("No units returned for list: %s" % (unit_list_str))
+            return
+        for unit_nid in reversed(unit_list):
+            macro_command = event_commands.TriggerScript([command.values[1], unit_nid])
+            self.commands.insert(self.command_idx + 1, macro_command)
+
     def change_roaming(self, command):
         values, flags = event_commands.parse(command)
         val = values[0].lower()
@@ -2594,7 +2624,11 @@ class Event():
         if values:
             overworld_nid = values[0]
         else:
-            overworld_nid = DB.overworlds.values()[0].nid
+            if DB.overworlds.values():
+                overworld_nid = DB.overworlds.values()[0].nid
+            else:
+                logging.error('No overworlds in the DB - why are you calling the overworld command?')
+                return
         from app.engine.overworld.overworld_states import OverworldState
         OverworldState.set_up_overworld_game_state(overworld_nid)
 
@@ -2707,10 +2741,13 @@ class Event():
                     game.camera.do_slow_pan(1000)
                     game.camera.set_center(entity.position[0], entity.position[1])
 
-                    def update_movement():
+                    def update_movement(should_skip: bool):
+                        if should_skip:
+                            self.overworld_movement_manager.finish_all_movement()
+                            return True
                         # make sure the camera is centered first
                         if not game.camera.at_rest():
-                            return
+                            return False
                         self.overworld_movement_manager.update()
                         focal_unit_nid = self.overworld_movement_manager.get_following_unit()
                         if focal_unit_nid:

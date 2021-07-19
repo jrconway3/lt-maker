@@ -1051,6 +1051,10 @@
                     128,
                     248
                 ]
+            ],
+            [
+                "alternate_battle_anim",
+                "Critical"
             ]
         ]
     },

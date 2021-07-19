@@ -39,20 +39,9 @@ class DialogLog:
         self.entries: List[Tuple[str, str]] = []
         self.last_entry: DialogEntryComponent = None
 
-    def append(self, *args):
-        if isinstance(args[0], list):
-            self._append_tuple(args[0])
-        else:
-            self._append_dialog(args[0])
-
-    def _append_tuple(self, t: Tuple[str, str]):
-        speaker, text = t[0], t[1]
-        self.last_entry = self.ui.add_entry(speaker, text)
-        self.entries.append((speaker, text))
-
-    def _append_dialog(self, dialog: Dialog):
-        speaker = dialog.speaker
-        text = self.clean_speak_text(dialog.plain_text)
+    def append(self, dialog_tuple: Tuple[str, str]):
+        speaker, text = dialog_tuple[0], dialog_tuple[1]
+        text = DialogLog.clean_speak_text(text)
         self.last_entry = self.ui.add_entry(speaker, text)
         self.entries.append((speaker, text))
 
@@ -73,7 +62,8 @@ class DialogLog:
         for entry in entries:
             self.append(entry)
 
-    def clean_speak_text(self, s):
+    @staticmethod
+    def clean_speak_text(s):
         """Returns a copy of the "speak" command text without any commands
 
         >>> s = 'This is a test| with{w}{br} commands.'

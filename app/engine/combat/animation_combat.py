@@ -509,7 +509,12 @@ class AnimationCombat(BaseCombat, MockCombat):
                 self.current_battle_anim = self.left_battle_anim
             else:
                 self.current_battle_anim = self.right_battle_anim
-        if self.get_from_playback('mark_crit'):
+        alternate_pose = self.get_from_playback('alternate_battle_pose')
+        if alternate_pose:
+            alternate_pose = alternate_pose[0][1]
+        if alternate_pose and self.current_battle_anim.has_pose(alternate_pose):
+            self.current_battle_anim.start_anim(alternate_pose)
+        elif self.get_from_playback('mark_crit'):
             self.current_battle_anim.start_anim('Critical')
         elif self.get_from_playback('mark_hit'):
             self.current_battle_anim.start_anim('Attack')

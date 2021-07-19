@@ -25,7 +25,6 @@ if TYPE_CHECKING:
     from app.engine.objects.party import PartyObject
     from app.engine.objects.skill import SkillObject
     from app.engine.objects.unit import UnitObject
-    from app.engine.dialog_log import DialogLog
     from app.events.event_manager import EventManager
     from app.events.regions import Region
     from app.utilities.typing import NID
@@ -493,6 +492,8 @@ class GameState():
 
         # Handle player death
         for unit in self.unit_registry.values():
+            if unit.dead:
+                action.do(action.ChangeFatigue(unit, -unit.get_fatigue()))  # Reset fatigue
             if unit.dead and unit.team == 'player':
                 if not game.current_mode.permadeath:
                     unit.dead = False  # Resurrect unit

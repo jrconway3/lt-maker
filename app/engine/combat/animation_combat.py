@@ -499,26 +499,20 @@ class AnimationCombat(BaseCombat, MockCombat):
 
     def set_up_combat_animation(self):
         self.state = 'anim'
-        attacking_unit = self.right
-        defending_unit = self.left
         if self.get_from_playback('defender_phase'):
             if self.attacker is self.left:
                 self.current_battle_anim = self.right_battle_anim
             else:
-                attacking_unit = self.left
-                defending_unit = self.right
                 self.current_battle_anim = self.left_battle_anim
         else:
             if self.attacker is self.left:
-                attacking_unit = self.left
-                defending_unit = self.right
                 self.current_battle_anim = self.left_battle_anim
             else:
                 self.current_battle_anim = self.right_battle_anim
-        mode = 'attack' if attacking_unit is self.attacker else 'defense'
-        alternate_pose = skill_system.alternate_battle_pose(
-            self.playback, attacking_unit, self.current_battle_anim.item, defending_unit, mode)
-        if alternate_pose and self.current_battle_anim.has_anim(alternate_pose):
+        alternate_pose = self.get_from_playback('alternate_battle_pose')
+        if alternate_pose:
+            alternate_pose = alternate_pose[0][1]
+        if alternate_pose and self.current_battle_anim.has_pose(alternate_pose):
             self.current_battle_anim.start_anim(alternate_pose)
         elif self.get_from_playback('mark_crit'):
             self.current_battle_anim.start_anim('Critical')

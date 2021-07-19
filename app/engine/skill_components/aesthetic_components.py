@@ -100,17 +100,7 @@ class AlternateBattleAnim(SkillComponent):
     expose = Type.String
     value = 'Critical'
 
-    def alternate_battle_pose(self, playback, unit, item, target, mode):
+    def after_hit(self, actions, playback, unit, item, target, mode):
         marks = [mark[0] for mark in playback]
         if 'mark_hit' in marks or 'mark_crit' in marks:
-            return self.value
-        return None
-
-"""  # Need to wait for Combat Animations implementation
-class PreCombatEffect(SkillComponent):
-    nid = 'pre_combat_effect'
-    desc = "Displays an effect before combat"
-
-    def pre_combat_effect(self, unit):
-        return None
-"""
+            playback.append(('alternate_battle_pose', self.value))

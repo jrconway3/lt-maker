@@ -1755,6 +1755,7 @@ class LogDialog(Action):
         game.dialog_log.append(self.dialog_entry)
 
     def reverse(self):
+        print('Reversed!')
         game.dialog_log.pop()
 
 class AddRegion(Action):

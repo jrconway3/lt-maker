@@ -184,6 +184,7 @@ class GameState():
         self.base_convos = {}
         self.action_log = turnwheel.ActionLog()
         self.events = event_manager.EventManager()
+        game.dialog_log.clear()
 
     def generic(self):
         """
@@ -295,7 +296,7 @@ class GameState():
                   'records': self.records.save(),
                   'market_items': self.market_items,  # Item nids
                   'unlocked_lore': self.unlocked_lore,
-                  'dialog_log': self.dialog_log,
+                  'dialog_log': self.dialog_log.save(),
                   'already_triggered_events': self.already_triggered_events,
                   'talk_options': self.talk_options,
                   'base_convos': self.base_convos,
@@ -322,7 +323,7 @@ class GameState():
         return s_dict, meta_dict
 
     def load(self, s_dict):
-        from app.engine import action, records, save, supports, turnwheel
+        from app.engine import action, records, save, supports, turnwheel, dialog_log
         from app.engine.objects.difficulty_mode import DifficultyModeObject
         from app.engine.objects.overworld import OverworldObject
         from app.engine.objects.item import ItemObject
@@ -371,7 +372,10 @@ class GameState():
         self.parties = {party_data['nid']: PartyObject.restore(party_data) for party_data in s_dict['parties']}
         self.market_items = s_dict.get('market_items', set())
         self.unlocked_lore = s_dict.get('unlocked_lore', [])
-        self.dialog_log = s_dict.get('dialog_log', [])
+        self.dialog_log = s_dict.get('dialog_log', dialog_log.DialogLog())
+        if isinstance(self.dialog_log, list):
+            self.dialog_log = dialog_log.load_from_entries(self.dialog_log)
+
         self.already_triggered_events = s_dict.get('already_triggered_events', [])
         self.talk_options = s_dict.get('talk_options', [])
         self.base_convos = s_dict.get('base_convos', {})

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 import pygame
 
 from app.engine.fonts import FONT
@@ -11,18 +10,8 @@ from app.engine.graphics.ui_framework.ui_framework_layout import UILayoutType, V
 from app.engine.graphics.ui_framework.premade_components import TextComponent
 from app.engine.graphics.ui_framework.premade_animations import component_scroll_anim
 
-def clean_speak_text(s):
-    """Returns a copy of the "speak" command text without any commands
-
-    >>> s = 'This is a test| with{w}{br} commands.'
-    >>> clean_text(s)
-    >>> 'This is a test with commands.'
-    """
-    return re.sub(r'({\w*})|(\|)|(;)/', ' ', s)
-
-
 class DialogEntryComponent(UIComponent):
-    def __init__(self, name, dialog, parent=None):
+    def __init__(self, name, speaker, text, parent=None):
         super().__init__(name=name, parent=parent)
 
         self.horizontal_padding = 5
@@ -31,11 +20,9 @@ class DialogEntryComponent(UIComponent):
         self.props.layout = UILayoutType.LIST
 
         self.props.list_style = ListLayoutStyle.COLUMN
-        self.speaker = TextComponent("speaker", dialog.speaker, self)
+        self.speaker = TextComponent("speaker", speaker, self)
         self.speaker.padding = (self.horizontal_padding, 0, 0, 0)
         self.speaker.set_font(FONT['text-yellow'])
-
-        text = clean_speak_text(dialog.plain_text)
 
         self.text = TextComponent("dialog text", text, self)
         self.text.padding = (self.horizontal_padding, self.horizontal_padding, 0, self.vertical_padding)
@@ -84,7 +71,7 @@ class DialogLogContainer(UIComponent):
         self.update_scroll_height()
 
     def remove_entry(self, entry_ui):
-        self.remove_child(entry_ui)
+        self.remove_child(entry_ui.name)
         self.text_objects.remove(entry_ui)
         self.update_scroll_height()
 
@@ -105,32 +92,16 @@ class DialogLogUI:
         self.log_container = DialogLogContainer('container', parent=self.base_component) # Component contains all the dialog log entries.
         self.base_component.add_child(self.log_container)
 
-    def add_entry(self, dialog: Dialog):
+    def add_entry(self, speaker: str, text: str):
         # Create and add new entry to ui.
-        entry = DialogEntryComponent(f"entry no. {self.entry_count}", dialog, parent=self.log_container)
+        entry = DialogEntryComponent(f"entry no. {self.entry_count}", speaker, text, parent=self.log_container)
         self.log_container.add_entry(entry)
+        self.entry_count += 1
         return entry # Return ui component
 
     def remove_entry(self, entry: DialogEntryComponent):
         self.log_container.remove_entry(entry)
-
-    # This is currently unused, but it might be useful at some point.
-    def extend_entry(self, dialog: Dialog, entry=None):
-        """Append this dialog string to the previous entry's graphics object.
-
-        Precondition: if entry is None then self.log_container.get_last_entry()
-                      is not None
-        """
-
-        if entry is None:
-            entry = self.log_container.get_last_entry()
-
-        # Append this dialog string to the previous entry's graphics object.
-        dialog_text = clean_speak_text(dialog.plain_text)
-        old_text = last_entry.text.text  # Get's the string of text component.
-        last_entry.text.set_text(old_text + ' ' + dialog_text)
-        last_entry.size = last_entry.calculate_size()
-        self.log_container.update_scroll_height()
+        self.entry_count -= 1
 
     def scroll_up(self):
         self.log_container.scroll_up_down(-20)

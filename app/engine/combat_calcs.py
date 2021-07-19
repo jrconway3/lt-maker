@@ -515,7 +515,9 @@ def compute_assist_damage(unit, target, item, def_item, mode, crit=False):
     if DB.constants.value('pairup') and target.paired_partner:
         might = 0
 
-    return int(max(DB.constants.get('min_damage').value, might//2)) # Divided by two since it's dual strike
+    might = might//2
+
+    return int(max(DB.constants.get('min_damage').value, might)) # Divided by two since it's dual strike
 
 def outspeed(unit, target, item, def_item, mode) -> bool:
     if not item:

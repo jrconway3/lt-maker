@@ -140,7 +140,7 @@ class AttackerPartnerState(SolverState):
             return None
 
     def process(self, solver, actions, playback):
-        playback.append(('attacker_phase',))
+        playback.append(('attacker_partner_phase',))
         # Check attack proc
         atk_p = solver.attacker.strike_partner
         skill_system.start_sub_combat(actions, playback, atk_p, solver.main_item, solver.defender, 'attack')
@@ -150,7 +150,7 @@ class AttackerPartnerState(SolverState):
             target_pos = solver.target_positions[idx]
             if defender:
                 skill_system.start_sub_combat(actions, playback, defender, defender.get_weapon(), atk_p, 'defense')
-                solver.process(actions, playback, atk_p, defender, target_pos, item, defender.get_weapon(), 'attack')
+                solver.process(actions, playback, atk_p, defender, target_pos, item, defender.get_weapon(), 'attack', True)
                 skill_system.end_sub_combat(actions, playback, defender, defender.get_weapon(), atk_p, 'defense')
 
             for target in splash:
@@ -290,9 +290,11 @@ class CombatPhaseSolver():
     def generate_crit_roll(self):
         return static_random.get_combat()
 
-    def process(self, actions, playback, attacker, defender, def_pos, item, def_item, mode):
+    def process(self, actions, playback, attacker, defender, def_pos, item, def_item, mode, assist=False):
         # Is the item I am processing the first one?
         first_item = item is self.main_item or item is self.items[0]
+        if assist:
+            item = attacker.get_weapon()
 
         to_hit = combat_calcs.compute_hit(attacker, defender, item, def_item, mode)
 
@@ -332,6 +334,7 @@ class CombatPhaseSolver():
                     playback.append(('mark_hit', attacker, defender, self.attacker, item))
                     playback.append(('mark_glancing_hit', attacker, defender, self.attacker, item))
             else:
+                # Find some way to edit this to make dual strike work
                 item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
                     playback.append(('mark_hit', attacker, defender, self.attacker, item))

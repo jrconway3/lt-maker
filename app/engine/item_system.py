@@ -105,7 +105,7 @@ false_hooks = ('is_weapon', 'is_spell', 'is_accessory', 'equippable',
                'ignore_weapon_advantage', 'unrepairable', 'targets_items',
                'menu_after_combat')
 # All default hooks are exclusive
-formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formula', 
+formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formula',
            'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula')
 default_hooks = ('full_price', 'buy_price', 'sell_price', 'special_sort', 'num_targets', 'minimum_range', 'maximum_range',
                  'weapon_type', 'weapon_rank', 'modify_weapon_triangle', 'damage', 'hit', 'crit', 'effect_animation')
@@ -114,10 +114,10 @@ default_hooks += formula
 target_hooks = ('wexp', 'exp')
 simple_target_hooks = ('warning', 'danger')
 
-dynamic_hooks = ('dynamic_damage', 'dynamic_accuracy', 'dynamic_crit_accuracy', 
+dynamic_hooks = ('dynamic_damage', 'dynamic_accuracy', 'dynamic_crit_accuracy',
                  'dynamic_attack_speed', 'dynamic_multiattacks')
-modify_hooks = ('modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid', 
-                'modify_crit_accuracy', 'modify_crit_avoid', 'modify_attack_speed', 
+modify_hooks = ('modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid',
+                'modify_crit_accuracy', 'modify_crit_avoid', 'modify_attack_speed',
                 'modify_defense_speed')
 
 # None of these are exclusive
@@ -432,18 +432,18 @@ def on_crit(actions, playback, unit, item, target, target_pos, mode, first_item)
         if not any(brush for brush in playback if brush[0] == 'crit_tint'):
             playback.append(('crit_tint', target, (255, 255, 255)))
 
-def on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, first_item):
+def on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, first_item, assist=False):
     for component in item.components:
         if component.defines('on_glancing_hit'):
-            component.on_glancing_hit(actions, playback, unit, item, target, target_pos, mode)
+            component.on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, assist)
         elif component.defines('on_hit'):
-            component.on_hit(actions, playback, unit, item, target, target_pos, mode)
+            component.on_hit(actions, playback, unit, item, target, target_pos, mode, assist)
     if item.parent_item and first_item:
         for component in item.parent_item.components:
             if component.defines('on_glancing_hit'):
-                component.on_glancing_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+                component.on_glancing_hit(actions, playback, unit, item.parent_item, target, target_pos, mode, assist)
             elif component.defines('on_hit'):
-                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode, assist)
 
     # Default playback
     if target and find_hp(actions, target) <= 0:

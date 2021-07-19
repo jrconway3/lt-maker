@@ -43,6 +43,10 @@
             [
                 "Rapier",
                 false
+            ],
+            [
+                "Iron Sword",
+                false
             ]
         ],
         "learned_skills": [
@@ -163,12 +167,7 @@
                 false
             ]
         ],
-        "learned_skills": [
-            [
-                1,
-                "hit-100"
-            ]
-        ],
+        "learned_skills": [],
         "unit_notes": [],
         "wexp_gain": {
             "Sword": [

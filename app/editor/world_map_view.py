@@ -1,23 +1,27 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QPixmap, QPainter, QPen
-
-from app.editor.map_view import SimpleMapView
-from app.data.overworld import OverworldPrefab
-
-from app.sprites import SPRITES
-from app.constants import TILEWIDTH, TILEHEIGHT
-from app.resources.resources import RESOURCES
-from app.data.database import DB
-
-from app.editor import timer
+from app.editor.overworld_editor.road_sprite_wrapper import RoadSpriteWrapper
+from enum import Enum
+import logging
+from typing import List
+from app.utilities.enums import Direction
+from app.utilities.utils import dot_product, tmult, tuple_add, tuple_sub
 import app.editor.utilities as editor_utilities
+from app.constants import TILEHEIGHT, TILEWIDTH
+from app.data.database import DB
+from app.data.overworld import OverworldPrefab
+from app.editor.map_view import SimpleMapView
 from app.editor.tile_editor import tile_model
-
+from app.resources.resources import RESOURCES
+from app.sprites import SPRITES
+from app.utilities.typing import Point
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor, QPainter, QPen, QPixmap, QImage, QTransform
 
 class WorldMapView(SimpleMapView):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, window=None):
+        super().__init__(window)
         self.selected = None
+        self.possible_road_endpoint: Point = None
+        self.road_sprite = RoadSpriteWrapper()
 
     def set_current_level(self, overworld_nid):
         overworld = DB.overworlds.get(overworld_nid)
@@ -28,6 +32,10 @@ class WorldMapView(SimpleMapView):
 
     def set_selected(self, sel):
         self.selected = sel
+        self.update_view()
+
+    def set_ghost_road_endpoint(self, ghost):
+        self.possible_road_endpoint = ghost
         self.update_view()
 
     def update_view(self, _=None):
@@ -43,12 +51,27 @@ class WorldMapView(SimpleMapView):
         self.paint_roads(self.current_level)
         self.paint_nodes(self.current_level)
         self.paint_selected()
+        self.paint_border(self.current_level)
         self.show_map()
+
+    def paint_border(self, current_level: OverworldPrefab):
+        if self.working_image:
+            painter = QPainter()
+            painter.begin(self.working_image)
+            pixel_border_width = TILEWIDTH * current_level.border_tile_width
+            # draw top and left borders
+            painter.fillRect(0, 0, self.working_image.width(), pixel_border_width, QColor(160, 0, 0, 128))
+            painter.fillRect(0, 0, pixel_border_width, self.working_image.height(), QColor(160, 0, 0, 128))
+            # draw bottom and right borders
+            painter.fillRect(0, self.working_image.height() - pixel_border_width, self.working_image.width(), pixel_border_width, QColor(160, 0, 0, 128))
+            painter.fillRect(self.working_image.width() - pixel_border_width, 0, pixel_border_width, self.working_image.height(), QColor(160, 0, 0, 128))
+            painter.end()
 
     def draw_node(self, painter, node, position, opacity=False):
         icon_nid = node.icon
-        num = timer.get_timer().passive_counter.count
         icon = RESOURCES.map_icons.get(icon_nid)
+        if not icon:
+            return
         coord = position
         pixmap = icon.get_pixmap()
         pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
@@ -64,7 +87,7 @@ class WorldMapView(SimpleMapView):
         else:
             pass
 
-    def draw_road_segment(self, painter, start_position, end_position, selected=False):
+    def draw_road_segment(self, painter, start_position, end_position, selected=False, transparent=False):
         start_x = start_position[0] * TILEWIDTH + TILEWIDTH / 2
         start_y = start_position[1] * TILEHEIGHT + TILEHEIGHT / 2
         end_x = end_position[0] * TILEWIDTH + TILEWIDTH / 2
@@ -78,7 +101,10 @@ class WorldMapView(SimpleMapView):
             painter.drawLine(start_x, start_y, end_x, end_y)
 
         # draw the road segment
-        pen = QPen(QColor(232, 216, 136, 160), 3, style=Qt.SolidLine)
+        if transparent:
+            pen = QPen(QColor(256, 0, 256, 80), 3, style=Qt.SolidLine)
+        else:
+            pen = QPen(QColor(232, 216, 136, 160), 3, style=Qt.SolidLine)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setPen(pen)
         painter.drawLine(start_x, start_y, end_x, end_y)
@@ -94,6 +120,8 @@ class WorldMapView(SimpleMapView):
             for node in current_level.overworld_nodes:
                 if not node.pos:
                     continue
+                if not node.icon:
+                    continue
                 self.draw_node(painter, node, node.pos)
             painter.end()
 
@@ -102,9 +130,29 @@ class WorldMapView(SimpleMapView):
             painter = QPainter()
             painter.begin(self.working_image)
             for path in current_level.map_paths.values():
-                for i in range(len(path) - 1):
-                    self.draw_road_segment(painter, path[i], path[i+1])
+                unpacked_path = RoadSpriteWrapper.road_to_full_points_list(path)
+                for i in range(len(unpacked_path)):
+                    neighbors = []
+                    if i != 0:
+                        neighbors.append(unpacked_path[i - 1])
+                    if i < len(unpacked_path) - 1:
+                        neighbors.append(unpacked_path[i + 1])
+                    self.road_sprite.draw_tile(painter, unpacked_path[i], neighbors)
             painter.end()
+
+    def paint_ghost_road(self, selected):
+        if isinstance(selected, list):
+            last_road_point = selected[-1]
+        elif isinstance(selected, tuple):
+            last_road_point = selected
+        else:
+            return
+
+        painter = QPainter()
+        painter.begin(self.working_image)
+        if last_road_point and self.possible_road_endpoint:
+            self.draw_road_segment(painter, last_road_point, self.possible_road_endpoint, transparent=True)
+        painter.end()
 
     def paint_selected(self):
         """Draws some sort of accent around the selected object (road, node).
@@ -115,9 +163,11 @@ class WorldMapView(SimpleMapView):
             if isinstance(self.selected, list):
                 # this is a road
                 self.paint_selected_road(self.selected)
+                self.paint_ghost_road(self.selected)
             elif isinstance(self.selected, tuple):
                 # this is a selected coord of a node
                 self.paint_cursor(self.selected)
+                self.paint_ghost_road(self.selected)
             else:
                 # ??? None type, or something went wrong. Don't draw
                 return
@@ -152,5 +202,6 @@ class WorldMapView(SimpleMapView):
     # these two are in the superclass but are useless in this context, override just in case
     def paint_units(self, current_level):
         pass
+
     def draw_unit(self, painter, unit, position, opacity=False):
         pass

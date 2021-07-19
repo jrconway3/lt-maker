@@ -67,6 +67,8 @@ def main():
                     return
                 elif e.key == pygame.K_SPACE:
                     show_log = not show_log
+                    if show_log:
+                        dialog_history.scroll_all()
                 elif e.key == pygame.K_DOWN:
                     dialog_history.scroll_down()
                 elif e.key == pygame.K_UP:

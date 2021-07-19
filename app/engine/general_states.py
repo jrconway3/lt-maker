@@ -1088,6 +1088,10 @@ class TargetingState(MapState):
 
         self.pennant = banner.Pennant(self.ability.name + '_desc')
 
+        # Only used for Trade ability, to enable trading
+        # with rescued units
+        self.traveler_mode = False  # Should we be targeting the traveler?
+
     def begin(self):
         game.cursor.combat_show()
         self.cur_unit.sprite.change_state('chosen')
@@ -1098,18 +1102,30 @@ class TargetingState(MapState):
 
         if 'DOWN' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
+            if self.ability.name == 'Trade':
+                current_target = game.cursor.get_hover()
+                traveler = current_target.traveler
+                if traveler and game.get_unit(traveler).team == self.cur_unit.team:
+                    self.traveler_mode = True
+                else:
+                    new_position = self.selection.get_down(game.cursor.position)
+                    game.cursor.set_pos(new_position)
             new_position = self.selection.get_down(game.cursor.position)
             game.cursor.set_pos(new_position)
         elif 'UP' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
             new_position = self.selection.get_up(game.cursor.position)
             game.cursor.set_pos(new_position)
         if 'LEFT' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
             new_position = self.selection.get_left(game.cursor.position)
             game.cursor.set_pos(new_position)
         elif 'RIGHT' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
             new_position = self.selection.get_right(game.cursor.position)
             game.cursor.set_pos(new_position)
 
@@ -1123,10 +1139,16 @@ class TargetingState(MapState):
 
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
+            unit = game.cursor.get_hover()
+            if self.traveler_mode:
+                game.memory['trade_partner'] = game.get_unit(unit.traveler)
+            else:
+                game.memory['trade_partner'] = unit
             self.ability.do(self.cur_unit)
 
         elif event == 'AUX':
             SOUNDTHREAD.play_sfx('Select 6')
+            self.traveler_mode = False
             new_position = self.selection.get_next(game.cursor.position)
             game.cursor.set_pos(new_position)
 
@@ -1194,7 +1216,10 @@ class TargetingState(MapState):
                     self.draw_give_preview(traveler, give_to, surf)
         elif self.ability.name == 'Trade':
             unit = game.cursor.get_hover()
-            game.ui_view.draw_trade_preview(unit, surf)
+            if self.traveler_mode:
+                game.ui_view.draw_trade_preview(game.get_unit(unit.traveler), surf)
+            else:
+                game.ui_view.draw_trade_preview(unit, surf)
         elif self.ability.name == 'Steal':
             unit = game.cursor.get_hover()
             game.ui_view.draw_trade_preview(unit, surf)

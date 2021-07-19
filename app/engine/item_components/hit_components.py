@@ -99,6 +99,24 @@ class StatusOnHit(ItemComponent):
                 return -0.5 * accuracy_term
         return 0
 
+class StatusAfterCombatOnHit(StatusOnHit, ItemComponent):
+    nid = 'status_after_combat_on_hit'
+    desc = "Item gives status to target after it hits"
+    tag = 'special'
+
+    expose = Type.Skill  # Nid
+
+    _did_hit = set()
+
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+        self._did_hit.add(target)
+
+    def end_combat(self, playback, unit, item, target, mode):
+        for target in self._did_hit:
+            act = action.AddSkill(target, self.value, unit)
+            action.do(act)
+        self._did_hit.clear()
+    
 class Shove(ItemComponent):
     nid = 'shove'
     desc = "Item shoves target on hit"

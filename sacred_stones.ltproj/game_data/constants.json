@@ -88,6 +88,14 @@
         false
     ],
     [
+        "promote_level_reset",
+        true
+    ],
+    [
+        "class_change_level_reset",
+        false
+    ],
+    [
         "generic_feats",
         false
     ],
@@ -206,5 +214,13 @@
     [
         "heal_min",
         5
+    ],
+    [
+        "dark_sprites",
+        false
+    ],
+    [
+        "glancing_hit",
+        false
     ]
 ]

@@ -36,7 +36,7 @@ class TileSetModel(ResourceCollectionModel):
             pixmap = tileset.pixmap
             return QIcon(pixmap)
         return None
-        
+
     def create_new(self):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
@@ -58,7 +58,7 @@ class TileSetModel(ResourceCollectionModel):
                     new_tileset.set_pixmap(pix)
                     RESOURCES.tilesets.append(new_tileset)
                 else:
-                    QMessageBox.critical(self.window, "File Type Error!", "Tileset must be PNG format!") 
+                    QMessageBox.critical(self.window, "File Type Error!", "Tileset must be PNG format!")
             parent_dir = os.path.split(fns[-1])[0]
             settings.set_last_open_path(parent_dir)
         return new_tileset
@@ -155,7 +155,7 @@ class TileMapModel(ResourceCollectionModel):
         create_tilemap_pixmap(new_tilemap)
         RESOURCES.tilemaps.append(new_tilemap)
         self.layoutChanged.emit()
-        
+
     def delete(self, idx):
         # Check to see what is using me?
         res = self._data[idx]

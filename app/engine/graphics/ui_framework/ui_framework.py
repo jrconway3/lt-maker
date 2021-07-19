@@ -7,11 +7,8 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 
 from app.constants import WINHEIGHT, WINWIDTH
 from app.engine import engine
+from app.engine.engine import Surface
 from app.utilities.typing import Color4
-from PIL import Image
-from PIL.Image import LANCZOS, new
-
-from pygame import Surface
 
 from .premade_animations.animation_templates import toggle_anim
 from .ui_framework_animation import UIAnimation, animated
@@ -461,6 +458,33 @@ class UIComponent():
                 return True
         return False
 
+    def has_child(self, child_name: str) -> bool:
+        for child in self.children:
+            if child_name == child.name:
+                return True
+        return False
+
+    def get_child(self, child_name: str) -> Optional[UIComponent]:
+        for child in self.children:
+            if child_name == child.name:
+                return child
+        return None
+
+    def remove_child(self, child_name: str) -> bool:
+        """remove a child from this component.
+
+        Args:
+            child_name (str): name of child component.
+
+        Returns:
+            bool: whether or not the child existed in the first place to be removed
+        """
+        for idx, child in enumerate(self.children):
+            if child.name == child_name:
+                self.children.pop(idx)
+                return True
+        return False
+
     def add_surf(self, surf: Surface, pos: Tuple[int, int]):
         """Add a hard-coded surface to this component.
 
@@ -550,10 +574,15 @@ class UIComponent():
         for child in self.children:
             child.enable()
 
-    def disable(self, is_top_level=True):
-        """Does the same as exit(), except forgoes all animations.
+    def disable(self, force=False):
+        """Does the same as exit(), except forgoes all animations
+
+        Args:
+            force (bool): Whether or not to clear all animations as well
         """
         self.enabled = False
+        if force:
+            self.skip_all_animations()
 
     def queue_animation(self, animations: List[UIAnimation] = [], names: List[str] = [], force: bool = False):
         """Queues a series of animations for the component. This method can be called with
@@ -666,9 +695,7 @@ class UIComponent():
 
     def _create_bg_surf(self) -> Surface:
         """Generates the background surf for this component of identical dimension
-        as the component itself. If the background image isn't the same size as the component,
-        and we want to rescale, then we will use PIL to rescale. Because rescaling is expensive,
-        we'll be making use of limited caching here.
+        as the component itself.
 
         Returns:
             Surface: A surface of size self.width x self.height, containing a scaled background image.
@@ -679,16 +706,9 @@ class UIComponent():
             return surf
         else:
             if not self.cached_background or not self.cached_background.get_size() == self.tsize:
-                if self.props.bg_resize_mode == ResizeMode.AUTO:
-                    bg_raw = engine.surf_to_raw(self.props.bg, 'RGBA')
-                    pil_bg = Image.frombytes('RGBA', self.props.bg.get_size(), bg_raw, 'raw')
-                    pil_bg = pil_bg.resize(self.tsize, resample=LANCZOS)
-                    bg_scaled = engine.raw_to_surf(pil_bg.tobytes('raw', 'RGBA'), self.tsize, 'RGBA')
-                    self.cached_background = bg_scaled
-                else:
-                    base = engine.create_surface(self.tsize, True)
-                    base.blit(self.props.bg, (0, 0))
-                    self.cached_background = base
+                base = engine.create_surface(self.tsize, True)
+                base.blit(self.props.bg, (0, 0))
+                self.cached_background = base
             return self.cached_background
 
     def to_surf(self) -> Surface:

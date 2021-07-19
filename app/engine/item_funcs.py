@@ -124,15 +124,21 @@ def get_all_tradeable_items(unit) -> list:
             items.append(item)
     return items
 
+def get_num_items(unit) -> int:
+    return DB.constants.value('num_items') + skill_system.num_items_offset(unit)
+
+def get_num_accessories(unit) -> int:
+    return DB.constants.value('num_accessories') + skill_system.num_accessories_offset(unit)
+
 def too_much_in_inventory(unit) -> bool:
-    return len(unit.accessories) > DB.constants.value('num_accessories') or \
-        len(unit.nonaccessories) > DB.constants.value('num_items')
+    return len(unit.accessories) > get_num_accessories(unit) or \
+        len(unit.nonaccessories) > get_num_items(unit)
 
 def inventory_full(unit, item) -> bool:
     if item_system.is_accessory(unit, item):
-        return len(unit.accessories) >= DB.constants.value('num_accessories')
+        return len(unit.accessories) >= get_num_accessories(unit)
     else:
-        return len(unit.nonaccessories) >= DB.constants.value('num_items')
+        return len(unit.nonaccessories) >= get_num_items(unit)
 
 def get_range(unit, item) -> set:
     min_range, max_range = 0, 0

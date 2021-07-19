@@ -1,3 +1,5 @@
+from app.utilities.typing import Point
+from app.resources.portraits import Portrait
 import random
 
 from app import counters
@@ -25,7 +27,7 @@ class EventPortrait():
     travel_time = utils.frames2ms(15)
     bop_time = utils.frames2ms(8)
 
-    def __init__(self, portrait, position, priority, transition=False, slide=None, mirror=False, expressions=None):
+    def __init__(self, portrait: Portrait, position: Point, priority, transition=False, slide=None, mirror=False, expressions=None):
         self.portrait = portrait
         if not self.portrait.image:
             self.portrait.image = engine.image_load(self.portrait.full_path)
@@ -69,6 +71,9 @@ class EventPortrait():
 
     def get_width(self):
         return 96
+
+    def get_height(self):
+        return 80
 
     def set_expression(self, expression_list):
         self.expressions = expression_list

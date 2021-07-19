@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QFontMetrics
 
+from app.data.database import DB
+
 from app.extensions.custom_gui import PropertyBox, QHLine
 from app.editor.icons import ItemIcon16
 from app.editor.settings import MainSettingsController
@@ -80,6 +82,9 @@ class ComponentProperties(QWidget):
             icon_folder = 'icons/dark_icons'
 
         for component in self.get_components():
+            if component.tag == 'memento' and \
+                    not DB.constants.value('game_nid').lower() == 'memento':
+                continue
             if component.tag not in self.menus:
                 new_menu = QHelpMenu(self)
                 self.menus[component.tag] = new_menu

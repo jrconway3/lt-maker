@@ -1,5 +1,6 @@
 from app.data.skill_components import SkillComponent
 from app.data.components import Type
+from app.data.database import DB
 
 from app.engine import action
 from app.engine.game_state import game
@@ -110,5 +111,7 @@ class EventOnRemove(SkillComponent):
 
     expose = Type.Event
 
-    def on_remove(self, unit, skill):
-        game.events.trigger(self.value, unit)
+    def on_true_remove(self, unit, skill):
+        event_prefab = DB.events.get_from_nid(self.value)
+        if event_prefab:
+            game.events.add_event(event_prefab.nid, event_prefab.commands, unit)

@@ -29,7 +29,8 @@ class StateMachine():
         from app.engine import title_screen, transitions, general_states, level_up, \
             turnwheel, game_over, settings, info_menu, prep, base, trade, promotion, \
             status_upkeep, debug_mode, chapter_title, player_choice, feat_choice, \
-            victory_screen, objective_menu, minimap, roam_state
+            victory_screen, objective_menu, minimap, roam_state, dialog_log
+        from app.engine.overworld import overworld_states
         from app.events import event_state
         self.all_states = \
             {'title_start': title_screen.TitleStartState,
@@ -121,6 +122,12 @@ class StateMachine():
              'base_records': base.BaseRecordsState,
              'free_roam': roam_state.FreeRoamState,
              'debug': debug_mode.DebugState,
+             'overworld': overworld_states.OverworldState,
+             'overworld_movement': overworld_states.OverworldMovementState,
+             'overworld_game_option_menu': overworld_states.OverworldGameOptionMenuState,
+             'overworld_party_option_menu': overworld_states.OverworldPartyOptionMenu,
+             'overworld_next_level': overworld_states.OverworldLevelTransition,
+             'dialog_log': dialog_log.DialogLogState
              }
 
         if starting_states:
@@ -177,7 +184,7 @@ class StateMachine():
         if self.temp_state:
             logging.debug("State: %s", self.state_names())
         self.temp_state.clear()
-        
+
     def update(self, event, surf):
         if not self.state:
             return None, False

@@ -8,11 +8,6 @@ def frames_to_ms(num_frames: int) -> int:
     return int(16.67 * num_frames)
 frames2ms = frames_to_ms  # Alternate name
 
-def frames_to_ms(num_frames: int) -> int:
-    """at 60 fps, each frame would happen in 16.67 ms"""
-    return int(16.67 * num_frames)
-frames2ms = frames_to_ms  # Alternate name
-
 class Multiset(Counter):
     def __contains__(self, item):
         return self[item] > 0
@@ -75,7 +70,7 @@ def calculate_distance(pos1: tuple, pos2: tuple) -> int:
     return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 def process_terms(terms):
-    """ 
+    """
     Processes weighted lists
     """
     weight_sum = sum(term[1] for term in terms)
@@ -94,7 +89,7 @@ def tuple_sub(a: tuple, b: tuple) -> tuple:
 def tuple_add(a: tuple, b: tuple) -> tuple:
     return tuple(map(add, a, b))
 
-def magnitude(a: tuple) -> tuple:
+def magnitude(a: tuple) -> float:
     return math.sqrt(a[0] * a[0] + a[1] * a[1])
 
 def normalize(a: tuple) -> tuple:
@@ -169,7 +164,7 @@ def smart_farthest_away_pos(position, valid_moves: set, enemy_pos: set):
         avg_y /= len(enemy_pos)
         # Now have vector pointing away from average enemy position
         # I want the dot product between that vector and the vector of each possible move
-        # The highest dot product is the best 
+        # The highest dot product is the best
         return sorted(valid_moves, key=lambda move: dot_product((move[0] - position[0], move[1] - position[1]), (avg_x, avg_y)))[-1]
     else:
         return None

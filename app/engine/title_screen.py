@@ -10,7 +10,7 @@ from app.engine.fonts import FONT
 from app.engine.state import State
 from app.engine.background import PanoramaBackground
 from app.engine import engine, save, image_mods, banner, \
-    menus, particles, base_surf, dialog, text_funcs
+    menus, particles, base_surf, dialog, text_funcs, gui
 from app.engine import config as cf
 from app import autoupdate
 from app.engine.fluid_scroll import FluidScroll
@@ -31,7 +31,12 @@ class TitleStartState(State):
         imgs = RESOURCES.panoramas.get('title_background')
         self.bg = PanoramaBackground(imgs) if imgs else None
         game.memory['title_bg'] = self.bg
-        
+        press_start_sprite = SPRITES.get('press_start')
+        if press_start_sprite:
+            self.press_start = gui.Logo(press_start_sprite, (WINWIDTH//2, 4*WINHEIGHT//5))
+        else:
+            self.press_start = None
+
         self.particles = None
         if DB.constants.value('title_particles'):
             bounds = (-WINHEIGHT, WINWIDTH, WINHEIGHT, WINHEIGHT + 16)
@@ -47,7 +52,7 @@ class TitleStartState(State):
         SOUNDTHREAD.clear()
         if DB.constants.value('music_main'):
             SOUNDTHREAD.fade_in(DB.constants.value('music_main'), fade_in=50)
-        
+
         game.state.refresh()
         game.state.change('transition_in')
         return 'repeat'
@@ -65,7 +70,11 @@ class TitleStartState(State):
             self.particles.update()
             self.particles.draw(surf)
         if self.logo:
-            engine.blit_center(surf, self.logo)
+            engine.blit(surf, self.logo, (WINWIDTH//2 - self.logo.get_width()//2, WINHEIGHT//2 - self.logo.get_height()//2 - 20))
+        if self.press_start:
+            self.press_start.update()
+            self.press_start.draw(surf)
+        FONT['text-white'].blit(text_funcs.translate('_attribution'), surf, (4, WINHEIGHT - 16))
         return surf
 
 class TitleMainState(State):
@@ -175,8 +184,8 @@ class TitleMainState(State):
                 elif self.selection == 'New Game':
                     # Check if more than one mode or the only mode requires a choice
                     if len(DB.difficulty_modes) > 1 or \
-                            (DB.difficulty_modes and 
-                             (DB.difficulty_modes[0].permadeath_choice == 'Player Choice' or 
+                            (DB.difficulty_modes and
+                             (DB.difficulty_modes[0].permadeath_choice == 'Player Choice' or
                               DB.difficulty_modes[0].growths_choice == 'Player Choice')):
                         game.memory['next_state'] = 'title_mode'
                         game.state.change('transition_to')
@@ -258,7 +267,7 @@ class TitleModeState(State):
                 self.growths_choice = mode.growths_choice == 'Player Choice'
                 self.state = 'death_setup'
                 return self.begin()  # Call again to continue setting it up
-        
+
         elif self.state == 'death_setup':
             if self.permadeath_choice:
                 options = ['Casual', 'Classic']
@@ -363,7 +372,7 @@ class TitleModeState(State):
                     game.memory['next_state'] = 'title_new'
                     game.state.change('transition_to')
             return 'repeat'
-            
+
     def update(self):
         if self.menu:
             self.menu.update()
@@ -442,6 +451,8 @@ class TitleLoadState(State):
                     next_level_nid = game.game_vars['_next_level_nid']
                     game.load_states(['turn_change'])
                     game.start_level(next_level_nid)
+                elif save_slot.kind == 'overworld': # load overworld
+                    game.load_states(['overworld'])
                 game.memory['transition_from'] = 'Load Game'
                 game.memory['title_menu'] = self.menu
                 game.state.change('title_wait')
@@ -507,14 +518,19 @@ class TitleRestartState(TitleLoadState):
         elif event == 'SELECT':
             selection = self.menu.current_index
             save_slot = save.RESTART_SLOTS[selection]
+            save_slot_main = save.SAVE_SLOTS[selection]
             if save_slot.kind:
                 SOUNDTHREAD.play_sfx('Save')
                 logging.info("Loading game...")
                 game.build_new()
-                save.load_game(game, save_slot)
                 # Restart level
-                next_level_nid = game.game_vars['_next_level_nid']
-                game.start_level(next_level_nid)
+                if save_slot_main.kind == 'overworld':
+                    save.load_game(game, save_slot_main)
+                    game.load_states(['overworld'])
+                else:
+                    save.load_game(game, save_slot)
+                    next_level_nid = game.game_vars['_next_level_nid']
+                    game.start_level(next_level_nid)
                 game.memory['transition_from'] = 'Restart Level'
                 game.memory['title_menu'] = self.menu
                 game.state.change('title_wait')
@@ -716,7 +732,7 @@ class TitleAllSavesState(TitleLoadState):
 
         self.bg = game.memory['title_bg']
         self.particles = game.memory['title_particles']
-    
+
         self.save_slots = save.get_all_saves()
         options, colors = save.get_save_title(self.save_slots)
         self.menu = menus.ChapterSelect(options, colors)
@@ -733,7 +749,7 @@ class TitleWaitState(State):
     def start(self):
         self.bg = game.memory['title_bg']
         self.particles = game.memory['title_particles']
-        
+
         self.wait_flag = False
         self.wait_time = engine.get_time()
         self.menu = game.memory.get('title_menu')
@@ -807,6 +823,17 @@ class TitleSaveState(State):
         game.state.state.append(current_state)
         game.state.change('transition_pop')
 
+    def go_to_overworld(self, make_save=True):
+        current_state = game.state.state[-1]
+
+        game.load_states(['overworld'])
+        if make_save:
+            save.suspend_game(game, game.memory['save_kind'], slot=self.menu.current_index)
+
+        game.state.state.append(current_state)
+        game.state.change('transition_pop')
+
+
     def take_input(self, event):
         if self.wait_time > 0:
             return
@@ -827,8 +854,8 @@ class TitleSaveState(State):
             SOUNDTHREAD.play_sfx('Select 4')
             if self.name == 'in_chapter_save':
                 game.state.change('transition_pop')
-            elif DB.constants.value('overworld'):
-                pass  # TODO: Go to overworld
+            elif game.game_vars['_should_go_to_overworld']:
+                self.go_to_overworld(make_save=False)
             else:
                 self.go_to_next_level(make_save=False)
 
@@ -839,9 +866,6 @@ class TitleSaveState(State):
             if self.name == 'in_chapter_save':
                 name = game.level.name
                 self.menu.set_text(self.menu.current_index, name)
-            elif DB.constants.value('overworld'):
-                name = 'overworld'
-                self.menu.set_name(self.menu.current_index, name)
             else:
                 next_level_nid = game.game_vars['_next_level_nid']
                 level = DB.levels.get(next_level_nid)
@@ -849,7 +873,7 @@ class TitleSaveState(State):
                     name = level.name
                     self.menu.set_text(self.menu.current_index, name)
             self.menu.set_color(self.menu.current_index, game.mode.color)
-            
+
     def update(self):
         if self.menu:
             self.menu.update()
@@ -864,8 +888,8 @@ class TitleSaveState(State):
                 # Put states back
                 game.state.state = saved_state
                 game.state.change('transition_pop')
-            elif DB.constants.value('overworld'):
-                pass  # TODO: Go to overworld
+            elif game.game_vars['_should_go_to_overworld']:
+                self.go_to_overworld(make_save=True)
             else:
                 self.go_to_next_level(make_save=True)
 

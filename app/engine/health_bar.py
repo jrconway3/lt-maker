@@ -7,6 +7,7 @@ from app.engine.fonts import FONT
 from app.engine.sound import SOUNDTHREAD
 from app.engine import engine, combat_calcs, icons, equations, skill_system, item_system
 from app.engine.game_state import game
+from app.engine.game_counters import ANIMATION_COUNTERS
 
 class HealthBar():
     time_for_change_min = 200
@@ -120,7 +121,8 @@ class MapHealthBar(HealthBar):
     health_bar = SPRITES.get('map_health_bar')
 
     def draw(self, surf, left, top):
-        fraction_hp = utils.clamp(self.displayed_hp / self.total_hp, 0, 1)
+        total = max(1, self.total_hp)
+        fraction_hp = utils.clamp(self.displayed_hp / total, 0, 1)
         index_pixel = int(12 * fraction_hp) + 1
 
         surf.blit(self.health_outline, (left, top + 13))
@@ -135,7 +137,8 @@ class MapCombatHealthBar(HealthBar):
     health_bar = SPRITES.get('health_bar')
 
     def draw(self, surf):
-        fraction_hp = utils.clamp(self.displayed_hp / self.total_hp, 0, 1)
+        total = max(1, self.total_hp)
+        fraction_hp = utils.clamp(self.displayed_hp / total, 0, 1)
         index_pixel = int(50 * fraction_hp)
         position = 25, 22
         surf.blit(engine.subsurface(self.health_bar, (0, 0, index_pixel, 2)), position)
@@ -226,6 +229,8 @@ class MapCombatInfo():
             self.shake_set = [(3, 3), (0, 0), (0, 0), (3, 3), (-3, -3), (3, 3), (-3, -3), (0, 0)]
         elif num == 3:  # Crit
             self.shake_set = [(random.randint(-4, 4), random.randint(-4, 4)) for _ in range(16)] + [(0, 0)]
+        elif num == 4:  # Glancing hit
+            self.shake_set = [(-1, -1), (0, 0), (1, 1), (0, 0)]
 
     def reset_shake(self):
         self.shake_set = [(0, 0)]  # How the hp bar will shake
@@ -357,8 +362,8 @@ class MapCombatInfo():
                 adv = combat_calcs.compute_advantage(self.unit, self.target, self.item, self.target.get_weapon())
                 disadv = combat_calcs.compute_advantage(self.unit, self.target, self.item, self.target.get_weapon(), False)
 
-                up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
-                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
+                up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (ANIMATION_COUNTERS.arrow_counter.count * 7, 0, 7, 10))
+                down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (ANIMATION_COUNTERS.arrow_counter.count * 7, 10, 7, 10))
 
                 if adv and adv.modification > 0:
                     bg_surf.blit(up_arrow, (11, 7))

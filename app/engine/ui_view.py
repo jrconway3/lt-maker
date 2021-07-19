@@ -1,3 +1,4 @@
+from app.engine.game_counters import ANIMATION_COUNTERS
 from app.utilities import utils
 from app.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
 from app.data.database import DB
@@ -176,7 +177,7 @@ class UIView():
         y_offset = 0
         surf = engine.subsurface(SPRITES.get('bg_black').copy(), (0, 0, WINWIDTH, 40))
         surf = image_mods.make_translucent(surf, .75)
-        
+
         current_unit = game.initiative.get_current_unit()
         unit_list = game.initiative.unit_line[:]
         current_idx = game.initiative.current_idx
@@ -404,9 +405,9 @@ class UIView():
     def draw_adv_arrows(self, surf, attacker, defender, weapon, def_weapon, topleft):
         adv = combat_calcs.compute_advantage(attacker, defender, weapon, def_weapon)
         disadv = combat_calcs.compute_advantage(attacker, defender, weapon, def_weapon, False)
-        
-        up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 0, 7, 10))
-        down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (game.map_view.arrow_counter.count * 7, 10, 7, 10))
+
+        up_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (ANIMATION_COUNTERS.arrow_counter.count * 7, 0, 7, 10))
+        down_arrow = engine.subsurface(SPRITES.get('arrow_advantage'), (ANIMATION_COUNTERS.arrow_counter.count * 7, 10, 7, 10))
 
         if adv and adv.modification > 0:
             surf.blit(up_arrow, topleft)
@@ -468,7 +469,7 @@ class UIView():
             self.draw_adv_arrows(surf, defender, attacker, defender.get_weapon(), weapon, (topleft[0] + 61, y_pos))
 
         # Doubling
-        count = game.map_view.x2_counter.count
+        count = ANIMATION_COUNTERS.x2_counter.count
         x2_pos_player = (topleft[0] + 59 + self.x_positions[count], topleft[1] + 38 + self.y_positions[count])
         x2_pos_enemy = (topleft[0] + 20 + self.x_positions[count], topleft[1] + 38 + self.y_positions[count])
 

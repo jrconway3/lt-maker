@@ -83,7 +83,7 @@ class AttackerState(SolverState):
                 solver.process(actions, playback, solver.attacker, defender, target_pos, item, defender.get_weapon(), 'attack')
                 skill_system.end_sub_combat(actions, playback, defender, defender.get_weapon(), solver.attacker, 'defense')
             for target in splash:
-                skill_system.start_sub_combat(actions, actions, playback, target, None, solver.attacker, 'defense')
+                skill_system.start_sub_combat(actions, playback, target, None, solver.attacker, 'defense')
                 solver.process(actions, playback, solver.attacker, target, target_pos, item, None, 'splash')
                 skill_system.end_sub_combat(actions, playback, target, None, solver.attacker, 'defense')
             # Make sure that we run on_hit even if otherwise unavailable
@@ -248,6 +248,11 @@ class CombatPhaseSolver():
                 item_system.on_crit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
                     playback.append(('mark_crit', attacker, defender, self.attacker, item))
+            elif DB.constants.value('glancing_hit') and roll >= to_hit - 20:
+                item_system.on_glancing_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
+                if defender:
+                    playback.append(('mark_hit', attacker, defender, self.attacker, item))
+                    playback.append(('mark_glancing_hit', attacker, defender, self.attacker, item))
             else:
                 item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:

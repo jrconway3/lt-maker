@@ -11,7 +11,7 @@ from app.engine.graphics.ui_framework.ui_framework_styling import UIMetric
 from app.utilities.utils import clamp
 
 if TYPE_CHECKING:
-    from pygame import Surface
+    from app.engine.engine import Surface
 
 from ..ui_framework import ComponentProperties, ResizeMode, UIComponent
 
@@ -21,12 +21,14 @@ class TextProperties(ComponentProperties):
     """
     def __init__(self):
         super().__init__()
-        self.font: BmpFont = FONT['text-white']         # self-explanatory: the font
-        self.line_break_size: str = '0px'               # if the text component is multiline, how much space
-                                                        # is between the two lines. Can be percentage or pixel value.
-
-        self.max_lines: int = 2                         # maximum number of lines to split the text over, if max_width is set.
-                                                        # if 0, then it will
+        # self-explanatory: the font
+        self.font: BmpFont = FONT['text-white']
+        # if the text component is multiline, how much space
+        # is between the two lines. Can be percentage or pixel value.
+        self.line_break_size: str = '0px'
+        # maximum number of lines to split the text over, if max_width is set.
+        # if 0, then it will
+        self.max_lines: int = 2
 
 class TextComponent(UIComponent):
     """A component consisting purely of text
@@ -285,6 +287,17 @@ class DialogTextComponent(TextComponent):
         self.cursor = SPRITES.get('waiting_cursor')
         self.cursor_y_offset = [0]*20 + [1]*2 + [2]*8 + [1]*2
         self.cursor_y_offset_index = 0
+        self.should_display_waiting_cursor = True
+
+    def set_text(self, text: str):
+        if not text.endswith('{w}'):
+            text += ' {w}'
+        super().set_text(text)
+
+    def is_completely_visible(self) -> bool:
+        if len(self.text) == 0:
+            return True
+        return self.num_visible_chars == max(len(self.wrapped_text) - 3, 0)
 
     def wiggle_cursor_height(self):
         self.cursor_y_offset_index = (self.cursor_y_offset_index + 1) % len(self.cursor_y_offset)
@@ -307,7 +320,7 @@ class DialogTextComponent(TextComponent):
             remaining_chars -= len(visible_line)
             self.props.font.blit(processed_line, base_surf, pos=(self.padding[0], self.padding[2] + line_num * (self.line_break_size + self.font_height)))
             # if we're at a wait point, and this is the last line, blit the waiting cursor sprite
-            if remaining_chars <= 0 and self.is_index_at_sequence(self.num_visible_chars, '{w}'):
+            if remaining_chars <= 0 and self.is_index_at_sequence(self.num_visible_chars, '{w}') and self.should_display_waiting_cursor:
                 cursor_pos = (self.padding[0] + self.props.font.width(processed_line) + self.props.font.width(' '),
                               self.padding[2] + line_num * (self.line_break_size + self.font_height) + self.wiggle_cursor_height())
                 base_surf.blit(self.cursor, cursor_pos)

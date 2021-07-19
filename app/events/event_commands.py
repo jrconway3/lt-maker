@@ -18,6 +18,7 @@ class Tags(Enum):
     MODIFY_ITEM_PROPERTIES = 'Modify Item Properties'
     UNIT_GROUPS = 'Unit Groups'
     MISCELLANEOUS = 'Miscellaneous'
+    OVERWORLD = 'Overworld'
     HIDDEN = 'Hidden'
 
 class EventCommand(Prefab):
@@ -212,6 +213,7 @@ Plays the _Sound_ once.
         """
 
     keywords = ['Sound']
+    optional_keywords = ['Volume']
 
 class ChangeMusic(EventCommand):
     nid = 'change_music'
@@ -242,7 +244,7 @@ Extra flags:
         """
 
     keywords = ['Portrait', 'ScreenPosition']
-    optional_keywords = ['Slide', 'ExpressionList']
+    optional_keywords = ['Slide', 'ExpressionList', 'VerticalScreenPosition']
     flags = ["mirror", "low_priority", "immediate", "no_block"]
 
 class MultiAddPortrait(EventCommand):
@@ -305,6 +307,13 @@ class Speak(EventCommand):
     optional_keywords = ['ScreenPosition', 'Width', 'DialogVariant']
     flags = ['low_priority']
 
+class Narrate(EventCommand):
+    nid = "narrate"
+    tag = Tags.DIALOGUE_TEXT
+
+    keywords = ['Speaker', 'Text']
+    flags = ['no_block']
+
 class Transition(EventCommand):
     nid = "transition"
     nickname = "t"
@@ -331,15 +340,24 @@ class MoveCursor(EventCommand):
     nid = "move_cursor"
     nickname = "set_cursor"
     tag = Tags.CURSOR_CAMERA
+    desc = '''
+        Move cursor to position.
+
+        `Speed` is optional, and determines how many milliseconds it takes for the
+        camera to recenter. If left blank, will use default camera pan speed.
+    '''
 
     keywords = ["Position"]
+    optional_keywords = ['Speed']
     flags = ["immediate"]
+
 
 class CenterCursor(EventCommand):
     nid = "center_cursor"
     tag = Tags.CURSOR_CAMERA
 
     keywords = ["Position"]
+    optional_keywords = ['Speed']
     flags = ["immediate"]
 
 class FlickerCursor(EventCommand):
@@ -400,10 +418,9 @@ class ChangeTilemap(EventCommand):
     nid = 'change_tilemap'
     tag = Tags.TILEMAP
 
-    keywords = ["Tilemap"]
     # How much to offset placed units by
     # Which tilemap to load the unit positions from
-    optional_keywords = ["PositionOffset", "Tilemap"]
+    optional_keywords = ["Tilemap", "PositionOffset", "Tilemap"]
     flags = ["reload"]  # Should place units in previously recorded positions
 
 class LoadUnit(EventCommand):
@@ -633,6 +650,12 @@ class ChangeAI(EventCommand):
 
     keywords = ["GlobalUnit", "AI"]
 
+class ChangeParty(EventCommand):
+    nid = 'change_party'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    keywords = ["GlobalUnit", "Party"]
+
 class ChangeTeam(EventCommand):
     nid = 'change_team'
     tag = Tags.MODIFY_UNIT_PROPERTIES
@@ -743,6 +766,12 @@ class IncrementSupportPoints(EventCommand):
 
     keywords = ['GlobalUnit', 'GlobalUnit', 'PositiveInteger']
 
+class UnlockSupportRank(EventCommand):
+    nid = 'unlock_support_rank'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    keywords = ['GlobalUnit', 'GlobalUnit', 'SupportRank']
+
 class AddMarketItem(EventCommand):
     nid = 'add_market_item'
     tag = Tags.GAME_VARS
@@ -828,9 +857,20 @@ class SetPosition(EventCommand):
 class MapAnim(EventCommand):
     nid = 'map_anim'
     tag = Tags.TILEMAP
-
+    desc = ( 'Plays a map animation denoted by the nid *MapAnim* at *Position*. Optional args: a speed multiplier'
+             ' *Float*, which increases the length of time it takes to play the animation (larger is slower)')
     keywords = ["MapAnim", "Position"]
-    flags = ["no_block"]
+    optional_keywords = ["Float"]
+
+class MergeParties(EventCommand):
+    nid = 'merge_parties'
+    tag = Tags.MISCELLANEOUS
+    # Merges the second party onto the first party
+    # The second will still exist, but will have no money, bexp,
+    # items in convoy, or units associated with it
+    # The first will gain all of those properties
+
+    keywords = ["Party", "Party"]
 
 class ArrangeFormation(EventCommand):
     nid = 'arrange_formation'
@@ -980,6 +1020,57 @@ class MoveInInitiative(EventCommand):
 
     keywords = ["Unit", "Integer"]
 
+class StartOverworldCinematic(EventCommand):
+    nid = 'overworld_cinematic'
+    tag = Tags.OVERWORLD
+    desc = 'Sets the background to the overworld, allowing us to create cutscenes set in the overworld'
+
+    optional_keywords = ['OverworldNID']
+
+class OverworldSetPosition(EventCommand):
+    nid = 'set_overworld_position'
+    tag = Tags.OVERWORLD
+    desc = "Sets the position of a specific party in the overworld to a specific node in the overworld"
+
+    keywords = ['Party', 'OverworldLocation']
+
+class OverworldMoveUnit(EventCommand):
+    nid = 'overworld_move_unit'
+    nickname = 'omove'
+    tag = Tags.OVERWORLD
+    desc = ('Issues a move command *Party* to move from its current position to given *OverworldLocation*.'
+            'You can adjust the speed via the *Float* parameter - higher is slower (2 is twice as slow, 3 is thrice...)')
+
+    keywords = ["Party", "OverworldLocation"]
+    optional_keywords = ['Float']
+    flags = ['no_block', 'no_follow']
+
+class OverworldRevealNode(EventCommand):
+    nid = 'reveal_overworld_node'
+    tag = Tags.OVERWORLD
+    desc = ('Reveals an overworld node on the map: moves the camera to the new location, plays the animation, and fades in the nodes.'
+            'By default, fades in via animation; the *Bool* can be set to **True** to skip this anim.')
+
+    keywords = ['OverworldLocation']
+    optional_keywords = ['Bool']
+
+class OverworldRevealRoad(EventCommand):
+    nid = 'reveal_overworld_road'
+    tag = Tags.OVERWORLD
+    desc = ('Enables a road between two overworld nodes. *OverworldLocation* denotes the NID of a valid node. '
+            'By default, fades in via animation; the *Bool* can be set to **True** to skip this anim.')
+
+    keywords = ['OverworldLocation', 'OverworldLocation']
+    optional_keywords = ['Bool']
+
+class ToggleNarrationMode(EventCommand):
+    nid = 'toggle_narration_mode'
+    tag = Tags.DIALOGUE_TEXT
+    desc = ('Enter or exit a full-screen narration mode.')
+
+    keywords = ['Direction']
+    optional_keywords = ['Speed']
+
 def get_commands():
     return EventCommand.__subclasses__()
 
@@ -996,9 +1087,23 @@ def restore_command(dat):
             return copy
     print("Couldn't restore event command!")
     print(nid, values, display_values)
+    if not display_values:
+        display_values = values
     return Comment([nid + ';' + str.join(';', display_values)])
 
-def parse_text(text):
+def parse_text(text: str, strict=False) -> EventCommand:
+    """parses a line into a command
+
+    Args:
+        text (str): text to be parsed
+        strict (bool, optional): whether invalid command should be parsed as comments, or None.
+        This defaults to false; usually, invalid commands are caused by engine version mismatch,
+        and parsing them as None will erase the user's hard work. Parsing them as comments allows them to be
+        preserved harmlessly. However, in certain cases - such as event validation - strict will be useful.
+
+    Returns:
+        EventCommand: parsed command
+    """
     if text.startswith('#'):
         return Comment([text])
     arguments = text.split(';')
@@ -1024,7 +1129,10 @@ def parse_text(text):
                     true_cmd_args.append(arg)
             copy = command(true_cmd_args, cmd_args)
             return copy
-    return Comment([text])
+    if strict:
+        return None
+    else:
+        return Comment([text])
 
 def parse(command):
     values = command.values

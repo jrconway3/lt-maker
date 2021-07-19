@@ -3,8 +3,9 @@ from typing import List, Tuple
 
 from app.events import event_commands, event_validators
 from app.utilities.typing import NID
-from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QCompleter
+
 
 class Completer(QCompleter):
     insertText = pyqtSignal(str)
@@ -50,6 +51,8 @@ class Completer(QCompleter):
 
 @lru_cache()
 def generate_wordlist_from_validator_type(validator: event_validators.Validator, level: NID = None) -> List[str]:
+    if not validator:
+        return []
     valid_entries = validator().valid_entries(level)
     autofill_dict = []
     for entry in valid_entries:

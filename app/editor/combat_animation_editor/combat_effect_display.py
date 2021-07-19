@@ -56,7 +56,7 @@ class CombatEffectProperties(CombatAnimProperties):
         else:
             icon_folder = 'icons/dark_icons'
 
-        pose_row = self.pose_box(icon_folder)
+        pose_row = self.set_up_pose_box(icon_folder)
 
         self.info_form.addRow("Unique ID", self.nid_box)
         self.info_form.addRow("Pose", pose_row)
@@ -92,9 +92,9 @@ class CombatEffectProperties(CombatAnimProperties):
         self.export_effect_button = QPushButton("Export...")
         self.export_effect_button.clicked.connect(self.export_effect)
 
-        self.window.left_frame.layout().addWidget(self.import_effect_button, 2, 0)
-        self.window.left_frame.layout().addWidget(self.export_effect_button, 2, 1)
-        self.window.left_frame.layout().addWidget(self.import_from_lt_button, 3, 0, 1, 2)
+        self.window.left_frame.layout().addWidget(self.import_effect_button, 3, 0)
+        self.window.left_frame.layout().addWidget(self.export_effect_button, 3, 1)
+        self.window.left_frame.layout().addWidget(self.import_from_lt_button, 4, 0, 1, 2)
         frame_layout.addWidget(self.import_png_button)
 
     def pose_changed(self, idx):

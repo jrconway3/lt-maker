@@ -24,9 +24,15 @@ def get_basic_icon(pixmap, num, active=False, team='player'):
     # pixmap = pixmap.copy(16, 16, 32, 32)
     one_frame = one_frame.toImage()
     if team == 'player':
-        pass
+        if DB.constants.value('dark_sprites'):
+            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.player_dark_colors)
+        else:
+            pass
     elif team == 'enemy':
-        one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy_colors)
+        if DB.constants.value('dark_sprites'):
+            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy_dark_colors)
+        else:
+            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy_colors)
     elif team == 'other':
         one_frame = editor_utilities.color_convert(one_frame, editor_utilities.other_colors)
     elif team == 'enemy2':
@@ -76,7 +82,7 @@ class MapSpriteModel(ResourceCollectionModel):
                     lion_throne_mode = True
                 elif 16 <= standing_pix.width() <= 64 and standing_pix.height() % 3 == 0:  # Try for GBA mode
                     lion_throne_mode = False
-                else:   
+                else:
                     QMessageBox.critical(self.window, "Error", "Standing Map Sprite is not correct size for Legacy import (192x144 px)")
                     return
             else:
@@ -111,7 +117,7 @@ class MapSpriteModel(ResourceCollectionModel):
         else:
             return
         if sok and mok and nid:
-            if lion_throne_mode: 
+            if lion_throne_mode:
                 new_map_sprite = MapSprite(nid, stand_full_path, move_full_path)
             else:
                 current_proj = settings.get_current_project()

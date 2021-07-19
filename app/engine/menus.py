@@ -628,8 +628,8 @@ class Inventory(Choice):
         # Assumes all options are Item Objects
         accessories = [option for option in options if item_system.is_accessory(self.owner, option)]
         items = [option for option in options if option not in accessories]
-        num_items = DB.constants.value('num_items')
-        num_accessories = DB.constants.value('num_accessories')
+        num_items = item_funcs.get_num_items(self.owner)
+        num_accessories = item_funcs.get_num_accessories(self.owner)
         # Get items
         for idx, item in enumerate(items):
             option = menu_options.ItemOption(idx, item)

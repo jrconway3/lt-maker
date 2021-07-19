@@ -13,25 +13,24 @@ class DialogLogState(State):
     transparent = True
 
     def start(self):
-        self.ui = game.dialog_log.ui
         self.fluid = FluidScroll()
 
     def begin(self):
-        self.ui.scroll_all() # Set scroll to bottom.
+        game.dialog_log.ui.scroll_all() # Set scroll to bottom.
 
     def take_input(self, event):
         self.fluid.update()
         directions = self.fluid.get_directions()
 
         if 'UP' in directions:
-            self.ui.scroll_up()
+            game.dialog_log.ui.scroll_up()
         elif 'DOWN' in directions:
-            self.ui.scroll_down()
+            game.dialog_log.ui.scroll_down()
         elif event == 'INFO' or event == 'BACK':
             game.state.back()
 
     def draw(self, surf):
-        surf = self.ui.draw(surf)
+        surf = game.dialog_log.ui.draw(surf)
         return surf
 
 class DialogLog:
@@ -61,7 +60,6 @@ class DialogLog:
         self.ui.remove_entry(self.last_entry)
         self.last_entry = self.ui.get_last_entry()
         self.entries.pop()
-        return self.last_entry
 
     def clear(self):
         while self.last_entry:

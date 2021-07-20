@@ -7,7 +7,7 @@ class DifficultyModeObject(Prefab):
     def __init__(self, nid: NID = None, permadeath: bool = None, growths: GrowthOption = None):
         self.nid: NID = nid
         self.permadeath: bool = permadeath
-        self.growths: str = growths
+        self.growths: GrowthOption = growths
         self.enemy_autolevels: int = 0
         self.enemy_truelevels: int = 0
 

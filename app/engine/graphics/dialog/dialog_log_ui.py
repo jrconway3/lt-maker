@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import List
+
 from app.engine.fonts import FONT
 from app.constants import WINWIDTH, WINHEIGHT
 

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import re
 
+from typing import Tuple, List
+
 from app.engine.state import State
 from app.engine.fluid_scroll import FluidScroll
 from app.engine.game_state import game
@@ -33,11 +35,11 @@ class DialogLogState(State):
         surf = game.dialog_log.ui.draw(surf)
         return surf
 
-class DialogLog:
+class DialogLog():
     def __init__(self):
         self.ui = DialogLogUI()
         self.entries: List[Tuple[str, str]] = []
-        self.last_entry: DialogEntryComponent = None
+        self.last_entry = None
 
     def append(self, dialog_tuple: Tuple[str, str]):
         speaker, text = dialog_tuple[0], dialog_tuple[1]
@@ -70,7 +72,9 @@ class DialogLog:
         >>> clean_text(s)
         >>> 'This is a test with commands.'
         """
-        return re.sub(r'({\w*})|(\|)|(;)/', ' ', s)
+        x = re.sub(r'({\w*})|(\|)|(;)/', ' ', s)
+        # Get rid of extra spaces
+        return re.sub(r' +', ' ', x)
 
     @classmethod
     def restore(cls, entries: List[Tuple[str, str]]):

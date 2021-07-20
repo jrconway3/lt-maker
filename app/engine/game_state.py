@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from app.engine.objects.party import PartyObject
     from app.engine.objects.skill import SkillObject
     from app.engine.objects.unit import UnitObject
+    from app.engine.dialog_log import DialogLog
     from app.events.event_manager import EventManager
     from app.events.regions import Region
     from app.utilities.typing import NID
@@ -542,7 +543,7 @@ class GameState():
             growths = GrowthOption.FIXED
         else:
             growths = first_mode.growths_choice
-        return DifficultyModeObject.from_prefab(first_mode)
+        return DifficultyModeObject(first_mode.nid, permadeath, growths)
 
     @property
     def party(self):

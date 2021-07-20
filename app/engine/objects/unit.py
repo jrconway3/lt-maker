@@ -1,12 +1,15 @@
-from app.data.units import UnitPrefab
 from typing import Tuple
-from app.utilities.typing import NID
+
+from app.data.database import DB
+from app.data.difficulty_modes import GrowthOption
+from app.data.units import UnitPrefab
+from app.engine import (action, equations, item_funcs, item_system,
+                        skill_system, unit_funcs)
+from app.engine.game_state import game
 from app.utilities import utils
 from app.utilities.data import Prefab
-from app.data.database import DB
+from app.utilities.typing import NID
 
-from app.engine import equations, item_system, item_funcs, skill_system, unit_funcs, action
-from app.engine.game_state import game
 
 # Main unit object used by engine
 class UnitObject(Prefab):
@@ -75,7 +78,7 @@ class UnitObject(Prefab):
 
         method = unit_funcs.get_leveling_method(self)
 
-        if method == 'Fixed':
+        if method == GrowthOption.FIXED:
             self.growth_points = {k: 50 for k in self.stats.keys()}
         else:
             self.growth_points = {k: 0 for k in self.stats.keys()}

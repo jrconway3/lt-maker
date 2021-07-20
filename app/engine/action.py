@@ -189,8 +189,8 @@ class Swap(Action):
         self.unit2 = unit2
         self.pos1 = unit1.position
         self.pos2 = unit2.position
-        self.update_fow_action1 = UpdateFogOfWar(self.unit)
-        self.update_fow_action2 = UpdateFogOfWar(self.unit)
+        self.update_fow_action1 = UpdateFogOfWar(self.unit1)
+        self.update_fow_action2 = UpdateFogOfWar(self.unit2)
 
     def do(self):
         game.leave(self.unit1)
@@ -1778,6 +1778,17 @@ class RemoveLore(Action):
             game.unlocked_lore.append(self.lore_nid)
 
 
+class LogDialog(Action):
+    def __init__(self, dialog):
+        self.speaker = dialog.speaker
+        self.plain_text = dialog.plain_text
+
+    def do(self):
+        game.dialog_log.append((self.speaker, self.plain_text))
+
+    def reverse(self):
+        game.dialog_log.pop()
+
 class AddRegion(Action):
     def __init__(self, region):
         self.region = region
@@ -2085,6 +2096,8 @@ class AddSkill(Action):
 
     def reverse(self):
         self.reset_action.reverse()
+        if not self.skill_obj:
+            return
         if self.skill_obj in self.unit.skills:
             self.unit.skills.remove(self.skill_obj)
             skill_system.on_remove(self.unit, self.skill_obj)

@@ -2,6 +2,7 @@ from app.data.database import DB
 
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State
+from app.engine.dialog_log import DialogLogState
 import app.engine.config as cf
 from app.engine.game_state import game
 
@@ -21,7 +22,10 @@ class EventState(State):
                 game.cursor.hide()
 
     def take_input(self, event):
-        self.event.take_input(event)
+        if self.event.state == 'dialog' and event == 'INFO':
+            game.state.change('dialog_log')
+        else:
+            self.event.take_input(event)
 
     def update(self):
         if self.game_over:

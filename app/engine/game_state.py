@@ -60,6 +60,7 @@ class GameState():
         self.overworld_registry: Dict[NID, OverworldObject] = {}
         self.parties: Dict[NID, PartyObject] = {}
         self.unlocked_lore: List[NID] = []
+        self.dialog_log: DialogLog = None
         self.already_triggered_events: List[NID] = []
         self.market_items: set = []
 
@@ -162,6 +163,8 @@ class GameState():
         self.records = records.Recordkeeper()
         self.market_items = set()
         self.unlocked_lore = []
+        from app.engine.dialog_log import DialogLog
+        self.dialog_log = DialogLog()
         self.already_triggered_events = []
         self.sweep()
         self.generic()
@@ -178,6 +181,7 @@ class GameState():
         self.base_convos = {}
         self.action_log = turnwheel.ActionLog()
         self.events = event_manager.EventManager()
+        self.dialog_log.clear()
 
     def generic(self):
         """
@@ -288,6 +292,7 @@ class GameState():
                   'records': self.records.save(),
                   'market_items': self.market_items,  # Item nids
                   'unlocked_lore': self.unlocked_lore,
+                  'dialog_log': self.dialog_log.save(),
                   'already_triggered_events': self.already_triggered_events,
                   'talk_options': self.talk_options,
                   'base_convos': self.base_convos,
@@ -314,7 +319,7 @@ class GameState():
         return s_dict, meta_dict
 
     def load(self, s_dict):
-        from app.engine import action, records, save, supports, turnwheel
+        from app.engine import action, records, save, supports, turnwheel, dialog_log
         from app.engine.objects.difficulty_mode import DifficultyModeObject
         from app.engine.objects.item import ItemObject
         from app.engine.objects.level import LevelObject
@@ -363,6 +368,8 @@ class GameState():
         self.parties = {party_data['nid']: PartyObject.restore(party_data) for party_data in s_dict['parties']}
         self.market_items = s_dict.get('market_items', set())
         self.unlocked_lore = s_dict.get('unlocked_lore', [])
+        self.dialog_log = dialog_log.DialogLog.restore(s_dict.get('dialog_log', []))
+
         self.already_triggered_events = s_dict.get('already_triggered_events', [])
         self.talk_options = s_dict.get('talk_options', [])
         self.base_convos = s_dict.get('base_convos', {})

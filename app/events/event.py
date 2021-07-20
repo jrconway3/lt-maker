@@ -23,6 +23,7 @@ from app.engine.overworld.overworld_map_view import OverworldMapView
 from app.engine.overworld.overworld_movement_manager import \
     OverworldMovementManager
 from app.engine.sound import SOUNDTHREAD
+from app.engine.game_state import game
 from app.events import event_commands, regions
 from app.events.event_portrait import EventPortrait
 from app.resources.resources import RESOURCES
@@ -175,6 +176,7 @@ class Event():
             elif self.state == 'dialog':
                 if self.text_boxes:
                     if self.text_boxes[-1].is_done():
+                        action.do(action.LogDialog(self.text_boxes[-1]))
                         self.state = 'processing'
                 else:
                     self.state = 'processing'
@@ -1421,6 +1423,7 @@ class Event():
                 position = (4, 2)
             if not width:
                 width = WINWIDTH - 8
+
         new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant)
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'

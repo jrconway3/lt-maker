@@ -339,7 +339,8 @@ class UIView():
 
         if DB.constants.value('pairup'):
             # This is where the dual attack info will be shown
-            if not defender.paired_partner and a_assist:
+            if (a_assist and not defender.paired_partner) or (d_assist and not attacker.paired_partner):
+                # Background boxes
                 prefix = 'assist_info_'
                 if grandmaster:
                     infix = 'grandmaster'
@@ -349,24 +350,10 @@ class UIView():
                     infix = ''
                 color = utils.get_team_color(attacker.team)
                 final = prefix + infix + ('_' if infix else '') + color
-                surf.blit(SPRITES.get(final).copy(), (80, 0))
+                surf.blit(SPRITES.get(final).copy(), (68, 19))
 
-                mt = combat_calcs.compute_assist_damage(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
-                if grandmaster:
-                    hit = combat_calcs.compute_hit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
-                    blit_num(surf, int(mt * float(hit) / 100), 120, 1)
-                else:
-                    blit_num(surf, mt, 120, 1)
-                    hit = combat_calcs.compute_hit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
-                    blit_num(surf, hit, 120, 17)
-                    # Blit crit if applicable
-                    if crit_flag:
-                        c = combat_calcs.compute_crit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
-                        blit_num(surf, c, 120, 33)
-
-            if not attacker.paired_partner and d_assist and defender.get_weapon() and \
-                    combat_calcs.can_counterattack(attacker, weapon, defender, defender.get_weapon()):
                 # Defender's dual attack
+                # Drawn here so there's always a complete box
                 prefix = 'assist_info_'
                 if grandmaster:
                     infix = 'grandmaster'
@@ -378,20 +365,42 @@ class UIView():
                 if color not in ('red', 'purple'):
                     color = 'red'
                 final = prefix + infix + ('_' if infix else '') + color
-                surf.blit(SPRITES.get(final).copy(), (80, 70))
+                surf.blit(SPRITES.get(final).copy(), (68, 34))
 
+            if not defender.paired_partner and a_assist:
+
+                width = FONT['text-white'].width(a_assist.name)
+                FONT['text-white'].blit(a_assist.name, surf, (90 - width//2, 19))
+                mt = combat_calcs.compute_assist_damage(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
+                if grandmaster:
+                    hit = combat_calcs.compute_hit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
+                    blit_num(surf, int(mt * float(hit) / 100), 110, 34)
+                else:
+                    blit_num(surf, mt, 110, 34)
+                    hit = combat_calcs.compute_hit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
+                    blit_num(surf, hit, 110, 50)
+                    # Blit crit if applicable
+                    if crit_flag:
+                        c = combat_calcs.compute_crit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
+                        blit_num(surf, c, 110, 66)
+
+            if not attacker.paired_partner and d_assist and defender.get_weapon() and \
+                    combat_calcs.can_counterattack(attacker, weapon, defender, defender.get_weapon()):
+
+                width = FONT['text-white'].width(d_assist.name)
+                FONT['text-white'].blit(d_assist.name, surf, (90 - width//2, 81))
                 mt = combat_calcs.compute_assist_damage(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense')
                 if grandmaster:
                     hit = combat_calcs.compute_hit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense')
-                    blit_num(surf, int(mt * float(hit) / 100), 120, 71)
+                    blit_num(surf, int(mt * float(hit) / 100), 87, 34)
                 else:
-                    blit_num(surf, mt, 120, 71)
+                    blit_num(surf, mt, 87, 34)
                     hit = combat_calcs.compute_hit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense')
-                    blit_num(surf, hit, 120, 87)
+                    blit_num(surf, hit, 87, 50)
                     # Blit crit if applicable
                     if crit_flag:
                         c = combat_calcs.compute_crit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense')
-                        blit_num(surf, c, 120, 103)
+                        blit_num(surf, c, 87, 66)
 
         # Name
         width = FONT['text-white'].width(attacker.name)

@@ -1,23 +1,23 @@
-import sys, os
+import os
 
-from app.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
-from app.resources.resources import RESOURCES
-from app.data.database import DB
-
-from app.engine.sprites import SPRITES
-from app.engine.sound import SOUNDTHREAD
-from app.engine.fonts import FONT
-from app.engine.state import State
-from app.engine.background import PanoramaBackground
-from app.engine import engine, save, image_mods, banner, \
-    menus, particles, base_surf, dialog, text_funcs, gui
-from app.engine import config as cf
 from app import autoupdate
+from app.constants import TILEX, TILEY, WINHEIGHT, WINWIDTH
+from app.data.database import DB
+from app.data.difficulty_modes import GrowthOption, PermadeathOption
+from app.engine import banner, base_surf
+from app.engine import config as cf
+from app.engine import (dialog, engine, gui, image_mods, menus, particles,
+                        save, text_funcs)
+from app.engine.background import PanoramaBackground
 from app.engine.fluid_scroll import FluidScroll
+from app.engine.fonts import FONT
 from app.engine.game_state import game
 from app.engine.objects.difficulty_mode import DifficultyModeObject
-
+from app.engine.sound import SOUNDTHREAD
+from app.engine.sprites import SPRITES
+from app.engine.state import State
 from app.events.event import Event
+from app.resources.resources import RESOURCES
 
 import logging
 
@@ -185,13 +185,13 @@ class TitleMainState(State):
                     # Check if more than one mode or the only mode requires a choice
                     if len(DB.difficulty_modes) > 1 or \
                             (DB.difficulty_modes and
-                             (DB.difficulty_modes[0].permadeath_choice == 'Player Choice' or
-                              DB.difficulty_modes[0].growths_choice == 'Player Choice')):
+                             (DB.difficulty_modes[0].permadeath_choice == PermadeathOption.PLAYER_CHOICE or
+                              DB.difficulty_modes[0].growths_choice == GrowthOption.PLAYER_CHOICE)):
                         game.memory['next_state'] = 'title_mode'
                         game.state.change('transition_to')
                     else:  # Wow, no need for choice
                         mode = DB.difficulty_modes[0]
-                        game.current_mode = DifficultyModeObject(mode.nid)
+                        game.current_mode = DifficultyModeObject.from_prefab(mode)
                         game.state.change('title_new')
                 self.state = 'transition_in'
                 return 'repeat'
@@ -262,15 +262,15 @@ class TitleModeState(State):
                 game.state.change('transition_in')
             else:
                 mode = DB.difficulty_modes[0]
-                game.current_mode = DifficultyModeObject(mode.nid)
-                self.permadeath_choice = mode.permadeath_choice == 'Player Choice'
-                self.growths_choice = mode.growths_choice == 'Player Choice'
+                game.current_mode = DifficultyModeObject.from_prefab(mode)
+                self.permadeath_choice = mode.permadeath_choice == PermadeathOption.PLAYER_CHOICE
+                self.growths_choice = mode.growths_choice == GrowthOption.PLAYER_CHOICE
                 self.state = 'death_setup'
                 return self.begin()  # Call again to continue setting it up
 
         elif self.state == 'death_setup':
             if self.permadeath_choice:
-                options = ['Casual', 'Classic']
+                options = [perma.value for perma in PermadeathOption if perma != PermadeathOption.PLAYER_CHOICE]
                 self.menu = menus.ModeSelect(options)
                 self.menu.current_index = 1
                 self.state = 'death_wait'
@@ -281,7 +281,7 @@ class TitleModeState(State):
 
         elif self.state == 'growth_setup':
             if self.growths_choice:
-                options = ['Random', 'Fixed', 'Dynamic']
+                options = [growth.value for growth in GrowthOption if growth != GrowthOption.PLAYER_CHOICE]
                 self.menu = menus.ModeSelect(options)
                 self.state = 'growth_wait'
                 game.state.change('transition_in')
@@ -350,7 +350,7 @@ class TitleModeState(State):
                 game.memory['next_state'] = 'title_new'
                 game.state.change('transition_to')
             elif self.state == 'death_wait':
-                game.current_mode.permadeath = self.menu.get_current() == 'Classic'
+                game.current_mode.permadeath = self.menu.get_current() == PermadeathOption.CLASSIC
                 if self.growths_choice:
                     self.state = 'growth_setup'
                     game.state.change('transition_out')
@@ -359,9 +359,9 @@ class TitleModeState(State):
                     game.state.change('transition_to')
             elif self.state == 'difficulty_wait':
                 mode = DB.difficulty_modes[self.menu.get_current_index()]
-                game.current_mode = DifficultyModeObject(mode.nid)
-                self.permadeath_choice = mode.permadeath_choice == 'Player Choice'
-                self.growths_choice = mode.growths_choice == 'Player Choice'
+                game.current_mode = DifficultyModeObject.from_prefab(mode)
+                self.permadeath_choice = mode.permadeath_choice == PermadeathOption.PLAYER_CHOICE
+                self.growths_choice = mode.growths_choice == GrowthOption.PLAYER_CHOICE
                 if self.permadeath_choice:
                     self.state = 'death_setup'
                     game.state.change('transition_out')

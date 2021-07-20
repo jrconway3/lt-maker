@@ -110,6 +110,7 @@ class SimpleCombat():
 
         # Handle death
         for unit in all_units:
+            unit.strike_partner = None
             if unit.get_hp() <= 0:
                 game.death.should_die(unit)
             else:
@@ -214,11 +215,15 @@ class SimpleCombat():
         Returns list of all units taking in this combat
         """
         all_units = [self.attacker]
+        if self.attacker.strike_partner:
+            all_units.append(self.attacker.strike_partner)
         for unit in self.all_splash:
-            if unit is not self.attacker:
+            if unit not in all_units:
                 all_units.append(unit)
         for unit in self.all_defenders:
-            if unit is not self.attacker:
+            if unit not in all_units:
+                if len(self.all_defenders) == 1 and unit.strike_partner:
+                    all_units.append(unit.strike_partner)
                 all_units.append(unit)
         return all_units
 

@@ -181,7 +181,7 @@ class AnimationCombat(BaseCombat, MockCombat):
                     if effect:
                         any_effect = True
                         self.left_battle_anim.add_effect(effect)
-                
+
                 if any_effect:
                     pass # Stay on current state
                 else:
@@ -429,7 +429,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         elif defender_battle:
             self.battle_music = SOUNDTHREAD.battle_fade_in(defender_battle)
         elif battle_music:
-            self.battle_music = SOUNDTHREAD.battle_fade_in(battle_music) 
+            self.battle_music = SOUNDTHREAD.battle_fade_in(battle_music)
 
     def left_team(self):
         return self.left.team
@@ -499,7 +499,7 @@ class AnimationCombat(BaseCombat, MockCombat):
 
     def set_up_combat_animation(self):
         self.state = 'anim'
-        if self.get_from_playback('defender_phase'):
+        if self.get_from_playback('defender_phase') or self.get_from_playback('defender_partner_phase'):
             if self.attacker is self.left:
                 self.current_battle_anim = self.right_battle_anim
             else:

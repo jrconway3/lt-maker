@@ -256,7 +256,7 @@ class DefenderPartnerState(SolverState):
         skill_system.start_sub_combat(actions, playback, def_p, solver.def_item, solver.attacker, 'attack')
         skill_system.start_sub_combat(actions, playback, solver.attacker, solver.main_item, def_p, 'defense')
 
-        solver.process(actions, playback, def_p, solver.attacker, solver.attacker.position, solver.def_item, solver.main_item, 'defense')
+        solver.process(actions, playback, def_p, solver.attacker, solver.attacker.position, solver.def_item, solver.main_item, 'defense', True)
 
         # Remove defending unit's proc skills (which is solver.attacker)
         skill_system.end_sub_combat(actions, playback, solver.attacker, solver.main_item, def_p, 'defense')

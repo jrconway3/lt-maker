@@ -229,18 +229,8 @@ class ExpState(State):
                 # check for skill gain unless the unit is using a booster to
                 # get to this screen
                 if self.starting_state != "stat_booster":
-                    unit_klass = DB.classes.get(self.unit.klass)
-                    for level_needed, class_skill in unit_klass.learned_skills:
-                        if self.unit.level == level_needed:
-                            if class_skill == 'Feat':
-                                game.memory['current_unit'] = self.unit
-                                game.state.change('feat_choice')
-                            else:
-                                act = action.AddSkill(self.unit, class_skill)
-                                action.do(act)
-                                if act.skill_obj:
-                                    game.alerts.append(banner.GiveSkill(self.unit, act.skill_obj))
-                                    game.state.change('alert')
+                    ExpState.give_new_personal_skills(self.unit)
+                    ExpState.give_new_class_skills(self.unit)
 
         # Wait 100 ms before transferring to the promotion state
         elif self.state.get_state() == 'prepare_promote':
@@ -320,6 +310,38 @@ class ExpState(State):
                 self.level_up_screen.draw(surf)
 
         return surf
+
+    @staticmethod
+    def give_new_class_skills(unit):
+        unit_klass = DB.classes.get(unit.klass)
+        for level_needed, class_skill in unit_klass.learned_skills:
+            if unit.level == level_needed:
+                if class_skill == 'Feat':
+                    game.memory['current_unit'] = unit
+                    game.state.change('feat_choice')
+                else:
+                    act = action.AddSkill(unit, class_skill)
+                    action.do(act)
+                    if act.skill_obj:
+                        game.alerts.append(banner.GiveSkill(unit, act.skill_obj))
+                        game.state.change('alert')
+
+    @staticmethod
+    def give_new_personal_skills(unit):
+        unit_prefab = DB.units.get(unit.nid)
+        if not unit_prefab:
+            return
+        for level_needed, personal_skill in unit_prefab.learned_skills:
+            if unit.level == level_needed:
+                if personal_skill == 'Feat':
+                    game.memory['current_unit'] = unit
+                    game.state.change('feat_choice')
+                else:
+                    act = action.AddSkill(unit, personal_skill)
+                    action.do(act)
+                    if act.skill_obj:
+                        game.alerts.append(banner.GiveSkill(unit, act.skill_obj))
+                        game.state.change('alert')
 
 class LevelUpScreen():
     bg = SPRITES.get('level_screen')

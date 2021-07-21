@@ -1097,5 +1097,25 @@
                 1.0
             ]
         ]
+    },
+    {
+        "nid": "Smush",
+        "name": "Smush",
+        "desc": "",
+        "icon_nid": "Anima",
+        "icon_index": [
+            0,
+            2
+        ],
+        "components": [
+            [
+                "combat_condition",
+                "target.team == 'enemy'"
+            ],
+            [
+                "damage",
+                30
+            ]
+        ]
     }
 ]

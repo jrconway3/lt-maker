@@ -109,7 +109,7 @@ class AnimationCombat(BaseCombat, MockCombat):
 
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
-        self.current_state = self.state
+        current_state = self.state
 
         if self.state == 'init':
             self.start_combat()
@@ -120,6 +120,7 @@ class AnimationCombat(BaseCombat, MockCombat):
             game.cursor.set_pos(self.view_pos)
             if not self._skip:
                 game.state.change('move_camera')
+            self._set_stats()  # For start combat changes
 
         elif self.state == 'red_cursor':
             if self._skip or current_time > 400:
@@ -284,7 +285,7 @@ class AnimationCombat(BaseCombat, MockCombat):
                 self.end_skip()
                 return True
 
-        if self.state != self.current_state:
+        if self.state != current_state:
             self.last_update = engine.get_time()
 
         # Update hp bars
@@ -579,7 +580,7 @@ class AnimationCombat(BaseCombat, MockCombat):
                 damage = brush[4]
                 unit = brush[1]
                 item = brush[2]
-                magic = item_funcs.is_magic(unit, item)
+                magic = item_funcs.is_magic(unit, item, self.distance)
                 if damage > 0:
                     if magic:
                         self._shake(3)

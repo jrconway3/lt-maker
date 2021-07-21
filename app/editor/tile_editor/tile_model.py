@@ -49,10 +49,10 @@ class TileSetModel(ResourceCollectionModel):
                     pix = QPixmap(fn)
                     nid = str_utils.get_next_name(nid, RESOURCES.tilesets.keys())
                     if pix.width() % TILEWIDTH != 0:
-                        QMessageBox.critical(self, 'Error', "Image width must be exactly divisible by %d pixels!" % TILEWIDTH)
+                        QMessageBox.critical(self.window, 'Error', "Image width must be exactly divisible by %d pixels!" % TILEWIDTH)
                         continue
                     elif pix.height() % TILEHEIGHT != 0:
-                        QMessageBox.critical(self, 'Error', "Image height must be exactly divisible by %d pixels!" % TILEHEIGHT)
+                        QMessageBox.critical(self.window, 'Error', "Image height must be exactly divisible by %d pixels!" % TILEHEIGHT)
                         continue
                     new_tileset = TileSet(nid, fn)
                     new_tileset.set_pixmap(pix)

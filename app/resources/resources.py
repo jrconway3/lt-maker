@@ -142,7 +142,11 @@ class Resources():
             data_dir = os.path.join(resource_dir, data_type)
             if not os.path.exists(data_dir):
                 continue
-            getattr(self, data_type).clean(data_dir)
+            try:
+                getattr(self, data_type).clean(data_dir)
+            except Exception as e:
+                logging.exception(e)
+                logging.error("Could not successfully clean %s" % data_type)
 
         end = time.time_ns() / 1e6
         logging.warning("Total Time Taken for cleaning resource directory: %s ms" % (end - start))

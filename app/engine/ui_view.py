@@ -421,6 +421,7 @@ class UIView():
     def draw_attack_info(self, surf, attacker, weapon, defender):
         # Turns on appropriate combat conditionals to get an accurate read
         skill_system.test_on([], attacker, weapon, defender, 'attack')
+        skill_system.test_on([], defender, defender.get_weapon(), attacker, 'defense')
 
         if not self.attack_info_disp:
             self.attack_info_disp = self.create_attack_info(attacker, weapon, defender)
@@ -502,6 +503,7 @@ class UIView():
                 surf.blit(SPRITES.get('x4'), x2_pos_enemy)
 
         # Turns off combat conditionals
+        skill_system.test_off([], defender, defender.get_weapon(), attacker, 'defense')
         skill_system.test_off([], attacker, weapon, defender, 'attack')
 
         return surf

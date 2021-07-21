@@ -18,7 +18,7 @@ import logging
 
 class Resources():
     save_data_types = ("icons16", "icons32", "icons80", "portraits", "animations", "panoramas",
-                       "map_icons", "map_sprites", "combat_palettes", "combat_anims", "combat_effects", "music", "sfx", 
+                       "map_icons", "map_sprites", "combat_palettes", "combat_anims", "combat_effects", "music", "sfx",
                        "tilesets", "tilemaps")
 
     def __init__(self):

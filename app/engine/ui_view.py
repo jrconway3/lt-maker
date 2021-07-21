@@ -339,7 +339,7 @@ class UIView():
 
         if DB.constants.value('pairup'):
             # This is where the dual attack info will be shown
-            if (a_assist and not defender.paired_partner) or (d_assist and not attacker.paired_partner):
+            if (a_assist or d_assist) and not (attacker.paired_partner or defender.paired_partner):
                 # Background boxes
                 prefix = 'assist_info_'
                 if grandmaster:

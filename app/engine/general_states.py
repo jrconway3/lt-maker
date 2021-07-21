@@ -1307,7 +1307,8 @@ class CombatTargetingState(MapState):
         # Sets dual strik variables and chooses attacker dual strike
         self.attacker_assist = None
         self.defender_assist = None
-        if DB.constants.value('pairup'):
+        if DB.constants.value('pairup') and not \
+                (self.cur_unit.paired_partner or game.board.get_unit(closest_pos).paired_partner):
             # Players default dual strike partner
             self.adj_allies = target_system.get_adj_allies(self.cur_unit)
             # best_choice = None
@@ -1321,7 +1322,7 @@ class CombatTargetingState(MapState):
             # Determines the assisting units for the defender and keeps AOE from having dual strike
             if self.num_targets > 1:
                 self.attacker_assist = None
-            elif self.num_targets == 1 and game.board.get_unit(closest_pos) and DB.constants.value('pairup'):
+            elif self.num_targets == 1 and game.board.get_unit(closest_pos):
                 adj_allies = target_system.get_adj_allies(game.board.get_unit(closest_pos))
                 # best_choice = None
                 for ally in adj_allies:

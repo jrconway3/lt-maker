@@ -169,6 +169,13 @@ class CombatEffectProperties(CombatAnimProperties):
             self.pose_box.setValue(poses[0].nid)
         return poses
 
+    def get_current_weapon_anim(self):
+        """
+        For effects, their "weapon anim" is just themselves
+        So return itself
+        """
+        return self.current
+
     def import_legacy(self):
         starting_path = self.settings.get_last_open_path()
         fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Legacy Effect Script Files", starting_path, "Script Files (*-Script.txt);;All Files (*)")

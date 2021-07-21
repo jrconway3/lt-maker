@@ -128,7 +128,8 @@ formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formul
 default_behaviours = (
     'pass_through', 'vantage', 'ignore_terrain', 'crit_anyway',
     'ignore_region_status', 'no_double', 'def_double', 'alternate_splash',
-    'ignore_rescue_penalty', 'ignore_forced_movement', 'distant_counter')
+    'ignore_rescue_penalty', 'ignore_forced_movement', 'distant_counter',
+    'ignore_fatigue')
 # Takes in unit, returns default value
 exclusive_behaviours = ('can_select', 'movement_type', 'sight_range', 'empower_splash', 'num_items_offset', 'num_accessories_offset')
 exclusive_behaviours += formula
@@ -150,7 +151,7 @@ multiply_hooks = ('damage_multiplier', 'resist_multiplier')
 
 # Takes in unit
 simple_event_hooks = ('on_death',)
-# Takes in playback, unit, item, target
+# Takes in playback, unit, item, target, mode
 combat_event_hooks = ('start_combat', 'cleanup_combat', 'end_combat', 'pre_combat', 'post_combat', 'test_on', 'test_off')
 # Takes in actions, playback, unit, item, target, mode
 subcombat_event_hooks = ('after_hit', 'after_take_hit', 'start_sub_combat', 'end_sub_combat')

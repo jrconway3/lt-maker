@@ -45,7 +45,16 @@
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                2,
+                "Luna"
+            ],
+            [
+                1,
+                "Smush"
+            ]
+        ],
         "unit_notes": [
             [
                 "Likes",

@@ -4,6 +4,9 @@ from app.counters import generic3counter, movement_counter, simplecounter
 
 class Counters():
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         self._passive_sprite_counter = generic3counter(frames2ms(32), frames2ms(4))
         self._active_sprite_counter = generic3counter(frames2ms(13), frames2ms(6))
         self._move_sprite_counter = simplecounter((frames2ms(10), frames2ms(5), frames2ms(10), frames2ms(5)))
@@ -67,6 +70,5 @@ class Counters():
         current_time = engine.get_time()
         self._fps6_360counter.update(current_time)
         return self._fps6_360counter
-
 
 ANIMATION_COUNTERS = Counters()

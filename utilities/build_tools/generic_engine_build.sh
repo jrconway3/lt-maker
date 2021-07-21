@@ -1,7 +1,10 @@
-# Build Script for generric lt_engine
+# Build Script for generic lt_engine
 # source ./venv/Scripts/activate
 
+cp ./utilities/build_tools/generic_engine.spec .
 pyinstaller -y generic_engine.spec lt_engine
+rm -f generic_engine.spec
+
 rm -rf ../lt_engine
 mkdir ../lt_engine
 mv dist/lt_engine ../lt_engine/lt_engine

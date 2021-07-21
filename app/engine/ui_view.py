@@ -1,14 +1,16 @@
-from app.engine.game_counters import ANIMATION_COUNTERS
-from app.utilities import utils
-from app.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
-from app.data.database import DB
-
-from app.engine.sprites import SPRITES
-from app.engine.fonts import FONT
-from app.engine import engine, base_surf, image_mods, text_funcs, icons, evaluate, \
-    combat_calcs, skill_system, equations, item_system, item_funcs, menu_options
 import app.engine.config as cf
+from app.constants import TILEX, TILEY, WINHEIGHT, WINWIDTH
+from app.data.database import DB
+from app.data.difficulty_modes import RNGOption
+from app.engine import (base_surf, combat_calcs, engine, equations, evaluate,
+                        icons, image_mods, item_funcs, item_system,
+                        menu_options, skill_system, text_funcs)
+from app.engine.fonts import FONT
+from app.engine.game_counters import ANIMATION_COUNTERS
 from app.engine.game_state import game
+from app.engine.sprites import SPRITES
+from app.utilities import utils
+
 
 class UIView():
     legal_states = ('free', 'prep_formation', 'prep_formation_select')
@@ -320,7 +322,7 @@ class UIView():
             else:
                 FONT['text-blue'].blit_right(str(num), surf, (x_pos, y_pos))
 
-        grandmaster = game.mode.rng_choice == 'Grandmaster'
+        grandmaster = game.mode.rng_choice == RNGOption.GRANDMASTER
         crit_flag = DB.constants.value('crit')
 
         # Choose attack info background
@@ -426,7 +428,7 @@ class UIView():
         if not self.attack_info_disp:
             self.attack_info_disp = self.create_attack_info(attacker, weapon, defender)
 
-        grandmaster = game.mode.rng_choice == 'Grandmaster'
+        grandmaster = game.mode.rng_choice == RNGOption.GRANDMASTER
         crit = DB.constants.get('crit').value
 
         if game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1:

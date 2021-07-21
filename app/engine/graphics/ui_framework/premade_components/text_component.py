@@ -25,10 +25,10 @@ class TextProperties(ComponentProperties):
         self.font: BmpFont = FONT['text-white']
         # if the text component is multiline, how much space
         # is between the two lines. Can be percentage or pixel value.
-        self.line_break_size: str = '0px'           
+        self.line_break_size: str = '0px'
         # maximum number of lines to split the text over, if max_width is set.
         # if 0, then it will
-        self.max_lines: int = 2                       
+        self.max_lines: int = 2
 
 class TextComponent(UIComponent):
     """A component consisting purely of text

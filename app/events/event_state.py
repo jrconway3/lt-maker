@@ -2,6 +2,7 @@ from app.data.database import DB
 
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State
+from app.engine.dialog_log import DialogLogState
 import app.engine.config as cf
 from app.engine.game_state import game
 
@@ -21,7 +22,10 @@ class EventState(State):
                 game.cursor.hide()
 
     def take_input(self, event):
-        self.event.take_input(event)
+        if self.event.state == 'dialog' and event == 'INFO':
+            game.state.change('dialog_log')
+        else:
+            self.event.take_input(event)
 
     def update(self):
         if self.game_over:
@@ -47,18 +51,26 @@ class EventState(State):
         return surf
 
     def level_end(self):
+        current_level_nid = game.level.nid
         current_level_index = DB.levels.index(game.level.nid)
         should_go_to_overworld = DB.levels.get(game.level.nid).go_to_overworld
         game.clean_up()
         if current_level_index < len(DB.levels) - 1:
+
             game.game_vars['_should_go_to_overworld'] = should_go_to_overworld
-            if game.game_vars['_go_to_overworld_nid']:
-                game.game_vars['_next_overworld_nid'] = game.game_vars['_go_to_overworld_nid']
-            elif game.game_vars['_next_overworld_nid']:
-                # go to same overworld
-                pass
-            else:
-                game.game_vars['_next_overworld_nid'] = DB.overworlds.values()[0].nid
+            if should_go_to_overworld:
+                if game.game_vars['_go_to_overworld_nid']:
+                    game.game_vars['_next_overworld_nid'] = game.game_vars['_go_to_overworld_nid']
+                elif game.game_vars['_next_overworld_nid']:
+                    # go to same overworld
+                    pass
+                else:
+                    if not DB.overworlds.values(): # don't go to overworld?
+                        logging.error('No overworld selected at end of level ' + current_level_nid)
+                        game.game_vars['should_go_to_overworld'] = False
+                        game.game_vars['_next_overworld_nid'] = None
+                    else: # go to default
+                        game.game_vars['_next_overworld_nid'] = DB.overworlds.values()[0].nid
 
             # select the next level
             if game.game_vars.get('_goto_level'):

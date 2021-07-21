@@ -258,7 +258,7 @@ class OptionMenuState(MapState):
         game.cursor.hide()
         options = ['Unit', 'Objective', 'Options']
         info_desc = ['Unit_desc', 'Objective_desc', 'Options_desc']
-        ignore = [True, False, False]
+        ignore = [False, False, False]
         if game.current_mode.permadeath:
             options.append('Suspend')
             info_desc.append('Suspend_desc')
@@ -328,6 +328,9 @@ class OptionMenuState(MapState):
                         suspend()
                     elif selection == 'Save':
                         battle_save()
+            elif selection == 'Unit':
+                game.memory['next_state'] = 'unit_menu'
+                game.state.change('transition_to')
             elif selection == 'Objective':
                 game.memory['next_state'] = 'objective_menu'
                 game.state.change('transition_to')
@@ -337,10 +340,6 @@ class OptionMenuState(MapState):
             elif selection == 'Options':
                 game.memory['next_state'] = 'settings_menu'
                 game.state.change('transition_to')
-            elif selection == 'Unit':
-                pass
-                # game.state.change('unit_menu')
-                # game.state.change('transition_out')
             elif selection == 'Turnwheel':
                 if cf.SETTINGS['debug'] or game.game_vars.get('_current_turnwheel_uses', 1) > 0:
                     game.state.change('turnwheel')

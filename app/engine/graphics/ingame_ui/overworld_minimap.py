@@ -88,7 +88,7 @@ class OverworldMinimap(uif.UIComponent):
             return self.convert_overworld_pos_to_minimap_pos(self.cursor.position)
         return (0, 0)
 
-    def to_surf(self) -> Surface:
+    def to_surf(self, _=False) -> Surface:
         if not self.enabled:
             return engine.create_surface(self.size, True)
         base_surf = self._create_bg_surf().copy()

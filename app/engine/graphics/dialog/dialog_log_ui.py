@@ -6,9 +6,8 @@ from app.engine.fonts import FONT
 from app.constants import WINWIDTH, WINHEIGHT
 
 from app.engine.graphics.ui_framework.ui_framework import UIComponent
-from app.engine.graphics.ui_framework.ui_framework_layout import UILayoutType, VAlignment, ListLayoutStyle
+from app.engine.graphics.ui_framework.ui_framework_layout import UILayoutType, ListLayoutStyle
 from app.engine.graphics.ui_framework.premade_components import TextComponent
-from app.engine.graphics.ui_framework.premade_animations import component_scroll_anim
 
 class DialogEntryComponent(UIComponent):
     def __init__(self, name, speaker, text, parent=None):
@@ -48,7 +47,7 @@ class DialogLogContainer(UIComponent):
         self.scroll = (self.scroll[0], self.scroll[1] + dist)
 
     def scroll_all(self):
-        self.scroll = (self.scroll[0], self.scroll_height)
+        self.scroll = (self.scroll[0], self.scroll_height - self.height)
 
     def update_scroll_height(self):
         scroll_height = 0

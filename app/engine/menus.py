@@ -63,7 +63,7 @@ def draw_unit_items(surf, topleft, unit, include_top=False, include_bottom=True,
             item_option.draw(surf, topleft[0] + 2, topleft[1] + idx * 16 + 4)
         for idx, item in enumerate(unit.accessories):
             item_option = menu_options.ItemOption(idx, item)
-            item_option.draw(surf, topleft[0] + 2, topleft[1] + DB.constants.value('num_items') * 16 + idx * 16 + 4)
+            item_option.draw(surf, topleft[0] + 2, topleft[1] + item_funcs.get_num_items(unit) * 16 + idx * 16 + 4)
 
 
 def draw_unit_bexp(surf, topleft, unit, new_exp, new_bexp, current_bexp, include_top=False, include_bottom=True,
@@ -677,19 +677,18 @@ class Trade(Simple):
 
     trade_name_surf = SPRITES.get('trade_name')
 
-    def __init__(self, initiator, partner, items1, items2):
+    def __init__(self, initiator, partner):
         self.owner = initiator
         self.partner = partner
         self.info_flag = False
 
-        if len(items1) < DB.constants.total_items():
-            items1 = items1[:] + ['']
-        if len(items2) < DB.constants.total_items():
-            items2 = items2[:] + ['']
-        self.menu1 = Choice(self.owner, items1, (11, 68))
+        full_items1 = self.get_items(self.owner)
+        full_items2 = self.get_items(self.partner)
+
+        self.menu1 = Choice(self.owner, full_items1, (11, 68))
         self.menu1.set_limit(DB.constants.total_items())
         self.menu1.set_hard_limit(True)  # Makes hard limit
-        self.menu2 = Choice(self.partner, items2, (125, 68))
+        self.menu2 = Choice(self.partner, full_items2, (125, 68))
         self.menu2.set_limit(DB.constants.total_items())
         self.menu2.set_hard_limit(True)  # Makes hard limit
         self.menu2.set_cursor(0)
@@ -698,6 +697,15 @@ class Trade(Simple):
         self.other_hand = None
 
         self._selected_option = None
+
+    def get_items(self, unit):
+        items = unit.nonaccessories
+        accessories = unit.accessories
+        if len(items) < item_funcs.get_num_items(unit):
+            items = items[:] + [''] * (item_funcs.get_num_items(unit) - len(items))
+        if len(accessories) < item_funcs.get_num_accessories(unit):
+            accessories = accessories[:] + [''] * (item_funcs.get_num_accessories(unit) - len(accessories))
+        return items + accessories
 
     def selected_option(self):
         return self._selected_option
@@ -753,13 +761,11 @@ class Trade(Simple):
         else:
             return self.menu2.options[self.selecting_hand[1]]
 
-    def update_options(self, items1, items2):
-        if len(items1) < DB.constants.total_items():
-            items1 = items1[:] + ['']
-        if len(items2) < DB.constants.total_items():
-            items2 = items2[:] + ['']
-        self.menu1.update_options(items1)
-        self.menu2.update_options(items2)
+    def update_options(self):
+        full_items1 = self.get_items(self.owner)
+        full_items2 = self.get_items(self.partner)
+        self.menu1.update_options(full_items1)
+        self.menu2.update_options(full_items2)
 
     def move_down(self, first_push=True):
         old_index = self.selecting_hand[1]

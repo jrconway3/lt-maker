@@ -56,7 +56,7 @@ def draw_unit_items(surf, topleft, unit, include_top=False, include_bottom=True,
 
         if include_face:
             draw_unit_face(surf, topleft, unit, right)
-        
+
         # Blit items
         for idx, item in enumerate(unit.nonaccessories):
             item_option = menu_options.ItemOption(idx, item)
@@ -228,7 +228,7 @@ class Simple():
             if did_scroll:
                 self.next_scroll_time = engine.get_time() + 50
 
-    def move_to(self, idx):    
+    def move_to(self, idx):
         scroll = self.scroll
         idx = utils.clamp(idx, 0, len(self.options) - 1)
         if self.options[idx].ignore:
@@ -428,7 +428,7 @@ class Choice(Simple):
                 did_move = super().move_down(False)
                 while self.options[self.current_index].ignore:
                     did_move = super().move_down(False)
-                    
+
         if self.horizontal:
             self.cursor.y_offset = 0
         return did_move
@@ -546,7 +546,7 @@ class Choice(Simple):
                     self.stationary_cursor.draw(surf, left, top)
                 if idx + self.scroll == self.current_index and self.takes_input and self.draw_cursor:
                     self.cursor.draw(surf, left, top)
-                    
+
                 running_height += choice.height()
         else:
             FONT['text-grey'].blit("Nothing", bg_surf, (self.topleft[0] + 16, self.topleft[1] + 4))
@@ -578,7 +578,7 @@ class Choice(Simple):
                     self.stationary_cursor.draw(surf, left, top)
                 if idx == self.current_index and self.takes_input and self.draw_cursor:
                     self.cursor.draw(surf, left, top)
-                    
+
                 running_width += choice.width() + 8
         else:
             FONT['text-grey'].blit("Nothing", bg_surf, (self.topleft[0] + 8, self.topleft[1] + 4))
@@ -735,7 +735,7 @@ class Trade(Simple):
             self.menu2.set_cursor(1)
             self.menu1.set_cursor(0)
         else:
-            self._selected_option = self.menu2.options[self.selecting_hand[1]]            
+            self._selected_option = self.menu2.options[self.selecting_hand[1]]
             good_options = [option for option in self.menu1.options if not option.ignore]
             if len(good_options) > DB.constants.total_items():
                 self.menu1.move_to(self.selecting_hand[1])
@@ -857,7 +857,7 @@ class Trade(Simple):
         else:
             self.menu1.draw(surf)
             self.menu2.draw(surf)
-            
+
         return surf
 
     def handle_mouse(self):
@@ -887,7 +887,7 @@ class Table(Simple):
     def __init__(self, owner, options, layout, topleft=None, background='menu_bg_base', info=None):
         self.mode = None
         super().__init__(owner, options, topleft, background, info)
-        
+
         self.rows, self.columns = layout
         self.limit = self.rows
         self.gem = False
@@ -1146,7 +1146,7 @@ class Table(Simple):
 
 class Convoy():
     trade_name_surf = SPRITES.get('trade_name')
-    
+
     def __init__(self, owner, topleft, include_other_units=True, disp_value=False):
         self.unit = self.owner = owner  # Unit that's at the convoy
         self.topleft = topleft
@@ -1200,12 +1200,12 @@ class Convoy():
             for unit in game.get_units_in_party():
                 if unit.nid != self.unit.nid:
                     items = item_funcs.get_all_tradeable_items(unit)
-                    all_items += items                
+                    all_items += items
 
         sorted_dict = {}
         for w_type in self.order:
             if w_type != 'Default':
-                sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type] 
+                sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type]
         sorted_dict['Default'] = [item for item in all_items if item_system.weapon_type(self.unit, item) is None]
         for key, value in sorted_dict.items():
             value.sort(key=lambda item: item_system.special_sort(self.unit, item) or 0)
@@ -1413,7 +1413,7 @@ class Convoy():
         FONT['text-white'].blit(unit_str, surf, (160, 4))
 
         # Draw item icons
-        dist = (self.menu_width - 10)/len(self.order) 
+        dist = (self.menu_width - 10)/len(self.order)
         for idx, weapon_nid in enumerate(reversed(self.order)):
             true_idx = len(self.order) - idx - 1
             if true_idx == self.selection_index - 1:
@@ -1426,7 +1426,7 @@ class Convoy():
                 topleft = (self.topleft[0] + 3 + int(idx * dist), self.topleft[1] - 14)
                 icons.draw_weapon(surf, weapon_nid, topleft)
                 surf.blit(SPRITES.get('weapon_shine'), topleft)
-                
+
         self.left_arrow.draw(surf)
         self.right_arrow.draw(surf)
         return surf
@@ -1479,11 +1479,11 @@ class Market(Convoy):
             all_items += convoy
             for unit in game.get_units_in_party():
                 items = item_funcs.get_all_tradeable_items(unit)
-                all_items += items 
-        
+                all_items += items
+
         sorted_dict = {}
         for w_type in self.order:
-            sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type] 
+            sorted_dict[w_type] = [item for item in all_items if item_system.weapon_type(self.unit, item) == w_type]
         sorted_dict['Default'] = [item for item in all_items if item_system.weapon_type(self.unit, item) is None]
         for key, value in sorted_dict.items():
             value.sort(key=lambda item: item_system.special_sort(self.unit, item) or 0)
@@ -1582,7 +1582,7 @@ class Main(Simple):
                 option.draw_highlight(surf, center[0], top)
             else:
                 option.draw(surf, center[0], top)
-                
+
         if show_cursor:
             height = center[1] - 12 - (num_options/2.0 - self.current_index) * (option.height() + 1)
             self.cursor1.draw_vert(surf, center[0] - option.width()//2 - 8 - 8, height)
@@ -1655,7 +1655,7 @@ class ChapterSelect(Main):
                     option.draw_highlight(surf, center[0], top)
             else:
                 option.draw(surf, center[0], top)
-                
+
         if show_cursor and self.options:
             option = self.options[0]
             if self.use_rel_y:
@@ -1710,7 +1710,7 @@ class ModeSelect(Main):
                 option.draw_highlight(surf, center[0], top)
             else:
                 option.draw(surf, center[0], top)
-                
+
         if show_cursor:
             height = center[1] - 12 - (num_options/2.0 - self.current_index) * (option.height() + 1)
             self.cursor1.draw_vert(surf, center[0] - option.width()//2 - 8 - 8, height)

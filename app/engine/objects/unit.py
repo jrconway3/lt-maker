@@ -3,8 +3,8 @@ from typing import Tuple
 from app.data.database import DB
 from app.data.difficulty_modes import GrowthOption
 from app.data.units import UnitPrefab
-from app.engine import (action, equations, item_funcs, item_system,
-                        skill_system, unit_funcs)
+from app.engine import (action, combat_calcs, equations, item_funcs,
+                        item_system, skill_system, unit_funcs)
 from app.engine.game_state import game
 from app.utilities import utils
 from app.utilities.data import Prefab
@@ -224,6 +224,21 @@ class UnitObject(Prefab):
 
     def get_stat(self, stat_nid):
         return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)
+
+    def get_damage_with_current_weapon(self) -> int:
+        if self.equipped_weapon:
+            return combat_calcs.damage(self, self.equipped_weapon)
+        else:
+            return 0
+
+    def get_accuracy_with_current_weapon(self) -> int:
+        if self.equipped_weapon:
+            return combat_calcs.accuracy(self, self.equipped_weapon)
+        else:
+            return 0
+
+    def get_avoid_with_current_weapon(self) -> int:
+        return combat_calcs.avoid(self, self.equipped_weapon)
 
     @property
     def sprite(self):

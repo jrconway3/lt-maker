@@ -16,6 +16,7 @@ class Counters():
         self._x2_counter = simplecounter([frames2ms(3)] * 18)
         self._flag_counter = simplecounter([frames2ms(15)] * 4)
         self._fps6_360counter = simplecounter([frames2ms(6)] * 360)
+        self._fps2_360counter = simplecounter([frames2ms(2)] * 360)
 
     @property
     def passive_sprite_counter(self):
@@ -70,5 +71,12 @@ class Counters():
         current_time = engine.get_time()
         self._fps6_360counter.update(current_time)
         return self._fps6_360counter
+
+    @property
+    def fps2_360counter(self):
+        current_time = engine.get_time()
+        self._fps2_360counter.update(current_time)
+        return self._fps2_360counter
+
 
 ANIMATION_COUNTERS = Counters()

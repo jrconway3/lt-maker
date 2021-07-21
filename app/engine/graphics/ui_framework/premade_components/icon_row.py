@@ -13,11 +13,13 @@ class IconRow(UIComponent):
                  width: str = '100%', height: str = '0%', text: str = '',
                  icon: engine.Surface | UIComponent = None,
                  text_align: HAlignment = HAlignment.LEFT,
-                 font: bmpfont.BmpFont = FONT['text-white']):
+                 font: bmpfont.BmpFont = FONT['text-white'], data=None):
         super().__init__(name=name, parent=parent)
         if text_align == HAlignment.LEFT:
             self.props.layout = UILayoutType.LIST
             self.props.list_style = ListLayoutStyle.ROW
+
+        self.data = data
 
         self.text = TextComponent(text, text)
         self.text.props.font = font

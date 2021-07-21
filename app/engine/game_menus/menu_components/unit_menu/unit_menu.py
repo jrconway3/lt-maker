@@ -1,18 +1,19 @@
 from __future__ import annotations
-from app.utilities.enums import Direction
 
-from app.engine.game_menus.menu_components.unit_menu.unit_table import UnitInformationTable
-from app.engine.fonts import FONT
 from enum import Enum
 from typing import Callable, List, Tuple
-from app.engine.objects.unit import UnitObject
-from pygame.constants import SRCALPHA
-from app.engine.base_surf import create_base_surf
-from app.constants import COLORKEY
-from app.engine.sprites import SPRITES
-from app.engine import image_mods, engine
 
 import app.engine.graphics.ui_framework as uif
+from app.engine import engine, image_mods
+from app.engine.base_surf import create_base_surf
+from app.engine.fonts import FONT
+from app.engine.game_menus.menu_components.unit_menu.unit_table import \
+    UnitInformationTable
+from app.engine.objects.unit import UnitObject
+from app.engine.sprites import SPRITES
+from app.utilities.enums import Direction
+
+
 class SORT_TYPE(Enum):
     ASCENDING = 0
     DESCENDING = 1
@@ -30,7 +31,7 @@ class UnitMenuUI():
 
         # initialize components
         self.unit_info_box: uif.UIComponent = uif.UIComponent(name="page type box")
-        self.unit_info_box.props.bg = engine.image_load(SPRITES['world_map_location_box'].full_path, convert_alpha=True)
+        self.unit_info_box.props.bg = SPRITES.get('world_map_location_box')
         self.unit_info_box.size = self.unit_info_box.props.bg.get_size()
         self.unit_info_box.props.v_alignment = uif.VAlignment.TOP
         self.unit_info_box.props.h_alignment = uif.HAlignment.LEFT
@@ -39,7 +40,6 @@ class UnitMenuUI():
         self.page_title_component = uif.text_component.TextComponent("page type text", "", self.unit_info_box)
         self.page_title_component.props.h_alignment = uif.HAlignment.CENTER
         self.page_title_component.props.v_alignment = uif.VAlignment.CENTER
-        self.page_title_component.props.resize_mode = uif.ResizeMode.AUTO
         self.page_title_component.props.font = FONT['chapter-grey']
         self.page_title_component.set_text("Character")
         self.unit_info_box.add_child(self.page_title_component)
@@ -54,21 +54,20 @@ class UnitMenuUI():
         self.sort_by_text = uif.text_component.TextComponent("sort by", "", self.sort_box)
         self.sort_by_text.props.h_alignment = uif.HAlignment.LEFT
         self.sort_by_text.props.v_alignment = uif.VAlignment.CENTER
-        self.sort_by_text.props.resize_mode = uif.ResizeMode.AUTO
         self.sort_by_text.props.font = FONT['text-white']
         self.sort_by_text.margin = (3, 0, 0, 0)
         self.sort_by_text.padding = (0, 0, 0, 2)
         self.sort_by_text.set_text("Sort: ")
         self.sort_box.add_child(self.sort_by_text)
 
-        asc_sort_arrow = engine.image_load(SPRITES['sort_arrow'].full_path, convert_alpha=True)
+        asc_sort_arrow = SPRITES.get('sort_arrow')
         self.asc_sort_arrow = uif.UIComponent.from_existing_surf(asc_sort_arrow)
         self.asc_sort_arrow.props.h_alignment = uif.HAlignment.RIGHT
         self.asc_sort_arrow.margin = (0, 2, 5, 0)
         self.sort_box.add_child(self.asc_sort_arrow)
         self.asc_sort_arrow.disable()
 
-        desc_sort_arrow = engine.transform_rotate(asc_sort_arrow, 180)
+        desc_sort_arrow = engine.flip_vert(asc_sort_arrow)
         self.desc_sort_arrow = uif.UIComponent.from_existing_surf(desc_sort_arrow)
         self.desc_sort_arrow.props.h_alignment = uif.HAlignment.RIGHT
         self.desc_sort_arrow.margin = (0, 2, 5, 0)
@@ -141,7 +140,7 @@ class UnitMenuUI():
         reverse = self.sort_direction != SORT_TYPE.DESCENDING
         self.sort_by = sort_by[0]
         self.data = sorted(self.data, key=sort_by[1], reverse=reverse)
-        self.unit_info_table.set_data(self.data)
+        self.unit_info_table.sort_data(self.data)
 
     def draw(self, surf: engine.Surface) -> engine.Surface:
         self._update_sort_box()

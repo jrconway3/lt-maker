@@ -42,19 +42,18 @@ class UnitMenuState(State):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 
-        if first_push:
-            if 'DOWN' in directions:
-                SOUNDTHREAD.play_sfx('Select 6')
-                self.ui_display.move_cursor(Direction.DOWN)
-            elif 'UP' in directions:
-                SOUNDTHREAD.play_sfx('Select 6')
-                self.ui_display.move_cursor(Direction.UP)
-            elif 'LEFT' in directions:
-                SOUNDTHREAD.play_sfx('Select 6')
-                self.ui_display.move_cursor(Direction.LEFT)
-            elif 'RIGHT' in directions:
-                SOUNDTHREAD.play_sfx('Select 6')
-                self.ui_display.move_cursor(Direction.RIGHT)
+        if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.ui_display.move_cursor(Direction.DOWN)
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.ui_display.move_cursor(Direction.UP)
+        elif 'LEFT' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.ui_display.move_cursor(Direction.LEFT)
+        elif 'RIGHT' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.ui_display.move_cursor(Direction.RIGHT)
 
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')

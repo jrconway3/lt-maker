@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.engine.graphics.ui_framework.premade_components.icon_row import IconRow
 
 from typing import Callable, List, Tuple
 
@@ -184,8 +185,12 @@ class UnitStatisticsTable(uif.UIComponent):
         for unit in self.data:
             val = get_stat_value(unit) if get_stat_value else ""
             icon = get_stat_icon(unit) if get_stat_icon else None
-            rows.append(uif.IconRow(unit.name, text=str(val), icon=icon, text_align=col.header_align, font=col.font))
+            rows.append(uif.IconRow(unit.name, text=str(val), icon=icon, text_align=col.header_align, font=col.font, data=unit))
         return rows
+
+    def sort_rows(self, sort_func: Callable[[IconRow], int]):
+        for hlist in self.table:
+            hlist.sort_rows(sort_func)
 
     def is_scrolling(self) -> bool:
         return self.is_animating()
@@ -305,16 +310,6 @@ class UnitInformationTable(uif.UIComponent):
         return (x_bound, y_bound)
 
     def initialize_components(self):
-        # if reinitializing
-        prev_name_list_scroll = None
-        prev_grid_scroll = None
-        prev_page = None
-        if self.left_unit_name_list:
-            prev_name_list_scroll = self.left_unit_name_list.scroll
-        if self.right_unit_data_grid:
-            prev_grid_scroll = self.right_unit_data_grid.scroll
-            prev_page = self.right_unit_data_grid.page
-
         # initialize name_column
         self.header_row = uif.IconRow(text='Name', icon=engine.create_surface(ICON_SIZE, True))
         self.name_rows: List[uif.IconRow] = self.generate_name_rows()
@@ -332,19 +327,19 @@ class UnitInformationTable(uif.UIComponent):
         # init stats table
         self.right_unit_data_grid = UnitStatisticsTable('unit_statistics', self, data=self.data)
 
-        if prev_name_list_scroll:
-            self.left_unit_name_list.scroll = prev_name_list_scroll
-        if prev_grid_scroll:
-            self.right_unit_data_grid.scroll = prev_grid_scroll
-            self.right_unit_data_grid.page = prev_page
-
         self.children.clear()
         self.add_child(self.left_unit_name_list)
         self.add_child(self.right_unit_data_grid)
 
-    def set_data(self, data: List[UnitObject]):
+    def sort_data(self, data: List[UnitObject]):
+        # sorts our rows in place for performance
         self.data = data
-        self.initialize_components()
+        nid_data = [d.nid for d in data]
+        order = {v: i for i, v in enumerate(nid_data)}
+        sort_func = lambda row, order=order: order[row.data.nid]
+        self.name_rows = sorted(self.name_rows, key=sort_func)
+        self.left_unit_name_list.sort_rows(sort_func)
+        self.right_unit_data_grid.sort_rows(sort_func)
 
     def initialize_background(self):
         # background hackery
@@ -357,7 +352,7 @@ class UnitInformationTable(uif.UIComponent):
         menu_bg_before_processing = create_base_surf(self.width, header_thickness + bottom_border_thickness, 'menu_bg_white')
         translucent_menu_bg = image_mods.make_translucent(menu_bg_before_processing, 0.1)
         background_header = engine.subsurface(translucent_menu_bg, (0, 0, self.width, header_thickness))
-        header_shadow: engine.Surface = image_mods.make_translucent(engine.image_load(SPRITES['header_shadow'].full_path, convert_alpha=True), 0.7)
+        header_shadow: engine.Surface = image_mods.make_translucent(SPRITES.get('header_shadow'), 0.7)
         background_header.blit(header_shadow, (0, 10))
 
         # make body; we don't have to know the thickness of the top since we can just cut the entire top part off and replace it with our header
@@ -378,7 +373,7 @@ class UnitInformationTable(uif.UIComponent):
             unit_icon.size = ICON_SIZE
             unit_icon.overflow = (12, 0, 12, 0) # the unit sprites are kind of enormous
             unit_icon.add_surf(unit_sprite, (-24, -24))
-            row = uif.IconRow(unit.nid, text=unit.name, icon=unit_icon)
+            row = uif.IconRow(unit.nid, text=unit.name, icon=unit_icon, data=unit)
             row.overflow = (12, 0, 12, 0)
             rows.append(row)
         return rows

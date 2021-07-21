@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Generic, List, TypeVar
+from typing import Callable, Generic, List, TypeVar
 
 from app.engine import engine
 
@@ -74,6 +74,14 @@ class HeaderList(UIComponent, Generic[T]):
             return True
         else:
             return False
+
+    def sort_rows(self, sort_func: Callable[[T], int]):
+        if self.scrollable_list:
+            if self.scrollable_list._frozen:
+                self.scrollable_list.unfreeze()
+            self.scrollable_list.children = sorted(self.scrollable_list.children, key=sort_func)
+            if self.should_freeze:
+                self.scrollable_list.freeze()
 
     def regenerate_list_component(self) -> UIComponent:
         if not self.data_rows:

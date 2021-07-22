@@ -89,7 +89,7 @@ class UnitModel(DragDropCollectionModel):
         for level in DB.levels:
             for unit in level.units:
                 if isinstance(unit, UniqueUnit) and unit.nid == old_nid:
-                    unit.nid = new_nid
+                    level.units.update_nid(unit, new_nid)
             for unit_group in level.unit_groups:
                 unit_group.swap(old_nid, new_nid)
 

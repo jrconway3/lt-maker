@@ -316,6 +316,7 @@ class OptionMenuState(MapState):
                     game.state.change('turn_change')
                     game.state.change('status_endstep')
                     game.state.change('ai')
+                    game.ui_view.remove_unit_display()
                     return 'repeat'
             elif selection == 'Suspend' or selection == 'Save':
                 if cf.SETTINGS['confirm_end']:
@@ -400,6 +401,7 @@ class OptionChildState(State):
                     game.state.change('turn_change')
                     game.state.change('status_endstep')
                     game.state.change('ai')
+                    game.ui_view.remove_unit_display()
                     return 'repeat'
                 elif self.menu.owner == 'Suspend':
                     game.state.back()

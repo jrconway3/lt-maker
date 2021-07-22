@@ -827,7 +827,7 @@ def parse_gba_script(fn, pixmaps, weapon_type, empty_pixmaps):
         elif line.startswith('~~~'):
             pass
 
-        elif line == 'L':
+        elif line.startswith('L'):
             parse_text('start_loop')
             loop_end = True
 

@@ -7,7 +7,8 @@ from app.engine import engine
 from app.engine import config as cf
 from app.engine import driver
 from app.engine import game_state
-from app.engine.compiled_skills import compile
+from app.engine.component_system_compiler import source_generator
+
 def main(name: str):
     RESOURCES.load(name + '.ltproj')
     DB.load(name + '.ltproj')
@@ -44,8 +45,8 @@ if __name__ == '__main__':
     import logging, traceback
     from app import lt_log
     success = lt_log.create_logger()
-    # compile necessary source
-    compile.compile()
+    # compile necessary files
+    source_generator.generate_component_system_source()
     if not success:
         engine.terminate()
     try:

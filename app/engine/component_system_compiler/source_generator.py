@@ -1,9 +1,9 @@
 from .compile_item_system import compile_item_system
 from .compile_skill_system import compile_skill_system
 
-def compile():
+def generate_component_system_source():
     compile_skill_system()
     compile_item_system()
 
 if __name__ == '__main__':
-    compile()
+    generate_component_system_source()

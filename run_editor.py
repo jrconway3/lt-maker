@@ -1,7 +1,7 @@
 import sys
 
 from app.editor.settings import MainSettingsController
-from app.engine.compiled_skills import compile
+from app.engine.component_system_compiler import source_generator
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QLockFile, QDir
@@ -17,7 +17,7 @@ if __name__ == '__main__':
         print("Maybe not Windows? But that's OK")
 
     # compile necessary files
-    compile.compile()
+    source_generator.generate_component_system_source()
 
     from app import lt_log
     success = lt_log.create_logger()

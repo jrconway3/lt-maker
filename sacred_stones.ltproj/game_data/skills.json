@@ -1051,6 +1051,10 @@
                     128,
                     248
                 ]
+            ],
+            [
+                "alternate_battle_anim",
+                "Critical"
             ]
         ]
     },
@@ -1095,86 +1099,22 @@
         ]
     },
     {
-        "nid": "pairuptest",
-        "name": "pairuptest",
-        "desc": "",
-        "icon_nid": "Affinity",
-        "icon_index": [
-            0,
-            1
-        ],
-        "components": [
-            [
-                "pairup_bonus",
-                "Defense +5"
-            ],
-            [
-                "class_skill",
-                null
-            ]
-        ]
-    },
-    {
-        "nid": "hit-100",
-        "name": "hit-100",
-        "desc": "testing purposes",
-        "icon_nid": "",
-        "icon_index": [
-            0,
-            0
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ],
-            [
-                "hit",
-                -111
-            ]
-        ]
-    },
-    {
-        "nid": "hit+100",
-        "name": "hit+100",
-        "desc": "",
-        "icon_nid": "",
-        "icon_index": [
-            0,
-            0
-        ],
-        "components": [
-            [
-                "class_skill",
-                null
-            ],
-            [
-                "hit",
-                100
-            ]
-        ]
-    },
-    {
-        "nid": "manatest",
-        "name": "manatest",
+        "nid": "Smush",
+        "name": "Smush",
         "desc": "",
         "icon_nid": "Anima",
         "icon_index": [
             0,
-            1
+            2
         ],
         "components": [
             [
-                "class_skill",
-                null
+                "combat_condition",
+                "target.team == 'enemy'"
             ],
             [
-                "combat_art",
-                "Crit +30"
-            ],
-            [
-                "cost_mana",
-                2
+                "damage",
+                30
             ]
         ]
     }

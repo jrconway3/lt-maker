@@ -1996,6 +1996,17 @@ class RemoveLore(Action):
             game.unlocked_lore.append(self.lore_nid)
 
 
+class LogDialog(Action):
+    def __init__(self, dialog):
+        self.speaker = dialog.speaker
+        self.plain_text = dialog.plain_text
+
+    def do(self):
+        game.dialog_log.append((self.speaker, self.plain_text))
+
+    def reverse(self):
+        game.dialog_log.pop()
+
 class AddRegion(Action):
     def __init__(self, region):
         self.region = region
@@ -2303,6 +2314,8 @@ class AddSkill(Action):
 
     def reverse(self):
         self.reset_action.reverse()
+        if not self.skill_obj:
+            return
         if self.skill_obj in self.unit.skills:
             self.unit.skills.remove(self.skill_obj)
             skill_system.on_remove(self.unit, self.skill_obj)

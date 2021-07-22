@@ -1,6 +1,7 @@
 from app.data.database import DB
-
-from app.engine import combat_calcs, item_system, skill_system, static_random, item_funcs, action
+from app.data.difficulty_modes import RNGOption
+from app.engine import (combat_calcs, item_funcs, item_system, skill_system,
+                        static_random, action)
 from app.engine.game_state import game
 
 import logging
@@ -324,14 +325,17 @@ class CombatPhaseSolver():
 
     def generate_roll(self):
         rng_mode = game.mode.rng_choice
-        if rng_mode == 'Classic':
+        if rng_mode == RNGOption.CLASSIC:
             roll = static_random.get_combat()
-        elif rng_mode == 'True Hit':
+        elif rng_mode == RNGOption.TRUE_HIT:
             roll = (static_random.get_combat() + static_random.get_combat()) // 2
-        elif rng_mode == 'True Hit+':
+        elif rng_mode == RNGOption.TRUE_HIT_PLUS:
             roll = (static_random.get_combat() + static_random.get_combat() + static_random.get_combat()) // 3
-        elif rng_mode == 'Grandmaster':
+        elif rng_mode == RNGOption.GRANDMASTER:
             roll = 0
+        else:  # Default to True Hit
+            logging.warning("Not a valid rng_mode: %s (defaulting to true hit)", game.mode.rng_choice)
+            roll = (static_random.get_combat() + static_random.get_combat()) // 2
         return roll
 
     def generate_crit_roll(self):

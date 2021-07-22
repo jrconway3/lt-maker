@@ -43,20 +43,16 @@
             [
                 "Rapier",
                 false
-            ],
-            [
-                "Iron Sword",
-                false
             ]
         ],
         "learned_skills": [
             [
-                1,
-                "pairuptest"
+                2,
+                "Luna"
             ],
             [
                 1,
-                "manatest"
+                "Smush"
             ]
         ],
         "unit_notes": [
@@ -2832,8 +2828,8 @@
         "name": "O'Neill",
         "desc": "A troop leader in Grado's army.",
         "variant": null,
-        "level": 20,
-        "klass": "Cavalier",
+        "level": 4,
+        "klass": "Fighter",
         "tags": [
             "Boss"
         ],
@@ -2865,7 +2861,7 @@
         },
         "starting_items": [
             [
-                "Iron Lance",
+                "Iron Axe",
                 false
             ]
         ],
@@ -2878,7 +2874,7 @@
             ],
             "Lance": [
                 false,
-                71
+                0
             ],
             "Axe": [
                 true,

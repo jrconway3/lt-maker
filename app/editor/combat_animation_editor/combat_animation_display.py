@@ -403,11 +403,13 @@ class CombatAnimProperties(QWidget):
         if current_weapon.pixmap:
             main_pixmap_backup = current_weapon.pixmap #Could contain references
             current_weapon.pixmap = None
+            current_weapon.image = None
             has_pixmap = True
 
             for index in range(len(current_weapon.frames)):
                 frame = current_weapon.frames[index]
                 frame.pixmap = None
+                frame.image = None
 
         # Pickle (Serialize)
         ser = pickle.dumps(current_weapon)

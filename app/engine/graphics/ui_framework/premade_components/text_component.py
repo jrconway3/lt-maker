@@ -22,14 +22,24 @@ class TextProperties(ComponentProperties):
     def __init__(self, parent: TextComponent):
         super().__init__(parent)
         self.overflow = (0, 0, 0, 0)
-        # self-explanatory: the font
+        # self-explanatory: the font (BmpFont)
+        # font_name (str of the font name) is more encouraged to be used, but either works
         self.font: BmpFont = FONT['text-white']
+        self.font_name: str = None
         # if the text component is multiline, how much space
         # is between the two lines. Can be percentage or pixel value.
         self.line_break_size: str = '0px'
-        # maximum number of lines to split the text over, if max_width is set.
+        # maximum number of lines in a multiline component the text over, if max_width is set.
         # if 0, then it will split as many as necessary.
         self.max_lines: int = 0
+
+    def __getattribute__(self, name: str):
+        if name == 'font':
+            if super().__getattribute__('font_name'):
+                return FONT[super().__getattribute__('font_name')]
+            else:
+                pass
+        return super().__getattribute__(name)
 
 class TextComponent(UIComponent):
     """A component consisting purely of text
@@ -94,13 +104,16 @@ class TextComponent(UIComponent):
             scrolled_lines = max(total_displayed_lines - self.scrolled_line + 1, 0)
             return min(scrolled_lines, self.props.max_lines)
 
-    def set_font(self, font: BmpFont):
+    def set_font(self, font: BmpFont | str):
         """Sets the font of this component and recalculates the component size.
 
         Args:
             font (BmpFont): font to use to draw the text
         """
-        self.props.font = font
+        if isinstance(font, str):
+            self.props.font_name = font
+        else:
+            self.props.font = font
         self._reset("font")
 
     def set_line_break_size(self, line_break_size: str):

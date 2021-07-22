@@ -225,6 +225,9 @@ class UnitObject(Prefab):
     def get_stat(self, stat_nid):
         return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)
 
+    def get_stat_cap(self, stat_nid):
+        return DB.classes.get(self.klass).max_stats.get(stat_nid, 30)
+
     def get_damage_with_current_weapon(self) -> int:
         if self.equipped_weapon:
             return combat_calcs.damage(self, self.equipped_weapon)

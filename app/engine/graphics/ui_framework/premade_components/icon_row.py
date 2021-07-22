@@ -1,4 +1,7 @@
 from __future__ import annotations
+from app.constants import WINWIDTH
+
+import pygame
 
 from app.engine import engine
 from app.engine.fonts import FONT, bmpfont
@@ -13,7 +16,7 @@ class IconRow(UIComponent):
                  width: str = '100%', height: str = '0%', text: str = '',
                  icon: engine.Surface | UIComponent = None,
                  text_align: HAlignment = HAlignment.LEFT,
-                 font: bmpfont.BmpFont = FONT['text-white'], data=None):
+                 font: str = 'text-white', data=None):
         super().__init__(name=name, parent=parent)
         if text_align == HAlignment.LEFT:
             self.props.layout = UILayoutType.LIST
@@ -22,8 +25,9 @@ class IconRow(UIComponent):
         self.data = data
 
         self.text = TextComponent(text, text)
-        self.text.props.font = font
+        self.text.props.font_name = font
         self.text.props.h_alignment = text_align
+        self.text.max_width = WINWIDTH # ensure that text is always on one line
 
         self.icon: UIComponent = self.process_icon(icon)
 
@@ -32,6 +36,17 @@ class IconRow(UIComponent):
 
         self.add_child(self.icon)
         self.add_child(self.text)
+
+    def _reset(self, reason: str = None):
+        self.update_font()
+        super()._reset(reason=reason)
+
+    def update_font(self):
+        total_width = self.icon.width + self.text.width
+        if total_width > self.max_width:
+            [_, fcolor] = self.text.props.font_name.split('-')
+            new_font_name = 'narrow-' + fcolor
+            self.text.set_font(new_font_name)
 
     def process_icon(self, icon: UIComponent | engine.Surface | None) -> UIComponent:
         if isinstance(icon, UIComponent):

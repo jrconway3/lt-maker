@@ -91,7 +91,7 @@ class HeaderList(UIComponent, Generic[T]):
         list_comp.max_height = self.height
         list_comp.props.layout = UILayoutType.LIST
         list_comp.props.list_style = ListLayoutStyle.COLUMN
-        list_comp.overflow = (0, 0, 6, 0)
+        list_comp.overflow = (2, 2, 6, 0)
 
         total_height = 0
         for row in self.data_rows:
@@ -99,7 +99,7 @@ class HeaderList(UIComponent, Generic[T]):
             total_height += row.height
         list_comp.height = max(list_comp.max_height, total_height)
         if self.should_freeze:
-            list_comp.overflow = (0, 0, 0, 0)
+            list_comp.overflow = (2, 2, 0, 0)
             list_comp.freeze()
         self.scrollable_list = list_comp
 

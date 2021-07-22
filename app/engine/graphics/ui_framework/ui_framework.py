@@ -285,6 +285,7 @@ class UIComponent():
             child._recalculate_cached_dimensions_from_props()
             child.set_chronometer(self._chronometer)
             self.children.append(child)
+            child._reset('add_parent')
             if self.props.resize_mode == ResizeMode.AUTO:
                 self._reset('add_child')
         else:
@@ -582,7 +583,8 @@ class UIComponent():
             reason (str): the source of the reset call; usually the name of the function or property
             (e.g. 'size')
         """
-        pass
+        for child in self.children:
+            child._reset('reset')
 
     def _create_bg_surf(self) -> engine.Surface:
         """Generates the background surf for this component of identical dimension

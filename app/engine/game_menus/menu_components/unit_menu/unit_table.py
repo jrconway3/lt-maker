@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.editor.unit_editor.unit_tab import get
 from app.engine.graphics.ui_framework.premade_components.icon_row import IconRow
 
 from typing import Callable, List, Tuple
@@ -31,7 +32,8 @@ class Column():
                  header_icon: engine.Surface, get_stat: Callable[[UnitObject], str],
                  get_icon: Callable[[UnitObject], engine.Surface],
                  sort_by: Callable[[UnitObject], str | int] = None,
-                 font: BmpFont = FONT['text-blue']):
+                 font: str = 'text-blue',
+                 get_font: Callable[[UnitObject], str] = None):
         self.width = width
         self.stat_name = stat_name
         self.header_align = header_align
@@ -43,6 +45,10 @@ class Column():
         else:
             self.sort_by = sort_by
         self.font = font
+        if self.font and not get_font:
+            self.get_font = lambda _, font=self.font: font
+        else:
+            self.get_font = get_font
 
 def get_all_weapon_types() -> List[WeaponType]:
     return [wtype for wtype in DB.weapons.values() if wtype.nid != "Default"]
@@ -53,8 +59,8 @@ def get_all_character_stats() -> List[StatPrefab]:
 def get_formatted_stat_pages() -> List[Tuple[str, List[Column]]]:
     all_pages = []
     first_page = [
-        Column('30%', 'Class', uif.HAlignment.LEFT, None, lambda unit: DB.classes.get(unit.klass).name, None, font=FONT['text-white']),
-        Column('16%', 'Lv', uif.HAlignment.RIGHT, None, lambda unit: unit.level, None),
+        Column('30%', 'Class', uif.HAlignment.LEFT, None, lambda unit: DB.classes.get(unit.klass).name, None, font='text-white'),
+        Column('16%', 'Lv', uif.HAlignment.RIGHT, None, lambda unit: unit.get_internal_level(), None),
         Column('16%', 'Exp', uif.HAlignment.RIGHT, None, lambda unit: unit.exp, None),
         Column('16%', 'HP', uif.HAlignment.RIGHT, None, lambda unit: unit.get_hp(), None),
         Column('16%', 'Max', uif.HAlignment.LEFT, None, lambda unit: '/' + str(unit.get_max_hp()), None),
@@ -65,7 +71,9 @@ def get_formatted_stat_pages() -> List[Tuple[str, List[Column]]]:
     for idx, stat in enumerate(get_all_character_stats()):
         new_character_stat_page.append(
             # truncate the name to 5 digits
-            Column('16%', stat.name[:5], uif.HAlignment.RIGHT, None, lambda unit, nid=stat.nid: unit.get_stat(nid), None)
+            Column('16%', stat.name[:5], uif.HAlignment.RIGHT, None, lambda unit, nid=stat.nid: unit.get_stat(nid), None, get_font=(lambda unit, nid=stat.nid:
+                                                                                                                                        'text-blue' if unit.get_stat(nid) < unit.get_stat_cap(nid) else
+                                                                                                                                        'text-yellow'))
         )
         if len(new_character_stat_page) == 6 or idx == len(get_all_character_stats()) - 1:
             all_pages.append(('Vital Statistics', new_character_stat_page[:]))
@@ -77,7 +85,7 @@ def get_formatted_stat_pages() -> List[Tuple[str, List[Column]]]:
                 lambda unit: (icons.get_icon(unit.equipped_weapon) if unit.equipped_weapon else None),
                 lambda unit: (item_system.weapon_type(unit, unit.equipped_weapon) if unit.equipped_weapon else "",
                               unit.equipped_weapon.name if unit.equipped_weapon else "",),
-                font=FONT['text-white']
+                font='text-white'
                ),
         Column('16%', 'Atk', uif.HAlignment.RIGHT, None,
                lambda unit: str(unit.get_damage_with_current_weapon()) if unit.get_damage_with_current_weapon() > 0 else '--',
@@ -95,10 +103,15 @@ def get_formatted_stat_pages() -> List[Tuple[str, List[Column]]]:
     for idx, wtype in enumerate(get_all_weapon_types()):
         new_weapon_rank_page.append(
             Column('12%', "", uif.HAlignment.LEFT, icons.get_icon(wtype),
-                   lambda unit: (DB.weapon_ranks.get_rank_from_wexp(unit.wexp[wtype.nid])
-                                 if DB.weapon_ranks.get_rank_from_wexp(unit.wexp[wtype.nid])
-                                 else '-'),
-                   None)
+                   lambda unit, wtype=wtype: (DB.weapon_ranks.get_rank_from_wexp(unit.wexp[wtype.nid]).rank
+                                              if DB.weapon_ranks.get_rank_from_wexp(unit.wexp[wtype.nid])
+                                              else '-'),
+                   None,
+                   get_font=(lambda unit, wtype=wtype:
+                                'text-blue' if not DB.weapon_ranks.get_rank_from_wexp(unit.wexp[wtype.nid]) or
+                                                     DB.weapon_ranks.get_next_rank_from_wexp(unit.wexp[wtype.nid]) != None
+                                                  else
+                                'text-yellow'))
         )
         if len(new_weapon_rank_page) == 8 or idx == len(get_all_weapon_types()) - 1:
             all_pages.append(('Weapon Level', new_weapon_rank_page[:]))
@@ -112,11 +125,11 @@ class UnitStatisticsTable(uif.UIComponent):
         self.parent = parent
         self.STAT_PAGES = get_formatted_stat_pages()
         self.MAX_PAGES = len(self.STAT_PAGES)
-        self.size = ('80%', '100%')
-        self.overflow = (0, 0, 0, 0)
-        self.max_width = '80%'
+        self.size = ('65%', '100%')
+        self.overflow = (16, 6, 0, 0)
+        self.max_width = '65%'
         self.max_height = '100%'
-        self.padding = (ICON_SIZE[0], 0, 0, 0)
+        self.padding = (0, 0, 0, 0)
         self.data = data
         self.page = 0
 
@@ -144,19 +157,19 @@ class UnitStatisticsTable(uif.UIComponent):
                 left_margin = 0
                 right_margin = 0
                 if idx != len(page[1]) - 1:
-                    col_width = UIMetric.parse(column.width).to_pixels(self.width - ICON_SIZE[0])
+                    col_width = UIMetric.parse(column.width).to_pixels(self.width)
                     page_width_so_far += col_width
                     right_margin = 0
                 else:
                     col_width = self.width - page_width_so_far
-                    col_width = UIMetric.parse(column.width).to_pixels(self.width - ICON_SIZE[0])
+                    col_width = UIMetric.parse(column.width).to_pixels(self.width)
                     right_margin = self.width - col_width - page_width_so_far
                 col_list: uif.HeaderList = uif.HeaderList(
                     name=column.stat_name,
                     parent=self,
                     header_row=uif.IconRow(text=column.stat_name, text_align=column.header_align, icon=column.header_icon),
                     data_rows=self.get_rows(column),
-                    height = self.height - 8,
+                    height = self.height - 4,
                     width = col_width,
                     should_freeze=True
                 )
@@ -185,7 +198,7 @@ class UnitStatisticsTable(uif.UIComponent):
         for unit in self.data:
             val = get_stat_value(unit) if get_stat_value else ""
             icon = get_stat_icon(unit) if get_stat_icon else None
-            rows.append(uif.IconRow(unit.name, text=str(val), icon=icon, text_align=col.header_align, font=col.font, data=unit))
+            rows.append(uif.IconRow(unit.name, text=str(val), icon=icon, text_align=col.header_align, font=col.get_font(unit), data=unit))
         return rows
 
     def sort_rows(self, sort_func: Callable[[IconRow], int]):
@@ -261,6 +274,16 @@ class UnitStatisticsTable(uif.UIComponent):
 
     def to_surf(self, no_cull=False) -> engine.Surface:
         self.update_cursor()
+        # automatically cull when stationary
+        if not self.is_scrolling():
+            for idx, col in enumerate(self.table):
+                if idx + 1 not in self.col_indices_for_page(self.page):
+                    col.disable()
+                else:
+                    col.enable()
+        else:
+            for col in self.table:
+                col.enable()
         return super().to_surf(no_cull=no_cull)
 
 class UnitInformationTable(uif.UIComponent):
@@ -298,7 +321,7 @@ class UnitInformationTable(uif.UIComponent):
         self.rscroll_arrow = ScrollArrow('right', rscroll_topleft)
 
         self.scroll_bar = ScrollBar()
-        self.scroll_bar_topright = tuple_add((self.width - 6, 15), self.overflow[::2])
+        self.scroll_bar_topright = tuple_add((self.width - 1, 15), self.overflow[::2])
 
         self.highlight_surf = create_highlight_surf(self.width - 8)
         self.highlight_cycle_time = 30
@@ -318,7 +341,7 @@ class UnitInformationTable(uif.UIComponent):
                                                   header_row = self.header_row,
                                                   data_rows = self.name_rows,
                                                   height = self.height - self.MENU_BOTTOM_BORDER_THICKNESS,
-                                                  width = '20%')
+                                                  width = '30%')
         self.left_unit_name_list.padding = (3, 0, 0, 0)
         overflow_list = list(self.left_unit_name_list.overflow)
         overflow_list[3] = 0

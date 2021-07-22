@@ -356,12 +356,11 @@ class CombatPhaseSolver():
         else:
             roll = self.generate_roll()
 
-        # Increment gauge
         if DB.constants.value('pairup'):
-            if attacker.paired_partner:
-                action.do(action.UseGauge(attacker, attacker.gauge_inc))
-            if defender.paired_partner:
-                action.do(action.UseGauge(defender, defender.gauge_inc))
+            if defender.guard_gauge == defender.max_guard and defender.paired_partner:
+                # For EXP purposes only
+                roll = -1
+                defender = game.get_unit(defender.paired_partner)
 
         if roll < to_hit:
             crit = False
@@ -388,15 +387,21 @@ class CombatPhaseSolver():
                 item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
                     playback.append(('mark_hit', attacker, defender, self.attacker, item))
-            # Gauge is set to 0. Damage is negated elsewhere
-            if DB.constants.value('pairup') and defender.guard_gauge == defender.max_guard:
-                action.do(action.UseGauge(defender))
             item_system.after_hit(actions, playback, attacker, item, defender, mode)
             skill_system.after_hit(actions, playback, attacker, item, defender, mode)
         else:
             item_system.on_miss(actions, playback, attacker, item, defender, def_pos, mode, first_item)
             if defender:
                 playback.append(('mark_miss', attacker, defender, self.attacker, item))
+
+        # Gauge is set to 0. Damage is negated elsewhere
+        if DB.constants.value('pairup'):
+            if defender.guard_gauge == defender.max_guard:
+                action.do(action.UseGauge(defender))
+            elif defender.paired_partner:
+                action.do(action.UseGauge(defender, defender.gauge_inc))
+            if attacker.paired_partner:
+                action.do(action.UseGauge(attacker, attacker.gauge_inc))
 
     def simple_process(self, actions, playback, attacker, defender, def_pos, item, def_item, mode):
         # Is the item I am processing the first one?

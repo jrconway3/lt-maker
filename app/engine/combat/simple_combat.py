@@ -234,7 +234,7 @@ class SimpleCombat():
         if self.attacker.strike_partner:
             all_units.append(self.attacker.strike_partner)
         elif self.attacker.paired_partner:
-            all_units.append(self.attacker.paired_partner)
+            all_units.append(game.get_unit(self.attacker.paired_partner))
         for unit in self.all_splash:
             if unit not in all_units:
                 all_units.append(unit)
@@ -243,7 +243,7 @@ class SimpleCombat():
                 if len(self.all_defenders) == 1 and unit.strike_partner:
                     all_units.append(unit.strike_partner)
                 if unit.paired_partner:
-                    all_units.append(unit.paired_partner)
+                    all_units.append(game.get_unit(unit.paired_partner))
                 all_units.append(unit)
         return all_units
 
@@ -418,8 +418,8 @@ class SimpleCombat():
                     pair = self.handle_paired_exp(self.attacker.strike_partner, \
                         self.attacker.strike_partner.get_weapon(), self.defender)
                 elif self.attacker.paired_partner:
-                    pair = self.handle_paired_exp(self.attacker.paired_partner, \
-                        self.attacker.paired_partner.get_weapon(), self.defender)
+                    pp = game.get_unit(self.attacker.paired_partner)
+                    pair = self.handle_paired_exp(pp, pp.get_weapon(), self.defender)
                 if pair:
                     game.exp_instance.append(pair)
                     game.state.change('exp')
@@ -436,8 +436,8 @@ class SimpleCombat():
                     pair = self.handle_paired_exp(self.defender.strike_partner, \
                         self.defender.strike_partner.get_weapon(), self.defender)
                 elif self.defender.paired_partner:
-                    pair = self.handle_paired_exp(self.defender.paired_partner, \
-                        self.defender.paired_partner.get_weapon(), self.defender)
+                    pp = game.get_unit(self.defender.paired_partner)
+                    pair = self.handle_paired_exp(pp, pp.get_weapon(), self.defender)
                 if pair:
                     game.exp_instance.append(pair)
                 game.exp_instance.append((self.defender, exp, None, 'init'))
@@ -445,14 +445,12 @@ class SimpleCombat():
 
     def handle_paired_exp(self, unit, item, target) -> tuple:
         '''Creates a tuple for paired units as a helper function'''
-        exp = self.calculate_exp(unit, item) / 2
-
-        if unit == self.attacker.paired_partner or \
-                unit == self.attacker.strike_partner and \
-                self.defender and (skill_system.check_ally(self.attacker, target) or 'Tile' in target.tags):
-            exp = int(utils.clamp(exp, 0, 100))
+        if unit.nid == self.attacker.paired_partner or unit.nid == self.defender.paired_partner:
+            exp = self.calculate_paired_exp(unit, item) / 2
         else:
-            exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))
+            exp = self.calculate_exp(unit, item) / 2
+
+        exp = int(utils.clamp(exp, 0, 100))
 
         if (self.alerts and exp > 0) or exp + unit.exp >= 100:
             return (unit, exp, None, 'init')
@@ -498,6 +496,23 @@ class SimpleCombat():
                 continue  # Don't double count defenders
             all_defenders.add(defender)
             exp = self.get_exp(attacker, item, defender)
+            total_exp += exp
+
+        return total_exp
+
+    def calculate_paired_exp(self, unit, item):
+        """
+        If you blocked an attacker get exp
+        """
+        marks = self.get_from_full_playback('mark_hit')
+        marks += self.get_from_full_playback('mark_crit')
+        marks += self.get_from_full_playback('mark_miss')
+        marks = [mark for mark in marks if mark[2] == unit]
+        total_exp = 0
+        for mark in marks:
+            attacker = mark[1]
+            defender = mark[2]
+            exp = self.get_exp(defender, item, attacker)
             total_exp += exp
 
         return total_exp

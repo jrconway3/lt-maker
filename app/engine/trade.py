@@ -84,7 +84,7 @@ class TradeState(MapState):
         self.has_traded()
 
         self.menu.unset_selected_option()
-        self.menu.update_options(self.initiator.items, self.partner.items)
+        self.menu.update_options()
         return True
 
     def back(self):

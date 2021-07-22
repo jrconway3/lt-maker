@@ -1662,12 +1662,10 @@ class AIState(MapState):
         return valid_units.pop()
 
     def take_input(self, event):
-        if event == 'START':
-            SOUNDTHREAD.play_sfx('Select 5')
+        # Skip combats while START is held down
+        if not game.ai.do_skip and INPUT.is_pressed('START'):
             game.ai.skip()
-
-        elif event == 'BACK':
-            SOUNDTHREAD.play_sfx('Select 4')
+        elif game.ai.do_skip and not INPUT.is_pressed('START'):
             game.ai.end_skip()
 
     def update(self):

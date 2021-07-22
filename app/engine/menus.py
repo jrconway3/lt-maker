@@ -733,22 +733,32 @@ class Trade(Simple):
         self.other_hand = self.selecting_hand
         if self.selecting_hand[0] == 0:
             self._selected_option = self.menu1.options[self.selecting_hand[1]]
-            good_options = [option for option in self.menu2.options if not option.ignore]
+            good_options = [option for option in self.menu2.options if not option.ignore and option.get()]
+            empty_options = [idx for idx, option in enumerate(self.menu2.options) if option.ignore or not option.get()]
             if len(good_options) > DB.constants.total_items():
                 self.menu2.move_to(self.selecting_hand[1])
             else:
-                self.menu2.move_to(len(good_options) - 1)
+                if empty_options:
+                    self.menu2.move_to(empty_options[0])
+                else:
+                    self.menu2.move_to(len(good_options))
+            self.menu2.cursor.y_offset = 0
             self.selecting_hand = (1, self.menu2.current_index)
             self.menu1.set_fake_cursor(self.other_hand[1])
             self.menu2.set_cursor(1)
             self.menu1.set_cursor(0)
         else:
             self._selected_option = self.menu2.options[self.selecting_hand[1]]            
-            good_options = [option for option in self.menu1.options if not option.ignore]
+            good_options = [option for option in self.menu1.options if not option.ignore and option.get()]
+            empty_options = [idx for idx, option in enumerate(self.menu1.options) if option.ignore or not option.get()]
             if len(good_options) > DB.constants.total_items():
                 self.menu1.move_to(self.selecting_hand[1])
             else:
-                self.menu1.move_to(len(good_options) - 1)
+                if empty_options:
+                    self.menu1.move_to(empty_options[0])
+                else:
+                    self.menu1.move_to(len(good_options))
+            self.menu1.cursor.y_offset = 0
             self.selecting_hand = (0, self.menu1.current_index)
             self.menu2.set_fake_cursor(self.other_hand[1])
             self.menu1.set_cursor(1)

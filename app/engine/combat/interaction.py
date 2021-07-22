@@ -74,6 +74,7 @@ def engage(attacker: UnitObject, positions: list, main_item: ItemObject, skip: b
     elif skip:
         # If we are skipping
         combat = SimpleCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)
+        game.highlight.remove_highlights()
     # If more than one target position or more than one item being used, cannot use animation combat
     elif len(positions) > 1 or len(items) > 1:
         combat = MapCombat(attacker, main_item, items, target_positions, main_targets, splashes, script)

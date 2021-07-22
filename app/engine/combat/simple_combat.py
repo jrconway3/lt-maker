@@ -110,7 +110,6 @@ class SimpleCombat():
 
         # Handle death
         for unit in all_units:
-            unit.strike_partner = None
             if unit.get_hp() <= 0:
                 game.death.should_die(unit)
             else:
@@ -130,8 +129,25 @@ class SimpleCombat():
         if self.defender and self.def_item and not self.defender.is_dying:
             self.handle_wexp(self.defender, self.def_item, self.attacker)
 
+        if self.attacker.strike_partner:
+            self.handle_wexp(self.attacker.strike_partner, self.main_item, self.defender)
+        if self.attacker.paired_partner:
+            self.handle_wexp(self.attacker.paired_partner, self.main_item, self.defender)
+
+        if self.defender and self.def_item and not self.defender.is_dying:
+            self.handle_wexp(self.defender, self.def_item, self.attacker)
+        if self.defender and self.defender.strike_partner:
+            self.handle_wexp(self.defender.strike_partner, self.def_item, self.attacker)
+        if self.defender and self.defender.paired_partner:
+            self.handle_wexp(self.defender.paired_partner, self.def_item, self.attacker)
+
         self.handle_mana(all_units)
         self.handle_exp()
+        # Called separately to use with pair up
+        #for unit in all_units:
+        #    if unit.strike_partner:
+
+        #        unit.strike_partner = None
 
         self.handle_records(self.full_playback, all_units)
 
@@ -217,6 +233,8 @@ class SimpleCombat():
         all_units = [self.attacker]
         if self.attacker.strike_partner:
             all_units.append(self.attacker.strike_partner)
+        elif self.attacker.paired_partner:
+            all_units.append(self.attacker.paired_partner)
         for unit in self.all_splash:
             if unit not in all_units:
                 all_units.append(unit)
@@ -224,6 +242,8 @@ class SimpleCombat():
             if unit not in all_units:
                 if len(self.all_defenders) == 1 and unit.strike_partner:
                     all_units.append(unit.strike_partner)
+                if unit.paired_partner:
+                    all_units.append(unit.paired_partner)
                 all_units.append(unit)
         return all_units
 
@@ -386,12 +406,23 @@ class SimpleCombat():
         # handle exp
         if self.attacker.team == 'player' and not self.attacker.is_dying:
             exp = self.calculate_exp(self.attacker, self.main_item)
+
             if self.defender and (skill_system.check_ally(self.attacker, self.defender) or 'Tile' in self.defender.tags):
                 exp = int(utils.clamp(exp, 0, 100))
             else:
                 exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))
 
             if (self.alerts and exp > 0) or exp + self.attacker.exp >= 100:
+                pair = None
+                if self.attacker.strike_partner:
+                    pair = self.handle_paired_exp(self.attacker.strike_partner, \
+                        self.attacker.strike_partner.get_weapon(), self.defender)
+                elif self.attacker.paired_partner:
+                    pair = self.handle_paired_exp(self.attacker.paired_partner, \
+                        self.attacker.paired_partner.get_weapon(), self.defender)
+                if pair:
+                    game.exp_instance.append(pair)
+                    game.state.change('exp')
                 game.exp_instance.append((self.attacker, exp, None, 'init'))
                 game.state.change('exp')
 
@@ -400,8 +431,33 @@ class SimpleCombat():
             exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))
 
             if (self.alerts and exp > 0) or exp + self.defender.exp >= 100:
+                pair = None
+                if self.defender.strike_partner:
+                    pair = self.handle_paired_exp(self.defender.strike_partner, \
+                        self.defender.strike_partner.get_weapon(), self.defender)
+                elif self.defender.paired_partner:
+                    pair = self.handle_paired_exp(self.defender.paired_partner, \
+                        self.defender.paired_partner.get_weapon(), self.defender)
+                if pair:
+                    game.exp_instance.append(pair)
                 game.exp_instance.append((self.defender, exp, None, 'init'))
                 game.state.change('exp')
+
+    def handle_paired_exp(self, unit, item, target) -> tuple:
+        '''Creates a tuple for paired units as a helper function'''
+        exp = self.calculate_exp(unit, item) / 2
+
+        if unit == self.attacker.paired_partner or \
+                unit == self.attacker.strike_partner and \
+                self.defender and (skill_system.check_ally(self.attacker, target) or 'Tile' in target.tags):
+            exp = int(utils.clamp(exp, 0, 100))
+        else:
+            exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))
+
+        if (self.alerts and exp > 0) or exp + unit.exp >= 100:
+            return (unit, exp, None, 'init')
+        else:
+            return None
 
     def get_exp(self, attacker, item, defender) -> int:
         exp = item_system.exp(self.full_playback, attacker, item, defender)

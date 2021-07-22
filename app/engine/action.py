@@ -1669,6 +1669,10 @@ class Die(Action):
             self.drop = Drop(self.unit, drop_me, self.unit.position)
             self.drop.do()
             # TODO Drop Sound
+        if self.unit.paired_partner:
+            drop_me = game.get_unit(self.unit.paired_partner)
+            self.drop = Drop(self.unit, drop_me, self.unit.position)
+            self.drop.do()
 
         if DB.constants.value('initiative') and self.initiative_action:
             self.initiative_action.do()

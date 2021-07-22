@@ -381,7 +381,6 @@ class CombatPhaseSolver():
                     playback.append(('mark_hit', attacker, defender, self.attacker, item))
                     playback.append(('mark_glancing_hit', attacker, defender, self.attacker, item))
             else:
-                # Find some way to edit this to make dual strike work
                 item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
                     playback.append(('mark_hit', attacker, defender, self.attacker, item))

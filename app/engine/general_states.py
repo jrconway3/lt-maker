@@ -1660,6 +1660,13 @@ class AIState(MapState):
         valid_units.reverse()
         return valid_units.pop()
 
+    def take_input(self, event):
+        # Skip combats while START is held down
+        if not game.ai.do_skip and INPUT.is_pressed('START'):
+            game.ai.skip()
+        elif game.ai.do_skip and not INPUT.is_pressed('START'):
+            game.ai.end_skip()
+
     def update(self):
         super().update()
 
@@ -1694,7 +1701,7 @@ class AIState(MapState):
                     game.camera.set_center2(self.cur_unit.position, game.ai.goal_position)
                 else:
                     game.camera.set_center(*self.cur_unit.position)  # Actually center the camera
-                if has_already_moved:
+                if has_already_moved and not game.ai.do_skip:
                     # Only do this for non-move actions
                     game.state.change('move_camera')
 
@@ -1707,6 +1714,7 @@ class AIState(MapState):
                 self.cur_unit = None
         else:
             logging.info("AI Phase complete")
+            game.ai.end_skip()
             game.ai.reset()
             self.cur_unit = None
             self.cur_group = None

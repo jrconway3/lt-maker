@@ -3037,7 +3037,12 @@
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Smush"
+            ]
+        ],
         "unit_notes": [],
         "wexp_gain": {
             "Sword": [
@@ -3079,7 +3084,7 @@
         },
         "alternate_classes": null,
         "portrait_nid": "Bone",
-        "affinity": null
+        "affinity": "None"
     },
     {
         "nid": "Bazba",

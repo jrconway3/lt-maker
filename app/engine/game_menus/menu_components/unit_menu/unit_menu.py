@@ -79,8 +79,8 @@ class UnitMenuUI():
         bottom_of_sort_box = self.sort_box.margin[2] + self.sort_box.size[1]
         self.page_number_text.margin = (0, 5, bottom_of_sort_box - 5, 0)
 
-        self.unit_info_table = UnitInformationTable(name='unit box',
-                                           data=self.data)
+        self.unit_info_table = UnitInformationTable(
+            name='unit box', data=self.data)
 
         self.base_component = uif.UIComponent.create_base_component()
         self.base_component.name = "base"

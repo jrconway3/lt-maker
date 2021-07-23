@@ -13,7 +13,7 @@ from app.constants import COLORKEY, WINHEIGHT
 from app.engine.game_counters import ANIMATION_COUNTERS
 
 if TYPE_CHECKING:
-    from pygame import Surface
+    from engine import Surface
 
 from app.engine.sprites import SPRITES
 from app.engine import config as cf

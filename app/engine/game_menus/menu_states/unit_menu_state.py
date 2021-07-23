@@ -2,14 +2,10 @@ from app.engine.fluid_scroll import FluidScroll
 from typing import Tuple
 from app.engine.game_menus.menu_components.unit_menu.unit_menu import UnitMenuUI
 from app.engine.objects.unit import UnitObject
-import datetime
-from app.constants import WINWIDTH
 
-from app.engine.sprites import SPRITES
-from app.engine.fonts import FONT
 from app.engine.sound import SOUNDTHREAD
 from app.engine.state import State
-from app.engine import engine, background, base_surf, text_funcs, evaluate
+from app.engine import background
 from app.engine.game_state import game
 from app.utilities.enums import Direction
 
@@ -57,7 +53,12 @@ class UnitMenuState(State):
 
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
+            selected = self.ui_display.cursor_hover()
+            if isinstance(selected, UnitObject):
+                if self.in_level:
+                    game.cursor.set_pos(selected.position)
             game.state.change('transition_pop')
+
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 2')
             selected = self.ui_display.cursor_hover()

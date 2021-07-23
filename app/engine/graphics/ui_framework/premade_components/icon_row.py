@@ -1,10 +1,7 @@
 from __future__ import annotations
 from app.constants import WINWIDTH
 
-import pygame
-
 from app.engine import engine
-from app.engine.fonts import FONT, bmpfont
 
 from ..ui_framework import HAlignment, UIComponent
 from ..ui_framework_layout import ListLayoutStyle, UILayoutType

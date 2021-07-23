@@ -1,5 +1,4 @@
 from __future__ import annotations
-from app.editor.unit_editor.unit_tab import get
 from app.engine.graphics.ui_framework.premade_components.icon_row import IconRow
 
 from typing import Callable, List, Tuple
@@ -11,8 +10,6 @@ from app.data.stats import StatPrefab
 from app.data.weapons import WeaponType
 from app.engine import engine, icons, image_mods, item_system
 from app.engine.base_surf import create_base_surf, create_highlight_surf
-from app.engine.bmpfont import BmpFont
-from app.engine.fonts import FONT
 from app.engine.game_counters import ANIMATION_COUNTERS
 from app.engine.graphics.ui_framework.premade_animations.animation_templates import \
     component_scroll_anim
@@ -22,7 +19,7 @@ from app.engine.gui import ScrollArrow, ScrollBar
 from app.engine.objects.unit import UnitObject
 from app.sprites import SPRITES
 from app.utilities.enums import Direction
-from app.utilities.utils import tclamp, tuple_add, tuple_sub
+from app.utilities.utils import tclamp, tuple_add
 
 CURSOR_PERTURBATION = [0, 1, 2, 3, 4, 3, 2, 1]
 ICON_SIZE = (16, 16)
@@ -71,9 +68,8 @@ def get_formatted_stat_pages() -> List[Tuple[str, List[Column]]]:
     for idx, stat in enumerate(get_all_character_stats()):
         new_character_stat_page.append(
             # truncate the name to 5 digits
-            Column('16%', stat.name[:5], uif.HAlignment.RIGHT, None, lambda unit, nid=stat.nid: unit.get_stat(nid), None, get_font=(lambda unit, nid=stat.nid:
-                                                                                                                                        'text-blue' if unit.get_stat(nid) < unit.get_stat_cap(nid) else
-                                                                                                                                        'text-yellow'))
+            Column('16%', stat.name[:5], uif.HAlignment.RIGHT, None, lambda unit, nid=stat.nid: unit.get_stat(nid), None, 
+                   get_font=(lambda unit, nid=stat.nid: 'text-blue' if unit.get_stat(nid) < unit.get_stat_cap(nid) else 'text-yellow'))
         )
         if len(new_character_stat_page) == 6 or idx == len(get_all_character_stats()) - 1:
             all_pages.append(('Vital Statistics', new_character_stat_page[:]))
@@ -169,8 +165,8 @@ class UnitStatisticsTable(uif.UIComponent):
                     parent=self,
                     header_row=uif.IconRow(text=column.stat_name, text_align=column.header_align, icon=column.header_icon),
                     data_rows=self.get_rows(column),
-                    height = self.height - 4,
-                    width = col_width,
+                    height=self.height - 4,
+                    width=col_width,
                     should_freeze=True
                 )
                 col_list.margin = (left_margin, right_margin, 0, 0)

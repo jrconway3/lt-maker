@@ -128,8 +128,8 @@ class UnitMenuUI():
     def cursor_hover(self) -> UnitObject | str | None:
         return self.unit_info_table.cursor_hover()
 
-    def move_cursor(self, direction: Direction):
-        self.unit_info_table.move_cursor(direction)
+    def move_cursor(self, direction: Direction) -> bool:
+        return self.unit_info_table.move_cursor(direction)
 
     def sort_data(self, sort_by: Tuple[str, Callable[[UnitObject], int | str]]):
         if self.sort_by == sort_by[0]:

@@ -460,20 +460,20 @@ class UnitInformationTable(uif.UIComponent):
             if self.manual_surfaces:
                 self.manual_surfaces.clear()
 
-    def move_cursor(self, direction: Direction):
+    def move_cursor(self, direction: Direction) -> bool:
         new_cursor_pos = self.cursor_pos
         cx, cy = self.cursor_pos
         table_cols = self.right_unit_data_grid.col_indices_for_page(self.right_unit_data_grid.page)
         if direction == Direction.UP:
             if cy <= self.left_unit_name_list.scrolled_index + 2:
                 if self.left_unit_name_list.is_scrolling():
-                    return
+                    return False
                 self.scroll_up()
             new_cursor_pos = (cx, cy - 1)
         elif direction == Direction.DOWN:
             if cy >= self.left_unit_name_list.scrolled_index + 5:
                 if self.left_unit_name_list.is_scrolling():
-                    return
+                    return False
                 self.scroll_down()
             new_cursor_pos = (cx, cy + 1)
         elif direction == Direction.LEFT: # easy part is over.
@@ -481,10 +481,10 @@ class UnitInformationTable(uif.UIComponent):
             if cx == 0 or cy > 0: # we're leftscrolling
                 # can we even leftscroll?
                 if self.right_unit_data_grid.page == 0: # no
-                    pass
+                    return False
                 else: # yes
                     if self.right_unit_data_grid.is_scrolling():
-                        return
+                        return False
                     self.scroll_left()
                     if cy > 0: # we're leftscrolling from the grid itself
                         new_cursor_pos = (0, cy)
@@ -501,10 +501,10 @@ class UnitInformationTable(uif.UIComponent):
             if cx == table_cols[-1] or cy > 0: # we're right scrolling
                 # can we even rightscroll?
                 if self.right_unit_data_grid.page == self.right_unit_data_grid.MAX_PAGES - 1: # no
-                    pass
+                    return False
                 else: # yes
                     if self.right_unit_data_grid.is_scrolling():
-                        return
+                        return False
                     self.scroll_right()
                     new_cursor_pos = (0, cy)
             elif cy == 0: # we're shifting headers
@@ -513,6 +513,10 @@ class UnitInformationTable(uif.UIComponent):
                 else: # we're moving inside the table
                     new_cursor_pos = (cx + 1, cy)
         self.cursor_pos = tclamp(new_cursor_pos, (0, 0), (self.table_size))
+        if new_cursor_pos == self.cursor_pos:
+            # We actually did move (cause otherwise we had to change the new_cursor_pos)
+            return True
+        return False
 
     def cursor_hover(self) -> UnitObject | Tuple[str, Callable[[UnitObject], int | str]] | None:
         if self.cursor_pos[1] > 0: # we're hovering a unit

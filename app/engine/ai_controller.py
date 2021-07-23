@@ -13,7 +13,16 @@ from app.utilities import utils
 
 class AIController():
     def __init__(self):
+        # Controls whether we should be skipping through the AI's turns
+        self.do_skip: bool = False
+
         self.reset()
+
+    def skip(self):
+        self.do_skip = True
+
+    def end_skip(self):
+        self.do_skip = False
 
     def reset(self):
         self.unit = None
@@ -110,7 +119,7 @@ class AIController():
                 self.goal_item.data['target_item'] = items[-1]
 
             # Combat
-            interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True)
+            interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True, skip=self.do_skip)
             return True
         # Interacting with regions
         elif self.goal_position and self.behaviour and self.behaviour.action == 'Interact':

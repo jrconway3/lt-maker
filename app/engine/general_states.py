@@ -258,7 +258,7 @@ class OptionMenuState(MapState):
         game.cursor.hide()
         options = ['Unit', 'Objective', 'Options']
         info_desc = ['Unit_desc', 'Objective_desc', 'Options_desc']
-        ignore = [True, False, False]
+        ignore = [False, False, False]
         if game.current_mode.permadeath:
             options.append('Suspend')
             info_desc.append('Suspend_desc')
@@ -328,6 +328,9 @@ class OptionMenuState(MapState):
                         suspend()
                     elif selection == 'Save':
                         battle_save()
+            elif selection == 'Unit':
+                game.memory['next_state'] = 'unit_menu'
+                game.state.change('transition_to')
             elif selection == 'Objective':
                 game.memory['next_state'] = 'objective_menu'
                 game.state.change('transition_to')
@@ -337,10 +340,6 @@ class OptionMenuState(MapState):
             elif selection == 'Options':
                 game.memory['next_state'] = 'settings_menu'
                 game.state.change('transition_to')
-            elif selection == 'Unit':
-                pass
-                # game.state.change('unit_menu')
-                # game.state.change('transition_out')
             elif selection == 'Turnwheel':
                 if cf.SETTINGS['debug'] or game.game_vars.get('_current_turnwheel_uses', 1) > 0:
                     game.state.change('turnwheel')
@@ -1661,6 +1660,13 @@ class AIState(MapState):
         valid_units.reverse()
         return valid_units.pop()
 
+    def take_input(self, event):
+        # Skip combats while START is held down
+        if not game.ai.do_skip and INPUT.is_pressed('START'):
+            game.ai.skip()
+        elif game.ai.do_skip and not INPUT.is_pressed('START'):
+            game.ai.end_skip()
+
     def update(self):
         super().update()
 
@@ -1695,7 +1701,7 @@ class AIState(MapState):
                     game.camera.set_center2(self.cur_unit.position, game.ai.goal_position)
                 else:
                     game.camera.set_center(*self.cur_unit.position)  # Actually center the camera
-                if has_already_moved:
+                if has_already_moved and not game.ai.do_skip:
                     # Only do this for non-move actions
                     game.state.change('move_camera')
 
@@ -1708,6 +1714,7 @@ class AIState(MapState):
                 self.cur_unit = None
         else:
             logging.info("AI Phase complete")
+            game.ai.end_skip()
             game.ai.reset()
             self.cur_unit = None
             self.cur_group = None

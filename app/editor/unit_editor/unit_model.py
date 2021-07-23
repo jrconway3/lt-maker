@@ -92,6 +92,9 @@ class UnitModel(DragDropCollectionModel):
                     level.units.update_nid(unit, new_nid)
             for unit_group in level.unit_groups:
                 unit_group.swap(old_nid, new_nid)
+        for party in DB.parties:
+            if party.leader == old_nid:
+                party.leader = new_nid
 
     def create_new(self):
         nids = [d.nid for d in self._data]

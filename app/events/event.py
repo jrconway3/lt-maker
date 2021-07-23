@@ -535,7 +535,7 @@ class Event():
                     # we are using a custom camera speed
                     duration = int(values[1])
                     game.camera.do_slow_pan(duration)
-                game.camera.set_center(*position)
+                game.camera.set_xy(*position)
                 game.state.change('move_camera')
                 self.state = 'paused'  # So that the message will leave the update loop
 
@@ -546,6 +546,10 @@ class Event():
             if 'immediate' in flags or self.do_skip:
                 game.camera.force_center(*position)
             else:
+                if len(values) > 1:
+                    # we are using a custom camera speed
+                    duration = int(values[1])
+                    game.camera.do_slow_pan(duration)
                 game.camera.set_center(*position)
                 game.state.change('move_camera')
                 self.state = 'paused'  # So that the message will leave the update loop

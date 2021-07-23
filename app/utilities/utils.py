@@ -2,6 +2,7 @@ import math
 from collections import Counter
 import colorsys, hashlib
 from operator import add, sub
+from typing import List
 
 def frames_to_ms(num_frames: int) -> int:
     """at 60 fps, each frame would happen in 16.67 ms"""
@@ -86,8 +87,11 @@ def dot_product(a: tuple, b: tuple) -> float:
 def tuple_sub(a: tuple, b: tuple) -> tuple:
     return tuple(map(sub, a, b))
 
-def tuple_add(a: tuple, b: tuple) -> tuple:
-    return tuple(map(add, a, b))
+def tuple_add(a: tuple, *b: tuple) -> tuple:
+    accum = a
+    for next_tup in b:
+        accum = tuple(map(add, accum, next_tup))
+    return accum
 
 def magnitude(a: tuple) -> float:
     return math.sqrt(a[0] * a[0] + a[1] * a[1])
@@ -97,7 +101,7 @@ def normalize(a: tuple) -> tuple:
     return (a[0] / mag, a[1] / mag)
 
 def tmult(a: tuple, b: float) -> tuple:
-    return (a[0] * b, a[1] * b)
+    return tuple([a_i * b for a_i in a])
 
 def tmax(a: tuple, b: tuple) -> tuple:
     return tuple(map(max, a, b))

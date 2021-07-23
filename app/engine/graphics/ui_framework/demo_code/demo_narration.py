@@ -123,7 +123,7 @@ class NarrationUI():
         self.base_component.add_child(self.narration)
         self.base_component.set_chronometer(current_milli_time)
 
-    def draw(self, surf: Surface) -> Surface:
+    def draw(self, surf: engine.Surface) -> engine.Surface:
         ui_surf = self.base_component.to_surf()
         surf.blit(ui_surf, (0, 0))
         return surf

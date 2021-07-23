@@ -10,7 +10,6 @@ from app.engine.sprites import SPRITES
 from app.utilities.utils import frames2ms
 from app.engine.engine import Surface
 
-
 class LevelCursor(BaseCursor):
     def __init__(self, game: GameState):
         super().__init__(camera=game.camera, tilemap=game.tilemap)

@@ -265,6 +265,7 @@ class UnitStatisticsTable(uif.UIComponent):
 
 class UnitInformationTable(uif.UIComponent):
     MENU_BOTTOM_BORDER_THICKNESS = 8
+
     def __init__(self, name: str = None, parent: uif.UIComponent = None, data: List[UnitObject] = None):
         super().__init__(name=name, parent=parent)
         self.page_num = 1
@@ -313,12 +314,13 @@ class UnitInformationTable(uif.UIComponent):
         # initialize name_column
         self.header_row = uif.IconRow(text='Name', icon=engine.create_surface(ICON_SIZE, True))
         self.name_rows: List[uif.IconRow] = self.generate_name_rows()
-        self.left_unit_name_list = uif.HeaderList[uif.IconRow](name = 'unit_names',
-                                                  parent = self,
-                                                  header_row = self.header_row,
-                                                  data_rows = self.name_rows,
-                                                  height = self.height - self.MENU_BOTTOM_BORDER_THICKNESS,
-                                                  width = '20%')
+        self.left_unit_name_list = uif.HeaderList[uif.IconRow](
+            name='unit_names',
+            parent=self,
+            header_row=self.header_row,
+            data_rows=self.name_rows,
+            height=self.height - self.MENU_BOTTOM_BORDER_THICKNESS,
+            width='20%')
         self.left_unit_name_list.padding = (3, 0, 0, 0)
         overflow_list = list(self.left_unit_name_list.overflow)
         overflow_list[3] = 0

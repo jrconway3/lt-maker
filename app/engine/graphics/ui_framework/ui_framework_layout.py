@@ -208,7 +208,7 @@ class UILayoutHandler():
         positions = self._list_layout_position_children_cached(tuple(ordered_children), psize, padding, incrementing_index, no_cull)
 
         if (self.parent_component.props.list_style == ListLayoutStyle.ROW_REVERSE
-            or self.parent_component.props.list_style == ListLayoutStyle.COLUMN_REVERSE):
+                or self.parent_component.props.list_style == ListLayoutStyle.COLUMN_REVERSE):
             # reverse the positions list so the ordering is accurate
             new_positions = {}
             for idx, position in positions.items():
@@ -216,7 +216,7 @@ class UILayoutHandler():
             positions = new_positions
         return positions
 
-    @lru_cache
+    @lru_cache()
     def should_cull(self, cpos: Tuple[int, int], csize: Tuple[int, int], coverflow: Tuple[int, int, int, int], psize: Tuple[int, int], pscroll: Tuple[int, int], poverflow: Tuple[int, int, int, int]) -> bool:
         cpos = (cpos[0] - pscroll[0], cpos[1] - pscroll[1])
         if cpos[0] + csize[0] + coverflow[1] < -poverflow[0]: # too far left

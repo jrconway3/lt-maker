@@ -57,7 +57,7 @@ def get_formatted_stat_pages() -> List[Tuple[str, List[Column]]]:
     all_pages = []
     first_page = [
         Column('30%', 'Class', uif.HAlignment.LEFT, None, lambda unit: DB.classes.get(unit.klass).name, None, font='text-white'),
-        Column('16%', 'Lv', uif.HAlignment.RIGHT, None, lambda unit: unit.get_internal_level(), None),
+        Column('16%', 'Lv', uif.HAlignment.RIGHT, None, lambda unit: unit.level, None, sort_by=lambda unit: unit.get_internal_level()),
         Column('16%', 'Exp', uif.HAlignment.RIGHT, None, lambda unit: unit.exp, None),
         Column('16%', 'HP', uif.HAlignment.RIGHT, None, lambda unit: unit.get_hp(), None),
         Column('16%', 'Max', uif.HAlignment.LEFT, None, lambda unit: '/' + str(unit.get_max_hp()), None),

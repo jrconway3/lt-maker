@@ -26,7 +26,6 @@ from app.resources.resources import RESOURCES
 from app.utilities import utils
 from app.utilities.typing import Point
 
-
 class FlagSprite():
     def __init__(self) -> None:
         self._sprite: Surface = SPRITES.get('objective_flag')

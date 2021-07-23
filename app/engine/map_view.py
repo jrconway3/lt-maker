@@ -1,20 +1,15 @@
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 
-from app.counters import generic3counter, simplecounter, movement_counter
-
-from app.utilities.utils import frames2ms
 from app.engine import engine
 from app.engine.game_state import game
 
-import time
-
 class MapView():
     def __init__(self):
-        pass
+        self._unit_surf = engine.create_surface((WINWIDTH, WINHEIGHT), transparent=True)
 
     def draw_units(self, surf, cull_rect, subsurface_rect=None):
         # Surf is always 240x160 WxH
-        unit_surf = engine.create_surface((WINWIDTH, WINHEIGHT), transparent=True)
+        unit_surf = engine.copy_surface(self._unit_surf)
 
         # Update all units except the cur unit
         update_units = [unit for unit in game.units if (unit.position or unit.sprite.fake_position)]
@@ -59,7 +54,6 @@ class MapView():
             surf.blit(unit_surf, (0, 0))
 
     def draw(self, camera_cull=None, subsurface_cull=None):
-        # start = time.time_ns()
         game.tilemap.update()
         # Camera Cull
         cull_rect = camera_cull
@@ -84,12 +78,13 @@ class MapView():
                 pass # Don't draw units
         else:
             self.draw_units(surf, cull_rect)
+
         surf = game.cursor.draw(surf, cull_rect)
+
 
         for weather in game.tilemap.weather:
             weather.update()
             weather.draw(surf, cull_rect[0], cull_rect[1])
 
         surf = game.ui_view.draw(surf)
-        # print((time.time_ns() - start)/1e6)
         return surf

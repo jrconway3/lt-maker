@@ -425,6 +425,9 @@ class SimpleCombat():
                     game.state.change('exp')
                 game.exp_instance.append((self.attacker, exp, None, 'init'))
                 game.state.change('exp')
+                game.ai.end_skip()
+            elif not self.alerts and exp > 0:
+                action.do(action.GainExp(self.attacker, exp))
 
         elif self.defender and self.defender.team == 'player' and not self.defender.is_dying:
             exp = self.calculate_exp(self.defender, self.def_item)
@@ -442,6 +445,9 @@ class SimpleCombat():
                     game.exp_instance.append(pair)
                 game.exp_instance.append((self.defender, exp, None, 'init'))
                 game.state.change('exp')
+                game.ai.end_skip()
+            elif not self.alerts and exp > 0:
+                action.do(action.GainExp(self.defender, exp))
 
     def handle_paired_exp(self, unit, item, target) -> tuple:
         '''Creates a tuple for paired units as a helper function'''

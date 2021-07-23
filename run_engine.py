@@ -1,4 +1,4 @@
-import os
+import os, sys
 
 from app.constants import VERSION
 from app.resources.resources import RESOURCES
@@ -7,6 +7,7 @@ from app.engine import engine
 from app.engine import config as cf
 from app.engine import driver
 from app.engine import game_state
+from app.engine.component_system_compiler import source_generator
 
 def main(name: str):
     RESOURCES.load(name + '.ltproj')
@@ -46,9 +47,14 @@ if __name__ == '__main__':
     success = lt_log.create_logger()
     if not success:
         engine.terminate()
+
+    # compile necessary files
+    if not hasattr(sys, 'frozen'):
+        source_generator.generate_component_system_source()
+
     try:
         find_and_run_project()
-        # main('lion_throne')        
+        # main('lion_throne')
         # test_play('lion_throne')
         # test_play('sacred_stones')
     except Exception as e:

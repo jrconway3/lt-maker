@@ -19,25 +19,37 @@ from ..ui_framework import ComponentProperties, ResizeMode, UIComponent
 class TextProperties(ComponentProperties):
     """Properties that are particular to text-based components.
     """
-    def __init__(self):
-        super().__init__()
-        # self-explanatory: the font
+    def __init__(self, parent: TextComponent):
+        super().__init__(parent)
+        self.overflow = (0, 0, 0, 0)
+        # self-explanatory: the font (BmpFont)
+        # font_name (str of the font name) is more encouraged to be used, but either works
         self.font: BmpFont = FONT['text-white']
+        self.font_name: str = None
         # if the text component is multiline, how much space
         # is between the two lines. Can be percentage or pixel value.
         self.line_break_size: str = '0px'
-        # maximum number of lines to split the text over, if max_width is set.
-        # if 0, then it will
-        self.max_lines: int = 2
+        # maximum number of lines in a multiline component the text over, if max_width is set.
+        # if 0, then it will split as many as necessary.
+        self.max_lines: int = 0
+
+    def __getattribute__(self, name: str):
+        if name == 'font':
+            if super().__getattribute__('font_name'):
+                return FONT[super().__getattribute__('font_name')]
+            else:
+                pass
+        return super().__getattribute__(name)
 
 class TextComponent(UIComponent):
     """A component consisting purely of text
     """
     def __init__(self, name: str = "", text: str = "", parent: UIComponent = None):
         super().__init__(name=name, parent=parent)
-        self.props: TextProperties = TextProperties()
-        self.text = text
-        self.num_visible_chars = len(text)
+        self.props: TextProperties = TextProperties(self)
+        self.props.resize_mode = ResizeMode.AUTO
+        self.text = str(text)
+        self.num_visible_chars = len(self.text)
         self._final_formatted_text = []
         self.scrolled_line: float = 1
         self._reset('__init__')
@@ -54,7 +66,7 @@ class TextComponent(UIComponent):
 
     @property
     def max_text_area_width(self) -> int:
-        return UIMetric.parse(self.props.max_width).to_pixels(self.parent.width) - self.padding[0] - self.padding[1]
+        return self.props.max_width.to_pixels(self.parent.width) - self.parent.padding[0] - self.parent.padding[1]
 
     @property
     def max_text_area_height(self) -> int:
@@ -92,13 +104,16 @@ class TextComponent(UIComponent):
             scrolled_lines = max(total_displayed_lines - self.scrolled_line + 1, 0)
             return min(scrolled_lines, self.props.max_lines)
 
-    def set_font(self, font: BmpFont):
+    def set_font(self, font: BmpFont | str):
         """Sets the font of this component and recalculates the component size.
 
         Args:
             font (BmpFont): font to use to draw the text
         """
-        self.props.font = font
+        if isinstance(font, str):
+            self.props.font_name = font
+        else:
+            self.props.font = font
         self._reset("font")
 
     def set_line_break_size(self, line_break_size: str):
@@ -137,7 +152,11 @@ class TextComponent(UIComponent):
         # calculate size
         if self.props.resize_mode == ResizeMode.AUTO:
             num_lines = len(self._final_formatted_text)
-            if num_lines == 1:
+            if num_lines == 0:
+                # no text, no size
+                self.size = (0, 0)
+                return
+            elif num_lines == 1:
                 # all text is on one line anyway, just go by text
                 text_size = self.props.font.size(self.text)
             else:
@@ -155,8 +174,12 @@ class TextComponent(UIComponent):
             text (str): Text to display
         """
         self.text = text
-        self.num_visible_chars = len(text)
-        self._reset('text')
+        if text:
+            self.num_visible_chars = len(text)
+            self._reset('text')
+        else:
+            self.num_visible_chars = 0
+            self._reset('text')
 
     def set_visible(self, num_chars_visible: int):
         """If you do not wish to display all the text at once,
@@ -256,7 +279,7 @@ class TextComponent(UIComponent):
         return False
 
     # @overrides UIComponent.to_surf
-    def to_surf(self) -> Surface:
+    def to_surf(self, no_cull=False) -> Surface:
         if not self.enabled:
             return engine.create_surface(self.tsize, True)
         # draw the background.
@@ -269,7 +292,6 @@ class TextComponent(UIComponent):
             visible_line = line[:remaining_chars]
             remaining_chars -= len(visible_line)
             self.props.font.blit(visible_line, base_surf, pos=(self.padding[0], self.padding[2] + line_num * (self.line_break_size + self.font_height)))
-
         if self.props.max_lines > 0:
             # crop the text to the max number of lines, to avoid overflow
             scrolled_down_height = (self.scrolled_line - 1) * (self.font_height + self.line_break_size)
@@ -304,7 +326,7 @@ class DialogTextComponent(TextComponent):
         return self.cursor_y_offset[self.cursor_y_offset_index] + self.font_height / 3
 
     # @overrides TextComponent.to_surf
-    def to_surf(self) -> Surface:
+    def to_surf(self, no_cull=False) -> Surface:
         if not self.enabled:
             return engine.create_surface(self.tsize, True)
         # draw the background.

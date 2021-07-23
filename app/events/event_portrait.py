@@ -22,7 +22,6 @@ class EventPortrait():
     halfsmile = (32, 80, 32, 16)
     closesmile = (64, 80, 32, 16)
 
-
     transition_speed = utils.frames2ms(14)
     travel_time = utils.frames2ms(15)
     bop_time = utils.frames2ms(8)
@@ -42,7 +41,7 @@ class EventPortrait():
         self.expressions = expressions or set()
 
         self.main_portrait = engine.subsurface(self.portrait.image, (0, 0, 96, 80))
-        self.mini_portrait = engine.subsurface(self.portrait.image, (96, 16, 32, 32))
+        self.chibi = engine.subsurface(self.portrait.image, (96, 16, 32, 32))
 
         self.talk_on = False
         self.remove = False

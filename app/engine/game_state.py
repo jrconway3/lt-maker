@@ -620,7 +620,7 @@ class GameState():
         return region
 
     def get_all_units(self) -> List[UnitObject]:
-        return [unit for unit in self.level.units if unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]
+        return [unit for unit in self.units if unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]
 
     def get_player_units(self) -> List[UnitObject]:
         return [unit for unit in self.get_all_units() if unit.team == 'player']
@@ -631,7 +631,7 @@ class GameState():
     def get_all_units_in_party(self, party=None) -> List[UnitObject]:
         if party is None:
             party = self.current_party
-        return [unit for unit in self.unit_registry.values() if unit.team == 'player' and not unit.generic and unit.party == party]
+        return [unit for unit in self.units if unit.team == 'player' and not unit.generic and unit.party == party]
 
     def get_units_in_party(self, party=None) -> List[UnitObject]:
         if party is None:

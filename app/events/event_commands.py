@@ -724,7 +724,7 @@ Sets _Unit_'s mana to _PositiveInteger_.
 
 class AddFatigue(EventCommand):
     nid = 'add_fatigue'
-    tags = Tags.MODIFY_UNIT_PROPERTIES
+    tag = Tags.MODIFY_UNIT_PROPERTIES
 
     desc = \
         """

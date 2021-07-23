@@ -350,6 +350,7 @@ class Choice(Simple):
         self.horizontal = False
         self.is_convoy = False
         self.highlight = True
+        self._bg_surf = None  # Stored bg
         super().__init__(owner, options, topleft, background, info)
 
         self.gem = True
@@ -458,38 +459,49 @@ class Choice(Simple):
 
     def create_bg_surf(self):
         if not self.background:
-            return engine.create_surface((self.get_menu_width(), self.get_menu_height()), transparent=True)
+            if self._bg_surf and self._bg_surf.get_width() == self.get_menu_width() and self._bg_surf.get_height() == self.get_menu_height():
+                pass
+            else:
+                self._bg_surf = engine.create_surface((self.get_menu_width(), self.get_menu_height()), transparent=True)
+                return self._bg_surf
         if self.horizontal:
             width = sum(option.width() + 8 for option in self.options) + 16
-            surf = create_base_surf(width, 24, self.background)
-            surf = image_mods.make_translucent(surf, .5)
-            return surf
+            if self._bg_surf and self._bg_surf.get_width() == width:
+                pass
+            else:
+                self._bg_surf = create_base_surf(width, 24, self.background)
+                self._bg_surf = image_mods.make_translucent(self._bg_surf, .5)
+            return self._bg_surf
         else:
-            bg_surf = create_base_surf(self.get_menu_width(), self.get_menu_height(), self.background)
-            surf = engine.create_surface((bg_surf.get_width() + 2, bg_surf.get_height() + 4), transparent=True)
-            surf.blit(bg_surf, (2, 4))
-            if self.gem:
-                if self.gem == 'brown':
-                    surf.blit(SPRITES.get('menu_gem_brown'), (0, 0))
-                else:
-                    surf.blit(SPRITES.get('menu_gem_small'), (0, 0))
-            if self.shimmer != 0:
-                sprite = SPRITES.get('menu_shimmer%d' % self.shimmer)
-                surf.blit(sprite, (surf.get_width() - 1 - sprite.get_width(), surf.get_height() - 5 - sprite.get_height()))
-            if self.is_convoy or self.disp_value == 'sell':
-                # Draw face
-                item = self.get_current()
-                unit = None
-                if item:
-                    unit = game.get_unit(item.owner_nid)
-                if unit:
-                    face_image = icons.get_portrait(unit)
-                    face_image = face_image.convert_alpha()
-                    # face_image = engine.subsurface(face_image, (0, 0, 96, 76))
-                    face_image = image_mods.make_translucent(face_image, 0.5)
-                    surf.blit(face_image, (surf.get_width()//2 - face_image.get_width()//2 + 4, surf.get_height() - face_image.get_height() - 5))
-            surf = image_mods.make_translucent(surf, .1)
-            return surf
+            if self._bg_surf and self._bg_surf.get_width() == self.get_menu_width() + 2 and self._bg_surf.get_height() == self.get_menu_height() + 4:
+                pass
+            else:
+                bg_surf = create_base_surf(self.get_menu_width(), self.get_menu_height(), self.background)
+                surf = engine.create_surface((bg_surf.get_width() + 2, bg_surf.get_height() + 4), transparent=True)
+                surf.blit(bg_surf, (2, 4))
+                if self.gem:
+                    if self.gem == 'brown':
+                        surf.blit(SPRITES.get('menu_gem_brown'), (0, 0))
+                    else:
+                        surf.blit(SPRITES.get('menu_gem_small'), (0, 0))
+                if self.shimmer != 0:
+                    sprite = SPRITES.get('menu_shimmer%d' % self.shimmer)
+                    surf.blit(sprite, (surf.get_width() - 1 - sprite.get_width(), surf.get_height() - 5 - sprite.get_height()))
+                if self.is_convoy or self.disp_value == 'sell':
+                    # Draw face
+                    item = self.get_current()
+                    unit = None
+                    if item:
+                        unit = game.get_unit(item.owner_nid)
+                    if unit:
+                        face_image = icons.get_portrait(unit)
+                        face_image = face_image.convert_alpha()
+                        # face_image = engine.subsurface(face_image, (0, 0, 96, 76))
+                        face_image = image_mods.make_translucent(face_image, 0.5)
+                        surf.blit(face_image, (surf.get_width()//2 - face_image.get_width()//2 + 4, surf.get_height() - face_image.get_height() - 5))
+                surf = image_mods.make_translucent(surf, .1)
+                self._bg_surf = surf
+            return self._bg_surf
 
     def draw(self, surf):
         if self.horizontal:
@@ -549,7 +561,7 @@ class Choice(Simple):
 
                 running_height += choice.height()
         else:
-            FONT['text-grey'].blit("Nothing", bg_surf, (self.topleft[0] + 16, self.topleft[1] + 4))
+            FONT['text-grey'].blit("Nothing", surf, (self.topleft[0] + 16, self.topleft[1] + 4))
         return surf
 
     def horiz_draw(self, surf):

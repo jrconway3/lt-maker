@@ -575,7 +575,7 @@ class UIComponent():
                                   repr(e))
                 self.queued_animations.pop(0)
 
-    def _reset(self, reason: str=None):
+    def _reset(self, reason: str = None):
         """Resets internal state. Triggers on dimension change, so as to allow
         dynamically resized subclasses to resize on prop change.
 
@@ -651,7 +651,6 @@ class UIComponent():
                 child.on_screen = True
             else:
                 child.on_screen = False
-
 
         # draw all hard coded surfaces by z-index
         z_children = [surf_tup for surf_tup in self.manual_surfaces if surf_tup[2] >= 0]

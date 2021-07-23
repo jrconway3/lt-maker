@@ -436,6 +436,9 @@ class PrimaryAI():
             tp = self.compute_priority(main_target_pos, splash, move, item)
 
         unit = game.board.get_unit(target)
+        # Don't target self if I've already moved and I'm not targeting my new position
+        if unit is self.unit and target != self.unit.position:
+            return
         if unit:
             name = unit.nid
         else:

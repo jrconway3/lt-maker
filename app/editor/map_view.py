@@ -221,16 +221,16 @@ class GlobalModeLevelMapView(SimpleMapView):
         coord = position
         pixmap = icon.get_pixmap()
         # to support 16x16, 32x32, and 48x48 map icons, we offset them differently
-        offset = (pixmap.height() / 16 - 1) * 8
+        offset_x = (pixmap.width() / 16 - 1) * 8
+        offset_y = (pixmap.height() - 16)
         if pixmap:
             if opacity:
                 painter.setOpacity(0.33)
-            painter.drawImage(coord[0] * TILEWIDTH - offset,
-                              coord[1] * TILEHEIGHT - offset, pixmap.toImage())
+            painter.drawImage(coord[0] * TILEWIDTH - offset_x,
+                              coord[1] * TILEHEIGHT - offset_y, pixmap.toImage())
             painter.setOpacity(1.0)
         else:
             pass
-
 
     def paint_nodes(self, current_level):
         if self.working_image:

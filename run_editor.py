@@ -17,7 +17,8 @@ if __name__ == '__main__':
         print("Maybe not Windows? But that's OK")
 
     # compile necessary files
-    source_generator.generate_component_system_source()
+    if not hasattr(sys, 'frozen'):
+        source_generator.generate_component_system_source()
 
     from app import lt_log
     success = lt_log.create_logger()

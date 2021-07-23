@@ -59,7 +59,6 @@ def %s(unit, item):
         compiled_item_system.write(func)
         compiled_item_system.write('\n')
 
-
     for hook in default_hooks:
         func = """
 def %s(unit, item):
@@ -122,13 +121,13 @@ def %s(unit, item, target, mode):
     for hook in event_hooks:
         func = """
 def %s(unit, item):
-        for component in item.components:
+    for component in item.components:
+        if component.defines('%s'):
+            component.%s(unit, item)
+    if item.parent_item:
+        for component in item.parent_item.components:
             if component.defines('%s'):
-                component.%s(unit, item)
-        if item.parent_item:
-            for component in item.parent_item.components:
-                if component.defines('%s'):
-                    component.%s(unit, item.parent_item)""" \
+                component.%s(unit, item.parent_item)""" \
             % (hook, hook, hook, hook, hook)
         compiled_item_system.write(func)
         compiled_item_system.write('\n')
@@ -136,13 +135,13 @@ def %s(unit, item):
     for hook in combat_event_hooks:
         func = """
 def %s(playback, unit, item, target, mode):
-        for component in item.components:
+    for component in item.components:
+        if component.defines('%s'):
+            component.%s(playback, unit, item, target, mode)
+    if item.parent_item:
+        for component in item.parent_item.components:
             if component.defines('%s'):
-                component.%s(playback, unit, item, target, mode)
-        if item.parent_item:
-            for component in item.parent_item.components:
-                if component.defines('%s'):
-                    component.%s(playback, unit, item.parent_item, target, mode)""" \
+                component.%s(playback, unit, item.parent_item, target, mode)""" \
             % (hook, hook, hook, hook, hook)
         compiled_item_system.write(func)
         compiled_item_system.write('\n')
@@ -150,13 +149,13 @@ def %s(playback, unit, item, target, mode):
     for hook in status_event_hooks:
         func = """
 def %s(actions, playback, unit, item):
-        for component in item.components:
+    for component in item.components:
+        if component.defines('%s'):
+            component.%s(actions, playback, unit, item)
+    if item.parent_item:
+        for component in item.parent_item.components:
             if component.defines('%s'):
-                component.%s(actions, playback, unit, item)
-        if item.parent_item:
-            for component in item.parent_item.components:
-                if component.defines('%s'):
-                    component.%s(actions, playback, unit, item.parent_item)""" \
+                component.%s(actions, playback, unit, item.parent_item)""" \
             % (hook, hook, hook, hook, hook)
         compiled_item_system.write(func)
         compiled_item_system.write('\n')
@@ -164,10 +163,10 @@ def %s(actions, playback, unit, item):
     for hook in aesthetic_combat_hooks:
         func = """
 def %s(unit, item, target, mode):
-        for component in item.components:
-            if component.defines('%s'):
-                return component.%s(unit, item, target, mode)
-        return None""" \
+    for component in item.components:
+        if component.defines('%s'):
+            return component.%s(unit, item, target, mode)
+    return None""" \
             % (hook, hook, hook)
         compiled_item_system.write(func)
         compiled_item_system.write('\n')

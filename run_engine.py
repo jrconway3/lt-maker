@@ -1,4 +1,4 @@
-import os
+import os, sys
 
 from app.constants import VERSION
 from app.resources.resources import RESOURCES
@@ -45,10 +45,13 @@ if __name__ == '__main__':
     import logging, traceback
     from app import lt_log
     success = lt_log.create_logger()
-    # compile necessary files
-    source_generator.generate_component_system_source()
     if not success:
         engine.terminate()
+
+    # compile necessary files
+    if not hasattr(sys, 'frozen'):
+        source_generator.generate_component_system_source()
+
     try:
         find_and_run_project()
         # main('lion_throne')

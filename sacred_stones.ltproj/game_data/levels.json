@@ -50,11 +50,11 @@
                 "nid": "101",
                 "variant": null,
                 "level": 1,
-                "klass": "Fighter",
+                "klass": "Myrmidon",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Axe",
+                        "Iron Sword",
                         false
                     ]
                 ],
@@ -73,11 +73,11 @@
                 "nid": "102",
                 "variant": null,
                 "level": 2,
-                "klass": "Fighter",
+                "klass": "Swordmaster",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Axe",
+                        "Iron Sword",
                         false
                     ]
                 ],

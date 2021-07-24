@@ -93,7 +93,21 @@ class AnimationCombat(BaseCombat, MockCombat):
         self.battle_music = None
 
         self.left_battle_anim = battle_animation.get_battle_anim(self.left, self.left_item, self.distance)
+        self.lp_battle_anim = None
+        if self.left.strike_partner:
+            pp = self.left.strike_partner
+            self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
+        elif self.left.paired_partner:
+            pp = game.get_unit(self.left.paired_partner)
+            self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
         self.right_battle_anim = battle_animation.get_battle_anim(self.right, self.right_item, self.distance)
+        self.rp_battle_anim = None
+        if self.right.strike_partner:
+            pp = self.right.strike_partner
+            self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
+        elif self.right.paired_partner:
+            pp = game.get_unit(self.right.paired_partner)
+            self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
         self.current_battle_anim = None
 
         self.initial_paint_setup()
@@ -139,7 +153,11 @@ class AnimationCombat(BaseCombat, MockCombat):
                 right_pos = (self.right.position[0] - game.camera.get_x()) * TILEWIDTH, \
                     (self.right.position[1] - game.camera.get_y()) * TILEHEIGHT
                 self.left_battle_anim.pair(self, self.right_battle_anim, False, self.at_range, 14, left_pos)
+                if self.lp_battle_anim:
+                    self.lp_battle_anim.pair(self, self.right_battle_anim, False, self.at_range, 14, left_pos)
                 self.right_battle_anim.pair(self, self.left_battle_anim, True, self.at_range, 14, right_pos)
+                if self.rp_battle_anim:
+                    self.rp_battle_anim.pair(self, self.left_battle_anim, True, self.at_range, 14, right_pos)
                 # Unit should be facing down
                 self.attacker.sprite.change_state('selected')
 
@@ -259,7 +277,11 @@ class AnimationCombat(BaseCombat, MockCombat):
         elif self.state == 'fade_out_wait':
             if self._skip or current_time > 820:
                 self.left_battle_anim.finish()
+                if self.lp_battle_anim:
+                    self.lp_battle_anim.finish()
                 self.right_battle_anim.finish()
+                if self.rp_battle_anim:
+                    self.rp_battle_anim.finish()
                 self.state = 'name_tags_out'
 
         elif self.state == 'name_tags_out':
@@ -307,6 +329,17 @@ class AnimationCombat(BaseCombat, MockCombat):
         else:
             font = FONT['text-brown']
         font.blit_center(self.left.name, self.left_name, (30, 8))
+        if self.lp_battle_anim:
+            if self.left.strike_partner:
+                ln = self.left.strike_partner.name
+            else:
+                ln = game.get_unit(self.left.paired_partner).name
+            self.lp_name = SPRITES.get('combat_name_left_' + left_color).copy()
+            if FONT['text-brown'].width(ln) > 52:
+                font = FONT['narrow-brown']
+            else:
+                font = FONT['text-brown']
+            font.blit_center(ln, self.lp_name, (30, 8))
         # Bar
         if crit_flag:
             self.left_bar = SPRITES.get('combat_main_crit_left_' + left_color).copy()
@@ -329,6 +362,17 @@ class AnimationCombat(BaseCombat, MockCombat):
         else:
             font = FONT['text-brown']
         font.blit_center(self.right.name, self.right_name, (36, 8))
+        if self.rp_battle_anim:
+            if self.right.strike_partner:
+                rn = self.right.strike_partner.name
+            else:
+                rn = game.get_unit(self.right.paired_partner).name
+            self.rp_name = SPRITES.get('combat_name_right_' + right_color).copy()
+            if FONT['text-brown'].width(rn) > 52:
+                font = FONT['narrow-brown']
+            else:
+                font = FONT['text-brown']
+            font.blit_center(rn, self.rp_name, (36, 8))
         # Bar
         if crit_flag:
             self.right_bar = SPRITES.get('combat_main_crit_right_' + right_color).copy()
@@ -618,23 +662,47 @@ class AnimationCombat(BaseCombat, MockCombat):
             self.draw_ui(surf)
 
         shake = (-total_shake_x, total_shake_y)
+        lp_range_offset = left_range_offset - 20
+        rp_range_offset = right_range_offset + 20
+        y_offset = -3
         if self.playback:
             if self.current_battle_anim is self.right_battle_anim:
                 self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
                 self.right_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
+
+                if self.lp_battle_anim:
+                    self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
+
                 self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
+
+                if self.rp_battle_anim:
+                    self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
+
                 self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
+
                 self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
                 self.left_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
             else:
                 self.right_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
                 self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
+
+                if self.rp_battle_anim:
+                    self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
+
                 self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
+                if self.lp_battle_anim:
+                    self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
+
                 self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
+
                 self.left_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
                 self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
         else:
+            if self.lp_battle_anim:
+                self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
             self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
+            if self.rp_battle_anim:
+                self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
             self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
 
         # Animations
@@ -676,6 +744,10 @@ class AnimationCombat(BaseCombat, MockCombat):
         combat_surf.blit(right_bar, (right_pos_x, right_pos_y))
         # Nametag
         top = -60 + self.name_offset * 60 + self.shake_offset[1]
+        if self.lp_battle_anim:
+            combat_surf.blit(self.lp_name, (left_pos_x, top + 19))
+        if self.rp_battle_anim:
+            combat_surf.blit(self.rp_name, (WINWIDTH + 3 - self.rp_name.get_width() + self.shake_offset[0], top + 19))
         combat_surf.blit(self.left_name, (left_pos_x, top))
         combat_surf.blit(self.right_name, (WINWIDTH + 3 - self.right_name.get_width() + self.shake_offset[0], top))
 

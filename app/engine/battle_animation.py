@@ -241,11 +241,11 @@ class BattleAnimation():
     def start_dying_animation(self):
         self.state = 'dying'
         self.death_opacity = [0, 20, 20, 20, 20, 44, 44, 44, 44, 64,
-                              64, 64, 64, 84, 84, 84, 108, 108, 108, 108, 
-                              128, 128, 128, 128, 148, 148, 148, 148, 172, 172, 
+                              64, 64, 64, 84, 84, 84, 108, 108, 108, 108,
+                              128, 128, 128, 128, 148, 148, 148, 148, 172, 172,
                               172, 192, 192, 192, 192, 212, 212, 212, 212, 236,
                               236, 236, 236, 255, 255, 255, 0, 0, 0, 0,
-                              0, 0, -1, 0, 0, 0, 0, 0, 0, 255, 
+                              0, 0, -1, 0, 0, 0, 0, 0, 0, 255,
                               0, 0, 0, 0, 0, 0, 255, 0, 0, 0,
                               0, 0, 0, 255, 0, 0, 0, 0, 0, 0,
                               255, 0, 0, 0, 0, 0, 0]
@@ -546,7 +546,7 @@ class BattleAnimation():
             color1 = values[1]
             color2 = values[2]
             # Find 7 colors in between these colors
-            colors = [color1, 
+            colors = [color1,
                       image_mods.blend_colors(color1, color2, 0.125),
                       image_mods.blend_colors(color1, color2, 0.25),
                       image_mods.blend_colors(color1, color2, 0.375),
@@ -624,7 +624,7 @@ class BattleAnimation():
             for child in self.under_child_effects:
                 child.end_loop()
 
-    def draw(self, surf, shake=(0, 0), range_offset=0, pan_offset=0):
+    def draw(self, surf, shake=(0, 0), range_offset=0, pan_offset=0, y_offset=0):
         if self.state == 'inert':
             return
 
@@ -636,8 +636,7 @@ class BattleAnimation():
             child.draw(surf, (0, 0), range_offset, pan_offset)
 
         if self.current_frame is not None:
-            image, offset = self.get_image(self.current_frame, shake, range_offset, pan_offset, self.static)
-
+            image, offset = self.get_image(self.current_frame, shake, range_offset, pan_offset, self.static, y_offset)
             # Move the animations in at the beginning and out at the end
             if self.entrance_counter:
                 progress = (self.entrance_frames - self.entrance_counter) / self.entrance_frames
@@ -698,18 +697,18 @@ class BattleAnimation():
             image, offset = self.get_image(self.over_frame, shake, range_offset, pan_offset, False)
             engine.blit(surf, image, offset, None, self.blend)
 
-    def get_image(self, frame, shake, range_offset, pan_offset, static) -> tuple:
+    def get_image(self, frame, shake, range_offset, pan_offset, static, y_offset=0) -> tuple:
         image = self.image_directory[frame.nid].copy()
         if not self.right:
             image = engine.flip_horiz(image)
         offset = frame.offset
         # Handle offset (placement of the object on the screen)
         if self.lr_offset:
-            offset = offset[0] + self.lr_offset.pop(), offset[1]
+            offset = offset[0] + self.lr_offset.pop(), offset[1] + y_offset
         if self.effect_offset:
-            offset = offset[0] + self.effect_offset[0], offset[1] + self.effect_offset[1]
+            offset = offset[0] + self.effect_offset[0], offset[1] + self.effect_offset[1] + y_offset
         if self.personal_offset:
-            offset = offset[0] + self.personal_offset[0], offset[1] + self.personal_offset[1]
+            offset = offset[0] + self.personal_offset[0], offset[1] + self.personal_offset[1] + y_offset
 
         left = 0
         if not static:

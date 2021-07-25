@@ -109,10 +109,10 @@ class CommandChangePaletteSlot():
     def redo(self):
         print(self.swap_coord) 
         if self.swap_coord:
-            old_color = self.palette.colors[self.old_coord]
-            new_color = self.palette.colors[self.new_coord]
-            self.palette.colors[self.old_coord] = new_color
-            self.palette.colors[self.new_coord] = old_color
+            # old_color = self.palette.colors[self.old_coord]
+            # new_color = self.palette.colors[self.new_coord]
+            # self.palette.colors[self.old_coord] = new_color
+            # self.palette.colors[self.new_coord] = old_color
             temp_coord = (255, 255)
             convert_dict = {qRgb(0, *self.old_coord): qRgb(0, *temp_coord), 
                             qRgb(0, *self.new_coord): qRgb(0, *self.old_coord)}
@@ -120,21 +120,26 @@ class CommandChangePaletteSlot():
             for frame in self.frame_set.frames:
                 frame.pixmap = editor_utilities.color_convert_pixmap(frame.pixmap, convert_dict)
                 frame.pixmap = editor_utilities.color_convert_pixmap(frame.pixmap, second_convert_dict)
+            self.frame_set.pixmap = editor_utilities.color_convert_pixmap(self.frame_set.pixmap, convert_dict)
+            self.frame_set.pixmap = editor_utilities.color_convert_pixmap(self.frame_set.pixmap, second_convert_dict)
 
         else:
-            color = self.palette.colors[self.old_coord]
-            self.palette.colors[self.new_coord] = color
-            del self.palette.colors[self.old_coord]
+            # color = self.palette.colors[self.old_coord]
+            # self.palette.colors[self.new_coord] = color
+            # del self.palette.colors[self.old_coord]
             convert_dict = {qRgb(0, *self.old_coord): qRgb(0, *self.new_coord)}
             for frame in self.frame_set.frames:
                 frame.pixmap = editor_utilities.color_convert_pixmap(frame.pixmap, convert_dict)
+            # Propagate changes up to main anim
+            self.frame_set.pixmap = editor_utilities.color_convert_pixmap(self.frame_set.pixmap, convert_dict)
+        self.frame_set.full_path = None  # So it saves the new pixmap
 
     def undo(self):
         if self.swap_coord:
-            old_color = self.palette.colors[self.old_coord]
-            new_color = self.palette.colors[self.new_coord]
-            self.palette.colors[self.old_coord] = old_color
-            self.palette.colors[self.new_coord] = new_color
+            # old_color = self.palette.colors[self.old_coord]
+            # new_color = self.palette.colors[self.new_coord]
+            # self.palette.colors[self.old_coord] = old_color
+            # self.palette.colors[self.new_coord] = new_color
             temp_coord = (255, 255)
             # Swap back
             convert_dict = {qRgb(0, *self.old_coord): qRgb(0, *temp_coord), 
@@ -143,13 +148,18 @@ class CommandChangePaletteSlot():
             for frame in self.frame_set.frames:
                 frame.pixmap = editor_utilities.color_convert_pixmap(frame.pixmap, convert_dict)
                 frame.pixmap = editor_utilities.color_convert_pixmap(frame.pixmap, second_convert_dict)
+            self.frame_set.pixmap = editor_utilities.color_convert_pixmap(self.frame_set.pixmap, convert_dict)
+            self.frame_set.pixmap = editor_utilities.color_convert_pixmap(self.frame_set.pixmap, second_convert_dict)
         else:
-            color = self.palette.colors[self.new_coord]
-            self.palette.colors[self.old_coord] = color
-            del self.palette.colors[self.new_coord]
+            # color = self.palette.colors[self.new_coord]
+            # self.palette.colors[self.old_coord] = color
+            # del self.palette.colors[self.new_coord]
             convert_dict = {qRgb(0, *self.new_coord): qRgb(0, *self.old_coord)}
             for frame in self.frame_set.frames:
                 frame.pixmap = editor_utilities.color_convert_pixmap(frame.pixmap, convert_dict)
+            # Propagate changes up to main anim
+            self.frame_set.pixmap = editor_utilities.color_convert_pixmap(self.frame_set.pixmap, convert_dict)
+        self.frame_set.full_path = None
 
     def can_stack(self, other) -> bool:
         return False
@@ -546,9 +556,8 @@ class PaletteProperties(QWidget):
     def easel_selection_changed(self, current_color):
         if current_color:
             self.painting_color = QColor(*current_color)
-        else:
-            self.painting_color = QColor(0, 0, 0)
-        self.color_editor_widget.set_current(self.painting_color)
+        if self.painting_color:
+            self.color_editor_widget.set_current(self.painting_color)
 
     def set_painting_color(self, color: QColor):
         self.painting_color = color

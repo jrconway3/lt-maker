@@ -455,7 +455,11 @@ def compute_damage(unit, target, item, def_item, mode, crit=False):
     return int(max(DB.constants.get('min_damage').value, might))
 
 def compute_assist_damage(unit, target, item, def_item, mode, crit=False):
-    '''Nearly identical but for dual strike units. Damage is halved at the end'''
+    '''Nearly identical but for dual strike units. Damage is halved at the end
+    Rain - You probably think that I didn't need to copy the whole equation.
+    Maybe not, but I've found that it helps reduce unexpected occurences (like
+    crit damage being off by one due to how //2 works)
+    '''
     if not item:
         return None
 
@@ -500,11 +504,6 @@ def compute_assist_damage(unit, target, item, def_item, mode, crit=False):
 
     might -= defense(target, def_item, item)
 
-    if crit or skill_system.crit_anyway(unit):
-        might *= equations.parser.crit_mult(unit)
-        for _ in range(equations.parser.crit_add(unit)):
-            might += total_might
-
     might += skill_system.dynamic_damage(unit, item, target, mode)
     might -= skill_system.dynamic_resist(target, item, unit, mode)
 
@@ -515,6 +514,11 @@ def compute_assist_damage(unit, target, item, def_item, mode, crit=False):
         might = 0
 
     might = might//2
+
+    if crit or skill_system.crit_anyway(unit):
+        might *= equations.parser.crit_mult(unit)
+        for _ in range(equations.parser.crit_add(unit)):
+            might += total_might
 
     return int(max(DB.constants.get('min_damage').value, might)) # Divided by two since it's dual strike
 

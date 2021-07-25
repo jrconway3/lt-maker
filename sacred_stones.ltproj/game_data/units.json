@@ -43,6 +43,10 @@
             [
                 "Rapier",
                 false
+            ],
+            [
+                "Iron Sword",
+                false
             ]
         ],
         "learned_skills": [

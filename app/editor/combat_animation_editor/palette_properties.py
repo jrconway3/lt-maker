@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QFileDialog, QVBoxLayout, \
     QGraphicsView, QGraphicsScene, QLineEdit, QSizePolicy, QPushButton, \
     QMessageBox, QDialog, QAction, QApplication
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QColor, QPen, QPixmap, QImage, QPainter
+from PyQt5.QtGui import QColor, QPen, QPixmap, QImage, QPainter, qRgb
 
 from typing import Tuple
 
@@ -72,7 +72,7 @@ class CommandChangePaletteColor():
         self.swap_coord = None
         if self.new_color in self.palette.colors.values():
             for coord, color in self.palette.colors.items():
-                if color == self.new_color:
+                if color == self.new_color and self.old_color:
                     self.swap_coord = coord
                     break
 
@@ -88,7 +88,7 @@ class CommandChangePaletteColor():
         if self.old_color is not None:
             self.palette.colors[self.coord] = self.old_color
         else:
-            del self.palette_colors[self.coord]
+            del self.palette.colors[self.coord]
 
     def can_stack(self, other) -> bool:
         return self.nid == other.nid and self.palette == other.palette and self.coord == other.coord
@@ -106,20 +106,28 @@ class CommandChangePaletteSlot():
         if self.new_coord in self.palette.colors.keys():
             self.swap_coord = True
 
-    def redo(self): 
+    def redo(self):
+        print(self.swap_coord) 
         if self.swap_coord:
             old_color = self.palette.colors[self.old_coord]
             new_color = self.palette.colors[self.new_coord]
             self.palette.colors[self.old_coord] = new_color
             self.palette.colors[self.new_coord] = old_color
-            convert_dict = {(0, *self.old_coord): (0, *self.new_coord), (0, *self.new_coord): (0, *self.old_coord)}
+            temp_coord = (255, 255)
+            convert_dict = {qRgb(0, *self.old_coord): qRgb(0, *temp_coord), 
+                            qRgb(0, *self.new_coord): qRgb(0, *self.old_coord)}
+            second_convert_dict = {qRgb(0, *temp_coord): qRgb(0, *self.new_coord)}
+            for frame in self.frame_set.frames:
+                frame.pixmap = editor_utilities.color_convert_pixmap(frame.pixmap, convert_dict)
+                frame.pixmap = editor_utilities.color_convert_pixmap(frame.pixmap, second_convert_dict)
+
         else:
             color = self.palette.colors[self.old_coord]
-            self.palette_colors[self.new_coord] = color
+            self.palette.colors[self.new_coord] = color
             del self.palette.colors[self.old_coord]
-            convert_dict = {(0, *self.old_coord): (0, *self.new_coord)}
-        for frame in self.frame_set.frames:
-            editor_utilities.color_convert_pixmap(frame.pixmap, convert_dict)
+            convert_dict = {qRgb(0, *self.old_coord): qRgb(0, *self.new_coord)}
+            for frame in self.frame_set.frames:
+                frame.pixmap = editor_utilities.color_convert_pixmap(frame.pixmap, convert_dict)
 
     def undo(self):
         if self.swap_coord:
@@ -127,18 +135,39 @@ class CommandChangePaletteSlot():
             new_color = self.palette.colors[self.new_coord]
             self.palette.colors[self.old_coord] = old_color
             self.palette.colors[self.new_coord] = new_color
-            convert_dict = {(0, *self.old_coord): (0, *self.new_coord), (0, *self.new_coord): (0, *self.old_coord)}
+            temp_coord = (255, 255)
+            # Swap back
+            convert_dict = {qRgb(0, *self.old_coord): qRgb(0, *temp_coord), 
+                            qRgb(0, *self.new_coord): qRgb(0, *self.old_coord)}
+            second_convert_dict = {qRgb(0, *temp_coord): qRgb(0, *self.new_coord)}
+            for frame in self.frame_set.frames:
+                frame.pixmap = editor_utilities.color_convert_pixmap(frame.pixmap, convert_dict)
+                frame.pixmap = editor_utilities.color_convert_pixmap(frame.pixmap, second_convert_dict)
         else:
             color = self.palette.colors[self.new_coord]
-            self.palette_colors[self.old_coord] = color
+            self.palette.colors[self.old_coord] = color
             del self.palette.colors[self.new_coord]
-            convert_dict = {(0, *self.new_coord): (0, *self.old_coord)}
-        for frame in self.frame_set.frames:
-            editor_utilities.color_convert_pixmap(frame.pixmap, convert_dict)
+            convert_dict = {qRgb(0, *self.new_coord): qRgb(0, *self.old_coord)}
+            for frame in self.frame_set.frames:
+                frame.pixmap = editor_utilities.color_convert_pixmap(frame.pixmap, convert_dict)
 
     def can_stack(self, other) -> bool:
         return False
 
+class CommandDeleteColor():
+    def __init__(self, palette, coord):
+        self.palette = palette
+        self.coord = coord
+        self.old_color = self.palette.colors[self.coord]
+
+    def redo(self):
+        del self.palette.colors[self.coord]
+
+    def undo(self):
+        self.palette.colors[self.coord] = self.old_color
+
+    def can_stack(self, other) -> bool: 
+        return False
 
 class AnimView(IconView):
     def get_color_at_pos(self, pixmap, pos) -> Tuple[int, int, int]:
@@ -239,12 +268,27 @@ class EaselWidget(QGraphicsView):
         base_image = QImage(side_length, side_length, QImage.Format_ARGB32)
         base_image.fill(QColor(192, 192, 192, 255))
 
+        painting_color = self.window.get_painting_color()
+        if painting_color:
+            painting_color = painting_color.getRgb()[:3]
+        painting_color_coord = None
+        if painting_color:
+            for coord, color in self.current_palette.colors.items():
+                if color == painting_color:
+                    painting_color_coord = coord
+                    break
+
         painter = QPainter()
         painter.begin(base_image)
         if self.current_frame:
             painter.setPen(QPen(QColor(0, 0, 0, 255), 1, Qt.SolidLine))
             for coord in self.get_coords_used_in_frame(self.current_frame):
                 painter.drawRect(coord[0] * self.palette_size + 1, coord[1] * self.palette_size + 1, self.palette_size - 2, self.palette_size - 2)
+        # Outline painting color in dashed line
+        if painting_color_coord:
+            painter.setPen(QPen(QColor(255, 255, 0, 255), 1, Qt.DashLine))
+            coord = painting_color_coord
+            painter.drawRect(coord[0] * self.palette_size, coord[1] * self.palette_size, self.palette_size, self.palette_size)
         # Outline chosen coord in bright cyan
         if self.current_coord:
             painter.setPen(QPen(QColor(0, 255, 255, 255), 2, Qt.SolidLine))
@@ -271,6 +315,15 @@ class EaselWidget(QGraphicsView):
             command.redo()
             self.window.draw_frame()
 
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        if event.key() == Qt.Key_Delete:
+            if self.current_coord:
+                command = CommandDeleteColor(self.current_palette, self.current_coord)
+                palette_commands.append(command)
+                command.redo()
+                self.window.draw_frame()
+
     def mousePressEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
         tile_pos = int(scene_pos.x() // self.palette_size), \
@@ -280,19 +333,22 @@ class EaselWidget(QGraphicsView):
             print(tile_pos)
             # Set current slot to this coord
             if (QApplication.keyboardModifiers() & Qt.ControlModifier):
-                self.current_coord = tile_pos
+                if self.current_frame and self.window.current_frame_set and tile_pos in self.current_palette.colors:
+                    self.current_coord = tile_pos
             # Set painting color to this coord
             else:
+                self.current_coord = None
                 self.selectionChanged.emit(self.current_palette.colors.get(tile_pos))
 
         elif event.button() == Qt.LeftButton:
             # If control is pressed, move current coord to new position
-            if (QApplication.keyboardModifiers() & Qt.ControlModifier):
+            if self.current_coord:
                 # Modify base frame if it exists
-                if self.current_coord and self.current_frame and self.window.current_frame_set:
+                if self.current_frame and self.window.current_frame_set:
                     command = CommandChangePaletteSlot(self.current_palette, self.window.current_frame_set, self.current_coord, tile_pos)
                     palette_commands.append(command)
                     command.redo()
+                    self.current_coord = None
                     self.window.draw_frame()
             else:
                 # overwrite current color with painting color

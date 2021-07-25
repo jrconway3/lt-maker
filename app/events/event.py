@@ -351,6 +351,7 @@ class Event():
         self.transition_state = None
         self.hurry_up()
         self.text_boxes.clear()
+        self.other_boxes.clear()
         self.should_remain_blocked.clear()
         while self.should_update:
             self.should_update = [to_update for to_update in self.should_update if not to_update(self.do_skip)]

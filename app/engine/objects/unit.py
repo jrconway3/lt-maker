@@ -93,7 +93,7 @@ class UnitObject(Prefab):
         self.paired_partner = None
         self.strike_partner = None # Not saved because only used for solver
         self.lead_unit = False # I don't need to save this because it's only for move/menu states
-        self.guard_gauge = 0 # Remember to set back to 0
+        self.guard_gauge = 10 # Remember to set back to 0
         self.built_guard = False # A bool to check if guard should be subtracted at turn end
         self.get_guard_info()
 

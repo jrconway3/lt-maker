@@ -679,16 +679,27 @@ class AnimationCombat(BaseCombat, MockCombat):
         y_offset = -3
         if self.playback:
             if self.current_battle_anim is self.right_battle_anim:
-                self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
-                self.right_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
-                if self.lp_battle_anim:
-                    self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
-                self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
-                if self.rp_battle_anim:
-                    self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
-                self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
-                self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
-                self.left_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
+                if self.left.guard_gauge == self.left.max_guard and self.lp_battle_anim:
+                    self.lp_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
+                    self.right_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
+                    self.left_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
+                    self.lp_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
+                    if self.rp_battle_anim:
+                        self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
+                    self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
+                    self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
+                    self.lp_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
+                else:
+                    self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
+                    self.right_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
+                    if self.lp_battle_anim:
+                        self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
+                    self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
+                    if self.rp_battle_anim:
+                        self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
+                    self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
+                    self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
+                    self.left_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
             elif self.rp_battle_anim and self.current_battle_anim is self.rp_battle_anim:
                 self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
                 self.rp_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
@@ -710,16 +721,27 @@ class AnimationCombat(BaseCombat, MockCombat):
                 self.lp_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
                 self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
             else:
-                self.right_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
-                self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
-                if self.rp_battle_anim:
-                    self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
-                self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
-                if self.lp_battle_anim:
-                    self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
-                self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
-                self.left_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
-                self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
+                if self.right.guard_gauge == self.right.max_guard and self.rp_battle_anim:
+                    self.rp_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
+                    self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
+                    self.right_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
+                    self.rp_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
+                    if self.lp_battle_anim:
+                        self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
+                    self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
+                    self.left_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
+                    self.rp_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
+                else:
+                    self.right_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
+                    self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
+                    if self.rp_battle_anim:
+                        self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
+                    self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
+                    if self.lp_battle_anim:
+                        self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
+                    self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
+                    self.left_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
+                    self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
         else:
             if self.lp_battle_anim:
                 self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)

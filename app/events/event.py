@@ -1855,6 +1855,7 @@ class Event():
             game.cursor = level_cursor.LevelCursor(game)
             game.movement =  movement.MovementManager()
             game.map_view = map_view.MapView()
+            game.set_up_game_board(game.level.tilemap)
             return
 
         if not len(values) > 0:

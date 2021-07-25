@@ -25,7 +25,7 @@ class OverworldTravelUI():
         self._init_location_title_animations()
         self.location_title.disable()
 
-        self.location_title_text = uif.TextComponent("location title text", "", self.location_title)
+        self.location_title_text = uif.PlainTextLine("location title text", self.location_title, "")
         self.location_title_text.props.h_alignment = uif.HAlignment.CENTER
         self.location_title_text.props.v_alignment = uif.VAlignment.CENTER
         self.location_title_text.props.resize_mode = uif.ResizeMode.AUTO
@@ -129,6 +129,7 @@ class OverworldTravelUI():
             return surf
         self._update_location_title_component()
         self._update_minimap_component()
+        self.base_component._should_redraw = True
         ui_surf = self.base_component.to_surf()
         surf.blit(ui_surf, (0, 0))
         return surf

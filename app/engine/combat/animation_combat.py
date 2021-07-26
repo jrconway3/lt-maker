@@ -92,6 +92,8 @@ class AnimationCombat(BaseCombat, MockCombat):
 
         self.battle_music = None
 
+        self.llast_gauge = self.left.guard_gauge
+        self.rlast_gauge = self.right.guard_gauge
         self.left_battle_anim = battle_animation.get_battle_anim(self.left, self.left_item, self.distance)
         self.lp_battle_anim = None
         if self.left.strike_partner:
@@ -448,7 +450,14 @@ class AnimationCombat(BaseCombat, MockCombat):
             action.do(act)
 
     def _end_phase(self):
-        pass
+        if self.llast_gauge == self.left.guard_gauge:
+            pass
+        else:
+            self.llast_gauge += self.left.gauge_inc
+        if self.rlast_gauge == self.right.guard_gauge:
+            pass
+        else:
+            self.rlast_gauge += self.right.gauge_inc
 
     def finish(self):
         # Fade back music if and only if it was faded in
@@ -670,6 +679,7 @@ class AnimationCombat(BaseCombat, MockCombat):
             self.focus_right = (self.defender is self.right)
 
     def draw(self, surf):
+        # This code is so ugly, sorry rain
         left_range_offset, right_range_offset, total_shake_x, total_shake_y = \
             self.draw_ui(surf)
 
@@ -679,7 +689,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         y_offset = -3
         if self.playback:
             if self.current_battle_anim is self.right_battle_anim:
-                if self.left.guard_gauge == self.left.max_guard and self.lp_battle_anim:
+                if self.llast_gauge == self.left.max_guard and self.lp_battle_anim:
                     self.lp_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
                     self.right_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
                     self.left_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
@@ -721,7 +731,7 @@ class AnimationCombat(BaseCombat, MockCombat):
                 self.lp_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
                 self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
             else:
-                if self.right.guard_gauge == self.right.max_guard and self.rp_battle_anim:
+                if self.rlast_gauge == self.right.max_guard and self.rp_battle_anim:
                     self.rp_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
                     self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
                     self.right_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
@@ -787,6 +797,28 @@ class AnimationCombat(BaseCombat, MockCombat):
         right_pos_y = left_pos_y
         combat_surf.blit(left_bar, (left_pos_x, left_pos_y))
         combat_surf.blit(right_bar, (right_pos_x, right_pos_y))
+
+        # Guard gauge counter
+        self.right_gauge = None
+        self.left_gauge = None
+        pair_up = DB.constants.value('pairup')
+        left_color = utils.get_team_color(self.left.team)
+        right_color = utils.get_team_color(self.right.team)
+        if pair_up:
+            self.left_gauge = SPRITES.get('guard_' + left_color).copy()
+            font = FONT['number-small2']
+            gauge = str(self.left.guard_gauge) + '-' + str(self.left.max_guard)
+            font.blit_center(gauge, self.left_gauge, (18, -1))
+            self.right_gauge = SPRITES.get('guard_' + right_color).copy()
+            font = FONT['number-small2']
+            gauge = str(self.right.guard_gauge) + '-' + str(self.right.max_guard)
+            font.blit_center(gauge, self.right_gauge, (18, -1))
+        # Pair up info
+        if self.right_gauge:
+            combat_surf.blit(self.right_gauge, (right_pos_x, right_pos_y))
+        if self.left_gauge:
+            combat_surf.blit(self.left_gauge, (right_pos_x - 35, right_pos_y))
+
         # Nametag
         top = -60 + self.name_offset * 60 + self.shake_offset[1]
         if self.lp_battle_anim:

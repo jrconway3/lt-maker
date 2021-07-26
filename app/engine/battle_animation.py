@@ -660,6 +660,10 @@ class BattleAnimation():
                 else:
                     image = image_mods.make_translucent(image.convert_alpha(), (255 - self.opacity)/255.)
 
+            # Greyscale for pair up
+            if y_offset:
+                image = image_mods.make_anim_gray(image)
+
             # Actually blit
             if self.background and self.blend:
                 old_bg = self.background.copy()

@@ -45,6 +45,9 @@ class BaseMainState(State):
             panorama = RESOURCES.panoramas.get('default_background')
             self.bg = background.ScrollingBackground(panorama)
             self.bg.scroll_speed = 50
+        # Remove background from base menu with this!
+        if bg_name == '_no_background':
+            self.bg = None
         game.memory['base_bg'] = self.bg
 
         self.is_from_overworld = game.is_displaying_overworld()
@@ -377,12 +380,18 @@ class SupportDisplay():
             other_unit_nids = self.options
 
             map_sprites = []
-            for idx, other_unit_nid in enumerate(other_unit_nids):
+
+            limit = 8
+            start_index = utils.clamp(self.char_idx - 4, 0, max(0, len(other_unit_nids) - limit))
+            end_index = start_index + limit
+            choices = other_unit_nids[start_index:end_index]
+
+            for idx, other_unit_nid in enumerate(choices):
                 if game.get_unit(other_unit_nid):
                     other_unit = game.get_unit(other_unit_nid)
                     if other_unit.dead:
                         map_sprite = other_unit.sprite.create_image('gray')
-                    elif self.char_idx == idx:
+                    elif self.char_idx - start_index == idx:
                         map_sprite = other_unit.sprite.create_image('active')
                     else:
                         map_sprite = other_unit.sprite.create_image('passive')
@@ -435,7 +444,7 @@ class SupportDisplay():
             # Cursor
             if self.draw_cursor:
                 left = self.rank_idx * 10 + 82 + 100
-                top = self.char_idx * 16 + 12 + 12
+                top = (self.char_idx - start_index) * 16 + 12 + 12
                 self.cursor.update()
                 self.cursor.draw(surf, left, top)
 
@@ -827,7 +836,7 @@ class BaseGuideState(BaseLibraryState):
     name = 'base_guide'
 
     def start(self):
-        self.bg = game.memory.get('base_bg', None)
+        self.bg = game.memory.get('base_bg')
         if not self.bg:
             panorama = RESOURCES.panoramas.get('default_background')
             self.bg = background.ScrollingBackground(panorama)

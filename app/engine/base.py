@@ -1,5 +1,4 @@
 from app.engine.game_counters import ANIMATION_COUNTERS
-from app import sprites
 from app.constants import WINWIDTH, WINHEIGHT
 from app.utilities import utils
 
@@ -12,6 +11,7 @@ from app.engine.fonts import FONT
 from app.engine.input_manager import INPUT
 from app.engine.state import State
 
+from app.engine.state import MapState
 from app.engine.game_state import game
 from app.engine import menus, base_surf, background, text_funcs, \
     image_mods, gui, icons, prep, record_book, unit_sprite, action
@@ -45,9 +45,6 @@ class BaseMainState(State):
             panorama = RESOURCES.panoramas.get('default_background')
             self.bg = background.ScrollingBackground(panorama)
             self.bg.scroll_speed = 50
-        # Remove background from base menu with this!
-        if bg_name == '_no_background':
-            self.bg = None
         game.memory['base_bg'] = self.bg
 
         self.is_from_overworld = game.is_displaying_overworld()
@@ -139,13 +136,15 @@ class BaseMainState(State):
             self.menu.update()
 
     def draw(self, surf):
-        surf = super().draw(surf)
-        if self.bg:
-            self.bg.draw(surf)
+        if game.game_vars.get('_base_transparent'):
+            surf = MapState.draw(self, surf)
+        else:
+            surf = super().draw(surf)
+            if self.bg:
+                self.bg.draw(surf)
         if self.menu:
             self.menu.draw(surf)
         return surf
-
 
 class BaseMarketSelectState(prep.PrepManageState):
     name = 'base_market_select'
@@ -275,6 +274,7 @@ class SupportDisplay():
 
         self.cursor = menus.Cursor()
         self.draw_cursor = False
+        self.scroll_bar = gui.ScrollBar()
 
         self.char_idx = 0
         self.rank_idx = 0
@@ -440,6 +440,12 @@ class SupportDisplay():
             surf.blit(bg_surf, (100, 4))
 
             surf.blit(self.support_word_sprite, (120, 11))
+
+            # Scroll Bar
+            if len(self.options) > limit:
+                right = 100 + self.width
+                topright = (right, 4)
+                self.scroll_bar.draw(surf, topright, start_index, limit, len(self.options))
 
             # Cursor
             if self.draw_cursor:

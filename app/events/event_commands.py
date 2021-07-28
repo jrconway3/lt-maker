@@ -569,7 +569,7 @@ class LoadUnit(EventCommand):
 
     desc = \
         """
-Loads a unique (non-generic) unit from memory. This does not place the unit on the map. If the unit already exists in the game's memory, this command will do nothing. 
+Loads a unique (non-generic) unit from memory. This does not place the unit on the map. If the unit already exists in the game's memory, this command will do nothing.
 
 Optionally, the loaded unit can be assigned to a _Team_ and given an _AI_ preset. If not specified, defaults of Player team and no AI script are applied.
         """
@@ -600,7 +600,7 @@ class CreateUnit(EventCommand):
         """
 Creates a new instance of a unit and, optionally, places it on the map. _Unit_ points to the unit template to be used. A new nid can be assigned using _String_ (can be empty: '').
 
-Several optional keywords can be provided to modify the unit and/or place it on the map. 
+Several optional keywords can be provided to modify the unit and/or place it on the map.
 
 Optional keywords can be specified to place the unit on the map. The _String_ value sets the unit's nid, if a specific nid is desired. The _Condition_ value, if provided, sets the unit's level. The _Position_ value indicates the map coordinates that the unit will be placed at. _EntryType_ defines which placement animation is used. Finally, _Placement_ defines the behavior that occurs if the chosen map position is already occupied.
         """
@@ -617,7 +617,7 @@ class AddUnit(EventCommand):
 
     desc = \
         """
-Places _Unit_ on the map. The unit must be in the chapter's data or otherwise have been loaded into memory (see **load_unit** or **make_generic**). 
+Places _Unit_ on the map. The unit must be in the chapter's data or otherwise have been loaded into memory (see **load_unit** or **make_generic**).
 
 The optional keywords define how the unit is placed. _Position_ indicates the map coordinates that the unit will be placed at. _EntryType_ defines which placement animation is used. _Placement_ defines the behavior that occurs if the chosen map position is already occupied. If no placement information is provided, the unit will attempt to be placed at its starting location from the chapter data (if any).
         """
@@ -782,7 +782,7 @@ class AddGroup(EventCommand):
 
     desc = \
         """
-Adds a unit group to the map. This will use the group's starting position data in the chapter by default. Alternatively, a separate unit group nid can be provided as _StartingGroup_ to cause the units to be placed at this other group's starting position. _EntryType_ selects the method of placement, and _Placement_ defines the behavior that occurs if any of the chosen map positions are already occupied. 
+Adds a unit group to the map. This will use the group's starting position data in the chapter by default. Alternatively, a separate unit group nid can be provided as _StartingGroup_ to cause the units to be placed at this other group's starting position. _EntryType_ selects the method of placement, and _Placement_ defines the behavior that occurs if any of the chosen map positions are already occupied.
 
 If the _create_ flag is set, a copy of each unit will be created and deployed instead of using the unit itself.
         """
@@ -1035,7 +1035,7 @@ Changes _GlobalUnit_'s portrait to the one specified by _PortraitNid_.
 class ChangeStats(EventCommand):
     nid = 'change_stats'
     tag = Tags.MODIFY_UNIT_PROPERTIES
-    
+
     desc = \
         """
 Changes the stats (STR, SKL, etc.) of _GlobalUnit_. The _StatList_ defines the changes to be applied. This will display the unit's stat changes similarly to a level-up unless the _immediate_ flag is set.
@@ -1756,7 +1756,7 @@ def parse_text(text: str, strict=False) -> EventCommand:
                 else:
                     cmd_keyword = "N/A"
                 # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
-                if '(' in arg and ')' in arg and not cmd_keyword == 'Condition':
+                if '(' in arg and ')' in arg and not (cmd_keyword == 'Condition' or cmd_keyword == 'Text'):
                     true_arg = arg[arg.find("(")+1:arg.find(")")]
                     true_cmd_args.append(true_arg)
                 else:

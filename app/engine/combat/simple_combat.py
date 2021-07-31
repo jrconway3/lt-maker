@@ -64,6 +64,7 @@ class SimpleCombat():
         self.actions = []
 
         self.start_combat()
+        self.start_event()
         while self.state_machine.get_state():
             self.actions, self.playback = self.state_machine.do()
             self.full_playback += self.playback
@@ -158,10 +159,13 @@ class SimpleCombat():
         a_broke, d_broke = self.find_broken_items()
         self.handle_broken_items(a_broke, d_broke)
 
+    def start_event(self, full_animation=False):
+        # region is set to True or False depending on whether we are in a battle anim
+        game.events.trigger('combat_start', self.attacker, self.defender, self.main_item, self.attacker.position, full_animation)
+
     def start_combat(self):
         self.initial_random_state = static_random.get_combat_random_state()
 
-        game.events.trigger('combat_start', self.attacker, self.defender, self.main_item, self.attacker.position)
         skill_system.pre_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
 
         already_pre = [self.attacker]
@@ -425,6 +429,9 @@ class SimpleCombat():
                     game.state.change('exp')
                 game.exp_instance.append((self.attacker, exp, None, 'init'))
                 game.state.change('exp')
+                game.ai.end_skip()
+            elif not self.alerts and exp > 0:
+                action.do(action.GainExp(self.attacker, exp))
 
         elif self.defender and self.defender.team == 'player' and not self.defender.is_dying:
             exp = self.calculate_exp(self.defender, self.def_item)
@@ -442,6 +449,9 @@ class SimpleCombat():
                     game.exp_instance.append(pair)
                 game.exp_instance.append((self.defender, exp, None, 'init'))
                 game.state.change('exp')
+                game.ai.end_skip()
+            elif not self.alerts and exp > 0:
+                action.do(action.GainExp(self.defender, exp))
 
     def handle_paired_exp(self, unit, item, target) -> tuple:
         '''Creates a tuple for paired units as a helper function'''

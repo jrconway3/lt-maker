@@ -3481,7 +3481,7 @@
         "party": "Eirika",
         "music": {
             "player_phase": "Shadow of the Enemy",
-            "enemy_phase": null,
+            "enemy_phase": "Shadow of the Enemy",
             "other_phase": null,
             "player_battle": "Attack",
             "enemy_battle": "Defense",
@@ -3540,7 +3540,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
                     12,
@@ -3643,7 +3643,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
                     3,
@@ -3743,6 +3743,24 @@
                 "only_once": true
             }
         ],
-        "unit_groups": []
+        "unit_groups": [
+            {
+                "nid": "Eirika",
+                "units": [
+                    "Eirika",
+                    "Gilliam"
+                ],
+                "positions": {
+                    "Eirika": [
+                        0,
+                        14
+                    ],
+                    "Gilliam": [
+                        0,
+                        13
+                    ]
+                }
+            }
+        ]
     }
 ]

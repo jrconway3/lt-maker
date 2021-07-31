@@ -285,7 +285,7 @@ class UIView():
         obj = game.level.objective['simple']
         text_lines = evaluate.eval_string(obj).split(',')
         longest_surf_width = text_funcs.get_max_width(font, text_lines)
-        bg_surf = base_surf.create_base_surf(longest_surf_width + 16, 16 * len(text_lines) + 8, 'menu_bg_base_opaque')
+        bg_surf = base_surf.create_base_surf(longest_surf_width + 16, 16 * len(text_lines) + 8)
 
         if len(text_lines) == 1:
             shimmer = SPRITES.get('menu_shimmer1')
@@ -488,6 +488,7 @@ class UIView():
     def draw_attack_info(self, surf, attacker, weapon, defender, a_assist=None, d_assist=None):
         # Turns on appropriate combat conditionals to get an accurate read
         skill_system.test_on([], attacker, weapon, defender, 'attack')
+        skill_system.test_on([], defender, defender.get_weapon(), attacker, 'defense')
 
         if not self.attack_info_disp:
             self.attack_info_disp = self.create_attack_info(attacker, weapon, defender, a_assist, d_assist)
@@ -569,6 +570,7 @@ class UIView():
                 surf.blit(SPRITES.get('x4'), x2_pos_enemy)
 
         # Turns off combat conditionals
+        skill_system.test_off([], defender, defender.get_weapon(), attacker, 'defense')
         skill_system.test_off([], attacker, weapon, defender, 'attack')
 
         return surf

@@ -10,7 +10,6 @@ from app.engine.sprites import SPRITES
 from app.utilities.utils import frames2ms
 from app.engine.engine import Surface
 
-
 class LevelCursor(BaseCursor):
     def __init__(self, game: GameState):
         super().__init__(camera=game.camera, tilemap=game.tilemap)
@@ -39,8 +38,7 @@ class LevelCursor(BaseCursor):
         return None
 
     def get_bounds(self) -> Tuple[int, int, int, int]:
-        if not self.tilemap:
-            self.tilemap = self.game.tilemap
+        self.tilemap = self.game.tilemap
         return super().get_bounds()
 
     def hide(self):

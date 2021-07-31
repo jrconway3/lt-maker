@@ -351,6 +351,7 @@ class Event():
         self.transition_state = None
         self.hurry_up()
         self.text_boxes.clear()
+        self.other_boxes.clear()
         self.should_remain_blocked.clear()
         while self.should_update:
             self.should_update = [to_update for to_update in self.should_update if not to_update(self.do_skip)]
@@ -535,7 +536,7 @@ class Event():
                     # we are using a custom camera speed
                     duration = int(values[1])
                     game.camera.do_slow_pan(duration)
-                game.camera.set_center(*position)
+                game.camera.set_xy(*position)
                 game.state.change('move_camera')
                 self.state = 'paused'  # So that the message will leave the update loop
 
@@ -546,6 +547,10 @@ class Event():
             if 'immediate' in flags or self.do_skip:
                 game.camera.force_center(*position)
             else:
+                if len(values) > 1:
+                    # we are using a custom camera speed
+                    duration = int(values[1])
+                    game.camera.do_slow_pan(duration)
                 game.camera.set_center(*position)
                 game.state.change('move_camera')
                 self.state = 'paused'  # So that the message will leave the update loop
@@ -1077,6 +1082,10 @@ class Event():
             action.do(action.SetGameVar('_base_bg_name', panorama_nid))
             if len(values) > 1 and values[1]:
                 action.do(action.SetGameVar('_base_music', values[1]))
+            if 'show_map' in flags:
+                action.do(action.SetGameVar('_base_transparent', True)) 
+            else:
+                action.do(action.SetGameVar('_base_transparent', False))
             game.state.change('base_main')
             self.state = 'paused'
 
@@ -1848,13 +1857,13 @@ class Event():
         """
         values, flags = event_commands.parse(command)
 
-
         reload_map = 'reload' in flags
         if reload_map and game.is_displaying_overworld(): # just go back to the level
             from app.engine import level_cursor, map_view, movement
             game.cursor = level_cursor.LevelCursor(game)
-            game.movement =  movement.MovementManager()
+            game.movement = movement.MovementManager()
             game.map_view = map_view.MapView()
+            game.set_up_game_board(game.level.tilemap)
             return
 
         if not len(values) > 0:

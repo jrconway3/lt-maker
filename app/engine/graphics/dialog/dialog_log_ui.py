@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import List
 
 from app.engine.fonts import FONT
+from app.utilities import tclamp
 from app.constants import WINWIDTH, WINHEIGHT
 
 from app.engine.graphics.ui_framework.ui_framework import UIComponent
-from app.engine.graphics.ui_framework.ui_framework_layout import UILayoutType, VAlignment, ListLayoutStyle
+from app.engine.graphics.ui_framework.ui_framework_layout import UILayoutType, ListLayoutStyle
 from app.engine.graphics.ui_framework.premade_components import TextComponent
-from app.engine.graphics.ui_framework.premade_animations import component_scroll_anim
 
 class DialogEntryComponent(UIComponent):
     def __init__(self, name, speaker, text, parent=None):
@@ -33,8 +33,6 @@ class DialogEntryComponent(UIComponent):
         width = self.parent.width
         height = self.text.height + self.speaker.height
         return (width, height)
-
-
 class DialogLogContainer(UIComponent):
     def __init__(self, name, parent=None):
         super().__init__(name=name, parent=parent)
@@ -45,10 +43,10 @@ class DialogLogContainer(UIComponent):
         self.scroll_height = self.parent.height
 
     def scroll_up_down(self, dist):
-        self.scroll = (self.scroll[0], self.scroll[1] + dist)
+        self.scroll = tclamp((self.scroll[0], self.scroll[1] + dist), (0, 0), (0, self.theight - self.max_height))
 
     def scroll_all(self):
-        self.scroll = (self.scroll[0], self.scroll_height)
+        self.scroll = (self.scroll[0], self.scroll_height - self.height)
 
     def update_scroll_height(self):
         scroll_height = 0

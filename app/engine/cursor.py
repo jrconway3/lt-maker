@@ -43,8 +43,7 @@ class BaseCursor():
         self._transition_speed = 1
         self._transition_remaining: Tuple[int, int] = (0, 0)
         self._transition_direction: Tuple[Direction, Direction] = (Direction.LEFT, Direction.UP)
-        curr_time = engine.get_time()
-        self._transition_start: Tuple[int, int] = (curr_time, curr_time)
+        self._transition_start: Tuple[int, int] = (0, 0)
 
     def hide(self):
         self.visible = False

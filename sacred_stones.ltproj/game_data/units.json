@@ -11,7 +11,7 @@
         ],
         "bases": {
             "HP": 16,
-            "STR": 4,
+            "STR": 20,
             "MAG": 2,
             "SKL": 8,
             "SPD": 9,
@@ -3037,7 +3037,12 @@
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Smush"
+            ]
+        ],
         "unit_notes": [],
         "wexp_gain": {
             "Sword": [
@@ -3079,7 +3084,7 @@
         },
         "alternate_classes": null,
         "portrait_nid": "Bone",
-        "affinity": null
+        "affinity": "None"
     },
     {
         "nid": "Bazba",

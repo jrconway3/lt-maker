@@ -37,7 +37,10 @@ class MusicDict(dict):
             logging.debug("%s was not preloaded in MusicDict", val)
             prefab = RESOURCES.music.get(val)
             if prefab:
-                self[val] = Song(prefab)
+                try:
+                    self[val] = Song(prefab)
+                except pygame.error as e:
+                    logging.warning(e)
             else:
                 return None
         return self[val]

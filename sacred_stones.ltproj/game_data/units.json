@@ -53,6 +53,10 @@
             [
                 2,
                 "Luna"
+            ],
+            [
+                1,
+                "AttackStanceCrit"
             ]
         ],
         "unit_notes": [

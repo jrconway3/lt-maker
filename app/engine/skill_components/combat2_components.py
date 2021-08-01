@@ -183,7 +183,8 @@ class GiveStatusAfterAttack(SkillComponent):
 
     def end_combat(self, playback, unit, item, target, mode):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
-        if target and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
+        if target and any(p[3] == unit or p[1] == p[3].strike_partner \
+                for p in mark_playbacks):  # Unit is overall attacker
             action.do(action.AddSkill(target, self.value, unit))
             action.do(action.TriggerCharge(unit, self.skill))
 
@@ -196,7 +197,9 @@ class GiveStatusAfterHit(SkillComponent):
 
     def after_hit(self, actions, playback, unit, item, target, mode):
         mark_playbacks = [p for p in playback if p[0] in ('mark_hit', 'mark_crit')]
-        if target and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
+
+        if target and any(p[3] == unit or p[1] == p[3].strike_partner \
+                for p in mark_playbacks):  # Unit is overall attacker
             actions.append(action.AddSkill(target, self.value, unit))
             actions.append(action.TriggerCharge(unit, self.skill))
 

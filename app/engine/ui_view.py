@@ -499,7 +499,10 @@ class UIView():
         if game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1:
             topleft = (8 - self.attack_info_offset, 4)
         else:
-            topleft = (WINWIDTH - 77 + self.attack_info_offset, 4)
+            if DB.constants.value('pairup'):
+                topleft = (WINWIDTH - 122 + self.attack_info_offset, 4)
+            else:
+                topleft = (WINWIDTH - 77 + self.attack_info_offset, 4)
         if self.attack_info_offset > 0:
             self.attack_info_offset -= 20
 

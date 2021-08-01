@@ -206,6 +206,9 @@ class SimpleCombat():
     def end_combat(self):
         skill_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         item_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
+        if self.attacker.strike_partner:
+            skill_system.end_combat(self.full_playback, self.attacker.strike_partner, self.main_item, self.defender, 'attack')
+            item_system.end_combat(self.full_playback, self.attacker.strike_partner, self.main_item, self.defender, 'attack')
         already_pre = [self.attacker]
         for idx, defender in enumerate(self.defenders):
             if defender and defender not in already_pre:

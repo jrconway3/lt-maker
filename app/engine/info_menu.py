@@ -725,7 +725,7 @@ class InfoMenuState(State):
             FONT['text-yellow'].blit(name, surf, (72, 16 * idx + 24))
             self.info_graph.register((96 + 72, 16 * idx + 24, 64, 16), '%s_desc' % stat_nid, state)
 
-        other_stats = ['AID', 'TRV', 'RAT']
+        other_stats = ['TRV', 'AID', 'RAT']
         if self.unit.get_max_mana() > 0:
             other_stats.insert(0, 'MANA')
         if DB.constants.value('pairup'):

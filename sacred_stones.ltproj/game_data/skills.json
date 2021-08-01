@@ -1141,5 +1141,29 @@
                 "game.phase.get_current() == 'enemy'"
             ]
         ]
+    },
+    {
+        "nid": "AttackStanceCrit",
+        "name": "AttackStanceCrit",
+        "desc": "Always crit in attack stance",
+        "icon_nid": "Axe",
+        "icon_index": [
+            0,
+            16
+        ],
+        "components": [
+            [
+                "class_skill",
+                null
+            ],
+            [
+                "crit",
+                100
+            ],
+            [
+                "combat_condition",
+                "playback and (playback[0] == ('attacker_partner_phase',) or playback[0] == ('defender_partner_phase',))"
+            ]
+        ]
     }
 ]

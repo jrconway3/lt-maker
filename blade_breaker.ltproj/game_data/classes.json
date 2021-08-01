@@ -1104,7 +1104,16 @@
             "LEAD": 60,
             "New Stat": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Adept"
+            ],
+            [
+                1,
+                "MercPair"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 true,
@@ -1361,6 +1370,10 @@
             [
                 1,
                 "Poison"
+            ],
+            [
+                1,
+                "ThiefPair"
             ]
         ],
         "wexp_gain": {
@@ -1862,7 +1875,16 @@
             "LEAD": 60,
             "New Stat": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Trust"
+            ],
+            [
+                1,
+                "SoldierPair"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -2257,6 +2279,10 @@
             [
                 1,
                 "Canto"
+            ],
+            [
+                1,
+                "BKnightPair"
             ]
         ],
         "wexp_gain": {
@@ -3168,7 +3194,16 @@
             "LEAD": 60,
             "New Stat": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Flaming Spirit"
+            ],
+            [
+                1,
+                "FighterPair"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -3795,7 +3830,12 @@
             "LEAD": 60,
             "New Stat": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Snipe"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -4558,7 +4598,16 @@
             "LEAD": 60,
             "New Stat": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Impart Focus"
+            ],
+            [
+                1,
+                "MagePair"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,
@@ -4804,7 +4853,12 @@
             "LEAD": 60,
             "New Stat": 30
         },
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Dark Drain"
+            ]
+        ],
         "wexp_gain": {
             "Sword": [
                 false,

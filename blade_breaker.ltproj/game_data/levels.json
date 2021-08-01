@@ -5,20 +5,20 @@
         "tilemap": "layeredvillage",
         "party": "Eirika",
         "music": {
-            "player_phase": null,
-            "enemy_phase": null,
-            "other_phase": null,
+            "player_phase": "Tearing Through the Heavens",
+            "enemy_phase": "Tearing Through the Heavens",
+            "other_phase": "Tearing Through the Heavens",
             "enemy2_phase": null,
-            "player_battle": null,
+            "player_battle": "Tearing Through the Heavens",
             "enemy_battle": null,
             "other_battle": null,
             "enemy2_battle": null,
             "base": null
         },
         "objective": {
-            "simple": "Seize throne",
-            "win": "Seize throne",
-            "loss": "Eirika dies"
+            "simple": "Defeat Boss",
+            "win": "Defeat Boss",
+            "loss": "Leonie or Linhardt Die"
         },
         "roam": false,
         "roam_unit": "Eirika",
@@ -102,7 +102,7 @@
                 "generic": false
             },
             {
-                "nid": "Bazba",
+                "nid": "Engres",
                 "team": "enemy",
                 "ai": "Guard",
                 "ai_group": null,
@@ -116,16 +116,16 @@
                 "nid": "101",
                 "variant": null,
                 "level": 13,
-                "klass": "Brigand",
+                "klass": "Berserker",
                 "faction": "Cutthroat",
                 "starting_items": [
                     [
-                        "Iron Axe",
-                        false
+                        "Brave Axe",
+                        true
                     ]
                 ],
                 "team": "enemy",
-                "ai": "AttackIgnoreOther",
+                "ai": "Defend",
                 "ai_group": null,
                 "starting_position": [
                     7,
@@ -211,7 +211,7 @@
             {
                 "nid": "105",
                 "variant": null,
-                "level": 10,
+                "level": 8,
                 "klass": "Brigand",
                 "faction": "Cutthroat",
                 "starting_items": [
@@ -234,7 +234,7 @@
             {
                 "nid": "106",
                 "variant": null,
-                "level": 10,
+                "level": 8,
                 "klass": "Brigand",
                 "faction": "Cutthroat",
                 "starting_items": [
@@ -303,7 +303,7 @@
             {
                 "nid": "141",
                 "variant": null,
-                "level": 10,
+                "level": 8,
                 "klass": "Archer",
                 "faction": "Cutthroat",
                 "starting_items": [
@@ -346,12 +346,12 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Lance",
+                        "Short Spear",
                         false
                     ]
                 ],
                 "team": "other",
-                "ai": "Defend",
+                "ai": "Guard",
                 "ai_group": null,
                 "starting_position": [
                     28,
@@ -369,12 +369,12 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Lance",
+                        "Short Spear",
                         false
                     ]
                 ],
                 "team": "other",
-                "ai": "Defend",
+                "ai": "Guard",
                 "ai_group": null,
                 "starting_position": [
                     34,
@@ -382,6 +382,29 @@
                 ],
                 "name": null,
                 "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "142",
+                "variant": null,
+                "level": 10,
+                "klass": "Archer",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Iron Bow",
+                        false
+                    ]
+                ],
+                "team": "other",
+                "ai": "Guard",
+                "ai_group": null,
+                "starting_position": [
+                    29,
+                    5
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -562,11 +585,11 @@
                 "starting_items": [
                     [
                         "Silver Bow",
-                        false
+                        true
                     ]
                 ],
                 "team": "enemy",
-                "ai": "AttackIgnoreOther",
+                "ai": "Defend",
                 "ai_group": null,
                 "starting_position": [
                     17,
@@ -796,7 +819,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Guard",
+                "ai": "Defend",
                 "ai_group": null,
                 "starting_position": [
                     21,
@@ -819,7 +842,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Guard",
+                "ai": "Defend",
                 "ai_group": null,
                 "starting_position": [
                     20,
@@ -911,7 +934,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Guard",
+                "ai": "Defend",
                 "ai_group": null,
                 "starting_position": [
                     19,
@@ -948,11 +971,11 @@
                 "nid": "132",
                 "variant": null,
                 "level": 4,
-                "klass": "Shaman",
+                "klass": "Fighter",
                 "faction": "Cutthroat",
                 "starting_items": [
                     [
-                        "Flux",
+                        "Iron Axe",
                         false
                     ]
                 ],
@@ -993,7 +1016,7 @@
             {
                 "nid": "134",
                 "variant": null,
-                "level": 4,
+                "level": 1,
                 "klass": "Mage Knight",
                 "faction": "Cutthroat",
                 "starting_items": [
@@ -1007,7 +1030,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Defend",
+                "ai": "Guard",
                 "ai_group": null,
                 "starting_position": [
                     16,
@@ -1030,7 +1053,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Defend",
+                "ai": "Guard",
                 "ai_group": null,
                 "starting_position": [
                     12,

@@ -1309,7 +1309,8 @@ class CombatTargetingState(MapState):
         self.attacker_assist = None
         self.defender_assist = None
         if DB.constants.value('pairup') and not \
-                (self.cur_unit.paired_partner or game.board.get_unit(closest_pos).paired_partner):
+                (self.cur_unit.paired_partner or game.board.get_unit(closest_pos).paired_partner) and \
+                not any('target_ally' == c.nid for c in self.item.components):
             # Players default dual strike partner
             self.adj_allies = target_system.get_adj_allies(self.cur_unit)
             # best_choice = None

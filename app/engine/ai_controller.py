@@ -112,7 +112,8 @@ class AIController():
 
             primary_target = game.board.get_unit(self.goal_target)
             if DB.constants.value('pairup') and primary_target and not \
-                    (self.unit.paired_partner or primary_target.paired_partner):
+                    (self.unit.paired_partner or primary_target.paired_partner) and \
+                    not any('target_ally' == c.nid for c in self.goal_item.components):
                 # Players default dual strike partner
                 self.adj_allies = target_system.get_adj_allies(self.unit)
                 # best_choice = None

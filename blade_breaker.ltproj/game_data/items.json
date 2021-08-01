@@ -95,7 +95,7 @@
             ],
             [
                 "damage",
-                3
+                0
             ],
             [
                 "hit",
@@ -1164,6 +1164,10 @@
             [
                 "magic",
                 null
+            ],
+            [
+                "crit",
+                0
             ]
         ]
     },
@@ -6652,7 +6656,7 @@
             ],
             [
                 "max_range",
-                10
+                6
             ],
             [
                 "damage",
@@ -6933,7 +6937,7 @@
     {
         "nid": "Luna",
         "name": "Luna",
-        "desc": "Ignore's enemy resistance",
+        "desc": "Ignores enemy resistance",
         "icon_nid": "Dark",
         "icon_index": [
             0,
@@ -9829,6 +9833,38 @@
             [
                 "multi_target",
                 3
+            ]
+        ]
+    },
+    {
+        "nid": "so_Focus",
+        "name": "Impart Focus",
+        "desc": "",
+        "icon_nid": "All_Icons",
+        "icon_index": [
+            1,
+            5
+        ],
+        "components": [
+            [
+                "target_ally",
+                null
+            ],
+            [
+                "min_range",
+                1
+            ],
+            [
+                "max_range",
+                1
+            ],
+            [
+                "status_on_hit",
+                "Focused"
+            ],
+            [
+                "spell",
+                null
             ]
         ]
     }

@@ -626,7 +626,12 @@ class AnimationCombat(BaseCombat, MockCombat):
     def add_proc_icon(self, mark):
         unit = mark[1]
         skill = mark[2]
-        new_icon = gui.SkillIcon(skill, unit is self.right)
+        c = False
+        if (unit is self.right or unit is self.right.strike_partner) and self.rp_battle_anim:
+            c = True
+        elif (unit is self.left or unit is self.left.strike_partner) and self.lp_battle_anim:
+            c = True
+        new_icon = gui.SkillIcon(skill, unit is self.right, center=c)
         self.proc_icons.append(new_icon)
 
     def get_damage(self) -> int:

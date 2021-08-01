@@ -1305,34 +1305,8 @@ class CombatTargetingState(MapState):
         closest_pos = self.selection.get_closest(game.cursor.position)
         game.cursor.set_pos(closest_pos)
 
-        # Sets dual strik variables and chooses attacker dual strike
-        self.attacker_assist = None
-        self.defender_assist = None
-        if DB.constants.value('pairup') and not \
-                (self.cur_unit.paired_partner or game.board.get_unit(closest_pos).paired_partner) and \
-                not any('target_ally' == c.nid for c in self.item.components):
-            # Players default dual strike partner
-            self.adj_allies = target_system.get_adj_allies(self.cur_unit)
-            # best_choice = None
-            for ally in self.adj_allies:
-                if not ally.get_weapon():
-                    self.adj_allies.remove(ally)
-            # Replace with a formula later
-            if self.adj_allies:
-                self.attacker_assist = self.adj_allies[0]
-
-            # Determines the assisting units for the defender and keeps AOE from having dual strike
-            if self.num_targets > 1:
-                self.attacker_assist = None
-            elif self.num_targets == 1 and game.board.get_unit(closest_pos):
-                adj_allies = target_system.get_adj_allies(game.board.get_unit(closest_pos))
-                # best_choice = None
-                for ally in adj_allies:
-                    if not ally.get_weapon():
-                        adj_allies.remove(ally)
-                # Replace with a formula later
-                if adj_allies:
-                    self.defender_assist = adj_allies[0]
+        # Sets dual strike variables and chooses attacker dual strike
+        self.find_strike_partners(closest_pos)
 
         # Reset these
         game.memory['sequence_item_index'] = 0
@@ -1354,6 +1328,35 @@ class CombatTargetingState(MapState):
         if self._process_next_target_asap:
             self._process_next_target_asap = False
             self._get_next_target()
+
+    def find_strike_partners(self, target):
+        self.attacker_assist = None
+        self.defender_assist = None
+        if DB.constants.value('pairup') and not \
+                (self.cur_unit.paired_partner or game.board.get_unit(target).paired_partner) and \
+                not any('target_ally' == c.nid for c in self.item.components):
+            # Players default dual strike partner
+            self.adj_allies = target_system.get_adj_allies(self.cur_unit)
+            # best_choice = None
+            for ally in self.adj_allies:
+                if not ally.get_weapon():
+                    self.adj_allies.remove(ally)
+            # Replace with a formula later
+            if self.adj_allies:
+                self.attacker_assist = self.adj_allies[0]
+
+            # Determines the assisting units for the defender and keeps AOE from having dual strike
+            if self.num_targets > 1:
+                self.attacker_assist = None
+            elif self.num_targets == 1 and game.board.get_unit(target):
+                adj_allies = target_system.get_adj_allies(game.board.get_unit(target))
+                # best_choice = None
+                for ally in adj_allies:
+                    if not ally.get_weapon():
+                        adj_allies.remove(ally)
+                # Replace with a formula later
+                if adj_allies:
+                    self.defender_assist = adj_allies[0]
 
     def display_single_attack(self):
         game.highlight.remove_highlights()
@@ -1388,6 +1391,7 @@ class CombatTargetingState(MapState):
             else:
                 targets = self.prev_targets
 
+        self.find_strike_partners(targets[0])
         self.cur_unit.strike_partner = self.attacker_assist
         if len(targets) == 1:
             game.board.get_unit(targets[0]).strike_partner = self.defender_assist

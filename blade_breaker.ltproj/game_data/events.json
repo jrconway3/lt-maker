@@ -9,42 +9,42 @@
         "priority": 20
     },
     {
-        "name": "DeathEirika",
+        "name": "DeathLeonie",
         "trigger": "unit_death",
         "level_nid": null,
-        "condition": "unit.nid == 'Eirika'",
+        "condition": "unit.nid == 'Leonie'",
         "commands": [
             [
                 "add_portrait",
                 [
-                    "Eirika",
+                    "Leonie",
                     "FarRight"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Eirika",
-                    "Brother... I'm sorry."
+                    "Leonie",
+                    "I'm sorry, Captain. I couldn't keep my promise."
                 ]
             ],
             [
                 "expression",
                 [
-                    "Eirika",
+                    "Leonie",
                     "CloseEyes"
                 ]
             ],
             [
                 "remove_portrait",
                 [
-                    "Eirika"
+                    "Leonie"
                 ]
             ],
             [
                 "remove_unit",
                 [
-                    "Eirika"
+                    "Leonie"
                 ]
             ],
             [
@@ -93,74 +93,47 @@
         "priority": 20
     },
     {
-        "name": "DeathJoshua",
+        "name": "DeathLinhardt",
         "trigger": "unit_death",
         "level_nid": null,
-        "condition": "unit.nid == 'Joshua'",
+        "condition": "unit.nid == 'Linhardt'",
         "commands": [
             [
                 "add_portrait",
                 [
-                    "Joshua",
+                    "Linhardt",
                     "FarRight"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Joshua",
-                    "I... I guess my luck finally ran out...|Heh."
+                    "Linhardt",
+                    "I hope someday there will be no fighting{w} and we can all just...{w}{br} nap the afternoon away..."
                 ]
             ],
             [
                 "expression",
                 [
-                    "Joshua",
+                    "Linhardt",
                     "CloseEyes"
                 ]
             ],
             [
                 "remove_portrait",
                 [
-                    "Joshua"
-                ]
-            ]
-        ],
-        "only_once": false,
-        "priority": 20
-    },
-    {
-        "name": "DeathColm",
-        "trigger": "unit_death",
-        "level_nid": null,
-        "condition": "unit.nid == 'Colm'",
-        "commands": [
-            [
-                "add_portrait",
-                [
-                    "Colm",
-                    "FarRight"
+                    "Linhardt"
                 ]
             ],
             [
-                "speak",
+                "remove_unit",
                 [
-                    "Colm",
-                    "To think of it... Me... In this place...|Neimi..."
+                    "Linhardt"
                 ]
             ],
             [
-                "expression",
-                [
-                    "Colm",
-                    "CloseEyes"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Colm"
-                ]
+                "lose_game",
+                []
             ]
         ],
         "only_once": false,
@@ -197,43 +170,6 @@
                 "remove_portrait",
                 [
                     "Neimi"
-                ]
-            ]
-        ],
-        "only_once": false,
-        "priority": 20
-    },
-    {
-        "name": "DeathArtur",
-        "trigger": "unit_death",
-        "level_nid": null,
-        "condition": "unit.nid == 'Artur'",
-        "commands": [
-            [
-                "add_portrait",
-                [
-                    "Artur",
-                    "FarRight"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Artur",
-                    "The rest... is up to you."
-                ]
-            ],
-            [
-                "expression",
-                [
-                    "Artur",
-                    "CloseEyes"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Artur"
                 ]
             ]
         ],
@@ -447,117 +383,6 @@
         "priority": 20
     },
     {
-        "name": "DeathGarcia",
-        "trigger": "unit_death",
-        "level_nid": null,
-        "condition": "unit.nid == 'Garcia'",
-        "commands": [
-            [
-                "add_portrait",
-                [
-                    "Garcia",
-                    "FarRight"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Garcia",
-                    "I have no regrets.{br}This was always my fate."
-                ]
-            ],
-            [
-                "expression",
-                [
-                    "Garcia",
-                    "CloseEyes"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Garcia"
-                ]
-            ]
-        ],
-        "only_once": false,
-        "priority": 20
-    },
-    {
-        "name": "DeathFranz",
-        "trigger": "unit_death",
-        "level_nid": null,
-        "condition": "unit.nid == 'Franz'",
-        "commands": [
-            [
-                "add_portrait",
-                [
-                    "Franz",
-                    "FarRight"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Franz",
-                    "I'm sorry, General Seth..."
-                ]
-            ],
-            [
-                "expression",
-                [
-                    "Franz",
-                    "CloseEyes"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Franz"
-                ]
-            ]
-        ],
-        "only_once": false,
-        "priority": 20
-    },
-    {
-        "name": "DeathGilliam",
-        "trigger": "unit_death",
-        "level_nid": null,
-        "condition": "unit.nid == 'Gilliam'",
-        "commands": [
-            [
-                "add_portrait",
-                [
-                    "Gilliam",
-                    "FarRight"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Gilliam",
-                    "I was prepared for...{br}anything..."
-                ]
-            ],
-            [
-                "expression",
-                [
-                    "Gilliam",
-                    "CloseEyes"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Gilliam"
-                ]
-            ]
-        ],
-        "only_once": false,
-        "priority": 20
-    },
-    {
         "name": "DeathSaar",
         "trigger": "unit_death",
         "level_nid": "5",
@@ -658,7 +483,7 @@
             [
                 "comment",
                 [
-                    ""
+                    "#"
                 ]
             ],
             [
@@ -675,7 +500,7 @@
         "name": "Defeat Boss",
         "trigger": "combat_end",
         "level_nid": "0",
-        "condition": "game.check_dead(\"O'Neill\")",
+        "condition": "game.check_dead(\"Engres\")",
         "commands": [
             [
                 "win_game",
@@ -1037,20 +862,6 @@
         "name": "Seize",
         "trigger": "Seize",
         "level_nid": "1",
-        "condition": "'Lord' in unit.tags",
-        "commands": [
-            [
-                "win_game",
-                []
-            ]
-        ],
-        "only_once": false,
-        "priority": 20
-    },
-    {
-        "name": "Seize",
-        "trigger": "Seize",
-        "level_nid": "0",
         "condition": "'Lord' in unit.tags",
         "commands": [
             [
@@ -5493,7 +5304,7 @@
         "name": "DeathBazba",
         "trigger": "unit_death",
         "level_nid": "0",
-        "condition": "unit.nid == \"Bazba\"",
+        "condition": "unit.nid == \"Engres\"",
         "commands": [
             [
                 "add_portrait",
@@ -5506,7 +5317,7 @@
                 "speak",
                 [
                     "Bazba",
-                    "I'm the...mighty...Bazba...{br}This...ain't--"
+                    "Empress Edelgard...{w} I have fulfilled my vow."
                 ]
             ],
             [
@@ -6971,143 +6782,29 @@
         "priority": 20
     },
     {
-        "name": "NeimiColmTalk",
-        "trigger": "on_talk",
-        "level_nid": "0",
-        "condition": "unit1.nid == 'Neimi' and unit2.nid == 'Colm'",
-        "commands": [
-            [
-                "add_portrait",
-                [
-                    "Neimi",
-                    "Left",
-                    "no_block"
-                ]
-            ],
-            [
-                "add_portrait",
-                [
-                    "Colm",
-                    "Right"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Neimi",
-                    "C-Colm..."
-                ]
-            ],
-            [
-                "bop_portrait",
-                [
-                    "Colm"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Colm",
-                    "Neimi?!{br}What are you doing here?|I told you to wait for me, didnt I?"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Neimi",
-                    "I couldnt... Its too dangerous.|Cmon, lets go home."
-                ]
-            ],
-            [
-                "expression",
-                [
-                    "Colm",
-                    "Smile"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Colm",
-                    "We dont have a home! Dont you get it? Look, just leave everything to me.|I can take care of it in a flash, but I dont need a clumsy oaf like you tagging along."
-                ]
-            ],
-            [
-                "expression",
-                [
-                    "Colm",
-                    "NoSmile"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Neimi",
-                    "But...but..."
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Colm",
-                    "Oh, this is ridiculous.|Well talk later. Dont leave my side, Neimi."
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Neimi",
-                    "I-- All right."
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Neimi",
-                    "no_block"
-                ]
-            ],
-            [
-                "remove_portrait",
-                [
-                    "Colm"
-                ]
-            ],
-            [
-                "change_team",
-                [
-                    "Colm",
-                    "player"
-                ]
-            ]
-        ],
-        "only_once": false,
-        "priority": 20
-    },
-    {
         "name": "FightBazba",
         "trigger": "combat_start",
         "level_nid": "0",
-        "condition": "(unit.nid == \"Bazba\" and unit2.team == 'player') or (unit2.nid == \"Bazba\" and unit.team == 'player')",
+        "condition": "(unit.nid == \"Engres\" and unit2.team == 'player') or (unit2.nid == \"Engres\" and unit.team == 'player')",
         "commands": [
             [
                 "add_portrait",
                 [
-                    "Bazba",
+                    "Engres",
                     "Left"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Bazba",
-                    "I'm the head of this bandit pack, the mighty Bazba!{w}{clear}Hope you've enjoyed your life, 'cuz it's about to end!"
+                    "Engres",
+                    "Lapdogs... traitors... mercenary bastards!{w}{clear}Hope you've enjoyed your life, 'cuz it's about to end!"
                 ]
             ],
             [
                 "remove_portrait",
                 [
-                    "Bazba"
+                    "Engres"
                 ]
             ]
         ],

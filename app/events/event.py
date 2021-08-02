@@ -1303,6 +1303,10 @@ class Event():
         new_portrait = EventPortrait(portrait, position, priority, transition, slide, mirror)
         self.portraits[name] = new_portrait
 
+        if len(values) > 3 and values[3]:
+            expression_list = values[3].split(',')
+            new_portrait.set_expression(expression_list)
+
         if 'immediate' in flags or 'no_block' in flags or self.do_skip:
             pass
         else:

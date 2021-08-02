@@ -65,6 +65,7 @@ class Channel():
         self.nid: int = nid
         self._channel = pygame.mixer.Channel(nid)
         self.local_volume = 0
+        self.crossfade_volume = 1
         self.global_volume = 0
 
         self.end_event = end_event
@@ -95,8 +96,11 @@ class Channel():
         if self.state in ("fade_out", "crossfade_out"):
             progress = utils.clamp((current_time - self.last_update) / self.fade_out_time, 0, 1)
             # logging.debug("Progress: %s", progress)
-            self.local_volume = 1 - progress
-            self._channel.set_volume(self.local_volume * self.global_volume)
+            if self.state == 'fade_out':
+                self.local_volume = 1 - progress
+            elif self.state == 'crossfade_out':
+                self.crossfade_volume = 1 - progress
+            self.reset_volume()
             if progress >= 1:
                 if self.state == 'fade_out':
                     # logging.debug('%s Paused from %s', self.nid, self.last_state)
@@ -117,8 +121,11 @@ class Channel():
                     self.last_state = "playing"
         if self.state in ("fade_in", "crossfade_in"):
             progress = utils.clamp((current_time - self.last_update) / self.fade_in_time, 0, 1)
-            self.local_volume = progress
-            self._channel.set_volume(self.local_volume * self.global_volume)
+            if self.state == 'fade_in':
+                self.local_volume = progress
+            elif self.state == 'crossfade_in':
+                self.crossfade_volume = progress
+            self.reset_volume()
             if progress >= 1:
                 self.state = "playing"
                 self.last_state = "playing"
@@ -138,6 +145,7 @@ class Channel():
         if self.name == "battle":
             if self.current_song.battle:
                 self._channel.play(self.current_song.battle, 0)
+                self.reset_volume()
         else:
             if self.current_song.intro and not self.played_intro:
                 # logging.debug("Playing Intro %s", self.current_song.intro)
@@ -146,6 +154,7 @@ class Channel():
             else:
                 # logging.debug("Playing %s", self.current_song.song)
                 self._channel.play(self.current_song.song, 0)
+            self.reset_volume()
 
     def set_current_song(self, song, num_plays=-1):
         self.current_song = song
@@ -214,17 +223,23 @@ class Channel():
 
     def set_volume(self, volume):
         self.global_volume = volume
-        self._channel.set_volume(self.local_volume * self.global_volume)
+        self.reset_volume()
+
+    def reset_volume(self):
+        volume = self.crossfade_volume * self.local_volume * self.global_volume
+        self._channel.set_volume(volume)
 
 class ChannelPair():
     def __init__(self, nid):
         event = pygame.USEREVENT + nid//2  # 24, 25, 26, 27
 
+        self.nid = nid
         self.channel = Channel("music", nid, event)
         self.battle = Channel("battle", nid + 1, event)
 
         self.battle_mode = False
-        self.battle.local_volume = 0
+        self.battle.crossfade_volume = 0
+        self.battle.reset_volume()
 
         self.current_song = None
 
@@ -244,6 +259,7 @@ class ChannelPair():
         self.battle.set_current_song(song, num_plays)
 
     def crossfade(self):
+        logging.debug("%s Crossfade", self.nid)
         if self.battle_mode:
             self.battle_mode = False
             self.channel.crossfade_in()
@@ -289,6 +305,7 @@ class ChannelPair():
         self.battle.stop()
 
     def set_volume(self, volume):
+        logging.debug("%s Set Volume: %s", self.nid, volume)
         self.channel.set_volume(volume)
         self.battle.set_volume(volume)
 

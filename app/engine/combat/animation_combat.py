@@ -151,11 +151,11 @@ class AnimationCombat(BaseCombat, MockCombat):
                 self.bar_offset = 1
                 self.name_offset = 1
                 self.state = 'init_pause'
-                self.start_battle_music()
 
         elif self.state == 'init_pause':
             if self._skip or current_time > utils.frames2ms(25):
                 self.start_event(True)
+                self.start_battle_music()
                 self.state = 'pre_proc'
 
         elif self.state == 'pre_proc':

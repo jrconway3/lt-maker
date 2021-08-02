@@ -1295,10 +1295,9 @@
                 ]
             ],
             [
-                "change_music",
+                "comment",
                 [
-                    "player_phase",
-                    "Grasp at Victory"
+                    "#change_music;player_phase;Grasp at Victory"
                 ]
             ]
         ],

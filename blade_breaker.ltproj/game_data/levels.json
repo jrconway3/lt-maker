@@ -18,7 +18,7 @@
         "objective": {
             "simple": "Defeat Boss",
             "win": "Defeat Boss",
-            "loss": "Leonie or Linhardt Die"
+            "loss": "Leonie Dies or 10 turns pass"
         },
         "roam": false,
         "roam_unit": "Eirika",
@@ -255,29 +255,6 @@
                 "generic": true
             },
             {
-                "nid": "107",
-                "variant": null,
-                "level": 10,
-                "klass": "Mercenary",
-                "faction": "Cutthroat",
-                "starting_items": [
-                    [
-                        "Iron Sword",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "AttackIgnoreOther",
-                "ai_group": null,
-                "starting_position": [
-                    12,
-                    17
-                ],
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
-                "generic": true
-            },
-            {
                 "nid": "108",
                 "variant": null,
                 "level": 10,
@@ -293,8 +270,8 @@
                 "ai": "AttackIgnoreOther",
                 "ai_group": null,
                 "starting_position": [
-                    12,
-                    16
+                    8,
+                    14
                 ],
                 "name": "Cutthroat",
                 "desc": "A member of Bazba's Bandits, who roam this region.",
@@ -477,8 +454,8 @@
                 "ai": "AttackIgnoreOther",
                 "ai_group": null,
                 "starting_position": [
-                    8,
-                    14
+                    12,
+                    17
                 ],
                 "name": "Cutthroat",
                 "desc": "A member of Bazba's Bandits, who roam this region.",
@@ -1081,6 +1058,29 @@
                 "starting_position": [
                     8,
                     15
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
+            },
+            {
+                "nid": "143",
+                "variant": null,
+                "level": 10,
+                "klass": "Mercenary",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Iron Sword",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "AttackIgnoreOther",
+                "ai_group": null,
+                "starting_position": [
+                    11,
+                    17
                 ],
                 "name": "Cutthroat",
                 "desc": "A member of Bazba's Bandits, who roam this region.",

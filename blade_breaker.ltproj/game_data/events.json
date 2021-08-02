@@ -10237,5 +10237,25 @@
         ],
         "only_once": false,
         "priority": 20
+    },
+    {
+        "name": "Turn Change",
+        "trigger": "turn_change",
+        "level_nid": "0",
+        "condition": "True",
+        "commands": [
+            [
+                "if",
+                [
+                    "game.turncount == 11"
+                ]
+            ],
+            [
+                "lose_game",
+                []
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
     }
 ]

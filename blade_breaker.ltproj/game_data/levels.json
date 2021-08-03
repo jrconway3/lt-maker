@@ -9,9 +9,9 @@
             "enemy_phase": "Tearing Through the Heavens",
             "other_phase": "Tearing Through the Heavens",
             "enemy2_phase": null,
-            "player_battle": null,
-            "enemy_battle": null,
-            "other_battle": null,
+            "player_battle": "Tearing Through the Heavens",
+            "enemy_battle": "Tearing Through the Heavens",
+            "other_battle": "Tearing Through the Heavens",
             "enemy2_battle": null,
             "base": null
         },
@@ -313,75 +313,6 @@
                 "starting_position": null,
                 "name": "Soldier",
                 "desc": "The army of Grado, the largest nation on the entire continent",
-                "generic": true
-            },
-            {
-                "nid": "110",
-                "variant": null,
-                "level": 10,
-                "klass": "Knight",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Short Spear",
-                        false
-                    ]
-                ],
-                "team": "other",
-                "ai": "Guard",
-                "ai_group": null,
-                "starting_position": [
-                    28,
-                    5
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "111",
-                "variant": null,
-                "level": 10,
-                "klass": "Knight",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Short Spear",
-                        false
-                    ]
-                ],
-                "team": "other",
-                "ai": "Guard",
-                "ai_group": null,
-                "starting_position": [
-                    34,
-                    4
-                ],
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "142",
-                "variant": null,
-                "level": 10,
-                "klass": "Archer",
-                "faction": "Cutthroat",
-                "starting_items": [
-                    [
-                        "Iron Bow",
-                        false
-                    ]
-                ],
-                "team": "other",
-                "ai": "Guard",
-                "ai_group": null,
-                "starting_position": [
-                    29,
-                    5
-                ],
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {

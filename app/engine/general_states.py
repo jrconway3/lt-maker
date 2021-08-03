@@ -1329,21 +1329,23 @@ class CombatTargetingState(MapState):
             self._process_next_target_asap = False
             self._get_next_target()
 
-    def find_strike_partners(self, target):
-        self.attacker_assist = None
+    def find_strike_partners(self, target, atk=True):
+        if atk:
+            self.attacker_assist = None
         self.defender_assist = None
         if DB.constants.value('pairup') and not \
                 (self.cur_unit.paired_partner or game.board.get_unit(target).paired_partner) and \
                 not any('target_ally' == c.nid for c in self.item.components):
-            # Players default dual strike partner
-            self.adj_allies = target_system.get_adj_allies(self.cur_unit)
-            # best_choice = None
-            for ally in self.adj_allies:
-                if not ally.get_weapon():
-                    self.adj_allies.remove(ally)
-            # Replace with a formula later
-            if self.adj_allies:
-                self.attacker_assist = self.adj_allies[0]
+            if atk: # This allows us to be confident that we already know the attacker's partner
+                # Players default dual strike partner
+                self.adj_allies = target_system.get_adj_allies(self.cur_unit)
+                # best_choice = None
+                for ally in self.adj_allies:
+                    if not ally.get_weapon():
+                        self.adj_allies.remove(ally)
+                # Replace with a formula later
+                if self.adj_allies:
+                    self.attacker_assist = self.adj_allies[0]
 
             # Determines the assisting units for the defender and keeps AOE from having dual strike
             if self.num_targets > 1:
@@ -1391,7 +1393,7 @@ class CombatTargetingState(MapState):
             else:
                 targets = self.prev_targets
 
-        self.find_strike_partners(targets[0])
+        self.find_strike_partners(targets[0], atk=False)
         self.cur_unit.strike_partner = self.attacker_assist
         if len(targets) == 1:
             game.board.get_unit(targets[0]).strike_partner = self.defender_assist

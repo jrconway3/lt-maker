@@ -19,8 +19,10 @@ class BattleAnimation():
     idle_poses = {'Stand', 'RangedStand', 'TransformStand'}
 
     @classmethod
-    def get_anim(cls, combat_anim, weapon_anim, palette_name, palette, unit, item):
+    def get_anim(cls, combat_anim, weapon_anim, palette_name, palette, unit, item, copy=False):
         unique_hash = combat_anim.nid + '_' + weapon_anim.nid + '_' + palette_name + '_' + palette.nid
+        if copy:
+            unique_hash += '_copy'
         battle_anim = battle_anim_registry.get(unique_hash)
         if battle_anim:
             battle_anim.unit = unit
@@ -782,7 +784,7 @@ def get_palette(anim_prefab: CombatAnimation, unit) -> tuple:
     current_palette = RESOURCES.combat_palettes.get(palette_nid)
     return palette_name, current_palette
 
-def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
+def get_battle_anim(unit, item, distance=1, klass=None, copy=False) -> BattleAnimation:
     # Find the right combat animation
     if klass:
         class_obj = DB.classes.get(klass)
@@ -852,5 +854,5 @@ def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
                     logging.warning("Could not find spell animation for effect %s in weapon anim %s", effect, weapon_anim_nid)
                     return None
 
-    battle_anim = BattleAnimation.get_anim(res, weapon_anim, palette_name, palette, unit, item)
+    battle_anim = BattleAnimation.get_anim(res, weapon_anim, palette_name, palette, unit, item, copy)
     return battle_anim

@@ -98,18 +98,18 @@ class AnimationCombat(BaseCombat, MockCombat):
         self.lp_battle_anim = None
         if self.left.strike_partner:
             pp = self.left.strike_partner
-            self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
+            self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
         elif self.left.paired_partner:
             pp = game.get_unit(self.left.paired_partner)
-            self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
+            self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
         self.right_battle_anim = battle_animation.get_battle_anim(self.right, self.right_item, self.distance)
         self.rp_battle_anim = None
         if self.right.strike_partner:
             pp = self.right.strike_partner
-            self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
+            self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
         elif self.right.paired_partner:
             pp = game.get_unit(self.right.paired_partner)
-            self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
+            self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
         self.current_battle_anim = None
 
         self.initial_paint_setup()
@@ -892,6 +892,9 @@ class AnimationCombat(BaseCombat, MockCombat):
         if self.defender and self.def_item and not self.defender.is_dying:
             self.handle_wexp(self.defender, self.def_item, self.attacker)
 
+        if self.defender:
+            self.defender.strike_partner = None
+
         self.handle_exp()
 
     def clean_up2(self):
@@ -914,6 +917,9 @@ class AnimationCombat(BaseCombat, MockCombat):
         self.end_combat()
 
         self.handle_death(all_units)
+
+        if self.defender:
+            self.defender.strike_partner = None
 
         a_broke, d_broke = self.find_broken_items()
         self.handle_broken_items(a_broke, d_broke)

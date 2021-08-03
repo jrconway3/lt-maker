@@ -144,11 +144,6 @@ class SimpleCombat():
 
         self.handle_mana(all_units)
         self.handle_exp()
-        # Called separately to use with pair up
-        #for unit in all_units:
-        #    if unit.strike_partner:
-
-        #        unit.strike_partner = None
 
         self.handle_records(self.full_playback, all_units)
 
@@ -195,6 +190,8 @@ class SimpleCombat():
     def cleanup_combat(self):
         skill_system.cleanup_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         already_pre = [self.attacker]
+        if self.defender:
+            self.defender.strike_partner = None
         for idx, defender in enumerate(self.defenders):
             if defender and defender not in already_pre:
                 already_pre.append(defender)
@@ -209,6 +206,9 @@ class SimpleCombat():
         if self.attacker.strike_partner:
             skill_system.end_combat(self.full_playback, self.attacker.strike_partner, self.main_item, self.defender, 'attack')
             item_system.end_combat(self.full_playback, self.attacker.strike_partner, self.main_item, self.defender, 'attack')
+            self.attacker.strike_partner = None
+        if self.defender:
+            self.defender.strike_partner = None
         already_pre = [self.attacker]
         for idx, defender in enumerate(self.defenders):
             if defender and defender not in already_pre:

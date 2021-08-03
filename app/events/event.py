@@ -1,6 +1,9 @@
 import logging
 import re
 from typing import Callable, Dict, List
+from ast import literal_eval as make_tuple
+
+from pygame import event
 
 import app.engine.config as cf
 import app.engine.graphics.ui_framework as uif
@@ -111,7 +114,8 @@ class Event():
         # update functions should return False once they are finished (so they can be removed from the queue)
         # they should receive an argument that represents whether or not we're in skip mode to facilitate skipping
         # and avoid infinite loops.
-        self.should_update: List[Callable[[bool], bool]] = []
+        # maps name to function
+        self.should_update: Dict[str, Callable[[bool], bool]] = {}
 
     @property
     def unit1(self):
@@ -149,7 +153,7 @@ class Event():
     def update(self):
         current_time = engine.get_time()
         # update all internal updates, remove the ones that are finished
-        self.should_update = [to_update for to_update in self.should_update if not to_update(self.do_skip)]
+        self.should_update = {name: to_update for name, to_update in self.should_update.items() if not to_update(self.do_skip)}
 
         # Can move through its own internal state up to 5 times in a frame
         counter = 0
@@ -354,7 +358,7 @@ class Event():
         self.other_boxes.clear()
         self.should_remain_blocked.clear()
         while self.should_update:
-            self.should_update = [to_update for to_update in self.should_update if not to_update(self.do_skip)]
+            self.should_update = self.should_update = {name: to_update for name, to_update in self.should_update.items() if not to_update(self.do_skip)}
 
     def hurry_up(self):
         if self.text_boxes:
@@ -1083,7 +1087,7 @@ class Event():
             if len(values) > 1 and values[1]:
                 action.do(action.SetGameVar('_base_music', values[1]))
             if 'show_map' in flags:
-                action.do(action.SetGameVar('_base_transparent', True)) 
+                action.do(action.SetGameVar('_base_transparent', True))
             else:
                 action.do(action.SetGameVar('_base_transparent', False))
             game.state.change('base_main')
@@ -1237,6 +1241,9 @@ class Event():
         elif command.nid == 'reveal_overworld_road':
             self.reveal_overworld_road(command)
 
+        elif command.nid == 'disable_overworld_entity':
+            self.disable_overworld_entity(command)
+
         elif command.nid == 'overworld_move_unit':
             self.overworld_move_unit(command)
 
@@ -1245,6 +1252,9 @@ class Event():
 
         elif command.nid == 'narrate':
             self.overworld_speak(command)
+
+        elif command.nid == 'create_overworld_entity':
+            self.create_overworld_entity(command)
 
         elif command.nid == 'clean_up_roaming':
             self.clean_up_roaming(command)
@@ -2644,28 +2654,37 @@ class Event():
     def set_overworld_position(self, command):
         values, flags = event_commands.parse(command)
         party_nid: NID = values[0]
-        overworld_node_nid: NID = values[1]
-        entity_exists = False
-        node_exists = False
-        overworld = game.overworld_controller
-        entity = overworld.entities[party_nid]
-        node = overworld.nodes[overworld_node_nid]
-        if entity is None or node is None:
-            if not entity_exists:
+        parsed = values[1].split(',')
+        if len(parsed) == 2 and int(parsed[0]) and int(parsed[1]): # setting to a direct coordinate
+            display_pos = (int(parsed[0]), int(parsed[1]))
+            overworld = game.overworld_controller
+            entity = overworld.entities[party_nid]
+            if entity is None:
                 logging.error('{}: Party with NID {} not found.'.format('set_overworld_position', party_nid))
-            if not node_exists:
-                logging.error('{}: Node with NID {} not found.'.format('set_overworld_position', overworld_node_nid))
-            return
-        # both node and entity exist
-        if overworld_node_nid not in overworld.revealed_node_nids:
-            # node isn't enabled yet
-            logging.error('{}: Node {} exists, but is not yet enabled in overworld {}.'.format('set_overworld_position', overworld_node_nid, overworld._overworld.nid))
-            return
-        else:
-            # both exist and node is enabled
-            # move the entity
-            entity.on_node = node.nid
-            return
+                return
+            entity.display_position = display_pos
+        else: # setting position to node
+            overworld_node_nid: NID = values[1]
+            overworld = game.overworld_controller
+            entity = overworld.entities[party_nid]
+            node = overworld.nodes[overworld_node_nid]
+            if entity is None or node is None:
+                if entity is None:
+                    logging.error('{}: Party with NID {} not found.'.format('set_overworld_position', party_nid))
+                if node is None:
+                    logging.error('{}: Node with NID {} not found.'.format('set_overworld_position', overworld_node_nid))
+                return
+            # both node and entity exist
+            if overworld_node_nid not in overworld.revealed_node_nids:
+                # node isn't enabled yet
+                logging.error('{}: Node {} exists, but is not yet enabled in overworld {}.'.format('set_overworld_position', overworld_node_nid, overworld._overworld.nid))
+                return
+            else:
+                # both exist and node is enabled
+                # move the entity
+                entity.on_node = node.nid
+        if not 'no_animate' in flags:
+            entity.sprite.set_transition('fade_in')
 
     def reveal_overworld_node(self, command):
         values, flags = event_commands.parse(command)
@@ -2711,64 +2730,102 @@ class Event():
             self.wait_time = engine.get_time() + road.sprite.transition_time
             self.state = 'waiting'
 
+    def disable_overworld_entity(self, command):
+        values, flags = event_commands.parse(command)
+        entity = game.overworld_controller.entities.get(values[0], None)
+        if not entity:
+            logging.error("%s: No such entity exists with nid %s", "disable_overworld_entity", values[0])
+            return
+        if not 'no_animate' in flags:
+            entity.sprite.set_transition('fade_out')
+        entity.on_node = None
+        entity.display_position = None
+        entity.temporary_position = None
+
     def overworld_move_unit(self, command):
         values, flags = event_commands.parse(command)
         entity = game.overworld_controller.entities[values[0]]
         if not entity:
             logging.error("%s: Couldn't find entity %s", "overworld_move_unit", values[0])
             return
-        if not entity.position:
+        if not entity.display_position:
             logging.error("Unit not on map!")
             return
 
-        target_node_nid = values[1]
         follow = 'no_follow' not in flags
         block = 'no_block' not in flags
+        disable_after = 'disable_after' in flags
+        if disable_after:
+            def disable_func():
+                entity.sprite.set_transition('fade_out')
+                entity.on_node = None
+                entity.display_position = None
+                entity.temporary_position = None
+        else:
+            def disable_func():
+                pass
 
         if len(values) > 2 and values[2]:
             speed_adj = int(values[2])
         else:
             speed_adj = 5
 
-        # queue the movement
-        selected_node: OverworldNodeObject = game.overworld_controller.nodes[target_node_nid]
-        if selected_node:
-            entity_node = game.overworld_controller.nodes[entity.on_node]
-            if game.overworld_controller.any_path(entity_node, selected_node): # if there is a path from the unit to this node
-                if self.do_skip: # we are skipping; resolve this instantly
-                    entity.on_node = selected_node.nid
-                    return
-                elif block: # block event execution and resolve the movement
-                    movement = OverworldMove(entity, selected_node, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj)
-                    movement.queue(game.movement)
-                    self.state = 'paused'
-                    game.state.change('overworld_movement')
-                else:               # resolve the movement in the background
-                    self.overworld_movement_manager = OverworldMovementManager(game.overworld_controller)
-                    movement = OverworldMove(entity.nid, selected_node.nid, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj)
-                    movement.queue(self.overworld_movement_manager)
-                    game.camera.do_slow_pan(1000)
-                    game.camera.set_center(entity.position[0], entity.position[1])
+        # parse path or target
+        if values[1] and len(values) > 3 and values[3]:
+            logging.error('%s: Both path and endpoint node are specified. Choose only one, at: command %s', 'overworld_move_unit', command)
+            return
+        elif not values[1] and len(values) > 3 and not values[3]:
+            logging.error('%s: Neither path and endpoint node are specified. Choose at least one, at: command %s', 'overworld_move_unit', command)
+            return
+        elif values[1]: # we're going to a node
+            target_node_nid = values[1]
+            selected_node: OverworldNodeObject = game.overworld_controller.nodes[target_node_nid]
+            if entity.on_node: # we're pathfinding to a node
+                entity_node = game.overworld_controller.nodes[entity.on_node]
+                if game.overworld_controller.any_path(entity_node, selected_node): # if there is a path from the unit to this node
+                    if self.do_skip: # we are skipping; resolve this instantly
+                        entity.on_node = selected_node.nid
+                        return
+            movement = OverworldMove(entity, selected_node, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj, after_move_callback=disable_func)
+        else: # we're going along a preset path
+            path = []
+            for point_str in values[3].split('-'):
+                path.append(make_tuple(point_str))
+            if self.do_skip:
+                return
+            # i'm disabling linger for preset paths as a default, because i think it makes more sense that way
+            movement = OverworldMove(entity, None, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj, path=path, linger=0, after_move_callback=disable_func)
 
-                    def update_movement(should_skip: bool):
-                        if should_skip:
-                            self.overworld_movement_manager.finish_all_movement()
-                            return True
-                        # make sure the camera is centered first
-                        if not game.camera.at_rest():
-                            return False
-                        self.overworld_movement_manager.update()
-                        focal_unit_nid = self.overworld_movement_manager.get_following_unit()
-                        if focal_unit_nid:
-                            focal_unit = game.overworld_controller.entities[focal_unit_nid]
-                            unit_position = focal_unit.display_position
-                            game.cursor.set_pos((round(unit_position[0]), round(unit_position[1])))
-                            game.camera.set_center(*unit_position)
-                        if len(self.overworld_movement_manager) <= 0:
-                            return True
+        if block: # block event execution and resolve the movement
+            movement.queue(game.movement)
+            self.state = 'paused'
+            game.state.change('overworld_movement')
+        else:               # resolve the movement in the background
+            if not hasattr(self, 'overworld_movement_manager'):
+                self.overworld_movement_manager = OverworldMovementManager(game.overworld_controller)
+            movement.queue(self.overworld_movement_manager)
+            if follow:
+                game.camera.do_slow_pan(1000)
+                game.camera.set_center(entity.position[0], entity.position[1])
+            if 'overworld_movement' not in self.should_update.keys(): # queue continuous update function if not exists
+                def update_movement(should_skip: bool):
+                    if should_skip:
+                        self.overworld_movement_manager.finish_all_movement()
+                        return True
+                    # make sure the camera is centered first
+                    if not game.camera.at_rest():
                         return False
-
-                    self.should_update.append(update_movement)
+                    self.overworld_movement_manager.update()
+                    focal_unit_nid = self.overworld_movement_manager.get_following_unit()
+                    if focal_unit_nid:
+                        focal_unit = game.overworld_controller.entities[focal_unit_nid]
+                        unit_position = focal_unit.display_position
+                        game.cursor.set_pos((round(unit_position[0]), round(unit_position[1])))
+                        game.camera.set_center(*unit_position)
+                    if len(self.overworld_movement_manager) <= 0:
+                        return True
+                    return False
+                self.should_update['overworld_movement'] = update_movement
 
     def toggle_narration(self, command):
         values, flags = event_commands.parse(command)
@@ -2827,6 +2884,24 @@ class Event():
                 return not narration_component.finished()
             self.should_remain_blocked.append(should_block)
             self.state = 'blocked'
+
+    def create_overworld_entity(self, command):
+        from app.engine.objects.overworld import OverworldEntityObject
+        values, flags = event_commands.parse(command)
+        entity_nid = values[0]
+        if 'delete' in flags:
+            game.overworld_controller.delete_entity(entity_nid)
+            return
+        if entity_nid in game.overworld_controller.entities.keys():
+            logging.error('%s: Entity with nid %s already exists', 'create_overworld_entity', entity_nid)
+            return
+        if len(values) > 1 and values[1]:
+            unit_nid = values[1]
+            unit = DB.units.get(unit_nid)
+            if not unit:
+                logging.error('%s: No such unit with nid %s', 'create_overworld_entity', unit_nid)
+            new_entity = OverworldEntityObject.dummy_entity(entity_nid, None, unit)
+            game.overworld_controller.add_entity(new_entity)
 
     def clean_up_roaming(self, command):
         # WARNING: Not currently turnwheel combatible

@@ -1148,8 +1148,9 @@ class TargetingState(MapState):
                 else:
                     new_position = self.selection.get_down(game.cursor.position)
                     game.cursor.set_pos(new_position)
-            new_position = self.selection.get_down(game.cursor.position)
-            game.cursor.set_pos(new_position)
+            if not self.traveler_mode:
+                new_position = self.selection.get_down(game.cursor.position)
+                game.cursor.set_pos(new_position)
         elif 'UP' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             self.traveler_mode = False

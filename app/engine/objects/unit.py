@@ -475,6 +475,8 @@ class UnitObject(Prefab):
         self.has_taken = False
         self.has_given = False
 
+        self.strike_partner = None
+
     def wait(self):
         game.events.trigger('unit_wait', self, position=self.position)
         action.do(action.Wait(self))

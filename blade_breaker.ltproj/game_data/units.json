@@ -3008,7 +3008,7 @@
             "Boss"
         ],
         "bases": {
-            "HP": 45,
+            "HP": 60,
             "STR": 14,
             "MAG": 0,
             "SKL": 8,
@@ -3033,15 +3033,16 @@
         },
         "starting_items": [
             [
-                "Steel Axe",
-                false
-            ],
-            [
-                "Hand Axe",
+                "Swordslayer",
                 false
             ]
         ],
-        "learned_skills": [],
+        "learned_skills": [
+            [
+                1,
+                "Bowbreaker"
+            ]
+        ],
         "unit_notes": [],
         "wexp_gain": {
             "Sword": [

@@ -5309,21 +5309,21 @@
             [
                 "add_portrait",
                 [
-                    "Bazba",
+                    "Engres",
                     "Left"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Bazba",
+                    "Engres",
                     "Empress Edelgard...{w} I have fulfilled my vow."
                 ]
             ],
             [
                 "remove_portrait",
                 [
-                    "Bazba"
+                    "Engres"
                 ]
             ]
         ],
@@ -6808,7 +6808,7 @@
                 ]
             ]
         ],
-        "only_once": false,
+        "only_once": true,
         "priority": 20
     },
     {
@@ -10247,11 +10247,201 @@
             [
                 "if",
                 [
-                    "game.turncount == 11"
+                    "game.turncount == 2"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# map_anim;Snag;0,0"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "Epira"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "VillageDestroyed",
+                    "1"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Epira",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Epira",
+                    "Oh, one did go off!"
+                ]
+            ],
+            [
+                "show_layer",
+                [
+                    "explosion"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "121"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "VillageDestroyed",
+                    "1"
+                ]
+            ],
+            [
+                "kill_unit",
+                [
+                    "121"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "136"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "VillageDestroyed",
+                    "1"
+                ]
+            ],
+            [
+                "kill_unit",
+                [
+                    "136"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "124"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "VillageDestroyed",
+                    "1"
+                ]
+            ],
+            [
+                "kill_unit",
+                [
+                    "124"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "139"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "VillageDestroyed",
+                    "1"
+                ]
+            ],
+            [
+                "kill_unit",
+                [
+                    "139"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "142"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "VillageDestroyed",
+                    "1"
+                ]
+            ],
+            [
+                "kill_unit",
+                [
+                    "142"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "144"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "VillageDestroyed",
+                    "1"
+                ]
+            ],
+            [
+                "kill_unit",
+                [
+                    "144"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Add more here"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Epira",
+                    "Th-they all went off!{w} See Thems, it's fine!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Themian",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Themian",
+                    "Incompetent...{w} I'll deal with you later.{w}{br}For now, let's utilize your dubious engineering."
+                ]
+            ],
+            [
+                "elif",
+                [
+                    "game.turncount == 13"
                 ]
             ],
             [
                 "lose_game",
+                []
+            ],
+            [
+                "end",
                 []
             ]
         ],

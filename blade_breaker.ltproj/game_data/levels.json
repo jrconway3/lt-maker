@@ -16,9 +16,9 @@
             "base": null
         },
         "objective": {
-            "simple": "Defeat Boss",
-            "win": "Defeat Boss",
-            "loss": "Leonie Dies or 10 turns pass"
+            "simple": "{eval:13 - game.turncount} turns left",
+            "win": "Defeat Boss before turn 13",
+            "loss": "Leonie Dies or 12 turns pass"
         },
         "roam": false,
         "roam_unit": "Eirika",
@@ -104,7 +104,7 @@
             {
                 "nid": "Engres",
                 "team": "enemy",
-                "ai": "Guard",
+                "ai": "Defend",
                 "ai_group": null,
                 "starting_position": [
                     23,
@@ -715,52 +715,6 @@
                 "generic": true
             },
             {
-                "nid": "125",
-                "variant": null,
-                "level": 10,
-                "klass": "Knight",
-                "faction": "Cutthroat",
-                "starting_items": [
-                    [
-                        "Horseslayer",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Defend",
-                "ai_group": null,
-                "starting_position": [
-                    21,
-                    12
-                ],
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
-                "generic": true
-            },
-            {
-                "nid": "126",
-                "variant": null,
-                "level": 10,
-                "klass": "Knight",
-                "faction": "Cutthroat",
-                "starting_items": [
-                    [
-                        "Axereaver",
-                        false
-                    ]
-                ],
-                "team": "enemy",
-                "ai": "Defend",
-                "ai_group": null,
-                "starting_position": [
-                    20,
-                    11
-                ],
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
-                "generic": true
-            },
-            {
                 "nid": "127",
                 "variant": null,
                 "level": 10,
@@ -819,7 +773,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "AttackIgnoreOther",
+                "ai": "Defend",
                 "ai_group": null,
                 "starting_position": [
                     20,
@@ -845,8 +799,31 @@
                 "ai": "Defend",
                 "ai_group": null,
                 "starting_position": [
-                    19,
-                    7
+                    20,
+                    4
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
+            },
+            {
+                "nid": "142",
+                "variant": null,
+                "level": 4,
+                "klass": "Wyvern Knight",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Brave Lance",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Defend",
+                "ai_group": null,
+                "starting_position": [
+                    22,
+                    19
                 ],
                 "name": "Cutthroat",
                 "desc": "A member of Bazba's Bandits, who roam this region.",
@@ -865,7 +842,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Pursue",
                 "ai_group": null,
                 "starting_position": [
                     23,
@@ -888,7 +865,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "Pursue",
                 "ai_group": null,
                 "starting_position": [
                     24,
@@ -916,6 +893,29 @@
                 "starting_position": [
                     31,
                     0
+                ],
+                "name": "Cutthroat",
+                "desc": "A member of Bazba's Bandits, who roam this region.",
+                "generic": true
+            },
+            {
+                "nid": "144",
+                "variant": null,
+                "level": 4,
+                "klass": "Sage",
+                "faction": "Cutthroat",
+                "starting_items": [
+                    [
+                        "Elfire",
+                        false
+                    ]
+                ],
+                "team": "enemy",
+                "ai": "Guard",
+                "ai_group": null,
+                "starting_position": [
+                    7,
+                    4
                 ],
                 "name": "Cutthroat",
                 "desc": "A member of Bazba's Bandits, who roam this region.",

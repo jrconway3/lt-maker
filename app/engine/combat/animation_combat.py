@@ -826,7 +826,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         if self.right_gauge:
             combat_surf.blit(self.right_gauge, (right_pos_x, right_pos_y))
         if self.left_gauge:
-            combat_surf.blit(self.left_gauge, (right_pos_x - 35, right_pos_y))
+            combat_surf.blit(self.left_gauge, (right_pos_x - 37, right_pos_y))
 
         # Nametag
         top = -60 + self.name_offset * 60 + self.shake_offset[1]

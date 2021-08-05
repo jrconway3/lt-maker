@@ -1828,5 +1828,29 @@
                 0.5
             ]
         ]
+    },
+    {
+        "nid": "Bowbreaker",
+        "name": "Bowbreaker",
+        "desc": "+ 50 hit/avoid against enemy bow units.",
+        "icon_nid": "All_Icons",
+        "icon_index": [
+            3,
+            30
+        ],
+        "components": [
+            [
+                "class_skill",
+                null
+            ],
+            [
+                "dynamic_accuracy",
+                "50 if target.get_weapon() and item_system.weapon_type(target, target.get_weapon()) == 'Bow' else 0"
+            ],
+            [
+                "dynamic_avoid",
+                "50 if target.get_weapon() and item_system.weapon_type(target, target.get_weapon()) == 'Bow' else 0"
+            ]
+        ]
     }
 ]

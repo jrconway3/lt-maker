@@ -3,8 +3,6 @@ import re
 from typing import Callable, Dict, List
 from ast import literal_eval as make_tuple
 
-from pygame import event
-
 import app.engine.config as cf
 import app.engine.graphics.ui_framework as uif
 from app.constants import WINHEIGHT, WINWIDTH
@@ -358,7 +356,7 @@ class Event():
         self.other_boxes.clear()
         self.should_remain_blocked.clear()
         while self.should_update:
-            self.should_update = self.should_update = {name: to_update for name, to_update in self.should_update.items() if not to_update(self.do_skip)}
+            self.should_update = {name: to_update for name, to_update in self.should_update.items() if not to_update(self.do_skip)}
 
     def hurry_up(self):
         if self.text_boxes:
@@ -2655,7 +2653,7 @@ class Event():
         values, flags = event_commands.parse(command)
         party_nid: NID = values[0]
         parsed = values[1].split(',')
-        if len(parsed) == 2 and int(parsed[0]) and int(parsed[1]): # setting to a direct coordinate
+        if len(parsed) == 2: # setting to a direct coordinate
             display_pos = (int(parsed[0]), int(parsed[1]))
             overworld = game.overworld_controller
             entity = overworld.entities[party_nid]

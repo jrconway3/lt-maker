@@ -96,19 +96,18 @@ class OverworldEntityObject():
         return entity
 
     def save(self):
-        s_dict = {'prefab_nid': self.prefab.nid,
-                  'on_node_nid': self.on_node,
+        s_dict = {'on_node_nid': self.on_node,
+                  'pnid': self.nid,
 
                   # only used for dummy entities
                   'position': self.display_position,
-                  'unit_nid': self.unit.nid,
-                  'team': self.team,
-                  'pnid': self._nid}
+                  'unit_nid': self.unit.nid if self.unit else None,
+                  'team': self.team}
         return s_dict
 
     @classmethod
     def restore(cls, s_dict, game: GameState) -> OverworldEntityObject:
-        prefab_nid = s_dict['prefab_nid']
+        prefab_nid = s_dict['pnid']
         if prefab_nid:
             party_prefab = game.parties.get(prefab_nid)
             on_node_nid = s_dict['on_node_nid']
@@ -119,7 +118,7 @@ class OverworldEntityObject():
             nid = s_dict['pnid']
             pos = s_dict['position']
             unit_nid = s_dict['unit_nid']
-            entity_object = OverworldEntityObject.dummy_entity(nid, pos, unit_nid)
+            entity_object = OverworldEntityObject.dummy_entity(nid, pos, DB.units.get(unit_nid, DB.units.values[0]))
             return entity_object
 
     @property
@@ -148,10 +147,10 @@ class OverworldEntityObject():
 
     @property
     def nid(self) -> NID:
-        if self.prefab:
-            return self.prefab.nid
-        else:
+        if self._nid:
             return self._nid
+        else:
+            return self.prefab.nid
 
     @property
     def sound(self):

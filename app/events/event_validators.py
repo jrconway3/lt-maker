@@ -279,6 +279,13 @@ class StringList(Validator):
         text = text.split(',')
         return text
 
+class DashList(Validator):
+    desc = "similar to a StringList, but delimited by dashes. For example: `Water-Earth-Fire-Air`"
+
+    def validate(self, text, level):
+        text = text.split('-')
+        return text
+
 class Speaker(Validator):
     pass  # Any text will do
 
@@ -750,9 +757,11 @@ class OverworldNID(Validator):
         return valids
 
 class OverworldLocation(Validator):
-    desc = "accepts the nid of an overworld location/node."
+    desc = "accepts the nid of an overworld location/node, or a coordinate x, y"
 
     def validate(self, text, level):
+        if len(text.split(',')) == 2: # is coordinate
+            return text
         for overworld in DB.overworlds.values():
             for node in overworld.overworld_nodes:
                 if node.nid == text:
@@ -764,6 +773,17 @@ class OverworldLocation(Validator):
         valids = []
         for overworld in DB.overworlds.values():
             valids = valids + [(node.name, node.nid) for node in overworld.overworld_nodes.values()]
+        return valids
+
+class OverworldEntity(Validator):
+    desc = "accepts the nid of an overworld entity. By default, all parties have associated overworld entities."
+
+    def validate(self, text, level):
+        return text
+
+    @lru_cache()
+    def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
+        valids = [(party.name, party.nid) for party in DB.parties.values()]
         return valids
 
 validators = {validator.__name__: validator for validator in Validator.__subclasses__()}

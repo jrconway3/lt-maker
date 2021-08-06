@@ -1666,18 +1666,21 @@ class OverworldSetPosition(EventCommand):
     tag = Tags.OVERWORLD
     desc = "Sets the position of a specific party in the overworld to a specific node in the overworld"
 
-    keywords = ['Party', 'OverworldLocation']
+    keywords = ['OverworldEntity', 'OverworldLocation']
+    flags = ['no_animate']
 
 class OverworldMoveUnit(EventCommand):
     nid = 'overworld_move_unit'
     nickname = 'omove'
     tag = Tags.OVERWORLD
-    desc = ('Issues a move command *Party* to move from its current position to given *OverworldLocation*.'
-            'You can adjust the speed via the *Float* parameter - higher is slower (2 is twice as slow, 3 is thrice...)')
+    desc = ('Issues a move command to *OverworldEntity* to move from its current position to given *OverworldLocation*. '
+            'Alternately, moves *OverworldEntity* along a path denoted by the *DashList* in the format "(x, y)-(x1,y1)-(x2,y2)-...". '
+            'You can adjust the travel time via the *Float* parameter - higher is slower (2 is twice as slow, 3 is thrice...)',
+            '\n the `disable_after` flag determines whether or not to remove the unit after the move concludes. Useful for cinematics.')
 
-    keywords = ["Party", "OverworldLocation"]
-    optional_keywords = ['Float']
-    flags = ['no_block', 'no_follow']
+    keywords = ["OverworldEntity"]
+    optional_keywords = ['OverworldLocation', 'Float', 'DashList']
+    flags = ['no_block', 'no_follow', 'disable_after']
 
 class OverworldRevealNode(EventCommand):
     nid = 'reveal_overworld_node'
@@ -1696,6 +1699,25 @@ class OverworldRevealRoad(EventCommand):
 
     keywords = ['OverworldLocation', 'OverworldLocation']
     optional_keywords = ['Bool']
+
+class CreateOverworldEntity(EventCommand):
+    nid = 'create_overworld_entity'
+    tag = Tags.OVERWORLD
+    desc = ('Create an overworld entity in memory with nid *Nid*. This can be used for purely cinematic purposes,'
+            ' or alternatively, used to spawn enemy reinforcements on the map.'
+            'If the `delete` flag is passed, this command will instead delete the entity with said NID')
+
+    keywords = ['Nid']
+    optional_keywords = ['Unit']
+    flags = ['delete']
+
+class DisableOverworldEntity(EventCommand):
+    nid = 'disable_overworld_entity'
+    tag = Tags.OVERWORLD
+    desc = ('remove an overworld entity from the map, with or without animation')
+
+    keywords = ['Nid']
+    flags = ['no_animate']
 
 class ToggleNarrationMode(EventCommand):
     nid = 'toggle_narration_mode'
@@ -1756,7 +1778,7 @@ def parse_text(text: str, strict=False) -> EventCommand:
                 else:
                     cmd_keyword = "N/A"
                 # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
-                if '(' in arg and ')' in arg and not (cmd_keyword == 'Condition' or cmd_keyword == 'Text'):
+                if '(' in arg and ')' in arg and ('FLAG' in arg or not (cmd_keyword in ['Condition', 'Text', 'StringList', 'DashList'])):
                     true_arg = arg[arg.find("(")+1:arg.find(")")]
                     true_cmd_args.append(true_arg)
                 else:

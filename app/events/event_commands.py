@@ -2,6 +2,8 @@ from enum import Enum
 from typing import List
 from app.utilities.data import Prefab
 
+import logging
+
 class Tags(Enum):
     FLOW_CONTROL = 'Flow Control'
     MUSIC_SOUND = 'Music/Sound'
@@ -1719,8 +1721,7 @@ def restore_command(dat):
         if command.nid == nid:
             copy = command(values, display_values)
             return copy
-    print("Couldn't restore event command!")
-    print(nid, values, display_values)
+    logging.error("Couldn't restore event command: NID: %s; Display Values: %s", nid, display_values)
     if not display_values:
         display_values = values
     return Comment([nid + ';' + str.join(';', display_values)])

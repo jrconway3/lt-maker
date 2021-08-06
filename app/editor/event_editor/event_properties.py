@@ -2,6 +2,7 @@ import logging
 import math
 import os
 from dataclasses import dataclass
+from app.extensions.markdown2 import Markdown
 
 from app.data.database import DB
 from app.editor import table_model, timer
@@ -204,6 +205,7 @@ class CodeEditor(QPlainTextEdit):
 
         self.completer: event_autocompleter.Completer = None
         self.function_annotator: QLabel = QLabel(self)
+        self.markdown_converter: Markdown = Markdown()
 
         if not bool(self.settings.get_event_autocomplete()):
             return  # Event auto completer is turned off
@@ -295,6 +297,7 @@ class CodeEditor(QPlainTextEdit):
         # style both components
         hint_cmd = '<div class="command_text">' + hint_cmd + '</div>'
         hint_desc = '<div class="desc_text">' + hint_desc + '</div>'
+        hint_command_desc = '<div class="desc_text">' + self.markdown_converter.convert(command.desc) + '</div>'
 
         style = """
             <style>
@@ -303,7 +306,7 @@ class CodeEditor(QPlainTextEdit):
             </style>
         """
 
-        hint_text = style + hint_cmd + '<hr>' + hint_desc
+        hint_text = style + hint_cmd + '<hr>' + hint_desc + '<hr>' + hint_command_desc
         self.function_annotator.setText(hint_text)
         self.function_annotator.adjustSize()
 

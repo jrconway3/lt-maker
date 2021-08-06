@@ -1675,7 +1675,7 @@ class OverworldMoveUnit(EventCommand):
     tag = Tags.OVERWORLD
     desc = ('Issues a move command to *OverworldEntity* to move from its current position to given *OverworldLocation*. '
             'Alternately, moves *OverworldEntity* along a path denoted by the *DashList* in the format "(x, y)-(x1,y1)-(x2,y2)-...". '
-            'You can adjust the travel time via the *Float* parameter - higher is slower (2 is twice as slow, 3 is thrice...)',
+            'You can adjust the travel time via the *Float* parameter - higher is slower (2 is twice as slow, 3 is thrice...)'
             '\n the `disable_after` flag determines whether or not to remove the unit after the move concludes. Useful for cinematics.')
 
     keywords = ["OverworldEntity"]

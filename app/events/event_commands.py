@@ -1664,7 +1664,7 @@ class StartOverworldCinematic(EventCommand):
 class OverworldSetPosition(EventCommand):
     nid = 'set_overworld_position'
     tag = Tags.OVERWORLD
-    desc = "Sets the position of a specific party in the overworld to a specific node in the overworld"
+    desc = "Sets the position of a specific party in the overworld to a specific coordinate or node in the overworld"
 
     keywords = ['OverworldEntity', 'OverworldLocation']
     flags = ['no_animate']
@@ -1674,12 +1674,12 @@ class OverworldMoveUnit(EventCommand):
     nickname = 'omove'
     tag = Tags.OVERWORLD
     desc = ('Issues a move command to *OverworldEntity* to move from its current position to given *OverworldLocation*. '
-            'Alternately, moves *OverworldEntity* along a path denoted by the *DashList* in the format "(x, y)-(x1,y1)-(x2,y2)-...". '
+            'Alternately, moves *OverworldEntity* along a path denoted by the *PointList* in the format "(x, y)-(x1,y1)-(x2,y2)-...". '
             'You can adjust the travel time via the *Float* parameter - higher is slower (2 is twice as slow, 3 is thrice...)'
             '\n the `disable_after` flag determines whether or not to remove the unit after the move concludes. Useful for cinematics.')
 
     keywords = ["OverworldEntity"]
-    optional_keywords = ['OverworldLocation', 'Float', 'DashList']
+    optional_keywords = ['OverworldLocation', 'Float', 'PointList']
     flags = ['no_block', 'no_follow', 'disable_after']
 
 class OverworldRevealNode(EventCommand):
@@ -1688,16 +1688,16 @@ class OverworldRevealNode(EventCommand):
     desc = ('Reveals an overworld node on the map: moves the camera to the new location, plays the animation, and fades in the nodes.'
             'By default, fades in via animation; the *Bool* can be set to **True** to skip this anim.')
 
-    keywords = ['OverworldLocation']
+    keywords = ['OverworldNodeNID']
     optional_keywords = ['Bool']
 
 class OverworldRevealRoad(EventCommand):
     nid = 'reveal_overworld_road'
     tag = Tags.OVERWORLD
-    desc = ('Enables a road between two overworld nodes. *OverworldLocation* denotes the NID of a valid node. '
+    desc = ('Enables a road between two overworld nodes. *OverworldNodeNID* denotes the NID of a valid node. '
             'By default, fades in via animation; the *Bool* can be set to **True** to skip this anim.')
 
-    keywords = ['OverworldLocation', 'OverworldLocation']
+    keywords = ['OverworldNodeNID', 'OverworldNodeNID']
     optional_keywords = ['Bool']
 
 class CreateOverworldEntity(EventCommand):
@@ -1778,7 +1778,7 @@ def parse_text(text: str, strict=False) -> EventCommand:
                 else:
                     cmd_keyword = "N/A"
                 # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
-                if '(' in arg and ')' in arg and ('FLAG' in arg or not (cmd_keyword in ['Condition', 'Text', 'StringList', 'DashList'])):
+                if '(' in arg and ')' in arg and ('FLAG' in arg or not (cmd_keyword in ['Condition', 'Text', 'StringList', 'PointList', 'DashList'])):
                     true_arg = arg[arg.find("(")+1:arg.find(")")]
                     true_cmd_args.append(true_arg)
                 else:
@@ -1790,11 +1790,21 @@ def parse_text(text: str, strict=False) -> EventCommand:
     else:
         return Comment([text])
 
-def parse(command):
+def parse(command: EventCommand, parse_all_values=False):
+    from app.events.event_validators import convert
     values = command.values
     num_keywords = len(command.keywords)
-    true_values = values[:num_keywords]
+    true_values = []
+    for keyword_idx, keyword in enumerate(values[:num_keywords]):
+        true_values.append(convert(command.keywords[keyword_idx], keyword))
     flags = {v for v in values[num_keywords:] if v in command.flags}
-    optional_keywords = [v for v in values[num_keywords:] if v not in flags]
+    optional_keywords = []
+    for okeyword_idx, okeyword in enumerate(values[num_keywords:]):
+        if okeyword not in flags:
+            optional_keywords.append(convert(command.optional_keywords[okeyword_idx], okeyword))
     true_values += optional_keywords
+    if parse_all_values:
+        num_optionals = len(command.optional_keywords)
+        num_total_keywords = num_keywords + num_optionals
+        true_values += [None] * (num_total_keywords - len(true_values))
     return true_values, flags

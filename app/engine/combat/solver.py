@@ -357,7 +357,7 @@ class CombatPhaseSolver():
             roll = self.generate_roll()
 
         old_defender = None
-        if DB.constants.value('pairup'):
+        if DB.constants.value('pairup') and not any('target_ally' == c.nid for c in item.components):
             if defender.guard_gauge == defender.max_guard and defender.paired_partner:
                 # For EXP purposes only
                 roll = -1
@@ -398,7 +398,7 @@ class CombatPhaseSolver():
                 playback.append(('mark_miss', attacker, defender, self.attacker, item))
 
         # Gauge is set to 0. Damage is negated elsewhere
-        if DB.constants.value('pairup'):
+        if DB.constants.value('pairup') and not any('target_ally' == c.nid for c in item.components):
             if old_defender:
                 defender = old_defender
             if defender.guard_gauge == defender.max_guard:

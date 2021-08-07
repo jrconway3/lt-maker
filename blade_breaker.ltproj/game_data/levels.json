@@ -584,7 +584,7 @@
                 "faction": "Cutthroat",
                 "starting_items": [
                     [
-                        "Steel Lance",
+                        "Horseslayer",
                         false
                     ]
                 ],
@@ -722,7 +722,7 @@
                 "faction": "Cutthroat",
                 "starting_items": [
                     [
-                        "Steel Sword",
+                        "Rapier",
                         false
                     ]
                 ],
@@ -860,7 +860,7 @@
                 "faction": "Cutthroat",
                 "starting_items": [
                     [
-                        "Iron Axe",
+                        "Halberd",
                         false
                     ]
                 ],
@@ -1116,7 +1116,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "None",
+                "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
                     4,
@@ -1132,30 +1132,8 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    5,
-                    4
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Moulder",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    1,
-                    2
-                ],
-                "generic": false
-            },
-            {
-                "nid": "Vanessa",
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": [
-                    2,
-                    2
+                    3,
+                    6
                 ],
                 "generic": false
             }

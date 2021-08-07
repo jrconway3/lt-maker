@@ -3523,6 +3523,17 @@
         "condition": "True",
         "commands": [
             [
+                "set_current_hp",
+                [
+                    "Ophie",
+                    "8"
+                ],
+                [
+                    "Ophie (Ophie)",
+                    "8"
+                ]
+            ],
+            [
                 "add_weather",
                 [
                     "Light"

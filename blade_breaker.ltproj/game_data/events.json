@@ -4,7 +4,588 @@
         "trigger": "level_start",
         "level_nid": "0",
         "condition": "True",
-        "commands": [],
+        "commands": [
+            [
+                "change_background",
+                [
+                    "Town"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "Linhardt",
+                    "immediate"
+                ],
+                [
+                    "Linhardt",
+                    "FLAG(immediate)"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Tension theme"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Man1",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "Exc-cuse me, sir.{w} We did what you asked, but the bandits are still coming!{w}{br}Our barricades won't hold them for long, so w-what do we do now?"
+                ]
+            ],
+            [
+                "move_portrait",
+                [
+                    "Man1",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "Please sir, everyone else has fled.{w} You're our only hope now."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Linhardt",
+                    "FarLeft",
+                    "mirror"
+                ],
+                [
+                    "Linhardt (Linhardt)",
+                    "FarLeft",
+                    "FLAG(mirror)"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Linhardt",
+                    "immediate"
+                ],
+                [
+                    "Linhardt (Linhardt)",
+                    "FLAG(immediate)"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Linhardt",
+                    "Left"
+                ],
+                [
+                    "Linhardt (Linhardt)",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Linhardt",
+                    "They're coming already?{w}{br}How annoying.{w} I wanted them to wait at least a few more hours."
+                ],
+                [
+                    "Linhardt (Linhardt)",
+                    "They're coming already?{w}{br}How annoying.{w} I wanted them to wait at least a few more hours."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "So what do we do?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Linhardt",
+                    "I can hold them off for a while.{w} Eventually, though,{w}{br}we'll all...{w} *yawn*...{w} be killed in their endless onslaught."
+                ],
+                [
+                    "Linhardt (Linhardt)",
+                    "I can hold them off for a while.{w} Eventually, though,{w}{br}we'll all...{w} *yawn*...{w} be killed in their endless onslaught."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Man1",
+                    "There's no hope..?{w} I... oh, Goddess..."
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Man1",
+                    "Linhardt"
+                ],
+                [
+                    "Man1",
+                    "Linhardt (Linhardt)"
+                ]
+            ],
+            [
+                "change_background",
+                []
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "Engres"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Engres",
+                    "Left"
+                ],
+                [
+                    "Engres (Engres)",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Engres",
+                    "Cornered rats.{w} Hear the words your Empress speaks from beyond the grave!"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Linhardt",
+                    "FarRight"
+                ],
+                [
+                    "Linhardt (Linhardt)",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Linhardt",
+                    "Honestly, I think I've heard Edelgard speak enough."
+                ],
+                [
+                    "Linhardt (Linhardt)",
+                    "Honestly, I think I've heard Edelgard speak enough."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Engres",
+                    "You... traitor!{w} What a lucky day for me.{w}{br}The rest of this town has fled or been killed.{w} You and those villagers are all that's left."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Linhardt",
+                    "Great.{w} Anyway, could you come back in a few hours?{w}{br}I see some homes over there that have yet to be looted."
+                ],
+                [
+                    "Linhardt (Linhardt)",
+                    "Great.{w} Anyway, could you come back in a few hours?{w}{br}I see some homes over there that have yet to be looted."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Engres",
+                    "Oh, we'll get to them.{w} But for now, I will avenge Lady Edelgard!"
+                ]
+            ],
+            [
+                "end_skip",
+                []
+            ],
+            [
+                "music",
+                [
+                    "Leonie Arrives"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Leonie",
+                    "Ha, take that!"
+                ]
+            ],
+            [
+                "sound",
+                [
+                    "CombatDeath"
+                ]
+            ],
+            [
+                "center_cursor",
+                [
+                    "Leonie"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Engres",
+                    "immediate"
+                ],
+                [
+                    "Engres (Engres)",
+                    "FLAG(immediate)"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Engres",
+                    "MidRight",
+                    "immediate"
+                ],
+                [
+                    "Engres (Engres)",
+                    "MidRight",
+                    "FLAG(immediate)"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Leonie",
+                    "FarLeft"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Leonie",
+                    "Lay down your arms!{w} The Jeralt Mercenaries-{w}{br}Oh, hi Linhardt!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Linhardt",
+                    "Hey Leonie."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Engres",
+                    "A rescue attempt?{w} You're too late.{w} All you can do now is watch the slaughter!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Leonie",
+                    "Nah, we're just in time!{w} Epira, trigger those explosives!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Engres",
+                    "E-{w}explosives?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Leonie",
+                    "While your men were busy looting the village,{w} mine set traps in every empty home!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Engres",
+                    "That's not...{w} you're..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Leonie",
+                    "With one snap from Epira we can blow your forces to bits!{w}{br}Right, Epira?"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Epira",
+                    "Left"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Epira",
+                    "Yeah!{w} Commander Leonie's got you right where she wants you!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Engres",
+                    "Wait, please... I-"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Leonie",
+                    "Alright Epira, take 'em out!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Epira",
+                    "Three...{w} two...{w} one...{w}"
+                ]
+            ],
+            [
+                "music_clear",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Leonie",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Epira",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Linhardt",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Engres",
+                    "..."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Leonie",
+                    "Epira?"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Epira",
+                    "Gimme a second, I'm pretty sure-"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Engres",
+                    "Grr...{w} an impressive bluff, but it will only take you so far.{w}{br}Men, avenge our Emperor!"
+                ]
+            ],
+            [
+                "music",
+                [
+                    "Tearing Through the Heavens",
+                    "1000"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Linhardt",
+                    "Engres"
+                ],
+                [
+                    "Linhardt (Linhardt)",
+                    "Engres"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Leonie",
+                    "immediate"
+                ],
+                [
+                    "Leonie",
+                    "FLAG(immediate)"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Leonie",
+                    "Left",
+                    "immediate"
+                ],
+                [
+                    "Leonie",
+                    "Left",
+                    "FLAG(immediate)"
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Epira"
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Epira",
+                    "MidRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Epira",
+                    "Commander I-I don't know what happened!{w}{br}I was certain it would work!"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Leonie",
+                    "No point worrying about it now.{w}{br}Themian."
+                ]
+            ],
+            [
+                "add_portrait",
+                [
+                    "Themian",
+                    "Right"
+                ],
+                [
+                    "Themian (Themian)",
+                    "Right"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Leonie",
+                    "You're second in command."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Themian",
+                    "Yes ma'am."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Leonie",
+                    "Percy, Phona."
+                ]
+            ],
+            [
+                "remove_portrait",
+                [
+                    "Themian"
+                ],
+                [
+                    "Themian (Themian)"
+                ]
+            ],
+            [
+                "multi_add_portrait",
+                [
+                    "Percy",
+                    "Right",
+                    "Phona",
+                    "FarRight"
+                ],
+                [
+                    "Percy (Percy)",
+                    "Right",
+                    "Phona (Phona)",
+                    "FarRight"
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Leonie",
+                    "Stick together and back him up.{w}{br}And Epira, stay focused.{w} You can't let one mistake slip you up."
+                ]
+            ],
+            [
+                "speak",
+                [
+                    "Epira",
+                    "R... right.{w} We'll save the villagers for sure!"
+                ]
+            ],
+            [
+                "multi_remove_portrait",
+                [
+                    "Percy",
+                    "Epira",
+                    "Phona",
+                    "Leonie"
+                ],
+                [
+                    "Percy (Percy)",
+                    "Epira (Epira)",
+                    "Phona (Phona)",
+                    "Leonie (Leonie)"
+                ]
+            ]
+        ],
         "only_once": false,
         "priority": 20
     },
@@ -10232,6 +10813,12 @@
                 "comment",
                 [
                     "#Blood"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#Nickt"
                 ]
             ]
         ],

@@ -10,7 +10,7 @@
             "Lord"
         ],
         "bases": {
-            "HP": 16,
+            "HP": 1,
             "STR": 4,
             "MAG": 2,
             "SKL": 8,
@@ -39,7 +39,7 @@
                 false
             ],
             [
-                "Rapier",
+                "Iron Sword",
                 false
             ]
         ],
@@ -96,16 +96,16 @@
         "klass": "Bow_Knight",
         "tags": [],
         "bases": {
-            "HP": 35,
+            "HP": 28,
             "STR": 14,
             "MAG": 7,
             "SKL": 13,
             "SPD": 12,
             "LCK": 13,
-            "DEF": 11,
+            "DEF": 8,
             "CON": 11,
             "MOV": 8,
-            "RES": 8
+            "RES": 5
         },
         "growths": {
             "HP": 90,
@@ -356,7 +356,7 @@
             ]
         },
         "alternate_classes": null,
-        "portrait_nid": "Epira (GabrielKnight)",
+        "portrait_nid": "Epira (Nickt)",
         "affinity": "Anima"
     },
     {
@@ -2995,7 +2995,7 @@
         },
         "alternate_classes": null,
         "portrait_nid": "Bone",
-        "affinity": null
+        "affinity": "None"
     },
     {
         "nid": "Engres",
@@ -3034,6 +3034,10 @@
         "starting_items": [
             [
                 "Swordslayer",
+                false
+            ],
+            [
+                "Killer Axe",
                 false
             ]
         ],

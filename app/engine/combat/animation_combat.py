@@ -99,7 +99,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         if self.left.strike_partner:
             pp = self.left.strike_partner
             self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
-        elif self.left.paired_partner:
+        elif self.left.paired_partner and not any('target_ally' == c.nid for c in self.right_item.components):
             pp = game.get_unit(self.left.paired_partner)
             self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
         self.right_battle_anim = battle_animation.get_battle_anim(self.right, self.right_item, self.distance)
@@ -107,7 +107,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         if self.right.strike_partner:
             pp = self.right.strike_partner
             self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
-        elif self.right.paired_partner:
+        elif self.right.paired_partner and not any('target_ally' == c.nid for c in self.left_item.components):
             pp = game.get_unit(self.right.paired_partner)
             self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
         self.current_battle_anim = None
@@ -824,9 +824,9 @@ class AnimationCombat(BaseCombat, MockCombat):
             font.blit_center(gauge, self.right_gauge, (18, -1))
         # Pair up info
         if self.right_gauge:
-            combat_surf.blit(self.right_gauge, (right_pos_x, right_pos_y))
+            combat_surf.blit(self.right_gauge, (right_pos_x, WINHEIGHT - 52 + (bar_trans - self.bar_offset * bar_trans) + self.shake_offset[1]))
         if self.left_gauge:
-            combat_surf.blit(self.left_gauge, (right_pos_x - 37, right_pos_y))
+            combat_surf.blit(self.left_gauge, (right_pos_x - 37, WINHEIGHT - 52 + (bar_trans - self.bar_offset * bar_trans) + self.shake_offset[1]))
 
         # Nametag
         top = -60 + self.name_offset * 60 + self.shake_offset[1]

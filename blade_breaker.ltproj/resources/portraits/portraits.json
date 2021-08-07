@@ -680,5 +680,16 @@
             24,
             48
         ]
+    },
+    {
+        "nid": "Epira (Nickt)",
+        "blinking_offset": [
+            32,
+            32
+        ],
+        "smiling_offset": [
+            32,
+            48
+        ]
     }
 ]

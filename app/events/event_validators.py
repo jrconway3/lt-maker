@@ -286,8 +286,11 @@ class DashList(Validator):
     desc = "similar to a StringList, but delimited by dashes. For example: `Water-Earth-Fire-Air`"
 
     def validate(self, text, level):
-        if isinstance(text, list):
+        try:
+            self.convert(text)
             return text
+        except:
+            pass
         return None
 
     def convert(self, text: str) -> List:
@@ -792,12 +795,16 @@ class OverworldLocation(Validator):
     decimal_converter = re.compile(r'[^\d.]+')
 
     def validate(self, text, level):
-        if isinstance(text, tuple) and len(text) == 2:
-            return text
-        for overworld in DB.overworlds.values():
-            for node in overworld.overworld_nodes:
-                if node.nid == text:
-                    return text
+        try:
+            text = self.convert(text)
+            if isinstance(text, tuple) and len(text) == 2:
+                return text
+            for overworld in DB.overworlds.values():
+                for node in overworld.overworld_nodes:
+                    if node.nid == text:
+                        return text
+        except:
+            pass
         return None
 
     @lru_cache()

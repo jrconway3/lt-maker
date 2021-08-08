@@ -1790,21 +1790,31 @@ def parse_text(text: str, strict=False) -> EventCommand:
     else:
         return Comment([text])
 
-def parse(command: EventCommand, parse_all_values=False):
+def parse(command):
+    values = command.values
+    num_keywords = len(command.keywords)
+    true_values = values[:num_keywords]
+    flags = {v for v in values[num_keywords:] if v in command.flags}
+    optional_keywords = [v for v in values[num_keywords:] if v not in flags]
+    true_values += optional_keywords
+    return true_values, flags
+
+def convert_parse(command: EventCommand):
     from app.events.event_validators import convert
     values = command.values
     num_keywords = len(command.keywords)
-    true_values = []
+    num_optionals = len(command.optional_keywords)
+    num_total_keywords = num_keywords + num_optionals
+    true_values = [None] * num_total_keywords
+
+    kwd_idx = 0
     for keyword_idx, keyword in enumerate(values[:num_keywords]):
-        true_values.append(convert(command.keywords[keyword_idx], keyword))
+        true_values[kwd_idx] = convert(command.keywords[keyword_idx], keyword)
+        kwd_idx += 1
     flags = {v for v in values[num_keywords:] if v in command.flags}
-    optional_keywords = []
     for okeyword_idx, okeyword in enumerate(values[num_keywords:]):
         if okeyword not in flags:
-            optional_keywords.append(convert(command.optional_keywords[okeyword_idx], okeyword))
-    true_values += optional_keywords
-    if parse_all_values:
-        num_optionals = len(command.optional_keywords)
-        num_total_keywords = num_keywords + num_optionals
-        true_values += [None] * (num_total_keywords - len(true_values))
+            if kwd_idx < len(true_values):
+                true_values[kwd_idx] = convert(command.optional_keywords[okeyword_idx], okeyword)
+        kwd_idx += 1
     return true_values, flags

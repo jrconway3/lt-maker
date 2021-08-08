@@ -1232,7 +1232,7 @@ class Event():
             self.start_overworld_cinematic(command)
 
         elif command.nid == 'set_overworld_position':
-            values, flags = event_commands.parse(command, True)
+            values, flags = event_commands.convert_parse(command)
             self.set_overworld_position(*values, flags=flags)
 
         elif command.nid == 'reveal_overworld_node':
@@ -1245,7 +1245,7 @@ class Event():
             self.disable_overworld_entity(command)
 
         elif command.nid == 'overworld_move_unit':
-            values, flags = event_commands.parse(command, True)
+            values, flags = event_commands.convert_parse(command)
             self.overworld_move_unit(*values, flags=flags)
 
         elif command.nid == 'toggle_narration_mode':

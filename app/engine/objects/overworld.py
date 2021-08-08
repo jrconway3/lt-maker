@@ -80,7 +80,7 @@ class OverworldEntityObject():
             entity.sprite = OverworldUnitSprite(entity.unit, entity)
         else:
             logging.error("OverworldEntityObject cannot find unit %s", prefab.leader_nid)
-            entity.sprite = None
+            raise ValueError("OverworldEntityObject cannot find unit " + prefab.leader_nid)
         return entity
 
     @classmethod

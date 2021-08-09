@@ -1680,7 +1680,7 @@ class OverworldMoveUnit(EventCommand):
 
     keywords = ["OverworldEntity"]
     optional_keywords = ['OverworldLocation', 'Float', 'PointList']
-    flags = ['no_block', 'no_follow', 'disable_after']
+    flags = ['no_block', 'no_follow', 'disable_after', 'no_sound']
 
 class OverworldRevealNode(EventCommand):
     nid = 'reveal_overworld_node'

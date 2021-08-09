@@ -2759,6 +2759,7 @@ class Event():
         follow = 'no_follow' not in flags
         block = 'no_block' not in flags
         disable_after = 'disable_after' in flags
+        mute = 'no_sound' in flags
 
         if disable_after:
             def disable_func():
@@ -2778,7 +2779,7 @@ class Event():
             return
         if path:
             # i'm disabling linger for arbitrary paths as a default, because i think it makes more sense that way
-            movement = OverworldMove(entity, None, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj, path=path, linger=0, after_move_callback=disable_func)
+            movement = OverworldMove(entity, None, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj, path=path, linger=0, after_move_callback=disable_func, mute=mute)
         elif isinstance(target_location, NID):
             target_node: OverworldNodeObject = game.overworld_controller.nodes.get(target_location, None)
             if entity.on_node: # we're pathfinding to a node
@@ -2787,10 +2788,10 @@ class Event():
                     if self.do_skip: # we are skipping; resolve this instantly
                         entity.on_node = target_node.nid
                         return
-            movement = OverworldMove(entity, target_node, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj, after_move_callback=disable_func)
+            movement = OverworldMove(entity, target_node, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj, after_move_callback=disable_func, mute=mute)
         elif isinstance(target_location, Tuple):
             path = [target_location]
-            movement = OverworldMove(entity, None, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj, path=path, linger=0, after_move_callback=disable_func)
+            movement = OverworldMove(entity, None, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj, path=path, linger=0, after_move_callback=disable_func, mute=mute)
         else:
             logging.error("%s: No valid path or target location specified: path: %s | target_location: %s", "overworld_move_unit", str(path), str(target_location))
             return

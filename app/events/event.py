@@ -1657,10 +1657,10 @@ class Event():
         for unit_nid in group.units:
             unit = game.get_unit(unit_nid)
             if create:
-                unit = self.copy_unit(unit)
+                unit = self._copy_unit(unit_nid)
             elif unit.position or unit.dead:
                 continue
-            position = self._get_position(next_pos, unit, group)
+            position = self._get_position(next_pos, unit, group, unit_nid)
             if not position:
                 continue
             position = tuple(position)
@@ -1731,16 +1731,18 @@ class Event():
             return True
         return False
 
-    def _get_position(self, next_pos, unit, group):
+    def _get_position(self, next_pos, unit, group, unit_nid=None):
+        if unit_nid is None:
+            unit_nid = unit.nid
         if not next_pos:
-            position = group.positions.get(unit.nid)
+            position = group.positions.get(unit_nid)
         elif next_pos.lower() == 'starting':
             position = unit.starting_position
         elif ',' in next_pos:
             position = self.parse_pos(next_pos)
         else:
             other_group = game.level.unit_groups.get(next_pos)
-            position = other_group.positions.get(unit.nid)
+            position = other_group.positions.get(unit_nid)
         return position
 
     def spawn_group(self, command):
@@ -1768,11 +1770,11 @@ class Event():
         for unit_nid in group.units:
             unit = game.get_unit(unit_nid)
             if create:
-                unit = self.copy_unit(unit)
+                unit = self._copy_unit(unit_nid)
             elif unit.position or unit.dead:
                 logging.warning("Unit %s in group %s already on map or dead", unit.nid, group.nid)
                 continue
-            position = self._get_position(next_pos, unit, group)
+            position = self._get_position(next_pos, unit, group, unit_nid)
             if not position:
                 continue
 
@@ -1932,6 +1934,18 @@ class Event():
 
         # Can't use turnwheel to go any further back
         game.action_log.set_first_free_action()
+
+    def _copy_unit(self, unit_nid):
+        level_prefab = DB.levels.get(game.level.nid)
+        level_unit_prefab = level_prefab.units.get(unit_nid)
+        level_unit_prefab.nid = \
+            str_utils.get_next_int(level_unit_prefab.nid, game.unit_registry.keys())
+        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit.position = None
+        new_unit.dead = False
+        new_unit.party = game.current_party
+        game.full_register(new_unit)
+        return new_unit
 
     def load_unit(self, command):
         values, flags = event_commands.parse(command)

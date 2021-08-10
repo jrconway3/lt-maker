@@ -185,7 +185,7 @@ class FrameSelector(Dialog):
                 nid = utilities.get_next_name("New Palette", RESOURCES.combat_palettes.keys())
                 my_palette = combat_palettes.Palette(nid)
                 RESOURCES.combat_palettes.append(my_palette)
-                self.combat_anims.palettes.append(["New Palette", my_palette.nid])
+                self.combat_anim.palettes.append(["New Palette", my_palette.nid])
                 colors = {(int(idx % 8), int(idx / 8)): color for idx, color in enumerate(all_palette_colors)}
                 my_palette.colors = colors
 

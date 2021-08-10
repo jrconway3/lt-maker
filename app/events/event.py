@@ -1901,6 +1901,9 @@ class Event():
         else:
             reload_map_nid = tilemap_nid
 
+        # Reset cursor position
+        game.cursor.set_pos((0, 0))
+
         # Remove all units from the map
         # But remember their original positions for later
         previous_unit_pos = {}

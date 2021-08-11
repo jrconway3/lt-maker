@@ -772,7 +772,7 @@ class Event():
                 return
             portrait = RESOURCES.portraits.get(values[1])
             if not portrait:
-                logging.error("Couldn't find portrat %s" % values[1])
+                logging.error("Couldn't find portrait %s" % values[1])
                 return
             action.do(action.ChangePortrait(unit, values[1]))
 
@@ -1272,8 +1272,8 @@ class Event():
         unit = self.get_unit(name)
         if unit and unit.portrait_nid:
             portrait = RESOURCES.portraits.get(unit.portrait_nid)
-        elif unit in DB.units.keys():
-            portrait = RESOURCES.portraits.get(DB.units.get(unit).portrait_nid)
+        elif name in DB.units.keys():
+            portrait = RESOURCES.portraits.get(DB.units.get(name).portrait_nid)
         else:
             portrait = RESOURCES.portraits.get(name)
         if not portrait:

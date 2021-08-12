@@ -78,7 +78,7 @@ class UnitPrefab(Prefab):
         elif name == 'starting_items':
             # Need to convert to item nid + droppable
             value = [i if isinstance(i, list) else [i, False] for i in value]
-        elif name == 'unit_notes' or 'fields':
+        elif name == 'unit_notes' or name == 'fields':
             if value is None:
                 value = []
         else:

@@ -1,4 +1,4 @@
-from app.editor.class_editor.class_fields_delegate import ClassFieldDelegate, ClassFieldDoubleListModel
+from app.extensions.key_value_delegate import KeyValueDelegate, KeyValueDoubleListModel
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLineEdit, \
     QMessageBox, QSpinBox, QHBoxLayout, QPushButton, QDialog, QSplitter, \
     QVBoxLayout, QLabel, QTextEdit, QSizePolicy
@@ -133,7 +133,7 @@ class ClassProperties(QWidget):
 
         field_section = QHBoxLayout()
         attrs = ("name", "value")
-        self.field_widget = AppendMultiListWidget([], "Class Properties", attrs, ClassFieldDelegate, self, model=ClassFieldDoubleListModel)
+        self.field_widget = AppendMultiListWidget([], "Class Properties", attrs, KeyValueDelegate, self, model=KeyValueDoubleListModel)
         field_section.addWidget(self.field_widget)
 
         self.map_sprite_label = QLabel()

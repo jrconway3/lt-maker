@@ -1,4 +1,4 @@
-from app.editor.unit_editor.unit_fields_delegate import UnitFieldDelegate, UnitFieldDoubleListModel
+from app.extensions.key_value_delegate import KeyValueDelegate, KeyValueDoubleListModel
 from app.data.database import DB
 from app.editor.custom_widgets import AffinityBox, ClassBox
 from app.editor.icons import UnitPortrait
@@ -7,8 +7,6 @@ from app.editor.learned_skill_delegate import LearnedSkillDelegate
 from app.editor.stat_widget import (StatAverageDialog, StatListWidget,
                                     UnitStatAveragesModel)
 from app.editor.tag_widget import TagDialog
-from app.editor.unit_editor.unit_notes_delegate import (
-    UnitNotesDelegate, UnitNotesDoubleListModel)
 from app.editor.weapon_editor import weapon_model
 from app.extensions.custom_gui import ComboBox, PropertyBox, QHLine
 from app.extensions.list_models import ReverseDoubleListModel, VirtualListModel
@@ -203,13 +201,13 @@ class UnitProperties(QWidget):
         # self.personal_skill_widget.activated.connect(self.learned_skills_changed)
 
         noteAttrs = ("Category", "Entries")
-        self.unit_notes_widget = AppendMultiListWidget([], "Unit Notes", noteAttrs, UnitNotesDelegate, self, model=UnitNotesDoubleListModel)
+        self.unit_notes_widget = AppendMultiListWidget([], "Unit Notes", noteAttrs, KeyValueDelegate, self, model=KeyValueDoubleListModel)
         self.unit_notes_widget.view.setMaximumHeight(120)
         if not DB.constants.value('unit_notes'):
             self.unit_notes_widget.hide()
 
         fieldAttrs = ("Name", "Value")
-        self.unit_fields_widget = AppendMultiListWidget([], "Unit Properties", fieldAttrs, UnitFieldDelegate, self, model=UnitFieldDoubleListModel)
+        self.unit_fields_widget = AppendMultiListWidget([], "Unit Properties", fieldAttrs, KeyValueDelegate, self, model=KeyValueDoubleListModel)
         self.unit_fields_widget.view.setMaximumHeight(120)
 
         default_weapons = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}

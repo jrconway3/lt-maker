@@ -839,6 +839,19 @@ class Event():
             fatigue = int(values[1])
             action.do(action.ChangeFatigue(unit, fatigue))
 
+        elif command.nid == 'set_field':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            key = values[1]
+            value = evaluate.evaluate(values[2])
+            should_increment = False
+            if 'increment_mode' in flags:
+                should_increment = True
+            action.do(action.ChangeField(unit, key, value, should_increment))
+
         elif command.nid == 'resurrect':
             values, flags = event_commands.parse(command)
             unit = self.get_unit(values[0])
@@ -2948,7 +2961,7 @@ class Event():
                 position = static_random.shuffle(valid_regions)[0]
         return position
 
-    def get_unit(self, text):
+    def get_unit(self, text) -> UnitObject:
         if text in ('{unit}', '{unit1}'):
             return self.unit
         elif text == '{unit2}':

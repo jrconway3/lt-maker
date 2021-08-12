@@ -1941,9 +1941,10 @@ class Event():
     def _copy_unit(self, unit_nid):
         level_prefab = DB.levels.get(game.level.nid)
         level_unit_prefab = level_prefab.units.get(unit_nid)
-        level_unit_prefab.nid = \
-            str_utils.get_next_int(level_unit_prefab.nid, game.unit_registry.keys())
+        new_nid = str_utils.get_next_int(level_unit_prefab.nid, game.unit_registry.keys())
+        level_unit_prefab.nid = new_nid
         new_unit = UnitObject.from_prefab(level_unit_prefab)
+        level_unit_prefab.nid = unit_nid  # Set back to old nid
         new_unit.position = None
         new_unit.dead = False
         new_unit.party = game.current_party

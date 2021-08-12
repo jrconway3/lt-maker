@@ -467,9 +467,10 @@ class Unit(Validator):
 
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
-        if not level:
+        level_prefab = DB.levels.get(level)
+        if not level_prefab:
             return []
-        valids = [(unit.name, unit.nid) for unit in level.units]
+        valids = [(unit.name, unit.nid) for unit in level_prefab.units]
         valids.append((None, "{unit}"))
         valids.append((None, "{unit1}"))
         valids.append((None, "{unit2}"))

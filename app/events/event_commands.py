@@ -72,7 +72,9 @@ class If(EventCommand):
     tag = Tags.FLOW_CONTROL
     desc = \
         """
-If the *Condition* returns true, the block under this command will be executed. If it returns false, the script will search for the next **elif**, **else**, or **end** command before proceeding. If it is not a valid Python expression, the result will be treated as false.
+If the *Condition* returns true, the block under this command will be executed.
+If it returns false, the script will search for the next **elif**, **else**,
+or **end** command before proceeding. If it is not a valid Python expression, the result will be treated as false.
 
 Remember to end your **if** blocks with **end**.
 
@@ -177,7 +179,8 @@ class EndSkip(EventCommand):
     tag = Tags.FLOW_CONTROL
     desc = \
         """
-If the player was skipping through the event script, stop the skip here. Used to prevent a single skip from skipping through an entire event.
+If the player was skipping through the event script, stop the skip here.
+Used to prevent a single skip from skipping through an entire event.
         """
 
 class Music(EventCommand):
@@ -198,7 +201,8 @@ class MusicClear(EventCommand):
 
     desc = \
         """
-Fades out the currently playing song over the course of *Time* milliseconds. Also clears the entire song stack. Fade out defaults to 400 milliseconds.
+Fades out the currently playing song over the course of *Time* milliseconds.
+Also clears the entire song stack. Fade out defaults to 400 milliseconds.
         """
 
     optional_keywords = ['Time']  # How long to fade out
@@ -237,10 +241,10 @@ Adds a portrait to the screen.
 
 Extra flags:
 
-1. _mirror_: Portrait will face opposite expected direction.
-2. _low_priority_: Portrait will appear behind all other portraits on the screen.
-3. _immediate_: Portrait will not fade in.
-4. _no_block_: Portrait will fade in, but will not pause execution of event script while doing so.
+1. *mirror*: Portrait will face opposite expected direction.
+2. *low_priority*: Portrait will appear behind all other portraits on the screen.
+3. *immediate*: Portrait will not fade in.
+4. *no_block*: Portrait will fade in, but will not pause execution of event script while doing so.
         """
 
     keywords = ['Portrait', 'ScreenPosition']
@@ -271,8 +275,8 @@ Removes a portrait from the screen.
 
 Extra flags:
 
-1. _immediate_: Portrait will disappear instantly and will not fade out.
-2. _no_block_: Portrait will fade out, but will not pause execution of event script while doing so.
+1. *immediate*: Portrait will disappear instantly and will not fade out.
+2. *no_block*: Portrait will fade out, but will not pause execution of event script while doing so.
         """
 
     keywords = ['Portrait']
@@ -301,8 +305,8 @@ Causes a portrait to "walk" from one screen position to another.
 
 Extra flags:
 
-1. _immediate_: Portrait will teleport instantly to the new position.
-2. _no_block_: Portrait will walk as normal, but will not pause execution of event script while doing so.
+1. *immediate*: Portrait will teleport instantly to the new position.
+2. *no_block*: Portrait will walk as normal, but will not pause execution of event script while doing so.
         """
 
     keywords = ['Portrait', 'ScreenPosition']
@@ -315,7 +319,8 @@ class BopPortrait(EventCommand):
 
     desc = \
         """
-Causes a portrait to briefly bob up and down. Often used to illustrate a surprised or shocked reaction. If the _no_block_ flag is set, portrait bopping will not pause execution of event script.
+Causes a portrait to briefly bob up and down. Often used to illustrate a surprised or shocked reaction.
+If the *no_block* flag is set, portrait bopping will not pause execution of event script.
         """
 
     keywords = ['Portrait']
@@ -340,21 +345,24 @@ class Speak(EventCommand):
 
     desc = \
         """
-Causes the *Speaker* to speak some *Text*. If *Speaker* is a portrait nid that is currently displayed on screen, *Text* will appear in a speech bubble from that portrait. If *Speaker* is left blank, *Text* will appear in a box with no name label. For all other values of *Speaker*, *Text* will appear in a box with the *Speaker* as the name label.
+Causes the *Speaker* to speak some *Text*. If *Speaker* is a portrait nid that is currently displayed on screen,
+*Text* will appear in a speech bubble from that portrait. If *Speaker* is left blank,
+*Text* will appear in a box with no name label. For all other values of *Speaker*,
+*Text* will appear in a box with the *Speaker* as the name label.
 
 The pipe | symbol can be used within the *Text* body to insert a line break.
 
 The *DialogVariant* optional keyword changes how the text is displayed graphically:
 
-1. _thought_bubble_: causes the text to be in a cloud-like thought bubble instead of a speech bubble.
-2. _noir_: causes the speech bubble to be dark grey with white text.
-3. _hint_: causes the text to be displayed in a hint box similar to tutorial information.
-4. _narration_: causes the text to be displayed in a blue narration box at the bottom of the screen. No name label will be displayed.
-5. _narration_top_: same as *narration* but causes the text box to be displayed at the top of the screen.
+1. *thought_bubble*: causes the text to be in a cloud-like thought bubble instead of a speech bubble.
+2. *noir*: causes the speech bubble to be dark grey with white text.
+3. *hint*: causes the text to be displayed in a hint box similar to tutorial information.
+4. *narration*: causes the text to be displayed in a blue narration box at the bottom of the screen. No name label will be displayed.
+5. *narration_top*: same as *narration* but causes the text box to be displayed at the top of the screen.
 
 Extra flags:
 
-1. _low_priority_: The speaker's portrait will not be moved in front of other overlapping portraits.
+1. *low_priority*: The speaker's portrait will not be moved in front of other overlapping portraits.
         """
 
     keywords = ['Speaker', 'Text']
@@ -367,11 +375,12 @@ class Narrate(EventCommand):
 
     desc = \
         """
-Causes text to be displayed in the whole-screen narration frame. Before using this command, the narration frame must be phased in using **toggle_narration_mode**.
+Causes text to be displayed in the whole-screen narration frame.
+Before using this command, the narration frame must be phased in using **toggle_narration_mode**.
 
 Extra flags:
 
-1. _no_block_: The event script will continue to execute while the narration text is being displayed.
+1. *no_block*: The event script will continue to execute while the narration text is being displayed.
         """
 
     keywords = ['Speaker', 'Text']
@@ -384,7 +393,9 @@ class Transition(EventCommand):
 
     desc = \
         """
-If a scene is currently displayed, it is faded out to a black screen. The next use of this function will fade the scene back into view. The optional *Speed* and *Color3* keywords control the speed and color of the transition.
+If a scene is currently displayed, it is faded out to a black screen.
+The next use of this function will fade the scene back into view.
+The optional *Speed* and *Color3* keywords control the speed and color of the transition.
         """
 
     optional_keywords = ['Direction', 'Speed', 'Color3']
@@ -397,7 +408,9 @@ class Background(EventCommand):
 
     desc = \
         """
-Changes the dialogue scene's background image to *Panorama*. If no *Panorama* is specified, the current background is removed without being replaced. Displayed portraits are also removed unless the _keep_portraits_ flag is set.
+Changes the dialogue scene's background image to *Panorama*. If no *Panorama* is specified,
+the current background is removed without being replaced.
+Displayed portraits are also removed unless the *keep_portraits* flag is set.
         """
 
     optional_keywords = ['Panorama']
@@ -425,7 +438,7 @@ Moves the cursor to the map coordinate given by *Position*. The optional *Speed*
 
 Extra flags:
 
-1. _immediate_: Causes the cursor to immediately jump to the target coordinates.
+1. *immediate*: Causes the cursor to immediately jump to the target coordinates.
         """
 
     keywords = ["Position"]
@@ -465,7 +478,9 @@ class GameVar(EventCommand):
 
     desc = \
         """
-Creates a game variable or changes its value. Game variables are preserved between chapters. The *Nid* is the variable's identifier, and the *Condition* is the value that is given to the variable. *Condition* can be a number or a Python expression.
+Creates a game variable or changes its value. Game variables are preserved between chapters.
+The *Nid* is the variable's identifier, and the *Condition* is the value that is given to the variable.
+*Condition* can be a number or a Python expression.
         """
 
     keywords = ["Nid", "Condition"]
@@ -488,7 +503,10 @@ class LevelVar(EventCommand):
 
     desc = \
         """
-Creates a level-specific variable or changes its value. Level variables are deleted upon completion of a chapter. The *Nid* is the variable's identifier, and the *Condition* is the value that is given to the variable. *Condition* can be a number or a Python expression.
+Creates a level-specific variable or changes its value.
+Level variables are deleted upon completion of a chapter.
+The *Nid* is the variable's identifier, and the *Condition* is the
+value that is given to the variable. *Condition* can be a number or a Python expression.
         """
 
     keywords = ["Nid", "Condition"]
@@ -529,7 +547,9 @@ class ActivateTurnwheel(EventCommand):
 
     desc = \
         """
-Brings up the turnwheel interface to allow the player to roll back turns. The optional *bool* keyword controls whether the player is forced to turn back time, or whether it's optional (default = true = forced to).
+Brings up the turnwheel interface to allow the player to roll back turns.
+The optional *bool* keyword controls whether the player is forced to turn back time,
+or whether it's optional (default = true = forced to).
         """
 
     # Whether to force the player to move the turnwheel back
@@ -542,7 +562,9 @@ class BattleSave(EventCommand):
 
     desc = \
         """
-The player is given the option of saving the game mid-battle. This can be useful if the player chose Classic Mode, as he or she would otherwise only be able to suspend and not save mid-battle.
+The player is given the option of saving the game mid-battle.
+This can be useful if the player chose Classic Mode,
+as he or she would otherwise only be able to suspend and not save mid-battle.
         """
 
 class ChangeTilemap(EventCommand):
@@ -551,11 +573,18 @@ class ChangeTilemap(EventCommand):
 
     desc = \
         """
-Changes the current map to a different layout (_Tilemap_). If the *reload* flag is set, the currently deployed units will be placed at their same positions on the new tilemap. If a *PositionOffset* is given, the units will be reloaded but shifted by +x,+y.
+Changes the current map to a different layout (*Tilemap*).
+If the *reload* flag is set, the currently deployed units
+will be placed at their same positions on the new tilemap.
+If a *PositionOffset* is given, the units will be reloaded but shifted by +x,+y.
 
-Instead of reloading the units from their current positions, a second *Tilemap* optional keyword can be specified. In this case, unit deployment will be loaded from that tilemap's data instead of from the current map.
+Instead of reloading the units from their current positions,
+a second *Tilemap* optional keyword can be specified.
+In this case, unit deployment will be loaded from that tilemap's data instead of from the current map.
 
-Note that this command cannot be turnwheel'ed. Players attempting to use the turnwheel will find that they cannot turn time back past the point when this command was executed.
+Note that this command cannot be turnwheel'ed.
+Players attempting to use the turnwheel will find that
+they cannot turn time back past the point when this command was executed.
         """
 
     # How much to offset placed units by
@@ -583,9 +612,14 @@ class MakeGeneric(EventCommand):
 
     desc = \
         """
-Fabricates a new generic unit from scratch. This does not place instances of the new unit on the map. The required keywords are in the following order: nid to be given to the unit (_String_), the unit's class (_Klass_), the unit's level (_String_), and the unit's *Team*.
+Fabricates a new generic unit from scratch. This does not place instances of the new unit on the map.
+The required keywords are in the following order: nid to be given to the unit (*String*),
+the unit's class (*Klass*), the unit's level (*String*), and the unit's *Team*.
 
-Several optional keywords can also be provided to further modify the new unit: *AI* defines an AI preset to be given to the unit, *Faction* assignes the unit to one of the factions for the chapter, the unit can be given an animation variant (_String_), and finally the unit can be given an inventory of items (_ItemList_).
+Several optional keywords can also be provided to further modify the new unit:
+*AI* defines an AI preset to be given to the unit, *Faction* assignes the unit
+to one of the factions for the chapter, the unit can be given an animation variant
+(*String*), and finally the unit can be given an inventory of items (*ItemList*).
         """
 
     # Nid, class, level, team, ai, faction, anim variant
@@ -598,11 +632,17 @@ class CreateUnit(EventCommand):
 
     desc = \
         """
-Creates a new instance of a unit and, optionally, places it on the map. *Unit* points to the unit template to be used. A new nid can be assigned using *String* (can be empty: '').
+Creates a new instance of a unit and, optionally, places it on the map.
+*Unit* points to the unit template to be used. A new nid can be assigned using *String* (can be empty: '').
 
 Several optional keywords can be provided to modify the unit and/or place it on the map.
 
-Optional keywords can be specified to place the unit on the map. The *String* value sets the unit's nid, if a specific nid is desired. The *Condition* value, if provided, sets the unit's level. The *Position* value indicates the map coordinates that the unit will be placed at. *EntryType* defines which placement animation is used. Finally, *Placement* defines the behavior that occurs if the chosen map position is already occupied.
+Optional keywords can be specified to place the unit on the map.
+The *String* value sets the unit's nid, if a specific nid is desired.
+The *Condition* value, if provided, sets the unit's level.
+The *Position* value indicates the map coordinates that the unit will be placed at.
+*EntryType* defines which placement animation is used.
+Finally, *Placement* defines the behavior that occurs if the chosen map position is already occupied.
         """
 
     # Unit template
@@ -619,7 +659,9 @@ class AddUnit(EventCommand):
         """
 Places *Unit* on the map. The unit must be in the chapter's data or otherwise have been loaded into memory (see **load_unit** or **make_generic**).
 
-The optional keywords define how the unit is placed. *Position* indicates the map coordinates that the unit will be placed at. *EntryType* defines which placement animation is used. *Placement* defines the behavior that occurs if the chosen map position is already occupied. If no placement information is provided, the unit will attempt to be placed at its starting location from the chapter data (if any).
+The optional keywords define how the unit is placed. *Position* indicates the map coordinates that the unit will be placed at.
+*EntryType* defines which placement animation is used. *Placement* defines the behavior that occurs if the chosen map position is already occupied.
+If no placement information is provided, the unit will attempt to be placed at its starting location from the chapter data (if any).
         """
 
     keywords = ["Unit"]
@@ -634,9 +676,12 @@ class MoveUnit(EventCommand):
         """
 Causes *Unit* to move to a new position on the map.
 
-The optional keywords define how the movement occurs. *Position* indicates the target map coordinates. *MovementType* selects the method of movement. *Placement* defines the behavior that occurs if the chosen map position is already occupied.
+The optional keywords define how the movement occurs.
+*Position* indicates the target map coordinates. *MovementType* selects the method of movement.
+*Placement* defines the behavior that occurs if the chosen map position is already occupied.
 
-The _no_block_ optional flag causes the event script to continue to execute while the unit is moving. The _no_follow_ flag prevents the camera from tracking the unit as it moves.
+The *no_block* optional flag causes the event script to continue to execute while the unit is moving.
+The *no_follow* flag prevents the camera from tracking the unit as it moves.
         """
 
     keywords = ["Unit"]
@@ -663,7 +708,8 @@ class KillUnit(EventCommand):
 
     desc = \
         """
-Causes *Unit* to be removed from the map and marked as dead. The *immediate* flag causes this to occur instantly without the normal map death animation.
+Causes *Unit* to be removed from the map and marked as dead.
+The *immediate* flag causes this to occur instantly without the normal map death animation.
         """
 
     keywords = ["Unit"]
@@ -694,7 +740,9 @@ class InteractUnit(EventCommand):
 
     desc = \
         """
-Initiates a battle between two units. A *CombatScript* can optionally be provided to ensure a pre-set outcome to the battle. *Ability* can be used to specify which item or ability the attacker will use.
+Initiates a battle between two units.
+A *CombatScript* can optionally be provided to ensure a pre-set outcome to the battle.
+*Ability* can be used to specify which item or ability the attacker will use.
         """
 
     keywords = ["Unit", "Unit"]
@@ -706,7 +754,7 @@ class SetCurrentHP(EventCommand):
 
     desc = \
         """
-Sets _Unit_'s hit points to *PositiveInteger*.
+Sets *Unit*'s hit points to *PositiveInteger*.
         """
 
     keywords = ["Unit", "PositiveInteger"]
@@ -717,7 +765,7 @@ class SetCurrentMana(EventCommand):
 
     desc = \
         """
-Sets _Unit_'s mana to *PositiveInteger*.
+Sets *Unit*'s mana to *PositiveInteger*.
         """
 
     keywords = ["Unit", "PositiveInteger"]
@@ -728,7 +776,7 @@ class AddFatigue(EventCommand):
 
     desc = \
         """
-Modify _Unit_'s current fatigue level by *Integer*.
+Modify *Unit*'s current fatigue level by *Integer*.
         """
     keywords = ["Unit", "Integer"]
 
@@ -782,7 +830,9 @@ class AddGroup(EventCommand):
 
     desc = \
         """
-Adds a unit group to the map. This will use the group's starting position data in the chapter by default. Alternatively, a separate unit group nid can be provided as *StartingGroup* to cause the units to be placed at this other group's starting position. *EntryType* selects the method of placement, and *Placement* defines the behavior that occurs if any of the chosen map positions are already occupied.
+Adds a unit group to the map. This will use the group's starting position data in the chapter by default.
+Alternatively, a separate unit group nid can be provided as *StartingGroup* to cause the units to be placed at this other group's starting position.
+*EntryType* selects the method of placement, and *Placement* defines the behavior that occurs if any of the chosen map positions are already occupied.
 
 If the *create* flag is set, a copy of each unit will be created and deployed instead of using the unit itself.
         """
@@ -797,9 +847,11 @@ class SpawnGroup(EventCommand):
 
     desc = \
         """
-Causes a unit *Group* to arrive on the map from one of the _CardinalDirection_s. *EntryType* selects the method of placement, and *Placement* defines the behavior that occurs if any of the chosen map positions are already occupied.
+Causes a unit *Group* to arrive on the map from one of the *CardinalDirection*s.
+*EntryType* selects the method of placement, and *Placement* defines the behavior that occurs if any of the chosen map positions are already occupied.
 
-If the *create* flag is set, a copy of each unit will be created and deployed instead of using the unit itself. _no_block_ causes the script to continue executing while the units appear on the map. _no_follow_ prevents the camera from focusing on the point where the units enter the map.
+If the *create* flag is set, a copy of each unit will be created and deployed instead of using the unit itself.
+*no_block* causes the script to continue executing while the units appear on the map. *no_follow* prevents the camera from focusing on the point where the units enter the map.
         """
 
     keywords = ["Group", "CardinalDirection", "StartingGroup"]
@@ -813,9 +865,11 @@ class MoveGroup(EventCommand):
 
     desc = \
         """
-Causes a unit *Group* to move to a new set of map positions specified using a different group's nid (_StartingGroup_). *MovementType* selects the method of movement, and *Placement* defines the behavior that occurs if any of the chosen map positions are already occupied.
+Causes a unit *Group* to move to a new set of map positions specified using a different group's nid (*StartingGroup*).
+*MovementType* selects the method of movement, and *Placement* defines the behavior that occurs if any of the chosen map positions are already occupied.
 
-If the _no_block_ flag is set, the script will continue to execute while the units move. _no_follow_ prevents the camera from following the movement of the units.
+If the *no_block* flag is set, the script will continue to execute while the units move.
+*no_follow* prevents the camera from following the movement of the units.
         """
 
     keywords = ["Group", "StartingGroup"]
@@ -840,9 +894,11 @@ class GiveItem(EventCommand):
 
     desc = \
         """
-Gives a new copy of *Item* to *GlobalUnit*. If the _no_banner_ flag is set, there will not be a banner announcing that "X unit got a Y item!".
+Gives a new copy of *Item* to *GlobalUnit*. If the *no_banner* flag is set, there will not be a banner announcing that "X unit got a Y item!".
 
-If the unit's inventory is full, the player will be given the option of which item to send to the convoy. If the _no_choice_ flag is set, the new item will be automatically sent to the convoy in this case without prompting the player. The *droppable* flag determines whether the item is set as a "droppable" item (generally only given to enemy units).
+If the unit's inventory is full, the player will be given the option of which item to send to the convoy.
+If the *no_choice* flag is set, the new item will be automatically sent to the convoy in this case without prompting the player.
+The *droppable* flag determines whether the item is set as a "droppable" item (generally only given to enemy units).
         """
 
     keywords = ["GlobalUnit", "Item"]
@@ -854,7 +910,8 @@ class RemoveItem(EventCommand):
 
     desc = \
         """
-Removes *Item* from the inventory of *GlobalUnit*. If the _no_banner_ flag is set, there will not be a banner announcing that "X unit lost a Y item!".
+Removes *Item* from the inventory of *GlobalUnit*.
+If the *no_banner* flag is set, there will not be a banner announcing that "X unit lost a Y item!".
         """
 
     keywords = ["GlobalUnit", "Item"]
@@ -888,7 +945,8 @@ class AddItemToMultiItem(EventCommand):
 
     desc = \
         """
-Adds a new item to an existing multi-item in the inventory of *GlobalUnit*. The first *Item* specifies the multi-item, and the second *Item* specifies the nid of the item to be added.
+Adds a new item to an existing multi-item in the inventory of *GlobalUnit*.
+The first *Item* specifies the multi-item, and the second *Item* specifies the nid of the item to be added.
         """
 
     keywords = ["GlobalUnit", "Item", "Item"]
@@ -899,7 +957,8 @@ class RemoveItemFromMultiItem(EventCommand):
 
     desc = \
         """
-Removes an item from an existing multi-item in the inventory of *GlobalUnit*. The first *Item* specifies the multi-item, and the second *Item* specifies the nid of the item to be removed.
+Removes an item from an existing multi-item in the inventory of *GlobalUnit*.
+The first *Item* specifies the multi-item, and the second *Item* specifies the nid of the item to be removed.
         """
 
     keywords = ["GlobalUnit", "Item", "Item"]
@@ -910,7 +969,9 @@ class GiveMoney(EventCommand):
 
     desc = \
         """
-Gives *Integer* amount of money to the indicated *Party*. If *Party* is not specified, the player's current party will be used. If the _no_banner_ flag is set, there will not be a banner announcing that the player "received X gold!".
+Gives *Integer* amount of money to the indicated *Party*.
+If *Party* is not specified, the player's current party will be used.
+If the *no_banner* flag is set, there will not be a banner announcing that the player "received X gold!".
         """
 
     keywords = ["Integer"]
@@ -923,7 +984,11 @@ class GiveBexp(EventCommand):
 
     desc = \
         """
-Gives bonus experience of the amount defined by *Condition* (can just be a number) to the indicated *Party*. If *Party* is not specified, the player's current party will be used. The optional *Text* keyword specifies what text is shown to the player in the banner. If *Text* is not specified, the banner will state "Got X BEXP". If the _no_banner_ flag is set, the player will not be informed that the bonus experience was awarded.
+Gives bonus experience of the amount defined by *Condition* (can just be a number) to the indicated *Party*.
+If *Party* is not specified, the player's current party will be used.
+The optional *Text* keyword specifies what text is shown to the player in the banner.
+If *Text* is not specified, the banner will state "Got X BEXP".
+If the *no_banner* flag is set, the player will not be informed that the bonus experience was awarded.
         """
 
     keywords = ["Condition"]
@@ -947,7 +1012,7 @@ class SetExp(EventCommand):
 
     desc = \
         """
-Sets _GlobalUnit_'s current experience amount to *PositiveInteger*.
+Sets *GlobalUnit*'s current experience amount to *PositiveInteger*.
         """
 
     keywords = ["GlobalUnit", "PositiveInteger"]
@@ -958,7 +1023,7 @@ class GiveWexp(EventCommand):
 
     desc = \
         """
-Gives a *PositiveInteger* amount of weapon experience in *WeaponType* to *GlobalUnit*. If the _no_banner_ flag is set, the player will not be informed that weapon experience was awarded.
+Gives a *PositiveInteger* amount of weapon experience in *WeaponType* to *GlobalUnit*. If the *no_banner* flag is set, the player will not be informed that weapon experience was awarded.
         """
 
     keywords = ["GlobalUnit", "WeaponType", "Integer"]
@@ -970,7 +1035,7 @@ class GiveSkill(EventCommand):
 
     desc = \
         """
-_GlobalUnit_ gains *Skill*. If the _no_banner_ flag is set, the player will not be informed of this.
+*GlobalUnit* gains *Skill*. If the *no_banner* flag is set, the player will not be informed of this.
         """
 
     keywords = ["GlobalUnit", "Skill"]
@@ -982,7 +1047,7 @@ class RemoveSkill(EventCommand):
 
     desc = \
         """
-_GlobalUnit_ loses *Skill*. If the _no_banner_ flag is set, the player will not be informed of this.
+*GlobalUnit* loses *Skill*. If the *no_banner* flag is set, the player will not be informed of this.
         """
 
     keywords = ["GlobalUnit", "Skill"]
@@ -1016,7 +1081,7 @@ class ChangeTeam(EventCommand):
 
     desc = \
         """
-Changes _GlobalUnit_'s *Team*. For example, this can recruit an enemy unit to the player's team in a Talk event script.
+Changes *GlobalUnit*'s *Team*. For example, this can recruit an enemy unit to the player's team in a Talk event script.
         """
 
     keywords = ["GlobalUnit", "Team"]
@@ -1027,7 +1092,7 @@ class ChangePortrait(EventCommand):
 
     desc = \
         """
-Changes _GlobalUnit_'s portrait to the one specified by *PortraitNid*.
+Changes *GlobalUnit*'s portrait to the one specified by *PortraitNid*.
         """
 
     keywords = ["GlobalUnit", "PortraitNid"]
@@ -1091,7 +1156,7 @@ class Promote(EventCommand):
 
     desc = \
         """
-Promotes *GlobalUnit* into a specified class (_Klass_) or, if no *Klass* is given, the unit promotes as normal using its promotion data.
+Promotes *GlobalUnit* into a specified class (*Klass*) or, if no *Klass* is given, the unit promotes as normal using its promotion data.
         """
 
     keywords = ["GlobalUnit"]
@@ -1103,7 +1168,7 @@ class ChangeClass(EventCommand):
 
     desc = \
         """
-Changes *GlobalUnit* into a specified class (_Klass_) or, if no *Klass* is given, the unit class changes as normal using its alternative class data.
+Changes *GlobalUnit* into a specified class (*Klass*) or, if no *Klass* is given, the unit class changes as normal using its alternative class data.
         """
 
     keywords = ["GlobalUnit"]
@@ -1262,7 +1327,7 @@ class AddRegion(EventCommand):
         """
 Adds a new region to the map that can be referenced by events. *Nid* will be the new regions identifier. *Position* is the map coordinate desired for the upper-left corner of the new region. *Size* is the dimensions of the new region. *RegionType* defines the type of region that is created (status region, etc.).
 
-The optional *String* keyword can be used to specify the sub-region type. When set, the _only_once_ flag prevents multiples of the same region from being created.
+The optional *String* keyword can be used to specify the sub-region type. When set, the *only_once* flag prevents multiples of the same region from being created.
         """
 
     keywords = ["Nid", "Position", "Size", "RegionType"]
@@ -1376,7 +1441,7 @@ class SetPosition(EventCommand):
 
     desc = \
         """
-Stores a given position (_Condition_) as the event's home position. It can later be referenced in this event script using {position}.
+Stores a given position (*Condition*) as the event's home position. It can later be referenced in this event script using {position}.
         """
 
     keywords = ["Condition"]
@@ -1458,7 +1523,10 @@ class Choice(EventCommand):
         """
 Presents the player with a menu in which he/she can choose from several options. An example would be the choice to go with Eirika or Ephraim in The Sacred Stones.
 
-_Nid_ is the name of this choice, which can be checked later to recall the player's decision. *Text* is the text describing the choice, such as "which will you choose?" *StringList* specifies the different options that the player can choose among. The optional *Orientation* keyword specifies whether the options are displayed as a vertical list or side-by-side.
+*Nid* is the name of this choice, which can be checked later to recall the player's decision.
+*Text* is the text describing the choice, such as "which will you choose?"
+*StringList* specifies the different options that the player can choose among.
+The optional *Orientation* keyword specifies whether the options are displayed as a vertical list or side-by-side.
         """
 
     keywords = ['Nid', 'Text', 'StringList']
@@ -1470,7 +1538,7 @@ class ChapterTitle(EventCommand):
 
     desc = \
         """
-Brings up the chapter title screen, optionally with the specified *Music* and chapter name (_Text_).
+Brings up the chapter title screen, optionally with the specified *Music* and chapter name (*Text*).
         """
 
     optional_keywords = ["Music", "Text"]
@@ -1510,7 +1578,7 @@ class LocationCard(EventCommand):
 
     desc = \
         """
-Used to display text (_Text_) in the upper-left corner of the screen. This is often used to indicate the current location shown, such as "Castle Ostia".
+Used to display text (*Text*) in the upper-left corner of the screen. This is often used to indicate the current location shown, such as "Castle Ostia".
         """
 
     keywords = ["Text"]
@@ -1521,7 +1589,7 @@ class Credits(EventCommand):
 
     desc = \
         """
-Display a line of credits. The first *Text* specifies the credit type ("Director"). The second *Text* is a comma-delimited list of credits ("Spielberg,Tarantino"). If the _no_split_ flag is set, the list will not be split based on the commas in *Text*. The *wait* and *center* flags modify how the credit line is displayed.
+Display a line of credits. The first *Text* specifies the credit type ("Director"). The second *Text* is a comma-delimited list of credits ("Spielberg,Tarantino"). If the *no_split* flag is set, the list will not be split based on the commas in *Text*. The *wait* and *center* flags modify how the credit line is displayed.
         """
 
     keywords = ["Text", "Text"]

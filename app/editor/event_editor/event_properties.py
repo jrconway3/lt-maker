@@ -343,7 +343,7 @@ class CodeEditor(QPlainTextEdit):
 
         # determine what dictionary to use for completion
         validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos)
-        autofill_dict = event_autocompleter.generate_wordlist_from_validator_type(validator, self.window.current.nid)
+        autofill_dict = event_autocompleter.generate_wordlist_from_validator_type(validator, self.window.current.level_nid)
         if flags:
             autofill_dict = autofill_dict + event_autocompleter.generate_flags_wordlist(flags)
         if len(autofill_dict) == 0:

@@ -2,7 +2,6 @@ from __future__ import annotations
 import logging
 import re
 from typing import Callable, Dict, List, Tuple
-from ast import literal_eval as make_tuple
 
 import app.engine.config as cf
 import app.engine.graphics.ui_framework as uif
@@ -838,6 +837,23 @@ class Event():
                 return
             fatigue = int(values[1])
             action.do(action.ChangeFatigue(unit, fatigue))
+
+        elif command.nid == 'set_field':
+            values, flags = event_commands.parse(command)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            key = values[1]
+            try:
+                value = evaluate.evaluate(values[2])
+            except:
+                logging.error("Could not evaluate {%s}" % values[2])
+                return
+            should_increment = False
+            if 'increment_mode' in flags:
+                should_increment = True
+            action.do(action.ChangeField(unit, key, value, should_increment))
 
         elif command.nid == 'resurrect':
             values, flags = event_commands.parse(command)
@@ -1998,8 +2014,11 @@ class Event():
             logging.error("Class %s doesn't exist in database " % klass)
             return
         # Level
-        level = int(evaluate.evaluate(values[2], self.unit, self.unit2, self.item, self.position, self.region))
-
+        try:
+            level = int(evaluate.evaluate(values[2], self.unit, self.unit2, self.item, self.position, self.region))
+        except:
+            logging.error("Could not evaluate {%s}" % values[2])
+            return
         team = values[3]
         if len(values) > 4 and values[4]:
             ai_nid = values[4]
@@ -2044,7 +2063,11 @@ class Event():
             return
 
         if len(values) > 2 and values[2]:
-            level = int(evaluate.evaluate(values[2], self.unit, self.unit2, self.item, self.position, self.region))
+            try:
+                level = int(evaluate.evaluate(values[2], self.unit, self.unit2, self.item, self.position, self.region))
+            except:
+                logging.error("Could not evaluate {%s}" % values[2])
+                return
         else:
             level = unit.level
         if len(values) > 3 and values[3]:
@@ -2244,6 +2267,7 @@ class Event():
             action.do(action.GiveBexp(party_nid, val))
         except:
             logging.error("Could not evaluate {%s}" % to_eval)
+            return
         banner_flag = 'no_banner' not in flags
 
         # action.do(action.GiveBexp(party_nid, bexp))
@@ -2382,8 +2406,11 @@ class Event():
         if not unit:
             logging.error("Couldn't find unit %s" % values[0])
             return
-
-        final_level = int(evaluate.evaluate(values[1], self.unit, self.unit2, self.item, self.position, self.region))
+        try:
+            final_level = int(evaluate.evaluate(values[1], self.unit, self.unit2, self.item, self.position, self.region))
+        except:
+            logging.error("Could not evaluate {%s}" % values[1])
+            return
         current_level = unit.level
         diff = max(0, final_level - current_level)
         if diff <= 0:
@@ -2405,7 +2432,11 @@ class Event():
 
     def set_mode_autolevels(self, command):
         values, flags = event_commands.parse(command)
-        autolevel = int(evaluate.evaluate(values[1], self.unit, self.unit2, self.item, self.position, self.region))
+        try:
+            autolevel = int(evaluate.evaluate(values[1], self.unit, self.unit2, self.item, self.position, self.region))
+        except:
+            logging.error("Could not evaluate {%s}" % values[1])
+            return
         if 'hidden' in flags:
             game.current_mode.enemy_autolevels = autolevel
         else:
@@ -2973,7 +3004,7 @@ class Event():
                 position = static_random.shuffle(valid_regions)[0]
         return position
 
-    def get_unit(self, text):
+    def get_unit(self, text) -> UnitObject:
         if text in ('{unit}', '{unit1}'):
             return self.unit
         elif text == '{unit2}':

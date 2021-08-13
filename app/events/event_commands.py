@@ -27,6 +27,7 @@ class EventCommand(Prefab):
     tag: Tags = Tags.HIDDEN
     desc: str = ''
 
+    keyword_names: list = []
     keywords: list = []
     optional_keywords: list = []
     flags: list = []
@@ -731,6 +732,23 @@ class AddFatigue(EventCommand):
 Modify _Unit_'s current fatigue level by _Integer_.
         """
     keywords = ["Unit", "Integer"]
+
+class SetField(EventCommand):
+    nid = 'set_field'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+    """
+Set arbitrary property on _Unit_. **Note**: This cannot be used to set unit stats; if you try, you will simply set
+a property called, for example, "STR", that has nothing to do with the unit's stats. This is for enabling unit-level
+vars that are persisted across events.
+
+If the flag `increment_mode` is supplied, this will add the value to the existing value instead instead of setting it.
+Please try to avoid using `increment_mode` with non-numerical fields. That would erase your field and then nobody will be happy.
+    """
+    keyword_names = ['unit_nid', 'key', 'value']
+    keywords = ['Unit', 'String', 'String']
+    flags = ['increment_mode']
 
 class Resurrect(EventCommand):
     nid = 'resurrect'

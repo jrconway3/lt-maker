@@ -306,7 +306,9 @@ class CodeEditor(QPlainTextEdit):
             </style>
         """
 
-        hint_text = style + hint_cmd + '<hr>' + hint_desc + '<hr>' + hint_command_desc
+        hint_text = style + hint_cmd + '<hr>' + hint_desc
+        if self.settings.get_event_autocomplete_desc():
+            hint_text += '<hr>' + hint_command_desc
         self.function_annotator.setText(hint_text)
         self.function_annotator.adjustSize()
 

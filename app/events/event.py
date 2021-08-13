@@ -1658,6 +1658,8 @@ class Event():
             unit = game.get_unit(unit_nid)
             if create:
                 unit = self._copy_unit(unit_nid)
+                if not unit:
+                    continue
             elif unit.position or unit.dead:
                 continue
             position = self._get_position(next_pos, unit, group, unit_nid)
@@ -1771,6 +1773,8 @@ class Event():
             unit = game.get_unit(unit_nid)
             if create:
                 unit = self._copy_unit(unit_nid)
+                if not unit:
+                    continue
             elif unit.position or unit.dead:
                 logging.warning("Unit %s in group %s already on map or dead", unit.nid, group.nid)
                 continue
@@ -1941,6 +1945,9 @@ class Event():
     def _copy_unit(self, unit_nid):
         level_prefab = DB.levels.get(game.level.nid)
         level_unit_prefab = level_prefab.units.get(unit_nid)
+        if not level_unit_prefab:
+            logging.warning("Could not find level unit prefab for unit with nid: %s", unit_nid)
+            return None
         new_nid = str_utils.get_next_int(level_unit_prefab.nid, game.unit_registry.keys())
         level_unit_prefab.nid = new_nid
         new_unit = UnitObject.from_prefab(level_unit_prefab)

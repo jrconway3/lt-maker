@@ -565,15 +565,23 @@ class AnimationCombat(BaseCombat, MockCombat):
             else:
                 self.current_battle_anim = self.left_battle_anim
         elif self.get_from_playback('defender_partner_phase'):
-            if self.attacker is self.left:
+            if self.attacker is self.left and self.rp_battle_anim:
                 self.current_battle_anim = self.rp_battle_anim
-            else:
+            elif self.attacker is self.left:
+                self.current_battle_anim = self.right_battle_anim
+            elif self.lp_battle_anim:
                 self.current_battle_anim = self.lp_battle_anim
+            else:
+                self.current_battle_anim = self.left_battle_anim
         elif self.get_from_playback('attacker_partner_phase'):
-            if self.attacker is self.left:
+            if self.attacker is self.left and self.lp_battle_anim:
                 self.current_battle_anim = self.lp_battle_anim
-            else:
+            elif self.attacker is self.left:
+                self.current_battle_anim = self.left_battle_anim
+            elif self.rp_battle_anim:
                 self.current_battle_anim = self.rp_battle_anim
+            else:
+                self.current_battle_anim = self.right_battle_anim
         else:
             if self.attacker is self.left:
                 self.current_battle_anim = self.left_battle_anim

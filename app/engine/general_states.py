@@ -1137,7 +1137,6 @@ class TargetingState(MapState):
 
         if 'DOWN' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
-            self.traveler_mode = False
             if self.ability.name == 'Trade':
                 current_target = game.cursor.get_hover()
                 traveler = current_target.traveler

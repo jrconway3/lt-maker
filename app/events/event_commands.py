@@ -784,7 +784,7 @@ Modify *Unit*'s current fatigue level by *Integer*.
     keywords = ["Unit", "Integer"]
 
 class SetField(EventCommand):
-    nid = 'set_field'
+    nid = 'set_unit_field'
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
     desc = \

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import Callable, List
 from app.utilities.data import Prefab
 
 import logging
@@ -1877,13 +1877,17 @@ def parse_text(text: str, strict=False) -> EventCommand:
     else:
         return Comment([text])
 
-def parse(command):
+def parse(command, _eval_evals: Callable[[str], str] = None, _eval_vars: Callable[[str], str] = None):
     values = command.values
     num_keywords = len(command.keywords)
     true_values = values[:num_keywords]
     flags = {v for v in values[num_keywords:] if v in command.flags}
     optional_keywords = [v for v in values[num_keywords:] if v not in flags]
     true_values += optional_keywords
+    if _eval_evals:
+        true_values = [_eval_evals(value) for value in true_values]
+    if _eval_evals:
+        true_values = [_eval_vars(value) for value in true_values]
     return true_values, flags
 
 def convert_parse(command: EventCommand):

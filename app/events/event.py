@@ -838,7 +838,7 @@ class Event():
             fatigue = int(values[1])
             action.do(action.ChangeFatigue(unit, fatigue))
 
-        elif command.nid == 'set_field':
+        elif command.nid == 'set_unit_field':
             values, flags = event_commands.parse(command)
             unit = self.get_unit(values[0])
             if not unit:

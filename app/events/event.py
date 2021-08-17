@@ -1436,8 +1436,6 @@ class Event():
             variant = None
 
         portrait = self.portraits.get(speaker)
-        text = self._evaluate_evals(text)
-        text = self._evaluate_vars(text)
         bg = 'message_bg_base'
         if variant == 'noir':
             bg = 'menu_bg_dark'
@@ -2921,9 +2919,6 @@ class Event():
             def handle_input(event):
                 narration_component.hurry_up(event)
             self.functions_listening_for_input['event_narration_listener'] = handle_input
-
-        dialogue = self._evaluate_evals(dialogue)
-        dialogue = self._evaluate_vars(dialogue)
 
         narration_component.push_text(narrator, dialogue)
         if 'no_block' in flags or self.do_skip:

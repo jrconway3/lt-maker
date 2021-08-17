@@ -1886,7 +1886,7 @@ def parse(command, _eval_evals: Callable[[str], str] = None, _eval_vars: Callabl
     true_values += optional_keywords
     if _eval_evals:
         true_values = [_eval_evals(value) for value in true_values]
-    if _eval_evals:
+    if _eval_vars:
         true_values = [_eval_vars(value) for value in true_values]
     return true_values, flags
 

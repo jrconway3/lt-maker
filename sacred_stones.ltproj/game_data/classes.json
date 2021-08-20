@@ -120,7 +120,8 @@
             0
         ],
         "map_sprite_nid": "Citizen",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Eirika_Lord",
@@ -247,7 +248,8 @@
             0
         ],
         "map_sprite_nid": "EirikaLord",
-        "combat_anim_nid": "Eirika Lord"
+        "combat_anim_nid": "Eirika Lord",
+        "fields": []
     },
     {
         "nid": "Eirika_Great_Lord",
@@ -379,7 +381,8 @@
             0
         ],
         "map_sprite_nid": "Eirika_Great_Lord",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Ephraim_Lord",
@@ -504,7 +507,8 @@
             0
         ],
         "map_sprite_nid": "Ephraim_Lord",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Ephraim_Great_Lord",
@@ -635,7 +639,8 @@
             0
         ],
         "map_sprite_nid": "Ephraim_Great_Lord",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Dancer",
@@ -763,7 +768,8 @@
             0
         ],
         "map_sprite_nid": "Dancer",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Myrmidon",
@@ -891,7 +897,8 @@
             0
         ],
         "map_sprite_nid": "Myrmidon",
-        "combat_anim_nid": "Myrmidon"
+        "combat_anim_nid": "Myrmidon",
+        "fields": []
     },
     {
         "nid": "Swordmaster",
@@ -1021,7 +1028,8 @@
             0
         ],
         "map_sprite_nid": "Swordmaster",
-        "combat_anim_nid": "Swordmaster"
+        "combat_anim_nid": "Swordmaster",
+        "fields": []
     },
     {
         "nid": "Mercenary",
@@ -1149,7 +1157,8 @@
             0
         ],
         "map_sprite_nid": "Mercenary",
-        "combat_anim_nid": "Mercenary"
+        "combat_anim_nid": "Mercenary",
+        "fields": []
     },
     {
         "nid": "Hero",
@@ -1274,7 +1283,8 @@
             0
         ],
         "map_sprite_nid": "Hero",
-        "combat_anim_nid": "Vanguard"
+        "combat_anim_nid": "Vanguard",
+        "fields": []
     },
     {
         "nid": "Thief",
@@ -1407,7 +1417,8 @@
             0
         ],
         "map_sprite_nid": "Thief",
-        "combat_anim_nid": "Thief"
+        "combat_anim_nid": "Thief",
+        "fields": []
     },
     {
         "nid": "Assassin",
@@ -1532,7 +1543,8 @@
             0
         ],
         "map_sprite_nid": "Assassin",
-        "combat_anim_nid": "Assassin"
+        "combat_anim_nid": "Assassin",
+        "fields": []
     },
     {
         "nid": "Rogue",
@@ -1657,7 +1669,8 @@
             0
         ],
         "map_sprite_nid": "Rogue",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Recruit",
@@ -1784,7 +1797,8 @@
             0
         ],
         "map_sprite_nid": "Recruit",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Soldier",
@@ -1907,7 +1921,8 @@
             0
         ],
         "map_sprite_nid": "Soldier",
-        "combat_anim_nid": "Soldier"
+        "combat_anim_nid": "Soldier",
+        "fields": []
     },
     {
         "nid": "Cavalier",
@@ -2041,7 +2056,8 @@
             0
         ],
         "map_sprite_nid": "Cavalier",
-        "combat_anim_nid": "Cavalier"
+        "combat_anim_nid": "Cavalier",
+        "fields": []
     },
     {
         "nid": "Paladin",
@@ -2172,7 +2188,8 @@
             0
         ],
         "map_sprite_nid": "Paladin",
-        "combat_anim_nid": "Paladin"
+        "combat_anim_nid": "Paladin",
+        "fields": []
     },
     {
         "nid": "Great_Knight",
@@ -2304,7 +2321,8 @@
             0
         ],
         "map_sprite_nid": "Great_Knight",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Pegasus_Knight",
@@ -2395,7 +2413,7 @@
             ],
             [
                 1,
-                "Canto"
+                "Canto+"
             ]
         ],
         "wexp_gain": {
@@ -2442,7 +2460,8 @@
             0
         ],
         "map_sprite_nid": "PegasusKnight",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Falcoknight",
@@ -2577,7 +2596,8 @@
             0
         ],
         "map_sprite_nid": "Falcoknight",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Knight",
@@ -2705,7 +2725,8 @@
             0
         ],
         "map_sprite_nid": "Knight",
-        "combat_anim_nid": "Knight"
+        "combat_anim_nid": "Knight",
+        "fields": []
     },
     {
         "nid": "General",
@@ -2830,7 +2851,8 @@
             0
         ],
         "map_sprite_nid": "General",
-        "combat_anim_nid": "General"
+        "combat_anim_nid": "General",
+        "fields": []
     },
     {
         "nid": "Journeyman",
@@ -2956,7 +2978,8 @@
             0
         ],
         "map_sprite_nid": "Journeyman",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Fighter",
@@ -3087,7 +3110,8 @@
             0
         ],
         "map_sprite_nid": "Fighter",
-        "combat_anim_nid": "Fighter"
+        "combat_anim_nid": "Fighter",
+        "fields": []
     },
     {
         "nid": "Warrior",
@@ -3210,7 +3234,8 @@
             0
         ],
         "map_sprite_nid": "Warrior",
-        "combat_anim_nid": "Warrior"
+        "combat_anim_nid": "Warrior",
+        "fields": []
     },
     {
         "nid": "Pirate",
@@ -3335,7 +3360,8 @@
             0
         ],
         "map_sprite_nid": "Pirate",
-        "combat_anim_nid": "Raider"
+        "combat_anim_nid": "Raider",
+        "fields": []
     },
     {
         "nid": "Berserker",
@@ -3463,7 +3489,8 @@
             0
         ],
         "map_sprite_nid": "Berserker",
-        "combat_anim_nid": "Berserker"
+        "combat_anim_nid": "Berserker",
+        "fields": []
     },
     {
         "nid": "Brigand",
@@ -3588,7 +3615,8 @@
             0
         ],
         "map_sprite_nid": "Brigand",
-        "combat_anim_nid": "Brigand"
+        "combat_anim_nid": "Brigand",
+        "fields": []
     },
     {
         "nid": "Archer",
@@ -3714,7 +3742,8 @@
             0
         ],
         "map_sprite_nid": "Archer",
-        "combat_anim_nid": "Archer"
+        "combat_anim_nid": "Archer",
+        "fields": []
     },
     {
         "nid": "Sniper",
@@ -3842,7 +3871,8 @@
             0
         ],
         "map_sprite_nid": "Sniper",
-        "combat_anim_nid": "Sniper"
+        "combat_anim_nid": "Sniper",
+        "fields": []
     },
     {
         "nid": "Ranger",
@@ -3973,7 +4003,8 @@
             0
         ],
         "map_sprite_nid": "Ranger",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Monk",
@@ -4098,7 +4129,8 @@
             0
         ],
         "map_sprite_nid": "Monk",
-        "combat_anim_nid": "Tactician"
+        "combat_anim_nid": "Tactician",
+        "fields": []
     },
     {
         "nid": "Cleric",
@@ -4228,7 +4260,8 @@
             0
         ],
         "map_sprite_nid": "Cleric",
-        "combat_anim_nid": "Cleric"
+        "combat_anim_nid": "Cleric",
+        "fields": []
     },
     {
         "nid": "Bishop",
@@ -4356,7 +4389,8 @@
             0
         ],
         "map_sprite_nid": "Bishop",
-        "combat_anim_nid": "Bishop"
+        "combat_anim_nid": "Bishop",
+        "fields": []
     },
     {
         "nid": "Mage",
@@ -4482,7 +4516,8 @@
             0
         ],
         "map_sprite_nid": "Mage",
-        "combat_anim_nid": "Mage"
+        "combat_anim_nid": "Mage",
+        "fields": []
     },
     {
         "nid": "Sage",
@@ -4605,7 +4640,8 @@
             0
         ],
         "map_sprite_nid": "Sage",
-        "combat_anim_nid": "Sage"
+        "combat_anim_nid": "Sage",
+        "fields": []
     },
     {
         "nid": "Shaman",
@@ -4728,7 +4764,8 @@
             0
         ],
         "map_sprite_nid": "Shaman",
-        "combat_anim_nid": "Shaman"
+        "combat_anim_nid": "Shaman",
+        "fields": []
     },
     {
         "nid": "Mage Knight",
@@ -4858,7 +4895,8 @@
             0
         ],
         "map_sprite_nid": "MageKnight",
-        "combat_anim_nid": "Strategist"
+        "combat_anim_nid": "Strategist",
+        "fields": []
     },
     {
         "nid": "Troubadour",
@@ -4991,7 +5029,8 @@
             0
         ],
         "map_sprite_nid": "Troubadour",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Valkyrie",
@@ -5122,7 +5161,8 @@
             0
         ],
         "map_sprite_nid": "Valkyrie",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Wyvern Rider",
@@ -5261,7 +5301,8 @@
             0
         ],
         "map_sprite_nid": "WyvernRider",
-        "combat_anim_nid": "Wyvern Knight"
+        "combat_anim_nid": "Wyvern Knight",
+        "fields": []
     },
     {
         "nid": "Wyvern Lord",
@@ -5397,7 +5438,8 @@
             0
         ],
         "map_sprite_nid": "WyvernLord",
-        "combat_anim_nid": "Wyvern Lord"
+        "combat_anim_nid": "Wyvern Lord",
+        "fields": []
     },
     {
         "nid": "Wyvern Knight",
@@ -5533,7 +5575,8 @@
             0
         ],
         "map_sprite_nid": "WyvernKnight",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Necromancer",
@@ -5656,7 +5699,8 @@
             0
         ],
         "map_sprite_nid": "Necromancer",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Revenant",
@@ -5783,7 +5827,8 @@
             0
         ],
         "map_sprite_nid": "Revenant",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Entombed",
@@ -5908,7 +5953,8 @@
             0
         ],
         "map_sprite_nid": "Entombed",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Sword_Bonewalker",
@@ -6035,7 +6081,8 @@
             0
         ],
         "map_sprite_nid": "Sword_Bonewalker",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Sword_Wight",
@@ -6160,7 +6207,8 @@
             0
         ],
         "map_sprite_nid": "Sword_Wight",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Bow_Bonewalker",
@@ -6287,7 +6335,8 @@
             0
         ],
         "map_sprite_nid": "Bow_Bonewalker",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Bow_Wight",
@@ -6412,7 +6461,8 @@
             0
         ],
         "map_sprite_nid": "Bow_Wight",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Mogall",
@@ -6545,7 +6595,8 @@
             0
         ],
         "map_sprite_nid": "Mogall",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Arch_Mogall",
@@ -6671,7 +6722,8 @@
             0
         ],
         "map_sprite_nid": "Arch_Mogall",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Wall25",
@@ -6805,7 +6857,8 @@
             0
         ],
         "map_sprite_nid": "Invisible",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     },
     {
         "nid": "Snag20",
@@ -6939,6 +6992,7 @@
             0
         ],
         "map_sprite_nid": "Invisible",
-        "combat_anim_nid": null
+        "combat_anim_nid": null,
+        "fields": []
     }
 ]

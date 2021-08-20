@@ -299,7 +299,10 @@ class SimpleCombat():
                     (self.attacker.team == 'player' and item_system.menu_after_combat(self.attacker, self.main_item)):
                 game.state.change('menu')
             elif skill_system.has_canto(self.attacker, self.defender):
+                game.cursor.set_pos(self.attacker.position)
                 game.state.change('move')
+                game.cursor.place_arrows()
+
             else:
                 game.state.clear()
                 game.state.change('free')

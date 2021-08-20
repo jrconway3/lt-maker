@@ -812,6 +812,7 @@ class Separate(Action):
         self.droppee_wait_action.do()
 
         self.unit.paired_partner = None
+        self.droppee.guard_gauge = 0
         self.unit.guard_gauge = 0
         self.unit.has_dropped = True
 
@@ -835,12 +836,14 @@ class Separate(Action):
             action.execute()
 
         self.unit.paired_partner = None
+        self.droppee.guard_gauge = 0
         self.unit.guard_gauge = 0
         self.unit.has_dropped = True
 
     def reverse(self):
         self.unit.paired_partner = self.droppee.nid
         self.unit.guard_gauge = self.old_gauge
+        self.droppee.guard_gauge = self.old_gauge
 
         self.droppee_wait_action.reverse()
         game.leave(self.droppee)
@@ -1676,6 +1679,7 @@ class Die(Action):
         self.lock_all_support_ranks = \
             [LockAllSupportRanks(pair.nid) for pair in game.supports.get_pairs(self.unit.nid)]
         self.drop = None
+        self.old_gauge = self.unit.guard_gauge
 
         self.initiative_action = None
         if DB.constants.value('initiative'):
@@ -1689,6 +1693,7 @@ class Die(Action):
             # TODO Drop Sound
         if self.unit.paired_partner:
             drop_me = game.get_unit(self.unit.paired_partner)
+            drop_me.guard_gauge = 0
             self.drop = Drop(self.unit, drop_me, self.unit.position)
             self.drop.do()
 
@@ -1713,6 +1718,8 @@ class Die(Action):
             act.reverse()
         self.leave_map.reverse()
         if self.drop:
+            if game.get_unit(self.unit.paired_partner):
+                game.get_unit(self.unit.paired_partner).guard_gauge = self.old_gauge
             self.drop.reverse()
 
 class Resurrect(Action):

@@ -211,7 +211,7 @@ class TradeAbility(Ability):
 
         adj_allies = target_system.get_adj_allies(unit)
         adj = set([u.position for u in adj_allies if unit.team == u.team])
-        if unit.traveler:
+        if unit.traveler or unit.paired_partner:
             adj.add(unit.position)
         return adj
 

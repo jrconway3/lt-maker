@@ -629,7 +629,25 @@
                 ]
             ],
             [
+                "if",
+                [
+                    "game.game_vars.get('_current_turnwheel_uses', 0) > 0"
+                ]
+            ],
+            [
+                "activate_turnwheel",
+                []
+            ],
+            [
+                "else",
+                []
+            ],
+            [
                 "lose_game",
+                []
+            ],
+            [
+                "end",
                 []
             ]
         ],

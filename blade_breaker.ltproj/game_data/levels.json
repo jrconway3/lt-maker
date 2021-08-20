@@ -115,7 +115,7 @@
             {
                 "nid": "101",
                 "variant": null,
-                "level": 13,
+                "level": 1,
                 "klass": "Berserker",
                 "faction": "Cutthroat",
                 "starting_items": [
@@ -487,7 +487,7 @@
             {
                 "nid": "120",
                 "variant": null,
-                "level": 3,
+                "level": 1,
                 "klass": "Sniper",
                 "faction": "Cutthroat",
                 "starting_items": [
@@ -786,7 +786,7 @@
             {
                 "nid": "130",
                 "variant": null,
-                "level": 4,
+                "level": 1,
                 "klass": "Wyvern Knight",
                 "faction": "Cutthroat",
                 "starting_items": [

@@ -546,8 +546,6 @@ class ResetAll(Action):
 class HasAttacked(Reset):
     def do(self):
         self.unit.has_attacked = True
-        if DB.constants.value('pairup'):
-            self.unit.built_guard = True
 
 class HasTraded(Reset):
     def do(self):

@@ -1140,7 +1140,11 @@ class TargetingState(MapState):
             if self.ability.name == 'Trade':
                 current_target = game.cursor.get_hover()
                 traveler = current_target.traveler
-                if not traveler and current_target.paired_partner:
+                if self.traveler_mode:
+                    self.traveler_mode = False
+                    new_position = self.selection.get_down(game.cursor.position)
+                    game.cursor.set_pos(new_position)
+                elif not traveler and current_target.paired_partner:
                     self.traveler_mode = True
                 elif traveler and game.get_unit(traveler).team == self.cur_unit.team:
                     self.traveler_mode = True

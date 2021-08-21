@@ -902,6 +902,7 @@ class AnimationCombat(BaseCombat, MockCombat):
 
         if self.defender:
             self.defender.strike_partner = None
+            self.defender.built_guard = True
 
         self.handle_exp()
 
@@ -928,6 +929,7 @@ class AnimationCombat(BaseCombat, MockCombat):
 
         if self.defender:
             self.defender.strike_partner = None
+            self.defender.built_guard = True
 
         a_broke, d_broke = self.find_broken_items()
         self.handle_broken_items(a_broke, d_broke)

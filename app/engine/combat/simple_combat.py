@@ -192,6 +192,7 @@ class SimpleCombat():
         already_pre = [self.attacker]
         if self.defender:
             self.defender.strike_partner = None
+            self.defender.built_guard = True
         for idx, defender in enumerate(self.defenders):
             if defender and defender not in already_pre:
                 already_pre.append(defender)
@@ -207,6 +208,7 @@ class SimpleCombat():
             skill_system.end_combat(self.full_playback, self.attacker.strike_partner, self.main_item, self.defender, 'attack')
             item_system.end_combat(self.full_playback, self.attacker.strike_partner, self.main_item, self.defender, 'attack')
             self.attacker.strike_partner = None
+            self.attacker.built_guard = True
         if self.defender:
             self.defender.strike_partner = None
         already_pre = [self.attacker]

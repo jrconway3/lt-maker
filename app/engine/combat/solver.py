@@ -363,7 +363,7 @@ class CombatPhaseSolver():
 
         guard_hit = False
         if DB.constants.value('pairup') and item_system.is_weapon(attacker, item) and attacker.team != defender.team:
-            if defender.guard_gauge == defender.max_guard and defender.paired_partner:
+            if defender.get_guard_gauge() >= defender.get_max_guard_gauge() and defender.paired_partner:
                 guard_hit = True
                 roll = -1
 
@@ -408,7 +408,7 @@ class CombatPhaseSolver():
 
         # Gauge is set to 0. Damage is negated elsewhere
         if DB.constants.value('pairup') and item_system.is_weapon(attacker, item) and attacker.team != defender.team:
-            if defender.guard_gauge == defender.max_guard:
+            if defender.get_guard_gauge() == defender.get_max_guard_gauge():
                 action.do(action.UseGauge(defender))
             elif defender.paired_partner:
                 action.do(action.UseGauge(defender, defender.gauge_inc))

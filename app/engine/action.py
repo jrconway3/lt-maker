@@ -764,7 +764,8 @@ class SwapPaired(Action):
         self.unit2.paired_partner = self.unit1.nid
         skill_system.on_separate(self.unit2, self.unit1)
         skill_system.on_pairup(self.unit1, self.unit2)
-        self.unit2.guard_gauge = self.unit1.guard_gauge
+        # Is this necessary, if so why is not mirrored?
+        # self.unit2.set_guard_gauge(self.unit1.get_guard_gauge())
 
         game.leave(self.unit1)
         self.unit1.position, self.unit2.position = self.pos2, self.pos1
@@ -796,7 +797,7 @@ class Separate(Action):
         self.droppee = droppee
         self.pos = pos
         self.droppee_wait_action = Wait(self.droppee)
-        self.old_gauge = self.unit.guard_gauge
+        self.old_gauge = self.unit.get_guard_gauge()
 
     def do(self):
         self.droppee.position = self.pos
@@ -805,8 +806,8 @@ class Separate(Action):
         self.droppee_wait_action.do()
 
         self.unit.paired_partner = None
-        self.droppee.guard_gauge = 0
-        self.unit.guard_gauge = 0
+        self.droppee.set_guard_gauge(0)
+        self.unit.set_guard_gauge(0)
         self.unit.has_dropped = True
 
         skill_system.on_separate(self.droppee, self.unit)
@@ -825,14 +826,14 @@ class Separate(Action):
         skill_system.on_separate(self.droppee, self.unit)
 
         self.unit.paired_partner = None
-        self.droppee.guard_gauge = 0
-        self.unit.guard_gauge = 0
+        self.droppee.set_guard_gauge(0)
+        self.unit.set_guard_gauge(0)
         self.unit.has_dropped = True
 
     def reverse(self):
         self.unit.paired_partner = self.droppee.nid
-        self.unit.guard_gauge = self.old_gauge
-        self.droppee.guard_gauge = self.old_gauge
+        self.unit.set_guard_gauge(self.old_gauge)
+        self.droppee.set_guard_gauge(self.old_gauge)
 
         self.droppee_wait_action.reverse()
         game.leave(self.droppee)
@@ -845,20 +846,16 @@ class UseGauge(Action):
     def __init__(self, unit, amount=0):
         self.unit = unit
         self.amount = amount
-        self.old_gauge = unit.guard_gauge
+        self.old_gauge = unit.get_guard_gauge()
 
     def do(self):
         if not self.amount:
-            self.unit.guard_gauge = 0
+            self.unit.set_guard_gauge(0)
         else:
-            self.unit.guard_gauge += self.amount
-            if self.unit.guard_gauge > self.unit.max_guard:
-                self.unit.guard_gauge = self.unit.max_guard
-            elif self.unit.guard_gauge < 0:
-                self.unit.guard_gauge = 0
+            self.unit.set_guard_gauge(self.unit.get_guard_gauge() + self.amount)
 
     def reverse(self):
-        self.unit.guard_gauge = self.old_gauge
+        self.unit.set_guard_gauge(self.old_gauge)
 
 class BuiltGuard(Action):
     '''
@@ -877,9 +874,9 @@ class Transfer(Action):
     def __init__(self, unit, other):
         self.unit = unit
         self.first_partner = unit.paired_partner
-        self.first_gauge = self.unit.guard_gauge
+        self.first_gauge = self.unit.get_guard_gauge()
         self.other = other
-        self.other_gauge = other.guard_gauge
+        self.other_gauge = other.get_guard_gauge()
 
     def do(self):
         if self.unit.paired_partner:
@@ -888,9 +885,9 @@ class Transfer(Action):
             skill_system.on_separate(game.get_unit(self.other.paired_partner), self.other)
 
         self.unit.paired_partner = self.other.paired_partner
-        self.unit.guard_gauge = self.other.guard_gauge//2
+        self.unit.set_guard_gauge(self.other_gauge//2)
         self.other.paired_partner = self.first_partner
-        self.other.guard_gauge = self.first_gauge//2
+        self.other.set_guard_gauge(self.first_gauge//2)
 
         if self.first_partner:
             skill_system.on_pairup(game.get_unit(self.first_partner), self.other)
@@ -906,9 +903,9 @@ class Transfer(Action):
             skill_system.on_separate(game.get_unit(self.other.paired_partner), self.other)
 
         self.other.paired_partner = self.unit.paired_partner
-        self.other.guard_gauge = self.other_gauge
+        self.other.set_guard_gauge(self.other_gauge)
         self.unit.paired_partner = self.first_partner
-        self.unit.guard_gauge = self.first_gauge
+        self.unit.set_guard_gauge(self.first_gauge)
         self.unit.has_given = False
 
         if self.first_partner:
@@ -1666,7 +1663,7 @@ class Die(Action):
         self.lock_all_support_ranks = \
             [LockAllSupportRanks(pair.nid) for pair in game.supports.get_pairs(self.unit.nid)]
         self.drop = None
-        self.old_gauge = self.unit.guard_gauge
+        self.old_gauge = self.unit.get_guard_gauge()
 
         self.initiative_action = None
         if DB.constants.value('initiative'):
@@ -1680,7 +1677,7 @@ class Die(Action):
             # TODO Drop Sound
         if self.unit.paired_partner:
             drop_me = game.get_unit(self.unit.paired_partner)
-            drop_me.guard_gauge = 0
+            drop_me.set_guard_gauge(0)
             self.drop = Separate(self.unit, drop_me, self.unit.position)
             self.drop.do()
 
@@ -1706,7 +1703,7 @@ class Die(Action):
         self.leave_map.reverse()
         if self.drop:
             if game.get_unit(self.unit.paired_partner):
-                game.get_unit(self.unit.paired_partner).guard_gauge = self.old_gauge
+                game.get_unit(self.unit.paired_partner).set_guard_gauge(self.old_gauge)
             self.drop.reverse()
 
 class Resurrect(Action):

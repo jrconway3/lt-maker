@@ -80,7 +80,6 @@ class UnitObject(Prefab):
                     self._fields[key] = value
         self.starting_position = self.position
 
-
         method = unit_funcs.get_leveling_method(self)
 
         if method == GrowthOption.FIXED:
@@ -92,15 +91,13 @@ class UnitObject(Prefab):
         self.current_mana = 0
         self.current_fatigue = 0
         self.movement_left = 0
+        self.current_guard_gauge = 0
 
-        self.traveler = None
-
-        self.paired_partner = None
+        self.traveler: str = None  # Always a nid of a unit
+        self.paired_partner: str = None  # Always a nid of a unit
         self.strike_partner = None # Not saved because only used for solver
-        self.lead_unit = False # I don't need to save this because it's only for move/menu states
-        self.guard_gauge = 0 # Remember to set back to 0
-        self.built_guard = False # A bool to check if guard should be subtracted at turn end
-        self.get_guard_info()
+        self.lead_unit: bool = False # I don't need to save this because it's only for move/menu states
+        self.built_guard: bool = False # A bool to check if guard should be subtracted at turn end
 
         # -- Other properties
         self.dead = False
@@ -136,6 +133,7 @@ class UnitObject(Prefab):
         self.current_mana = self.get_max_mana()
         self.current_fatigue = 0
         self.movement_left = equations.parser.movement(self)
+        self.current_guard_gauge = 0
 
         # -- Equipped Items
         self.equipped_weapon = self.get_weapon()
@@ -222,6 +220,18 @@ class UnitObject(Prefab):
     def set_fatigue(self, val):
         self.current_fatigue = int(max(val, 0))
 
+    def get_guard_gauge(self):
+        return self.current_guard_gauge
+
+    def get_max_guard_gauge(self):
+        return equations.parser.get_max_guard(self)
+
+    def set_guard_gauge(self, val):
+        self.current_guard_gauge = int(utils.clamp(val, 0, self.get_max_guard_gauge(self)))
+
+    def get_gauge_inc(self):
+        return equations.parser.get_gauge_inc(self)
+
     def get_field(self, key, default='FIELD_NOT_DEFINED'):
         if not getattr(self, '_fields'):
             return default
@@ -251,10 +261,6 @@ class UnitObject(Prefab):
 
     def get_stat(self, stat_nid):
         return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)
-
-    def get_guard_info(self):
-        self.max_guard = equations.parser.get_max_guard(self)
-        self.gauge_inc = equations.parser.get_gauge_inc(self)
 
     def get_stat_cap(self, stat_nid):
         return DB.classes.get(self.klass).max_stats.get(stat_nid, 30)
@@ -537,10 +543,8 @@ class UnitObject(Prefab):
                   'current_fatigue': self.current_fatigue,
                   'traveler': self.traveler,
                   'paired_partner': self.paired_partner,
-                  'guard_gauge': self.guard_gauge,
+                  'current_guard_gauge': self.current_guard_gauge,
                   'built_guard': self.built_guard,
-                  'max_guard': self.max_guard,
-                  'gauge_inc': self.gauge_inc,
                   'dead': self.dead,
                   'action_state': self.get_action_state(),
                   'ai_group_active': self.ai_group_active,
@@ -594,13 +598,13 @@ class UnitObject(Prefab):
         self.current_mana = s_dict['current_mana']
         self.current_fatigue = s_dict['current_fatigue']
         self.movement_left = equations.parser.movement(self)
+        self.current_guard_gauge = s_dict.get('current_guard_gauge', 0)
 
         self.traveler = s_dict['traveler']
         self.paired_partner = s_dict['paired_partner']
-        self.guard_gauge = s_dict['guard_gauge']
-        self.built_guard = s_dict['built_guard']
-        self.max_guard = s_dict['max_guard']
-        self.gauge_inc = s_dict['gauge_inc']
+        self.strike_partner = None
+        self.lead_unit = False
+        self.built_guard = s_dict.get('built_guard', False)
 
         self.equipped_weapon = None
         self.equipped_accessory = None

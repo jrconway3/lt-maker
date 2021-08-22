@@ -448,10 +448,6 @@ def compute_damage(unit, target, item, def_item, mode, crit=False):
     might *= skill_system.damage_multiplier(unit, item, target, mode)
     might *= skill_system.resist_multiplier(target, item, unit, mode)
 
-    if DB.constants.value('pairup') and target.guard_gauge == target.max_guard and not any('target_ally' == c.nid for c in item.components):
-        might = 0
-        # Prevents damage if there's a dual guard, but the gauge is set to 0 elsewhere since it's an action. Maybe change?
-
     return int(max(DB.constants.get('min_damage').value, might))
 
 def compute_assist_damage(unit, target, item, def_item, mode, crit=False):

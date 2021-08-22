@@ -782,7 +782,7 @@ class InfoMenuState(State):
                 self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'MANA_desc', state)
 
             elif stat == 'GAUGE':
-                gge = str(self.unit.guard_gauge) + '/' + str(self.unit.max_guard)
+                gge = str(self.unit.get_guard_gauge()) + '/' + str(self.unit.get_max_guard_gauge())
                 FONT['text-blue'].blit_right(gge, surf, (111, 16 * true_idx + 24))
                 FONT['text-yellow'].blit(text_funcs.translate('GAUGE'), surf, (72, 16 * true_idx + 24))
                 self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'GAUGE_desc', state)

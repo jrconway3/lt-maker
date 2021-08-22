@@ -227,7 +227,7 @@ class UnitObject(Prefab):
         return equations.parser.get_max_guard(self)
 
     def set_guard_gauge(self, val):
-        self.current_guard_gauge = int(utils.clamp(val, 0, self.get_max_guard_gauge(self)))
+        self.current_guard_gauge = int(utils.clamp(val, 0, self.get_max_guard_gauge()))
 
     def get_gauge_inc(self):
         return equations.parser.get_gauge_inc(self)

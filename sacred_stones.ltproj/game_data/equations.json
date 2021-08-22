@@ -106,5 +106,9 @@
     {
         "nid": "MAX_GUARD",
         "expression": "10"
+    },
+    {
+        "nid": "GAUGE_INC",
+        "expression": "2"
     }
 ]

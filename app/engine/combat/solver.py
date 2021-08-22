@@ -55,6 +55,7 @@ class AttackerState(SolverState):
                     attacker_outspeed = defender_outspeed = 1
 
                 if solver.attacker.strike_partner:
+                    solver.num_subattacks = 0
                     return 'attacker_partner'
                 if solver.item_has_uses() and \
                         solver.num_subattacks < self.num_multiattacks:
@@ -86,10 +87,6 @@ class AttackerState(SolverState):
                 solver.process(actions, playback, solver.attacker, defender, target_pos, item, defender.get_weapon(), 'attack')
                 skill_system.end_sub_combat(actions, playback, defender, defender.get_weapon(), solver.attacker, 'defense')
 
-                #if solver.attacker.strike_partner:
-                    # Checks for dual strike partner for attacker. No interaction with gauge code because you can't get here if enemy is dual guarded
-                #    solver.process(actions, playback, solver.attacker.strike_partner, defender, target_pos, item, defender.get_weapon(), 'attack')
-
             for target in splash:
                 skill_system.start_sub_combat(actions, playback, target, None, solver.attacker, 'defense')
                 solver.process(actions, playback, solver.attacker, target, target_pos, item, None, 'splash')
@@ -109,6 +106,7 @@ class AttackerState(SolverState):
 class AttackerPartnerState(SolverState):
     name = 'attacker_partner'
     num_multiattacks = 1
+    # Nearly identical to attacker state except contains no possibility that attacker partner is the next in line to attack
 
     def get_next_state(self, solver):
         command = solver.get_script()
@@ -125,7 +123,7 @@ class AttackerPartnerState(SolverState):
 
                 if solver.item_has_uses() and \
                         solver.num_subattacks < self.num_multiattacks:
-                    return 'attacker'
+                    return 'attacker_partner'
                 elif solver.allow_counterattack() and \
                         solver.num_defends < defender_outspeed:
                     solver.num_subdefends = 0
@@ -162,12 +160,16 @@ class AttackerPartnerState(SolverState):
             if not defender and not splash:
                 solver.simple_process(actions, playback, atk_p, atk_p, target_pos, item, None, None)
 
+        solver.num_subattacks += 1
+        self.num_multiattacks = combat_calcs.compute_multiattacks(atk_p, solver.defender, atk_p.get_weapon(), 'attack')
+
         # End check attack proc
         skill_system.end_sub_combat(actions, playback, atk_p, solver.main_item, solver.defender, 'attack')
 
 class DefenderState(SolverState):
     name = 'defender'
     num_multiattacks = 1
+    # Nearly identical to defender state except contains no possibility that defender partner is the next in line to attack
 
     def get_next_state(self, solver):
         command = solver.get_script()
@@ -178,9 +180,9 @@ class DefenderState(SolverState):
                 else:
                     defender_outspeed = 1
                 attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
-                # self.num_multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
 
                 if solver.defender.strike_partner:
+                    solver.num_subdefends = 0
                     return 'defender_partner'
                 if solver.allow_counterattack() and \
                         solver.num_subdefends < self.num_multiattacks:
@@ -235,7 +237,7 @@ class DefenderPartnerState(SolverState):
 
                 if solver.allow_counterattack() and \
                         solver.num_subdefends < self.num_multiattacks:
-                    return 'defender'
+                    return 'defender_partner'
                 elif solver.item_has_uses() and \
                         solver.num_attacks < attacker_outspeed:
                     solver.num_subattacks = 0
@@ -261,6 +263,9 @@ class DefenderPartnerState(SolverState):
 
         # Remove defending unit's proc skills (which is solver.attacker)
         skill_system.end_sub_combat(actions, playback, solver.attacker, solver.main_item, def_p, 'defense')
+
+        solver.num_subdefends += 1
+        self.num_multiattacks = combat_calcs.compute_multiattacks(def_p, solver.attacker, def_p.get_weapon(), 'defense')
 
         # Remove attacking unit's proc skills (which is solver.defender)
         skill_system.end_sub_combat(actions, playback, def_p, solver.def_item, solver.attacker, 'attack')

@@ -127,8 +127,6 @@ class SimpleCombat():
         # handle wexp & skills
         if not self.attacker.is_dying:
             self.handle_wexp(self.attacker, self.main_item, self.defender)
-        if self.defender and self.def_item and not self.defender.is_dying:
-            self.handle_wexp(self.defender, self.def_item, self.attacker)
 
         if self.attacker.strike_partner:
             self.handle_wexp(self.attacker.strike_partner, self.main_item, self.defender)
@@ -239,21 +237,19 @@ class SimpleCombat():
         """
         Returns list of all units taking in this combat
         """
-        all_units = [self.attacker]
+        all_units = {self.attacker}
         if self.attacker.strike_partner:
             all_units.append(self.attacker.strike_partner)
         elif self.attacker.paired_partner:
             all_units.append(game.get_unit(self.attacker.paired_partner))
         for unit in self.all_splash:
-            if unit not in all_units:
-                all_units.append(unit)
+            all_units.add(unit)
         for unit in self.all_defenders:
-            if unit not in all_units:
-                if len(self.all_defenders) == 1 and unit.strike_partner:
-                    all_units.append(unit.strike_partner)
-                if unit.paired_partner:
-                    all_units.append(game.get_unit(unit.paired_partner))
-                all_units.append(unit)
+            if len(self.all_defenders) == 1 and unit.strike_partner:
+                all_units.add(unit.strike_partner)
+            if unit.paired_partner:
+                all_units.add(game.get_unit(unit.paired_partner))
+            all_units.add(unit)
         return all_units
 
     def handle_messages(self):

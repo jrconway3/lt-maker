@@ -44,7 +44,6 @@ class TurnChangeState(MapState):
             game.state.change('initiative_upkeep')
             if game.initiative.at_start():
                 action.do(action.IncrementTurn())
-                self.refresh_guard()
                 game.events.trigger('turn_change')
                 if game.turncount - 1 <= 0:  # Beginning of the level
                     for unit in game.get_all_units_in_party():
@@ -57,7 +56,6 @@ class TurnChangeState(MapState):
             if game.phase.get_current() == 'player':
                 action.do(action.IncrementTurn())
                 action.do(action.UpdateRecords('turn', None))
-                self.refresh_guard()
                 game.state.change('free')
                 game.state.change('status_upkeep')
                 game.state.change('phase_change')
@@ -82,14 +80,6 @@ class TurnChangeState(MapState):
 
     def take_input(self, event):
         return 'repeat'
-
-    def refresh_guard(self):
-        refresh_these = [unit for unit in game.units if unit.paired_partner and not unit.built_guard]
-        for unit in refresh_these:
-            action.do(action.UseGauge(unit, -unit.gauge_inc))
-        for unit in game.units:
-            if unit.built_guard:
-                action.do(action.BuiltGuard(unit))
 
 class InitiativeUpkeep(MapState):
     name = 'initiative_upkeep'
@@ -1460,10 +1450,7 @@ class CombatTargetingState(MapState):
                 self.display_single_attack()
             elif len(self.adj_allies) > 1 and self.num_targets == 1:
                 i = self.adj_allies.index(self.attacker_assist)
-                if i + 1 == len(self.adj_allies):
-                    self.attacker_assist = self.adj_allies[0]
-                else:
-                    self.attacker_assist = self.adj_allies[i + 1]
+                self.attacker_assist = self.adj_allies[(i + 1) % len(self.adj_allies)]
                 game.ui_view.reset_info()
                 self.display_single_attack()
 

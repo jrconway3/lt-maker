@@ -11,7 +11,7 @@
         ],
         "bases": {
             "HP": 16,
-            "STR": 20,
+            "STR": 0,
             "MAG": 2,
             "SKL": 8,
             "SPD": 9,
@@ -47,16 +47,16 @@
             [
                 "Iron Sword",
                 false
+            ],
+            [
+                "Brave Sword",
+                false
             ]
         ],
         "learned_skills": [
             [
                 2,
                 "Luna"
-            ],
-            [
-                1,
-                "AttackStanceCrit"
             ]
         ],
         "unit_notes": [
@@ -84,7 +84,7 @@
         "wexp_gain": {
             "Sword": [
                 true,
-                1
+                181
             ],
             "Lance": [
                 false,

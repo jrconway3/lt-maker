@@ -125,14 +125,14 @@ class AIController():
                     self.unit.strike_partner = self.adj_allies[0]
 
                 # Determines the assisting units for the defender and keeps AOE from having dual strike
-                adj_allies = target_system.get_adj_allies(game.board.get_unit(self.goal_target))
+                target_potential_strike_partners = target_system.get_adj_allies(game.board.get_unit(self.goal_target))
                 # best_choice = None
-                for ally in adj_allies:
+                for ally in target_potential_strike_partners:
                     if not ally.get_weapon():
-                        adj_allies.remove(ally)
+                        target_potential_strike_partners.remove(ally)
                 # Replace with a formula later
-                if adj_allies:
-                    primary_target.strike_partner = adj_allies[0]
+                if target_potential_strike_partners:
+                    primary_target.strike_partner = target_potential_strike_partners[0]
 
             # Used for steal
             if item_system.targets_items(self.unit, self.goal_item):

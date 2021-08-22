@@ -816,12 +816,11 @@ class AnimationCombat(BaseCombat, MockCombat):
         combat_surf.blit(right_bar, (right_pos_x, right_pos_y))
 
         # Guard gauge counter
-        self.right_gauge = None
-        self.left_gauge = None
-        pair_up = DB.constants.value('pairup')
-        left_color = utils.get_team_color(self.left.team)
-        right_color = utils.get_team_color(self.right.team)
-        if pair_up:
+        if DB.constants.value('pairup'):
+            left_color = utils.get_team_color(self.left.team)
+            right_color = utils.get_team_color(self.right.team)
+            self.right_gauge = None
+            self.left_gauge = None
             self.left_gauge = SPRITES.get('guard_' + left_color).copy()
             font = FONT['number-small2']
             gauge = str(self.left.guard_gauge) + '-' + str(self.left.max_guard)
@@ -830,11 +829,11 @@ class AnimationCombat(BaseCombat, MockCombat):
             font = FONT['number-small2']
             gauge = str(self.right.guard_gauge) + '-' + str(self.right.max_guard)
             font.blit_center(gauge, self.right_gauge, (18, -1))
-        # Pair up info
-        if self.right_gauge:
-            combat_surf.blit(self.right_gauge, (right_pos_x, WINHEIGHT - 52 + (bar_trans - self.bar_offset * bar_trans) + self.shake_offset[1]))
-        if self.left_gauge:
-            combat_surf.blit(self.left_gauge, (right_pos_x - 37, WINHEIGHT - 52 + (bar_trans - self.bar_offset * bar_trans) + self.shake_offset[1]))
+            # Pair up info
+            if self.right_gauge:
+                combat_surf.blit(self.right_gauge, (right_pos_x, WINHEIGHT - 52 + (bar_trans - self.bar_offset * bar_trans) + self.shake_offset[1]))
+            if self.left_gauge:
+                combat_surf.blit(self.left_gauge, (right_pos_x - 37, WINHEIGHT - 52 + (bar_trans - self.bar_offset * bar_trans) + self.shake_offset[1]))
 
         # Nametag
         top = -60 + self.name_offset * 60 + self.shake_offset[1]
@@ -900,10 +899,6 @@ class AnimationCombat(BaseCombat, MockCombat):
         if self.defender and self.def_item and not self.defender.is_dying:
             self.handle_wexp(self.defender, self.def_item, self.attacker)
 
-        if self.defender:
-            self.defender.strike_partner = None
-            self.defender.built_guard = True
-
         self.handle_exp()
 
     def clean_up2(self):
@@ -928,6 +923,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         self.handle_death(all_units)
 
         if self.defender:
+            print(2)
             self.defender.strike_partner = None
             self.defender.built_guard = True
 

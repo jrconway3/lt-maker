@@ -720,6 +720,7 @@ class PairUp(Action):
         self.subactions = []
 
     def do(self):
+        self.subactions.clear()
         self.target.paired_partner = self.unit.nid
 
         self.subactions.append(Reset(self.unit))
@@ -733,6 +734,7 @@ class PairUp(Action):
     def execute(self):
         self.target.paired_partner = self.unit.nid
 
+        skill_system.on_pairup(self.unit, self.target)
         game.leave(self.unit)
         self.unit.position = None
 
@@ -765,11 +767,8 @@ class SwapPaired(Action):
         self.unit2.guard_gauge = self.unit1.guard_gauge
 
         game.leave(self.unit1)
-        game.leave(self.unit2)
         self.unit1.position, self.unit2.position = self.pos2, self.pos1
         game.arrive(self.unit2)
-        game.arrive(self.unit1)
-        # self.unit2.paired_partner = self.unit1
         self.update_fow_action1.do()
         self.update_fow_action2.do()
         if not self.unit2.lead_unit:
@@ -783,10 +782,8 @@ class SwapPaired(Action):
 
         self.update_fow_action1.reverse()
         self.update_fow_action2.reverse()
-        game.leave(self.unit1)
         game.leave(self.unit2)
         self.unit1.position, self.unit2.position = self.pos1, self.pos2
-        game.arrive(self.unit2)
         game.arrive(self.unit1)
         if not self.unit1.lead_unit:
             self.unit1.has_moved = True
@@ -800,10 +797,8 @@ class Separate(Action):
         self.pos = pos
         self.droppee_wait_action = Wait(self.droppee)
         self.old_gauge = self.unit.guard_gauge
-        self.subactions = []
 
     def do(self):
-        self.subactions.clear()
         self.droppee.position = self.pos
         game.arrive(self.droppee)
         self.droppee.sprite.change_state('normal')
@@ -815,8 +810,6 @@ class Separate(Action):
         self.unit.has_dropped = True
 
         skill_system.on_separate(self.droppee, self.unit)
-        for action in self.subactions:
-            action.do()
 
         if utils.calculate_distance(self.unit.position, self.pos) == 1:
             self.droppee.sprite.set_transition('fake_in')
@@ -830,8 +823,6 @@ class Separate(Action):
         self.droppee_wait_action.execute()
 
         skill_system.on_separate(self.droppee, self.unit)
-        for action in self.subactions:
-            action.execute()
 
         self.unit.paired_partner = None
         self.droppee.guard_gauge = 0
@@ -849,8 +840,6 @@ class Separate(Action):
         self.unit.has_dropped = False
 
         skill_system.on_pairup(self.droppee, self.unit)
-        for action in self.subactions:
-            action.reverse()
 
 class UseGauge(Action):
     def __init__(self, unit, amount=0):
@@ -1692,7 +1681,7 @@ class Die(Action):
         if self.unit.paired_partner:
             drop_me = game.get_unit(self.unit.paired_partner)
             drop_me.guard_gauge = 0
-            self.drop = Drop(self.unit, drop_me, self.unit.position)
+            self.drop = Separate(self.unit, drop_me, self.unit.position)
             self.drop.do()
 
         if DB.constants.value('initiative') and self.initiative_action:

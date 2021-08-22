@@ -246,7 +246,7 @@ class SeparateAbility(Ability):
 
     @staticmethod
     def targets(unit) -> set:
-        if DB.constants.get('pairup') and unit.paired_partner and not unit.has_attacked:
+        if DB.constants.value('pairup') and unit.paired_partner and not unit.has_attacked:
             good_pos = set()
             adj_positions = target_system.get_adjacent_positions(unit.position)
             u = game.get_unit(unit.paired_partner)
@@ -258,7 +258,6 @@ class SeparateAbility(Ability):
 
     @staticmethod
     def do(unit):
-        game.state.change('menu')
         u = game.get_unit(unit.paired_partner)
         action.do(action.Separate(unit, u, game.cursor.position))
         game.state.change('free')
@@ -270,10 +269,11 @@ class SwapAbility(Ability):
 
     @staticmethod
     def targets(unit) -> set:
-        if unit.paired_partner:
+        if DB.constants.value('pairup') and unit.paired_partner:
             return {unit.position}
         return set()
 
+    @staticmethod
     def do(unit):
         u = game.get_unit(unit.paired_partner)
         action.do(action.SwapPaired(unit, u))
@@ -285,12 +285,13 @@ class TransferAbility(Ability):
 
     @staticmethod
     def targets(unit) -> set:
-        if DB.constants.get('pairup'):
+        if DB.constants.value('pairup'):
             adj_allies = target_system.get_adj_allies(unit)
             adj = set([u.position for u in adj_allies if unit.team == u.team and (u.paired_partner or unit.paired_partner)])
             return adj
         return set()
 
+    @staticmethod
     def do(unit):
         u = game.board.get_unit(game.cursor.position)
         action.do(action.HasTraded(unit))

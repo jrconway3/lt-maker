@@ -711,32 +711,39 @@ class Take(Action):
             action.reverse()
 
 # === PAIR UP ACTIONS =======================================================
-
 class PairUp(Action):
     def __init__(self, unit, target):
         self.unit = unit
         self.target = target
         self.old_pos = self.unit.position
+        self.unit_gauge = self.unit.get_guard_gauge()
+        self.target_gauge = self.target.get_guard_gauge()
         self.subactions = []
 
     def do(self):
         self.subactions.clear()
-        self.target.paired_partner = self.unit.nid
+        self.target.traveler = self.unit.nid
 
         self.subactions.append(Reset(self.unit))
         skill_system.on_pairup(self.unit, self.target)
         game.leave(self.unit)
         self.unit.position = None
 
+        self.target.set_guard_gauge(self.unit_gauge + self.target_gauge)
+        self.unit.set_guard_gauge(0)
+
         for action in self.subactions:
             action.do()
 
     def execute(self):
-        self.target.paired_partner = self.unit.nid
+        self.target.traveler = self.unit.nid
 
         skill_system.on_pairup(self.unit, self.target)
         game.leave(self.unit)
         self.unit.position = None
+        
+        self.target.set_guard_gauge(self.unit_gauge + self.target_gauge)
+        self.unit.set_guard_gauge(0)
 
         for action in self.subactions:
             action.execute()
@@ -744,50 +751,61 @@ class PairUp(Action):
     def reverse(self):
         self.unit.position = self.old_pos
         game.arrive(self.unit)
-        self.target.paired_partner = None
+        self.target.traveler = None
         skill_system.on_separate(self.unit, self.target)
 
+        self.unit.set_guard_gauge(self.unit_gauge)
+        self.target.set_guard_gauge(self.target_gauge)
+        
         for action in self.subactions:
             action.reverse()
 
+
 class SwapPaired(Action):
-    def __init__(self, unit1, unit2):
-        self.unit1 = unit1
-        self.unit2 = unit2
-        self.pos1 = unit1.position
-        self.pos2 = unit2.position
-        self.update_fow_action1 = UpdateFogOfWar(self.unit1)
-        self.update_fow_action2 = UpdateFogOfWar(self.unit2)
+    def __init__(self, leader, follower):
+        self.leader = leader
+        self.follower = follower
+        self.pos = leader.position
+        self.orig_guard_gauge = leader.get_guard_gauge()
+        self.update_fow_leader = UpdateFogOfWar(self.leader)
+        self.update_fow_follower = UpdateFogOfWar(self.follower)
 
     def do(self):
-        self.unit1.paired_partner = None
-        self.unit2.paired_partner = self.unit1.nid
-        skill_system.on_separate(self.unit2, self.unit1)
-        skill_system.on_pairup(self.unit1, self.unit2)
-        # Is this necessary, if so why is not mirrored?
-        # self.unit2.set_guard_gauge(self.unit1.get_guard_gauge())
+        self.leader.traveler = None
+        self.follower.traveler = self.leader.nid
+        skill_system.on_separate(self.follower, self.leader)
+        skill_system.on_pairup(self.leader, self.follower)
+        self.follower.set_guard_gauge(self.orig_guard_gauge)
+        self.leader.set_guard_gauge(0)
 
-        game.leave(self.unit1)
-        self.unit1.position, self.unit2.position = self.pos2, self.pos1
-        game.arrive(self.unit2)
-        self.update_fow_action1.do()
-        self.update_fow_action2.do()
-        if not self.unit2.lead_unit:
-            self.unit2.has_moved = True
+        game.leave(self.leader)
+        self.leader.position = None
+        self.follower.position = self.pos
+        game.arrive(self.follower)
+        self.update_fow_leader.do()
+        self.update_fow_follower.do()
+        # What is this if statement doing?
+        if not self.follower.lead_unit:
+            self.follower.has_moved = True
 
     def reverse(self):
-        self.unit1.paired_partner = self.unit2.nid
-        self.unit2.paired_partner = None
-        skill_system.on_separate(self.unit1, self.unit2)
-        skill_system.on_pairup(self.unit2, self.unit1)
+        self.leader.traveler = self.follower.nid
+        self.follower.traveler = None
+        self.leader.set_guard_gauge(self.orig_guard_gauge)
+        self.follower.set_guard_gauge(0)
 
-        self.update_fow_action1.reverse()
-        self.update_fow_action2.reverse()
-        game.leave(self.unit2)
-        self.unit1.position, self.unit2.position = self.pos1, self.pos2
-        game.arrive(self.unit1)
-        if not self.unit1.lead_unit:
-            self.unit1.has_moved = True
+        skill_system.on_separate(self.leader, self.follower)
+        skill_system.on_pairup(self.follower, self.leader)
+
+        self.update_fow_leader.reverse()
+        self.update_fow_follower.reverse()
+        game.leave(self.follower)
+        self.follower.position = None
+        self.leader.position = self.pos
+        game.arrive(self.leader)
+        # What is this if statement doing?
+        if not self.leader.lead_unit:
+            self.leader.has_moved = True
 
 
 # This is shamelessly copied from Drop, but I've kept it separate in case a madlad wants Rescue and Pair Up
@@ -805,10 +823,11 @@ class Separate(Action):
         self.droppee.sprite.change_state('normal')
         self.droppee_wait_action.do()
 
-        self.unit.paired_partner = None
-        self.droppee.set_guard_gauge(0)
-        self.unit.set_guard_gauge(0)
+        self.unit.traveler = None
         self.unit.has_dropped = True
+
+        self.droppee.set_guard_gauge(self.old_gauge//2)
+        self.unit.set_guard_gauge(self.old_gauge//2)
 
         skill_system.on_separate(self.droppee, self.unit)
 
@@ -823,17 +842,16 @@ class Separate(Action):
         self.droppee.sprite.change_state('normal')
         self.droppee_wait_action.execute()
 
-        skill_system.on_separate(self.droppee, self.unit)
-
-        self.unit.paired_partner = None
-        self.droppee.set_guard_gauge(0)
-        self.unit.set_guard_gauge(0)
+        self.unit.traveler = None
         self.unit.has_dropped = True
 
+        self.droppee.set_guard_gauge(self.old_gauge//2)
+        self.unit.set_guard_gauge(self.old_gauge//2)
+
+        skill_system.on_separate(self.droppee, self.unit)
+
     def reverse(self):
-        self.unit.paired_partner = self.droppee.nid
-        self.unit.set_guard_gauge(self.old_gauge)
-        self.droppee.set_guard_gauge(self.old_gauge)
+        self.unit.traveler = self.droppee.nid
 
         self.droppee_wait_action.reverse()
         game.leave(self.droppee)
@@ -841,6 +859,9 @@ class Separate(Action):
         self.unit.has_dropped = False
 
         skill_system.on_pairup(self.droppee, self.unit)
+
+        self.unit.set_guard_gauge(self.old_gauge)
+        self.droppee.set_guard_gauge(0)
 
 class UseGauge(Action):
     def __init__(self, unit, amount=0):
@@ -873,45 +894,54 @@ class BuiltGuard(Action):
 class Transfer(Action):
     def __init__(self, unit, other):
         self.unit = unit
-        self.first_partner = unit.paired_partner
-        self.first_gauge = self.unit.get_guard_gauge()
         self.other = other
+        self.unit_gauge = unit.get_guard_gauge()
         self.other_gauge = other.get_guard_gauge()
 
     def do(self):
-        if self.unit.paired_partner:
-            skill_system.on_separate(game.get_unit(self.unit.paired_partner), self.unit)
-        if self.other.paired_partner:
-            skill_system.on_separate(game.get_unit(self.other.paired_partner), self.other)
+        if self.unit.traveler:
+            skill_system.on_separate(game.get_unit(self.unit.traveler), self.unit)
+        if self.other.traveler:
+            skill_system.on_separate(game.get_unit(self.other.traveler), self.other)
 
-        self.unit.paired_partner = self.other.paired_partner
-        self.unit.set_guard_gauge(self.other_gauge//2)
-        self.other.paired_partner = self.first_partner
-        self.other.set_guard_gauge(self.first_gauge//2)
+        if self.unit.traveler and self.other.traveler:
+            merge = self.unit.get_guard_gauge()//2 + self.other.get_guard_gauge()//2
+            self.unit.set_guard_gauge(merge)
+            self.other.set_guard_gauge(merge)
+        elif self.unit.traveler:
+            val = self.unit.get_guard_gauge()//2
+            self.unit.set_guard_gauge(val)
+            self.other.set_guard_gauge(self.other.get_guard_gauge() + val)
+        elif self.other.traveler:
+            val = self.unit.get_guard_gauge()//2
+            self.other.set_guard_gauge(val)
+            self.unit.set_guard_gauge(self.unit.get_guard_gauge() + val)
 
-        if self.first_partner:
-            skill_system.on_pairup(game.get_unit(self.first_partner), self.other)
-        if self.unit.paired_partner:
-            skill_system.on_pairup(game.get_unit(self.unit.paired_partner), self.unit)
+        self.unit.traveler, self.other.traveler = self.other.traveler, self.unit.traveler
+
+        if self.other.traveler:
+            skill_system.on_pairup(game.get_unit(self.other.traveler), self.other)
+        if self.unit.traveler:
+            skill_system.on_pairup(game.get_unit(self.unit.traveler), self.unit)
 
         self.unit.has_given = True
 
     def reverse(self):
-        if self.unit.paired_partner:
-            skill_system.on_separate(game.get_unit(self.unit.paired_partner), self.unit)
-        if self.other.paired_partner:
-            skill_system.on_separate(game.get_unit(self.other.paired_partner), self.other)
+        if self.unit.traveler:
+            skill_system.on_separate(game.get_unit(self.unit.traveler), self.unit)
+        if self.other.traveler:
+            skill_system.on_separate(game.get_unit(self.other.traveler), self.other)
 
-        self.other.paired_partner = self.unit.paired_partner
-        self.other.set_guard_gauge(self.other_gauge)
-        self.unit.paired_partner = self.first_partner
-        self.unit.set_guard_gauge(self.first_gauge)
+        self.other.traveler, self.unit.traveler = self.unit.traveler, self.other.traveler
         self.unit.has_given = False
 
-        if self.first_partner:
-            skill_system.on_pairup(game.get_unit(self.first_partner), self.unit)
-        if self.other.paired_partner:
-            skill_system.on_pairup(game.get_unit(self.other.paired_partner), self.other)
+        self.unit.set_guard_gauge(self.unit_gauge)
+        self.other.set_guard_gauge(self.other_gauge)
+
+        if self.unit.traveler:
+            skill_system.on_pairup(game.get_unit(self.unit.traveler), self.unit)
+        if self.other.traveler:
+            skill_system.on_pairup(game.get_unit(self.other.traveler), self.other)
 
 # === ITEM ACTIONS ==========================================================
 class PutItemInConvoy(Action):

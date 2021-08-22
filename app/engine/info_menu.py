@@ -787,7 +787,6 @@ class InfoMenuState(State):
                 FONT['text-yellow'].blit(text_funcs.translate('GAUGE'), surf, (72, 16 * true_idx + 24))
                 self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'GAUGE_desc', state)
 
-
             if DB.constants.value('lead'):
                 FONT['text-yellow'].blit('Lead', surf, (72, 120))
                 self.info_graph.register((96 + 72, 120, 64, 16), 'Lead_desc', state)

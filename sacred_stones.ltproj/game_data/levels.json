@@ -72,12 +72,12 @@
             {
                 "nid": "102",
                 "variant": null,
-                "level": 2,
-                "klass": "Cavalier",
+                "level": 20,
+                "klass": "Paladin",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Poison Sword",
+                        "Iron Lance",
                         false
                     ]
                 ],

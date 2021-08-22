@@ -106,13 +106,12 @@ class Damage(ItemComponent):
         return False
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
-        if playback:
-            if (playback[0] == ('attacker_partner_phase',) or \
-                playback[0] == ('defender_partner_phase',)):
+        for p in playback:
+            if p[0] == ('attacker_partner_phase',) or p[0] == ('defender_partner_phase',):
                 damage = combat_calcs.compute_assist_damage(unit, target, item, target.get_weapon(), mode)
             else:
                 damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
-            if len(playback) > 5 and playback[5]:
+            if len(p) > 5 and p[5]:
                 damage = 0
 
         true_damage = min(damage, target.get_hp())
@@ -137,11 +136,11 @@ class Damage(ItemComponent):
             playback.append(('hit_anim', 'MapNoDamage', target))
 
     def on_crit(self, actions, playback, unit, item, target, target_pos, mode):
-        if playback and (playback[0] == ('attacker_partner_phase',) or \
-                playback[0] == ('defender_partner_phase',)):
-            damage = combat_calcs.compute_assist_damage(unit, target, item, target.get_weapon(), mode, crit=True)
-        else:
-            damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode, crit=True)
+        for p in playback:
+            if p[0] == ('attacker_partner_phase',) or p[0] == ('defender_partner_phase',):
+                damage = combat_calcs.compute_assist_damage(unit, target, item, target.get_weapon(), mode, crit=True)
+            else:
+                damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode, crit=True)
 
         true_damage = min(damage, target.get_hp())
         actions.append(action.ChangeHP(target, -damage))

@@ -206,9 +206,11 @@ class SimpleCombat():
             skill_system.end_combat(self.full_playback, self.attacker.strike_partner, self.main_item, self.defender, 'attack')
             item_system.end_combat(self.full_playback, self.attacker.strike_partner, self.main_item, self.defender, 'attack')
             self.attacker.strike_partner = None
-            self.attacker.built_guard = True
         if self.defender:
-            self.defender.strike_partner = None
+            if self.defender.strike_partner:
+                skill_system.end_combat(self.full_playback, self.defender.strike_partner, self.main_item, self.attacker, 'defense')
+                item_system.end_combat(self.full_playback, self.defender.strike_partner, self.main_item, self.attacker, 'defense')
+                self.defender.strike_partner = None
         already_pre = [self.attacker]
         for idx, defender in enumerate(self.defenders):
             if defender and defender not in already_pre:
@@ -451,6 +453,7 @@ class SimpleCombat():
                     pair = self.handle_paired_exp(pp, pp.get_weapon(), self.defender)
                 if pair:
                     game.exp_instance.append(pair)
+                    game.state.change('exp')
                 game.exp_instance.append((self.defender, exp, None, 'init'))
                 game.state.change('exp')
                 game.ai.end_skip()
@@ -459,7 +462,7 @@ class SimpleCombat():
 
     def handle_paired_exp(self, unit, item, target) -> tuple:
         '''Creates a tuple for paired units as a helper function'''
-        if unit.nid == self.attacker.paired_partner or unit.nid == self.defender.paired_partner:
+        if unit.nid == self.attacker.paired_partner or (self.defender and unit.nid == self.defender.paired_partner):
             exp = self.calculate_paired_exp(unit, item) / 2
         else:
             exp = self.calculate_exp(unit, item) / 2

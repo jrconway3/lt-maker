@@ -285,7 +285,7 @@ class TransferAbility(Ability):
 
     @staticmethod
     def targets(unit) -> set:
-        if DB.constants.value('pairup'):
+        if DB.constants.value('pairup') and not unit.has_given:
             adj_allies = target_system.get_adj_allies(unit)
             adj = set([u.position for u in adj_allies if unit.team == u.team and (u.paired_partner or unit.paired_partner)])
             return adj

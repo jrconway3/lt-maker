@@ -38,9 +38,7 @@ class PairUpBonus(SkillComponent):
     expose = Type.Skill
 
     def on_pairup(self, unit, leader):
-        u = game.get_unit(leader.paired_partner)
-        if unit == u:
-            action.do(action.AddSkill(leader, self.value))
+        action.do(action.AddSkill(leader, self.value))
 
     def on_separate(self, unit, leader):
         if self.value in [skill.nid for skill in leader.skills]:

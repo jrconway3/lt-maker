@@ -99,7 +99,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         if self.left.strike_partner:
             pp = self.left.strike_partner
             self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
-        elif self.left.paired_partner and not any('target_ally' == c.nid for c in self.right_item.components):
+        elif self.left.paired_partner and item_system.is_weapon(self.right, self.right_item):
             pp = game.get_unit(self.left.paired_partner)
             self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
         self.right_battle_anim = battle_animation.get_battle_anim(self.right, self.right_item, self.distance)
@@ -107,7 +107,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         if self.right.strike_partner:
             pp = self.right.strike_partner
             self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
-        elif self.right.paired_partner and not any('target_ally' == c.nid for c in self.left_item.components):
+        elif self.right.paired_partner and item_system.is_weapon(self.left, self.left_item):
             pp = game.get_unit(self.right.paired_partner)
             self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
         self.current_battle_anim = None
@@ -819,21 +819,21 @@ class AnimationCombat(BaseCombat, MockCombat):
         if DB.constants.value('pairup'):
             left_color = utils.get_team_color(self.left.team)
             right_color = utils.get_team_color(self.right.team)
-            self.right_gauge = None
-            self.left_gauge = None
-            self.left_gauge = SPRITES.get('guard_' + left_color).copy()
+            right_gauge = None
+            left_gauge = None
+            left_gauge = SPRITES.get('guard_' + left_color).copy()
             font = FONT['number-small2']
             gauge = str(self.left.guard_gauge) + '-' + str(self.left.max_guard)
-            font.blit_center(gauge, self.left_gauge, (18, -1))
-            self.right_gauge = SPRITES.get('guard_' + right_color).copy()
+            font.blit_center(gauge, left_gauge, (18, -1))
+            right_gauge = SPRITES.get('guard_' + right_color).copy()
             font = FONT['number-small2']
             gauge = str(self.right.guard_gauge) + '-' + str(self.right.max_guard)
-            font.blit_center(gauge, self.right_gauge, (18, -1))
+            font.blit_center(gauge, right_gauge, (18, -1))
             # Pair up info
-            if self.right_gauge:
-                combat_surf.blit(self.right_gauge, (right_pos_x, WINHEIGHT - 52 + (bar_trans - self.bar_offset * bar_trans) + self.shake_offset[1]))
-            if self.left_gauge:
-                combat_surf.blit(self.left_gauge, (right_pos_x - 37, WINHEIGHT - 52 + (bar_trans - self.bar_offset * bar_trans) + self.shake_offset[1]))
+            if right_gauge:
+                combat_surf.blit(right_gauge, (right_pos_x, WINHEIGHT - 52 + (bar_trans - self.bar_offset * bar_trans) + self.shake_offset[1]))
+            if left_gauge:
+                combat_surf.blit(left_gauge, (right_pos_x - 37, WINHEIGHT - 52 + (bar_trans - self.bar_offset * bar_trans) + self.shake_offset[1]))
 
         # Nametag
         top = -60 + self.name_offset * 60 + self.shake_offset[1]

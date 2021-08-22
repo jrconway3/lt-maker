@@ -111,28 +111,8 @@ class AIController():
                 game.highlight.display_possible_spell_attacks(splash_positions, light=True)
 
             primary_target = game.board.get_unit(self.goal_target)
-            if DB.constants.value('pairup') and primary_target and not \
-                    (self.unit.paired_partner or primary_target.paired_partner) and \
-                    not any('target_ally' == c.nid for c in self.goal_item.components):
-                # Players default dual strike partner
-                self.adj_allies = target_system.get_adj_allies(self.unit)
-                # best_choice = None
-                for ally in self.adj_allies:
-                    if not ally.get_weapon():
-                        self.adj_allies.remove(ally)
-                # Replace with a formula later
-                if self.adj_allies:
-                    self.unit.strike_partner = self.adj_allies[0]
-
-                # Determines the assisting units for the defender and keeps AOE from having dual strike
-                target_potential_strike_partners = target_system.get_adj_allies(game.board.get_unit(self.goal_target))
-                # best_choice = None
-                for ally in target_potential_strike_partners:
-                    if not ally.get_weapon():
-                        target_potential_strike_partners.remove(ally)
-                # Replace with a formula later
-                if target_potential_strike_partners:
-                    primary_target.strike_partner = target_potential_strike_partners[0]
+            if primary_target:
+                self.unit.strike_partner, primary_target.strike_partner = target_system.find_strike_partners((self.unit, primary_target), self.goal_item)
 
             # Used for steal
             if item_system.targets_items(self.unit, self.goal_item):

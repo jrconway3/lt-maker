@@ -239,9 +239,9 @@ class SimpleCombat():
         """
         all_units = {self.attacker}
         if self.attacker.strike_partner:
-            all_units.append(self.attacker.strike_partner)
+            all_units.add(self.attacker.strike_partner)
         elif self.attacker.paired_partner:
-            all_units.append(game.get_unit(self.attacker.paired_partner))
+            all_units.add(game.get_unit(self.attacker.paired_partner))
         for unit in self.all_splash:
             all_units.add(unit)
         for unit in self.all_defenders:
@@ -519,14 +519,12 @@ class SimpleCombat():
         If you blocked an attacker get exp
         """
         marks = self.get_from_full_playback('mark_hit')
-        marks += self.get_from_full_playback('mark_crit')
-        marks += self.get_from_full_playback('mark_miss')
-        marks = [mark for mark in marks if mark[2] == unit]
+        marks = [mark for mark in marks if len(mark) > 5 and mark[5] == True]
         total_exp = 0
         for mark in marks:
             attacker = mark[1]
             defender = mark[2]
-            exp = self.get_exp(defender, item, attacker)
+            exp = self.get_exp(game.get_unit(defender.paired_partner), item, attacker)
             total_exp += exp
 
         return total_exp

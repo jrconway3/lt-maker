@@ -923,7 +923,6 @@ class AnimationCombat(BaseCombat, MockCombat):
         self.handle_death(all_units)
 
         if self.defender:
-            print(2)
             self.defender.strike_partner = None
             self.defender.built_guard = True
 

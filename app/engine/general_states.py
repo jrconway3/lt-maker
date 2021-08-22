@@ -1329,32 +1329,12 @@ class CombatTargetingState(MapState):
         if atk:
             self.attacker_assist = None
         self.defender_assist = None
-        if DB.constants.value('pairup') and not \
-                (self.cur_unit.paired_partner or game.board.get_unit(target).paired_partner) and \
-                not any('target_ally' == c.nid for c in self.item.components):
-            if atk: # This allows us to be confident that we already know the attacker's partner
-                # Players default dual strike partner
-                self.adj_allies = target_system.get_adj_allies(self.cur_unit)
-                # best_choice = None
-                for ally in self.adj_allies:
-                    if not ally.get_weapon():
-                        self.adj_allies.remove(ally)
-                # Replace with a formula later
-                if self.adj_allies:
-                    self.attacker_assist = self.adj_allies[0]
-
-            # Determines the assisting units for the defender and keeps AOE from having dual strike
-            if self.num_targets > 1:
-                self.attacker_assist = None
-            elif self.num_targets == 1 and game.board.get_unit(target):
-                adj_allies = target_system.get_adj_allies(game.board.get_unit(target))
-                # best_choice = None
-                for ally in adj_allies:
-                    if not ally.get_weapon():
-                        adj_allies.remove(ally)
-                # Replace with a formula later
-                if adj_allies:
-                    self.defender_assist = adj_allies[0]
+        unit_input = (self.cur_unit, game.board.get_unit(target)) if game.board.get_unit(target) else (self.cur_unit,)
+        partners = target_system.find_strike_partners(unit_input, self.item)
+        atk_result, self.defender_assist = partners
+        if not self.attacker_assist:
+            # If a player has manually reselected strike partner we don't want the default option
+            self.attacker_assist = atk_result
 
     def display_single_attack(self):
         game.highlight.remove_highlights()
@@ -1442,15 +1422,16 @@ class CombatTargetingState(MapState):
             game.cursor.set_pos(mouse_position)
 
         if event == 'AUX':
+            adj_allies = target_system.get_adj_allies(self.cur_unit)
             if not DB.constants.value('pairup'):
                 new_position = self.selection.get_next(game.cursor.position)
                 game.cursor.set_pos(new_position)
                 SOUNDTHREAD.play_sfx('Select 6')
                 game.ui_view.reset_info()
                 self.display_single_attack()
-            elif len(self.adj_allies) > 1 and self.num_targets == 1:
-                i = self.adj_allies.index(self.attacker_assist)
-                self.attacker_assist = self.adj_allies[(i + 1) % len(self.adj_allies)]
+            elif len(adj_allies) > 1 and self.num_targets == 1:
+                i = adj_allies.index(self.attacker_assist)
+                self.attacker_assist = adj_allies[(i + 1) % len(adj_allies)]
                 game.ui_view.reset_info()
                 self.display_single_attack()
 

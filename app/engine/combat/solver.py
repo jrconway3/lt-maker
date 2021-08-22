@@ -361,18 +361,16 @@ class CombatPhaseSolver():
         else:
             roll = self.generate_roll()
 
-        old_defender = None
-        if DB.constants.value('pairup') and not any('target_ally' == c.nid for c in item.components):
+        guard_hit = False
+        if DB.constants.value('pairup') and item_system.is_weapon(attacker, item) and attacker.team != defender.team:
             if defender.guard_gauge == defender.max_guard and defender.paired_partner:
-                # For EXP purposes only
+                guard_hit = True
                 roll = -1
-                old_defender = defender
-                defender = game.get_unit(defender.paired_partner)
-                defender.guard_gauge = defender.max_guard
 
         if roll < to_hit:
             crit = False
-            if DB.constants.value('crit') or skill_system.crit_anyway(attacker) or self.current_command in ('crit1', 'crit2'):
+            if DB.constants.value('crit') or skill_system.crit_anyway(attacker) or self.current_command in ('crit1', 'crit2') \
+                    and not guard_hit:
                 to_crit = combat_calcs.compute_crit(attacker, defender, item, def_item, mode)
                 if self.current_command in ('crit1', 'crit2'):
                     crit = True
@@ -386,26 +384,30 @@ class CombatPhaseSolver():
                 item_system.on_crit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
                     playback.append(('mark_crit', attacker, defender, self.attacker, item))
-            elif DB.constants.value('glancing_hit') and roll >= to_hit - 20:
+            elif DB.constants.value('glancing_hit') and roll >= to_hit - 20 and not guard_hit:
                 item_system.on_glancing_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
                     playback.append(('mark_hit', attacker, defender, self.attacker, item))
                     playback.append(('mark_glancing_hit', attacker, defender, self.attacker, item))
             else:
-                item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
+                if guard_hit: # Mocks the playback that would be created in weapon_components
+                    playback.append(('damage_hit', attacker, item, defender, 0, 0))
+                    playback.append(('hit_sound', 'No Damage'))
+                    playback.append(('hit_anim', 'MapNoDamage', defender))
+                else:
+                    item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
-                    playback.append(('mark_hit', attacker, defender, self.attacker, item))
-            item_system.after_hit(actions, playback, attacker, item, defender, mode)
-            skill_system.after_hit(actions, playback, attacker, item, defender, mode)
+                    playback.append(('mark_hit', attacker, defender, self.attacker, item, guard_hit))
+            if not guard_hit:
+                item_system.after_hit(actions, playback, attacker, item, defender, mode)
+                skill_system.after_hit(actions, playback, attacker, item, defender, mode)
         else:
             item_system.on_miss(actions, playback, attacker, item, defender, def_pos, mode, first_item)
             if defender:
                 playback.append(('mark_miss', attacker, defender, self.attacker, item))
 
         # Gauge is set to 0. Damage is negated elsewhere
-        if DB.constants.value('pairup') and not any('target_ally' == c.nid for c in item.components):
-            if old_defender:
-                defender = old_defender
+        if DB.constants.value('pairup') and item_system.is_weapon(attacker, item) and attacker.team != defender.team:
             if defender.guard_gauge == defender.max_guard:
                 action.do(action.UseGauge(defender))
             elif defender.paired_partner:

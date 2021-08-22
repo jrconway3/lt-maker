@@ -256,3 +256,39 @@ def get_all_spell_targets(unit) -> set:
     for spell in spells:
         targets |= get_valid_targets(unit, spell)
     return targets
+
+def find_strike_partners(units: tuple, item):
+    '''Find and returns a tuple of strike partners for the specified units
+    First item in tuple is attacker partner, second is target partner
+    Returns a tuple of None if no valid partner'''
+    if not DB.constants.value('pairup'):
+        return None, None
+    if len(units) != 2: # If there are more or less than two units in a combat
+        return None, None
+    if units[0].team == units[1].team: # If targeting same team
+        return None, None
+    for u in units:
+        if u.paired_partner: # Dual guard cancels
+            return None, None
+    if not item_system.is_weapon(units[0], item): # If you're healing someone else
+        return None, None
+
+    partners = []
+    for u in units:
+        adj_allies = get_adj_allies(u)
+        for ally in adj_allies:
+            if not ally.get_weapon():
+                adj_allies.remove(ally)
+        # Replace with a formula later
+        if adj_allies:
+            if adj_allies[0] not in partners: # Sets don't work here because they're unordered
+                partners.append(adj_allies[0])
+        else:
+            partners.append(None)
+
+    if not partners:
+        return None, None
+    if partners[0] == partners[1]:
+        # If both attacker and defender have the same partner something is weird
+        return None, None
+    return partners

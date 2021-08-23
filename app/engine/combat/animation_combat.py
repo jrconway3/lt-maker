@@ -99,16 +99,16 @@ class AnimationCombat(BaseCombat, MockCombat):
         if self.left.strike_partner:
             pp = self.left.strike_partner
             self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
-        elif self.left.paired_partner and item_system.is_weapon(self.right, self.right_item):
-            pp = game.get_unit(self.left.paired_partner)
+        elif self.left.traveler and item_system.is_weapon(self.right, self.right_item):
+            pp = game.get_unit(self.left.traveler)
             self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
         self.right_battle_anim = battle_animation.get_battle_anim(self.right, self.right_item, self.distance)
         self.rp_battle_anim = None
         if self.right.strike_partner:
             pp = self.right.strike_partner
             self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
-        elif self.right.paired_partner and item_system.is_weapon(self.left, self.left_item):
-            pp = game.get_unit(self.right.paired_partner)
+        elif self.right.traveler and item_system.is_weapon(self.left, self.left_item):
+            pp = game.get_unit(self.right.traveler)
             self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
         self.current_battle_anim = None
 
@@ -341,7 +341,7 @@ class AnimationCombat(BaseCombat, MockCombat):
             if self.left.strike_partner:
                 ln = self.left.strike_partner.name
             else:
-                ln = game.get_unit(self.left.paired_partner).name
+                ln = game.get_unit(self.left.traveler).name
             self.lp_name = SPRITES.get('combat_name_left_' + left_color).copy()
             if FONT['text-brown'].width(ln) > 52:
                 font = FONT['narrow-brown']
@@ -374,7 +374,7 @@ class AnimationCombat(BaseCombat, MockCombat):
             if self.right.strike_partner:
                 rn = self.right.strike_partner.name
             else:
-                rn = game.get_unit(self.right.paired_partner).name
+                rn = game.get_unit(self.right.traveler).name
             self.rp_name = SPRITES.get('combat_name_right_' + right_color).copy()
             if FONT['text-brown'].width(rn) > 52:
                 font = FONT['narrow-brown']

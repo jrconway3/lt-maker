@@ -108,7 +108,11 @@
         "expression": "10"
     },
     {
-        "nid": "GAUGE_INC",
+        "nid": "Gauge_increase",
         "expression": "2"
+    },
+    {
+        "nid": "guard_exp",
+        "expression": "6"
     }
 ]

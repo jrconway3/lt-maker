@@ -3,7 +3,7 @@ from app.data.database import DB
 
 from app.engine.combat.solver import CombatPhaseSolver
 
-from app.engine import action, skill_system, banner, item_system, item_funcs, supports, static_random
+from app.engine import action, skill_system, banner, item_system, item_funcs, supports, static_random, equations
 from app.engine.game_state import game
 
 from app.engine.objects.unit import UnitObject
@@ -130,15 +130,15 @@ class SimpleCombat():
 
         if self.attacker.strike_partner:
             self.handle_wexp(self.attacker.strike_partner, self.main_item, self.defender)
-        if self.attacker.paired_partner:
-            self.handle_wexp(self.attacker.paired_partner, self.main_item, self.defender)
+        if self.attacker.traveler:
+            self.handle_wexp(self.attacker.traveler, self.main_item, self.defender)
 
         if self.defender and self.def_item and not self.defender.is_dying:
             self.handle_wexp(self.defender, self.def_item, self.attacker)
         if self.defender and self.defender.strike_partner:
             self.handle_wexp(self.defender.strike_partner, self.def_item, self.attacker)
-        if self.defender and self.defender.paired_partner:
-            self.handle_wexp(self.defender.paired_partner, self.def_item, self.attacker)
+        if self.defender and self.defender.traveler:
+            self.handle_wexp(self.defender.traveler, self.def_item, self.attacker)
 
         self.handle_mana(all_units)
         self.handle_exp()
@@ -242,15 +242,15 @@ class SimpleCombat():
         all_units = {self.attacker}
         if self.attacker.strike_partner:
             all_units.add(self.attacker.strike_partner)
-        elif self.attacker.paired_partner:
-            all_units.add(game.get_unit(self.attacker.paired_partner))
+        elif self.attacker.traveler:
+            all_units.add(game.get_unit(self.attacker.traveler))
         for unit in self.all_splash:
             all_units.add(unit)
         for unit in self.all_defenders:
             if len(self.all_defenders) == 1 and unit.strike_partner:
                 all_units.add(unit.strike_partner)
-            if unit.paired_partner:
-                all_units.add(game.get_unit(unit.paired_partner))
+            if unit.traveler:
+                all_units.add(game.get_unit(unit.traveler))
             all_units.add(unit)
         return all_units
 
@@ -427,8 +427,8 @@ class SimpleCombat():
                 if self.attacker.strike_partner:
                     pair = self.handle_paired_exp(self.attacker.strike_partner, \
                         self.attacker.strike_partner.get_weapon(), self.defender)
-                elif self.attacker.paired_partner:
-                    pp = game.get_unit(self.attacker.paired_partner)
+                elif self.attacker.traveler:
+                    pp = game.get_unit(self.attacker.traveler)
                     pair = self.handle_paired_exp(pp, pp.get_weapon(), self.defender)
                 if pair:
                     game.exp_instance.append(pair)
@@ -448,8 +448,8 @@ class SimpleCombat():
                 if self.defender.strike_partner:
                     pair = self.handle_paired_exp(self.defender.strike_partner, \
                         self.defender.strike_partner.get_weapon(), self.defender)
-                elif self.defender.paired_partner:
-                    pp = game.get_unit(self.defender.paired_partner)
+                elif self.defender.traveler:
+                    pp = game.get_unit(self.defender.traveler)
                     pair = self.handle_paired_exp(pp, pp.get_weapon(), self.defender)
                 if pair:
                     game.exp_instance.append(pair)
@@ -462,8 +462,8 @@ class SimpleCombat():
 
     def handle_paired_exp(self, unit, item, target) -> tuple:
         '''Creates a tuple for paired units as a helper function'''
-        if unit.nid == self.attacker.paired_partner or (self.defender and unit.nid == self.defender.paired_partner):
-            exp = self.calculate_paired_exp(unit, item) / 2
+        if unit.nid == self.attacker.traveler or (self.defender and unit.nid == self.defender.traveler):
+            exp = equations.parser.get_guard_exp(unit)
         else:
             exp = self.calculate_exp(unit, item) / 2
 
@@ -527,7 +527,7 @@ class SimpleCombat():
         for mark in marks:
             attacker = mark[1]
             defender = mark[2]
-            exp = self.get_exp(game.get_unit(defender.paired_partner), item, attacker)
+            exp = self.get_exp(game.get_unit(defender.traveler), item, attacker)
             total_exp += exp
 
         return total_exp

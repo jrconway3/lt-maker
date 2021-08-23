@@ -409,11 +409,11 @@ class CombatPhaseSolver():
         # Gauge is set to 0. Damage is negated elsewhere
         if DB.constants.value('pairup') and item_system.is_weapon(attacker, item) and attacker.team != defender.team:
             if defender.get_guard_gauge() == defender.get_max_guard_gauge():
-                action.do(action.UseGauge(defender))
-            elif defender.paired_partner:
-                action.do(action.UseGauge(defender, defender.get_gauge_inc()))
-            if attacker.paired_partner:
-                action.do(action.UseGauge(attacker, attacker.get_gauge_inc()))
+                action.do(action.SetGauge(defender, 0))
+            elif defender.traveler:
+                action.do(action.IncGauge(defender, defender.get_gauge_inc()))
+            if attacker.traveler:
+                action.do(action.IncGauge(attacker, attacker.get_gauge_inc()))
 
     def simple_process(self, actions, playback, attacker, defender, def_pos, item, def_item, mode):
         # Is the item I am processing the first one?

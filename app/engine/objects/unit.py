@@ -256,19 +256,19 @@ class UnitObject(Prefab):
         return DB.classes.get(self.klass).max_stats.get(stat_nid, 30)
 
     def get_damage_with_current_weapon(self) -> int:
-        if self.equipped_weapon:
-            return combat_calcs.damage(self, self.equipped_weapon)
+        if self.get_weapon():
+            return combat_calcs.damage(self, self.get_weapon())
         else:
             return 0
 
     def get_accuracy_with_current_weapon(self) -> int:
-        if self.equipped_weapon:
-            return combat_calcs.accuracy(self, self.equipped_weapon)
+        if self.get_weapon():
+            return combat_calcs.accuracy(self, self.get_weapon())
         else:
             return 0
 
     def get_avoid_with_current_weapon(self) -> int:
-        return combat_calcs.avoid(self, self.equipped_weapon)
+        return combat_calcs.avoid(self, self.get_weapon())
 
     @property
     def sprite(self):
@@ -333,6 +333,7 @@ class UnitObject(Prefab):
                     # rediscovered each time if necessary
                     self.equip(item)
                     _weapon = item
+                    break
         return _weapon
 
     def get_spell(self):

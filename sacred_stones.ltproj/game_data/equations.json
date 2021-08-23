@@ -109,7 +109,7 @@
     },
     {
         "nid": "Gauge_increase",
-        "expression": "2"
+        "expression": "10"
     },
     {
         "nid": "guard_exp",

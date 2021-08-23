@@ -463,7 +463,7 @@ class SimpleCombat():
     def handle_paired_exp(self, unit, item, target) -> tuple:
         '''Creates a tuple for paired units as a helper function'''
         if unit.nid == self.attacker.traveler or (self.defender and unit.nid == self.defender.traveler):
-            exp = equations.parser.get_guard_exp(unit)
+            exp = self.calculate_paired_exp(unit, item)
         else:
             exp = self.calculate_exp(unit, item) / 2
 
@@ -527,7 +527,7 @@ class SimpleCombat():
         for mark in marks:
             attacker = mark[1]
             defender = mark[2]
-            exp = self.get_exp(game.get_unit(defender.traveler), item, attacker)
+            exp = equations.parser.get_guard_exp(unit)
             total_exp += exp
 
         return total_exp

@@ -53,7 +53,6 @@ class MapState(State):
     def draw(self, surf, culled_rect=None):
         game.camera.update()
         game.highlight.update()
-
         camera_cull = int(game.camera.get_x() * TILEWIDTH), int(game.camera.get_y() * TILEHEIGHT), WINWIDTH, WINHEIGHT
         surf = game.map_view.draw(camera_cull, culled_rect)
         return surf

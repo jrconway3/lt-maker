@@ -577,6 +577,9 @@ class UnitObject(Prefab):
             self.starting_position = None
         self._fields = s_dict.get('_fields', {})
 
+        self.equipped_weapon = None
+        self.equipped_accessory = None
+
         self.skills = [game.get_skill(skill_uid) for skill_uid in s_dict['skills']]
         self.skills = [s for s in self.skills if s]
 
@@ -587,8 +590,6 @@ class UnitObject(Prefab):
 
         self.traveler = s_dict['traveler']
 
-        self.equipped_weapon = None
-        self.equipped_accessory = None
         self.equipped_weapon = self.get_weapon()
         self.equipped_accessory = self.get_accessory()
 

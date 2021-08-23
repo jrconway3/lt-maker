@@ -26,8 +26,7 @@ def repull_aura(unit, old_skill, game):
 def apply_aura(owner, unit, child_skill, target, test=False):
     if target == 'enemy' and skill_system.check_enemy(owner, unit) or \
             target == 'ally' and skill_system.check_ally(owner, unit) or \
-            target == 'unit' or \
-            target == 'paired' and unit.paired_partner == owner.nid:
+            target == 'unit':
         # Confirm that we have line of sight
         if DB.constants.value('aura_los') and \
                 not line_of_sight.line_of_sight({owner.position}, {unit.position}, 99):

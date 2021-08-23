@@ -268,7 +268,7 @@ def find_strike_partners(units: tuple, item):
     if units[0].team == units[1].team: # If targeting same team
         return None, None
     for u in units:
-        if u.paired_partner: # Dual guard cancels
+        if u.traveler: # Dual guard cancels
             return None, None
     if not item_system.is_weapon(units[0], item): # If you're healing someone else
         return None, None

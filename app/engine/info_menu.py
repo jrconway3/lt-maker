@@ -364,8 +364,6 @@ class InfoMenuState(State):
                 if not self.transition:  # Some of the above move commands could cause transition
                     if self.unit.traveler:
                         self.move_traveler()
-                    elif self.unit.paired_partner:
-                        self.move_paired_partner()
 
             if 'RIGHT' in directions:
                 self.move_right()
@@ -434,15 +432,6 @@ class InfoMenuState(State):
         SOUNDTHREAD.play_sfx('Status_Character')
         self.rescuer = self.unit
         self.next_unit = game.get_unit(self.unit.traveler)
-        if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
-            self.state = 'personal_data'
-            self.switch_logo('personal_data')
-        self.transition = 'DOWN'
-
-    def move_paired_partner(self):
-        SOUNDTHREAD.play_sfx('Status_Character')
-        self.rescuer = self.unit
-        self.next_unit = game.get_unit(self.unit.paired_partner)
         if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
             self.state = 'personal_data'
             self.switch_logo('personal_data')
@@ -738,9 +727,6 @@ class InfoMenuState(State):
             if stat == 'TRV':
                 if self.unit.traveler:
                     trav = game.get_unit(self.unit.traveler)
-                    FONT['text-blue'].blit(trav.name, surf, (96, 16 * true_idx + 24))
-                elif self.unit.paired_partner:
-                    trav = game.get_unit(self.unit.paired_partner)
                     FONT['text-blue'].blit(trav.name, surf, (96, 16 * true_idx + 24))
                 else:
                     FONT['text-blue'].blit('--', surf, (96, 16 * true_idx + 24))

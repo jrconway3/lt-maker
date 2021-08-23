@@ -215,7 +215,9 @@ class UnitObject(Prefab):
     def set_fatigue(self, val):
         self.current_fatigue = int(max(val, 0))
 
-    def get_field(self, key, default=''):
+    def get_field(self, key, default='FIELD_NOT_DEFINED'):
+        if not getattr(self, '_fields'):
+            return default
         if key in self._fields:
             return self._fields[key]
         my_klass = DB.classes.get(self.klass, None)
@@ -234,14 +236,21 @@ class UnitObject(Prefab):
     def set_exp(self, val):
         self.exp = int(utils.clamp(val, 0, 100))
 
-    def stat_bonus(self, stat_nid):
-        return skill_system.stat_change(self, stat_nid)
+    def stat_bonus(self, stat_nid: str) -> int:
+        bonus = skill_system.stat_change(self, stat_nid)
+        weapon = self.equipped_weapon
+        if weapon:
+            bonus += item_system.stat_change(self, weapon, stat_nid)
+        return bonus
+
+    def get_stat(self, stat_nid):
+        return self.stats.get(stat_nid, 0) + self.stat_bonus(stat_nid)
 
     def growth_bonus(self, stat_nid):
         return skill_system.growth_change(self, stat_nid)
 
-    def get_stat(self, stat_nid):
-        return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)
+    def get_growth(self, stat_nid):
+        return self.growths.get(stat_nid, 0) + self.growth_bonus(stat_nid)
 
     def get_stat_cap(self, stat_nid):
         return DB.classes.get(self.klass).max_stats.get(stat_nid, 30)
@@ -310,8 +319,9 @@ class UnitObject(Prefab):
         return unit_funcs.can_unlock(self, region)
 
     def get_weapon(self):
+        _weapon = None
         if self.equipped_weapon:
-            return self.equipped_weapon
+            _weapon = self.equipped_weapon
         else:
             for item in self.items:
                 weapon = item_system.is_weapon(self, item)
@@ -322,8 +332,8 @@ class UnitObject(Prefab):
                     # Since it's more of an attribute that will be
                     # rediscovered each time if necessary
                     self.equip(item)
-                    return item
-        return None
+                    _weapon = item
+        return _weapon
 
     def get_spell(self):
         for item in self.items:
@@ -567,6 +577,9 @@ class UnitObject(Prefab):
             self.starting_position = None
         self._fields = s_dict.get('_fields', {})
 
+        self.equipped_weapon = None
+        self.equipped_accessory = None
+
         self.skills = [game.get_skill(skill_uid) for skill_uid in s_dict['skills']]
         self.skills = [s for s in self.skills if s]
 
@@ -577,8 +590,6 @@ class UnitObject(Prefab):
 
         self.traveler = s_dict['traveler']
 
-        self.equipped_weapon = None
-        self.equipped_accessory = None
         self.equipped_weapon = self.get_weapon()
         self.equipped_accessory = self.get_accessory()
 

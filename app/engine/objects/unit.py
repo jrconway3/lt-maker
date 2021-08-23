@@ -94,7 +94,6 @@ class UnitObject(Prefab):
         self.current_guard_gauge = 0
 
         self.traveler: str = None  # Always a nid of a unit
-        self.paired_partner: str = None  # Always a nid of a unit
         self.strike_partner = None # Not saved because only used for solver
         self.lead_unit: bool = False # I don't need to save this because it's only for move/menu states
         self.built_guard: bool = False # A bool to check if guard should be subtracted at turn end
@@ -542,7 +541,6 @@ class UnitObject(Prefab):
                   'current_mana': self.current_mana,
                   'current_fatigue': self.current_fatigue,
                   'traveler': self.traveler,
-                  'paired_partner': self.paired_partner,
                   'current_guard_gauge': self.current_guard_gauge,
                   'built_guard': self.built_guard,
                   'dead': self.dead,
@@ -601,7 +599,6 @@ class UnitObject(Prefab):
         self.current_guard_gauge = s_dict.get('current_guard_gauge', 0)
 
         self.traveler = s_dict['traveler']
-        self.paired_partner = s_dict['paired_partner']
         self.strike_partner = None
         self.lead_unit = False
         self.built_guard = s_dict.get('built_guard', False)

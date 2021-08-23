@@ -95,21 +95,24 @@ class AnimationCombat(BaseCombat, MockCombat):
         self.llast_gauge = self.left.get_guard_gauge()
         self.rlast_gauge = self.right.get_guard_gauge()
         self.left_battle_anim = battle_animation.get_battle_anim(self.left, self.left_item, self.distance)
-        self.lp_battle_anim = None
-        if self.left.strike_partner:
-            pp = self.left.strike_partner
-            self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
-        elif self.left.traveler and item_system.is_weapon(self.right, self.right_item):
-            pp = game.get_unit(self.left.traveler)
-            self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
         self.right_battle_anim = battle_animation.get_battle_anim(self.right, self.right_item, self.distance)
+        self.lp_battle_anim = None
         self.rp_battle_anim = None
-        if self.right.strike_partner:
-            pp = self.right.strike_partner
-            self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
-        elif self.right.traveler and item_system.is_weapon(self.left, self.left_item):
-            pp = game.get_unit(self.right.traveler)
-            self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
+
+        if DB.constants.value('pairup'):
+            if self.left.strike_partner:
+                pp = self.left.strike_partner
+                self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
+            elif self.left.traveler and item_system.is_weapon(self.right, self.right_item):
+                pp = game.get_unit(self.left.traveler)
+                self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
+            if self.right.strike_partner:
+                pp = self.right.strike_partner
+                self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
+            elif self.right.traveler and item_system.is_weapon(self.left, self.left_item):
+                pp = game.get_unit(self.right.traveler)
+                self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
+
         self.current_battle_anim = None
 
         self.initial_paint_setup()

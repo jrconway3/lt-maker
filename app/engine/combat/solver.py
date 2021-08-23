@@ -362,7 +362,7 @@ class CombatPhaseSolver():
             roll = self.generate_roll()
 
         guard_hit = False
-        if DB.constants.value('pairup') and item_system.is_weapon(attacker, item) and attacker.team != defender.team:
+        if DB.constants.value('pairup') and item_system.is_weapon(attacker, item) and skill_system.check_enemy(attacker, defender):
             if defender.get_guard_gauge() >= defender.get_max_guard_gauge() and defender.traveler:
                 guard_hit = True
                 roll = -1
@@ -380,14 +380,14 @@ class CombatPhaseSolver():
                     crit_roll = self.generate_crit_roll()
                     if crit_roll < to_crit:
                         crit = True
-            if crit:
+            if crit and not guard_hit:
                 item_system.on_crit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
-                    playback.append(('mark_crit', attacker, defender, self.attacker, item))
+                    playback.append(('mark_crit', attacker, defender, self.attacker, item, guard_hit))
             elif DB.constants.value('glancing_hit') and roll >= to_hit - 20 and not guard_hit:
                 item_system.on_glancing_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
                 if defender:
-                    playback.append(('mark_hit', attacker, defender, self.attacker, item))
+                    playback.append(('mark_hit', attacker, defender, self.attacker, item, guard_hit))
                     playback.append(('mark_glancing_hit', attacker, defender, self.attacker, item))
             else:
                 if guard_hit: # Mocks the playback that would be created in weapon_components
@@ -407,13 +407,13 @@ class CombatPhaseSolver():
                 playback.append(('mark_miss', attacker, defender, self.attacker, item))
 
         # Gauge is set to 0. Damage is negated elsewhere
-        if DB.constants.value('pairup') and item_system.is_weapon(attacker, item) and attacker.team != defender.team:
+        if DB.constants.value('pairup') and item_system.is_weapon(attacker, item) and skill_system.check_enemy(attacker, defender):
             if defender.get_guard_gauge() == defender.get_max_guard_gauge():
-                action.do(action.SetGauge(defender, 0))
+                action.do(action.UseGauge(defender))
             elif defender.traveler:
-                action.do(action.IncGauge(defender, defender.get_gauge_inc()))
+                action.do(action.UseGauge(defender, defender.get_gauge_inc()))
             if attacker.traveler:
-                action.do(action.IncGauge(attacker, attacker.get_gauge_inc()))
+                action.do(action.UseGauge(attacker, attacker.get_gauge_inc()))
 
     def simple_process(self, actions, playback, attacker, defender, def_pos, item, def_item, mode):
         # Is the item I am processing the first one?
@@ -421,7 +421,7 @@ class CombatPhaseSolver():
 
         item_system.on_hit(actions, playback, attacker, item, defender, def_pos, mode, first_item)
         if defender:
-            playback.append(('mark_hit', attacker, defender, self.attacker, item))
+            playback.append(('mark_hit', attacker, defender, self.attacker, item, False))
 
     def attacker_alive(self):
         return self.attacker.get_hp() > 0

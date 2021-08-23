@@ -341,7 +341,7 @@ class UIView():
 
         if DB.constants.value('pairup'):
             # This is where the dual attack info will be shown
-            if (a_assist or d_assist) and not (attacker.paired_partner or defender.paired_partner):
+            if (a_assist or d_assist) and not (attacker.traveler or defender.traveler):
                 # Background boxes
                 prefix = 'assist_info_'
                 if grandmaster:
@@ -369,7 +369,7 @@ class UIView():
                 final = prefix + infix + ('_' if infix else '') + color
                 surf.blit(SPRITES.get(final).copy(), (68, 34))
 
-            if not defender.paired_partner and a_assist:
+            if not defender.traveler and a_assist:
 
                 width = FONT['text-white'].width(a_assist.name)
                 FONT['text-white'].blit(a_assist.name, surf, (90 - width//2, 19))
@@ -386,7 +386,7 @@ class UIView():
                         c = combat_calcs.compute_crit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
                         blit_num(surf, c, 110, 66)
 
-            if not attacker.paired_partner and d_assist and defender.get_weapon() and \
+            if not attacker.traveler and d_assist and defender.get_weapon() and \
                     combat_calcs.can_counterattack(attacker, weapon, defender, defender.get_weapon()):
 
                 width = FONT['text-white'].width(d_assist.name)

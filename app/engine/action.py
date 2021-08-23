@@ -1702,7 +1702,6 @@ class Die(Action):
         self.lock_all_support_ranks = \
             [LockAllSupportRanks(pair.nid) for pair in game.supports.get_pairs(self.unit.nid)]
         self.drop = None
-        self.old_gauge = self.unit.get_guard_gauge()
 
         self.initiative_action = None
         if DB.constants.value('initiative'):
@@ -1711,14 +1710,12 @@ class Die(Action):
     def do(self):
         if self.unit.traveler:
             drop_me = game.get_unit(self.unit.traveler)
-            self.drop = Drop(self.unit, drop_me, self.unit.position)
+            if DB.constants.value('pairup'):
+                self.drop = Separate(self.unit, drop_me, self.unit.position)
+            else:
+                self.drop = Drop(self.unit, drop_me, self.unit.position)
             self.drop.do()
             # TODO Drop Sound
-        if self.unit.paired_partner:
-            drop_me = game.get_unit(self.unit.paired_partner)
-            drop_me.set_guard_gauge(0)
-            self.drop = Separate(self.unit, drop_me, self.unit.position)
-            self.drop.do()
 
         if DB.constants.value('initiative') and self.initiative_action:
             self.initiative_action.do()
@@ -1741,8 +1738,6 @@ class Die(Action):
             act.reverse()
         self.leave_map.reverse()
         if self.drop:
-            if game.get_unit(self.unit.paired_partner):
-                game.get_unit(self.unit.paired_partner).set_guard_gauge(self.old_gauge)
             self.drop.reverse()
 
 class Resurrect(Action):

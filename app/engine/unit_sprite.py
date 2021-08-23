@@ -561,9 +561,9 @@ class UnitSprite():
             boss_icon = SPRITES.get('boss_icon')
             surf.blit(boss_icon, (left - 8, top - 8))
 
-        if (self.unit.traveler or self.unit.paired_partner) and self.transition_state == 'normal' and \
+        if self.unit.traveler and self.transition_state == 'normal' and \
                 not self.unit.is_dying:
-            if self.unit.paired_partner or game.get_unit(self.unit.traveler).team == 'player':
+            if game.get_unit(self.unit.traveler).team == 'player':
                 rescue_icon = SPRITES.get('rescue_icon_blue')
             else:
                 rescue_icon = SPRITES.get('rescue_icon_green')

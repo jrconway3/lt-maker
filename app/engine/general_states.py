@@ -449,7 +449,7 @@ class MoveState(MapState):
             action.do(action.SetPreviousPosition(cur_unit))
 
         # To keep track of for swapping
-        if cur_unit.paired_partner:
+        if cur_unit.traveler:
             cur_unit.lead_unit = True
 
         if cur_unit.has_traded:
@@ -712,10 +712,11 @@ class MenuState(MapState):
                     self.cur_unit.wait()
             else:
                 # Reverse Swap here
-                if not self.cur_unit.lead_unit and self.cur_unit.paired_partner:
+                if not self.cur_unit.lead_unit and self.cur_unit.traveler:
                     self.cur_unit.lead_unit = False
-                    u = game.get_unit(self.cur_unit.paired_partner)
-                    action.do(action.SwapPaired(self.cur_unit, u))
+                    u = game.get_unit(self.cur_unit.traveler)
+                    act = action.SwapPaired(self.cur_unit, u)
+                    act.execute()
                     self.cur_unit = u
                     game.cursor.cur_unit = u
                 if self.cur_unit.current_move:
@@ -1130,14 +1131,8 @@ class TargetingState(MapState):
             if self.ability.name == 'Trade':
                 current_target = game.cursor.get_hover()
                 traveler = current_target.traveler
-                if self.traveler_mode:
-                    self.traveler_mode = False
-                    new_position = self.selection.get_down(game.cursor.position)
-                    game.cursor.set_pos(new_position)
-                elif not traveler and current_target.paired_partner:
-                    self.traveler_mode = True
-                elif traveler and game.get_unit(traveler).team == self.cur_unit.team:
-                    self.traveler_mode = True
+                if traveler and game.get_unit(traveler).team == self.cur_unit.team:
+                    self.traveler_mode = not self.traveler_mode
                 else:
                     new_position = self.selection.get_down(game.cursor.position)
                     game.cursor.set_pos(new_position)
@@ -1174,8 +1169,6 @@ class TargetingState(MapState):
             if self.traveler_mode:
                 if unit.traveler:
                     game.memory['trade_partner'] = game.get_unit(unit.traveler)
-                elif unit.paired_partner:
-                    game.memory['trade_partner'] = game.get_unit(unit.paired_partner)
                 else:
                     game.memory['trade_partner'] = unit
             else:
@@ -1255,8 +1248,6 @@ class TargetingState(MapState):
             if self.traveler_mode:
                 if unit.traveler:
                     game.ui_view.draw_trade_preview(game.get_unit(unit.traveler), surf)
-                elif unit.paired_partner:
-                    game.ui_view.draw_trade_preview(game.get_unit(unit.paired_partner), surf)
             else:
                 game.ui_view.draw_trade_preview(unit, surf)
         elif self.ability.name == 'Steal':

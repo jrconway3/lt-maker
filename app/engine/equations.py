@@ -82,6 +82,12 @@ class Parser():
         else:
             return 2
 
+    def get_guard_exp(self, unit):
+        if hasattr(self, 'guard_exp'):
+            return self.guard_exp(unit)
+        else:
+            return 10
+
 PARSER = Parser()
 
 def __getattr__(name):

@@ -741,7 +741,7 @@ class PairUp(Action):
         skill_system.on_pairup(self.unit, self.target)
         game.leave(self.unit)
         self.unit.position = None
-        
+
         self.target.set_guard_gauge(self.unit_gauge + self.target_gauge)
         self.unit.set_guard_gauge(0)
 
@@ -756,7 +756,7 @@ class PairUp(Action):
 
         self.unit.set_guard_gauge(self.unit_gauge)
         self.target.set_guard_gauge(self.target_gauge)
-        
+
         for action in self.subactions:
             action.reverse()
 
@@ -863,17 +863,26 @@ class Separate(Action):
         self.unit.set_guard_gauge(self.old_gauge)
         self.droppee.set_guard_gauge(0)
 
-class UseGauge(Action):
-    def __init__(self, unit, amount=0):
+class IncGauge(Action):
+    def __init__(self, unit, amount):
         self.unit = unit
         self.amount = amount
         self.old_gauge = unit.get_guard_gauge()
 
     def do(self):
-        if not self.amount:
-            self.unit.set_guard_gauge(0)
-        else:
-            self.unit.set_guard_gauge(self.unit.get_guard_gauge() + self.amount)
+        self.unit.set_guard_gauge(self.unit.get_guard_gauge() + self.amount)
+
+    def reverse(self):
+        self.unit.set_guard_gauge(self.old_gauge)
+
+class SetGauge(Action):
+    def __init__(self, unit, val):
+        self.unit = unit
+        self.val = val
+        self.old_gauge = unit.get_guard_gauge()
+
+    def do(self):
+        self.unit.set_guard_gauge(self.val)
 
     def reverse(self):
         self.unit.set_guard_gauge(self.old_gauge)

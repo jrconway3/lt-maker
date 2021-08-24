@@ -461,7 +461,18 @@ class UnitSprite():
         # Each image has (self.image.get_width() - 32)//2 buggers on the
         # left and right of it, to handle any off tile spriting
         topleft = left - max(0, (image.get_width() - 16)//2), top - 24
-        surf.blit(image, topleft)
+
+        if DB.constants.value('pairup') and self.unit.traveler:
+            partner = game.get_unit(self.unit.traveler)
+            partner_image = partner.sprite.create_image(self.image_state)
+            partner_image = partner_image.convert_alpha()
+            surf.blit(partner_image, (topleft[0] + 2, topleft[1] - 2))
+            gray_version = image_mods.make_gray(partner_image)
+            translucent_gray = image_mods.make_translucent(gray_version, 0.25)
+            surf.blit(translucent_gray, (topleft[0] + 2, topleft[1] - 2))
+            surf.blit(image, (topleft[0] - 2, topleft[1] + 2))
+        else:
+            surf.blit(image, topleft)
 
         # Draw animations
         self.animations = {k: v for (k, v) in self.animations.items() if not v.update()}
@@ -562,7 +573,7 @@ class UnitSprite():
             surf.blit(boss_icon, (left - 8, top - 8))
 
         if self.unit.traveler and self.transition_state == 'normal' and \
-                not self.unit.is_dying:
+                not self.unit.is_dying and not DB.constants.value('pairup'):
             if game.get_unit(self.unit.traveler).team == 'player':
                 rescue_icon = SPRITES.get('rescue_icon_blue')
             else:

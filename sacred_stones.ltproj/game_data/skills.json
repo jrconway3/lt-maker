@@ -1165,7 +1165,7 @@
     {
         "nid": "AttackStanceCrit",
         "name": "AttackStanceCrit",
-        "desc": "Always crit in attack stance",
+        "desc": "guard stance",
         "icon_nid": "Axe",
         "icon_index": [
             0,
@@ -1177,12 +1177,8 @@
                 null
             ],
             [
-                "crit",
-                100
-            ],
-            [
-                "combat_condition",
-                "playback and (playback[0] == ('attacker_partner_phase',) or playback[0] == ('defender_partner_phase',))"
+                "pairup_bonus",
+                "Defense +5"
             ]
         ]
     }

@@ -125,6 +125,17 @@
                 "name": null,
                 "desc": null,
                 "generic": true
+            },
+            {
+                "nid": "Joshua",
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    1,
+                    3
+                ],
+                "generic": false
             }
         ],
         "regions": [],

@@ -1742,6 +1742,20 @@ class MoveInInitiative(EventCommand):
 
     keywords = ["Unit", "Integer"]
 
+class PairUp(EventCommand):
+    nid = 'pair_up'
+    tag = Tags.MISCELLANEOUS
+    desc = "Pairs the first unit into the second"
+
+    keywords = ["Unit", "Unit"]
+
+class Separate(EventCommand):
+    nid = 'separate'
+    tag = Tags.MISCELLANEOUS
+    desc = "Sets the unit's traveler to none. Does not place that partner on the map."
+
+    keywords = ["Unit"]
+
 class StartOverworldCinematic(EventCommand):
     nid = 'overworld_cinematic'
     tag = Tags.OVERWORLD

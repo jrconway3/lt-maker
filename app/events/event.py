@@ -1286,6 +1286,12 @@ class Event():
         elif command.nid == 'move_in_initiative':
             self.move_in_initiative(command)
 
+        elif command.nid == 'pair_up':
+            self.pair_up(command)
+
+        elif command.nid == 'separate':
+            self.separate(command)
+
     def add_portrait(self, command):
         values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
         name = values[0]
@@ -2976,6 +2982,17 @@ class Event():
         unit = self.get_unit(values[0])
         offset = int(values[1])
         action.do(action.MoveInInitiative(unit, offset))
+
+    def pair_up(self, command):
+        values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+        unit = self.get_unit(values[0])
+        unit2 = self.get_unit(values[1])
+        action.do(action.PairUp(unit, unit2))
+
+    def separate(self, command):
+        values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+        unit = self.get_unit(values[0])
+        action.do(action.RemovePartner(unit))
 
     def parse_pos(self, text):
         position = None

@@ -112,7 +112,8 @@ class AIController():
 
             primary_target = game.board.get_unit(self.goal_target)
             if primary_target:
-                self.unit.strike_partner, primary_target.strike_partner = target_system.find_strike_partners((self.unit, primary_target), self.goal_item)
+                self.unit.strike_partner, primary_target.strike_partner = \
+                    target_system.find_strike_partners(self.unit, primary_target, self.goal_item)
 
             # Used for steal
             if item_system.targets_items(self.unit, self.goal_item):

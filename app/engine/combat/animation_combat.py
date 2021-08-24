@@ -102,16 +102,16 @@ class AnimationCombat(BaseCombat, MockCombat):
         if DB.constants.value('pairup'):
             if self.left.strike_partner:
                 pp = self.left.strike_partner
-                self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
+                self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
             elif self.left.traveler and item_system.is_weapon(self.right, self.right_item):
                 pp = game.get_unit(self.left.traveler)
-                self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
+                self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
             if self.right.strike_partner:
                 pp = self.right.strike_partner
-                self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
+                self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
             elif self.right.traveler and item_system.is_weapon(self.left, self.left_item):
                 pp = game.get_unit(self.right.traveler)
-                self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, copy=True)
+                self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
 
         self.current_battle_anim = None
 
@@ -698,6 +698,26 @@ class AnimationCombat(BaseCombat, MockCombat):
         elif self.defender.team == 'player':
             self.focus_right = (self.defender is self.right)
 
+    def draw_battle_anims(self, surf, shake, anim_order, y_offset=0):
+        first, second = anim_order
+        first_main_battle_anim, first_offset, first_partner, fp_offset = first
+        second_main_battle_anim, second_offset, second_partner, sp_offset = second
+        # Actor is second main battle anim
+
+        first_main_battle_anim.draw_under(surf, shake, first_offset, self.pan_offset)
+        second_main_battle_anim.draw_under(surf, shake, second_offset, self.pan_offset)
+
+        if first_partner:
+            first_partner.draw(surf, shake, fp_offset, self.pan_offset, y_offset=y_offset)
+        first_main_battle_anim.draw(surf, shake, first_offset, self.pan_offset)
+
+        if second_partner:
+            second_partner.draw(surf, shake, sp_offset, self.pan_offset, y_offset=y_offset)
+        second_main_battle_anim.draw(surf, shake, second_offset, self.pan_offset)
+
+        second_main_battle_anim.draw_over(surf, shake, second_offset, self.pan_offset)
+        first_main_battle_anim.draw_over(surf, shake, first_offset, self.pan_offset)
+
     def draw(self, surf):
         # This code is so ugly, sorry rain
         left_range_offset, right_range_offset, total_shake_x, total_shake_y = \
@@ -708,77 +728,40 @@ class AnimationCombat(BaseCombat, MockCombat):
         rp_range_offset = right_range_offset + 20
         y_offset = -3
         if self.playback:
+            # Right unit is main boi
             if self.current_battle_anim is self.right_battle_anim:
+                # Left unit is being guarded right now!
                 if self.llast_gauge == self.left.get_max_guard_gauge() and self.lp_battle_anim:
-                    self.lp_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
-                    self.right_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
-                    self.left_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
-                    self.lp_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
-                    if self.rp_battle_anim:
-                        self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
-                    self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
-                    self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
-                    self.lp_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
-                else:
-                    self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
-                    self.right_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
-                    if self.lp_battle_anim:
-                        self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
-                    self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
-                    if self.rp_battle_anim:
-                        self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
-                    self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
-                    self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
-                    self.left_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
+                    anim_order = [(self.lp_battle_anim, left_range_offset, self.left_battle_anim, lp_range_offset),
+                                  (self.right_battle_anim, right_range_offset, self.rp_battle_anim, rp_range_offset)]
+                else:  # Normal right anim
+                    anim_order = [(self.left_battle_anim, left_range_offset, self.lp_battle_anim, lp_range_offset), 
+                                  (self.right_battle_anim, right_range_offset, self.rp_battle_anim, rp_range_offset)]
+                self.draw_battle_anims(surf, shake, anim_order, y_offset)
+            # Right partner is main boi
             elif self.rp_battle_anim and self.current_battle_anim is self.rp_battle_anim:
-                self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
-                self.rp_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
-                if self.lp_battle_anim:
-                    self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
-                self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
-                self.right_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
-                self.rp_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
-                self.rp_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
-                self.left_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
+                anim_order = [(self.left_battle_anim, left_range_offset, self.lp_battle_anim, lp_range_offset),
+                              (self.rp_battle_anim, right_range_offset, self.right_battle_anim, rp_range_offset)]
+                self.draw_battle_anims(surf, shake, anim_order, y_offset)
+            # Left partner is main boi
             elif self.lp_battle_anim and self.current_battle_anim is self.lp_battle_anim:
-                self.right_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
-                self.lp_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
-                if self.rp_battle_anim:
-                    self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
-                self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
-                self.left_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
-                self.lp_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
-                self.lp_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
-                self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
+                anim_order = [(self.right_battle_anim, right_range_offset, self.rp_battle_anim, rp_range_offset),
+                              (self.lp_battle_anim, left_range_offset, self.left_battle_anim, lp_range_offset)]
+                self.draw_battle_anims(surf, shake, anim_order, y_offset)
+            # Left is main boi
             else:
+                # Right unit is being guarded right now!
                 if self.rlast_gauge == self.right.get_max_guard_gauge() and self.rp_battle_anim:
-                    self.rp_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
-                    self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
-                    self.right_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
-                    self.rp_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
-                    if self.lp_battle_anim:
-                        self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
-                    self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
-                    self.left_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
-                    self.rp_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
-                else:
-                    self.right_battle_anim.draw_under(surf, shake, right_range_offset, self.pan_offset)
-                    self.left_battle_anim.draw_under(surf, shake, left_range_offset, self.pan_offset)
-                    if self.rp_battle_anim:
-                        self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
-                    self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
-                    if self.lp_battle_anim:
-                        self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
-                    self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
-                    self.left_battle_anim.draw_over(surf, shake, left_range_offset, self.pan_offset)
-                    self.right_battle_anim.draw_over(surf, shake, right_range_offset, self.pan_offset)
-        else:
-            if self.lp_battle_anim:
-                self.lp_battle_anim.draw(surf, shake, lp_range_offset, self.pan_offset, y_offset=y_offset)
-            self.left_battle_anim.draw(surf, shake, left_range_offset, self.pan_offset)
-            if self.rp_battle_anim:
-                self.rp_battle_anim.draw(surf, shake, rp_range_offset, self.pan_offset, y_offset=y_offset)
-            self.right_battle_anim.draw(surf, shake, right_range_offset, self.pan_offset)
+                    anim_order = [(self.rp_battle_anim, right_range_offset, self.right_battle_anim, rp_range_offset),
+                                  (self.left_battle_anim, left_range_offset, self.lp_battle_anim, lp_range_offset)]
+                else:  # Normal left anim
+                    anim_order = [(self.right_battle_anim, right_range_offset, self.rp_battle_anim, rp_range_offset),
+                                  (self.left_battle_anim, left_range_offset, self.lp_battle_anim, lp_range_offset)]
+                self.draw_battle_anims(surf, shake, anim_order, y_offset)
+        else:  # When battle hasn't started yet
+            anim_order = [(self.left_battle_anim, left_range_offset, self.lp_battle_anim, lp_range_offset),
+                          (self.right_battle_anim, right_range_offset, self.rp_battle_anim, rp_range_offset)]
+            self.draw_battle_anims(surf, shake, anim_order, y_offset)
 
         # Animations
         self.draw_anims(surf)
@@ -931,6 +914,14 @@ class AnimationCombat(BaseCombat, MockCombat):
 
         a_broke, d_broke = self.find_broken_items()
         self.handle_broken_items(a_broke, d_broke)
+
+        # Clean up battle anims so we can re-use them later
+        self.left_battle_anim.reset_unit()
+        if self.lp_battle_anim:
+            self.lp_battle_anim.reset_unit()
+        self.right_battle_anim.reset_unit()
+        if self.rp_battle_anim:
+            self.rp_battle_anim.reset_unit()
 
     def handle_state_stack(self):
         """

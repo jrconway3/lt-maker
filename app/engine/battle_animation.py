@@ -19,15 +19,17 @@ class BattleAnimation():
     idle_poses = {'Stand', 'RangedStand', 'TransformStand'}
 
     @classmethod
-    def get_anim(cls, combat_anim, weapon_anim, palette_name, palette, unit, item, copy=False):
+    def get_anim(cls, combat_anim, weapon_anim, palette_name, palette, unit, item):
         unique_hash = combat_anim.nid + '_' + weapon_anim.nid + '_' + palette_name + '_' + palette.nid
-        if copy:
-            unique_hash += '_copy'
         battle_anim = battle_anim_registry.get(unique_hash)
         if battle_anim:
-            battle_anim.unit = unit
-            battle_anim.item = item
-            battle_anim.clear()
+            if battle_anim.unit and battle_anim.unit is not unit:
+                # There's already a unit using this animation, just make a new one, I guess
+                battle_anim = cls(weapon_anim, palette_name, palette, unit, item)
+            else:
+                battle_anim.unit = unit
+                battle_anim.item = item
+                battle_anim.clear()
         else:
             battle_anim = cls(weapon_anim, palette_name, palette, unit, item)
             battle_anim_registry[unique_hash] = battle_anim
@@ -68,6 +70,10 @@ class BattleAnimation():
             self.apply_palette()
 
         self.clear()
+
+    def reset_unit(self):
+        self.unit = None
+        self.item = None
 
     def clear(self):
         self.state = 'inert'
@@ -784,7 +790,7 @@ def get_palette(anim_prefab: CombatAnimation, unit) -> tuple:
     current_palette = RESOURCES.combat_palettes.get(palette_nid)
     return palette_name, current_palette
 
-def get_battle_anim(unit, item, distance=1, klass=None, copy=False) -> BattleAnimation:
+def get_battle_anim(unit, item, distance=1, klass=None) -> BattleAnimation:
     # Find the right combat animation
     if klass:
         class_obj = DB.classes.get(klass)
@@ -854,5 +860,5 @@ def get_battle_anim(unit, item, distance=1, klass=None, copy=False) -> BattleAni
                     logging.warning("Could not find spell animation for effect %s in weapon anim %s", effect, weapon_anim_nid)
                     return None
 
-    battle_anim = BattleAnimation.get_anim(res, weapon_anim, palette_name, palette, unit, item, copy)
+    battle_anim = BattleAnimation.get_anim(res, weapon_anim, palette_name, palette, unit, item)
     return battle_anim

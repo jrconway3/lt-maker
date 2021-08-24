@@ -1320,11 +1320,13 @@ class CombatTargetingState(MapState):
         if atk:
             self.attacker_assist = None
         self.defender_assist = None
-        unit_input = (self.cur_unit, game.board.get_unit(target)) if game.board.get_unit(target) else (self.cur_unit,)
-        partners = target_system.find_strike_partners(unit_input, self.item)
+        attacker = self.cur_unit
+        defender = game.board.get_unit(target)
+        partners = target_system.find_strike_partners(attacker, defender, self.item)
         atk_result, self.defender_assist = partners
-        if not self.attacker_assist:
-            # If a player has manually reselected strike partner we don't want the default option
+        if self.attacker_assist:
+            pass  # Attacker assistant already chosen!
+        else:
             self.attacker_assist = atk_result
 
     def display_single_attack(self):
@@ -1360,10 +1362,12 @@ class CombatTargetingState(MapState):
             else:
                 targets = self.prev_targets
 
+        # Find strike partner for first target
         self.find_strike_partners(targets[0], atk=False)
         self.cur_unit.strike_partner = self.attacker_assist
-        if len(targets) == 1:
-            game.board.get_unit(targets[0]).strike_partner = self.defender_assist
+        defender = game.board.get_unit(targets[0])
+        if len(targets) == 1 and defender:
+            defender.strike_partner = self.defender_assist
 
         combat = interaction.engage(self.cur_unit, targets, main_item)
         game.combat_instance.append(combat)
@@ -1420,8 +1424,10 @@ class CombatTargetingState(MapState):
                 SOUNDTHREAD.play_sfx('Select 6')
                 game.ui_view.reset_info()
                 self.display_single_attack()
+            # Switch chosen pairup with AUX
             elif len(adj_allies) > 1 and self.num_targets == 1:
                 i = adj_allies.index(self.attacker_assist)
+                # Hardset attacker
                 self.attacker_assist = adj_allies[(i + 1) % len(adj_allies)]
                 game.ui_view.reset_info()
                 self.display_single_attack()

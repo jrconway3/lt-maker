@@ -863,6 +863,18 @@ class Separate(Action):
         self.unit.set_guard_gauge(self.old_gauge)
         self.droppee.set_guard_gauge(0)
 
+class RemovePartner(Action):
+    '''Removes the unit's partner but does nothing else'''
+    def __init__(self, unit):
+        self.unit = unit
+        self.partner = self.unit.traveler
+
+    def do(self):
+        self.unit.traveler = None
+
+    def reverse(self):
+        self.unit.traveler = self.partner
+
 class IncGauge(Action):
     def __init__(self, unit, amount):
         self.unit = unit

@@ -380,6 +380,26 @@
                 [
                     "Seth"
                 ]
+            ],
+            [
+                "pair_up",
+                [
+                    "Joshua",
+                    "Eirika"
+                ],
+                [
+                    "Joshua (Joshua)",
+                    "Eirika (Eirika)"
+                ]
+            ],
+            [
+                "separate",
+                [
+                    "Eirika"
+                ],
+                [
+                    "Eirika (Eirika)"
+                ]
             ]
         ],
         "only_once": false,

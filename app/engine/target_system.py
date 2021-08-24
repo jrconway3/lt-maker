@@ -1,6 +1,6 @@
 from app.data.database import DB
 from app.engine import (equations, item_funcs, item_system, line_of_sight,
-                        pathfinding, skill_system)
+                        pathfinding, skill_system, combat_calcs)
 from app.engine.game_state import game
 from app.utilities import utils
 
@@ -279,7 +279,7 @@ def find_strike_partners(units: tuple, item):
         for ally in adj_allies:
             if not ally.get_weapon():
                 adj_allies.remove(ally)
-        # Replace with a formula later
+        adj_allies = strike_partner_formula(adj_allies, units)
         if adj_allies:
             if adj_allies[0] not in partners: # Sets don't work here because they're unordered
                 partners.append(adj_allies[0])
@@ -292,3 +292,22 @@ def find_strike_partners(units: tuple, item):
         # If both attacker and defender have the same partner something is weird
         return None, None
     return partners
+
+def strike_partner_formula(partners: list, main: tuple):
+    '''This is the formula for the best choice to make
+    when autoselecting strike partners
+    It returns a new list!'''
+    p = partners.copy()
+    i = 0
+    while i < len(p) - 1:
+        cur_dmg = combat_calcs.compute_assist_damage(p[i], main[1], p[i].get_weapon(), main[1].get_weapon(), 'attack')
+        ii = i + 1
+        stop = False
+        while ii < len(p) and not stop:
+            next_dmg = combat_calcs.compute_assist_damage(p[ii], main[1], p[ii].get_weapon(), main[1].get_weapon(), 'attack')
+            if cur_dmg < next_dmg:
+                stop = True
+                p.remove(p[i])
+            ii += 1
+        i += 1
+    return p

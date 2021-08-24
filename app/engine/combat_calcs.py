@@ -452,9 +452,6 @@ def compute_damage(unit, target, item, def_item, mode, crit=False):
 
 def compute_assist_damage(unit, target, item, def_item, mode, crit=False):
     '''Nearly identical but for dual strike units. Damage is halved at the end
-    Rain - You probably think that I didn't need to copy the whole equation.
-    Maybe not, but I've found that it helps reduce unexpected occurences (like
-    crit damage being off by one due to how //2 works)
     '''
     might = compute_damage(unit, target, item, def_item, mode, crit)
 

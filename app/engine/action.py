@@ -934,7 +934,7 @@ class Transfer(Action):
             self.unit.set_guard_gauge(val)
             self.other.set_guard_gauge(self.other.get_guard_gauge() + val)
         elif self.other.traveler:
-            val = self.unit.get_guard_gauge()//2
+            val = self.other.get_guard_gauge()//2
             self.other.set_guard_gauge(val)
             self.unit.set_guard_gauge(self.unit.get_guard_gauge() + val)
 

@@ -93,7 +93,7 @@ class UnitObject(Prefab):
         self.movement_left = 0
         self.current_guard_gauge = 0
 
-        self.traveler: str = None  # Always a nid of a unit
+        self.traveler: str = prefab.starting_traveler  # Always a nid of a unit
         self.strike_partner = None # Not saved because only used for solver
         self.lead_unit: bool = False # I don't need to save this because it's only for move/menu states
         self.built_guard: bool = False # A bool to check if guard should be subtracted at turn end

@@ -101,7 +101,16 @@ class SimpleMapView(QGraphicsView):
             for unit in current_level.units:
                 if not unit.starting_position:
                     continue
-                self.draw_unit(painter, unit, unit.starting_position)
+                if unit.starting_traveler:
+                    partner = current_level.units.get(unit.starting_traveler)
+                    if partner:
+                        pos = unit.starting_position
+                        self.draw_unit(painter, partner, (pos[0] + 0.125, pos[1] - 0.125))
+                        self.draw_unit(painter, unit, (pos[0] - 0.125, pos[1] + 0.125))
+                    else:
+                        self.draw_unit(painter, unit, unit.starting_position)
+                else:
+                    self.draw_unit(painter, unit, unit.starting_position)
             painter.end()
 
     def show_map(self):
@@ -330,7 +339,16 @@ class NewMapView(SimpleMapView):
                 if not unit.starting_position:
                     continue
                 if unit.generic or unit.nid in DB.units.keys():
-                    self.draw_unit(painter, unit, unit.starting_position)
+                    if unit.starting_traveler:
+                        partner = self.current_level.units.get(unit.starting_traveler)
+                        if partner:
+                            pos = unit.starting_position
+                            self.draw_unit(painter, partner, (pos[0] + 0.125, pos[1] - 0.125))
+                            self.draw_unit(painter, unit, (pos[0] - 0.125, pos[1] + 0.125))
+                        else:
+                            self.draw_unit(painter, unit, unit.starting_position)
+                    else:
+                        self.draw_unit(painter, unit, unit.starting_position)
             # Highlight current unit with cursor
             current_unit = self.main_editor.unit_painter_menu.get_current()
             if current_unit and current_unit.starting_position:

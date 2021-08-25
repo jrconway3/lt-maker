@@ -203,7 +203,16 @@ class GlobalModeLevelMapView(SimpleMapView):
                     if not unit.starting_position:
                         continue
                     if unit.generic or unit.nid in DB.units.keys():
-                        self.draw_unit(painter, unit, unit.starting_position)
+                        if unit.starting_traveler:
+                            partner = self.current_level.units.get(unit.starting_traveler)
+                            if partner:
+                                pos = unit.starting_position
+                                self.draw_unit(painter, partner, (pos[0] + 0.125, pos[1] - 0.125))
+                                self.draw_unit(painter, unit, (pos[0] - 0.125, pos[1] + 0.125))
+                            else:
+                                self.draw_unit(painter, unit, unit.starting_position)
+                        else:
+                            self.draw_unit(painter, unit, unit.starting_position)
 
     def update_view(self, _=None):
         if self.current_level and not self.current_map:
@@ -477,6 +486,10 @@ class NewMapView(SimpleMapView):
                             current_unit.starting_position = pos
                             message = "Placed unit %s at (%d, %d)" % (
                                 current_unit.nid, pos[0], pos[1])
+                            # Remove from pairup
+                            for unit in self.current_level.units:
+                                if unit.starting_traveler == current_unit.nid:
+                                    unit.starting_traveler = None
                             self.main_editor.set_message(message)
                         self.update_view()
                 elif event.button() == self.settings.get_select_button(Qt.LeftButton):

@@ -182,12 +182,12 @@ class ResistMultiplier(SkillComponent):
     def resist_multiplier(self, unit, item, target, mode, attack_info, base_value):
         return self.value
 
-class CritMultiplier(SkillComponent):
-    nid = 'damage_multiplier'
-    desc = "Multiplies crit chance by a fraction"
+class PCC(SkillComponent):
+    nid = 'pcc'
+    desc = "Multiplies crit chance by a stat on second strike"
     tag = 'combat'
 
     expose = Type.Stat
 
     def crit_multiplier(self, unit, item, target, mode, attack_info, base_value):
-        return unit.get_stat(self.value)
+        return unit.get_stat(self.value) if attack_info[0] > 0 else 1

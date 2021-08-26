@@ -47,10 +47,10 @@ class AttackerState(SolverState):
             if command == '--':
                 if solver.defender:
                     if DB.constants.value('def_double') or skill_system.def_double(solver.defender):
-                        defender_outspeed = combat_calcs.outspeed(solver.defender, solver.attacker, solver.def_item, solver.main_item, 'defense')
+                        defender_outspeed = combat_calcs.outspeed(solver.defender, solver.attacker, solver.def_item, solver.main_item, 'defense', solver.get_defense_info())
                     else:
                         defender_outspeed = 1
-                    attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
+                    attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack', solver.get_attack_info())
                 else:
                     attacker_outspeed = defender_outspeed = 1
 
@@ -109,10 +109,10 @@ class DefenderState(SolverState):
         if solver.attacker_alive() and solver.defender_alive():
             if command == '--':
                 if DB.constants.value('def_double') or skill_system.def_double(solver.defender):
-                    defender_outspeed = combat_calcs.outspeed(solver.defender, solver.attacker, solver.def_item, solver.main_item, 'defense')
+                    defender_outspeed = combat_calcs.outspeed(solver.defender, solver.attacker, solver.def_item, solver.main_item, 'defense', solver.get_defense_info())
                 else:
                     defender_outspeed = 1
-                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack')
+                attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack', solver.get_attack_info())
                 # self.num_multiattacks = combat_calcs.compute_multiattacks(solver.defender, solver.attacker, solver.def_item, 'defense')
 
                 if solver.allow_counterattack() and \
@@ -176,6 +176,12 @@ class CombatPhaseSolver():
         # For event combats
         self.script = list(reversed(script)) if script else []
         self.current_command = '--'
+
+    def get_attack_info(self) -> tuple:
+        return self.num_attacks, self.num_subattacks
+
+    def get_defense_info(self) -> tuple:
+        return self.num_defends, self.num_subdefends
 
     def get_state(self):
         return self.state

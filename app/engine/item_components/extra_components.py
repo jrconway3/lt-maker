@@ -27,7 +27,7 @@ class EffectiveTag(ItemComponent):
     expose = (Type.List, Type.Tag)
     value = []
 
-    def dynamic_damage(self, unit, item, target, mode=None) -> int:
+    def dynamic_damage(self, unit, item, target, mode, attack_info, base_value) -> int:
         if any(tag in target.tags for tag in self.value):
             return item.data.get('effective', 0)
         return 0
@@ -45,7 +45,7 @@ class Brave(ItemComponent):
     desc = "Item multi-attacks"
     tag = 'extra'
 
-    def dynamic_multiattacks(self, unit, item, target, mode=None):
+    def dynamic_multiattacks(self, unit, item, target, mode, attack_info, base_value):
         return 1
 
 class BraveOnAttack(ItemComponent):
@@ -53,7 +53,7 @@ class BraveOnAttack(ItemComponent):
     desc = "Item multi-attacks only when attacking"
     tag = 'extra'
 
-    def dynamic_multiattacks(self, unit, item, target, mode=None):
+    def dynamic_multiattacks(self, unit, item, target, mode, attack_info, base_value):
         return 1 if mode == 'attack' else 0
 
 class Lifelink(ItemComponent):
@@ -65,7 +65,7 @@ class Lifelink(ItemComponent):
     expose = Type.Float
     value = 0.5
 
-    def after_hit(self, actions, playback, unit, item, target, mode):
+    def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
         total_damage_dealt = 0
         playbacks = [p for p in playback if p[0] in ('damage_hit', 'damage_crit') and p[1] == unit]
         for p in playbacks:
@@ -86,7 +86,7 @@ class DamageOnMiss(ItemComponent):
     expose = Type.Float
     value = 0.5
 
-    def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_miss(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
         damage = int(damage * self.value)
 
@@ -104,7 +104,7 @@ class Eclipse(ItemComponent):
     desc = "Target loses half current HP on hit"
     tag = 'extra'
 
-    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         true_damage = damage = target.get_hp()//2
         actions.append(action.ChangeHP(target, -damage))
 

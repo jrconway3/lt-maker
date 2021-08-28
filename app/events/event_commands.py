@@ -1865,7 +1865,8 @@ def parse_text(text: str, strict=False) -> EventCommand:
                 else:
                     cmd_keyword = "N/A"
                 # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
-                if '(' in arg and ')' in arg and ('FLAG' in arg or not (cmd_keyword in ['Condition', 'Text', 'StringList', 'PointList', 'DashList'])):
+                # we do NOT want to use this with evals, hence the '{' and '}' stoppage
+                if '(' in arg and ')' in arg and '{' not in arg and '}' not in arg and ('FLAG' in arg or not (cmd_keyword in ['Condition', 'Text', 'StringList', 'PointList', 'DashList'])):
                     true_arg = arg[arg.find("(")+1:arg.find(")")]
                     true_cmd_args.append(true_arg)
                 else:

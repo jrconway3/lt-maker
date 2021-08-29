@@ -1169,6 +1169,31 @@ class Event():
             game.alerts.append(banner.Custom(custom_string))
             game.state.change('alert')
             self.state = 'paused'
+            
+        elif command.nid == 'alert_item':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+            custom_string = values[0]
+            custom_item_nid = values[1]
+            if custom_item_nid in DB.items.keys():
+                custom_item = DB.items.get(custom_item_nid)
+            else:
+                logging.error("Couldn't find item with nid %s" % custom_item_nid)
+                return
+            game.alerts.append(banner.CustomItemIcon(custom_string, custom_item))
+            game.state.change('alert')
+            self.state = 'paused'
+        
+        elif command.nid == 'alert_skill':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+            custom_string = values[0]
+            custom_skill_nid = values[1]
+            if custom_skill_nid in DB.skills.keys():
+                custom_skill = DB.skills.get(custom_skill_nid)
+            else:
+                logging.error("Couldn't find skill with nid %s" % custom_skill_nid)
+            game.alerts.append(banner.CustomSkillIcon(custom_string, custom_skill))
+            game.state.change('alert')
+            self.state = 'paused'
 
         elif command.nid == 'victory_screen':
             game.state.change('victory')

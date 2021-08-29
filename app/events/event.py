@@ -2690,6 +2690,9 @@ class Event():
         if not unit_list:
             logging.warning("No units returned for list: %s" % (unit_list_str))
             return
+        if not all((isinstance(unit_nid, str) or isinstance(unit_nid, UnitObject)) for unit_nid in unit_list):
+            logging.error("%s: could not evaluate to NID list {%s}" % ('loop_units', unit_list_str))
+            return
         for unit_nid in reversed(unit_list):
             if not isinstance(unit_nid, str):
                 unit_nid = unit_nid.nid  # Try this!

@@ -163,6 +163,8 @@ class MovementManager():
                         self.camera_follow = unit_nid
                     if self.camera_follow == unit_nid:
                         game.cursor.set_pos(unit.position)
+                        game.camera.set_center(*unit.position)
+
 
                 else: # Path is empty, so we are done
                     self.done_moving(unit_nid, data, unit)

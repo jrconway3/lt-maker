@@ -1636,6 +1636,7 @@ class Event():
             script = None
 
         items = item_funcs.get_all_items(unit1)
+        item = None
         # Get item
         if len(values) > 3 and values[3]:
             item_nid = values[3]
@@ -1643,6 +1644,15 @@ class Event():
                 if item_nid == i.nid:
                     item = i
                     break
+            else:  # Create item on the fly
+                item_prefab = DB.items.get(values[3])
+                if not item_prefab:
+                    logging.error("Couldn't find item with nid %s" % values[3])
+                    return
+                # Create item
+                item = ItemObject.from_prefab(item_prefab)
+                item_system.init(item)
+                game.register_item(item)
         else:
             if items:
                 item = items[0]
@@ -2681,6 +2691,8 @@ class Event():
             logging.warning("No units returned for list: %s" % (unit_list_str))
             return
         for unit_nid in reversed(unit_list):
+            if not isinstance(unit_nid, str):
+                unit_nid = unit_nid.nid  # Try this!
             macro_command = event_commands.TriggerScript([command.values[1], unit_nid])
             self.commands.insert(self.command_idx + 1, macro_command)
 

@@ -1321,7 +1321,10 @@ class CombatTargetingState(MapState):
             self.attacker_assist = None
         self.defender_assist = None
         attacker = self.cur_unit
-        defender = game.board.get_unit(target)
+        if len(target) == 1:
+            defender = game.board.get_unit(target)
+        else:
+            defender = None
         partners = target_system.find_strike_partners(attacker, defender, self.item)
         atk_result, self.defender_assist = partners
         if self.attacker_assist:
@@ -1365,8 +1368,8 @@ class CombatTargetingState(MapState):
         # Find strike partner for first target
         self.find_strike_partners(targets[0], atk=False)
         self.cur_unit.strike_partner = self.attacker_assist
-        defender = game.board.get_unit(targets[0])
-        if len(targets) == 1 and defender:
+        if len(self.prev_targets) == 1:
+            defender = game.board.get_unit(targets[0])
             defender.strike_partner = self.defender_assist
 
         combat = interaction.engage(self.cur_unit, targets, main_item)

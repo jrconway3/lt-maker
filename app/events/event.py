@@ -1191,6 +1191,7 @@ class Event():
                 custom_skill = DB.skills.get(custom_skill_nid)
             else:
                 logging.error("Couldn't find skill with nid %s" % custom_skill_nid)
+                return
             game.alerts.append(banner.CustomSkillIcon(custom_string, custom_skill))
             game.state.change('alert')
             self.state = 'paused'

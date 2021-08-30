@@ -1179,7 +1179,7 @@ class Event():
             else:
                 logging.error("Couldn't find item with nid %s" % custom_item_nid)
                 return
-            game.alerts.append(banner.CustomItemIcon(custom_string, custom_item))
+            game.alerts.append(banner.CustomIcon(custom_string, custom_item))
             game.state.change('alert')
             self.state = 'paused'
         
@@ -1192,7 +1192,7 @@ class Event():
             else:
                 logging.error("Couldn't find skill with nid %s" % custom_skill_nid)
                 return
-            game.alerts.append(banner.CustomSkillIcon(custom_string, custom_skill))
+            game.alerts.append(banner.CustomIcon(custom_string, custom_skill))
             game.state.change('alert')
             self.state = 'paused'
 

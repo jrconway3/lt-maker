@@ -1321,7 +1321,7 @@ class CombatTargetingState(MapState):
             self.attacker_assist = None
         self.defender_assist = None
         attacker = self.cur_unit
-        if len(target) == 1:
+        if isinstance(target, tuple):
             defender = game.board.get_unit(target)
         else:
             defender = None

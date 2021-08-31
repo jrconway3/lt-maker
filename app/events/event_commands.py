@@ -1574,6 +1574,36 @@ Displays the text given in *Text* in an alert box. This is used for events such 
 
     keywords = ["Text"]
 
+class AlertItem(EventCommand):
+    nid = 'alert_item'
+    tag = Tags.DIALOGUE_TEXT
+
+    desc = \
+        """
+Displays the text given in *Text* in an alert box. This is used for events such as "The switch was pulled!".
+
+Also takes in a item icon from *Item* to display. 
+
+The icon always appears on the left side.
+        """
+
+    keywords = ["Text", "Item"]
+
+class AlertSkill(EventCommand):
+    nid = 'alert_skill'
+    tag = Tags.DIALOGUE_TEXT
+    
+    desc = \
+        '''
+Displays the text given in *Text* in an alert box. This is used for events such as "The switch was pulled!".
+
+Also takes in a skill icon from *Skill* to display.
+
+The icon always appears on the left side.
+        '''
+    
+    keywords = ["Text", "Skill"]
+
 class VictoryScreen(EventCommand):
     nid = 'victory_screen'
     tag = Tags.MISCELLANEOUS

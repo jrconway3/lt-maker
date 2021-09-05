@@ -2854,6 +2854,9 @@ class Event():
 
         # function
         entity = game.overworld_controller.entities.get(entity_nid, None)
+        if not entity.display_position:
+            logging.error("%s: Attempting to move entity %s with no position - is it on the overworld?", 'overworld_move_unit', entity_nid)
+            return
 
         follow = 'no_follow' not in flags
         block = 'no_block' not in flags
@@ -2879,6 +2882,9 @@ class Event():
         if path:
             # i'm disabling linger for arbitrary paths as a default, because i think it makes more sense that way
             movement = OverworldMove(entity, None, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj, path=path, linger=0, after_move_callback=disable_func, mute=mute)
+            if self.do_skip: # we are skipping; resolve this instantly
+                entity.display_position = path[-1]
+                return
         elif isinstance(target_location, NID):
             target_node: OverworldNodeObject = game.overworld_controller.nodes.get(target_location, None)
             if entity.on_node: # we're pathfinding to a node
@@ -2891,6 +2897,9 @@ class Event():
         elif isinstance(target_location, Tuple):
             path = [target_location]
             movement = OverworldMove(entity, None, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj, path=path, linger=0, after_move_callback=disable_func, mute=mute)
+            if self.do_skip: # we are skipping; resolve this instantly
+                entity.display_position = path[-1]
+                return
         else:
             logging.error("%s: No valid path or target location specified: path: %s | target_location: %s", "overworld_move_unit", str(path), str(target_location))
             return
@@ -2994,10 +3003,9 @@ class Event():
             return
         if len(values) > 1 and values[1]:
             unit_nid = values[1]
-            unit = DB.units.get(unit_nid)
-            if not unit:
+            if not unit_nid in DB.units.keys():
                 logging.error('%s: No such unit with nid %s', 'create_overworld_entity', unit_nid)
-            new_entity = OverworldEntityObject.dummy_entity(entity_nid, None, unit)
+            new_entity = OverworldEntityObject.from_unit_prefab(entity_nid, None, unit_nid)
             game.overworld_controller.add_entity(new_entity)
 
     def clean_up_roaming(self, command):

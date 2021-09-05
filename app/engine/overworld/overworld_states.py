@@ -7,7 +7,7 @@ from app.engine.fluid_scroll import FluidScroll
 from app.engine.game_state import game
 from app.engine.input_manager import INPUT
 from app.engine.objects.overworld import (OverworldNodeObject,
-                                          OverworldNodeProperty)
+                                          OverworldNodeProperty, OverworldEntityTypes)
 from app.engine.overworld.overworld_actions import OverworldMove
 from app.engine.overworld.overworld_manager import OverworldManager
 from app.engine.overworld.overworld_map_view import OverworldMapView
@@ -71,7 +71,7 @@ class OverworldState(MapState):
 
             if selected_node: # if we clicked on a node
                 entity = game.overworld_controller.entity_at(selected_node.position)
-                if entity and entity.team == 'player': # there's a party underneath us, select it and launch the party menu
+                if entity and entity.team == 'player' and entity.dtype == OverworldEntityTypes.PARTY: # there's a party underneath us, select it and launch the party menu
                     game.overworld_controller.select_entity(entity)
                     SOUNDTHREAD.play_sfx('Select 5')
                     game.state.change('overworld_party_option_menu')

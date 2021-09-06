@@ -1169,7 +1169,7 @@ class Event():
             game.alerts.append(banner.Custom(custom_string))
             game.state.change('alert')
             self.state = 'paused'
-            
+
         elif command.nid == 'alert_item':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             custom_string = values[0]
@@ -1182,7 +1182,7 @@ class Event():
             game.alerts.append(banner.CustomIcon(custom_string, custom_item))
             game.state.change('alert')
             self.state = 'paused'
-        
+
         elif command.nid == 'alert_skill':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             custom_string = values[0]
@@ -2906,7 +2906,7 @@ class Event():
         movement.queue(self.overworld_movement_manager)
         if follow:
             game.camera.do_slow_pan(1000)
-            game.camera.set_center(entity.position[0], entity.position[1])
+            game.camera.set_center(entity.display_position[0], entity.display_position[1])
         if 'overworld_movement' not in self.should_update.keys(): # queue continuous update function if not exists
             def update_movement(should_skip: bool):
                 if should_skip:

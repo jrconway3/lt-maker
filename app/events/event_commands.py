@@ -1563,21 +1563,34 @@ Brings up the chapter title screen, optionally with the specified *Music* and ch
 
     optional_keywords = ["Music", "Text"]
 
-class DrawOverlay(EventCommand):
-    nid = 'draw_overlay'
+class DrawOverlaySprite(EventCommand):
+    nid = 'draw_overlay_sprite'
+    nickname = 'draw_overlay'
     tag = Tags.MISCELLANEOUS
 
     desc = \
 """
-Draws an image. Will always draw immediately beneath dialog, but z-level within the overlay can be specified with an integer.
-Position can also be specified, but defaults to 0, 0. Pass in the 'delete' flag to remove the overlay with sprite and name.
+Draws a sprite on the screen at the specified position. Position defaults to 0, 0.
+Will always draw immediately behind the dialog. 
+You can control the order that multiple siimultaneous overlays are drawn by choosing a custom z-level.
+Higher z-level sprites will cover lower z-level sprites occupying the same positions.
 """
 
     keywords = ['String', 'Sprite']
-    optional_keywords = ['Integer', 'PositionOffset']
-    keyword_names = ['Name', 'Sprite_Name', 'Z-Level', 'Offset']
+    optional_keywords = ['PositionOffset', 'Integer']
+    keyword_names = ['Name', 'Sprite_ID', 'Position', 'Z-Level']
 
-    flags = ['delete']
+class RemoveOverlaySprite(EventCommand):
+    nid = 'remove_overlay_sprite'
+    nickname = 'delete_overlay'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+"""
+Removes an overlay sprite with the given name from the screen.
+"""
+
+    keywords = ['String']
 
 class Alert(EventCommand):
     nid = 'alert'

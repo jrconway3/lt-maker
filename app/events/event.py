@@ -1314,26 +1314,23 @@ class Event():
         elif command.nid == 'move_in_initiative':
             self.move_in_initiative(command)
 
-        elif command.nid == 'draw_overlay':
+        elif command.nid == 'draw_overlay_sprite':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             name = values[0]
-
-            if 'delete' in flags:
-                self.overlay_ui.remove_surf(name)
-                return
-
             sprite_nid = values[1]
             z = 0
             pos = (0, 0)
             if len(values) > 2:
-                if eval(values[2]):
-                    z = eval(values[2])
+                pos = eval(values[2])  # Why do we eval this instead of just reading position like we do elsewhere?
             if len(values) > 3:
-                if eval(values[3]):
-                    pos = eval(values[3])
+                z = eval(values[3])  # Why do we eval this also?
             sprite = SPRITES.get(sprite_nid)
             self.overlay_ui.add_surf(sprite, pos, z, name)
 
+        elif command.nid == 'remove_overlay_sprite':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+            name = values[0]
+            self.overlay_ui.remove_surf(name)
 
     def add_portrait(self, command):
         values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)

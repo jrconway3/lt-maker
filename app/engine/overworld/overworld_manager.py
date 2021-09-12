@@ -72,7 +72,7 @@ class OverworldManager():
             # select the first player party on the map
             for entity in self._overworld.overworld_entities.values():
                 if entity.team == 'player':
-                    if entity.on_node is not None and entity.position:
+                    if entity.on_node is not None and entity.display_position:
                         self._overworld.selected_party_nid = entity.nid
                         break
         return self.entities[self._overworld.selected_party_nid]
@@ -173,7 +173,7 @@ class OverworldManager():
         if isinstance(pos, OverworldNodeObject):
             pos = pos.position
         for entity in self._overworld.overworld_entities.values():
-            if entity.position == pos:
+            if entity.display_position == pos:
                 return entity
         return None
 

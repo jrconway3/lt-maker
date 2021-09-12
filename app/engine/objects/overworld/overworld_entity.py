@@ -1,24 +1,17 @@
 from __future__ import annotations
-from app.data.parties import PartyPrefab
 
-from typing import TYPE_CHECKING, Dict, List, Set, Tuple
+from typing import TYPE_CHECKING, Dict
 from enum import Enum
 
-from app.constants import TILEHEIGHT, TILEWIDTH
 from app.data.database import DB
-from app.utilities.utils import magnitude, tuple_sub
 
 if TYPE_CHECKING:
-    from app.data.overworld import OverworldPrefab
-    from app.data.units import UnitPrefab
-    from app.data.overworld_node import OverworldNodePrefab
     from app.engine.game_state import GameState
     from app.engine.objects.unit import UnitObject
 
 from app.engine.overworld.overworld_map_sprites import (
                                                         OverworldUnitSprite)
 from app.engine.unit_sound import UnitSound
-from app.resources.sounds import Song
 from app.utilities.typing import NID, Point
 
 import logging
@@ -44,11 +37,7 @@ class OverworldEntityObject():
         self.sound: UnitSound = None               # sound associated
 
         # private data
-        self.temporary_position: Point = None       # NOTE: because the 'official' position of the entity (see below)
-                                                    # is always on top of a node, this temporary position attribute
-                                                    # is chiefly used in service of animation - when walking along
-                                                    # roads, etc.
-        self._display_position: Point = None        # ditto as above
+        self._display_position: Point = None        # display position for drawing purposes
 
     @classmethod
     def from_party_prefab(cls, initial_node: NID, party_prefab_nid: NID, unit_registry: Dict[NID, UnitObject] = None):
@@ -127,26 +116,18 @@ class OverworldEntityObject():
             raise TypeError("Unknown OverworldEntityType")
 
     @property
-    def position(self) -> Point:
-        if self.on_node:
+    def display_position(self) -> Point:
+        if self._display_position:
+            return self._display_position
+        elif self.sprite.fake_position:
+            return self.sprite.fake_position
+        elif self.on_node:
             for overworld in DB.overworlds.values():
                 node = overworld.overworld_nodes.get(self.on_node, None)
                 if node is not None:
                     return node.pos
-        elif self._display_position:
-            return self._display_position
-        return None
-
-    @property
-    def display_position(self) -> Point:
-        if self._display_position:
-            return self._display_position
-        elif self.temporary_position:
-            return self.temporary_position
-        elif self.sprite.fake_position:
-            return self.sprite.fake_position
         else:
-            return self.position
+            return None
 
     @display_position.setter
     def display_position(self, pos: Point):

@@ -2845,7 +2845,6 @@ class Event():
             entity.sprite.set_transition('fade_out')
         entity.on_node = None
         entity.display_position = None
-        entity.temporary_position = None
 
     def overworld_move_unit(self, entity_nid: NID, target_location: Tuple[int, int] | NID,
                             speed_adj: float, path: List[Point], flags={}):
@@ -2868,7 +2867,6 @@ class Event():
                 entity.sprite.set_transition('fade_out')
                 entity.on_node = None
                 entity.display_position = None
-                entity.temporary_position = None
         else:
             def disable_func():
                 pass

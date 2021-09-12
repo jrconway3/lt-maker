@@ -42,6 +42,7 @@ class OverworldState(MapState):
         game.overworld_controller = OverworldManager(game.overworld_registry[overworld_to_load], game.cursor)
         game.movement = OverworldMovementManager(game.overworld_controller)
         game.map_view = OverworldMapView(game.overworld_controller, game.cursor)
+        game.set_up_game_board(game.overworld_registry[overworld_to_load].tilemap)
 
         # assign the next level
         if game.game_vars.get('_next_level_nid'):

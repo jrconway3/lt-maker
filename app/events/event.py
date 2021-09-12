@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.sprites import SPRITES
 import logging
 import re
 from typing import Callable, Dict, List, Tuple
@@ -238,6 +239,10 @@ class Event():
         for key in delete:
             del self.portraits[key]
 
+        # draw all uiframework elements
+        ui_surf = self.overlay_ui.to_surf()
+        surf.blit(ui_surf, (0, 0))
+
         sorted_portraits = sorted(self.portraits.values(), key=lambda x: x.priority)
         for portrait in sorted_portraits:
             portrait.draw(surf)
@@ -259,9 +264,6 @@ class Event():
             for dialog_box in to_draw:
                 dialog_box.update()
                 dialog_box.draw(surf)
-            # draw all uiframework elements
-            ui_surf = self.overlay_ui.to_surf()
-            surf.blit(ui_surf, (0, 0))
 
         # Fade to black
         if self.transition_state:
@@ -1311,6 +1313,24 @@ class Event():
 
         elif command.nid == 'move_in_initiative':
             self.move_in_initiative(command)
+
+        elif command.nid == 'draw_overlay_sprite':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+            name = values[0]
+            sprite_nid = values[1]
+            z = 0
+            pos = (0, 0)
+            if len(values) > 2:
+                pos = eval(values[2])  # Why do we eval this instead of just reading position like we do elsewhere?
+            if len(values) > 3:
+                z = eval(values[3])  # Why do we eval this also?
+            sprite = SPRITES.get(sprite_nid)
+            self.overlay_ui.add_surf(sprite, pos, z, name)
+
+        elif command.nid == 'remove_overlay_sprite':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+            name = values[0]
+            self.overlay_ui.remove_surf(name)
 
     def add_portrait(self, command):
         values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)

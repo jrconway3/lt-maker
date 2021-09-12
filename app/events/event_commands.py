@@ -1563,6 +1563,22 @@ Brings up the chapter title screen, optionally with the specified *Music* and ch
 
     optional_keywords = ["Music", "Text"]
 
+class DrawOverlay(EventCommand):
+    nid = 'draw_overlay'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+"""
+Draws an image. Will always draw immediately beneath dialog, but z-level within the overlay can be specified with an integer.
+Position can also be specified, but defaults to 0, 0. Pass in the 'delete' flag to remove the overlay with sprite and name.
+"""
+
+    keywords = ['String', 'Sprite']
+    optional_keywords = ['Integer', 'PositionOffset']
+    keyword_names = ['Name', 'Sprite_Name', 'Z-Level', 'Offset']
+
+    flags = ['delete']
+
 class Alert(EventCommand):
     nid = 'alert'
     tag = Tags.DIALOGUE_TEXT
@@ -1582,7 +1598,7 @@ class AlertItem(EventCommand):
         """
 Displays the text given in *Text* in an alert box. This is used for events such as "The switch was pulled!".
 
-Also takes in a item icon from *Item* to display. 
+Also takes in a item icon from *Item* to display.
 
 The icon always appears on the left side.
         """
@@ -1592,7 +1608,7 @@ The icon always appears on the left side.
 class AlertSkill(EventCommand):
     nid = 'alert_skill'
     tag = Tags.DIALOGUE_TEXT
-    
+
     desc = \
         '''
 Displays the text given in *Text* in an alert box. This is used for events such as "The switch was pulled!".
@@ -1601,7 +1617,7 @@ Also takes in a skill icon from *Skill* to display.
 
 The icon always appears on the left side.
         '''
-    
+
     keywords = ["Text", "Skill"]
 
 class VictoryScreen(EventCommand):

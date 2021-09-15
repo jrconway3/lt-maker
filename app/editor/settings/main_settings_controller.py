@@ -36,7 +36,7 @@ class MainSettingsController():
 
     def set_theme(self, value):
         self.state.setValue("theme", value)
-    
+
     def get_theme(self, fallback=0):
         return self.state.value("theme", fallback)
 
@@ -58,22 +58,28 @@ class MainSettingsController():
     def get_autosave_time(self, fallback=5):
         return float(self.state.value("autosave_time", fallback))
 
+    def set_should_display_crash_logs(self, value):
+        self.state.setValue("should_display_crash_logs", value)
+
+    def get_should_display_crash_logs(self, fallback=True):
+        return self.state.value("should_display_crash_logs", fallback)
+
     """========== General Control Settings =========="""
 
     def set_place_button(self, value):
         self.state.setValue("place_button", value)
-    
+
     def get_place_button(self, fallback=None):
         return self.state.value('place_button', fallback)
 
     def set_select_button(self, value):
         self.state.setValue('select_button', value)
-    
+
     def get_select_button(self, fallback=None):
         return self.state.value('select_button', fallback)
 
     def set_autocomplete_button(self, value):
         self.state.setValue('autocomplete_button', value)
-    
+
     def get_autocomplete_button(self, fallback=None):
         return self.state.value('autocomplete_button', fallback)

@@ -1,21 +1,19 @@
-import os
-from datetime import datetime
 import json
-
-from PyQt5.QtWidgets import QProgressDialog, QMessageBox, QFileDialog
-from PyQt5.QtCore import Qt, QDir
-
-from app.editor.settings import MainSettingsController
+import logging
+import os
+import shutil
+from datetime import datetime
+from pathlib import Path
 
 from app.constants import VERSION
-from app.resources.resources import RESOURCES
 from app.data.database import DB
-
 from app.editor import timer
-
 from app.editor.new_game_dialog import NewGameDialog
+from app.editor.settings import MainSettingsController
+from app.resources.resources import RESOURCES
+from PyQt5.QtCore import QDir, Qt
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
-import logging
 
 class ProjectFileBackend():
     def __init__(self, parent, app_state_manager):
@@ -84,8 +82,31 @@ class ProjectFileBackend():
                     return False
 
         # Make directory for saving if it doesn't already exist
-        if not os.path.isdir(self.current_proj):
-            os.mkdir(self.current_proj)
+        if not new:
+            # to make sure we don't accidentally make a bad save
+            # we will copy either the autosave, or the existing save (whichever is more recent)
+            # as a backup
+            self.tmp_proj = self.current_proj + '.lttmp'
+            self.save_progress.setLabelText("Making backup to %s" % self.tmp_proj)
+            if os.path.exists(self.tmp_proj):
+                shutil.rmtree(self.tmp_proj)
+
+            # check if autosave or current save is more recent
+            most_recent_path = self.current_proj
+            try:
+                autosave_dir = os.path.abspath('autosave.ltproj')
+                autosave_meta = json.load(open(autosave_dir + '/metadata.json'))
+                curr_meta = json.load(open(self.current_proj + '/metadata.json'))
+                if autosave_meta['project'] == curr_meta['project']: # make sure same project
+                    autosave_ts = datetime.strptime(autosave_meta['date'], '%Y-%m-%d %H:%M:%S.%f')
+                    curr_ts = datetime.strptime(curr_meta['date'], '%Y-%m-%d %H:%M:%S.%f')
+                    if autosave_ts > curr_ts:
+                        most_recent_path = autosave_dir
+            except Exception as e:
+                # autosave doesn't have metadata, autosave doesn't exist, etc.
+                # just copy the previous save
+                pass
+            shutil.copytree(most_recent_path, self.tmp_proj)
         self.save_progress.setLabelText("Saving project to %s" % self.current_proj)
         self.save_progress.setValue(1)
 
@@ -100,10 +121,16 @@ class ProjectFileBackend():
         metadata = {}
         metadata['date'] = str(datetime.now())
         metadata['version'] = VERSION
+        metadata['project'] = DB.constants.get('title').value
         with open(metadata_loc, 'w') as serialize_file:
             json.dump(metadata, serialize_file, indent=4)
 
         self.save_progress.setValue(100)
+
+        if not new:
+            # we have fully saved the current project; remove the backup folder
+            if os.path.isdir(self.tmp_proj):
+                shutil.rmtree(self.tmp_proj)
 
         return True
 
@@ -156,7 +183,28 @@ class ProjectFileBackend():
                 return True
             except Exception as e:
                 logging.error(e)
-                logging.warning("path %s not found. Falling back to default.ltproj" % path)
+                backup_project_name = path + '.lttmp'
+                corrupt_project_name = path + '.ltcorrupt'
+                logging.warning("Failed to load project at %s. Likely that project is corrupted.", path)
+                logging.warning("the corrupt project will be stored at %s.", corrupt_project_name)
+                logging.info("Attempting load from backup project %s, which will be renamed to %s", backup_project_name, path)
+                if os.path.exists(backup_project_name):
+                    try:
+                        if os.path.exists(corrupt_project_name):
+                            shutil.rmtree(corrupt_project_name)
+                        shutil.copytree(path, corrupt_project_name)
+                        shutil.rmtree(path)
+                        shutil.copytree(backup_project_name, path)
+                        self.current_proj = path
+                        self.settings.set_current_project(self.current_proj)
+                        self.load()
+                        return True
+                    except Exception as e:
+                        logging.error(e)
+                        logging.warning("failed to load project at %s.", backup_project_name)
+                else:
+                    logging.warning("no project found at %s", backup_project_name)
+                logging.warning("falling back to default.ltproj")
                 self.auto_open_fallback()
                 return False
         else:
@@ -190,6 +238,15 @@ class ProjectFileBackend():
         self.autosave_progress.setValue(75)
         DB.serialize(autosave_dir)
         self.autosave_progress.setValue(99)
+
+        # Save metadata
+        metadata_loc = os.path.join(autosave_dir, 'metadata.json')
+        metadata = {}
+        metadata['date'] = str(datetime.now())
+        metadata['version'] = VERSION
+        metadata['project'] = DB.constants.get('title').value
+        with open(metadata_loc, 'w') as serialize_file:
+            json.dump(metadata, serialize_file, indent=4)
 
         try:
             self.parent.status_bar.showMessage(

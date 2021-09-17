@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 import json
-import shutil
 
 from PyQt5.QtWidgets import QProgressDialog, QMessageBox, QFileDialog
 from PyQt5.QtCore import Qt, QDir
@@ -85,21 +84,19 @@ class ProjectFileBackend():
                     return False
 
         # Make directory for saving if it doesn't already exist
-        # to make sure we don't accidentally make a bad save, we will write to a backup folder first
-        self.tmp_proj = self.current_proj + '.lttmp'
-        if not os.path.isdir(self.tmp_proj):
-            os.mkdir(self.tmp_proj)
+        if not os.path.isdir(self.current_proj):
+            os.mkdir(self.current_proj)
         self.save_progress.setLabelText("Saving project to %s" % self.current_proj)
         self.save_progress.setValue(1)
 
         # Actually save project
-        RESOURCES.save(self.tmp_proj, progress=self.save_progress)
+        RESOURCES.save(self.current_proj, progress=self.save_progress)
         self.save_progress.setValue(75)
-        DB.serialize(self.tmp_proj)
+        DB.serialize(self.current_proj)
         self.save_progress.setValue(99)
 
         # Save metadata
-        metadata_loc = os.path.join(self.tmp_proj, 'metadata.json')
+        metadata_loc = os.path.join(self.current_proj, 'metadata.json')
         metadata = {}
         metadata['date'] = str(datetime.now())
         metadata['version'] = VERSION
@@ -107,11 +104,6 @@ class ProjectFileBackend():
             json.dump(metadata, serialize_file, indent=4)
 
         self.save_progress.setValue(100)
-
-        # tmp has been saved correctly; we can now replace
-        if os.path.isdir(self.current_proj):
-           shutil.rmtree(self.current_proj)
-        os.rename(self.tmp_proj, self.current_proj)
 
         return True
 
@@ -164,9 +156,7 @@ class ProjectFileBackend():
                 return True
             except Exception as e:
                 logging.error(e)
-                logging.warning("Failed to load project at %s. Likely that a project json file is corrupted. Check previous logs; the most recent load has probably failed." % path)
-                logging.warning("It is recommended to recover this project from autosave.ltproj by copying and pasting the corrupted module.")
-                logging.warning("Falling back to default.ltproj")
+                logging.warning("path %s not found. Falling back to default.ltproj" % path)
                 self.auto_open_fallback()
                 return False
         else:

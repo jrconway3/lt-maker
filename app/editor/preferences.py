@@ -36,6 +36,7 @@ class PreferencesDialog(Dialog):
         self.saved_preferences['autocomplete_button'] = self.settings.get_autocomplete_button(Qt.Key_Tab)
         self.saved_preferences['autosave_time'] = self.settings.get_autosave_time()
         self.saved_preferences['crash_logs'] = self.settings.get_should_display_crash_logs()
+        self.saved_preferences['save_backup'] = self.settings.get_should_make_backup_save()
 
         self.available_options = name_to_button.keys()
         self.autocomplete_options = key_to_button.keys()
@@ -66,6 +67,8 @@ class PreferencesDialog(Dialog):
 
         self.crashlog = PropertyCheckBox('Show Error Logs on Crash?', QCheckBox, self)
         self.crashlog.edit.setChecked(bool(self.saved_preferences['crash_logs']))
+        self.savebackup = PropertyCheckBox('Make Additional Backup Save?', QCheckBox, self)
+        self.savebackup.edit.setChecked(bool(self.saved_preferences['save_backup']))
 
         self.autocomplete_button = PropertyBox('Autocomplete Button', ComboBox, self)
         for option in self.autocomplete_options:
@@ -86,6 +89,7 @@ class PreferencesDialog(Dialog):
         self.layout.addWidget(self.autocomplete)
         self.layout.addWidget(self.autocomplete_desc)
         self.layout.addWidget(self.crashlog)
+        self.layout.addWidget(self.savebackup)
         self.layout.addWidget(self.autosave)
         self.layout.addWidget(self.buttonbox)
 
@@ -135,6 +139,8 @@ class PreferencesDialog(Dialog):
         self.settings.set_event_autocomplete_desc(autocomplete_desc)
         crash_log_setting = 1 if self.crashlog.edit.isChecked() else 0
         self.settings.set_should_display_crash_logs(crash_log_setting)
+        save_backup_setting = 1 if self.savebackup.edit.isChecked() else 0
+        self.settings.set_should_make_backup_save(save_backup_setting)
         autosave = float(self.autosave.edit.value())
         self.settings.set_autosave_time(autosave)
         super().accept()

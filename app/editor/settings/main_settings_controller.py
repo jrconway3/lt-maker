@@ -65,11 +65,11 @@ class MainSettingsController():
     def get_should_display_crash_logs(self, fallback=True):
         return self.state.value("should_display_crash_logs", fallback, type=bool)
 
-    def set_should_display_crash_logs(self, value):
-        self.state.setValue("should_display_crash_logs", value)
+    def set_should_make_backup_save(self, value):
+        self.state.setValue("should_make_backup_save", value)
 
-    def get_should_display_crash_logs(self, fallback=True):
-        return self.state.value("should_display_crash_logs", fallback)
+    def get_should_make_backup_save(self, fallback=True):
+        return self.state.value("should_make_backup_save", fallback)
 
     """========== General Control Settings =========="""
 

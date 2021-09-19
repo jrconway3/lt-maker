@@ -82,12 +82,13 @@ class ProjectFileBackend():
                     return False
 
         # Make directory for saving if it doesn't already exist
-        if not new:
+        if not new and self.settings.get_should_make_backup_save():
             # to make sure we don't accidentally make a bad save
             # we will copy either the autosave, or the existing save (whichever is more recent)
             # as a backup
             self.tmp_proj = self.current_proj + '.lttmp'
             self.save_progress.setLabelText("Making backup to %s" % self.tmp_proj)
+            self.save_progress.setValue(1)
             if os.path.exists(self.tmp_proj):
                 shutil.rmtree(self.tmp_proj)
 
@@ -108,7 +109,7 @@ class ProjectFileBackend():
                 pass
             shutil.copytree(most_recent_path, self.tmp_proj)
         self.save_progress.setLabelText("Saving project to %s" % self.current_proj)
-        self.save_progress.setValue(1)
+        self.save_progress.setValue(10)
 
         # Actually save project
         RESOURCES.save(self.current_proj, progress=self.save_progress)
@@ -117,13 +118,7 @@ class ProjectFileBackend():
         self.save_progress.setValue(99)
 
         # Save metadata
-        metadata_loc = os.path.join(self.current_proj, 'metadata.json')
-        metadata = {}
-        metadata['date'] = str(datetime.now())
-        metadata['version'] = VERSION
-        metadata['project'] = DB.constants.get('title').value
-        with open(metadata_loc, 'w') as serialize_file:
-            json.dump(metadata, serialize_file, indent=4)
+        self.save_metadata(self.current_proj)
 
         self.save_progress.setValue(100)
 
@@ -187,6 +182,8 @@ class ProjectFileBackend():
                 corrupt_project_name = path + '.ltcorrupt'
                 logging.warning("Failed to load project at %s. Likely that project is corrupted.", path)
                 logging.warning("the corrupt project will be stored at %s.", corrupt_project_name)
+                QMessageBox.warning(self.parent, "Load of project failed",
+                                    "Failed to load project at %s. Likely that project is corrupted.\nLoading from backup if available." % path)
                 logging.info("Attempting load from backup project %s, which will be renamed to %s", backup_project_name, path)
                 if os.path.exists(backup_project_name):
                     try:
@@ -240,13 +237,7 @@ class ProjectFileBackend():
         self.autosave_progress.setValue(99)
 
         # Save metadata
-        metadata_loc = os.path.join(autosave_dir, 'metadata.json')
-        metadata = {}
-        metadata['date'] = str(datetime.now())
-        metadata['version'] = VERSION
-        metadata['project'] = DB.constants.get('title').value
-        with open(metadata_loc, 'w') as serialize_file:
-            json.dump(metadata, serialize_file, indent=4)
+        self.save_metadata(autosave_dir)
 
         try:
             self.parent.status_bar.showMessage(
@@ -254,6 +245,15 @@ class ProjectFileBackend():
         except Exception:
             pass
         self.autosave_progress.setValue(100)
+
+    def save_metadata(self, save_dir):
+        metadata_loc = os.path.join(save_dir, 'metadata.json')
+        metadata = {}
+        metadata['date'] = str(datetime.now())
+        metadata['version'] = VERSION
+        metadata['project'] = DB.constants.get('game_nid').value
+        with open(metadata_loc, 'w') as serialize_file:
+            json.dump(metadata, serialize_file, indent=4)
 
     def clean(self):
         RESOURCES.clean(self.current_proj)

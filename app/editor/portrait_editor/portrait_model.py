@@ -1,8 +1,10 @@
+from app.constants import COLORKEY
 import os
+import shutil
 
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QIcon, QImage
+from PyQt5.QtGui import QPixmap, QIcon, QImage, QColor
 
 from app.resources.portraits import Portrait
 from app.resources.resources import RESOURCES
@@ -51,6 +53,30 @@ def auto_frame_portrait(portrait: Portrait):
                 best_mouth_pos = [x, y]
     portrait.blinking_offset = best_blink_pos
     portrait.smiling_offset = best_mouth_pos
+
+def auto_colorkey(portrait: Portrait):
+    if not portrait.pixmap:
+        portrait.pixmap = QPixmap(portrait.full_path)
+    image = portrait.pixmap.toImage()
+    top_left_color = QColor(image.pixel(0, 0)).getRgb()
+    for x in range(image.width()):
+        for y in range(image.height()):
+            if QColor(image.pixel(x, y)).getRgb() == top_left_color:
+                image.setPixelColor(x, y, QColor(*COLORKEY))
+    # since we're messing with data, let's try to be atomic
+    try:
+        shutil.copyfile(portrait.full_path, portrait.full_path + '.bak')
+    except:
+        raise IOError("failed to create backup, aborting auto-colorkey")
+    os.remove(portrait.full_path)
+    try:
+        image.save(portrait.full_path)
+        portrait.pixmap = QPixmap(portrait.full_path)
+        portrait.image = None # reset this so the engine will know to reload
+    except:
+        shutil.move(portrait.full_path + '.bak', portrait.full_path)
+        raise IOError("some file operation failed, aborting auto-colorkey")
+    os.remove(portrait.full_path + '.bak')
 
 class PortraitModel(ResourceCollectionModel):
     def data(self, index, role):

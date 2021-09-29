@@ -779,15 +779,15 @@ def get_palette(anim_prefab: CombatAnimation, unit) -> tuple:
     current_palette = RESOURCES.combat_palettes.get(palette_nid)
     return palette_name, current_palette
 
-def get_battle_anim(unit, item, distance=1, klass=None, variant=None) -> BattleAnimation:
+def get_battle_anim(unit, item, distance=1, klass=None, default_variant=False) -> BattleAnimation:
     # Find the right combat animation
     if klass:
         class_obj = DB.classes.get(klass)
     else:
         class_obj = DB.classes.get(skill_system.change_animation(unit))
     combat_anim_nid = class_obj.combat_anim_nid
-    if variant:
-        use_variant = variant
+    if default_variant:
+        use_variant = unit.variant
     else:
         use_variant = skill_system.change_variant(unit)
     if combat_anim_nid and use_variant:

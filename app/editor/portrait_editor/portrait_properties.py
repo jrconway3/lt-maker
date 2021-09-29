@@ -230,11 +230,7 @@ class PortraitProperties(QWidget):
         except Exception as e:
             logging.error("colorkeying failed")
             logging.exception(e)
-            error_msg = QMessageBox()
-            error_msg.setIcon(QMessageBox.Warning)
-            error_msg.setText("Automatic Colorkeying failed with error: \n" + traceback.format_exc())
-            error_msg.setWindowTitle("Colorkey failed")
-            error_msg.exec_()
+            QMessageBox.warning(self, 'Colorkey Failed', 'Automatic Colorkeying failed with error: \n' + traceback.format_exc())
         self.set_current(self.current)
 
     def talk_button_clicked(self, checked):

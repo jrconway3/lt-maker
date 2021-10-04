@@ -187,11 +187,11 @@ def can_unlock(unit, region) -> bool:
                         return True
     return False
 
-def before_crit(actions, playback, attacker, item, defender, mode) -> bool:
+def before_crit(actions, playback, attacker, item, defender, mode, attack_info) -> bool:
     for skill in attacker.skills:
         for component in skill.components:
             if component.defines('before_crit'):
-                component.before_crit(actions, playback, attacker, item, defender, mode)
+                component.before_crit(actions, playback, attacker, item, defender, mode, attack_info)
 
 def on_upkeep(actions, playback, unit) -> tuple:  # actions, playback
     for skill in unit.skills:

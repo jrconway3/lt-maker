@@ -87,7 +87,7 @@ class LevelCursor(BaseCursor):
                 if target_system.check_path(self.cur_unit, self.path):
                     return self.path
 
-        self.path = target_system.get_path(self.cur_unit, self._last_valid_position)
+        self.path = target_system.get_path(self.cur_unit, self._last_valid_position, use_limit=True)
         return self.path
 
     def move(self, dx, dy, mouse=False, sound=True):
@@ -135,23 +135,23 @@ class LevelCursor(BaseCursor):
             if idx == 0:  # Start of path
                 direction = (path[idx + 1][0] - path[idx][0], path[idx + 1][1] - path[idx][1])
                 if direction == (1, 0):  # Right
-                    self.arrows.append(Arrow(0, 0, path[idx]))
+                    self.arrows.append(Arrow(0, 0, path[idx], idx))
                 elif direction == (-1, 0):  # Left
-                    self.arrows.append(Arrow(1, 1, path[idx]))
+                    self.arrows.append(Arrow(1, 1, path[idx], idx))
                 elif direction == (0, -1):  # Up
-                    self.arrows.append(Arrow(0, 1, path[idx]))
+                    self.arrows.append(Arrow(0, 1, path[idx], idx))
                 elif direction == (0, 1):  # Down
-                    self.arrows.append(Arrow(1, 0, path[idx]))
+                    self.arrows.append(Arrow(1, 0, path[idx], idx))
             elif idx == len(path) - 1:  # End of path
                 direction = (path[idx][0] - path[idx - 1][0], path[idx][1] - path[idx - 1][1])
                 if direction == (1, 0):  # Right
-                    self.arrows.append(Arrow(6, 0, path[idx]))
+                    self.arrows.append(Arrow(6, 0, path[idx], idx))
                 elif direction == (-1, 0):  # Left
-                    self.arrows.append(Arrow(7, 1, path[idx]))
+                    self.arrows.append(Arrow(7, 1, path[idx], idx))
                 elif direction == (0, -1):  # Up
-                    self.arrows.append(Arrow(6, 1, path[idx]))
+                    self.arrows.append(Arrow(6, 1, path[idx], idx))
                 elif direction == (0, 1):  # Down
-                    self.arrows.append(Arrow(7, 0, path[idx]))
+                    self.arrows.append(Arrow(7, 0, path[idx], idx))
             else:  # Neither beginning nor end of path
                 next_p = path[idx + 1]
                 current_p = path[idx]
@@ -159,19 +159,19 @@ class LevelCursor(BaseCursor):
                 direction = (next_p[0] - prev_p[0], next_p[1] - prev_p[1])
                 modifier = (current_p[0] - prev_p[0], current_p[1] - prev_p[1])
                 if direction == (2, 0) or direction == (-2, 0):  # Right or Left
-                    self.arrows.append(Arrow(3, 0, path[idx]))
+                    self.arrows.append(Arrow(3, 0, path[idx], idx))
                 elif direction == (0, 2) or direction == (0, -2):  # Up or Down
-                    self.arrows.append(Arrow(2, 0, path[idx]))
+                    self.arrows.append(Arrow(2, 0, path[idx], idx))
                 elif direction == (1, -1) or direction == (-1, 1):  # Topleft or Bottomright
                     if modifier == (0, -1) or modifier == (-1, 0):
-                        self.arrows.append(Arrow(4, 0, path[idx]))
+                        self.arrows.append(Arrow(4, 0, path[idx], idx))
                     elif modifier == (1, 0) or modifier == (0, 1):
-                        self.arrows.append(Arrow(5, 1, path[idx]))
+                        self.arrows.append(Arrow(5, 1, path[idx], idx))
                 elif direction == (1, 1) or direction == (-1, -1):  # Topright or Bottomleft
                     if modifier == (0, -1) or modifier == (1, 0):
-                        self.arrows.append(Arrow(5, 0, path[idx]))
+                        self.arrows.append(Arrow(5, 0, path[idx], idx))
                     else:
-                        self.arrows.append(Arrow(4, 1, path[idx]))
+                        self.arrows.append(Arrow(4, 1, path[idx], idx))
 
     def remove_arrows(self):
         self._last_valid_position = None
@@ -289,9 +289,10 @@ class LevelCursor(BaseCursor):
 class Arrow(object):
     sprite = SPRITES.get('movement_arrows')
 
-    def __init__(self, x, y, position):
+    def __init__(self, x, y, position, idx):
         self.image = engine.subsurface(self.sprite, (x * TILEWIDTH, y * TILEHEIGHT, TILEWIDTH, TILEHEIGHT))
         self.position = position
+        self.idx = idx
 
     def draw(self, surf, cull_rect):
         x, y = self.position

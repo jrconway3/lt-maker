@@ -34,6 +34,10 @@ class Defaults():
         return 0
 
     @staticmethod
+    def witch_warp(unit) -> list:
+        return []
+
+    @staticmethod
     def exp_multiplier(unit1, unit2) -> float:
         return 1.0
 
@@ -157,6 +161,21 @@ def stat_change(unit, stat_nid) -> int:
                     d = component.stat_change(unit)
                     bonus += d.get(stat_nid, 0)
     return bonus
+
+def stat_change_contribution(unit, stat_nid) -> dict:
+    contribution = {}
+    for skill in unit.skills:
+        for component in skill.components:
+            if component.defines('stat_change'):
+                if component.ignore_conditional or condition(skill, unit):
+                    d = component.stat_change(unit)
+                    val = d.get(stat_nid, 0)
+                    if val != 0:
+                        if skill.nid in contribution:
+                            contribution[skill.nid] += val
+                        else:
+                            contribution[skill.nid] = val
+    return contribution
 
 def growth_change(unit, stat_nid) -> int:
     bonus = 0

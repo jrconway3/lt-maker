@@ -1473,7 +1473,7 @@ class MapAnim(EventCommand):
             ' *Float*, which increases the length of time it takes to play the animation (larger is slower)')
     keywords = ["MapAnim", "Position"]
     optional_keywords = ["Float"]
-    flags = ["no_block", "permanent"]
+    flags = ["no_block", "permanent", "blend"]
 
 class RemoveMapAnim(EventCommand):
     nid = 'remove_map_anim'

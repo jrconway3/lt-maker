@@ -70,8 +70,7 @@ class MapView():
 
         game.tilemap.animations = [anim for anim in game.tilemap.animations if not anim.update()]
         for anim in game.tilemap.animations:
-            # anim.draw(surf, offset=(-game.camera.get_x(), -game.camera.get_y()))
-            anim.draw(surf, offset=(-cull_rect[0], -cull_rect[1]))
+            anim.draw(surf, offset=(-game.camera.get_x(), -game.camera.get_y()))
 
         if subsurface_cull:  # Forced smaller cull rect from animation combat black background
             # Make sure it has a width
@@ -85,7 +84,6 @@ class MapView():
             self.draw_units(surf, cull_rect)
 
         surf = game.cursor.draw(surf, cull_rect)
-
 
         for weather in game.tilemap.weather:
             weather.update()

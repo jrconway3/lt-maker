@@ -1082,13 +1082,14 @@ class Event():
             else:
                 speed_mult = 1
             if 'permanent' in flags:
-                action.do(action.AddMapAnim(nid, pos, speed_mult))
+                action.do(action.AddMapAnim(nid, pos, speed_mult, 'blend' in flags))
             else:
                 anim = RESOURCES.animations.get(nid)
                 anim = MapAnimation(anim, pos, speed_adj=speed_mult)
+                anim.set_tint('blend' in flags)
                 self.animations.append(anim)
 
-            if 'no_block' in flags or self.do_skip:
+            if 'no_block' in flags or self.do_skip or 'permanent' in flags:
                 pass
             else:
                 self.wait_time = engine.get_time() + anim.get_wait()

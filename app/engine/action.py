@@ -1970,14 +1970,16 @@ class RemoveWeather(Action):
             game.tilemap.weather.append(new_ps)
 
 class AddMapAnim(Action):
-    def __init__(self, nid, pos, speed_mult):
+    def __init__(self, nid, pos, speed_mult, blend):
         self.nid = nid
         self.pos = pos
         self.speed_mult = speed_mult
+        self.blend = blend
 
     def do(self):
         anim = RESOURCES.animations.get(self.nid)
-        anim = animations.MapAnimation(anim, self.pos, loop=True, speed_mult=self.speed_mult)
+        anim = animations.MapAnimation(anim, self.pos, loop=True, speed_adj=self.speed_mult)
+        anim.set_tint(self.blend)
         game.tilemap.animations.append(anim)
 
     def reverse(self):

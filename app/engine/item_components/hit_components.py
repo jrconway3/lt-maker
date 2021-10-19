@@ -100,8 +100,8 @@ class StatusOnHit(ItemComponent):
     def ai_priority(self, unit, item, target, move):
         # Do I add a new status to the target
         if target and self.value not in [skill.nid for skill in target.skills]:
-            accuracy_term = utils.clamp(combat_calcs.compute_hit(unit, target, item, target.get_weapon(), "attack")/100., 0, 1)
-            num_attacks = combat_calcs.outspeed(unit, target, item, target.get_weapon(), "attack")
+            accuracy_term = utils.clamp(combat_calcs.compute_hit(unit, target, item, target.get_weapon(), "attack", (0, 0))/100., 0, 1)
+            num_attacks = combat_calcs.outspeed(unit, target, item, target.get_weapon(), "attack", (0, 0))
             accuracy_term *= num_attacks
             # Tries to maximize distance from target
             distance_term = 0.01 * utils.calculate_distance(move, target.position)

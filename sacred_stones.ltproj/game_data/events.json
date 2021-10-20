@@ -6957,6 +6957,35 @@
                 ]
             ],
             [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Eirika",
+                    "13,7",
+                    "normal",
+                    "closest",
+                    "no_block"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Eirika",
+                    "fade"
+                ]
+            ],
+            [
                 "comment",
                 [
                     "# loop_units;[unit.nid for unit in game.get_player_units()];Trigger"

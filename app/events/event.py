@@ -2115,7 +2115,6 @@ class Event():
             starting_items = values[7].split(',')
         else:
             starting_items = []
-
         level_unit_prefab = GenericUnit(unit_nid, variant, level, klass, faction, starting_items, team, ai_nid)
         new_unit = UnitObject.from_prefab(level_unit_prefab)
         new_unit.party = game.current_party

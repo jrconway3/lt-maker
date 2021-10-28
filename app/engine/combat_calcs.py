@@ -113,7 +113,7 @@ def accuracy(unit, item=None):
     if equation == 'HIT':
         equation = skill_system.accuracy_formula(unit)
     accuracy += equations.parser.get(equation, unit)
-    
+
     weapon_rank_bonus = get_weapon_rank_bonus(unit, item)
     if weapon_rank_bonus:
         accuracy += int(weapon_rank_bonus.accuracy)
@@ -169,7 +169,7 @@ def crit_accuracy(unit, item=None):
     if equation == 'CRIT_HIT':
         equation = skill_system.crit_accuracy_formula(unit)
     crit_accuracy += equations.parser.get(equation, unit)
-    
+
     weapon_rank_bonus = get_weapon_rank_bonus(unit, item)
     if weapon_rank_bonus:
         crit_accuracy += int(weapon_rank_bonus.crit)
@@ -307,7 +307,7 @@ def compute_hit(unit, target, item, def_item, mode, attack_info):
 
     # Handles things like effective accuracy
     hit += item_system.dynamic_accuracy(unit, item, target, mode, attack_info, hit)
-    
+
     # Weapon Triangle
     triangle_bonus = 0
     adv = compute_advantage(unit, target, item, def_item)
@@ -355,7 +355,7 @@ def compute_crit(unit, target, item, def_item, mode, attack_info):
 
     # Handles things like effective accuracy
     crit += item_system.dynamic_crit_accuracy(unit, item, target, mode, attack_info, crit)
-    
+
     # Weapon Triangle
     triangle_bonus = 0
     adv = compute_advantage(unit, target, item, def_item)
@@ -444,8 +444,10 @@ def compute_damage(unit, target, item, def_item, mode, attack_info, crit=False):
 
     if crit or skill_system.crit_anyway(unit):
         might *= equations.parser.crit_mult(unit)
-        for _ in range(equations.parser.crit_add(unit)):
-            might += total_might
+        if equations.parser.crit_add(unit):
+            might += equations.parser.crit_add(unit)
+        if equations.parser.get('THRACIA_CRIT', unit):
+            might += total_might * equations.parser.thracia_crit(unit)
 
     might *= skill_system.damage_multiplier(unit, item, target, mode, attack_info, might)
     might *= skill_system.resist_multiplier(target, item, unit, mode, attack_info, might)

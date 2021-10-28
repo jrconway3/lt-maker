@@ -1079,7 +1079,7 @@ class Event():
             if nid not in RESOURCES.animations.keys():
                 logging.error("Could not find map animation %s" % nid)
                 return
-            pos = self.parse_pos(values[1])
+            pos = self.parse_pos(values[1], True)
             if len(values) > 2:
                 speed_mult = int(values[2])
             else:
@@ -3072,10 +3072,13 @@ class Event():
         offset = int(values[1])
         action.do(action.MoveInInitiative(unit, offset))
 
-    def parse_pos(self, text):
+    def parse_pos(self, text, is_float=False):
         position = None
         if ',' in text:
-            position = tuple(int(_) for _ in text.split(','))
+            if is_float:
+                position = tuple(float(_) for _ in text.split(','))
+            else:
+                position = tuple(int(_) for _ in text.split(','))
         elif text == '{position}':
             position = self.position
         elif not game.is_displaying_overworld() and self.get_unit(text):

@@ -430,7 +430,7 @@ class Position(Validator):
         nids.update(party_nids)
         return nids
 
-class FloatPosition(Validator):
+class FloatPosition(Position, Validator):
     desc = """accepts a valid `(x, y)` position, but also allows fractional positions,
     such as (1.5, 2.6). You use a unit's nid to use their position.
     Alternatively, you can use one of (`{unit}`, `{unit1}`, `{unit2}`, `{position}`)"""
@@ -460,34 +460,6 @@ class FloatPosition(Validator):
             return None
         else:
             return text
-
-    @lru_cache()
-    def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
-        level_prefab = DB.levels.get(level)
-        if level_prefab:
-            valids = [(unit.name, unit.nid) for unit in level_prefab.units.values()]
-            valids.append((None, "{unit}"))
-            valids.append((None, "{unit1}"))
-            valids.append((None, "{unit2}"))
-            valids.append((None, "{position}"))
-            for pair in self.valid_overworld_nids().items():
-                valids.append(pair)
-            return valids
-        else:
-            valids = []
-            for pair in self.valid_overworld_nids().items():
-                valids.append(pair)
-            return valids
-
-    def valid_overworld_nids(self) -> Dict[str, NID]:
-        # list of all valid nids in overworld
-        nids = {}
-        for overworld in DB.overworlds.values():
-            node_nids = {node.name: node.nid for node in overworld.overworld_nodes.values()}
-            nids.update(node_nids)
-        party_nids = {party.name: party.nid for party in DB.parties.values()}
-        nids.update(party_nids)
-        return nids
 
 class PositionOffset(Validator):
     desc = "accepts a valid `(x, y)` position offset."

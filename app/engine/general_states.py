@@ -710,6 +710,7 @@ class MenuState(MapState):
                     game.state.change('move')
                     game.cursor.place_arrows()
                 else:
+                    print(1)
                     game.state.clear()
                     game.state.change('free')
                     self.cur_unit.wait()
@@ -722,12 +723,13 @@ class MenuState(MapState):
                     act.execute()
                     self.cur_unit = u
                     game.cursor.cur_unit = u
-                if self.cur_unit.current_move:
-                    action.reverse(self.cur_unit.current_move)
-                    self.cur_unit.current_move = None
-                # game.cursor.set_pos(self.cur_unit.position)
-                game.state.change('move')
-                game.cursor.construct_arrows(game.cursor.path[::-1])
+                else:
+                    if self.cur_unit.current_move:
+                        action.reverse(self.cur_unit.current_move)
+                        self.cur_unit.current_move = None
+                    # game.cursor.set_pos(self.cur_unit.position)
+                    game.state.change('move')
+                    game.cursor.construct_arrows(game.cursor.path[::-1])
 
         elif event == 'INFO':
             pass

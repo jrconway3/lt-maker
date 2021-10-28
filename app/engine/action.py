@@ -730,6 +730,8 @@ class PairUp(Action):
         game.leave(self.unit)
         self.unit.position = None
 
+        logging.info(self.unit.nid + " was at " + str(self.old_pos) + " but paired up with " + self.target.nid + " at " + str(self.target.position))
+
         self.target.set_guard_gauge(self.unit_gauge + self.target_gauge)
         self.unit.set_guard_gauge(0)
 
@@ -743,6 +745,8 @@ class PairUp(Action):
         game.leave(self.unit)
         self.unit.position = None
 
+        logging.info(self.unit.nid + " was at " + str(self.old_pos) + " but paired up with " + self.target.nid + " at " + str(self.target.position))
+
         self.target.set_guard_gauge(self.unit_gauge + self.target_gauge)
         self.unit.set_guard_gauge(0)
 
@@ -754,6 +758,8 @@ class PairUp(Action):
         game.arrive(self.unit)
         self.target.traveler = None
         skill_system.on_separate(self.unit, self.target)
+
+        logging.info("The pair up between " + self.unit.nid + " and " + self.target.nid + " was reversed")
 
         self.unit.set_guard_gauge(self.unit_gauge)
         self.target.set_guard_gauge(self.target_gauge)
@@ -779,6 +785,8 @@ class SwapPaired(Action):
         self.follower.set_guard_gauge(self.orig_guard_gauge)
         self.leader.set_guard_gauge(0)
 
+        logging.info(self.leader.nid + " and " + self.follower.nid + " swapped. The first was leader but is now follower, and vice versa.")
+
         game.leave(self.leader)
         self.leader.position = None
         self.follower.position = self.pos
@@ -794,6 +802,8 @@ class SwapPaired(Action):
         self.follower.traveler = None
         self.leader.set_guard_gauge(self.orig_guard_gauge)
         self.follower.set_guard_gauge(0)
+
+        logging.info(self.leader.nid + " and " + self.follower.nid + " reversed their earlier swap")
 
         skill_system.on_separate(self.leader, self.follower)
         skill_system.on_pairup(self.follower, self.leader)
@@ -923,6 +933,8 @@ class Transfer(Action):
     def do(self):
         if self.unit.traveler:
             skill_system.on_separate(game.get_unit(self.unit.traveler), self.unit)
+            self.unit.lead_unit = True # Fixes a bug where a unit that had been lead was transfered and thought they were still lead
+            game.get_unit(self.unit.traveler).lead_unit = False
         if self.other.traveler:
             skill_system.on_separate(game.get_unit(self.other.traveler), self.other)
 
@@ -938,6 +950,8 @@ class Transfer(Action):
             val = self.other.get_guard_gauge()//2
             self.other.set_guard_gauge(val)
             self.unit.set_guard_gauge(self.unit.get_guard_gauge() + val)
+
+        logging.info(self.unit.traveler + " was paired with " + self.unit.nid + " but transfered to " + self.other.nid)
 
         self.unit.traveler, self.other.traveler = self.other.traveler, self.unit.traveler
 

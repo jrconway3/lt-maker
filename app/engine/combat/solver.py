@@ -54,7 +54,7 @@ class AttackerState(SolverState):
                 else:
                     attacker_outspeed = defender_outspeed = 1
 
-                if solver.attacker.strike_partner:
+                if solver.attacker.strike_partner and (solver.num_attacks == 1 or not DB.constants.value('limit_attack_stance')):
                     solver.num_subattacks = 0
                     return 'attacker_partner'
                 if solver.item_has_uses() and \
@@ -186,7 +186,7 @@ class DefenderState(SolverState):
 
                 attacker_outspeed = combat_calcs.outspeed(solver.attacker, solver.defender, solver.main_item, solver.def_item, 'attack', solver.get_attack_info())
 
-                if solver.defender.strike_partner:
+                if solver.defender.strike_partner and (solver.num_defends == 1 or not DB.constants.value('limit_attack_stance')):
                     solver.num_subdefends = 0
                     return 'defender_partner'
                 if solver.allow_counterattack() and \

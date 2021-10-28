@@ -725,7 +725,7 @@ class PutItemInConvoy(Action):
         party = game.get_party(self.party_nid)
         party.convoy.append(self.item)
 
-    def reverse(self, gameStateObj):
+    def reverse(self):
         party = game.get_party(self.party_nid)
         party.convoy.remove(self.item)
         self.item.change_owner(self.owner_nid)

@@ -702,7 +702,11 @@ class InfoMenuState(State):
             # Name
             name = DB.stats.get(stat_nid).name
             FONT['text-yellow'].blit(name, surf, (8, 16 * idx + 24))
-            self.info_graph.register((96 + 8, 16 * idx + 24, 64, 16), '%s_desc' % stat_nid, state, first=(idx == 0))
+            base_value = self.unit.stats.get(stat_nid, 0)
+            contribution = self.unit.stat_contribution(stat_nid)
+            contribution['Base Value'] = base_value
+            help_box = help_menu.StatDialog('%s_desc' % stat_nid, contribution)
+            self.info_graph.register((96 + 8, 16 * idx + 24, 64, 16), help_box, state, first=(idx == 0))
 
         for idx, stat_nid in enumerate(right_stats):
             if growths:
@@ -712,7 +716,11 @@ class InfoMenuState(State):
             # Name
             name = DB.stats.get(stat_nid).name
             FONT['text-yellow'].blit(name, surf, (72, 16 * idx + 24))
-            self.info_graph.register((96 + 72, 16 * idx + 24, 64, 16), '%s_desc' % stat_nid, state)
+            base_value = self.unit.stats.get(stat_nid, 0)
+            contribution = self.unit.stat_contribution(stat_nid)
+            contribution['Base Value'] = base_value
+            help_box = help_menu.StatDialog('%s_desc' % stat_nid, contribution)
+            self.info_graph.register((96 + 72, 16 * idx + 24, 64, 16), help_box, state)
 
         other_stats = ['TRV', 'AID', 'RAT']
         if self.unit.get_max_mana() > 0:
@@ -802,7 +810,7 @@ class InfoMenuState(State):
         counter = 0
         for idx, weapon in enumerate(self.unit.wexp.keys()):
             value = self.unit.wexp[weapon]
-            if value > 0 and class_obj.wexp_gain.get(weapon).usable:
+            if value > 0 and (class_obj.wexp_gain.get(weapon).usable or skill_system.wexp_usable_skill(self.unit, weapon)):
                 weapon_rank = DB.weapon_ranks.get_rank_from_wexp(value)
                 next_weapon_rank = DB.weapon_ranks.get_next_rank_from_wexp(value)
                 if not weapon_rank:

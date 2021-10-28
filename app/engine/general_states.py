@@ -499,10 +499,13 @@ class MoveState(MapState):
                 if game.board.in_vision(game.cursor.position) and game.board.get_unit(game.cursor.position):
                     SOUNDTHREAD.play_sfx('Error')
                 else:
-                    # Sound -- ADD FOOTSTEP SOUNDS
+                    witch_warp = set(skill_system.witch_warp(cur_unit))
                     if cur_unit.has_attacked or cur_unit.has_traded:
                         cur_unit.current_move = action.CantoMove(cur_unit, game.cursor.position)
                         game.state.change('canto_wait')
+                    elif game.cursor.position in witch_warp:
+                        cur_unit.current_move = action.Warp(cur_unit, game.cursor.position)
+                        game.state.change('menu')
                     else:
                         cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
                         game.state.change('menu')
@@ -818,21 +821,27 @@ class ItemState(MapState):
         self.menu.update_options(self._get_options())
         self.item_desc_panel = ui_view.ItemDescriptionPanel(self.cur_unit, self.menu.get_current())
 
+    def _item_desc_update(self):
+        current = self.menu.get_current()
+        self.item_desc_panel.set_item(current)
+
     def take_input(self, event):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 
-        self.menu.handle_mouse()
+        did_move = self.menu.handle_mouse()
+        if did_move:
+            self._item_desc_update()
+
         if 'DOWN' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down(first_push)
-            current = self.menu.get_current()
-            self.item_desc_panel.set_item(current)
+            self._item_desc_update()
+            
         elif 'UP' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up(first_push)
-            current = self.menu.get_current()
-            self.item_desc_panel.set_item(current)
+            self._item_desc_update()
 
         if event == 'BACK':
             if self.menu.info_flag:
@@ -1026,26 +1035,29 @@ class WeaponChoiceState(MapState):
         self.item_desc_panel = ui_view.ItemDescriptionPanel(self.cur_unit, self.menu.get_current())
         self.disp_attacks(self.cur_unit, self.menu.get_current())
 
+    def _item_desc_update(self):
+        current = self.menu.get_current()
+        self.item_desc_panel.set_item(current)
+        game.highlight.remove_highlights()
+        self.disp_attacks(self.cur_unit, current)
+
     def take_input(self, event):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 
-        self.menu.handle_mouse()
+        did_move = self.menu.handle_mouse()
+        if did_move:
+            self._item_desc_update()
+
         if 'DOWN' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down(first_push)
-            current = self.menu.get_current()
-            self.item_desc_panel.set_item(current)
-            game.highlight.remove_highlights()
-            self.disp_attacks(self.cur_unit, current)
+            self._item_desc_update()
 
         elif 'UP' in directions:
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up(first_push)
-            current = self.menu.get_current()
-            self.item_desc_panel.set_item(current)
-            game.highlight.remove_highlights()
-            self.disp_attacks(self.cur_unit, current)
+            self._item_desc_update()
 
         if event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')
@@ -1979,6 +1991,16 @@ class ShopState(State):
         surf.blit(self.message_bg, (-4, 8))
         if self.current_msg:
             self.current_msg.draw(surf)
+
+        surf.blit(self.portrait, (3, 0))
+        
+        money_bg = SPRITES.get('money_bg')
+        money_bg = image_mods.make_translucent(money_bg, .1)
+        surf.blit(money_bg, (172, 48))
+
+        FONT['text-blue'].blit_right(str(game.get_money()), surf, (223, 48))
+        self.money_counter_disp.draw(surf)
+
         if self.state == 'sell':
             self.sell_menu.draw(surf)
         elif self.state == 'choice' and self.choice_menu.get_current() == 'Sell':
@@ -1987,14 +2009,6 @@ class ShopState(State):
             self.buy_menu.draw(surf)
         if self.state == 'choice' and self.current_msg.is_done_or_wait():
             self.choice_menu.draw(surf)
-        surf.blit(self.portrait, (3, 0))
-
-        money_bg = SPRITES.get('money_bg')
-        money_bg = image_mods.make_translucent(money_bg, .1)
-        surf.blit(money_bg, (172, 48))
-
-        FONT['text-blue'].blit_right(str(game.get_money()), surf, (223, 48))
-        self.money_counter_disp.draw(surf)
 
         return surf
 

@@ -27,17 +27,36 @@ class EffectiveTag(ItemComponent):
     expose = (Type.List, Type.Tag)
     value = []
 
-    def dynamic_damage(self, unit, item, target, mode=None) -> int:
+    def _check_negate(self, target) -> bool:  
+        # Returns whether it DOES negate the effectiveness
+        # Still need to check negation (Fili Shield, etc.)
+        if any(skill.negate for skill in target.skills):
+            return True
+        for skill in target.skills:
+            # Do the tags match?
+            if skill.negate_tags and skill.negate_tags.value and \
+                    any(tag in self.value for tag in skill.negate_tags.value):
+                return True
+        # No negation, so proceed with effective damage
+        return False
+
+    def dynamic_damage(self, unit, item, target, mode, attack_info, base_value) -> int:
         if any(tag in target.tags for tag in self.value):
+            if self._check_negate(target):
+                return 0
             return item.data.get('effective', 0)
         return 0
 
     def item_icon_mod(self, unit, item, target, sprite):
         if any(tag in target.tags for tag in self.value):
+            if self._check_negate(target):
+                return sprite
             sprite = image_mods.make_white(sprite.convert_alpha(), abs(250 - engine.get_time()%500)/250)
         return sprite
 
     def danger(self, unit, item, target) -> bool:
+        if self._check_negate(target):
+            return False
         return any(tag in target.tags for tag in self.value)
 
 class Brave(ItemComponent):
@@ -45,7 +64,7 @@ class Brave(ItemComponent):
     desc = "Item multi-attacks"
     tag = 'extra'
 
-    def dynamic_multiattacks(self, unit, item, target, mode=None):
+    def dynamic_multiattacks(self, unit, item, target, mode, attack_info, base_value):
         return 1
 
 class BraveOnAttack(ItemComponent):
@@ -53,7 +72,7 @@ class BraveOnAttack(ItemComponent):
     desc = "Item multi-attacks only when attacking"
     tag = 'extra'
 
-    def dynamic_multiattacks(self, unit, item, target, mode=None):
+    def dynamic_multiattacks(self, unit, item, target, mode, attack_info, base_value):
         return 1 if mode == 'attack' else 0
 
 class Lifelink(ItemComponent):
@@ -65,7 +84,7 @@ class Lifelink(ItemComponent):
     expose = Type.Float
     value = 0.5
 
-    def after_hit(self, actions, playback, unit, item, target, mode):
+    def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
         total_damage_dealt = 0
         playbacks = [p for p in playback if p[0] in ('damage_hit', 'damage_crit') and p[1] == unit]
         for p in playbacks:
@@ -86,7 +105,7 @@ class DamageOnMiss(ItemComponent):
     expose = Type.Float
     value = 0.5
 
-    def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_miss(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
         damage = int(damage * self.value)
 
@@ -104,7 +123,7 @@ class Eclipse(ItemComponent):
     desc = "Target loses half current HP on hit"
     tag = 'extra'
 
-    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         true_damage = damage = target.get_hp()//2
         actions.append(action.ChangeHP(target, -damage))
 

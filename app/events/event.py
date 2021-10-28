@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.sprites import SPRITES
 import logging
 import re
 from typing import Callable, Dict, List, Tuple
@@ -153,6 +154,9 @@ class Event():
         # update all internal updates, remove the ones that are finished
         self.should_update = {name: to_update for name, to_update in self.should_update.items() if not to_update(self.do_skip)}
 
+        # Update movement so that no_block works correctly
+        game.movement.update()
+
         # Can move through its own internal state up to 5 times in a frame
         counter = 0
         while counter < 5:
@@ -238,6 +242,10 @@ class Event():
         for key in delete:
             del self.portraits[key]
 
+        # draw all uiframework elements
+        ui_surf = self.overlay_ui.to_surf()
+        surf.blit(ui_surf, (0, 0))
+
         sorted_portraits = sorted(self.portraits.values(), key=lambda x: x.priority)
         for portrait in sorted_portraits:
             portrait.draw(surf)
@@ -259,9 +267,6 @@ class Event():
             for dialog_box in to_draw:
                 dialog_box.update()
                 dialog_box.draw(surf)
-            # draw all uiframework elements
-            ui_surf = self.overlay_ui.to_surf()
-            surf.blit(ui_surf, (0, 0))
 
         # Fade to black
         if self.transition_state:
@@ -277,12 +282,15 @@ class Event():
     def process(self):
         while self.command_idx < len(self.commands) and self.state == 'processing':
             command = self.commands[self.command_idx]
-            if self.handle_conditional(command):
-                if self.do_skip and command.nid in self.skippable:
-                    pass
-                else:
-                    self.run_command(command)
-            self.command_idx += 1
+            try:
+                if self.handle_conditional(command):
+                    if self.do_skip and command.nid in self.skippable:
+                        pass
+                    else:
+                        self.run_command(command)
+                self.command_idx += 1
+            except Exception as e:
+                raise Exception("Event execution failed with error in command %s" % command) from e
 
     def handle_conditional(self, command) -> bool:
         """
@@ -378,6 +386,7 @@ class Event():
                 self.do_skip = False
 
         elif command.nid == 'music':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             music = command.values[0]
             fade = 400
             if len(command.values) > 1 and command.values[1]:
@@ -390,6 +399,7 @@ class Event():
                 SOUNDTHREAD.fade_in(music, fade_in=fade)
 
         elif command.nid == 'music_clear':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             fade = 0
             if len(command.values) > 0 and command.values[0]:
                 fade = int(command.values[0])
@@ -401,6 +411,7 @@ class Event():
                 SOUNDTHREAD.clear()
 
         elif command.nid == 'sound':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             sound = command.values[0]
             volume = 1
             if len(command.values) > 1 and command.values[1]:
@@ -408,6 +419,7 @@ class Event():
             SOUNDTHREAD.play_sfx(sound, volume=volume)
 
         elif command.nid == 'change_music':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             phase = command.values[0]
             music = command.values[1]
             if music == 'None':
@@ -517,6 +529,7 @@ class Event():
             portrait.set_expression(expression_list)
 
         elif command.nid == 'disp_cursor':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             b = command.values[0]
             if b.lower() in self.true_vals:
                 game.cursor.show()
@@ -1064,22 +1077,32 @@ class Event():
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             nid = values[0]
             if nid not in RESOURCES.animations.keys():
-                logging.error("Could not find map animtion %s" % nid)
+                logging.error("Could not find map animation %s" % nid)
                 return
             pos = self.parse_pos(values[1])
             if len(values) > 2:
                 speed_mult = int(values[2])
             else:
                 speed_mult = 1
-            anim = RESOURCES.animations.get(nid)
-            anim = MapAnimation(anim, pos, speed_adj=speed_mult)
-            self.animations.append(anim)
+            if 'permanent' in flags:
+                action.do(action.AddMapAnim(nid, pos, speed_mult, 'blend' in flags))
+            else:
+                anim = RESOURCES.animations.get(nid)
+                anim = MapAnimation(anim, pos, speed_adj=speed_mult)
+                anim.set_tint('blend' in flags)
+                self.animations.append(anim)
 
-            if 'no_block' in flags or self.do_skip:
+            if 'no_block' in flags or self.do_skip or 'permanent' in flags:
                 pass
             else:
                 self.wait_time = engine.get_time() + anim.get_wait()
                 self.state = 'waiting'
+
+        elif command.nid == 'remove_map_anim':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+            nid = values[0]
+            pos = self.parse_pos(values[1])
+            action.do(action.RemoveMapAnim(nid, pos))
 
         elif command.nid == 'merge_parties':
             self.merge_parties(command)
@@ -1167,6 +1190,32 @@ class Event():
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             custom_string = values[0]
             game.alerts.append(banner.Custom(custom_string))
+            game.state.change('alert')
+            self.state = 'paused'
+
+        elif command.nid == 'alert_item':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+            custom_string = values[0]
+            custom_item_nid = values[1]
+            if custom_item_nid in DB.items.keys():
+                custom_item = DB.items.get(custom_item_nid)
+            else:
+                logging.error("Couldn't find item with nid %s" % custom_item_nid)
+                return
+            game.alerts.append(banner.CustomIcon(custom_string, custom_item))
+            game.state.change('alert')
+            self.state = 'paused'
+
+        elif command.nid == 'alert_skill':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+            custom_string = values[0]
+            custom_skill_nid = values[1]
+            if custom_skill_nid in DB.skills.keys():
+                custom_skill = DB.skills.get(custom_skill_nid)
+            else:
+                logging.error("Couldn't find skill with nid %s" % custom_skill_nid)
+                return
+            game.alerts.append(banner.CustomIcon(custom_string, custom_skill))
             game.state.change('alert')
             self.state = 'paused'
 
@@ -1291,6 +1340,24 @@ class Event():
 
         elif command.nid == 'separate':
             self.separate(command)
+
+        elif command.nid == 'draw_overlay_sprite':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+            name = values[0]
+            sprite_nid = values[1]
+            z = 0
+            pos = (0, 0)
+            if len(values) > 2:
+                pos = eval(values[2])  # Why do we eval this instead of just reading position like we do elsewhere?
+            if len(values) > 3:
+                z = eval(values[3])  # Why do we eval this also?
+            sprite = SPRITES.get(sprite_nid)
+            self.overlay_ui.add_surf(sprite, pos, z, name)
+
+        elif command.nid == 'remove_overlay_sprite':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+            name = values[0]
+            self.overlay_ui.remove_surf(name)
 
     def add_portrait(self, command):
         values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
@@ -1642,6 +1709,7 @@ class Event():
             script = None
 
         items = item_funcs.get_all_items(unit1)
+        item = None
         # Get item
         if len(values) > 3 and values[3]:
             item_nid = values[3]
@@ -1649,6 +1717,15 @@ class Event():
                 if item_nid == i.nid:
                     item = i
                     break
+            else:  # Create item on the fly
+                item_prefab = DB.items.get(values[3])
+                if not item_prefab:
+                    logging.error("Couldn't find item with nid %s" % values[3])
+                    return
+                # Create item
+                item = ItemObject.from_prefab(item_prefab)
+                item_system.init(item)
+                game.register_item(item)
         else:
             if items:
                 item = items[0]
@@ -1682,6 +1759,8 @@ class Event():
             unit = game.get_unit(unit_nid)
             if create:
                 unit = self._copy_unit(unit_nid)
+                if not unit:
+                    continue
             elif unit.position or unit.dead:
                 continue
             position = self._get_position(next_pos, unit, group, unit_nid)
@@ -1795,6 +1874,8 @@ class Event():
             unit = game.get_unit(unit_nid)
             if create:
                 unit = self._copy_unit(unit_nid)
+                if not unit:
+                    continue
             elif unit.position or unit.dead:
                 logging.warning("Unit %s in group %s already on map or dead", unit.nid, group.nid)
                 continue
@@ -1965,6 +2046,9 @@ class Event():
     def _copy_unit(self, unit_nid):
         level_prefab = DB.levels.get(game.level.nid)
         level_unit_prefab = level_prefab.units.get(unit_nid)
+        if not level_unit_prefab:
+            logging.warning("Could not find level unit prefab for unit with nid: %s", unit_nid)
+            return None
         new_nid = str_utils.get_next_int(level_unit_prefab.nid, game.unit_registry.keys())
         level_unit_prefab.nid = new_nid
         new_unit = UnitObject.from_prefab(level_unit_prefab)
@@ -2629,7 +2713,7 @@ class Event():
         actions, playback = [], []
         # In order to proc uses, c_uses etc.
         item_system.start_combat(playback, unit, chosen_item, None, None)
-        item_system.on_hit(actions, playback, unit, chosen_item, None, self.position, None, True)
+        item_system.on_hit(actions, playback, unit, chosen_item, None, self.position, None, (0, 0), True)
         for act in actions:
             action.do(act)
         item_system.end_combat(playback, unit, chosen_item, None, None)
@@ -2679,7 +2763,12 @@ class Event():
         if not unit_list:
             logging.warning("No units returned for list: %s" % (unit_list_str))
             return
+        if not all((isinstance(unit_nid, str) or isinstance(unit_nid, UnitObject)) for unit_nid in unit_list):
+            logging.error("%s: could not evaluate to NID list {%s}" % ('loop_units', unit_list_str))
+            return
         for unit_nid in reversed(unit_list):
+            if not isinstance(unit_nid, str):
+                unit_nid = unit_nid.nid  # Try this!
             macro_command = event_commands.TriggerScript([command.values[1], unit_nid])
             self.commands.insert(self.command_idx + 1, macro_command)
 
@@ -2803,7 +2892,6 @@ class Event():
             entity.sprite.set_transition('fade_out')
         entity.on_node = None
         entity.display_position = None
-        entity.temporary_position = None
 
     def overworld_move_unit(self, entity_nid: NID, target_location: Tuple[int, int] | NID,
                             speed_adj: float, path: List[Point], flags={}):
@@ -2812,6 +2900,9 @@ class Event():
 
         # function
         entity = game.overworld_controller.entities.get(entity_nid, None)
+        if not entity.display_position:
+            logging.error("%s: Attempting to move entity %s with no position - is it on the overworld?", 'overworld_move_unit', entity_nid)
+            return
 
         follow = 'no_follow' not in flags
         block = 'no_block' not in flags
@@ -2823,7 +2914,6 @@ class Event():
                 entity.sprite.set_transition('fade_out')
                 entity.on_node = None
                 entity.display_position = None
-                entity.temporary_position = None
         else:
             def disable_func():
                 pass
@@ -2837,6 +2927,9 @@ class Event():
         if path:
             # i'm disabling linger for arbitrary paths as a default, because i think it makes more sense that way
             movement = OverworldMove(entity, None, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj, path=path, linger=0, after_move_callback=disable_func, mute=mute)
+            if self.do_skip: # we are skipping; resolve this instantly
+                entity.display_position = path[-1]
+                return
         elif isinstance(target_location, NID):
             target_node: OverworldNodeObject = game.overworld_controller.nodes.get(target_location, None)
             if entity.on_node: # we're pathfinding to a node
@@ -2849,6 +2942,9 @@ class Event():
         elif isinstance(target_location, Tuple):
             path = [target_location]
             movement = OverworldMove(entity, None, game.overworld_controller, event=True, follow=follow, speed_adj=speed_adj, path=path, linger=0, after_move_callback=disable_func, mute=mute)
+            if self.do_skip: # we are skipping; resolve this instantly
+                entity.display_position = path[-1]
+                return
         else:
             logging.error("%s: No valid path or target location specified: path: %s | target_location: %s", "overworld_move_unit", str(path), str(target_location))
             return
@@ -2864,7 +2960,7 @@ class Event():
         movement.queue(self.overworld_movement_manager)
         if follow:
             game.camera.do_slow_pan(1000)
-            game.camera.set_center(entity.position[0], entity.position[1])
+            game.camera.set_center(entity.display_position[0], entity.display_position[1])
         if 'overworld_movement' not in self.should_update.keys(): # queue continuous update function if not exists
             def update_movement(should_skip: bool):
                 if should_skip:
@@ -2952,10 +3048,9 @@ class Event():
             return
         if len(values) > 1 and values[1]:
             unit_nid = values[1]
-            unit = DB.units.get(unit_nid)
-            if not unit:
+            if not unit_nid in DB.units.keys():
                 logging.error('%s: No such unit with nid %s', 'create_overworld_entity', unit_nid)
-            new_entity = OverworldEntityObject.dummy_entity(entity_nid, None, unit)
+            new_entity = OverworldEntityObject.from_unit_prefab(entity_nid, None, unit_nid)
             game.overworld_controller.add_entity(new_entity)
 
     def clean_up_roaming(self, command):

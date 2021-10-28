@@ -3,10 +3,10 @@ import heapq
 from app.utilities import utils
 
 class Djikstra():
-    __slots__ = ['open', 'closed', 'cells', 'width', 'height', 'start_pos', 
+    __slots__ = ['open', 'closed', 'cells', 'width', 'height', 'start_pos',
                  'start_cell', 'unit_team', 'pass_through', 'ai_fog_of_war']
 
-    def __init__(self, start_pos: tuple, grid: list, width: int, height: int, 
+    def __init__(self, start_pos: tuple, grid: list, width: int, height: int,
                  unit_team: str, pass_through: bool, ai_fog_of_war: bool):
         self.open = []
         heapq.heapify(self.open)
@@ -58,13 +58,13 @@ class Djikstra():
                 return True  # Can always move through what you can't see
         return False
 
-    def process(self, game_board: list, movement_left: int) -> set:
+    def process(self, game_board: list, movement_left: float) -> set:
         # add starting cell to open heap queue
         heapq.heappush(self.open, (self.start_cell.g, self.start_cell))
         while self.open:
             # pop cell from heap queue
             g, cell = heapq.heappop(self.open)
-            # If we've traveled too far -- always g ordered, so leaving at the 
+            # If we've traveled too far -- always g ordered, so leaving at the
             # first sign of trouble will always work
             if g > movement_left:
                 return {(cell.x, cell.y) for cell in self.closed}
@@ -90,8 +90,8 @@ class Djikstra():
         return {(cell.x, cell.y) for cell in self.closed}
 
 class AStar():
-    def __init__(self, start_pos: tuple, goal_pos: tuple, grid: list, 
-                 width: int, height: int, unit_team: str, 
+    def __init__(self, start_pos: tuple, goal_pos: tuple, grid: list,
+                 width: int, height: int, unit_team: str,
                  pass_through: bool = False, ai_fog_of_war: bool = False):
         self.cells = grid
         self.width = width
@@ -122,7 +122,7 @@ class AStar():
     def set_goal_pos(self, goal_pos):
         self.goal_pos = goal_pos
         self.end_cell = self.get_cell(goal_pos[0], goal_pos[1])
-        self.adj_end = self.get_adjacent_cells(self.end_cell) 
+        self.adj_end = self.get_adjacent_cells(self.end_cell)
 
     def get_heuristic(self, cell) -> float:
         """
@@ -139,6 +139,16 @@ class AStar():
         dy2 = self.start_cell.y - self.end_cell.y
         cross = abs(dx1 * dy2 - dx2 * dy1)
         return h + cross * .001
+
+    def get_simple_heuristic(self, cell) -> float:
+        """
+        Compute the heuristic for this cell
+        h is the approximate distance between this cell and the goal cell
+        """
+        dx1 = cell.x - self.end_cell.x
+        dy1 = cell.y - self.end_cell.y
+        h = abs(dx1) + abs(dy1)
+        return h
 
     def get_cell(self, x, y):
         return self.cells[x * self.height + y]
@@ -163,6 +173,7 @@ class AStar():
         adj.h = self.get_heuristic(adj)
         adj.parent = cell
         adj.f = adj.h + adj.g
+        adj.true_f = self.get_simple_heuristic(adj) + adj.g
 
     def return_path(self, cell) -> list:
         path = []
@@ -184,8 +195,8 @@ class AStar():
                 return True
         return False
 
-    def process(self, game_board, adj_good_enough: bool = False, 
-                ally_block: bool = False, limit: int = None) -> list:
+    def process(self, game_board, adj_good_enough: bool = False,
+                ally_block: bool = False, limit: float = None) -> list:
         # Add starting cell to open queue
         heapq.heappush(self.open, (self.start_cell.f, self.start_cell))
         while self.open:
@@ -195,8 +206,7 @@ class AStar():
             # If this cell is past the limit, just return None
             # Uses f, not g, because g will cut off if first greedy path fails
             # f only cuts off if all cells are bad
-            if limit is not None and cell.f > limit + 1:
-                # limit + 1 to account for diagonal heuristic
+            if limit is not None and cell.true_f > limit:
                 return []
             # if ending cell, display found path
             if cell is self.end_cell or (adj_good_enough and cell in self.adj_end):

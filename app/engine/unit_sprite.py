@@ -109,6 +109,7 @@ class UnitSprite():
         self.vibrate_counter = 0
         self.animations = {}
         self.particles = []
+        self.damage_numbers = []
 
         self.map_sprite = load_map_sprite(self.unit, self.unit.team)
 
@@ -186,6 +187,9 @@ class UnitSprite():
     def set_transition(self, new_state):
         self.transition_state = new_state
         self.transition_counter = self.transition_time  # 400
+        if self.state == 'moving':
+            self.change_state('normal')
+            self.reset()
 
         if self.transition_state == 'normal':
             self.offset = [0, 0]
@@ -484,6 +488,12 @@ class UnitSprite():
         for particle_system in self.particles:
             particle_system.update()
             particle_system.draw(surf, cull_rect[0], cull_rect[1])
+
+        # Draw damage numbers
+        for damage_num in self.damage_numbers:
+            damage_num.update()
+            damage_num.draw(surf, (left + 4, anim_top))
+        self.damage_numbers = [d for d in self.damage_numbers if not d.done]
 
         return surf
 

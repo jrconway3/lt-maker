@@ -3660,8 +3660,8 @@
             {
                 "nid": "103",
                 "variant": null,
-                "level": 1,
-                "klass": "Soldier",
+                "level": 20,
+                "klass": "General",
                 "faction": "Soldier",
                 "starting_items": [
                     [
@@ -3681,8 +3681,8 @@
                 "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
-                    12,
-                    7
+                    5,
+                    5
                 ],
                 "starting_traveler": null,
                 "name": null,
@@ -3691,7 +3691,7 @@
             },
             {
                 "nid": "Seth",
-                "team": "player",
+                "team": "other",
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
@@ -3752,8 +3752,8 @@
             {
                 "nid": "104",
                 "variant": null,
-                "level": 1,
-                "klass": "Archer",
+                "level": 20,
+                "klass": "Sniper",
                 "faction": "Soldier",
                 "starting_items": [
                     [

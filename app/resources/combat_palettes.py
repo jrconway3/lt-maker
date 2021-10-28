@@ -18,7 +18,7 @@ class Palette(Prefab):
             if color in my_colors:
                 counter += 1
         # Similar if more than 75% of colors match
-        return counter / len(colors) > .75
+        return (counter / len(colors)) > .75
 
     def assign_colors(self, colors: list):
         self.colors = {

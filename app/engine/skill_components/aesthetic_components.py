@@ -100,7 +100,29 @@ class AlternateBattleAnim(SkillComponent):
     expose = Type.String
     value = 'Critical'
 
-    def after_hit(self, actions, playback, unit, item, target, mode):
+    def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
         marks = [mark[0] for mark in playback]
         if 'mark_hit' in marks or 'mark_crit' in marks:
             playback.append(('alternate_battle_pose', self.value))
+
+class ChangeVariant(SkillComponent):
+    nid = 'change_variant'
+    desc = "Change the unit's variant"
+    tag = "aesthetic"
+
+    expose = Type.String
+    value = ''
+
+    def change_variant(self, unit):
+        return self.value
+        
+class ChangeAnimation(SkillComponent):
+    nid = 'change_animation'
+    desc = "Change the unit's animation"
+    tag = "aesthetic"
+
+    expose = Type.String
+    value = ''
+
+    def change_animation(self, unit):
+        return self.value

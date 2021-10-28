@@ -1469,10 +1469,18 @@ Stores a given position (*Condition*) as the event's home position. It can later
 class MapAnim(EventCommand):
     nid = 'map_anim'
     tag = Tags.TILEMAP
-    desc = ( 'Plays a map animation denoted by the nid *MapAnim* at *Position*. Optional args: a speed multiplier'
-             ' *Float*, which increases the length of time it takes to play the animation (larger is slower)')
+    desc = ('Plays a map animation denoted by the nid *MapAnim* at *Position*. Optional args: a speed multiplier'
+            ' *Float*, which increases the length of time it takes to play the animation (larger is slower)')
     keywords = ["MapAnim", "Position"]
     optional_keywords = ["Float"]
+    flags = ["no_block", "permanent", "blend"]
+
+class RemoveMapAnim(EventCommand):
+    nid = 'remove_map_anim'
+    tag = Tags.TILEMAP
+    desc = ('Removes a map animation denoted by the nid *MapAnim* at *Position*. Only removes MapAnims that were created using'
+            ' the "permanent" flag')
+    keywords = ["MapAnim", "Position"]
 
 class MergeParties(EventCommand):
     nid = 'merge_parties'
@@ -1563,6 +1571,35 @@ Brings up the chapter title screen, optionally with the specified *Music* and ch
 
     optional_keywords = ["Music", "Text"]
 
+class DrawOverlaySprite(EventCommand):
+    nid = 'draw_overlay_sprite'
+    nickname = 'draw_overlay'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+"""
+Draws a sprite on the screen at the specified position. Position defaults to 0, 0.
+Will always draw immediately behind the dialog. 
+You can control the order that multiple siimultaneous overlays are drawn by choosing a custom z-level.
+Higher z-level sprites will cover lower z-level sprites occupying the same positions.
+"""
+
+    keywords = ['String', 'Sprite']
+    optional_keywords = ['PositionOffset', 'Integer']
+    keyword_names = ['Name', 'Sprite_ID', 'Position', 'Z-Level']
+
+class RemoveOverlaySprite(EventCommand):
+    nid = 'remove_overlay_sprite'
+    nickname = 'delete_overlay'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+"""
+Removes an overlay sprite with the given name from the screen.
+"""
+
+    keywords = ['String']
+
 class Alert(EventCommand):
     nid = 'alert'
     tag = Tags.DIALOGUE_TEXT
@@ -1573,6 +1610,36 @@ Displays the text given in *Text* in an alert box. This is used for events such 
         """
 
     keywords = ["Text"]
+
+class AlertItem(EventCommand):
+    nid = 'alert_item'
+    tag = Tags.DIALOGUE_TEXT
+
+    desc = \
+        """
+Displays the text given in *Text* in an alert box. This is used for events such as "The switch was pulled!".
+
+Also takes in a item icon from *Item* to display.
+
+The icon always appears on the left side.
+        """
+
+    keywords = ["Text", "Item"]
+
+class AlertSkill(EventCommand):
+    nid = 'alert_skill'
+    tag = Tags.DIALOGUE_TEXT
+
+    desc = \
+        '''
+Displays the text given in *Text* in an alert box. This is used for events such as "The switch was pulled!".
+
+Also takes in a skill icon from *Skill* to display.
+
+The icon always appears on the left side.
+        '''
+
+    keywords = ["Text", "Skill"]
 
 class VictoryScreen(EventCommand):
     nid = 'victory_screen'
@@ -1879,7 +1946,8 @@ def parse_text(text: str, strict=False) -> EventCommand:
                 else:
                     cmd_keyword = "N/A"
                 # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
-                if '(' in arg and ')' in arg and ('FLAG' in arg or not (cmd_keyword in ['Condition', 'Text', 'StringList', 'PointList', 'DashList'])):
+                # we do NOT want to use this with evals, hence the '{' and '}' stoppage
+                if '(' in arg and ')' in arg and '{' not in arg and '}' not in arg and ('FLAG' in arg or not (cmd_keyword in ['Condition', 'Text', 'StringList', 'PointList', 'DashList'])):
                     true_arg = arg[arg.find("(")+1:arg.find(")")]
                     true_cmd_args.append(true_arg)
                 else:

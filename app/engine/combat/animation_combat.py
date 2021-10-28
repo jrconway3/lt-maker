@@ -501,19 +501,19 @@ class AnimationCombat(BaseCombat, MockCombat):
         return self.right.team
 
     def _set_stats(self):
-        a_hit = combat_calcs.compute_hit(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
-        a_mt = combat_calcs.compute_damage(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
+        a_hit = combat_calcs.compute_hit(self.attacker, self.defender, self.main_item, self.def_item, 'attack', self.state_machine.get_attack_info())
+        a_mt = combat_calcs.compute_damage(self.attacker, self.defender, self.main_item, self.def_item, 'attack', self.state_machine.get_attack_info())
         if DB.constants.value('crit'):
-            a_crit = combat_calcs.compute_crit(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
+            a_crit = combat_calcs.compute_crit(self.attacker, self.defender, self.main_item, self.def_item, 'attack', self.state_machine.get_attack_info())
         else:
             a_crit = 0
         a_stats = a_hit, a_mt, a_crit
 
         if self.def_item and combat_calcs.can_counterattack(self.attacker, self.main_item, self.defender, self.def_item):
-            d_hit = combat_calcs.compute_hit(self.defender, self.attacker, self.def_item, self.main_item, 'defense')
-            d_mt = combat_calcs.compute_damage(self.defender, self.attacker, self.def_item, self.main_item, 'defense')
+            d_hit = combat_calcs.compute_hit(self.defender, self.attacker, self.def_item, self.main_item, 'defense', self.state_machine.get_defense_info())
+            d_mt = combat_calcs.compute_damage(self.defender, self.attacker, self.def_item, self.main_item, 'defense', self.state_machine.get_defense_info())
             if DB.constants.value('crit'):
-                d_crit = combat_calcs.compute_crit(self.defender, self.attacker, self.def_item, self.main_item, 'defense')
+                d_crit = combat_calcs.compute_crit(self.defender, self.attacker, self.def_item, self.main_item, 'defense', self.state_machine.get_defense_info())
             else:
                 d_crit = 0
             d_stats = d_hit, d_mt, d_crit
@@ -853,11 +853,11 @@ class AnimationCombat(BaseCombat, MockCombat):
         crit = '--'
         if stats is not None:
             if stats[0] is not None:
-                hit = str(stats[0])
+                hit = str(utils.clamp(stats[0], 0, 100))
             if stats[1] is not None:
                 damage = str(stats[1])
             if DB.constants.value('crit') and stats[2] is not None:
-                crit = str(stats[2])
+                crit = str(utils.clamp(stats[2], 0, 100))
         FONT['number-small2'].blit_right(hit, surf, (right, top))
         FONT['number-small2'].blit_right(damage, surf, (right, top + 8))
         if DB.constants.value('crit'):

@@ -1,7 +1,7 @@
 from app.data.item_components import ItemComponent
 from app.data.components import Type
 
-from app.engine import action
+from app.engine import action, item_funcs
 
 class Uses(ItemComponent):
     nid = 'uses'
@@ -21,11 +21,11 @@ class Uses(ItemComponent):
     def is_broken(self, unit, item) -> bool:
         return item.data['uses'] <= 0
 
-    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         actions.append(action.SetObjData(item, 'uses', item.data['uses'] - 1))
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
-    def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_miss(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         actions.append(action.SetObjData(item, 'uses', item.data['uses'] - 1))
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
@@ -41,7 +41,10 @@ class Uses(ItemComponent):
 
     def reverse_use(self, unit, item):
         if self.is_broken(unit, item):
-            action.do(action.GiveItem(unit, item))
+            if item_funcs.inventory_full(unit, item):
+                action.do(action.PutItemInConvoy(item))
+            else:
+                action.do(action.GiveItem(unit, item))
         action.do(action.SetObjData(item, 'uses', item.data['uses'] + 1))
         action.do(action.ReverseRecords('item_use', (unit.nid, item.nid)))
 
@@ -66,11 +69,11 @@ class ChapterUses(ItemComponent):
     def is_broken(self, unit, item) -> bool:
         return item.data['c_uses'] <= 0
 
-    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         actions.append(action.SetObjData(item, 'c_uses', item.data['c_uses'] - 1))
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
-    def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_miss(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         actions.append(action.SetObjData(item, 'c_uses', item.data['c_uses'] - 1))
         actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
 
@@ -145,10 +148,10 @@ class Cooldown(ItemComponent):
     def is_broken(self, unit, item) -> bool:
         return item.data['cooldown'] != 0
 
-    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         self._used_in_combat = True
 
-    def on_miss(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_miss(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         self._used_in_combat = True
 
     def end_combat(self, playback, unit, item, target, mode):

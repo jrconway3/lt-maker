@@ -34,6 +34,10 @@ class Defaults():
         return 0
 
     @staticmethod
+    def witch_warp(unit) -> list:
+        return []
+
+    @staticmethod
     def exp_multiplier(unit1, unit2) -> float:
         return 1.0
 
@@ -48,6 +52,18 @@ class Defaults():
     @staticmethod
     def enemy_wexp_multiplier(unit1, unit2) -> float:
         return 1.0
+
+    @staticmethod
+    def wexp_usable_skill(unit1, unit2) -> float:
+        return False
+
+    @staticmethod
+    def change_variant(unit) -> str:
+        return unit.variant
+
+    @staticmethod
+    def change_animation(unit) -> str:
+        return unit.klass
 
     @staticmethod
     def steal_icon(unit1, unit2) -> bool:
@@ -150,6 +166,21 @@ def stat_change(unit, stat_nid) -> int:
                     bonus += d.get(stat_nid, 0)
     return bonus
 
+def stat_change_contribution(unit, stat_nid) -> dict:
+    contribution = {}
+    for skill in unit.skills:
+        for component in skill.components:
+            if component.defines('stat_change'):
+                if component.ignore_conditional or condition(skill, unit):
+                    d = component.stat_change(unit)
+                    val = d.get(stat_nid, 0)
+                    if val != 0:
+                        if skill.name in contribution:
+                            contribution[skill.name] += val
+                        else:
+                            contribution[skill.name] = val
+    return contribution
+
 def growth_change(unit, stat_nid) -> int:
     bonus = 0
     for skill in unit.skills:
@@ -178,6 +209,12 @@ def can_unlock(unit, region) -> bool:
                     if component.can_unlock(unit, region):
                         return True
     return False
+
+def before_crit(actions, playback, attacker, item, defender, mode, attack_info) -> bool:
+    for skill in attacker.skills:
+        for component in skill.components:
+            if component.defines('before_crit'):
+                component.before_crit(actions, playback, attacker, item, defender, mode, attack_info)
 
 def on_upkeep(actions, playback, unit) -> tuple:  # actions, playback
     for skill in unit.skills:

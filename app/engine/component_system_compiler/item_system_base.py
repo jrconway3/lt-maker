@@ -116,6 +116,27 @@ def available(unit, item) -> bool:
                     return False
     return True
 
+def stat_change(unit, item, stat_nid) -> int:
+    bonus = 0
+    for component in item.components:
+        if component.defines('stat_change'):
+            d = component.stat_change(unit)
+            bonus += d.get(stat_nid, 0)
+    return bonus
+
+def stat_change_contribution(unit, item, stat_nid) -> list:
+    contribution = {}
+    for component in item.components:
+        if component.defines('stat_change'):
+            d = component.stat_change(unit)
+            val = d.get(stat_nid, 0)
+            if val != 0:
+                if item.name in contribution:
+                    contribution[item.name] += val
+                else:
+                    contribution[item.name] = val
+    return contribution
+
 def is_broken(unit, item) -> bool:
     """
     If any hook reports true, then it is true
@@ -244,23 +265,23 @@ def find_hp(actions, target):
             starting_hp += subaction.num
     return starting_hp
 
-def after_hit(actions, playback, unit, item, target, mode):
+def after_hit(actions, playback, unit, item, target, mode, attack_info):
     for component in item.components:
         if component.defines('after_hit'):
-            component.after_hit(actions, playback, unit, item, target, mode)
+            component.after_hit(actions, playback, unit, item, target, mode, attack_info)
     if item.parent_item:
         for component in item.parent_item.components:
             if component.defines('after_hit'):
-                component.after_hit(actions, playback, unit, item.parent_item, target, mode)
+                component.after_hit(actions, playback, unit, item.parent_item, target, mode, attack_info)
 
-def on_hit(actions, playback, unit, item, target, target_pos, mode, first_item):
+def on_hit(actions, playback, unit, item, target, target_pos, mode, attack_info, first_item):
     for component in item.components:
         if component.defines('on_hit'):
-            component.on_hit(actions, playback, unit, item, target, target_pos, mode)
+            component.on_hit(actions, playback, unit, item, target, target_pos, mode, attack_info)
     if item.parent_item and first_item:
         for component in item.parent_item.components:
             if component.defines('on_hit'):
-                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode, attack_info)
 
     # Default playback
     if target and find_hp(actions, target) <= 0:
@@ -274,18 +295,18 @@ def on_hit(actions, playback, unit, item, target, target_pos, mode, first_item):
     if target and not any(brush for brush in playback if brush[0] in ('unit_tint_add', 'unit_tint_sub')):
         playback.append(('unit_tint_add', target, (255, 255, 255)))
 
-def on_crit(actions, playback, unit, item, target, target_pos, mode, first_item):
+def on_crit(actions, playback, unit, item, target, target_pos, mode, attack_info, first_item):
     for component in item.components:
         if component.defines('on_crit'):
-            component.on_crit(actions, playback, unit, item, target, target_pos, mode)
+            component.on_crit(actions, playback, unit, item, target, target_pos, mode, attack_info)
         elif component.defines('on_hit'):
-            component.on_hit(actions, playback, unit, item, target, target_pos, mode)
+            component.on_hit(actions, playback, unit, item, target, target_pos, mode, attack_info)
     if item.parent_item and first_item:
         for component in item.parent_item.components:
             if component.defines('on_crit'):
-                component.on_crit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+                component.on_crit(actions, playback, unit, item.parent_item, target, target_pos, mode, attack_info)
             elif component.defines('on_hit'):
-                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode, attack_info)
 
     # Default playback
     playback.append(('shake', 3))
@@ -299,18 +320,18 @@ def on_crit(actions, playback, unit, item, target, target_pos, mode, first_item)
         if not any(brush for brush in playback if brush[0] == 'crit_tint'):
             playback.append(('crit_tint', target, (255, 255, 255)))
 
-def on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, first_item):
+def on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, attack_info, first_item):
     for component in item.components:
         if component.defines('on_glancing_hit'):
-            component.on_glancing_hit(actions, playback, unit, item, target, target_pos, mode)
+            component.on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, attack_info)
         elif component.defines('on_hit'):
-            component.on_hit(actions, playback, unit, item, target, target_pos, mode)
+            component.on_hit(actions, playback, unit, item, target, target_pos, mode, attack_info)
     if item.parent_item and first_item:
         for component in item.parent_item.components:
             if component.defines('on_glancing_hit'):
-                component.on_glancing_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+                component.on_glancing_hit(actions, playback, unit, item.parent_item, target, target_pos, mode, attack_info)
             elif component.defines('on_hit'):
-                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode)
+                component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode, attack_info)
 
     # Default playback
     if target and find_hp(actions, target) <= 0:
@@ -324,14 +345,14 @@ def on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, fir
     if target and not any(brush for brush in playback if brush[0] in ('unit_tint_add', 'unit_tint_sub')):
         playback.append(('unit_tint_add', target, (255, 255, 255)))
 
-def on_miss(actions, playback, unit, item, target, target_pos, mode, first_item):
+def on_miss(actions, playback, unit, item, target, target_pos, mode, attack_info, first_item):
     for component in item.components:
         if component.defines('on_miss'):
-            component.on_miss(actions, playback, unit, item, target, target_pos, mode)
+            component.on_miss(actions, playback, unit, item, target, target_pos, mode, attack_info)
     if item.parent_item and first_item:
         for component in item.parent_item.components:
             if component.defines('on_miss'):
-                component.on_miss(actions, playback, unit, item.parent_item, target, target_pos, mode)
+                component.on_miss(actions, playback, unit, item.parent_item, target, target_pos, mode, attack_info)
 
     # Default playback
     playback.append(('hit_sound', 'Attack Miss 2'))

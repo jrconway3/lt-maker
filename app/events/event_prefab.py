@@ -31,6 +31,7 @@ all_triggers = Data([
     Trigger('on_base_convo', True, True, False, False),
     Trigger('on_turnwheel'),
     Trigger('on_title_screen'),
+    Trigger('on_overworld_node_select', unit1=True, region=True) # unit1 is entity nid, region is node nid
 ])
 
 class EventPrefab(Prefab):

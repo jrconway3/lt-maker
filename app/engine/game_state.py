@@ -434,7 +434,8 @@ class GameState():
                 unit.traveler = None
                 action.execute(action.RemoveSkill(unit, 'Rescue'))
             unit.set_hp(1000)  # Set to full health
-            unit.set_mana(1000)  # Set to full mana
+            if DB.constants.value('reset_mana'):
+                unit.set_mana(1000)  # Set to full mana
             unit.position = None
             unit.sprite.change_state('normal')
             unit.reset()
@@ -516,7 +517,7 @@ class GameState():
     @current_party.setter
     def current_party(self, party_nid: NID):
         self._current_party = party_nid
-        if self.overworld_controller:
+        if self.overworld_controller and party_nid:
             self.overworld_controller.select_entity(self._current_party)
 
     @property

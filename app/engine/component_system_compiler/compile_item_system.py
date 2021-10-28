@@ -22,7 +22,7 @@ modify_hooks = ('modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avo
                 'modify_defense_speed')
 
 # None of these are exclusive
-event_hooks = ('on_use', 'on_end_chapter', 'reverse_use',
+event_hooks = ('on_end_chapter', 'reverse_use',
                'on_equip_item', 'on_unequip_item', 'on_add_item', 'on_remove_item')
 
 combat_event_hooks = ('start_combat', 'end_combat')
@@ -108,11 +108,11 @@ def %s(unit, item):
 
     for hook in dynamic_hooks:
         func = """
-def %s(unit, item, target, mode):
+def %s(unit, item, target, mode, attack_info, base_value):
     val = 0
     for component in item.components:
         if component.defines('%s'):
-            val += component.%s(unit, item, target, mode)
+            val += component.%s(unit, item, target, mode, attack_info, base_value)
     return val""" \
             % (hook, hook, hook)
         compiled_item_system.write(func)

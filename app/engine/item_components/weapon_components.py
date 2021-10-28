@@ -19,8 +19,11 @@ class WeaponType(ItemComponent):
 
     def available(self, unit, item) -> bool:
         klass = DB.classes.get(unit.klass)
-        klass_usable = klass.wexp_gain.get(self.value).usable
-        return unit.wexp[self.value] > 0 and klass_usable
+        wexp_gain = klass.wexp_gain.get(self.value)
+        if wexp_gain:
+            klass_usable = wexp_gain.usable or skill_system.wexp_usable_skill(unit, item)
+            return unit.wexp[self.value] > 0 and klass_usable
+        return False
 
 class WeaponRank(ItemComponent):
     nid = 'weapon_rank'
@@ -57,7 +60,7 @@ class MagicAtRange(ItemComponent):
     desc = 'Makes Item use magic damage formula at range'
     tag = 'weapon'
 
-    def dynamic_damage(self, unit, item, target, mode) -> int:
+    def dynamic_damage(self, unit, item, target, mode, attack_info, base_value) -> int:
         running_damage = 0
         if unit.position and target and target.position:
             dist = utils.calculate_distance(unit.position, target.position)
@@ -105,12 +108,12 @@ class Damage(ItemComponent):
                 return True
         return False
 
-    def on_hit(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         playback_nids = [_[0] for _ in playback]
         if 'attacker_partner_phase' in playback_nids or 'defender_partner_phase' in playback_nids:
-            damage = combat_calcs.compute_assist_damage(unit, target, item, target.get_weapon(), mode)
+            damage = combat_calcs.compute_assist_damage(unit, target, item, target.get_weapon(), mode, attack_info)
         else:
-            damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
+            damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode, attack_info)
 
         true_damage = min(damage, target.get_hp())
         actions.append(action.ChangeHP(target, -damage))
@@ -121,12 +124,12 @@ class Damage(ItemComponent):
             playback.append(('hit_sound', 'No Damage'))
             playback.append(('hit_anim', 'MapNoDamage', target))
 
-    def on_glancing_hit(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_glancing_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         playback_nids = [_[0] for _ in playback]
         if 'attacker_partner_phase' in playback_nids or 'defender_partner_phase' in playback_nids:
-            damage = combat_calcs.compute_assist_damage(unit, target, item, target.get_weapon(), mode)
+            damage = combat_calcs.compute_assist_damage(unit, target, item, target.get_weapon(), mode, attack_info)
         else:
-            damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
+            damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode, attack_info)
         damage = damage // 2  # Because glancing hit
 
         true_damage = min(damage, target.get_hp())
@@ -137,12 +140,12 @@ class Damage(ItemComponent):
         if damage == 0:
             playback.append(('hit_anim', 'MapNoDamage', target))
 
-    def on_crit(self, actions, playback, unit, item, target, target_pos, mode):
+    def on_crit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         playback_nids = [_[0] for _ in playback]
         if 'attacker_partner_phase' in playback_nids or 'defender_partner_phase' in playback_nids:
-            damage = combat_calcs.compute_assist_damage(unit, target, item, target.get_weapon(), mode, crit=True)
+            damage = combat_calcs.compute_assist_damage(unit, target, item, target.get_weapon(), mode, attack_info, crit=True)
         else:
-            damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode, crit=True)
+            damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode, attack_info, crit=True)
 
         true_damage = min(damage, target.get_hp())
         actions.append(action.ChangeHP(target, -damage))
@@ -187,3 +190,14 @@ class Unwieldy(ItemComponent):
 
     def modify_defense(self, unit, item):
         return -1 * self.value
+
+class StatChange(ItemComponent):
+    nid = 'stat_change'
+    desc = "Gives stat bonuses"
+    tag = 'weapon'
+
+    expose = (Type.Dict, Type.Stat)
+    value = []
+
+    def stat_change(self, unit):
+        return {stat[0]: stat[1] for stat in self.value}

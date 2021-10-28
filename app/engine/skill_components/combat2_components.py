@@ -21,7 +21,7 @@ class IgnoreDamage(SkillComponent):
     desc = "Unit will ignore all damage"
     tag = 'combat2'
 
-    def after_hit(self, actions, playback, unit, item, target, mode):
+    def after_take_hit(self, actions, playback, unit, item, target, mode, attack_info):
         # Remove any acts that reduce my HP!
         did_something = False
         for act in reversed(actions):
@@ -40,7 +40,7 @@ class LiveToServe(SkillComponent):
     expose = Type.Float
     value = 1.0
 
-    def after_hit(self, actions, playback, unit, item, target, mode):
+    def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
         total_amount_healed = 0
         playbacks = [p for p in playback if p[0] == 'heal_hit' and p[1] is unit and p[3] is not unit]
         for p in playbacks:
@@ -53,6 +53,26 @@ class LiveToServe(SkillComponent):
             actions.append(action.ChangeHP(unit, amount))
             actions.append(action.TriggerCharge(unit, self.skill))
 
+class Lifetaker(SkillComponent):
+    nid = 'lifetaker'
+    desc = r"Heal % of total HP after a kill"
+    tag = 'combat2'
+
+    expose = Type.Float
+    value = 0.5
+
+    def end_combat(self, playback, unit, item, target, mode):
+        playbacks = [p for p in playback if p[0] in ('mark_hit', 'mark_crit') and p[1] is unit and p[2] and p[2] is not unit and p[2].is_dying]
+        unique_units = {p[2] for p in playbacks}
+        num_playbacks = len(unique_units)
+        if num_playbacks > 0:
+            amount = max(2, int(unit.get_max_hp() * self.value * num_playbacks))
+            if amount > 0:
+                true_heal = min(amount, unit.get_max_hp() - unit.get_hp())
+                playback.append(('heal_hit', unit, item, unit, true_heal, true_heal))
+                action.do(action.ChangeHP(unit, amount))
+                action.do(action.TriggerCharge(unit, self.skill))
+
 class Lifelink(SkillComponent):
     nid = 'lifelink'
     desc = "Heals user %% of damage dealt"
@@ -61,7 +81,7 @@ class Lifelink(SkillComponent):
     expose = Type.Float
     value = 0.5
 
-    def after_hit(self, actions, playback, unit, item, target, mode):
+    def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
         total_damage_dealt = 0
         playbacks = [p for p in playback if p[0] in ('damage_hit', 'damage_crit') and p[1] == unit]
         for p in playbacks:
@@ -195,7 +215,7 @@ class GiveStatusAfterHit(SkillComponent):
 
     expose = Type.Skill
 
-    def after_hit(self, actions, playback, unit, item, target, mode):
+    def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
         mark_playbacks = [p for p in playback if p[0] in ('mark_hit', 'mark_crit')]
 
         if target and any(p[3] == unit or p[1] == p[3].strike_partner \
@@ -250,7 +270,7 @@ class DelayInitiativeOrder(SkillComponent):
     value = 1
     author = "KD"
 
-    def after_hit(self, actions, playback, unit, item, target, mode):
+    def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
         mark_playbacks = [p for p in playback if p[0] in ('mark_miss', 'mark_hit', 'mark_crit')]
         if target and target.get_hp() <= 0 and any(p[3] == unit for p in mark_playbacks):  # Unit is overall attacker
             actions.append(action.MoveInInitiative(target, self.value))
@@ -273,7 +293,7 @@ class Recoil(SkillComponent):
 
 class PostCombatDamage(SkillComponent):
     nid = 'post_combat_damage'
-    desc = "Target takes non-lethal damage after combat"
+    desc = "Target takes non-lethal flat damage after combat"
     tag = 'combat2'
 
     expose = Type.Int
@@ -286,14 +306,39 @@ class PostCombatDamage(SkillComponent):
             action.do(action.SetHP(target, max(1, end_health)))
             action.do(action.TriggerCharge(unit, self.skill))
 
+class PostCombatDamagePercent(SkillComponent):
+    nid = 'post_combat_damage_percent'
+    desc = "Target takes non-lethal MaxHP percent damage after combat"
+    tag = 'combat2'
+
+    expose = Type.Float
+    value = 0.2
+    author = 'Lord_Tweed'
+    
+    def end_combat(self, playback, unit, item, target, mode):
+        if target and skill_system.check_enemy(unit, target):
+            end_health = int(target.get_hp() - (target.get_max_hp() * self.value))
+            action.do(action.SetHP(target, max(1, end_health)))
+            action.do(action.TriggerCharge(unit, self.skill))
+
+class PostCombatSplash(SkillComponent):
+    nid = 'post_combat_splash'
+    desc = "Deals flat damage to enemies in a range defined by the PostCombatSplashAOE component"
+    tag = 'combat2'
+    paired_with = ('post_combat_splash_aoe', )
+
+    expose = Type.Int
+    value = 0
+    author = 'Lord_Tweed'
+
     def post_combat_damage(self) -> int:
         return self.value
 
-class PostCombatDamageAOE(SkillComponent):
-    nid = 'post_combat_damage_aoe'
-    desc = 'Post-Combat damage will also hit other enemies within this AOE range.'
+class PostCombatSplashAOE(SkillComponent):
+    nid = 'post_combat_splash_aoe'
+    desc = 'Defines the range for PostCombatSplash damage to hit.'
     tag = 'combat2'
-    paired_with = ('post_combat_damage', )
+    paired_with = ('post_combat_splash', )
 
     expose = Type.Int
     value = 0
@@ -301,7 +346,7 @@ class PostCombatDamageAOE(SkillComponent):
 
     def end_combat(self, playback, unit, item, target, mode):
         if target and skill_system.check_enemy(unit, target):
-            r = set(range(self.value))
+            r = set(range(self.value+1))
             locations = target_system.get_shell({target.position}, r, game.tilemap.width, game.tilemap.height)
             damage = get_pc_damage(unit, self.skill)
             if damage > 0:

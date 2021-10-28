@@ -252,32 +252,46 @@ class UnitObject(Prefab):
     def set_exp(self, val):
         self.exp = int(utils.clamp(val, 0, 100))
 
-    def stat_bonus(self, stat_nid):
-        return skill_system.stat_change(self, stat_nid)
+    def stat_bonus(self, stat_nid: str) -> int:
+        bonus = skill_system.stat_change(self, stat_nid)
+        weapon = self.equipped_weapon
+        if weapon:
+            bonus += item_system.stat_change(self, weapon, stat_nid)
+        return bonus
+
+    def stat_contribution(self, stat_nid: str) -> list:
+        contribution = skill_system.stat_change_contribution(self, stat_nid)
+        weapon = self.equipped_weapon
+        if weapon:
+            contribution.update(item_system.stat_change_contribution(self, weapon, stat_nid))
+        return contribution
+
+    def get_stat(self, stat_nid):
+        return self.stats.get(stat_nid, 0) + self.stat_bonus(stat_nid)
 
     def growth_bonus(self, stat_nid):
         return skill_system.growth_change(self, stat_nid)
 
-    def get_stat(self, stat_nid):
-        return self.stats.get(stat_nid, 0) + skill_system.stat_change(self, stat_nid)
+    def get_growth(self, stat_nid):
+        return self.growths.get(stat_nid, 0) + self.growth_bonus(stat_nid)
 
     def get_stat_cap(self, stat_nid):
         return DB.classes.get(self.klass).max_stats.get(stat_nid, 30)
 
     def get_damage_with_current_weapon(self) -> int:
-        if self.equipped_weapon:
-            return combat_calcs.damage(self, self.equipped_weapon)
+        if self.get_weapon():
+            return combat_calcs.damage(self, self.get_weapon())
         else:
             return 0
 
     def get_accuracy_with_current_weapon(self) -> int:
-        if self.equipped_weapon:
-            return combat_calcs.accuracy(self, self.equipped_weapon)
+        if self.get_weapon():
+            return combat_calcs.accuracy(self, self.get_weapon())
         else:
             return 0
 
     def get_avoid_with_current_weapon(self) -> int:
-        return combat_calcs.avoid(self, self.equipped_weapon)
+        return combat_calcs.avoid(self, self.get_weapon())
 
     @property
     def sprite(self):
@@ -328,8 +342,9 @@ class UnitObject(Prefab):
         return unit_funcs.can_unlock(self, region)
 
     def get_weapon(self):
+        _weapon = None
         if self.equipped_weapon:
-            return self.equipped_weapon
+            _weapon = self.equipped_weapon
         else:
             for item in self.items:
                 weapon = item_system.is_weapon(self, item)
@@ -340,8 +355,9 @@ class UnitObject(Prefab):
                     # Since it's more of an attribute that will be
                     # rediscovered each time if necessary
                     self.equip(item)
-                    return item
-        return None
+                    _weapon = item
+                    break
+        return _weapon
 
     def get_spell(self):
         for item in self.items:
@@ -589,6 +605,9 @@ class UnitObject(Prefab):
             self.starting_position = None
         self._fields = s_dict.get('_fields', {})
 
+        self.equipped_weapon = None
+        self.equipped_accessory = None
+
         self.skills = [game.get_skill(skill_uid) for skill_uid in s_dict['skills']]
         self.skills = [s for s in self.skills if s]
 
@@ -603,8 +622,6 @@ class UnitObject(Prefab):
         self.lead_unit = False
         self.built_guard = s_dict.get('built_guard', False)
 
-        self.equipped_weapon = None
-        self.equipped_accessory = None
         self.equipped_weapon = self.get_weapon()
         self.equipped_accessory = self.get_accessory()
 

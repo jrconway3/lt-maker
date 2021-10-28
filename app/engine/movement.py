@@ -9,14 +9,11 @@ from app.utilities import utils
 
 
 class MovementData():
-    def __init__(self, path, event, follow, speed_adj=1, linger=250, callback=None, muted=False):
+    def __init__(self, path, event, follow, muted=False):
         self.path = path
         self.last_update = 0
         self.event = event
         self.follow = follow
-        self.speed_adj = speed_adj
-        self.linger = linger
-        self.callback = callback
         self.muted = muted
 
 class MovementManager():
@@ -142,6 +139,10 @@ class MovementManager():
                     logging.error("Could not find unit with nid %s", unit_nid)
                     del self.moving_units[unit_nid]
                     continue
+                elif not unit.position:
+                    logging.error("Unit with nid %s is no longer on the map", unit_nid)
+                    del self.moving_units[unit_nid]
+                    continue
 
                 if data.path:
                     new_position = data.path.pop()
@@ -163,6 +164,8 @@ class MovementManager():
                         self.camera_follow = unit_nid
                     if self.camera_follow == unit_nid:
                         game.cursor.set_pos(unit.position)
+                        if data.event:
+                            game.camera.set_center(*unit.position)
 
                 else: # Path is empty, so we are done
                     self.done_moving(unit_nid, data, unit)

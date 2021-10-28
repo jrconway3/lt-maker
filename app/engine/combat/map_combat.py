@@ -1,4 +1,3 @@
-from app.constants import TILEWIDTH, TILEHEIGHT
 from app.resources.resources import RESOURCES
 
 from app.engine.combat.solver import CombatPhaseSolver
@@ -31,7 +30,6 @@ class MapCombat(SimpleCombat):
         self.actions = []
 
         self.animations = []
-        self.damage_numbers = []
         self.health_bars = {}
 
         self.first_phase = True
@@ -206,8 +204,8 @@ class MapCombat(SimpleCombat):
         else:
             # P1 on P1
             if self.defender and self.attacker is self.defender:
-                hit = combat_calcs.compute_hit(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
-                mt = combat_calcs.compute_damage(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
+                hit = combat_calcs.compute_hit(self.attacker, self.defender, self.main_item, self.def_item, 'attack', self.state_machine.get_attack_info())
+                mt = combat_calcs.compute_damage(self.attacker, self.defender, self.main_item, self.def_item, 'attack', self.state_machine.get_attack_info())
                 if self.attacker not in self.health_bars:
                     attacker_health = MapCombatInfo('p1', self.attacker, self.main_item, self.defender, (hit, mt))
                     self.health_bars[self.attacker] = attacker_health
@@ -216,8 +214,8 @@ class MapCombat(SimpleCombat):
 
             # P1 on P2
             elif self.defender:
-                hit = combat_calcs.compute_hit(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
-                mt = combat_calcs.compute_damage(self.attacker, self.defender, self.main_item, self.def_item, 'attack')
+                hit = combat_calcs.compute_hit(self.attacker, self.defender, self.main_item, self.def_item, 'attack', self.state_machine.get_attack_info())
+                mt = combat_calcs.compute_damage(self.attacker, self.defender, self.main_item, self.def_item, 'attack', self.state_machine.get_attack_info())
                 if self.attacker not in self.health_bars:
                     attacker_health = MapCombatInfo('p1', self.attacker, self.main_item, self.defender, (hit, mt))
                     self.health_bars[self.attacker] = attacker_health
@@ -225,8 +223,8 @@ class MapCombat(SimpleCombat):
                     self.health_bars[self.attacker].update_stats((hit, mt))
 
                 if combat_calcs.can_counterattack(self.attacker, self.main_item, self.defender, self.def_item):
-                    hit = combat_calcs.compute_hit(self.defender, self.attacker, self.def_item, self.main_item, 'defense')
-                    mt = combat_calcs.compute_damage(self.defender, self.attacker, self.def_item, self.main_item, 'defense')
+                    hit = combat_calcs.compute_hit(self.defender, self.attacker, self.def_item, self.main_item, 'defense', self.state_machine.get_defense_info())
+                    mt = combat_calcs.compute_damage(self.defender, self.attacker, self.def_item, self.main_item, 'defense', self.state_machine.get_defense_info())
                 else:
                     hit, mt = None, None
                 if self.defender not in self.health_bars:
@@ -238,8 +236,8 @@ class MapCombat(SimpleCombat):
             # P1 on single splash
             elif len(self.all_splash) == 1:
                 defender = self.all_splash[0]
-                hit = combat_calcs.compute_hit(self.attacker, defender, self.main_item, None, 'attack')
-                mt = combat_calcs.compute_damage(self.attacker, defender, self.main_item, None, 'attack')
+                hit = combat_calcs.compute_hit(self.attacker, defender, self.main_item, None, 'attack', self.state_machine.get_attack_info())
+                mt = combat_calcs.compute_damage(self.attacker, defender, self.main_item, None, 'attack', self.state_machine.get_attack_info())
                 if self.attacker not in self.health_bars:
                     attacker_health = MapCombatInfo('p1', self.attacker, self.main_item, defender, (hit, mt))
                     self.health_bars[self.attacker] = attacker_health
@@ -288,28 +286,28 @@ class MapCombat(SimpleCombat):
                 if damage <= 0:
                     continue
                 str_damage = str(damage)
-                left = brush[3].position
+                target = brush[3]
                 for idx, num in enumerate(str_damage):
-                    d = gui.DamageNumber(int(num), idx, len(str_damage), left, 'small_red')
-                    self.damage_numbers.append(d)
+                    d = gui.DamageNumber(int(num), idx, len(str_damage), target.position, 'small_red')
+                    target.sprite.damage_numbers.append(d)
             elif brush[0] == 'damage_crit':
                 damage = brush[4]
                 if damage <= 0:
                     continue
                 str_damage = str(damage)
-                left = brush[3].position
+                target = brush[3]
                 for idx, num in enumerate(str_damage):
-                    d = gui.DamageNumber(int(num), idx, len(str_damage), left, 'small_yellow')
-                    self.damage_numbers.append(d)
+                    d = gui.DamageNumber(int(num), idx, len(str_damage), target.position, 'small_yellow')
+                    target.sprite.damage_numbers.append(d)
             elif brush[0] == 'heal_hit':
                 damage = brush[4]
                 if damage <= 0:
                     continue
                 str_damage = str(damage)
-                left = brush[3].position
+                target = brush[3]
                 for idx, num in enumerate(str_damage):
-                    d = gui.DamageNumber(int(num), idx, len(str_damage), left, 'small_cyan')
-                    self.damage_numbers.append(d)
+                    d = gui.DamageNumber(int(num), idx, len(str_damage), target.position, 'small_cyan')
+                    target.sprite.damage_numbers.append(d)
 
     def _apply_actions(self):
         """
@@ -348,15 +346,5 @@ class MapCombat(SimpleCombat):
 
         for hp_bar in self.health_bars.values():
             hp_bar.draw(surf)
-
-        # Damage Nums
-        for damage_num in self.damage_numbers:
-            damage_num.update()
-            position = damage_num.left
-            c_pos = game.camera.get_xy()
-            rel_x = position[0] - c_pos[0]
-            rel_y = position[1] - c_pos[1]
-            damage_num.draw(surf, (rel_x * TILEWIDTH + 4, rel_y * TILEHEIGHT))
-        self.damage_numbers = [d for d in self.damage_numbers if not d.done]
 
         return surf

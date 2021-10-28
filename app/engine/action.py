@@ -5,8 +5,9 @@ import sys
 
 from app.constants import TILEHEIGHT, TILEWIDTH
 from app.data.database import DB
+from app.resources.resources import RESOURCES
 from app.engine import (aura_funcs, banner, equations, item_funcs, item_system,
-                        particles, skill_system, static_random, unit_funcs)
+                        particles, skill_system, static_random, unit_funcs, animations)
 from app.engine.game_state import game
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
@@ -976,7 +977,7 @@ class PutItemInConvoy(Action):
         party = game.get_party(self.party_nid)
         party.convoy.append(self.item)
 
-    def reverse(self, gameStateObj):
+    def reverse(self):
         party = game.get_party(self.party_nid)
         party.convoy.remove(self.item)
         self.item.change_owner(self.owner_nid)
@@ -1924,28 +1925,40 @@ class ChangeTeam(Action):
         self.old_team = self.unit.team
         self.action = Reset(self.unit)
         self.ai_action = ChangeAI(self.unit, 'None')
+        self.fog_action1 = UpdateFogOfWar(self.unit)
+        self.fog_action2 = UpdateFogOfWar(self.unit)
 
     def do(self):
+        true_pos = self.unit.position
         if self.unit.position:
             game.leave(self.unit)
+        self.unit.position = None  # Remove from map so update fog of war will remove from map
+        self.fog_action1.do()  # Remove unit from the fog grid for its old team
         self.unit.team = self.team
         self.action.do()
         if self.team == 'player':
             # Make sure player unit's don't keep their AI
             self.ai_action.do()
+        self.unit.position = true_pos  # Add unit back to map
         if self.unit.position:
             game.arrive(self.unit)
+        self.fog_action2.do()  # Add to fog of war with new team
         if game.boundary:
             game.boundary.reset_unit(self.unit)
         self.unit.sprite.load_sprites()
 
     def reverse(self):
+        true_pos = self.unit.position
         if self.unit.position:
             game.leave(self.unit)
+        self.unit.position = None
+        self.fog_action2.reverse()  # Remove new team's FOW
         self.unit.team = self.old_team
         if self.team == 'player':
             self.ai_action.reverse()
         self.action.reverse()
+        self.fog_action1.reverse()  # Put unit back onto map
+        self.unit.position = true_pos
         if self.unit.position:
             game.arrive(self.unit)
         if game.boundary:
@@ -2223,6 +2236,41 @@ class RemoveWeather(Action):
             new_ps = particles.create_system(self.weather_nid, game.tilemap.width, game.tilemap.height)
             game.tilemap.weather.append(new_ps)
 
+class AddMapAnim(Action):
+    def __init__(self, nid, pos, speed_mult, blend):
+        self.nid = nid
+        self.pos = pos
+        self.speed_mult = speed_mult
+        self.blend = blend
+
+    def do(self):
+        anim = RESOURCES.animations.get(self.nid)
+        anim = animations.MapAnimation(anim, self.pos, loop=True, speed_adj=self.speed_mult)
+        anim.set_tint(self.blend)
+        game.tilemap.animations.append(anim)
+
+    def reverse(self):
+        for anim in game.tilemap.animations[:]:
+            if anim.nid == self.nid and anim.xy_pos == self.pos:
+                game.tilemap.animations.remove(anim)
+                break
+
+class RemoveMapAnim(Action):
+    def __init__(self, nid, pos):
+        self.nid = nid
+        self.pos = pos
+        self.speed_mult = 1
+
+    def do(self):
+        for anim in game.tilemap.animations[:]:
+            if anim.nid == self.nid and anim.xy_pos == self.pos:
+                self.speed_mult = anim.speed_adj
+                game.tilemap.animations.remove(anim)
+
+    def reverse(self):
+        anim = RESOURCES.animations.get(self.nid)
+        anim = animations.MapAnimation(anim, self.pos, loop=True, speed_mult=self.speed_mult)
+        game.tilemap.animations.append(anim)
 
 class ChangeObjective(Action):
     def __init__(self, key, string):

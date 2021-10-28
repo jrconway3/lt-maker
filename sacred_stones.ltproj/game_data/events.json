@@ -6914,15 +6914,17 @@
         "condition": "True",
         "commands": [
             [
-                "comment",
+                "level_var",
                 [
-                    "#level_var;_fog_of_war;1"
+                    "_fog_of_war",
+                    "1"
                 ]
             ],
             [
-                "comment",
+                "level_var",
                 [
-                    "#level_var;_fog_of_war_radius;3"
+                    "_fog_of_war_radius",
+                    "3"
                 ]
             ],
             [
@@ -6961,6 +6963,55 @@
                 [
                     "_fatigue",
                     "1"
+                ]
+            ],
+            [
+                "map_anim",
+                [
+                    "MapMiss",
+                    "Eirika",
+                    "permanent"
+                ],
+                [
+                    "MapMiss",
+                    "Eirika (Eirika)",
+                    "FLAG(permanent)"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "1000"
+                ]
+            ],
+            [
+                "move_unit",
+                [
+                    "Eirika",
+                    "13,7",
+                    "normal",
+                    "closest",
+                    "no_block"
+                ]
+            ],
+            [
+                "wait",
+                [
+                    "500"
+                ]
+            ],
+            [
+                "remove_unit",
+                [
+                    "Eirika",
+                    "fade"
+                ]
+            ],
+            [
+                "change_team",
+                [
+                    "Seth",
+                    "player"
                 ]
             ],
             [
@@ -13109,6 +13160,78 @@
                 [
                     "Eirika",
                     "FLAG(immediate)"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Activate Movement Star",
+        "trigger": "unit_wait",
+        "level_nid": null,
+        "condition": "True",
+        "commands": [
+            [
+                "if",
+                [
+                    "static_random.get_combat() < (unit.get_stat('SPD') * 10) and not unit.get_field('movement_star')"
+                ]
+            ],
+            [
+                "reset",
+                [
+                    "{unit}"
+                ]
+            ],
+            [
+                "set_unit_field",
+                [
+                    "{unit}",
+                    "movement_star",
+                    "True"
+                ]
+            ],
+            [
+                "map_anim",
+                [
+                    "MapSmallHealTrans",
+                    "{unit}"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Loop Reset Movement Star",
+        "trigger": "turn_change",
+        "level_nid": null,
+        "condition": "True",
+        "commands": [
+            [
+                "loop_units",
+                [
+                    "game.get_all_units()",
+                    "Reset Movement Star"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    },
+    {
+        "name": "Reset Movement Star",
+        "trigger": null,
+        "level_nid": null,
+        "condition": "True",
+        "commands": [
+            [
+                "set_unit_field",
+                [
+                    "{unit}",
+                    "movement_star",
+                    "False"
                 ]
             ]
         ],

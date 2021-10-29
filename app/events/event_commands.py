@@ -1754,6 +1754,17 @@ Executes the event script specified by *Event*. Can optionally feed two *GlobalU
 
     keywords = ["Event"]
     optional_keywords = ["GlobalUnit", "GlobalUnit"]
+class TriggerScriptWithArgs(EventCommand):
+    nid = 'trigger_script_with_args'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+Executes the event script specified by *Event*. Can feed up to five arguments of your choice to the new event. These args can be accessed via {1}, {2}, {3}, {4}, and {5}.
+        """
+
+    keywords = ["Event"]
+    optional_keywords = ["String", "String", "String", "String", "String"]
 
 class LoopUnits(EventCommand):
     nid = 'loop_units'
@@ -1972,7 +1983,7 @@ def parse(command, _eval_evals: Callable[[str], str] = None, _eval_vars: Callabl
         true_values = [_eval_vars(value) for value in true_values]
     return true_values, flags
 
-def convert_parse(command: EventCommand):
+def convert_parse(command: EventCommand, _eval_evals: Callable[[str], str] = None, _eval_vars: Callable[[str], str] = None):
     from app.events.event_validators import convert
     values = command.values
     num_keywords = len(command.keywords)
@@ -1990,4 +2001,8 @@ def convert_parse(command: EventCommand):
             if kwd_idx < len(true_values):
                 true_values[kwd_idx] = convert(command.optional_keywords[okeyword_idx], okeyword)
         kwd_idx += 1
+    if _eval_evals:
+        true_values = [_eval_evals(value) for value in true_values if isinstance(value, str)]
+    if _eval_vars:
+        true_values = [_eval_vars(value) for value in true_values if isinstance(value, str)]
     return true_values, flags

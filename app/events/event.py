@@ -55,7 +55,7 @@ class Event():
 
     true_vals = ('t', 'true', '1', 'y', 'yes')
 
-    skippable = {"speak", "transition", "wait", "bop_portrait",
+    skippable = {"speak", "wait", "bop_portrait",
                  "sound", "location_card", "credits", "ending"}
 
     def __init__(self, nid, commands, unit=None, unit2=None, item=None, position=None, region=None):
@@ -458,9 +458,11 @@ class Event():
                 self.transition_color = tuple(int(_) for _ in values[2].split(','))
             else:
                 self.transition_color = self._transition_color
-            self.transition_update = current_time
-            self.wait_time = current_time + int(self.transition_speed * 1.33)
-            self.state = 'waiting'
+                
+            if not self.do_skip:
+                self.transition_update = current_time
+                self.wait_time = current_time + int(self.transition_speed * 1.33)
+                self.state = 'waiting'
 
         elif command.nid == 'speak':
             self.speak(command)

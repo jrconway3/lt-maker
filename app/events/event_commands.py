@@ -1471,7 +1471,7 @@ class MapAnim(EventCommand):
     tag = Tags.TILEMAP
     desc = ('Plays a map animation denoted by the nid *MapAnim* at *Position*. Optional args: a speed multiplier'
             ' *Float*, which increases the length of time it takes to play the animation (larger is slower)')
-    keywords = ["MapAnim", "Position"]
+    keywords = ["MapAnim", "FloatPosition"]
     optional_keywords = ["Float"]
     flags = ["no_block", "permanent", "blend"]
 
@@ -1579,7 +1579,7 @@ class DrawOverlaySprite(EventCommand):
     desc = \
 """
 Draws a sprite on the screen at the specified position. Position defaults to 0, 0.
-Will always draw immediately behind the dialog. 
+Will always draw immediately behind the dialog.
 You can control the order that multiple siimultaneous overlays are drawn by choosing a custom z-level.
 Higher z-level sprites will cover lower z-level sprites occupying the same positions.
 """

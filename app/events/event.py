@@ -55,7 +55,7 @@ class Event():
 
     true_vals = ('t', 'true', '1', 'y', 'yes')
 
-    skippable = {"speak", "transition", "wait", "bop_portrait",
+    skippable = {"speak", "wait", "bop_portrait",
                  "sound", "location_card", "credits", "ending"}
 
     def __init__(self, nid, commands, unit=None, unit2=None, item=None, position=None, region=None):
@@ -458,9 +458,11 @@ class Event():
                 self.transition_color = tuple(int(_) for _ in values[2].split(','))
             else:
                 self.transition_color = self._transition_color
-            self.transition_update = current_time
-            self.wait_time = current_time + int(self.transition_speed * 1.33)
-            self.state = 'waiting'
+                
+            if not self.do_skip:
+                self.transition_update = current_time
+                self.wait_time = current_time + int(self.transition_speed * 1.33)
+                self.state = 'waiting'
 
         elif command.nid == 'speak':
             self.speak(command)
@@ -1079,7 +1081,7 @@ class Event():
             if nid not in RESOURCES.animations.keys():
                 logging.error("Could not find map animation %s" % nid)
                 return
-            pos = self.parse_pos(values[1])
+            pos = self.parse_pos(values[1], True)
             if len(values) > 2:
                 speed_mult = int(values[2])
             else:
@@ -3089,10 +3091,13 @@ class Event():
         unit = self.get_unit(values[0])
         action.do(action.RemovePartner(unit))
 
-    def parse_pos(self, text):
+    def parse_pos(self, text, is_float=False):
         position = None
         if ',' in text:
-            position = tuple(int(_) for _ in text.split(','))
+            if is_float:
+                position = tuple(float(_) for _ in text.split(','))
+            else:
+                position = tuple(int(_) for _ in text.split(','))
         elif text == '{position}':
             position = self.position
         elif not game.is_displaying_overworld() and self.get_unit(text):

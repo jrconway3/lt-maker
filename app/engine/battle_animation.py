@@ -104,7 +104,6 @@ class BattleAnimation():
         # Effect stuff
         self.child_effects = []
         self.under_child_effects = []
-        self.loop = False
 
         # For drawing
         self.blend = 0

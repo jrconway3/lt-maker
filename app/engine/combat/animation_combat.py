@@ -107,6 +107,27 @@ class AnimationCombat(BaseCombat, MockCombat):
         self._skip = False
         battle_animation.battle_anim_speed = 1
 
+    def get_actors(self):
+        if self.get_from_playback('defender_phase'):
+            if self.attacker is self.left:
+                attacker, defender = self.right, self.left
+                item, d_item = self.right_item, self.left_item
+                current_battle_anim = self.right_battle_anim
+            else:
+                attacker, defender = self.left, self.right
+                item, d_item = self.left_item, self.right_item
+                current_battle_anim = self.left_battle_anim
+        else:
+            if self.attacker is self.left:
+                attacker, defender = self.left, self.right
+                item, d_item = self.left_item, self.right_item
+                current_battle_anim = self.left_battle_anim
+            else:
+                attacker, defender = self.right, self.left
+                item, d_item = self.right_item, self.left_item
+                current_battle_anim = self.right_battle_anim
+        return attacker, item, defender, d_item, current_battle_anim
+
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
         current_state = self.state
@@ -169,27 +190,6 @@ class AnimationCombat(BaseCombat, MockCombat):
                 elif self.get_from_full_playback('defense_pre_proc'):
                     self.set_up_pre_proc_animation('defense_pre_proc')
                 else:
-                    self.state = 'init_effects'
-
-        elif self.state == 'init_effects':
-            if not self.left_battle_anim.effect_playing() and not self.right_battle_anim.effect_playing():
-                any_effect: bool = False
-                if self.right_item:
-                    mode = 'attack' if self.right is self.attacker else 'defense'
-                    effect = item_system.combat_effect(self.right, self.right_item, self.left, mode)
-                    if effect:
-                        any_effect = True
-                        self.right_battle_anim.add_effect(effect)
-                elif self.left_item:
-                    mode = 'attack' if self.left is self.attacker else 'defense'
-                    effect = item_system.combat_effect(self.left, self.left_item, self.right, mode)
-                    if effect:
-                        any_effect = True
-                        self.left_battle_anim.add_effect(effect)
-
-                if any_effect:
-                    pass # Stay on current state
-                else:
                     self.state = 'begin_phase'
 
         elif self.state == 'begin_phase':
@@ -206,12 +206,35 @@ class AnimationCombat(BaseCombat, MockCombat):
                 return False
             self._set_stats()
 
-            if self.get_from_playback('attack_proc'):
+            # Set up combat effects (legendary)
+            attacker, item, defender, d_item, current_battle_anim = self.get_actors()
+            any_effect: bool = False
+            if (attacker.nid + '_combat_effect',) not in self.full_playback:
+                if item:
+                    effect_nid = item_system.combat_effect(attacker, item, defender, 'attack')
+                    if effect_nid:
+                        effect = current_battle_anim.get_effect(effect_nid, pose='Attack')
+                        any_effect = True
+                        self.full_playback.append((attacker.nid + '_combat_effect',))  # Mark that we've done their combat effect
+                        current_battle_anim.add_effect(effect)
+
+            if any_effect:
+                self.state = 'combat_effect'
+            elif self.get_from_playback('attack_proc'):
                 self.set_up_proc_animation('attack_proc')
             elif self.get_from_playback('defense_proc'):
                 self.set_up_proc_animation('defense_proc')
             else:
                 self.set_up_combat_animation()
+
+        elif self.state == 'combat_effect':
+            if not self.left_battle_anim.effect_playing() and not self.right_battle_anim.effect_playing() and current_time > 400:
+                if self.get_from_playback('attack_proc'):
+                    self.set_up_proc_animation('attack_proc')
+                elif self.get_from_playback('defense_proc'):
+                    self.set_up_proc_animation('defense_proc')
+                else:
+                    self.set_up_combat_animation()
 
         elif self.state == 'attack_proc':
             if self.left_battle_anim.done() and self.right_battle_anim.done() and current_time > 400:
@@ -504,16 +527,7 @@ class AnimationCombat(BaseCombat, MockCombat):
 
     def set_up_combat_animation(self):
         self.state = 'anim'
-        if self.get_from_playback('defender_phase'):
-            if self.attacker is self.left:
-                self.current_battle_anim = self.right_battle_anim
-            else:
-                self.current_battle_anim = self.left_battle_anim
-        else:
-            if self.attacker is self.left:
-                self.current_battle_anim = self.left_battle_anim
-            else:
-                self.current_battle_anim = self.right_battle_anim
+        _, _, _, _, self.current_battle_anim = self.get_actors()
         alternate_pose = self.get_from_playback('alternate_battle_pose')
         if alternate_pose:
             alternate_pose = alternate_pose[0][1]

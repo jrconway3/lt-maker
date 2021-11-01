@@ -240,7 +240,7 @@ class MockCombat():
             self.no_damage()
 
     def no_damage(self):
-        if self.current_battle_anim is self.right_battle_anim:
+        if self.current_battle_anim is self.right_battle_anim or self.current_battle_anim is self.rp_battle_anim:
             position = (52, 21)
             team = self.right_team()
         else:

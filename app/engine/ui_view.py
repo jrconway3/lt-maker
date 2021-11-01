@@ -373,17 +373,17 @@ class UIView():
 
                 width = FONT['text-white'].width(a_assist.name)
                 FONT['text-white'].blit(a_assist.name, surf, (90 - width//2, 19))
-                mt = combat_calcs.compute_assist_damage(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
+                mt = combat_calcs.compute_assist_damage(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack', (0, 0))
                 if grandmaster:
-                    hit = combat_calcs.compute_hit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
+                    hit = combat_calcs.compute_hit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack', (0, 0))
                     blit_num(surf, int(mt * float(hit) / 100), 110, 34)
                 else:
                     blit_num(surf, mt, 110, 34)
-                    hit = combat_calcs.compute_hit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
+                    hit = combat_calcs.compute_hit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack', (0, 0))
                     blit_num(surf, hit, 110, 50)
                     # Blit crit if applicable
                     if crit_flag:
-                        c = combat_calcs.compute_crit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack')
+                        c = combat_calcs.compute_crit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack', (0, 0))
                         blit_num(surf, c, 110, 66)
 
             if not attacker.traveler and d_assist and defender.get_weapon() and \
@@ -391,17 +391,17 @@ class UIView():
 
                 width = FONT['text-white'].width(d_assist.name)
                 FONT['text-white'].blit(d_assist.name, surf, (90 - width//2, 81))
-                mt = combat_calcs.compute_assist_damage(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense')
+                mt = combat_calcs.compute_assist_damage(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense', (0, 0))
                 if grandmaster:
-                    hit = combat_calcs.compute_hit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense')
+                    hit = combat_calcs.compute_hit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense', (0, 0))
                     blit_num(surf, int(mt * float(hit) / 100), 87, 34)
                 else:
                     blit_num(surf, mt, 87, 34)
-                    hit = combat_calcs.compute_hit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense')
+                    hit = combat_calcs.compute_hit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense', (0, 0))
                     blit_num(surf, hit, 87, 50)
                     # Blit crit if applicable
                     if crit_flag:
-                        c = combat_calcs.compute_crit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense')
+                        c = combat_calcs.compute_crit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense', (0, 0))
                         blit_num(surf, c, 87, 66)
 
         # Name

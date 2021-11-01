@@ -105,8 +105,8 @@ class SimpleMapView(QGraphicsView):
                     partner = current_level.units.get(unit.starting_traveler)
                     if partner:
                         pos = unit.starting_position
-                        self.draw_unit(painter, partner, (pos[0] + 0.125, pos[1] - 0.125))
-                        self.draw_unit(painter, unit, (pos[0] - 0.125, pos[1] + 0.125))
+                        self.draw_unit(painter, partner, (pos[0] + 0.1875, pos[1] - 0.1875))
+                        self.draw_unit(painter, unit, (pos[0] - 0.1875, pos[1] + 0.1875))
                     else:
                         self.draw_unit(painter, unit, unit.starting_position)
                 else:
@@ -207,8 +207,8 @@ class GlobalModeLevelMapView(SimpleMapView):
                             partner = self.current_level.units.get(unit.starting_traveler)
                             if partner:
                                 pos = unit.starting_position
-                                self.draw_unit(painter, partner, (pos[0] + 0.125, pos[1] - 0.125))
-                                self.draw_unit(painter, unit, (pos[0] - 0.125, pos[1] + 0.125))
+                                self.draw_unit(painter, partner, (pos[0] + 0.1875, pos[1] - 0.1875))
+                                self.draw_unit(painter, unit, (pos[0] - 0.1875, pos[1] + 0.1875))
                             else:
                                 self.draw_unit(painter, unit, unit.starting_position)
                         else:
@@ -352,8 +352,8 @@ class NewMapView(SimpleMapView):
                         partner = self.current_level.units.get(unit.starting_traveler)
                         if partner:
                             pos = unit.starting_position
-                            self.draw_unit(painter, partner, (pos[0] + 0.125, pos[1] - 0.125))
-                            self.draw_unit(painter, unit, (pos[0] - 0.125, pos[1] + 0.125))
+                            self.draw_unit(painter, partner, (pos[0] + 0.1875, pos[1] - 0.1875))
+                            self.draw_unit(painter, unit, (pos[0] - 0.1875, pos[1] + 0.1875))
                         else:
                             self.draw_unit(painter, unit, unit.starting_position)
                     else:

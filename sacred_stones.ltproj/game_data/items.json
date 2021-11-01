@@ -1023,10 +1023,6 @@
             [
                 "crit",
                 10
-            ],
-            [
-                "pre_combat_effect",
-                "TurnwheelFlash"
             ]
         ]
     },

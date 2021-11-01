@@ -281,22 +281,22 @@ def find_strike_partners(attacker, defender, item):
     attacker_adj_allies = [ally for ally in attacker_adj_allies if ally.get_weapon()]
     defender_adj_allies = get_adj_allies(defender)
     defender_adj_allies = [ally for ally in defender_adj_allies if ally.get_weapon()]
-    attacker_partner = strike_partner_formula(attacker_adj_allies, attacker, defender, 'attack')
-    defender_partner = strike_partner_formula(defender_adj_allies, defender, attacker, 'defense')
+    attacker_partner = strike_partner_formula(attacker_adj_allies, attacker, defender, 'attack', (0, 0))
+    defender_partner = strike_partner_formula(defender_adj_allies, defender, attacker, 'defense', (0, 0))
 
     if attacker_partner is defender_partner:
         # If both attacker and defender have the same partner something is weird
         return None, None
     return attacker_partner, defender_partner
 
-def strike_partner_formula(allies: list, attacker, defender, mode):
+def strike_partner_formula(allies: list, attacker, defender, mode, attack_info):
     '''This is the formula for the best choice to make
     when autoselecting strike partners
     It returns a new list!'''
     if not allies:
         return None
-    damage = [combat_calcs.compute_assist_damage(ally, defender, ally.get_weapon(), defender.get_weapon(), mode) for ally in allies]
-    accuracy = [utils.clamp(combat_calcs.compute_hit(ally, defender, ally.get_weapon(), defender.get_weapon(), mode)/100., 0, 1) for ally in allies]
+    damage = [combat_calcs.compute_assist_damage(ally, defender, ally.get_weapon(), defender.get_weapon(), mode, attack_info) for ally in allies]
+    accuracy = [utils.clamp(combat_calcs.compute_hit(ally, defender, ally.get_weapon(), defender.get_weapon(), mode, attack_info)/100., 0, 1) for ally in allies]
     score = [dam * acc for dam, acc in zip(damage, accuracy)]
     max_score = max(score)
     max_index = score.index(max_score)

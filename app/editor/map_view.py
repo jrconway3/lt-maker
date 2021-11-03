@@ -518,10 +518,11 @@ class NewMapView(SimpleMapView):
                 elif event.button() == self.settings.get_select_button(Qt.LeftButton):
                     current_group = self.main_editor.group_painter_menu.get_current()
                     under_unit_nid = None
-                    for unit_nid, position in current_group.positions.items():
-                        if pos == position:
-                            under_unit_nid = unit_nid
-                            break
+                    if current_group:
+                        for unit_nid, position in current_group.positions.items():
+                            if pos == position:
+                                under_unit_nid = unit_nid
+                                break
                     for group in self.main_editor.current_level.unit_groups:
                         if under_unit_nid:
                             break

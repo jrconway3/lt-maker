@@ -516,6 +516,7 @@ Causes the cursor to briefly blink on and off at the indicated *Position*.
 
 class GameVar(EventCommand):
     nid = 'game_var'
+    nickname = 'set'
     tag = Tags.GAME_VARS
 
     desc = \
@@ -529,6 +530,7 @@ The *Nid* is the variable's identifier, and the *Condition* is the value that is
 
 class IncGameVar(EventCommand):
     nid = 'inc_game_var'
+    nickname = 'inc'
     tag = Tags.GAME_VARS
 
     desc = \

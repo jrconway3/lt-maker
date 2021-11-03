@@ -62,7 +62,18 @@ class DemoTable():
         self.base_component.add_child(table2)
         table2.set_data(options2)
 
-        self.choicetable1 = ChoiceTable('table3', self.base_component, options, num_columns=2, num_rows=2)
+        options3 = [
+            'axe1',
+            'axe1',
+            'axe1',
+            'axe1',
+            'axe1',
+            'axe1',
+            'axe1',
+            'axe2'
+        ]
+
+        self.choicetable1 = ChoiceTable('table3', self.base_component, options3, num_columns=2, num_rows=2)
         self.choicetable1.margin = (10, 10, 10, 10)
         self.choicetable1.props.v_alignment = VAlignment.BOTTOM
 

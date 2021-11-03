@@ -31,6 +31,7 @@ class StateMachine():
             status_upkeep, debug_mode, chapter_title, player_choice, feat_choice, \
             victory_screen, objective_menu, minimap, roam_state, dialog_log, text_entry
         from app.engine.overworld import overworld_states
+        from app.engine.game_menus.menu_states import unit_menu_state
         from app.events import event_state
         self.all_states = \
             {'title_start': title_screen.TitleStartState,
@@ -159,6 +160,10 @@ class StateMachine():
     def current(self):
         if self.state:
             return self.state[-1].name
+
+    def current_state(self):
+        if self.state:
+            return self.state[-1]
 
     def exit_state(self, state):
         if state.processed:

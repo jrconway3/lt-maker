@@ -1,65 +1,69 @@
-from app.constants import WINWIDTH, WINHEIGHT
-from app.engine.sound import SOUNDTHREAD
-from app.engine.fonts import FONT
-from app.engine.state import MapState
+import logging
+from enum import Enum
 
-from app.engine import menus, action, base_surf
+from app.data.database import DB
+from app.engine import action
+from app.engine.game_menus.menu_components.generic_menu.choice_table_wrapper import ChoiceMenuUI
 from app.engine.game_state import game
+from app.engine.sound import SOUNDTHREAD
+from app.engine.state import MapState
 
 class PlayerChoiceState(MapState):
     name = 'player_choice'
     transparent = True
 
     def start(self):
-        self.nid, self.header, options_list, self.orientation = \
+        self.nid, self.header, options_list, self.row_width, self.orientation, \
+            self.data_type, self.should_persist, self.alignment, self.bg, self.event_on_choose = \
             game.memory['player_choice']
-        self.menu = menus.Choice(None, options_list, 'center', None)
-        self.bg_surf, self.topleft = self.create_bg_surf()
-        self.menu.topleft = (self.topleft[0], self.topleft[1] + FONT['text-white'].height)
+        ncols = 1
         if self.orientation == 'horizontal':
-            self.menu.set_horizontal(True)
-            width = sum(option.width() + 8 for option in self.menu.options)
-            self.menu.topleft = (self.topleft[0] + self.bg_surf.get_width()//2 - width//2 - 4,
-                                 self.topleft[1] + FONT['text-white'].height)
-
-    def create_bg_surf(self):
-        width_of_header = FONT['text-white'].width(self.header) + 16
-        menu_width = self.menu.get_menu_width()
-        width = max(width_of_header, menu_width)
-        menu_height = self.menu.get_menu_height() if self.orientation == 'vertical' else FONT['text-white'].height + 8
-        height = menu_height + FONT['text-white'].height
-        bg_surf = base_surf.create_base_surf(width, height, 'menu_bg_base')
-        topleft = (WINWIDTH//2 - width//2, WINHEIGHT//2 - height//2)
-        return bg_surf, topleft
+            ncols = 2
+        self.menu = ChoiceMenuUI(options_list, data_type=self.data_type, row_width=self.row_width,
+                                 title=self.header, cols=ncols, alignment=self.alignment, bg=self.bg)
 
     def take_input(self, event):
-        self.menu.handle_mouse()
-        if (event == 'RIGHT' and self.orientation == 'horizontal') or \
-                (event == 'DOWN' and self.orientation == 'vertical'):
+        if (event == 'RIGHT' and self.orientation == 'horizontal'):
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_right()
+        elif (event == 'DOWN' and self.orientation == 'vertical'):
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down()
-        elif (event == 'LEFT' and self.orientation == 'horizontal') or \
-                (event == 'UP' and self.orientation == 'vertical'):
+        elif (event == 'LEFT' and self.orientation == 'horizontal'):
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_left()
+        elif(event == 'UP' and self.orientation == 'vertical'):
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up()
-
         elif event == 'BACK':
-            SOUNDTHREAD.play_sfx('Error')
-
+            if self.should_persist:
+                game.state.back()
+            else:
+                SOUNDTHREAD.play_sfx('Error')
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
-            selection = self.menu.get_current()
+            selection = self.menu.get_selected()
             action.do(action.SetGameVar(self.nid, selection))
             action.do(action.SetGameVar('_last_choice', selection))
-            game.state.back()
-
-    def update(self):
-        self.menu.update()
+            if not self.event_on_choose:
+                if not self.should_persist:
+                    game.state.back()
+            else:
+                if not self.should_persist:
+                    game.state.back()
+                valid_events = [event_prefab for event_prefab in DB.events.values() if (event_prefab.name == self.event_on_choose or event_prefab.nid == self.event_on_choose) \
+                    and (not event_prefab.level_nid or (game.level and event_prefab.level_nid == game.level.nid))]
+                for event_prefab in valid_events:
+                    game.events.add_event(event_prefab.nid, event_prefab.commands, selection)
+                    if event_prefab.only_once:
+                        action.do(action.OnlyOnceEvent(event_prefab.nid))
+                if not valid_events:
+                    logging.error("Couldn't find any valid events matching name %s" % self.event_on_choose)
+        selection = self.menu.get_selected()
+        game.game_vars[self.nid + '_choice_hover'] = selection
 
     def draw(self, surf):
-        surf.blit(self.bg_surf, self.topleft)
-        FONT['text-white'].blit(self.header, surf, (self.topleft[0] + 4, self.topleft[1] + 4))
-
-        # Place Menu on background
-        self.menu.draw(surf)
+        self.menu.update()
+        should_update_cursor = 1 if game.state.current_state() == self else 2
+        self.menu.draw(surf, should_update_cursor)
         return surf

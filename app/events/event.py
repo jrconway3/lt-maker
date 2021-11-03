@@ -1,6 +1,9 @@
 from __future__ import annotations
 from app.engine.game_menus.menu_components.generic_menu.simple_menu import SimpleIconTable
 from app.engine.game_menus.menu_components.generic_menu.simple_menu_wrapper import SimpleMenuUI
+from app.engine.graphics.ui_framework.premade_animations.animation_templates import translate_anim
+from app.engine.graphics.ui_framework.ui_framework import UIComponent
+from app.engine.graphics.ui_framework.ui_framework_animation import InterpolationType
 from app.sprites import SPRITES
 import logging
 import re
@@ -33,6 +36,7 @@ from app.events.event_portrait import EventPortrait
 from app.resources.resources import RESOURCES
 from app.utilities import str_utils, utils
 from app.utilities.algorithms.interpolation import cubic_easing, tcubic_easing
+from app.utilities.enums import Alignments
 from app.utilities.typing import NID, Point
 
 screen_positions = {'OffscreenLeft': -96,
@@ -1232,19 +1236,8 @@ class Event():
             self.state = 'paused'
 
         elif command.nid == 'choice':
-            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
-            nid = values[0]
-            header = values[1]
-            options_list = values[2].split(',')
-
-            orientation = 'vertical'
-            if len(values) > 3 and values[3]:
-                if values[3].lower() in ('h', 'horiz', 'horizontal'):
-                    orientation = 'horizontal'
-
-            game.memory['player_choice'] = (nid, header, options_list, orientation)
-            game.state.change('player_choice')
-            self.state = 'paused'
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
+            self.choice(*values, flags)
 
         elif command.nid == 'text_entry':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
@@ -1267,6 +1260,11 @@ class Event():
         elif command.nid == 'table':
             values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
             self.display_table(*values, flags)
+
+        elif command.nid == 'rmtable':
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
+            nid = values[0]
+            self.other_boxes = [(bnid, box) for (bnid, box) in self.other_boxes if bnid != nid]
 
         elif command.nid == 'chapter_title':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
@@ -1446,22 +1444,56 @@ class Event():
             self.separate(command)
 
         elif command.nid == 'draw_overlay_sprite':
-            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
             name = values[0]
             sprite_nid = values[1]
             z = 0
             pos = (0, 0)
-            if len(values) > 2:
-                pos = eval(values[2])  # Why do we eval this instead of just reading position like we do elsewhere?
-            if len(values) > 3:
-                z = eval(values[3])  # Why do we eval this also?
+            if values[2]: # position
+                pos = tuple(str_utils.intify(values[2]))
+            if values[3]: # z-level
+                z = int(values[3])
+            anim_dir = values[4]
+
             sprite = SPRITES.get(sprite_nid)
-            self.overlay_ui.add_surf(sprite, pos, z, name)
+            component = UIComponent.from_existing_surf(sprite)
+            component.name = sprite_nid
+            component.disable()
+            x, y = pos
+            if anim_dir:
+                if anim_dir == 'west':
+                    start_x = -component.width
+                    start_y = y
+                elif anim_dir == 'east':
+                    start_x = WINWIDTH
+                    start_y = y
+                elif anim_dir == 'north':
+                    start_x = x
+                    start_y = -component.height
+                elif anim_dir == 'south':
+                    start_x = x
+                    start_y = WINHEIGHT
+                enter_anim = translate_anim((start_x, start_y), (x, y), 750, interp_mode=InterpolationType.CUBIC)
+                exit_anim = translate_anim((x, y), (start_x, start_y), 750, disable_after=True, interp_mode=InterpolationType.CUBIC)
+                component.save_animation(enter_anim, '!enter')
+                component.save_animation(exit_anim, '!exit')
+
+            self.overlay_ui.add_child(component)
+            component.enter()
+
+            if anim_dir and not 'no_block' in flags:
+                self.wait_time = engine.get_time() + 750
+                self.state = 'waiting'
 
         elif command.nid == 'remove_overlay_sprite':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             name = values[0]
-            self.overlay_ui.remove_surf(name)
+            component = self.overlay_ui.get_child(name)
+            if component:
+                component.exit()
+                if component.is_animating() and not 'no_block' in flags:
+                    self.wait_time = engine.get_time() + 750
+                    self.state = 'waiting'
 
     def add_portrait(self, command):
         values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
@@ -2886,7 +2918,8 @@ class Event():
                 game.state.change('alert')
                 self.state = 'paused'
 
-    def display_table(self, nid: NID, contents: str, desc: str, row_col_size: str, width: str, flags: Dict):
+    def display_table(self, nid: NID, contents: str, desc: str,
+                      row_col_size: str, width: str, alignment: str, bg: str, flags: Dict):
         box_nids = [nid for nid, _ in self.other_boxes]
         if nid in box_nids:
             logging.error("UI element with nid %s already exists" % nid)
@@ -2895,9 +2928,10 @@ class Event():
         # default args
         if not row_col_size:
             row_col_size = "0, 1"
-
         if not width:
             width = '-1'
+        if not bg:
+            bg = 'menu_bg_base'
 
         rows, cols = tuple(int(i) for i in row_col_size.split(','))
         row_width = int(width)
@@ -2906,10 +2940,14 @@ class Event():
         dtype = 'str'
         if 'type_skill' in flags:
             dtype = 'type_skill'
-        if 'type_unit' in flags:
+        elif 'type_unit' in flags:
             dtype = 'type_unit'
-        if 'type_item' in flags:
+        elif 'type_class' in flags:
+            dtype = 'type_class'
+        elif 'type_item' in flags:
             dtype = 'type_item'
+        elif 'type_icon' in flags:
+            dtype = 'type_icon'
 
         # figure out function or list of NIDs
         if 'expression' in flags:
@@ -2918,7 +2956,11 @@ class Event():
                 ast.parse(contents)
                 def tryexcept(callback_expr):
                     try:
-                        return eval(callback_expr)
+                        val = eval(callback_expr)
+                        if isinstance(val, list):
+                            return val
+                        else:
+                            return [str(val)]
                     except:
                         return [""]
                 data = lambda: tryexcept(contents)
@@ -2927,8 +2969,80 @@ class Event():
         else: # list of NIDs
             data = contents.split(',')
             data = [s.strip() for s in data]
-        table_ui = SimpleMenuUI(data, dtype, title=desc, rows=rows, cols=cols, row_width=row_width)
+
+        align = Alignments.TOP_LEFT
+        if alignment:
+            align = Alignments(alignment)
+
+        table_ui = SimpleMenuUI(data, dtype, title=desc, rows=rows, cols=cols, row_width=row_width, alignment=align, bg=bg)
         self.other_boxes.append((nid, table_ui))
+
+    def choice(self, nid: NID, desc: str, choices: str, width: str, orientation: str,
+               alignment:str, bg: str, event_nid: str, flags: Dict):
+        nid = nid
+        header = desc
+
+        if not width:
+            width = '-1'
+        if not bg:
+            bg = 'menu_bg_base'
+
+        # determine data type
+        dtype = 'str'
+        if 'type_skill' in flags:
+            dtype = 'type_skill'
+        elif 'type_unit' in flags:
+            dtype = 'type_unit'
+        elif 'type_class' in flags:
+            dtype = 'type_class'
+        elif 'type_item' in flags:
+            dtype = 'type_item'
+        elif 'type_icon' in flags:
+            dtype = 'type_icon'
+
+        # figure out function or list of NIDs
+        if 'expression' in flags:
+            import ast
+            try:
+                ast.parse(choices)
+                def tryexcept(callback_expr):
+                    try:
+                        val = eval(callback_expr)
+                        if isinstance(val, list):
+                            return val
+                        else:
+                            return [str(val)]
+                    except:
+                        return [""]
+                data = lambda: tryexcept(choices)
+            except:
+                logging.error('%s is not a valid python expression' % choices)
+        else: # list of NIDs
+            data = choices.split(',')
+            data = [s.strip() for s in data]
+
+        row_width = int(width)
+
+        if not orientation:
+            orientation = 'vertical'
+        else:
+            if orientation in ('h', 'horiz', 'horizontal'):
+                orientation = 'horizontal'
+            else:
+                orientation = 'vertical'
+
+        if not alignment:
+            align = Alignments.CENTER
+        else:
+            align = Alignments(alignment)
+
+        should_persist = False
+        if 'persist' in flags:
+            should_persist = True
+
+        game.memory['player_choice'] = (nid, header, data, row_width, orientation, dtype, should_persist, align, bg, event_nid)
+        game.state.change('player_choice')
+        self.state = 'paused'
 
     def trigger_script(self, command):
         values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)

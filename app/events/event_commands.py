@@ -1620,14 +1620,44 @@ class Choice(EventCommand):
         """
 Presents the player with a menu in which he/she can choose from several options. An example would be the choice to go with Eirika or Ephraim in The Sacred Stones.
 
-*Nid* is the name of this choice, which can be checked later to recall the player's decision.
-*Text* is the text describing the choice, such as "which will you choose?"
-*StringList* specifies the different options that the player can choose among.
-The optional *Orientation* keyword specifies whether the options are displayed as a vertical list or side-by-side.
-        """
+The result of the selection is stored in the game_var `$(nid)` - e.g. `routesplit` for a choice with NID `routesplit`.
 
-    keywords = ['Nid', 'Text', 'StringList']
-    optional_keywords = ['Orientation']
+The current selection is stored in the game_var `$(nid)_choice_hover` - e.g. `routesplit_choice_hover` for a choice with NID `routesplit`.
+
+The outcome of the previous choice dialog can be accessed in `_last_choice`.
+
+* *Nid* is the name of this choice, which can be checked later to recall the player's decision.
+* *Text* is the text describing the choice, such as "which will you choose?"
+* *String* is one of two things. It can be a *StringList*, i.e. a list of string choices, or it can be a Python Expression, which refers to a list of string choices.
+For example, `Eirika, Ephraim, Seth` would be a list of string choices. `[unit.nid for unit in game.get_units_in_party()]` is an expression that would evaluate to `Eirika, Ephraim, Seth`.
+What is the difference? The Python Expression will be constantly updated, which means that if the party changes, the choices will automatically change as well. **NOTE: Use the flags to determine
+the correct type.**
+
+Optional args:
+
+* The *Orientation* keyword specifies whether the options are displayed as a vertical list or side-by-side.
+* *Width* allows you to specify the specific width of each row.
+* The *Alignment* keyword specifies where on the screen the choice box will be displayed.
+* The *Background* keyword specifies what base image to use as background.
+* The *Event* keyword gives you the option to call an event on selection, if you should so choose. The new event will have the same args {unit}, {unit2} etc. as the current event.
+
+* The *persist* flag indicates whether or not the choice ends after you make a selection. If *persist* is true, then the choice can only be exited
+via hitting the back button, and the event will go on as normal.
+
+There are four flags that you can use to further customize the type of options shown.
+
+* *type_skill* will interpret all options as skill NIDs
+* *type_item* will interpret all options as item NIDs
+* *type_unit* will interpret all options as unit NIDs
+* *type_class* will interpret all options as class NIDs.
+* *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
+* the *type* flags are exclusive, but can be combined with the *expression* flag.
+"""
+
+    keywords = ['Nid', 'Text', 'String']
+    optional_keywords = ['Width', 'Orientation', 'Align', 'Background', 'Event']
+
+    flags = ['persist', 'type_skill', 'type_item', 'type_unit', 'type_class', 'type_icon', 'expression']
 
 class TextEntry(EventCommand):
     nid = 'text_entry'
@@ -1655,27 +1685,50 @@ class Table(EventCommand):
     tag = Tags.MISCELLANEOUS
 
     desc = \
-"""Displays a box on screen containing some text or tabulated information. This is distinct from dialogue and choice in that it is non-interactable,
-existing only to be looked at.
+    """Displays a box on screen containing some text or tabulated information. This is distinct from dialogue and choice in that it is non-interactable,
+    existing only to be looked at.
 
-* *Nid* is the name of this box.
-* *String* is one of many things. It can be a String, some simple text to display. It can be a *StringList*, i.e., a list of strings that can be parsed.
-This can be combined with the flags to display specific types of strings - skills, items, even units. Or it can be an Expression, a Python statement that resolves to
-a string or list of strings. For example, `game.get_money()` would resolve to the current amount of gold in the party. The difference between Expressions
-and String/StringLists is that Expressions will constantly update with current information. For example, if the party's gold is reduced, then the previous
-expression would automatically update the gold.
+    * *Nid* is the name of this box.
+    * *String* is one of many things. It can be a String, some simple text to display. It can be a *StringList*, i.e., a list of strings that can be parsed.
+    This can be combined with the flags to display specific types of strings - skills, items, even units. Or it can be an Expression, a Python statement that resolves to
+    a string or list of strings. For example, `game.get_money()` would resolve to the current amount of gold in the party. The difference between Expressions
+    and String/StringLists is that Expressions will constantly update with current information. For example, if the party's gold is reduced, then the previous
+    expression would automatically update the gold.
 
-* *Text* allows you to optionally add a title to the box.
-* *Size* allows you to specify the size of the box in terms of (rows, columns).
-* *Width* allows you to specify the specific width of each row.
+    * *Text* allows you to optionally add a title to the box.
+    * *Size* allows you to specify the size of the box in terms of (rows, columns).
+    * *Width* allows you to specify the specific width of each row.
+    * The *Alignment* keyword specifies where on the screen the choice box will be displayed.
+    * The *Background* keyword specifies what base image to use as background.
 
-* the *type* flags are exclusive, but can be combined with the *expression* flag.
-"""
+    There are four flags that you can use to further customize the type of options shown.
+
+    * *type_skill* will interpret all options as skill NIDs
+    * *type_item* will interpret all options as item NIDs
+    * *type_unit* will interpret all options as unit NIDs
+    * *type_class* will interpret all options as class NIDs.
+    * *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
+    * the *type* flags are exclusive, but can be combined with the *expression* flag.
+
+    """
 
     keywords = ['Nid', 'String']
-    optional_keywords = ['Text', 'Size', 'Width']
+    optional_keywords = ['Text', 'Size', 'Width', 'Align', 'Background']
 
-    flags = ['type_skill', 'type_item', 'type_unit', 'expression']
+    flags = ['type_skill', 'type_item', 'type_unit', 'type_icon', 'type_class', 'expression']
+
+class RemoveTable(EventCommand):
+    nid = 'rmtable'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+    """
+    Remove a table created by the `Table` command.
+
+    * *Nid* is the name of the table to be removed.
+    """
+
+    keywords = ['Nid']
 
 class ChapterTitle(EventCommand):
     nid = 'chapter_title'
@@ -1699,11 +1752,13 @@ Draws a sprite on the screen at the specified position. Position defaults to 0, 
 Will always draw immediately behind the dialog.
 You can control the order that multiple siimultaneous overlays are drawn by choosing a custom z-level.
 Higher z-level sprites will cover lower z-level sprites occupying the same positions.
+
+Can choose to animate the sprite sliding in or out in a specific direction.
 """
 
     keywords = ['String', 'Sprite']
-    optional_keywords = ['PositionOffset', 'Integer']
-    keyword_names = ['Name', 'Sprite_ID', 'Position', 'Z-Level']
+    optional_keywords = ['PositionOffset', 'Integer', 'CardinalDirection']
+    keyword_names = ['Name', 'Sprite_ID', 'Position', 'Z-Level', 'Animation Direction']
 
 class RemoveOverlaySprite(EventCommand):
     nid = 'remove_overlay_sprite'

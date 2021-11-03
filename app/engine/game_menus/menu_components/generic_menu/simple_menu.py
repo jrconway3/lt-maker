@@ -1,7 +1,7 @@
 from __future__ import annotations
 from app.engine.graphics.ui_framework.premade_components.plain_text_component import PlainTextLine
 
-from app.engine.base_surf import create_base_surf
+from app.engine.base_surf import create_base_surf, create_highlight_surf
 
 from typing import List, TYPE_CHECKING, Tuple
 
@@ -29,7 +29,7 @@ class SimpleIconTable(UIComponent):
         # subcomponents and layout
         self.props.layout = UILayoutType.LIST
         self.props.list_style = ListLayoutStyle.COLUMN
-        self.overflow = (12, 12, 12, 12)
+        self.overflow = (20, 20, 12, 12)
 
         if not title:
             self.header: PlainTextLine = None
@@ -40,10 +40,10 @@ class SimpleIconTable(UIComponent):
         self.table_container = UIComponent("table_container", self)
         self.table_container.props.layout = UILayoutType.LIST
         self.table_container.props.list_style = ListLayoutStyle.ROW
-        self.table_container.overflow = (12, 12, 12, 12)
+        self.table_container.overflow = (20, 20, 12, 12)
         self.column_components: List[HeaderList] = [HeaderList('', self, None, []) for _ in range(self.num_columns)]
         for col in self.column_components:
-            col.overflow = (12, 12, 12, 12)
+            col.overflow = (20, 20, 0, 0)
             self.table_container.add_child(col)
 
         self.add_child(self.table_container)
@@ -54,9 +54,7 @@ class SimpleIconTable(UIComponent):
         self._reset('init')
 
     def construct_row(self, datum: str | Tuple[engine.Surface | UIComponent, str]) -> IconRow:
-        if isinstance(datum, str):
-            row =  IconRow(datum, text=datum, data=datum)
-        else:
+        if isinstance(datum, tuple):
             icon = datum[0]
             text = datum[1]
             if len(datum) == 3: # includes nid
@@ -64,7 +62,9 @@ class SimpleIconTable(UIComponent):
             else:
                 nid = datum[1]
             row = IconRow(text, text=text, icon=icon, data=nid)
-        row.overflow = (12, 0, 12, 0)
+        else:
+            row =  IconRow(datum, text=datum, data=datum)
+        row.overflow = (15, 0, 15, 0)
         return row
 
     def set_title(self, title: str):
@@ -98,8 +98,13 @@ class SimpleIconTable(UIComponent):
             total_height += self.header.height
         self.size = (self.num_columns * row_width, total_height)
         # regenerate bg
-        menu_bg = create_base_surf(self.size[0] + 10, self.size[1] + 10, self._background)
-        self.set_background(menu_bg)
+        if self._background:
+            if 'menu_bg' in self._background:
+                menu_bg = create_base_surf(self.size[0] + 10, self.size[1] + 10, self._background)
+                self.set_background(menu_bg)
+            else: # not actually a tileable base bg
+                menu_bg = SPRITES.get(self._background)
+                self.set_background(menu_bg)
 
     def _autosize(self, force_row_width = 0, force_num_rows = 0) -> Tuple[int, int]:
         max_row_width = 0
@@ -107,6 +112,8 @@ class SimpleIconTable(UIComponent):
             for col in self.column_data:
                 for row in col:
                     max_row_width = max(row.text.twidth + row.icon.twidth, max_row_width)
+            if self.header:
+                max_row_width = max(self.header.twidth, max_row_width)
         else:
             max_row_width = force_row_width
 
@@ -134,19 +141,25 @@ class ChoiceTable(SimpleIconTable):
                          num_columns=num_columns, num_rows=num_rows, row_width=row_width,
                          background=background, title=title)
         self.cursor_sprite = SPRITES.get('menu_hand')
-        self.cursor_offsets = [-2, -1, 0, 1, 2, 1, 0, -1]
+        self.cursor_offsets = [0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
         self.cursor_offset_index = 0
         self.selected_index = (0, 0)
+        self.draw_cursor = 1 # 0 is no cursor, 1 is yes, 2 is yes but no move
 
     def should_redraw(self) -> bool:
         return True
 
-    def update_cursor(self):
+    def update_cursor_and_highlight(self):
         x, y = self.selected_index
         cy = (y - self.column_components[x].scrolled_index) * self.column_components[x].row_height + 3
         self.cursor_offset_index = (self.cursor_offset_index + 1) % len(self.cursor_offsets)
-        cx = -12 + self.cursor_offsets[self.cursor_offset_index]
+        if self.draw_cursor == 1:
+            cx = -15 + self.cursor_offsets[self.cursor_offset_index]
+        else:
+            cx = -11
         self.column_components[x].add_surf(self.cursor_sprite, (cx, cy), 1)
+        highlight_surf = create_highlight_surf(self.column_components[x].width)
+        self.column_components[x].add_surf(highlight_surf, (0, cy + 3), -1)
 
     def move_down(self):
         x, y = self.selected_index
@@ -176,9 +189,13 @@ class ChoiceTable(SimpleIconTable):
         x, y = self.selected_index
         return self.column_data[x][y].data
 
+    def set_draw_cursor(self, should_draw_cursor):
+        self.draw_cursor = should_draw_cursor
+
     def to_surf(self, no_cull=False, should_not_cull_on_redraw=True) -> engine.Surface:
-        for hl in self.column_components:
-            if hl.manual_surfaces:
-                hl.manual_surfaces.clear()
-        self.update_cursor()
+        if self.draw_cursor != 0:
+            for hl in self.column_components:
+                if hl.manual_surfaces:
+                    hl.manual_surfaces.clear()
+            self.update_cursor_and_highlight()
         return super().to_surf(no_cull, should_not_cull_on_redraw)

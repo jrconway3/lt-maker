@@ -73,3 +73,4 @@ class Alignments(Enum):
     RIGHT = "right"
     BOT_LEFT = "bottom_left"
     BOT = "bottom"
+    BOT_RIGHT = "bottom_right"

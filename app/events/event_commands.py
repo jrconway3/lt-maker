@@ -1189,10 +1189,12 @@ class ChangeClass(EventCommand):
     desc = \
         """
 Changes *GlobalUnit* into a specified class (*Klass*) or, if no *Klass* is given, the unit class changes as normal using its alternative class data.
+If the *silent* flag is given, the unit will change class immediately into the specified class (*Klass*).
         """
 
     keywords = ["GlobalUnit"]
     optional_keywords = ["Klass"]
+    flags = ["silent"]
 
 class AddTag(EventCommand):
     nid = 'add_tag'

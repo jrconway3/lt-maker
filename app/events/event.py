@@ -2583,7 +2583,17 @@ class Event():
             return
 
         game.memory['current_unit'] = unit
-        if new_klass:
+        silent = 'silent' in flags
+        if silent and new_klass:
+            swap_class = action.ClassChange(unit, new_klass)
+            action.do(swap_class)
+            _, new_wexp = swap_class.get_data()
+            # check for weapon experience gain
+            if new_wexp:
+                for weapon_nid, value in new_wexp.items():
+                    action.do(action.AddWexp(unit, weapon_nid, value))
+            action.do(action.UpdateRecords('level_gain', (unit.nid, unit.level, unit.klass)))
+        elif new_klass:
             game.memory['next_class'] = new_klass
             game.state.change('class_change')
             game.state.change('transition_out')

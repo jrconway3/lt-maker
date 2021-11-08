@@ -1384,7 +1384,7 @@ class CombatTargetingState(MapState):
         self.cur_unit.strike_partner = self.attacker_assist
         if len(self.prev_targets) == 1:
             defender = game.board.get_unit(targets[0])
-            if defender != None:
+            if defender:
                 defender.strike_partner = self.defender_assist
 
         combat = interaction.engage(self.cur_unit, targets, main_item)

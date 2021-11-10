@@ -1,4 +1,6 @@
 from __future__ import annotations
+from app.engine.game_menus.menu_components.generic_menu.simple_menu import SimpleIconTable
+from app.engine.game_menus.menu_components.generic_menu.simple_menu_wrapper import SimpleMenuUI
 from app.sprites import SPRITES
 import logging
 import re
@@ -73,7 +75,7 @@ class Event():
 
         self.portraits: Dict[str, EventPortrait] = {}
         self.text_boxes = []
-        self.other_boxes = []
+        self.other_boxes: List[Tuple[NID, Any]] = []
         self.overlay_ui = uif.UIComponent.create_base_component()
 
         self.prev_state = None
@@ -251,8 +253,8 @@ class Event():
             portrait.draw(surf)
 
         # Draw other boxes
-        self.other_boxes = [box for box in self.other_boxes if box.update()]
-        for box in self.other_boxes:
+        self.other_boxes = [(nid, box) for (nid, box) in self.other_boxes if box.update()]
+        for _, box in self.other_boxes:
             box.draw(surf)
 
         # Draw text/dialog boxes
@@ -1262,6 +1264,10 @@ class Event():
             game.state.change('text_entry')
             self.state = 'paused'
 
+        elif command.nid == 'table':
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
+            self.display_table(*values, flags)
+
         elif command.nid == 'chapter_title':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             if len(values) > 0 and values[0]:
@@ -1326,7 +1332,7 @@ class Event():
             custom_string = values[0]
 
             new_location_card = dialog.LocationCard(custom_string)
-            self.other_boxes.append(new_location_card)
+            self.other_boxes.append((None, new_location_card))
 
             self.wait_time = engine.get_time() + new_location_card.exist_time
             self.state = 'waiting'
@@ -1339,7 +1345,7 @@ class Event():
             center = 'center' in flags
 
             new_credits = dialog.Credits(title, credits, wait, center)
-            self.other_boxes.append(new_credits)
+            self.other_boxes.append((None, new_credits))
 
             self.wait_time = engine.get_time() + new_credits.wait_time()
             self.state = 'waiting'
@@ -2879,6 +2885,50 @@ class Event():
                 game.alerts.append(banner.BrokenItem(unit, chosen_item))
                 game.state.change('alert')
                 self.state = 'paused'
+
+    def display_table(self, nid: NID, contents: str, desc: str, row_col_size: str, width: str, flags: Dict):
+        box_nids = [nid for nid, _ in self.other_boxes]
+        if nid in box_nids:
+            logging.error("UI element with nid %s already exists" % nid)
+            return
+
+        # default args
+        if not row_col_size:
+            row_col_size = "0, 1"
+
+        if not width:
+            width = '-1'
+
+        rows, cols = tuple(int(i) for i in row_col_size.split(','))
+        row_width = int(width)
+
+        # determine data type
+        dtype = 'str'
+        if 'type_skill' in flags:
+            dtype = 'type_skill'
+        if 'type_unit' in flags:
+            dtype = 'type_unit'
+        if 'type_item' in flags:
+            dtype = 'type_item'
+
+        # figure out function or list of NIDs
+        if 'expression' in flags:
+            import ast
+            try:
+                ast.parse(contents)
+                def tryexcept(callback_expr):
+                    try:
+                        return eval(callback_expr)
+                    except:
+                        return [""]
+                data = lambda: tryexcept(contents)
+            except:
+                logging.error('%s is not a valid python expression' % contents)
+        else: # list of NIDs
+            data = contents.split(',')
+            data = [s.strip() for s in data]
+        table_ui = SimpleMenuUI(data, dtype, title=desc, rows=rows, cols=cols, row_width=row_width)
+        self.other_boxes.append((nid, table_ui))
 
     def trigger_script(self, command):
         values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)

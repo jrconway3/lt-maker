@@ -55,13 +55,14 @@ class DemoTable():
             (axe_icon, 'axe2')
         ]
 
-        table2 = SimpleIconTable('table2', self.base_component, options2, num_columns=2, num_rows=5)
+        table2 = SimpleIconTable('table2', self.base_component, title ='weapons')
         table2.margin = (10, 10, 10, 10)
         table2.props.h_alignment = HAlignment.RIGHT
 
         self.base_component.add_child(table2)
+        table2.set_data(options2)
 
-        self.choicetable1 = ChoiceTable('table2', self.base_component, options, num_columns=2, num_rows=2)
+        self.choicetable1 = ChoiceTable('table3', self.base_component, options, num_columns=2, num_rows=2)
         self.choicetable1.margin = (10, 10, 10, 10)
         self.choicetable1.props.v_alignment = VAlignment.BOTTOM
 

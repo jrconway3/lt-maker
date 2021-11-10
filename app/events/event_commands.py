@@ -1650,6 +1650,33 @@ If the force_entry flag is set, the player will not be able to exit text entry b
     optional_keywords = ['Integer', 'IllegalCharacterList']
     flags = ['force_entry']
 
+class Table(EventCommand):
+    nid = 'table'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+"""Displays a box on screen containing some text or tabulated information. This is distinct from dialogue and choice in that it is non-interactable,
+existing only to be looked at.
+
+* *Nid* is the name of this box.
+* *String* is one of many things. It can be a String, some simple text to display. It can be a *StringList*, i.e., a list of strings that can be parsed.
+This can be combined with the flags to display specific types of strings - skills, items, even units. Or it can be an Expression, a Python statement that resolves to
+a string or list of strings. For example, `game.get_money()` would resolve to the current amount of gold in the party. The difference between Expressions
+and String/StringLists is that Expressions will constantly update with current information. For example, if the party's gold is reduced, then the previous
+expression would automatically update the gold.
+
+* *Text* allows you to optionally add a title to the box.
+* *Size* allows you to specify the size of the box in terms of (rows, columns).
+* *Width* allows you to specify the specific width of each row.
+
+* the *type* flags are exclusive, but can be combined with the *expression* flag.
+"""
+
+    keywords = ['Nid', 'String']
+    optional_keywords = ['Text', 'Size', 'Width']
+
+    flags = ['type_skill', 'type_item', 'type_unit', 'expression']
+
 class ChapterTitle(EventCommand):
     nid = 'chapter_title'
     tag = Tags.MISCELLANEOUS
@@ -2098,7 +2125,8 @@ def convert_parse(command: EventCommand, _eval_evals: Callable[[str], str] = Non
                 true_values[kwd_idx] = convert(command.optional_keywords[okeyword_idx], okeyword)
         kwd_idx += 1
     if _eval_evals:
-        true_values = [_eval_evals(value) for value in true_values if isinstance(value, str)]
+        true_values = [_eval_evals(value) if isinstance(value, str) else value for value in true_values]
     if _eval_vars:
-        true_values = [_eval_vars(value) for value in true_values if isinstance(value, str)]
+        true_values = [_eval_vars(value) if isinstance(value, str) else value for value in true_values]
+
     return true_values, flags

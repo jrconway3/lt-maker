@@ -30,7 +30,7 @@ class HeaderList(UIComponent, Generic[T]):
 
     @property
     def scrolled_index(self):
-        if self.scrollable_list:
+        if self.scrollable_list and self.row_height:
             return self.scrollable_list.scroll[1] / self.row_height
         else:
             return 0

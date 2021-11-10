@@ -13,12 +13,12 @@ from app.sprites import SPRITES
 
 class SimpleIconTable(UIComponent):
     def __init__(self, name: str, parent: UIComponent = None,
-                 initial_data: List[str] | List[Tuple[engine.Surface, str]] = [],
-                 num_columns: int = 1, num_rows: int = -1, row_width: int = -1,
+                 initial_data: List[str] | List[Tuple[engine.Surface, str, str]] = [],
+                 num_columns: int = 1, num_rows: int = 0, row_width: int = -1,
                  background = 'menu_bg_base', title: str = None):
         super().__init__(name=name, parent=parent)
 
-        self.num_columns = num_columns
+        self.num_columns = max(num_columns, 1)
         self.num_rows = num_rows
         self._row_width = row_width
         self._data = None
@@ -53,13 +53,17 @@ class SimpleIconTable(UIComponent):
 
         self._reset('init')
 
-    def construct_row(self, datum: str | Tuple[engine.Surface, str]) -> IconRow:
+    def construct_row(self, datum: str | Tuple[engine.Surface | UIComponent, str]) -> IconRow:
         if isinstance(datum, str):
             row =  IconRow(datum, text=datum, data=datum)
         else:
             icon = datum[0]
             text = datum[1]
-            row = IconRow(text, text=text, icon=icon, data=text)
+            if len(datum) == 3: # includes nid
+                nid = datum[2]
+            else:
+                nid = datum[1]
+            row = IconRow(text, text=text, icon=icon, data=nid)
         row.overflow = (12, 0, 12, 0)
         return row
 
@@ -78,6 +82,7 @@ class SimpleIconTable(UIComponent):
         for idx, item in enumerate(data):
             row_item = self.construct_row(item)
             self.column_data[idx % self.num_columns].append(row_item)
+        self._reset('set_data')
         for idx, col in enumerate(self.column_components):
             col.set_data_rows(self.column_data[idx])
 
@@ -88,7 +93,6 @@ class SimpleIconTable(UIComponent):
             column.width = row_width
 
         self.table_container.size = (self.num_columns * row_width, table_height)
-
         total_height = table_height
         if self.header:
             total_height += self.header.height
@@ -99,10 +103,10 @@ class SimpleIconTable(UIComponent):
 
     def _autosize(self, force_row_width = 0, force_num_rows = 0) -> Tuple[int, int]:
         max_row_width = 0
-        if force_row_width < 0:
+        if not force_row_width > 0:
             for col in self.column_data:
                 for row in col:
-                    max_row_width = max(row.text.width + row.icon.width, max_row_width)
+                    max_row_width = max(row.text.twidth + row.icon.twidth, max_row_width)
         else:
             max_row_width = force_row_width
 
@@ -121,10 +125,9 @@ class SimpleIconTable(UIComponent):
             max_rows_in_col = max(len(col), max_rows_in_col)
         return max_rows_in_col
 
-
 class ChoiceTable(SimpleIconTable):
     def __init__(self, name: str, parent: UIComponent = None,
-                 initial_data: List[str] | List[Tuple[engine.Surface, str]] = [],
+                 initial_data: List[str] | List[Tuple[engine.Surface, str, str]] = [],
                  num_columns: int = 1, num_rows: int = -1, row_width: int = -1,
                  background='menu_bg_base', title: str = None):
         super().__init__(name, parent=parent, initial_data=initial_data,

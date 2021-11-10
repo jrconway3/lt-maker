@@ -29,7 +29,7 @@ class StateMachine():
         from app.engine import title_screen, transitions, general_states, level_up, \
             turnwheel, game_over, settings, info_menu, prep, base, trade, promotion, \
             status_upkeep, debug_mode, chapter_title, player_choice, feat_choice, \
-            victory_screen, objective_menu, minimap, roam_state, game_menus, dialog_log, text_entry
+            victory_screen, objective_menu, minimap, roam_state, dialog_log, text_entry
         from app.engine.overworld import overworld_states
         from app.events import event_state
         self.all_states = \
@@ -57,7 +57,7 @@ class StateMachine():
              'option_child': general_states.OptionChildState,
              'settings_menu': settings.SettingsMenuState,
              'objective_menu': objective_menu.ObjectiveMenuState,
-             'unit_menu': game_menus.UnitMenuState,
+             'unit_menu': unit_menu_state.UnitMenuState,
              'info_menu': info_menu.InfoMenuState,
              'phase_change': general_states.PhaseChangeState,
              'move': general_states.MoveState,

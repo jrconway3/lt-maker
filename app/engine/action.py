@@ -2421,7 +2421,7 @@ class AddSkill(Action):
         self.unit.skills.append(self.skill_obj)
         skill_system.on_add(self.unit, self.skill_obj)
 
-        if self.skill_obj.aura and self.unit.position:
+        if self.skill_obj.aura and self.unit.position and game.board:
             aura_funcs.propagate_aura(self.unit, self.skill_obj, game)
 
         # Handle affects movement
@@ -2442,7 +2442,7 @@ class AddSkill(Action):
         for action in self.subactions:
             action.reverse()
 
-        if self.skill_obj.aura and self.unit.position:
+        if self.skill_obj.aura and self.unit.position and game.board:
             aura_funcs.release_aura(self.unit, self.skill_obj, game)
 
 
@@ -2465,7 +2465,7 @@ class RemoveSkill(Action):
                         skill_system.on_true_remove(self.unit, skill)
                     skill.owner_nid = None
                     self.removed_skills.append(skill)
-                    if skill.aura and self.unit.position:
+                    if skill.aura and self.unit.position and game.board:
                         aura_funcs.release_aura(self.unit, skill, game)
         else:
             if self.skill in self.unit.skills:
@@ -2475,7 +2475,7 @@ class RemoveSkill(Action):
                     skill_system.on_true_remove(self.unit, self.skill)
                 self.skill.owner_nid = None
                 self.removed_skills.append(self.skill)
-                if self.skill.aura and self.unit.position:
+                if self.skill.aura and self.unit.position and game.board:
                     aura_funcs.release_aura(self.unit, self.skill, game)
             else:
                 logging.warning("Skill %s not in %s's skills", self.skill.nid, self.unit)
@@ -2499,7 +2499,7 @@ class RemoveSkill(Action):
             skill.owner_nid = self.unit.nid
             self.unit.skills.append(skill)
             skill_system.on_add(self.unit, skill)
-            if skill.aura and self.unit.position:
+            if skill.aura and self.unit.position and game.board:
                 aura_funcs.propagate_aura(self.unit, skill, game)
 
 

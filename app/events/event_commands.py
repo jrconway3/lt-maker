@@ -1562,6 +1562,26 @@ The optional *Orientation* keyword specifies whether the options are displayed a
     keywords = ['Nid', 'Text', 'StringList']
     optional_keywords = ['Orientation']
 
+class TextEntry(EventCommand):
+    nid = 'text_entry'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+Presents the player with a menu in which he/she can enter text. An example use-case would be to create a tactician name.
+
+*Nid* is the name of this entry, which can be checked later to recall the player's input.
+*Text* is the text describing the choice, such as "Please enter a name."
+*Integer* is the character limit. If not set, defaults to 16.
+*StringList* specifies which characters to ban. Only accepts 'uppercase', 'lowercase', 'uppercase_UTF8', 'lowercase_UTF8', 'numbers_and_punctuation'
+
+If the force_entry flag is set, the player will not be able to exit text entry before assigning a value to the game variables. (i.e., they must hit 'Yes' in the entry confirmation to end text entry)
+        """
+
+    keywords = ['Nid', 'Text']
+    optional_keywords = ['Integer', 'IllegalCharacterList']
+    flags = ['force_entry']
+
 class ChapterTitle(EventCommand):
     nid = 'chapter_title'
     tag = Tags.MISCELLANEOUS

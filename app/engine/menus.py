@@ -1775,3 +1775,85 @@ class ModeSelect(Main):
             height = center[1] - 12 - (num_options/2.0 - self.current_index) * (option.height() + 1)
             self.cursor1.draw_vert(surf, center[0] - option.width()//2 - 8 - 8, height)
             self.cursor2.draw_vert(surf, center[0] + option.width()//2 - 8 + 8, height)
+
+class KeyboardMenu(Table):
+    def __init__(self, header, character_limit=16, illegal_characters=[]):
+        self.header = header
+        self.character_limit = character_limit
+        self.illegal_characters = illegal_characters
+        self.name = ''
+        self.topleft = (9, 42)
+        
+        self.all_characters = {}
+        self.all_characters['uppercase'] = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+        self.all_characters['lowercase'] = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+        self.all_characters['uppercase_UTF8'] = ['Á','Á','Â','Ä','Å','Ç','Ð','É','È','Ê','Ë','Í','Ì','Î','Ï','Ñ','Ó','Ò','Ô','Ö','Ø','Þ','Ú','Ù','Û','Ü','Ý','Ÿ','Æ','⁊','Ƿ','Œ']
+        self.all_characters['lowercase_UTF8'] = ['á','à','â','å','ä','ç','ð','é','è','ê','ë','í','ì','î','ï','ñ','ŋ','ó','ò','ô','ö','ø','þ','ú','ù','û','ü','ý','ÿ','æ','ß','ƿ','œ']
+        self.all_characters['numbers_and_punctuation'] = ['0','1','2','3','4','5','6','7','8','9','!','¡','#','%','&','(',')','-','+','*',';',':',"'",',','.','/','?','¿','"','~']
+
+        for group in self.illegal_characters:
+            if group in self.all_characters:
+                self.all_characters.pop(group)
+
+        self.options = []
+        for character_list in self.all_characters.values():
+            self.options.extend(character_list)
+
+        # Build background
+        self.backsurf = SPRITES.get('NamingScreen')
+        
+        super().__init__(None, self.options, (7,26), self.topleft, self.backsurf, None)
+
+    def updateName(self, character):
+        if character == 'back':
+            self.name = self.name[:-1]
+        elif character == 'space':
+            self.name += ' '
+        else:
+            self.name += character
+
+    def draw(self, surf):
+        surf.blit(self.backsurf, (0, 0))
+
+        if self.header:
+            FONT['text-blue'].blit(self.header, surf, (3, 2))
+
+        draw_scroll_bar = False
+        if len(self.options) > self.rows * self.columns:
+            draw_scroll_bar = True
+            self.draw_scroll_bar(surf, self.topleft)
+
+        start_index = self.scroll * self.columns
+        end_index = (self.scroll + self.rows) * self.columns
+        choices = self.options[start_index:end_index]
+        width = 8
+        height = max(option.height() for option in self.options)
+        if choices:
+            for idx, choice in enumerate(choices):
+                top = self.topleft[1] + 4 + (idx // self.columns * height)
+                left = self.topleft[0] + (idx % self.columns * width)
+
+                if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
+                    choice.draw_highlight(surf, left, top, width - 8 if draw_scroll_bar else width)
+                elif idx + (self.scroll * self.columns) == self.fake_cursor_idx:
+                    choice.draw_highlight(surf, left, top, width - 8 if draw_scroll_bar else width)
+                else:
+                    choice.draw(surf, left, top)
+                if idx + (self.scroll * self.columns) == self.fake_cursor_idx:
+                    self.stationary_cursor.draw(surf, left, top)
+                if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
+                    self.cursor.draw(surf, left, top)
+
+        else:
+            FONT['text-grey'].blit("Nothing", bg_surf, (self.topleft[0] + 16, self.topleft[1] + 4))
+
+        FONT['text-white'].blit(self.name, surf, (6, 20))
+        if len(self.name) < self.character_limit:
+            self.draw_underscore(surf)
+
+    def draw_underscore(self, surf):
+        size = FONT['text-white'].size(self.name)
+        left = 6 + size[0]
+        top = 17 + size[1]
+        underscore = SPRITES.get('Underscore')
+        surf.blit(underscore, (left, top))

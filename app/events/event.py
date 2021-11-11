@@ -1170,6 +1170,24 @@ class Event():
             game.state.change('player_choice')
             self.state = 'paused'
 
+        elif command.nid == 'text_entry':
+            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+            nid = values[0]
+            header = values[1]
+            limit = 16
+            illegal_characters = []
+            force_entry = False
+            if len(values) > 2 and values[2]:
+                limit = int(values[2])
+            if len(values) > 3 and values[3]:
+                illegal_characters = values[3].split(',')
+            if 'force_entry' in flags:
+                force_entry = True
+
+            game.memory['text_entry'] = (nid, header, limit, illegal_characters, force_entry)
+            game.state.change('text_entry')
+            self.state = 'paused'
+        
         elif command.nid == 'chapter_title':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             if len(values) > 0 and values[0]:

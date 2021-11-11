@@ -272,6 +272,22 @@ class ExpressionList(Validator):
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
         valids = [(None, option) for option in self.valid_expressions]
         return valids
+        
+class IllegalCharacterList(Validator):
+    valid_sets = ["uppercase", "lowercase", "uppercase_UTF8", "lowercase_UTF8", "numbers_and_punctuation"]
+    desc = "expects a comma-delimited list of character sets to ban. Valid options are: ('uppercase', 'lowercase', 'uppercase_UTF8', 'lowercase_UTF8', 'numbers_and_punctuation'). Example: `uppercase,lowercase`"
+
+    def validate(self, text, level):
+        text = text.split(',')
+        for t in text:
+            if t not in self.valid_sets:
+                return None
+        return text
+
+    @lru_cache()
+    def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
+        valids = [(None, option) for option in self.valid_sets]
+        return valids
 
 class DialogVariant(OptionValidator):
     valid = ["thought_bubble", "noir", "hint", "narration", "narration_top", "cinematic"]

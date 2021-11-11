@@ -109,6 +109,10 @@ class PanoramaBackground():
 
         return self.update()
 
+    def set_off(self):
+        self.fade_state = "off"
+        self.transition = 0
+
     def set_normal(self):
         self.fade_state = "normal"
         self.transition = 0

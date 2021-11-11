@@ -236,14 +236,8 @@ class AnimationCombat(BaseCombat, MockCombat):
             if self._skip or current_time > entrance_time:
                 self.bar_offset = 1
                 self.name_offset = 1
-                if cf.SETTINGS['battle_bg'] and game.tilemap and self.attacker.position:
-                    terrain_nid = game.tilemap.get_terrain(self.attacker.position)
-                    background_nid = DB.terrain.get(terrain_nid).background
-                    if background_nid:
-                        panorama = RESOURCES.panoramas.get(background_nid)
-                        if panorama:
-                            self.battle_background = background.PanoramaBackground(panorama)
-                            self.battle_background.fade_in(utils.frames2ms(25))
+                if self.battle_background:
+                    self.battle_background.fade_in(utils.frames2ms(25))
                 self.state = 'init_pause'
 
         elif self.state == 'init_pause':
@@ -502,6 +496,15 @@ class AnimationCombat(BaseCombat, MockCombat):
         self.left_platform = engine.image_load(left_platform_full_loc)
         right_platform_full_loc = RESOURCES.platforms.get(right_platform_type + suffix)
         self.right_platform = engine.flip_horiz(engine.image_load(right_platform_full_loc))
+
+        if cf.SETTINGS['battle_bg'] and game.tilemap and self.attacker.position:
+            terrain_nid = game.tilemap.get_terrain(self.attacker.position)
+            background_nid = DB.terrain.get(terrain_nid).background
+            if background_nid:
+                panorama = RESOURCES.panoramas.get(background_nid)
+                if panorama:
+                    self.battle_background = background.PanoramaBackground(panorama)
+                    self.battle_background.set_off()
 
     def start_hit(self, sound=True, miss=False):
         self._apply_actions()

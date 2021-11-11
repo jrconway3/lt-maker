@@ -116,6 +116,10 @@
         false
     ],
     [
+        "battle_platforms",
+        true
+    ],
+    [
         "convoy_on_death",
         false
     ],

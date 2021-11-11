@@ -109,6 +109,10 @@ class PanoramaBackground():
 
         return self.update()
 
+    def set_normal(self):
+        self.fade_state = "normal"
+        self.transition = 0
+
     def fade_in(self, time_ms):
         self.fade_state = 'to_black'
         self.fade_time = time_ms

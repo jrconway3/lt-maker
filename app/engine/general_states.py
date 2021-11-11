@@ -1713,7 +1713,7 @@ class AIState(MapState):
                 # Sort by distance to closest enemy (ascending)
                 group_units = sorted(group_units, key=lambda unit: target_system.distance_to_closest_enemy(unit))
                 # Sort by priority
-                group_units = sorted(group_units, key=lambda unit: DB.ai.get(unit.ai).priority, reverse=True)
+                group_units = sorted(group_units, key=lambda unit: DB.ai.get(unit.get_ai()).priority, reverse=True)
                 group_units.reverse()
                 return group_units.pop()
             else:
@@ -1722,7 +1722,7 @@ class AIState(MapState):
         # Sort by distance to closest enemy (ascending)
         valid_units = sorted(valid_units, key=lambda unit: target_system.distance_to_closest_enemy(unit))
         # Sort by ai priority
-        valid_units = sorted(valid_units, key=lambda unit: DB.ai.get(unit.ai).priority, reverse=True)
+        valid_units = sorted(valid_units, key=lambda unit: DB.ai.get(unit.get_ai()).priority, reverse=True)
         # Reverse, because we will be popping them off at the end
         valid_units.reverse()
         return valid_units.pop()

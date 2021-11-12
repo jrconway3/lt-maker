@@ -1496,19 +1496,19 @@ class Event():
                     value = str(self.unit)
                 elif to_eval == '{2}':
                     if not isinstance(self.unit2, str):
-                        logging.error("{1} is not a string. If you wish to access {unit2}, use that tag instead. Evaluating to %s" % str(self.unit2))
+                        logging.error("{2} is not a string. If you wish to access {unit2}, use that tag instead. Evaluating to %s" % str(self.unit2))
                     value = str(self.unit2)
                 elif to_eval == '{3}':
                     if not isinstance(self.item, str):
-                        logging.error("{1} is not a string. Evaluating to %s" % str(self.item))
+                        logging.error("{3} is not a string. Evaluating to %s" % str(self.item))
                     value = str(self.item)
                 elif to_eval == '{4}':
                     if not isinstance(self.position, str):
-                        logging.error("{1} is not a string. Evaluating to %s" % str(self.position))
+                        logging.error("{4} is not a string. Evaluating to %s" % str(self.position))
                     value = str(self.position)
                 elif to_eval == '{5}':
                     if not isinstance(self.region, str):
-                        logging.error("{1} is not a string. Evaluating to %s" % str(self.region))
+                        logging.error("{5} is not a string. Evaluating to %s" % str(self.region))
                     value = str(self.region)
                 evaluated.append(value)
             except Exception as e:

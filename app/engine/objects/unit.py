@@ -322,6 +322,9 @@ class UnitObject(Prefab):
         class_tags = DB.classes.get(self.klass).tags
         return unit_tags + class_tags
 
+    def get_ai(self):
+        return skill_system.change_ai(self)
+
     @property
     def accessories(self):
         return [item for item in self.items if item_system.is_accessory(self, item)]

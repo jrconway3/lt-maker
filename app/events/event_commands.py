@@ -1,8 +1,11 @@
-from enum import Enum
-from typing import Callable, List
-from app.utilities.data import Prefab
+from __future__ import annotations
 
 import logging
+from enum import Enum
+from typing import Callable, List
+
+from app.utilities.data import Prefab
+
 
 class Tags(Enum):
     FLOW_CONTROL = 'Flow Control'
@@ -57,6 +60,13 @@ class EventCommand(Prefab):
     def __repr__(self):
         return self.to_plain_text()
 
+    @classmethod
+    def copy(cls, command) -> EventCommand:
+        new_command = cls()
+        new_command.values = command.values.copy()
+        new_command.display_values = command.display_values.copy()
+        return new_command
+
 class Comment(EventCommand):
     nid = "comment"
     nickname = '#'
@@ -69,6 +79,25 @@ class Comment(EventCommand):
         if self.values and not self.values[0].startswith('#'):
             self.values[0] = '#' + self.values[0]
         return self.values[0]
+
+class For(EventCommand):
+    nid = "for"
+    tag = Tags.FLOW_CONTROL
+    desc = \
+    """The Expression will be evaluated, and it should return a list of strings.
+For every string in this list, the events below will be ran once, with the contents of the string accessible via the {it} tag.
+
+Remember to end your **for** blocks with **endf**.
+
+Example: this will give every unit in the party the Inspiration skill silently
+
+```
+for;[unit.nid for unit in game.get_units_in_party()]
+    give_skill;{it};Inspiration;no_banner
+endf
+```
+    """
+    keywords = ['Expression']
 
 class If(EventCommand):
     nid = "if"
@@ -155,6 +184,16 @@ class End(EventCommand):
         """
 Ends a conditional block. Refer to the **if** command for more information.
         """
+
+class Endf(EventCommand):
+    nid = "endf"
+    tag = Tags.FLOW_CONTROL
+    desc = \
+        """
+Ends a for block. Refer to the **for** command for more information.
+        """
+
+
 
 class Break(EventCommand):
     nid = "break"
@@ -1970,7 +2009,7 @@ def parse_text(text: str, strict=False) -> EventCommand:
                     cmd_keyword = "N/A"
                 # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
                 # we do NOT want to use this with evals, hence the '{' and '}' stoppage
-                if '(' in arg and ')' in arg and '{' not in arg and '}' not in arg and ('FLAG' in arg or not (cmd_keyword in ['Condition', 'Text', 'StringList', 'PointList', 'DashList'])):
+                if '(' in arg and ')' in arg and '{' not in arg and '}' not in arg and ('FLAG' in arg or not (cmd_keyword in ['Expression', 'Condition', 'String', 'Text', 'StringList', 'PointList', 'DashList'])):
                     true_arg = arg[arg.find("(")+1:arg.find(")")]
                     true_cmd_args.append(true_arg)
                 else:

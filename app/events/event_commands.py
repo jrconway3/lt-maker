@@ -1568,9 +1568,10 @@ class TextEntry(EventCommand):
 
     desc = \
         """
-Presents the player with a menu in which he/she can enter text. An example use-case would be to create a tactician name.
+Presents the player with a menu in which they can enter text. An example use-case would be to create a tactician name.
 
 *Nid* is the name of this entry, which can be checked later to recall the player's input.
+For instance, if nid was "tactician", use `{var:tactician}` anywhere in events to replace it with the user's entry.
 *Text* is the text describing the choice, such as "Please enter a name."
 *Integer* is the character limit. If not set, defaults to 16.
 *StringList* specifies which characters to ban. Only accepts 'uppercase', 'lowercase', 'uppercase_UTF8', 'lowercase_UTF8', 'numbers_and_punctuation'

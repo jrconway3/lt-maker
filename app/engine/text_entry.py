@@ -1,28 +1,25 @@
 from app.constants import WINWIDTH, WINHEIGHT
 from app.engine.sound import SOUNDTHREAD
+from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine.state import MapState
 
-from app.engine import menus, action, base_surf
+from app.engine import menus, action, base_surf, engine
 from app.engine.game_state import game
 
 class TextEntryState(MapState):
     name = 'text_entry'
     transparent = True
+    keyboard_mode_sprite = SPRITES.get('focus_fade')
 
     def start(self):
         self.constant_id, self.header, self.character_limit, illegal_characters, self.force_entry = game.memory['text_entry']
         self.menu = menus.KeyboardMenu(self.header, self.character_limit, illegal_characters)
         self.bg_surf, self.topleft = self.create_bg_surf()
+        self.keyboard_mode = False
 
-    def begin(self):
-        #Did we say yes to text confirmation?
-        if game.memory.get('entered_text'):
-            #We did, so reset this variable and finish processing this state. Update game vars with the provided info.
-            action.do(action.SetGameVar(self.constant_id, self.menu.name))
-            action.do(action.SetGameVar('last_response_entered', self.menu.name))
-            game.memory['entered_text'] = False
-            game.state.back()
+        game.state.change('transition_in')
+        return 'repeat'
     
     def create_bg_surf(self):
         width_of_header = FONT['text-white'].width(self.header) + 16
@@ -33,44 +30,70 @@ class TextEntryState(MapState):
         bg_surf = base_surf.create_base_surf(width, height, 'menu_bg_base')
         topleft = (9, 42)
         return bg_surf, topleft
+
+    def _back(self):
+        if len(self.menu.name) > 0:
+            self.menu.updateName('back')
+            SOUNDTHREAD.play_sfx('Select 4')
+        else:
+            SOUNDTHREAD.play_sfx('Error')
+
+    def _add(self, selection):
+        if len(self.menu.name) < self.menu.character_limit:
+            self.menu.updateName(selection)
+            SOUNDTHREAD.play_sfx('Select 1')
+        else:
+            SOUNDTHREAD.play_sfx('Error')
     
     def take_input(self, event):
-        self.menu.handle_mouse()
-        if event == 'RIGHT':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_right()
-        elif event == 'LEFT':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_left()
-        elif event == 'DOWN':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_down()
-        elif event == 'UP':
-            SOUNDTHREAD.play_sfx('Select 6')
-            self.menu.move_up()
+        if self.keyboard_mode:
+            for pg_event in engine.events:
+                if pg_event.type == engine.KEYDOWN:
+                    if pg_event.key == engine.key_map['enter']:
+                        self.keyboard_mode = False
+                        break
+                    elif pg_event.key == engine.key_map['backspace']:
+                        self._back()
+                    else:
+                        self._add(pg_event.unicode)
+        else:
+            for pg_event in engine.events:
+                if pg_event.type == engine.KEYDOWN:
+                    if pg_event.key == engine.key_map['enter']:
+                        self.keyboard_mode = True
 
-        elif event == 'BACK':
-            if len(self.menu.name) > 0:
-                self.menu.updateName('back')
-                SOUNDTHREAD.play_sfx('Select 4')
-            else:
-                SOUNDTHREAD.play_sfx('Error')
+            first_push = self.fluid.update()
+            directions = self.fluid.get_directions()
 
-        elif event == 'SELECT':
-            selection = self.menu.get_current()
-            if len(self.menu.name) < self.menu.character_limit:
-                self.menu.updateName(selection)
-                SOUNDTHREAD.play_sfx('Select 1')
-            else:
-                SOUNDTHREAD.play_sfx('Error')
+            self.menu.handle_mouse()
+            if 'RIGHT' in directions:
+                SOUNDTHREAD.play_sfx('Select 6')
+                self.menu.move_right(first_push)
+            elif 'LEFT' in directions:
+                SOUNDTHREAD.play_sfx('Select 6')
+                self.menu.move_left(first_push)
+            if 'DOWN' in directions:
+                SOUNDTHREAD.play_sfx('Select 6')
+                self.menu.move_down(first_push)
+            elif 'UP' in directions:
+                SOUNDTHREAD.play_sfx('Select 6')
+                self.menu.move_up(first_push)
 
-        elif event == 'START':
-            game.state.change('text_confirm')
-            SOUNDTHREAD.play_sfx('Select 2')
-            
-        #Exits text entry without saving a value. Dev must dictate whether this is available by setting the flag in the event.
-        elif event == 'AUX' and not self.force_entry:
-            game.state.back()
+            if event == 'BACK':
+                self._back()
+
+            elif event == 'SELECT':
+                selection = self.menu.get_current()
+                self._add(selection)
+
+            elif event == 'START':
+                game.memory['text_entry_menu'] = (self.constant_id, self.menu.name)
+                game.state.change('text_confirm')
+                SOUNDTHREAD.play_sfx('Select 2')
+                
+            #Exits text entry without saving a value. Dev must dictate whether this is available by setting the flag in the event.
+            elif event == 'AUX' and not self.force_entry:
+                game.state.change('transition_pop')
 
     def update(self):
         if self.menu:
@@ -80,6 +103,8 @@ class TextEntryState(MapState):
         surf.blit(self.bg_surf, self.topleft)
         if self.menu:
             self.menu.draw(surf)
+        if self.keyboard_mode:
+            surf.blit(self.keyboard_mode_sprite, (0, 0))
         return surf
 
 class TextConfirmState(MapState):
@@ -88,7 +113,7 @@ class TextConfirmState(MapState):
 
     def start(self):
         self.header = 'Finish text entry?'
-        options_list = ['Yes','No']
+        options_list = ['Yes', 'No']
         self.orientation = 'vertical'
         self.menu = menus.Choice(None, options_list, 'center', None)
         self.bg_surf, self.topleft = self.create_bg_surf()
@@ -122,10 +147,11 @@ class TextConfirmState(MapState):
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_current()
             if selection == 'Yes':
-                game.memory['entered_text'] = True
-                game.state.back()
+                constant_id, text = game.memory['text_entry_menu']
+                action.do(action.SetGameVar(constant_id, text))
+                action.do(action.SetGameVar('last_response_entered', text))
+                game.state.change('transition_double_pop')
             else:
-                game.memory['entered_text'] = False
                 game.state.back()
 
     def update(self):

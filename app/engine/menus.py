@@ -1,4 +1,4 @@
-import math
+import math, string
 
 from app.constants import TILEX, WINWIDTH, WINHEIGHT
 from app.data.database import DB
@@ -1785,11 +1785,14 @@ class KeyboardMenu(Table):
         self.topleft = (9, 42)
         
         self.all_characters = {}
-        self.all_characters['uppercase'] = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
-        self.all_characters['lowercase'] = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-        self.all_characters['uppercase_UTF8'] = ['Á','Á','Â','Ä','Å','Ç','Ð','É','È','Ê','Ë','Í','Ì','Î','Ï','Ñ','Ó','Ò','Ô','Ö','Ø','Þ','Ú','Ù','Û','Ü','Ý','Ÿ','Æ','⁊','Ƿ','Œ']
-        self.all_characters['lowercase_UTF8'] = ['á','à','â','å','ä','ç','ð','é','è','ê','ë','í','ì','î','ï','ñ','ŋ','ó','ò','ô','ö','ø','þ','ú','ù','û','ü','ý','ÿ','æ','ß','ƿ','œ']
-        self.all_characters['numbers_and_punctuation'] = ['0','1','2','3','4','5','6','7','8','9','!','¡','#','%','&','(',')','-','+','*',';',':',"'",',','.','/','?','¿','"','~']
+        self.all_characters['uppercase'] = string.ascii_uppercase
+        self.all_characters['lowercase'] = string.ascii_lowercase
+        self.all_characters['uppercase_UTF8'] = \
+            ['Á','À','Â','Ä','Å','Ç','Ð','É','È','Ê','Ë','Í','Ì','Î','Ï','Ñ','Ó','Ò','Ô','Ö','Ø','Þ','Ú','Ù','Û','Ü','Ý','Ÿ','Ƿ','Æ','Œ']
+        self.all_characters['lowercase_UTF8'] = \
+            ['á','à','â','ä','å','ç','ð','é','è','ê','ë','í','ì','î','ï','ñ','ó','ò','ô','ö','ø','þ','ú','ù','û','ü','ý','ÿ','ƿ','æ','œ']
+        self.all_characters['numbers_and_punctuation'] = \
+            ['0','1','2','3','4','5','6','7','8','9','!','¡','?','¿','&','-','+',';',':',"'",',','.','"'] + ([' '] * (26 - 7))
 
         for group in self.illegal_characters:
             if group in self.all_characters:
@@ -1802,7 +1805,13 @@ class KeyboardMenu(Table):
         # Build background
         self.backsurf = SPRITES.get('NamingScreen')
         
-        super().__init__(None, self.options, (7,26), self.topleft, self.backsurf, None)
+        super().__init__(None, self.options, (7, 26), self.topleft, self.backsurf, None)
+
+    def create_options(self, options, info_descs=None):
+        self.options.clear()
+        for idx, option in enumerate(options):
+            option = menu_options.SingleCharacterOption(idx, option)
+            self.options.append(option)
 
     def updateName(self, character):
         if character == 'back':
@@ -1845,7 +1854,7 @@ class KeyboardMenu(Table):
                     self.cursor.draw(surf, left, top)
 
         else:
-            FONT['text-grey'].blit("Nothing", bg_surf, (self.topleft[0] + 16, self.topleft[1] + 4))
+            FONT['text-grey'].blit("Nothing", surf, (self.topleft[0] + 16, self.topleft[1] + 4))
 
         FONT['text-white'].blit(self.name, surf, (6, 20))
         if len(self.name) < self.character_limit:

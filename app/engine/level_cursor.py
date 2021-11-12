@@ -71,8 +71,6 @@ class LevelCursor(BaseCursor):
     def set_pos(self, pos):
         super().set_pos(pos)
         self.game.ui_view.remove_unit_display()
-        if not self.has_valid_position(self.position):
-            raise ValueError("You tried to set the cursor position outside of map boundaries! Please don't :)")
 
     def _get_path(self) -> list:
         if not self._last_valid_position:
@@ -287,12 +285,6 @@ class LevelCursor(BaseCursor):
             for arrow in self.arrows:
                 surf = arrow.draw(surf, cull_rect)
         return surf
-        
-    def has_valid_position(self, pos):
-        if pos[0] < 0 or pos[1] < 0 or pos[0] > self.get_bounds()[2] or \
-                pos[1] > self.get_bounds()[3]:
-            return False
-        return True
 
 class Arrow(object):
     sprite = SPRITES.get('movement_arrows')

@@ -298,7 +298,8 @@ class Event():
         """
         if command.nid == 'for':
             logging.info('%s: %s', command.nid, command.values)
-            arg_list_str = command.values[0]
+            iterator_nid = command.values[0]
+            arg_list_str = command.values[1]
             try:
                 arg_list = evaluate.evaluate(arg_list_str)
                 arg_list = [str(arg) for arg in arg_list]
@@ -322,7 +323,8 @@ class Event():
             for arg in reversed(arg_list):
                 for command in reversed(looped_commands):
                     new_command = command.__class__.copy(command)
-                    new_command.values = [value.replace('{it}', arg) for value in new_command.values]
+                    if iterator_nid:
+                        new_command.values = [value.replace('{' + iterator_nid + '}', arg) for value in new_command.values]
                     self.commands.insert(self.command_idx + 1, new_command)
         elif command.nid == 'if':
             logging.info('%s: %s', command.nid, command.values)
@@ -486,7 +488,7 @@ class Event():
                 self.transition_color = tuple(int(_) for _ in values[2].split(','))
             else:
                 self.transition_color = self._transition_color
-                
+
             if not self.do_skip:
                 self.transition_update = current_time
                 self.wait_time = current_time + int(self.transition_speed * 1.33)
@@ -1215,7 +1217,7 @@ class Event():
             game.memory['text_entry'] = (nid, header, limit, illegal_characters, force_entry)
             game.state.change('text_entry')
             self.state = 'paused'
-        
+
         elif command.nid == 'chapter_title':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             if len(values) > 0 and values[0]:

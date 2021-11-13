@@ -85,19 +85,19 @@ class For(EventCommand):
     tag = Tags.FLOW_CONTROL
     desc = \
     """The Expression will be evaluated, and it should return a list of strings.
-For every string in this list, the events below will be ran once, with the contents of the string accessible via the {it} tag.
+For every string in this list, the events below will be ran once, with the contents of the string accessible via the bracketed `{$(nid)}` tag.
 
 Remember to end your **for** blocks with **endf**.
 
 Example: this will give every unit in the party the Inspiration skill silently
 
 ```
-for;[unit.nid for unit in game.get_units_in_party()]
-    give_skill;{it};Inspiration;no_banner
+for;PARTY_UNIT;[unit.nid for unit in game.get_units_in_party()]
+    give_skill;{PARTY_UNIT};Inspiration;no_banner
 endf
 ```
     """
-    keywords = ['Expression']
+    keywords = ['Nid', 'Expression']
 
 class If(EventCommand):
     nid = "if"

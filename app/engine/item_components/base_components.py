@@ -133,3 +133,11 @@ class Accessory(ItemComponent):
 
     def is_accessory(self, unit, item) -> bool:
         return True
+
+class Transform(ItemComponent):
+    nid = 'transform'
+    desc = "Item allows unit to transform. Use for Dragonstones, etc."
+    tag = 'base'
+
+    def transforms(self, unit, item):
+        return True

@@ -614,7 +614,7 @@ class MenuState(MapState):
         skill_system.deactivate_all_combat_arts(self.cur_unit)
 
         if not self.cur_unit.has_attacked:
-            self.cur_unit.sprite.change_state('menu')
+            self.cur_unit.sprite.change_state('chosen')
         else:
             self.cur_unit.sprite.change_state('selected')
         game.cursor.set_pos(self.cur_unit.position)

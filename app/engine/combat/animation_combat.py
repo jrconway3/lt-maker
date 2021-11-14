@@ -96,8 +96,8 @@ class AnimationCombat(BaseCombat, MockCombat):
 
         self.llast_gauge = self.left.get_guard_gauge()
         self.rlast_gauge = self.right.get_guard_gauge()
-        self.left_battle_anim = battle_animation.get_battle_anim(self.left, self.left_item, self.distance)
-        self.right_battle_anim = battle_animation.get_battle_anim(self.right, self.right_item, self.distance)
+        self.left_battle_anim = battle_animation.get_battle_anim(self.left, self.left_item, self.distance, allow_transform=True)
+        self.right_battle_anim = battle_animation.get_battle_anim(self.right, self.right_item, self.distance, allow_transform=True)
         self.lp_battle_anim = None
         self.rp_battle_anim = None
         self.left_partner = None
@@ -107,19 +107,19 @@ class AnimationCombat(BaseCombat, MockCombat):
             if self.left.strike_partner:
                 pp = self.left.strike_partner
                 self.left_partner = pp
-                self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
+                self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, allow_transform=True)
             elif self.left.traveler and item_system.is_weapon(self.right, self.right_item):
                 pp = game.get_unit(self.left.traveler)
                 self.left_partner = pp
-                self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
+                self.lp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, allow_transform=True)
             if self.right.strike_partner:
                 pp = self.right.strike_partner
                 self.right_partner = pp
-                self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
+                self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, allow_transform=True)
             elif self.right.traveler and item_system.is_weapon(self.left, self.left_item):
                 pp = game.get_unit(self.right.traveler)
                 self.right_partner = pp
-                self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance)
+                self.rp_battle_anim = battle_animation.get_battle_anim(pp, pp.get_weapon(), self.distance, allow_transform=True)
 
         self.current_battle_anim = None
 
@@ -189,17 +189,21 @@ class AnimationCombat(BaseCombat, MockCombat):
                 current_battle_anim = self.right_battle_anim
         return attacker, item, defender, d_item, current_battle_anim
 
-    def pair_battle_animations(self):
+    def pair_battle_animations(self, entrance_frames=14):
         left_pos = (self.left.position[0] - game.camera.get_x()) * TILEWIDTH, \
             (self.left.position[1] - game.camera.get_y()) * TILEHEIGHT
         right_pos = (self.right.position[0] - game.camera.get_x()) * TILEWIDTH, \
             (self.right.position[1] - game.camera.get_y()) * TILEHEIGHT
         self.left_battle_anim.pair(self, self.right_battle_anim, False, self.at_range, 14, left_pos)
+        self.left_battle_anim.entrance_counter = entrance_frames
         if self.lp_battle_anim:
             self.lp_battle_anim.pair(self, self.right_battle_anim, False, self.at_range, 14, left_pos)
+            self.lp_battle_anim.entrance_counter = entrance_frames
         self.right_battle_anim.pair(self, self.left_battle_anim, True, self.at_range, 14, right_pos)
+        self.right_battle_anim.entrance_counter = entrance_frames
         if self.rp_battle_anim:
             self.rp_battle_anim.pair(self, self.left_battle_anim, True, self.at_range, 14, right_pos)
+            self.rp_battle_anim.entrance_counter = entrance_frames
 
     def update(self) -> bool:
         current_time = engine.get_time() - self.last_update
@@ -228,7 +232,7 @@ class AnimationCombat(BaseCombat, MockCombat):
             else:
                 self.viewbox = (self.viewbox[0], self.viewbox[1], 0, 0)
                 self.state = 'entrance'
-                self.pair_battle_animations()
+                self.pair_battle_animations(14)
                 # Unit should be facing down
                 self.attacker.sprite.change_state('selected')
 
@@ -282,7 +286,7 @@ class AnimationCombat(BaseCombat, MockCombat):
                 if self.rp_battle_anim and self.rp_battle_anim.is_transform():
                     self.rp_battle_anim = battle_animation.get_battle_anim(self.right_partner, self.right_partner.get_weapon(), self.distance)
                 # re-pair
-                self.pair_battle_animations()
+                self.pair_battle_animations(0)
                 self.state = 'pre_proc'
 
         elif self.state == 'pre_proc':
@@ -386,6 +390,29 @@ class AnimationCombat(BaseCombat, MockCombat):
 
         elif self.state == 'exp_wait':
             # waits here for exp_gain state to finish
+            self.state = 'revert_transform'
+
+        elif self.state == 'revert_transform':
+            # Get new battle anims
+            if not self._skip:
+                if not self.left.is_dying:
+                    self.left_battle_anim = battle_animation.get_battle_anim(self.left, self.left_item, self.distance, allow_revert=True)
+                if not self.right.is_dying:
+                    self.right_battle_anim = battle_animation.get_battle_anim(self.right, self.right_item, self.distance, allow_revert=True)
+                if self.lp_battle_anim:
+                    self.lp_battle_anim = battle_animation.get_battle_anim(self.left_partner, self.left_partner.get_weapon(), self.distance, allow_revert=True)
+                if self.rp_battle_anim:
+                    self.rp_battle_anim = battle_animation.get_battle_anim(self.right_partner, self.right_partner.get_weapon(), self.distance, allow_revert=True)
+                # re-pair
+                self.pair_battle_animations(0)
+                if self.left_battle_anim.is_transform():
+                    self.left_battle_anim.initiate_transform()
+                if self.right_battle_anim.is_transform():
+                    self.right_battle_anim.initiate_transform()
+                if self.lp_battle_anim and self.lp_battle_anim.is_transform():
+                    self.lp_battle_anim.initiate_transform()
+                if self.rp_battle_anim and self.rp_battle_anim.is_transform():
+                    self.rp_battle_anim.initiate_transform()
             self.state = 'fade_out_wait'
 
         elif self.state == 'fade_out_wait':

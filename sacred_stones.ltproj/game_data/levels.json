@@ -3665,7 +3665,7 @@
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Lance",
+                        "Steel Lance",
                         false
                     ],
                     [
@@ -3896,6 +3896,30 @@
                 "starting_position": [
                     4,
                     6
+                ],
+                "starting_traveler": null,
+                "name": null,
+                "desc": null,
+                "generic": true
+            },
+            {
+                "nid": "110",
+                "variant": null,
+                "level": 1,
+                "klass": "Manakete",
+                "faction": "Soldier",
+                "starting_items": [
+                    [
+                        "Dragonstone",
+                        false
+                    ]
+                ],
+                "team": "player",
+                "ai": "None",
+                "ai_group": null,
+                "starting_position": [
+                    4,
+                    8
                 ],
                 "starting_traveler": null,
                 "name": null,

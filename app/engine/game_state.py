@@ -595,6 +595,9 @@ class GameState():
         logging.debug("Registering region %s", region.nid)
         self.region_registry[region.nid] = region
 
+    def get_data(self, raw_data_nid):
+        return DB.raw_data.get(str(raw_data_nid)).value
+
     def get_unit(self, unit_nid):
         """
         Can get units not just in the current level

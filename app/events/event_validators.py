@@ -64,6 +64,9 @@ class EventFunction(Validator):
         return valids
 
 class Condition(Validator):
+    desc = "must be a valid Python condition to evaluate."
+
+class Expression(Validator):
     desc = "must be a valid Python expression to evaluate."
 
 class Nid(Validator):

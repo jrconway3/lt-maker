@@ -60,7 +60,7 @@ class Event():
 
     def __init__(self, nid, commands, unit=None, unit2=None, item=None, position=None, region=None):
         self.nid = nid
-        self.commands = commands.copy()
+        self.commands: List[event_commands.EventCommand] = commands.copy()
         self.command_idx = 0
 
         self.background = None
@@ -296,7 +296,37 @@ class Event():
         """
         Returns true if the processor should be processing this command
         """
-        if command.nid == 'if':
+        if command.nid == 'for':
+            logging.info('%s: %s', command.nid, command.values)
+            iterator_nid = command.values[0]
+            arg_list_str = command.values[1]
+            try:
+                arg_list = evaluate.evaluate(arg_list_str)
+                arg_list = [str(arg) for arg in arg_list]
+            except Exception as e:
+                logging.error("%s: Could not evalute {%s}" % (e, arg_list_str))
+                return
+            if not arg_list:
+                logging.warning("Arg list is empty for: %s" % (arg_list_str))
+                return
+            curr_idx = self.command_idx + 1
+            curr_command = self.commands[curr_idx]
+            looped_commands: List[event_commands.EventCommand] = []
+            while curr_command.nid != 'endf':
+                looped_commands.append(curr_command)
+                curr_idx += 1
+                if curr_idx > len(self.commands):
+                    logging.error("%s: could not find end command for loop %s" % ('handle_conditional', arg_list_str))
+                    return
+                curr_command = self.commands[curr_idx]
+            self.commands = self.commands[:self.command_idx+1] + self.commands[curr_idx:]
+            for arg in reversed(arg_list):
+                for command in reversed(looped_commands):
+                    new_command = command.__class__.copy(command)
+                    if iterator_nid:
+                        new_command.values = [value.replace('{' + iterator_nid + '}', arg) for value in new_command.values]
+                    self.commands.insert(self.command_idx + 1, new_command)
+        elif command.nid == 'if':
             logging.info('%s: %s', command.nid, command.values)
             if not self.if_stack or self.if_stack[-1]:
                 try:
@@ -1187,7 +1217,7 @@ class Event():
             game.memory['text_entry'] = (nid, header, limit, illegal_characters, force_entry)
             game.state.change('text_entry')
             self.state = 'paused'
-        
+
         elif command.nid == 'chapter_title':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             if len(values) > 0 and values[0]:

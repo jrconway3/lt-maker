@@ -347,7 +347,7 @@ class CodeEditor(QPlainTextEdit):
             return  # Only do autocomplete on end of line
         if tc.blockNumber() <= 0 and cursor_pos <= 0:  # Remove if cursor is at the very top left of event
             return
-        if self.prev_keyboard_press == Qt.Key_Backspace or self.prev_keyboard_press == Qt.Key_Return: # don't do autocomplete on backspace
+        if self.prev_keyboard_press in (Qt.Key_Backspace, Qt.Key_Return, Qt.Key_Tab): # don't do autocomplete on backspace
             try:
                 if self.completer.popup().isVisible():
                     self.completer.popup().hide()
@@ -941,12 +941,12 @@ class EventProperties(QWidget):
         num_tabs = 0
         for command in current.commands:
             if command:
-                if command.nid in ('else', 'elif', 'end'):
+                if command.nid in ('else', 'elif', 'end', 'endf'):
                     num_tabs -= 1
                 text += '    ' * num_tabs
                 text += command.to_plain_text()
                 text += '\n'
-                if command.nid in ('if', 'elif', 'else'):
+                if command.nid in ('if', 'elif', 'else', 'for'):
                     num_tabs += 1
             else:
                 logging.warning("NoneType in current.commands")

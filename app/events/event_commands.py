@@ -75,29 +75,11 @@ class Comment(EventCommand):
         """
 **Lines** starting with '#' will be ignored.
         """
+        
     def to_plain_text(self) -> str:
         if self.values and not self.values[0].startswith('#'):
             self.values[0] = '#' + self.values[0]
         return self.values[0]
-
-class For(EventCommand):
-    nid = "for"
-    tag = Tags.FLOW_CONTROL
-    desc = \
-    """The Expression will be evaluated, and it should return a list of strings.
-For every string in this list, the events below will be ran once, with the contents of the string accessible via the bracketed `{$(nid)}` tag.
-
-Remember to end your **for** blocks with **endf**.
-
-Example: this will give every unit in the party the Inspiration skill silently
-
-```
-for;PARTY_UNIT;[unit.nid for unit in game.get_units_in_party()]
-    give_skill;{PARTY_UNIT};Inspiration;no_banner
-endf
-```
-    """
-    keywords = ['Nid', 'Expression']
 
 class If(EventCommand):
     nid = "if"
@@ -184,6 +166,25 @@ class End(EventCommand):
         """
 Ends a conditional block. Refer to the **if** command for more information.
         """
+
+class For(EventCommand):
+    nid = "for"
+    tag = Tags.FLOW_CONTROL
+    desc = \
+    """The Expression will be evaluated, and it should return a list of strings.
+For every string in this list, the events below will be ran once, with the contents of the string accessible via the bracketed `{$(nid)}` tag.
+
+Remember to end your **for** blocks with **endf**.
+
+Example: this will give every unit in the party the Inspiration skill silently
+
+```
+for;PARTY_UNIT;[unit.nid for unit in game.get_units_in_party()]
+    give_skill;{PARTY_UNIT};Inspiration;no_banner
+endf
+```
+    """
+    keywords = ['Nid', 'Expression']
 
 class Endf(EventCommand):
     nid = "endf"

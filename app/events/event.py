@@ -284,7 +284,9 @@ class Event():
             command = self.commands[self.command_idx]
             try:
                 if self.handle_conditional(command):
-                    if self.do_skip and command.nid in self.skippable:
+                    if self.handle_loop(command):
+                        pass  # Just builds the next commands
+                    elif self.do_skip and command.nid in self.skippable:
                         pass
                     else:
                         self.run_command(command)
@@ -292,9 +294,9 @@ class Event():
             except Exception as e:
                 raise Exception("Event execution failed with error in command %s" % command) from e
 
-    def handle_conditional(self, command) -> bool:
+    def handle_loop(self, command) -> bool:
         """
-        Returns true if the processor should be processing this command
+        Returns true if a loop was found
         """
         if command.nid == 'for':
             logging.info('%s: %s', command.nid, command.values)
@@ -305,10 +307,10 @@ class Event():
                 arg_list = [str(arg) for arg in arg_list]
             except Exception as e:
                 logging.error("%s: Could not evalute {%s}" % (e, arg_list_str))
-                return
+                return False
             if not arg_list:
                 logging.warning("Arg list is empty for: %s" % (arg_list_str))
-                return
+                return False
             curr_idx = self.command_idx + 1
             curr_command = self.commands[curr_idx]
             looped_commands: List[event_commands.EventCommand] = []
@@ -317,16 +319,24 @@ class Event():
                 curr_idx += 1
                 if curr_idx > len(self.commands):
                     logging.error("%s: could not find end command for loop %s" % ('handle_conditional', arg_list_str))
-                    return
+                    return False
                 curr_command = self.commands[curr_idx]
-            self.commands = self.commands[:self.command_idx+1] + self.commands[curr_idx:]
+            self.commands = self.commands[:self.command_idx + 1] + self.commands[curr_idx:]
             for arg in reversed(arg_list):
                 for command in reversed(looped_commands):
                     new_command = command.__class__.copy(command)
                     if iterator_nid:
                         new_command.values = [value.replace('{' + iterator_nid + '}', arg) for value in new_command.values]
                     self.commands.insert(self.command_idx + 1, new_command)
-        elif command.nid == 'if':
+            return True
+        return False
+
+    def handle_conditional(self, command) -> bool:
+        """
+        Returns true if the processor should be processing this command
+        """
+        
+        if command.nid == 'if':
             logging.info('%s: %s', command.nid, command.values)
             if not self.if_stack or self.if_stack[-1]:
                 try:

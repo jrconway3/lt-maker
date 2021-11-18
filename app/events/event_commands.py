@@ -75,7 +75,7 @@ class Comment(EventCommand):
         """
 **Lines** starting with '#' will be ignored.
         """
-        
+
     def to_plain_text(self) -> str:
         if self.values and not self.values[0].startswith('#'):
             self.values[0] = '#' + self.values[0]
@@ -2004,6 +2004,7 @@ def parse_text(text: str, strict=False) -> EventCommand:
     Returns:
         EventCommand: parsed command
     """
+    text = text.lstrip()
     if text.startswith('#'):
         return Comment([text])
     arguments = text.split(';')

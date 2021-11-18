@@ -1638,7 +1638,7 @@ Optional args:
 * The *Orientation* keyword specifies whether the options are displayed as a vertical list or side-by-side.
 * *Width* allows you to specify the specific width of each row.
 * The *Alignment* keyword specifies where on the screen the choice box will be displayed.
-* The *Background* keyword specifies what base image to use as background.
+* The *Sprite* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
 * The *Event* keyword gives you the option to call an event on selection, if you should so choose. The new event will have the same args {unit}, {unit2} etc. as the current event.
 
 * The *persist* flag indicates whether or not the choice ends after you make a selection. If *persist* is true, then the choice can only be exited
@@ -1655,7 +1655,7 @@ There are four flags that you can use to further customize the type of options s
 """
 
     keywords = ['Nid', 'Text', 'String']
-    optional_keywords = ['Width', 'Orientation', 'Align', 'Background', 'Event']
+    optional_keywords = ['Width', 'Orientation', 'Align', 'Sprite', 'Event']
 
     flags = ['persist', 'type_skill', 'type_item', 'type_unit', 'type_class', 'type_icon', 'expression']
 
@@ -1699,7 +1699,7 @@ class Table(EventCommand):
     * *Size* allows you to specify the size of the box in terms of (rows, columns).
     * *Width* allows you to specify the specific width of each row.
     * The *Alignment* keyword specifies where on the screen the choice box will be displayed.
-    * The *Background* keyword specifies what base image to use as background.
+    * The *Sprite* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
 
     There are four flags that you can use to further customize the type of options shown.
 
@@ -1713,7 +1713,7 @@ class Table(EventCommand):
     """
 
     keywords = ['Nid', 'String']
-    optional_keywords = ['Text', 'Size', 'Width', 'Align', 'Background']
+    optional_keywords = ['Text', 'Size', 'Width', 'Align', 'Sprite']
 
     flags = ['type_skill', 'type_item', 'type_unit', 'type_icon', 'type_class', 'expression']
 

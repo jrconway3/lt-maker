@@ -13,13 +13,9 @@ from app.engine.game_state import game
 from app.engine.graphics.ui_framework.ui_framework import UIComponent
 from app.engine.graphics.ui_framework.ui_framework_layout import convert_align
 from app.engine.icons import get_icon, get_icon_by_nid
-from app.engine.objects.item import ItemObject
-from app.engine.objects.skill import SkillObject
 from app.engine.objects.unit import UnitObject
 from app.utilities.enums import Alignments
 from app.utilities.typing import NID
-
-
 class SimpleMenuUI():
     def __init__(self, data: List[str] | Callable[[], List] = None, data_type: str = 'str',
                  title: str = None, rows: int = 0, cols: int = 1, row_width: int = -1,
@@ -30,7 +26,7 @@ class SimpleMenuUI():
 
         # UI stuff
         self.base_component = UIComponent.create_base_component()
-        self.table = SimpleIconTable('table', self.base_component, num_rows=rows, num_columns=cols, title=title, row_width=row_width, background=bg)
+        self.table: SimpleIconTable = self.create_table(self.base_component, rows, cols, title, row_width, bg)
         halign, valign = convert_align(alignment)
         self.table.props.h_alignment = halign
         self.table.props.v_alignment = valign
@@ -42,6 +38,9 @@ class SimpleMenuUI():
             self.set_data(self._get_data())
         else:
             self.set_data(data)
+
+    def create_table(self, base_component, rows, cols, title, row_width, bg) -> SimpleIconTable:
+        return SimpleIconTable('table', base_component, num_rows=rows, num_columns=cols, title=title, row_width=row_width, background=bg)
 
     def set_data(self, raw_data):
         if self._data == raw_data and not self._data_type == 'type_unit': # units need to be refreshed
@@ -66,7 +65,8 @@ class SimpleMenuUI():
             return data
 
     def parse_klass(self, klass: Klass):
-        raise NotImplementedError()
+        # @TODO: figure out why klasses don't know their own sprite and fix that
+        return klass
 
     def parse_custom_icon_data(self, tup: Tuple[NID, str, str, str]) -> Tuple[engine.Surface, str]:
         icon_sheet_nid = tup[0]
@@ -103,7 +103,7 @@ class SimpleMenuUI():
         if self._get_data:
             new_data = self._get_data()
             self.set_data(new_data)
-        elif self._data_type == 'type_unit':
+        elif self._data_type == 'type_unit': # we need to reset data to update sprites
             # elif because while not mutually exclusive, we only ever need one call of "set_data"
             self.set_data(self._data)
         return True

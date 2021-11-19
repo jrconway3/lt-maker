@@ -1199,29 +1199,12 @@ class Event():
             self.arrange_formation()
 
         elif command.nid == 'prep':
-            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
-            if values and values[0].lower() in self.true_vals:
-                b = True
-            else:
-                b = False
-            action.do(action.SetLevelVar('_prep_pick', b))
-            if len(values) > 1 and values[1]:
-                action.do(action.SetGameVar('_prep_music', values[1]))
-            game.state.change('prep_main')
-            self.state = 'paused'  # So that the message will leave the update loop
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
+            self.prep(*values, flags)
 
         elif command.nid == 'base':
-            values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
-            panorama_nid = values[0]
-            action.do(action.SetGameVar('_base_bg_name', panorama_nid))
-            if len(values) > 1 and values[1]:
-                action.do(action.SetGameVar('_base_music', values[1]))
-            if 'show_map' in flags:
-                action.do(action.SetGameVar('_base_transparent', True))
-            else:
-                action.do(action.SetGameVar('_base_transparent', False))
-            game.state.change('base_main')
-            self.state = 'paused'
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
+            self.base(*values, flags)
 
         elif command.nid == 'shop':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
@@ -2888,6 +2871,84 @@ class Event():
             position = all_formation_spots[idx]
             action.execute(action.ArriveOnMap(unit, position))
             action.execute(action.Reset(unit))
+
+    def base(self, panorama_nid: str, music_nid: str, other_options_list: str,
+             other_options_enabled: str, other_options_events: str, flags: list):
+        # set panorama
+        action.do(action.SetGameVar('_base_bg_name', panorama_nid))
+        # set music
+        if music_nid:
+            action.do(action.SetGameVar('_base_music', music_nid))
+
+        if other_options_list:
+            options_list = other_options_list.split(',')
+            options_enabled = [False for option in options_list]
+            options_events = [None for option in options_list]
+
+            enabled_strs = other_options_enabled.split(',') if other_options_enabled else []
+            if len(enabled_strs) <= len(options_enabled):
+                for idx, is_enabled in enumerate(enabled_strs):
+                    if is_enabled in self.true_vals:
+                        options_enabled[idx] = True
+                action.do(action.SetGameVar('_base_options_enabled', options_enabled))
+            else:
+                logging.error("base: too many bools in option enabled list: ", other_options_enabled)
+                return
+
+            event_nids = other_options_events.split(',') if other_options_events else []
+            if len(event_nids) <= len(options_events):
+                for idx, event_nid in enumerate(event_nids):
+                    options_events[idx] = event_nid
+                action.do(action.SetGameVar('_base_options_events', options_events))
+            else:
+                logging.error("base: too many events in option event list: ", other_options_events)
+                return
+            action.do(action.SetGameVar('_base_additional_options', options_list))
+
+        if 'show_map' in flags:
+            action.do(action.SetGameVar('_base_transparent', True))
+        else:
+            action.do(action.SetGameVar('_base_transparent', False))
+
+        game.state.change('base_main')
+        self.state = 'paused'
+
+    def prep(self, pick_units_enabled: str, music_nid: str, other_options_list: str,
+             other_options_enabled: str, other_options_events: str, flags: dict):
+        if pick_units_enabled and pick_units_enabled.lower() in self.true_vals:
+            b = True
+        else:
+            b = False
+        action.do(action.SetLevelVar('_prep_pick', b))
+        if music_nid:
+            action.do(action.SetGameVar('_prep_music', music_nid))
+
+        if other_options_list:
+            options_list = other_options_list.split(',')
+            options_enabled = [False for option in options_list]
+            options_events = [None for option in options_list]
+
+            enabled_strs = other_options_enabled.split(',') if other_options_enabled else []
+            if len(enabled_strs) <= len(options_enabled):
+                for idx, is_enabled in enumerate(enabled_strs):
+                    if is_enabled in self.true_vals:
+                        options_enabled[idx] = True
+                action.do(action.SetGameVar('_prep_options_enabled', options_enabled))
+            else:
+                logging.error("base: too many bools in option enabled list: ", other_options_enabled)
+                return
+
+            event_nids = other_options_events.split(',') if other_options_events else []
+            if len(event_nids) <= len(options_events):
+                for idx, event_nid in enumerate(event_nids):
+                    options_events[idx] = event_nid
+                action.do(action.SetGameVar('_prep_options_events', options_events))
+            else:
+                logging.error("base: too many events in option event list: ", other_options_events)
+                return
+            action.do(action.SetGameVar('_prep_additional_options', options_list))
+        game.state.change('prep_main')
+        self.state = 'paused'  # So that the message will leave the update loop
 
     def find_unlock(self, command):
         values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)

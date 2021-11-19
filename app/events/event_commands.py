@@ -1609,22 +1609,41 @@ class Prep(EventCommand):
 
     desc = \
         """
-Display the prep screen. *Bool* sets whether the "Pick Units" menu will be available in the prep screen. The optional *Music* keyword specifies the music track that will be played during the preparations menu.
+Display the prep screen.
+
+Optional args:
+* *Bool* sets whether the "Pick Units" menu will be available in the prep screen.
+* The optional *Music* keyword specifies the music track that will be played during the preparations menu.
+* *OtherOptions* is a list of strings (Option1, Option2, Option3) that specify additional option names to display in the base.
+* *OtherOptionsEnabled* is a list of string bools (e.g. true, false, false) that specify which of the OtherOptions are enabled. If blank, all OtherOptions will be enabled by default.
+* *OtherOptionsOnSelect* is a list of Event NIDs or Event Names. These events will be triggered when the corresponding OtherOptions are selected.
+
         """
 
-    optional_keywords = ["Bool", "Music"]  # Pick units
+    optional_keywords = ["Bool", "Music", "StringList", "StringList", "StringList"]  # Pick units
+    keyword_names = ['PickUnitsEnabled', 'BGM', 'OtherOptions', 'OtherOptionsSelectable', 'OtherOptionsOnSelect']
 
 class Base(EventCommand):
     nid = 'base'
     tag = Tags.MISCELLANEOUS
 
     desc = \
-        """
+"""
 When called, the player is sent to the Base menu. The *Panorama* and *Music* keywords specify the background image and the music track that will be played for the base.
-        """
+
+Optional args:
+* *Music* specify which music track will play for the base.
+* *OtherOptions* is a list of strings (Option1, Option2, Option3) that specify additional option names to display in the base.
+* *OtherOptionsEnabled* is a list of string bools (e.g. true, false, false) that specify which of the OtherOptions are enabled. If blank, all OtherOptions will be enabled by default.
+* *OtherOptionsOnSelect* is a list of Event NIDs or Event Names. These events will be triggered when the corresponding OtherOptions are selected.
+
+Flags:
+* *show_map* determines whether or not the background will simply be the map of the mission.
+"""
 
     keywords = ["Panorama"]
-    optional_keywords = ["Music"]
+    optional_keywords = ["Music", "StringList", "StringList", "StringList"]
+    keyword_names = ['Background', 'BGM', 'OtherOptions', 'OtherOptionsSelectable', 'OtherOptionsOnSelect']
     flags = ["show_map"]
 
 class Shop(EventCommand):
@@ -2214,7 +2233,6 @@ def convert_parse(command: EventCommand, _eval_evals: Callable[[str], str] = Non
     num_optionals = len(command.optional_keywords)
     num_total_keywords = num_keywords + num_optionals
     true_values = [None] * num_total_keywords
-
     kwd_idx = 0
     for keyword_idx, keyword in enumerate(values[:num_keywords]):
         true_values[kwd_idx] = convert(command.keywords[keyword_idx], keyword)

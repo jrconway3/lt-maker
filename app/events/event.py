@@ -2951,9 +2951,9 @@ class Event():
 
         # figure out function or list of NIDs
         if 'expression' in flags:
-            import ast
             try:
-                ast.parse(contents)
+                # eval once to make sure it's eval-able
+                eval(contents)
                 def tryexcept(callback_expr):
                     try:
                         val = eval(callback_expr)
@@ -2962,6 +2962,7 @@ class Event():
                         else:
                             return [str(val)]
                     except:
+                        logging.error("display_table: failed to eval %s", callback_expr)
                         return [""]
                 data = lambda: tryexcept(contents)
             except:

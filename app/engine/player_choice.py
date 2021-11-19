@@ -51,8 +51,7 @@ class PlayerChoiceState(MapState):
             else:
                 if not self.should_persist:
                     game.state.back()
-                valid_events = [event_prefab for event_prefab in DB.events.values() if (event_prefab.name == self.event_on_choose or event_prefab.nid == self.event_on_choose) \
-                    and (not event_prefab.level_nid or (game.level and event_prefab.level_nid == game.level.nid))]
+                valid_events = DB.events.get_by_nid_or_name(self.event_on_choose, game.level.nid)
                 for event_prefab in valid_events:
                     game.events.add_event(event_prefab.nid, event_prefab.commands, selection)
                     if event_prefab.only_once:

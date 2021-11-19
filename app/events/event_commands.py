@@ -1686,29 +1686,29 @@ class Table(EventCommand):
 
     desc = \
     """Displays a box on screen containing some text or tabulated information. This is distinct from dialogue and choice in that it is non-interactable,
-    existing only to be looked at.
+existing only to be looked at.
 
-    * *Nid* is the name of this box.
-    * *String* is one of many things. It can be a String, some simple text to display. It can be a *StringList*, i.e., a list of strings that can be parsed.
-    This can be combined with the flags to display specific types of strings - skills, items, even units. Or it can be an Expression, a Python statement that resolves to
-    a string or list of strings. For example, `game.get_money()` would resolve to the current amount of gold in the party. The difference between Expressions
-    and String/StringLists is that Expressions will constantly update with current information. For example, if the party's gold is reduced, then the previous
-    expression would automatically update the gold.
+* *Nid* is the name of this box.
+* *String* is one of many things. It can be a String, some simple text to display. It can be a *StringList*, i.e., a list of strings that can be parsed.
+This can be combined with the flags to display specific types of strings - skills, items, even units. Or it can be an Expression, a Python statement that resolves to
+a string or list of strings. For example, `game.get_money()` would resolve to the current amount of gold in the party. The difference between Expressions
+and String/StringLists is that Expressions will constantly update with current information. For example, if the party's gold is reduced, then the previous
+expression would automatically update the gold.
 
-    * *Text* allows you to optionally add a title to the box.
-    * *Size* allows you to specify the size of the box in terms of (rows, columns).
-    * *Width* allows you to specify the specific width of each row.
-    * The *Alignment* keyword specifies where on the screen the choice box will be displayed.
-    * The *Sprite* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
+* *Text* allows you to optionally add a title to the box.
+* *Size* allows you to specify the size of the box in terms of (rows, columns).
+* *Width* allows you to specify the specific width of each row.
+* The *Alignment* keyword specifies where on the screen the choice box will be displayed.
+* The *Sprite* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
 
-    There are four flags that you can use to further customize the type of options shown.
+There are four flags that you can use to further customize the type of options shown.
 
-    * *type_skill* will interpret all options as skill NIDs
-    * *type_item* will interpret all options as item NIDs
-    * *type_unit* will interpret all options as unit NIDs
-    * *type_class* will interpret all options as class NIDs.
-    * *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
-    * the *type* flags are exclusive, but can be combined with the *expression* flag.
+* *type_skill* will interpret all options as skill NIDs
+* *type_item* will interpret all options as item NIDs
+* *type_unit* will interpret all options as unit NIDs
+* *type_class* will interpret all options as class NIDs.
+* *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
+* the *type* flags are exclusive, but can be combined with the *expression* flag.
 
     """
 

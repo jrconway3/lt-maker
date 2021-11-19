@@ -825,14 +825,13 @@ class Event(Validator):
     desc = "accepts the name or nid of an event. Will run the event appropriate for the level if more than one event with the same name exists."
 
     def validate(self, text, level):
-        for event in DB.events:
-            if (event.name == text or event.nid == text) and (not event.level_nid or not level or event.level_nid == level.nid):
-                return text
+        if DB.events.get_by_nid_or_name(text, level.nid):
+            return text
         return None
 
     @lru_cache()
     def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
-        valids = [(event.name, event.nid) for event in DB.events.values() if (level is None or event.level_nid == level or event.level_nid is None)]
+        valids = [(event.name, event.nid) for event in DB.events.get_by_level(level)]
         return valids
 
 class OverworldNID(Validator):

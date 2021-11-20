@@ -22,6 +22,16 @@ class PlayerChoiceState(MapState):
         self.menu = ChoiceMenuUI(options_list, data_type=self.data_type, row_width=self.row_width,
                                  title=self.header, cols=ncols, alignment=self.alignment, bg=self.bg)
 
+        self.made_choice = False
+
+    def choose(self, selection):
+        action.do(action.SetGameVar(self.nid, selection))
+        action.do(action.SetGameVar('_last_choice', selection))
+        self.made_choice = True
+
+    def unchoose(self):
+        self.made_choice = False
+
     def take_input(self, event):
         if (event == 'RIGHT' and self.orientation == 'horizontal'):
             SOUNDTHREAD.play_sfx('Select 6')
@@ -37,29 +47,29 @@ class PlayerChoiceState(MapState):
             self.menu.move_up()
         elif event == 'BACK':
             if self.should_persist:
+                # this is the only way to exit a persistent state
                 game.state.back()
             else:
                 SOUNDTHREAD.play_sfx('Error')
         elif event == 'SELECT':
             SOUNDTHREAD.play_sfx('Select 1')
             selection = self.menu.get_selected()
-            action.do(action.SetGameVar(self.nid, selection))
-            action.do(action.SetGameVar('_last_choice', selection))
-            if not self.event_on_choose:
-                if not self.should_persist:
-                    game.state.back()
-            else:
-                if not self.should_persist:
-                    game.state.back()
+            self.choose(selection)
+            if self.event_on_choose:
                 valid_events = DB.events.get_by_nid_or_name(self.event_on_choose, game.level.nid)
                 for event_prefab in valid_events:
-                    game.events.add_event(event_prefab.nid, event_prefab.commands, selection)
-                    if event_prefab.only_once:
-                        action.do(action.OnlyOnceEvent(event_prefab.nid))
+                    game.events.trigger_specific_event(event_prefab.nid)
+                    game.memory[self.nid + '_unchoice'] = self.unchoose
                 if not valid_events:
                     logging.error("Couldn't find any valid events matching name %s" % self.event_on_choose)
+            return 'repeat'
         selection = self.menu.get_selected()
         game.game_vars[self.nid + '_choice_hover'] = selection
+
+    def update(self):
+        if self.made_choice and not self.should_persist:
+            game.state.back()
+            return 'repeat'
 
     def draw(self, surf):
         self.menu.update()

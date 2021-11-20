@@ -1659,6 +1659,15 @@ There are four flags that you can use to further customize the type of options s
 
     flags = ['persist', 'type_skill', 'type_item', 'type_unit', 'type_class', 'type_icon', 'expression']
 
+class NoChoice(EventCommand):
+    nid = 'unchoice'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+    """
+If this event was called from a Choice, then prevents that Choice from ending once this event ends. Otherwise, does nothing.
+    """
+
 class TextEntry(EventCommand):
     nid = 'text_entry'
     tag = Tags.MISCELLANEOUS

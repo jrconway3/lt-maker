@@ -1,13 +1,8 @@
 from __future__ import annotations
-from app.engine.game_menus.menu_components.generic_menu.simple_menu import SimpleIconTable
-from app.engine.game_menus.menu_components.generic_menu.simple_menu_wrapper import SimpleMenuUI
-from app.engine.graphics.ui_framework.premade_animations.animation_templates import translate_anim
-from app.engine.graphics.ui_framework.ui_framework import UIComponent
-from app.engine.graphics.ui_framework.ui_framework_animation import InterpolationType
-from app.sprites import SPRITES
+
 import logging
 import re
-from typing import Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 
 import app.engine.config as cf
 import app.engine.graphics.ui_framework as uif
@@ -19,23 +14,28 @@ from app.engine import (action, background, banner, dialog, engine, evaluate,
                         skill_system, static_random, target_system, unit_funcs)
 from app.engine.animations import MapAnimation
 from app.engine.combat import interaction
+from app.engine.game_menus.menu_components.generic_menu.simple_menu_wrapper import \
+    SimpleMenuUI
 from app.engine.game_state import game
 from app.engine.graphics.dialog.narration_dialogue import NarrationDialogue
+from app.engine.graphics.ui_framework.premade_animations.animation_templates import \
+    translate_anim
+from app.engine.graphics.ui_framework.ui_framework import UIComponent
+from app.engine.graphics.ui_framework.ui_framework_animation import \
+    InterpolationType
 from app.engine.objects.item import ItemObject
 from app.engine.objects.overworld import OverworldNodeObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.objects.unit import UnitObject
 from app.engine.overworld.overworld_actions import OverworldMove
-from app.engine.overworld.overworld_map_view import OverworldMapView
 from app.engine.overworld.overworld_movement_manager import \
     OverworldMovementManager
 from app.engine.sound import SOUNDTHREAD
-from app.engine.game_state import game
 from app.events import event_commands, regions
 from app.events.event_portrait import EventPortrait
 from app.resources.resources import RESOURCES
+from app.sprites import SPRITES
 from app.utilities import str_utils, utils
-from app.utilities.algorithms.interpolation import cubic_easing, tcubic_easing
 from app.utilities.enums import Alignments
 from app.utilities.typing import NID, Point
 
@@ -356,7 +356,6 @@ class Event():
         """
         Returns true if the processor should be processing this command
         """
-
         if command.nid == 'if':
             logging.info('%s: %s', command.nid, command.values)
             if not self.if_stack or self.if_stack[-1]:
@@ -1238,6 +1237,17 @@ class Event():
         elif command.nid == 'choice':
             values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
             self.choice(*values, flags)
+
+        elif command.nid == 'unchoice':
+            try:
+                prev_state = game.state.get_prev_state()
+                if prev_state.name == 'player_choice':
+                    prev_state_nid = prev_state.nid
+                    unchoose_prev_state = game.memory[prev_state_nid + '_unchoice']
+                    if unchoose_prev_state:
+                        unchoose_prev_state()
+            except Exception as e:
+                logging.error("Unchoice failed: " + e)
 
         elif command.nid == 'text_entry':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)

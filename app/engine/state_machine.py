@@ -1,4 +1,12 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.engine.state import State
+
 import logging
+
 
 class SimpleStateMachine():
     def __init__(self, starting_state):
@@ -26,12 +34,15 @@ class StateMachine():
         self.prev_state = None
 
     def load_states(self, starting_states=None, temp_state=None):
-        from app.engine import title_screen, transitions, general_states, level_up, \
-            turnwheel, game_over, settings, info_menu, prep, base, trade, promotion, \
-            status_upkeep, debug_mode, chapter_title, player_choice, feat_choice, \
-            victory_screen, objective_menu, minimap, roam_state, dialog_log, text_entry
-        from app.engine.overworld import overworld_states
+        from app.engine import (base, chapter_title, debug_mode, dialog_log,
+                                feat_choice, game_over, general_states,
+                                info_menu, level_up, minimap, objective_menu,
+                                player_choice, prep, promotion, roam_state,
+                                settings, status_upkeep, text_entry,
+                                title_screen, trade, transitions, turnwheel,
+                                victory_screen)
         from app.engine.game_menus.menu_states import unit_menu_state
+        from app.engine.overworld import overworld_states
         from app.events import event_state
         self.all_states = \
             {'title_start': title_screen.TitleStartState,
@@ -161,9 +172,13 @@ class StateMachine():
         if self.state:
             return self.state[-1].name
 
-    def current_state(self):
+    def current_state(self) -> State:
         if self.state:
             return self.state[-1]
+
+    def get_prev_state(self) -> State:
+        if self.state and len(self.state) > 1:
+            return self.state[-2]
 
     def exit_state(self, state):
         if state.processed:

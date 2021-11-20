@@ -509,6 +509,13 @@ class GameState():
         return self.current_level
 
     @property
+    def level_nid(self):
+        if self.is_displaying_overworld():
+            return self.overworld_controller.next_level
+        elif self.level:
+            return self.level.nid
+
+    @property
     def current_party(self):
         if self.is_displaying_overworld() and self.overworld_controller.selected_entity.nid:
             self._current_party = self.overworld_controller.selected_entity.nid

@@ -335,7 +335,7 @@ class Event():
         """
         Returns true if the processor should be processing this command
         """
-        
+
         if command.nid == 'if':
             logging.info('%s: %s', command.nid, command.values)
             if not self.if_stack or self.if_stack[-1]:

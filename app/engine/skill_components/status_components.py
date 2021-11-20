@@ -66,16 +66,6 @@ class Regeneration(SkillComponent):
             else:
                 name = 'MapSmallHealTrans'
             playback.append(('cast_anim', name, unit))
-            
-class ManaRegeneration(SkillComponent):
-    nid = 'mana_regeneration'
-    desc = "Unit restores X mana at beginning of turn"
-    tag = "status"
-
-    expose = Type.Int
-
-    def on_upkeep(self, actions, playback, unit):
-        actions.append(action.ChangeMana(unit, self.value))
 
 class UpkeepDamage(SkillComponent):
     nid = 'upkeep_damage'

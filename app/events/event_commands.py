@@ -2010,6 +2010,7 @@ def parse_text(text: str, strict=False) -> EventCommand:
     Returns:
         EventCommand: parsed command
     """
+    text = text.lstrip()
     if text.startswith('#'):
         return Comment([text])
     arguments = text.split(';')

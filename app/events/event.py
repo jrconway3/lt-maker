@@ -2850,24 +2850,20 @@ class Event():
         else:
             unit2 = self.unit2
 
-        valid_events = [event_prefab for event_prefab in DB.events.values() if event_prefab.name == trigger_script and (not event_prefab.level_nid or (game.level and event_prefab.level_nid == game.level.nid))]
+        valid_events = DB.events.get_by_nid_or_name(trigger_script, game.level.nid)
         for event_prefab in valid_events:
-            game.events.add_event(event_prefab.nid, event_prefab.commands, unit, unit2, position=self.position, region=self.region)
+            game.events.trigger_specific_event(event_prefab.nid, unit, unit2, position=self.position, region=self.region)
             self.state = 'paused'
-            if event_prefab.only_once:
-                action.do(action.OnlyOnceEvent(event_prefab.nid))
 
         if not valid_events:
             logging.error("Couldn't find any valid events matching name %s" % trigger_script)
 
-    def trigger_script_with_args(self, event_name: str, arg1: str = None, arg2: str = None, arg3: str = None, arg4: str = None, arg5: str = None):
+    def trigger_script_with_args(self, event_name: str, arg1: str, arg2: str, arg3: str, arg4: str, arg5: str, flags):
         trigger_script = event_name
-        valid_events = [event_prefab for event_prefab in DB.events.values() if event_prefab.name == trigger_script and (not event_prefab.level_nid or (game.level and event_prefab.level_nid == game.level.nid))]
+        valid_events = DB.events.get_by_nid_or_name(trigger_script, game.level.nid)
         for event_prefab in valid_events:
-            game.events.add_event(event_prefab.nid, event_prefab.commands, arg1, arg2, arg3, arg4, arg5)
+            game.events.trigger_specific_event(event_prefab.nid, arg1, arg2, arg3, arg4, arg5)
             self.state = 'paused'
-            if event_prefab.only_once:
-                action.do(action.OnlyOnceEvent(event_prefab.nid))
         if not valid_events:
             logging.error("Couldn't find any valid events matching name %s" % trigger_script)
             return

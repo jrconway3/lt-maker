@@ -134,6 +134,17 @@ class Accessory(ItemComponent):
     def is_accessory(self, unit, item) -> bool:
         return True
 
+class EquippableAccessory(ItemComponent):
+    nid = 'equippable_accessory'
+    desc = "Item is an equippable accessory"
+    tag = 'base'
+
+    def is_accessory(self, unit, item) -> bool:
+        return True
+
+    def equippable(self, unit, item) -> bool:
+        return True
+
 class Transform(ItemComponent):
     nid = 'transform'
     desc = "Item allows unit to transform. Use for Dragonstones, etc."

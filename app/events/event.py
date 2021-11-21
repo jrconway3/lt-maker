@@ -294,12 +294,15 @@ class Event():
             except Exception as e:
                 raise Exception("Event execution failed with error in command %s" % command) from e
 
-    def handle_loop(self, command) -> bool:
+    def handle_loop(self, command: event_commands.EventCommand) -> bool:
         """
         Returns true if a loop was found
         """
         if command.nid == 'for':
             logging.info('%s: %s', command.nid, command.values)
+            show_warning = True
+            if 'no_warn' in command.flags:
+                show_warning = False
             iterator_nid = command.values[0]
             arg_list_str = command.values[1]
             try:
@@ -309,8 +312,8 @@ class Event():
                 logging.error("%s: Could not evaluate {%s}" % (e, arg_list_str))
                 return False
             if not arg_list:
-                logging.warning("Arg list is empty for: %s" % (arg_list_str))
-                return False
+                if show_warning:
+                    logging.warning("Arg list is empty for: %s" % (arg_list_str))
 
             # template and paste all commands inside the for loop
             # to find the correct endf, we'll need to make sure that

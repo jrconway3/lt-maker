@@ -176,6 +176,9 @@ For every string in this list, the events below will be ran once, with the conte
 
 Remember to end your **for** blocks with **endf**.
 
+Flags:
+The *no_warn* flag will suppress warnings, but not errors. Use this flag only if you know why you're using it.
+
 Example: this will give every unit in the party the Inspiration skill silently
 
 ```
@@ -185,6 +188,8 @@ endf
 ```
     """
     keywords = ['Nid', 'Expression']
+
+    flags = ['no_warn']
 
 class Endf(EventCommand):
     nid = "endf"

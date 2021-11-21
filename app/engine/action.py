@@ -1445,7 +1445,6 @@ class ApplyGrowthChanges(Action):
         negative_changes = {k: -v for k, v in self.stat_changes.items()}
         unit_funcs.apply_growth_changes(self.unit, negative_changes)
 
-
 class Promote(Action):
     def __init__(self, unit, new_class_nid):
         self.unit = unit
@@ -1603,8 +1602,10 @@ class AddWexp(Action):
         self.wexp_gain = wexp_gain
 
     def increase_wexp(self):
+        old_value = self.unit.wexp[self.weapon_type]
         self.unit.wexp[self.weapon_type] += self.wexp_gain
-        return self.unit.wexp[self.weapon_type] - self.wexp_gain, self.unit.wexp[self.weapon_type]
+        self.unit.wexp[self.weapon_type] = max(0, self.unit.wexp[self.weapon_type])  # Can't be less than 0
+        return old_value, self.unit.wexp[self.weapon_type]
 
     def do(self):
         self.old_value, self.current_value = self.increase_wexp()

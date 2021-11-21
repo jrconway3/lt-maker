@@ -75,7 +75,7 @@ class Comment(EventCommand):
         """
 **Lines** starting with '#' will be ignored.
         """
-        
+
     def to_plain_text(self) -> str:
         if self.values and not self.values[0].startswith('#'):
             self.values[0] = '#' + self.values[0]
@@ -661,6 +661,9 @@ Fabricates a new generic unit from scratch. This does not place instances of the
 The required keywords are in the following order: nid to be given to the unit (*String*),
 the unit's class (*Klass*), the unit's level (*String*), and the unit's *Team*.
 
+**If the NID field is left empty, then the event's `{unit}` will be overwritten to refer to the result of MakeGeneric.
+Therefore, if you must refer to the current {unit} in the rest of the event, save it to a `game_var` or a `level_var`.**
+
 Several optional keywords can also be provided to further modify the new unit:
 *AI* defines an AI preset to be given to the unit, *Faction* assignes the unit
 to one of the factions for the chapter, the unit can be given an animation variant
@@ -679,6 +682,9 @@ class CreateUnit(EventCommand):
         """
 Creates a new instance of a unit and, optionally, places it on the map.
 *Unit* points to the unit template to be used. A new nid can be assigned using *String* (can be empty: '').
+
+**If the NID field is left empty, then the event's `{unit}` will be overwritten to refer to the result of CreateUnit.
+Therefore, if you must refer to the current {unit} in the rest of the event, save it to a `game_var` or a `level_var`.**
 
 Several optional keywords can be provided to modify the unit and/or place it on the map.
 
@@ -2004,6 +2010,7 @@ def parse_text(text: str, strict=False) -> EventCommand:
     Returns:
         EventCommand: parsed command
     """
+    text = text.lstrip()
     if text.startswith('#'):
         return Comment([text])
     arguments = text.split(';')

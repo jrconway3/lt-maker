@@ -128,11 +128,23 @@ class Highlighter(QSyntaxHighlighter):
             # handle eval and vars
             for idx, section in enumerate(sections):
                 start = num_tabs * 4 + len(';'.join(sections[:idx])) + 1
-                special_start = 0
-                special_start = start + section.find('{') if section.find('{') >= 0 else -1
-                special_end = section.rfind('}') if section.rfind('}') >= 0 else -1
-                if special_start >= 0 and special_end >= 0:
-                    self.setFormat(special_start, special_end + 1, self.special_text_format)
+                if '{' in section and '}' in section:
+                    opening_brace_idx = -1
+                    closing_brace_idx = -1
+                    for char_idx, char in enumerate(section):
+                        if char == '{':
+                            if opening_brace_idx > 0 and not closing_brace_idx > 0:
+                                continue
+                            elif opening_brace_idx > 0 and closing_brace_idx > 0:
+                                self.setFormat(opening_brace_idx, closing_brace_idx, self.special_text_format)
+                                opening_brace_idx = -1
+                                closing_brace_idx = -1
+                            elif not opening_brace_idx > 0:
+                                opening_brace_idx = start + char_idx
+                        if char == '}' and opening_brace_idx > 0:
+                            closing_brace_idx = start + char_idx - opening_brace_idx
+                    if opening_brace_idx > 0 and closing_brace_idx > 0:
+                        self.setFormat(opening_brace_idx, closing_brace_idx + 1, self.special_text_format)
 
             # Handle text format
             if sections[0] in ('s', 'speak') and len(sections) >= 3:

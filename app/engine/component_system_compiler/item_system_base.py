@@ -63,7 +63,7 @@ class Defaults():
 
     @staticmethod
     def wexp(playback, unit, item, target) -> int:
-        return 1
+        return 0
 
     @staticmethod
     def damage_formula(unit, item) -> str:

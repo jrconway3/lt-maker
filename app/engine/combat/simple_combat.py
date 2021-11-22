@@ -305,6 +305,8 @@ class SimpleCombat():
         else:
             if not self.attacker.has_attacked or \
                     (self.attacker.team == 'player' and item_system.menu_after_combat(self.attacker, self.main_item)):
+                if (item_system.menu_after_combat(self.attacker, self.main_item)):
+                    self.attacker.has_attacked = False
                 game.state.change('menu')
             elif skill_system.has_canto(self.attacker, self.defender):
                 game.cursor.set_pos(self.attacker.position)
@@ -379,7 +381,8 @@ class SimpleCombat():
         if DB.constants.value('miss_wexp'):
             marks += self.get_from_full_playback('mark_miss')
         marks = [mark for mark in marks if mark[1] == unit and mark[4] == item]
-        wexp = item_system.wexp(self.full_playback, unit, item, target)
+        # wexp = item_system.wexp(self.full_playback, unit, item, target)
+        wexp = 0
 
         if self.alerts:
             func = action.do

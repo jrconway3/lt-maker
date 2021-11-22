@@ -199,10 +199,11 @@ class ResistMultiplier(SkillComponent):
 
 class PCC(SkillComponent):
     nid = 'pcc'
-    desc = "Multiplies crit chance by a stat on second strike"
+    desc = "Multiplies crit chance by a value on second strike"
     tag = 'combat'
 
-    expose = Type.Stat
+    expose = Type.Int
+    value = 1
 
     def crit_multiplier(self, unit, item, target, mode, attack_info, base_value):
-        return unit.get_stat(self.value) if attack_info[0] > 0 else 1
+        return self.value if attack_info[0] > 0 else 1

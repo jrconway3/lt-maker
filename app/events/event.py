@@ -2957,8 +2957,10 @@ class Event():
             dtype = 'type_unit'
         elif 'type_class' in flags:
             dtype = 'type_class'
-        elif 'type_item' in flags:
-            dtype = 'type_item'
+        elif 'type_base_item' in flags:
+            dtype = 'type_base_item'
+        elif 'type_game_item' in flags:
+            dtype = 'type_game_item'
         elif 'type_icon' in flags:
             dtype = 'type_icon'
 
@@ -2987,7 +2989,6 @@ class Event():
         align = Alignments.TOP_LEFT
         if alignment:
             align = Alignments(alignment)
-
         table_ui = SimpleMenuUI(data, dtype, title=desc, rows=rows, cols=cols, row_width=row_width, alignment=align, bg=bg)
         self.other_boxes.append((nid, table_ui))
 
@@ -3009,8 +3010,10 @@ class Event():
             dtype = 'type_unit'
         elif 'type_class' in flags:
             dtype = 'type_class'
-        elif 'type_item' in flags:
-            dtype = 'type_item'
+        elif 'type_base_item' in flags:
+            dtype = 'type_base_item'
+        elif 'type_game_item' in flags:
+            dtype = 'type_game_item'
         elif 'type_icon' in flags:
             dtype = 'type_icon'
 

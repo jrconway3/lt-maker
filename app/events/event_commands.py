@@ -1660,7 +1660,8 @@ via hitting the back button, and the event will go on as normal.
 There are some flags that you can use to further customize the type of options shown.
 
 * *type_skill* will interpret all options as skill NIDs
-* *type_item* will interpret all options as item NIDs
+* *type_base_item* will interpret all options as item NIDs
+* *type_game_item* will interpret all options as item UIDs (i.e. actual items in game - important if you want to distiguish between a 1/40 vs 40/40 Iron Sword, for example)
 * *type_unit* will interpret all options as unit NIDs
 * *type_class* will interpret all options as class NIDs.
 * *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
@@ -1671,7 +1672,7 @@ There are some flags that you can use to further customize the type of options s
     keywords = ['Nid', 'Text', 'String']
     optional_keywords = ['Width', 'Orientation', 'Align', 'Sprite', 'Event']
     keyword_names = ['NID', 'Title', 'Choices', 'RowWidth', 'Orientation', 'Alignment', 'BG', 'EventName']
-    flags = ['persist', 'type_skill', 'type_item', 'type_unit', 'type_class', 'type_icon', 'expression']
+    flags = ['persist', 'type_skill', 'type_base_item', 'type_game_item', 'type_unit', 'type_class', 'type_icon', 'expression']
 
 class NoChoice(EventCommand):
     nid = 'unchoice'
@@ -1727,7 +1728,8 @@ expression would automatically update the gold.
 There are four flags that you can use to further customize the type of options shown.
 
 * *type_skill* will interpret all options as skill NIDs
-* *type_item* will interpret all options as item NIDs
+* *type_base_item* will interpret all options as item NIDs
+* *type_game_item* will interpret all options as item UIDs (i.e. actual items in game - important if you want to distiguish between a 1/40 vs 40/40 Iron Sword, for example)
 * *type_unit* will interpret all options as unit NIDs
 * *type_class* will interpret all options as class NIDs.
 * *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
@@ -1738,7 +1740,7 @@ There are four flags that you can use to further customize the type of options s
     keywords = ['Nid', 'String']
     optional_keywords = ['Text', 'Size', 'Width', 'Align', 'Sprite']
     keyword_names = ['NID', 'TableData', 'Title', 'Dimensions', 'RowWidth', 'Alignment', 'BG']
-    flags = ['type_skill', 'type_item', 'type_unit', 'type_icon', 'type_class', 'expression']
+    flags = ['type_skill', 'type_base_item', 'type_unit', 'type_icon', 'type_class', 'expression']
 
 class RemoveTable(EventCommand):
     nid = 'rmtable'

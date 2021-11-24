@@ -53,7 +53,8 @@ class SimpleIconTable(UIComponent):
 
         self._reset('init')
 
-    def construct_row(self, datum: str | Tuple[engine.Surface | UIComponent, str]) -> IconRow:
+    def construct_row(self, datum: str | Tuple[engine.Surface | UIComponent, str]
+                                       | Tuple[engine.Surface | UIComponent, str, str]) -> IconRow:
         if isinstance(datum, tuple):
             icon = datum[0]
             text = datum[1]

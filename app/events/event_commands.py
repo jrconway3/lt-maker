@@ -670,6 +670,8 @@ the unit's class (*Klass*), the unit's level (*String*), and the unit's *Team*.
 **If the NID field is left empty, then the event's `{unit}` will be overwritten to refer to the result of MakeGeneric.
 Therefore, if you must refer to the current {unit} in the rest of the event, save it to a `game_var` or a `level_var`.**
 
+**You can also use {created_unit} to refer to the result of MakeGeneric. This is encouraged, as using {unit} may not be supported in the future.**
+
 Several optional keywords can also be provided to further modify the new unit:
 *AI* defines an AI preset to be given to the unit, *Faction* assignes the unit
 to one of the factions for the chapter, the unit can be given an animation variant
@@ -691,6 +693,8 @@ Creates a new instance of a unit and, optionally, places it on the map.
 
 **If the NID field is left empty, then the event's `{unit}` will be overwritten to refer to the result of CreateUnit.
 Therefore, if you must refer to the current {unit} in the rest of the event, save it to a `game_var` or a `level_var`.**
+
+**You can also use {created_unit} to refer to the result of MakeGeneric. This is encouraged, as using {unit} may not be supported in the future.**
 
 Several optional keywords can be provided to modify the unit and/or place it on the map.
 
@@ -1627,36 +1631,46 @@ The current selection is stored in the game_var `$(nid)_choice_hover` - e.g. `ro
 The outcome of the previous choice dialog can be accessed in `_last_choice`.
 
 * *Nid* is the name of this choice, which can be checked later to recall the player's decision.
-* *Text* is the text describing the choice, such as "which will you choose?"
-* *String* is one of two things. It can be a *StringList*, i.e. a list of string choices, or it can be a Python Expression, which refers to a list of string choices.
+* *Title* is the text describing the choice, such as "which will you choose?"
+* *Choices* is one of two things. It can be a *StringList*, i.e. a list of string choices, or it can be a Python Expression, which refers to a list of string choices.
 For example, `Eirika, Ephraim, Seth` would be a list of string choices. `[unit.nid for unit in game.get_units_in_party()]` is an expression that would evaluate to `Eirika, Ephraim, Seth`.
-What is the difference? The Python Expression will be constantly updated, which means that if the party changes, the choices will automatically change as well. **NOTE: Use the flags to determine
-the correct type.**
+What is the difference? The Python Expression will be constantly updated, which means that if the party changes, the choices will automatically change as well.
+
+**NOTE: Use the flags to determine the correct type.**
+
+**NOTE:** You can use the `|` delimiter to mark a distinction between the nid of a choice, and the text of a choice, if the nid is not meant to be read.
+For example, suppose you give the player a choice between two klasses, and these klasses are called ArmorKnight_Sun and ArmorKnight_Moon. Obviously, you don't
+want the player to be forced to read the weird nid. You can instead populate the choices like so:
+
+`choice;ClassSelection;Choose Class; ArmorKnight_Sun|Solar Knight,ArmorKnight_Moon|Lunar Knight;...`
+
+And the choice will use `Solar Knight` and `Lunar Knight` as its text.
 
 Optional args:
 
+* *RowWidth* allows you to specify the specific width of each row.
 * The *Orientation* keyword specifies whether the options are displayed as a vertical list or side-by-side.
-* *Width* allows you to specify the specific width of each row.
 * The *Alignment* keyword specifies where on the screen the choice box will be displayed.
-* The *Sprite* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
+* *BG* specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
 * The *Event* keyword gives you the option to call an event on selection, if you should so choose. The new event will have the same args {unit}, {unit2} etc. as the current event.
 
 * The *persist* flag indicates whether or not the choice ends after you make a selection. If *persist* is true, then the choice can only be exited
 via hitting the back button, and the event will go on as normal.
 
-There are four flags that you can use to further customize the type of options shown.
+There are some flags that you can use to further customize the type of options shown.
 
 * *type_skill* will interpret all options as skill NIDs
 * *type_item* will interpret all options as item NIDs
 * *type_unit* will interpret all options as unit NIDs
 * *type_class* will interpret all options as class NIDs.
 * *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
+
 * the *type* flags are exclusive, but can be combined with the *expression* flag.
 """
 
     keywords = ['Nid', 'Text', 'String']
     optional_keywords = ['Width', 'Orientation', 'Align', 'Sprite', 'Event']
-
+    keyword_names = ['NID', 'Title', 'Choices', 'RowWidth', 'Orientation', 'Alignment', 'BG', 'EventName']
     flags = ['persist', 'type_skill', 'type_item', 'type_unit', 'type_class', 'type_icon', 'expression']
 
 class NoChoice(EventCommand):
@@ -1698,17 +1712,17 @@ class Table(EventCommand):
 existing only to be looked at.
 
 * *Nid* is the name of this box.
-* *String* is one of many things. It can be a String, some simple text to display. It can be a *StringList*, i.e., a list of strings that can be parsed.
+* *TableData* is one of many things. It can be a String, some simple text to display. It can be a *StringList*, i.e., a list of strings that can be parsed.
 This can be combined with the flags to display specific types of strings - skills, items, even units. Or it can be an Expression, a Python statement that resolves to
 a string or list of strings. For example, `game.get_money()` would resolve to the current amount of gold in the party. The difference between Expressions
 and String/StringLists is that Expressions will constantly update with current information. For example, if the party's gold is reduced, then the previous
 expression would automatically update the gold.
 
-* *Text* allows you to optionally add a title to the box.
-* *Size* allows you to specify the size of the box in terms of (rows, columns).
-* *Width* allows you to specify the specific width of each row.
+* *Title* allows you to optionally add a title to the box.
+* *Dimensions* allows you to specify the size of the box in terms of (rows, columns).
+* *RowWidth* allows you to specify the specific width of each row.
 * The *Alignment* keyword specifies where on the screen the choice box will be displayed.
-* The *Sprite* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
+* The *BG* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
 
 There are four flags that you can use to further customize the type of options shown.
 
@@ -1723,7 +1737,7 @@ There are four flags that you can use to further customize the type of options s
 
     keywords = ['Nid', 'String']
     optional_keywords = ['Text', 'Size', 'Width', 'Align', 'Sprite']
-
+    keyword_names = ['NID', 'TableData', 'Title', 'Dimensions', 'RowWidth', 'Alignment', 'BG']
     flags = ['type_skill', 'type_item', 'type_unit', 'type_icon', 'type_class', 'expression']
 
 class RemoveTable(EventCommand):

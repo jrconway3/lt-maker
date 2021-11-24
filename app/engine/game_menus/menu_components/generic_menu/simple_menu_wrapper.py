@@ -50,52 +50,68 @@ class SimpleMenuUI():
         self.table.set_data(parsed_data)
 
     def parse_data(self, data: List[str]) -> List[str] | List[Tuple[engine.Surface, str, NID]]:
+        """Takes input of form:
+        ['nid1', 'nid2', 'nid3', 'nid4']
+        or of form:
+        ['nid1|text1', 'nid2|text2', 'nid3|text3']
+        """
+        split_data = []
+        for datum in data:
+            datum = str(datum)
+            processed = datum.split('|')
+            nid = processed[0]
+            name = None
+            if len(processed) > 1:
+                name = processed[1]
+            split_data.append((nid, name))
         if self._data_type == 'type_item':
-            return [self.parse_item(DB.items.get(item_nid)) for item_nid in data]
+            return [self.parse_item(DB.items.get(item_nid), choice_text) for item_nid, choice_text in split_data]
         elif self._data_type == 'type_skill':
-            return [self.parse_skill(DB.skills.get(skill_nid)) for skill_nid in data]
+            return [self.parse_skill(DB.skills.get(skill_nid), choice_text) for skill_nid, choice_text in split_data]
         elif self._data_type == 'type_unit':
-            return [self.parse_unit(game.unit_registry.get(unit_nid)) for unit_nid in data]
+            return [self.parse_unit(game.unit_registry.get(unit_nid), choice_text) for unit_nid, choice_text in split_data]
         elif self._data_type == 'type_class':
-            return [self.parse_klass(DB.classes.get(klass_nid)) for klass_nid in data]
+            return [self.parse_klass(DB.classes.get(klass_nid), choice_text) for klass_nid, choice_text in split_data]
         elif self._data_type == 'type_icon':
-            parsed_data = [datum.split('-') for datum in data]
-            return [self.parse_custom_icon_data(tup) for tup in parsed_data]
+            parsed_data = [(datum.split('-'), choice_text) for datum, choice_text in split_data]
+            return [self.parse_custom_icon_data(tup, choice_text) for tup, choice_text in parsed_data]
         else:
-            return data
+            return [(None, choice_text if choice_text else choice_nid, choice_nid) for choice_nid, choice_text in split_data]
 
-    def parse_klass(self, klass: Klass):
+    def parse_klass(self, klass: Klass, choice_name: str)-> Tuple[engine.Surface, str, str]:
         # @TODO: figure out why klasses don't know their own sprite and fix that
         return klass
 
-    def parse_custom_icon_data(self, tup: Tuple[NID, str, str, str]) -> Tuple[engine.Surface, str]:
+    def parse_custom_icon_data(self, tup: Tuple[NID, str, str, str], choice_name: str) -> Tuple[engine.Surface, str, str]:
         icon_sheet_nid = tup[0]
         icon_x = int(tup[1])
         icon_y = int(tup[2])
-        text = tup[3]
+        choice_nid = tup[3]
         icon = get_icon_by_nid(icon_sheet_nid, icon_x, icon_y)
-        return (icon, text)
+        if choice_name:
+            return (icon, choice_name, choice_nid)
+        return (icon, choice_nid)
 
-    def parse_skill(self, skill: SkillPrefab) -> Tuple[engine.Surface, str]:
+    def parse_skill(self, skill: SkillPrefab, choice_name: str) -> Tuple[engine.Surface, str, str]:
         if skill:
-            return (get_icon(skill), skill.name, skill.nid)
+            return (get_icon(skill), skill.name if not choice_name else choice_name, skill.nid)
         else:
             return (get_icon(skill), "ERR", "ERR")
 
-    def parse_item(self, item: ItemPrefab) -> Tuple[engine.Surface, str]:
+    def parse_item(self, item: ItemPrefab, choice_name: str) -> Tuple[engine.Surface, str, str]:
         if item:
-            return (get_icon(item), item.name, item.nid)
+            return (get_icon(item), item.name if not choice_name else choice_name, item.nid)
         else:
             return (get_icon(item), "ERR", "ERR")
 
-    def parse_unit(self, unit: UnitObject) -> Tuple[engine.Surface, str]:
+    def parse_unit(self, unit: UnitObject, choice_name: str) -> Tuple[engine.Surface, str, str]:
         if unit:
             unit_sprite = unit.sprite.create_image('passive')
             unit_icon = UIComponent()
             unit_icon.size = (16, 16)
             unit_icon.overflow = (12, 0, 12, 0) # the unit sprites are kind of enormous
             unit_icon.add_surf(unit_sprite, (-24, -24))
-            return (unit_icon, unit.name, unit.nid)
+            return (unit_icon, unit.name if not choice_name else choice_name, unit.nid)
         else:
             return (get_icon(None), "ERR", "ERR")
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import logging
 import re
 from typing import Any, Callable, Dict, List, Tuple
@@ -2315,6 +2316,7 @@ class Event():
         game.full_register(new_unit)
         if assign_unit:
             self.unit = new_unit
+            self.created_unit = new_unit
 
     def create_unit(self, command):
         values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
@@ -2368,6 +2370,7 @@ class Event():
         game.full_register(new_unit)
         if assign_unit:
             self.unit = new_unit
+            self.created_unit = new_unit
         if DB.constants.value('initiative'):
             action.do(action.InsertInitiative(unit))
 
@@ -2963,7 +2966,7 @@ class Event():
         if 'expression' in flags:
             try:
                 # eval once to make sure it's eval-able
-                eval(contents)
+                ast.parse(contents)
                 def tryexcept(callback_expr):
                     try:
                         val = eval(callback_expr)
@@ -3013,7 +3016,6 @@ class Event():
 
         # figure out function or list of NIDs
         if 'expression' in flags:
-            import ast
             try:
                 ast.parse(choices)
                 def tryexcept(callback_expr):
@@ -3448,6 +3450,8 @@ class Event():
             return self.unit
         elif text == '{unit2}':
             return self.unit2
+        elif text == '{created_unit}':
+            return self.created_unit
         else:
             return game.get_unit(text)
 

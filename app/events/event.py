@@ -882,6 +882,15 @@ class Event():
             if values[1] in DB.tags.keys():
                 action.do(action.RemoveTag(unit, values[1]))
 
+        elif command.nid == 'set_name':
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            name = values[1]
+            action.do(action.SetName(unit, name))
+
         elif command.nid == 'set_current_hp':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             unit = self.get_unit(values[0])

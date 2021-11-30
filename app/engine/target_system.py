@@ -268,22 +268,14 @@ def find_strike_partners(attacker, defender, item):
         return None, None
     if not attacker or not defender:
         return None, None
-    if skill_system.check_ally(attacker, defender): # If targeting same team
+    if skill_system.check_ally(attacker, defender): # If targeting an ally
         return None, None
     if attacker.traveler or defender.traveler: # Dual guard cancels
         return None, None
     if not item_system.is_weapon(attacker, item): # If you're healing someone else
         return None, None
-    # These two loops are quite slow. Is there an easier way to check for this component?
-    # We could check for berserk players easily by seeing if they have an AI. I can't think of a way to do this for enemies though.
-    for skill in attacker.skills:
-        for component in skill.components:
-            if 'ignore_alliances' == component.nid:
-                return None, None # If a unit is berserk
-    for skill in defender.skills:
-        for component in skill.components:
-            if 'ignore_alliances' == component.nid:
-                return None, None # If a unit is berserk
+    if attacker.team == defender.team: # If you are the same team. Catches components who define their own check_ally function
+        return None, None
 
     attacker_partner = None
     defender_partner = None

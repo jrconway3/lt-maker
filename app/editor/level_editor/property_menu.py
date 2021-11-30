@@ -129,11 +129,6 @@ class PropertiesMenu(QWidget):
 
         self.unit_box = UnitBox(self, button=True, title="Roaming Unit")
         self.unit_box.edit.activated.connect(self.unit_changed)
-        #roam_unit = DB.levels.get(self.state_manager.state.selected_level).roam_unit
-        #if roam_unit:
-        #    self.unit_box.edit.activated.connect(roam_unit)
-        #else:
-        #    self.unit_box.edit.activated.connect(self.unit_changed)
         self.unit_box.button.clicked.connect(self.access_units)
         form.addWidget(self.unit_box)
 

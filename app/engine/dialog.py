@@ -161,8 +161,6 @@ class Dialog():
                 else:
                     split_lines = self.get_lines_from_block(current_line)
                 width = max(width, max(self.font.width(s) for s in split_lines))
-                if len(split_lines) == 1:
-                    width += 16
                 current_line = ''
                 preceded_by_wait = False
             elif command in ('{w}', '{wait}'):

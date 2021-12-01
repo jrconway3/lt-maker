@@ -376,6 +376,8 @@ class UnitObject(Prefab):
                 if item_system.is_accessory(self, item) and \
                         item_funcs.available(self, item) and \
                         item_system.equippable(self, item):
+                    # Rediscovered each time if necessary
+                    self.equip(item)
                     return item
         return None
 

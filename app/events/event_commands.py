@@ -799,6 +799,17 @@ A *CombatScript* can optionally be provided to ensure a pre-set outcome to the b
     keywords = ["Unit", "Unit"]
     optional_keywords = ["CombatScript", "Ability"]
 
+class SetName(EventCommand):
+    nid = 'set_name'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets *Unit*'s name to *String*. This is permanent.
+        """
+
+    keywords = ["Unit", "String"]
+
 class SetCurrentHP(EventCommand):
     nid = 'set_current_hp'
     tag = Tags.MODIFY_UNIT_PROPERTIES

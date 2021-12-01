@@ -306,21 +306,33 @@ class Event():
                 arg_list = evaluate.evaluate(arg_list_str)
                 arg_list = [str(arg) for arg in arg_list]
             except Exception as e:
-                logging.error("%s: Could not evalute {%s}" % (e, arg_list_str))
+                logging.error("%s: Could not evaluate {%s}" % (e, arg_list_str))
                 return False
             if not arg_list:
                 logging.warning("Arg list is empty for: %s" % (arg_list_str))
                 return False
+
+            # template and paste all commands inside the for loop
+            # to find the correct endf, we'll need to make sure that
+            # every nested for-loop is accounted for
+            internal_fors = 0
+
             curr_idx = self.command_idx + 1
             curr_command = self.commands[curr_idx]
             looped_commands: List[event_commands.EventCommand] = []
-            while curr_command.nid != 'endf':
+            while curr_command.nid != 'endf' or internal_fors > 0:
+                if curr_command.nid == 'for':
+                    internal_fors += 1
+                if curr_command.nid == 'endf':
+                    internal_fors -= 1
                 looped_commands.append(curr_command)
                 curr_idx += 1
                 if curr_idx > len(self.commands):
                     logging.error("%s: could not find end command for loop %s" % ('handle_conditional', arg_list_str))
                     return False
                 curr_command = self.commands[curr_idx]
+
+            # remove the initial for-loop, as we've templated out all the child fors
             self.commands = self.commands[:self.command_idx + 1] + self.commands[curr_idx:]
             for arg in reversed(arg_list):
                 for command in reversed(looped_commands):
@@ -869,6 +881,15 @@ class Event():
                 return
             if values[1] in DB.tags.keys():
                 action.do(action.RemoveTag(unit, values[1]))
+
+        elif command.nid == 'set_name':
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
+            unit = self.get_unit(values[0])
+            if not unit:
+                logging.error("Couldn't find unit %s" % values[0])
+                return
+            name = values[1]
+            action.do(action.SetName(unit, name))
 
         elif command.nid == 'set_current_hp':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)

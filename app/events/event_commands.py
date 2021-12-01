@@ -2053,6 +2053,8 @@ def parse_text(text: str, strict=False) -> EventCommand:
             return copy
     if strict:
         return None
+    elif not text:
+        return None
     else:
         return Comment([text])
 

@@ -1623,7 +1623,7 @@ class Event():
         # the first char shouldn't be one of these
         if text[0] == '\u2028':
             text = text[1:]
-        text = text.replace('\u2028', '{br}')
+        text = text.replace('\u2028', '{sub_break}')  # sub break to distinguish it
 
         if len(values) > 2 and values[2]:
             position = self.parse_pos(values[2])

@@ -155,8 +155,8 @@ class Dialog():
         preceded_by_wait: bool = False
         waiting_cursor = False
         for command in self.text_commands:
-            if command in ('{br}', '{break}', '{clear}'):
-                if not preceded_by_wait:
+            if command in ('{br}', '{break}', '{clear}', '{sub_break}'):
+                if not preceded_by_wait or command == '{sub_break}':
                     # Force it to be only one line
                     split_lines = self.get_lines_from_block(current_line, 1)
                 else:
@@ -228,7 +228,7 @@ class Dialog():
             self.pause()
             return
         command = self.text_commands[self.text_index]
-        if command == '{br}' or command == '{break}':
+        if command in ('{br}', '{break}', '{sub_break}'):
             self._next_line()
         elif command == '{w}' or command == '{wait}':
             self.pause()

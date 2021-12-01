@@ -1850,7 +1850,9 @@ class Event():
                 item_system.init(item)
                 game.register_item(item)
         else:
-            if items:
+            if unit1.get_weapon():
+                item = unit1.get_weapon()
+            elif items:
                 item = items[0]
             else:
                 logging.error("Unit does not have item!")

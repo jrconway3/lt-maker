@@ -1,4 +1,3 @@
-from app.editor.utilities import to_string
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QDialog, QGridLayout, QDialogButtonBox, QTabWidget, \
     QSizePolicy

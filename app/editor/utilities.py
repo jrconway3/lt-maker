@@ -145,5 +145,5 @@ def get_bbox(image):
     return (min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
 
 
-def to_string(qtkey: Qt.Key):
+def qtkey_to_string(qtkey: Qt.Key):
     return QtGui.QKeySequence(qtkey).toString()

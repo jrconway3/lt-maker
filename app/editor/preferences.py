@@ -81,7 +81,7 @@ class PreferencesDialog(Dialog):
         self.autocomplete_button.edit.currentIndexChanged.connect(self.autocomplete_button_changed)
 
         self.editor_close_button = PropertyBox('Editor Close Button', QPushButton, self)
-        self.editor_close_button.edit.setText(utilities.to_string(self.saved_preferences['editor_close_button']))
+        self.editor_close_button.edit.setText(utilities.qtkey_to_string(self.saved_preferences['editor_close_button']))
         self.editor_close_button.edit.clicked.connect(self.await_button_bind)
         sp = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sp.setHorizontalStretch(4)
@@ -149,7 +149,7 @@ class PreferencesDialog(Dialog):
 
     def bind_editor_close_button(self, key: Qt.Key):
         self.saved_preferences['editor_close_button'] = key
-        self.editor_close_button.edit.setText(utilities.to_string(key))
+        self.editor_close_button.edit.setText(utilities.qtkey_to_string(key))
 
     def unbind_editor_close_button(self):
         self.saved_preferences['editor_close_button'] = None

@@ -13,8 +13,6 @@ class EventManager():
     def get_triggered_events(self, trigger, unit=None, unit2=None, item=None, position=None, region=None, level_nid=None):
         """returns a list of all events that are triggered according to the conditions supplied in the arg
         """
-        # this line allows unit1 to be used in the eval
-        unit1 = unit  # noqa: F841
         triggered_events = []
         if level_nid:
             event_source_nid = level_nid

@@ -416,19 +416,7 @@
             [
                 "comment",
                 [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
+                    ""
                 ]
             ]
         ],
@@ -1016,6 +1004,36 @@
                 [
                     "O'Neill"
                 ]
+            ],
+            [
+                "comment",
+                [
+                    "#"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    ""
+                ]
             ]
         ],
         "only_once": false,
@@ -1197,115 +1215,7 @@
             [
                 "comment",
                 [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
+                    ""
                 ]
             ]
         ],
@@ -1337,6 +1247,18 @@
                 [
                     "Seth"
                 ]
+            ],
+            [
+                "comment",
+                [
+                    "#"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    ""
+                ]
             ]
         ],
         "only_once": true,
@@ -1351,6 +1273,30 @@
             [
                 "win_game",
                 []
+            ],
+            [
+                "comment",
+                [
+                    "#"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    ""
+                ]
             ]
         ],
         "only_once": false,
@@ -1402,6 +1348,24 @@
                     "O'Neill",
                     "Defend"
                 ]
+            ],
+            [
+                "comment",
+                [
+                    "#"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    ""
+                ]
             ]
         ],
         "only_once": false,
@@ -1438,6 +1402,18 @@
                 [
                     "player_phase",
                     "Grasp at Victory"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "#"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    ""
                 ]
             ]
         ],

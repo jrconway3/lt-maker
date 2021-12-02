@@ -186,7 +186,7 @@
                 "speak",
                 [
                     "Seth",
-                    "Once we cross that bridge, we will be in Frelia, near Border Mulan.|Let us proceed, Princess Eirika."
+                    "\u2028Once we cross that bridge, we will\u2028be in Frelia, near Border Mulan.{w}\u2028Let us proceed, Princess Eirika."
                 ]
             ],
             [
@@ -399,24 +399,6 @@
                 ],
                 [
                     "Eirika (Eirika)"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    ""
                 ]
             ]
         ],
@@ -1004,36 +986,6 @@
                 [
                     "O'Neill"
                 ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    ""
-                ]
             ]
         ],
         "only_once": false,
@@ -1199,24 +1151,6 @@
                 [
                     "Close"
                 ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    ""
-                ]
             ]
         ],
         "only_once": false,
@@ -1247,18 +1181,6 @@
                 [
                     "Seth"
                 ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    ""
-                ]
             ]
         ],
         "only_once": true,
@@ -1273,30 +1195,6 @@
             [
                 "win_game",
                 []
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    ""
-                ]
             ]
         ],
         "only_once": false,
@@ -1348,24 +1246,6 @@
                     "O'Neill",
                     "Defend"
                 ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    ""
-                ]
             ]
         ],
         "only_once": false,
@@ -1402,18 +1282,6 @@
                 [
                     "player_phase",
                     "Grasp at Victory"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "#"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    ""
                 ]
             ]
         ],

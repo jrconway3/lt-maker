@@ -1,3 +1,5 @@
+from app.utilities.typing import NID
+from typing import List
 from app.utilities.data import Data, Prefab
 from app.events import event_commands
 
@@ -19,8 +21,9 @@ all_triggers = Data([
     Trigger('enemy_turn_change'),
     Trigger('enemy2_turn_change'),
     Trigger('other_turn_change'),
+    Trigger('on_region_interact', unit1=True, position=True, region=True),
     Trigger('unit_death', True, False, False, True),
-    Trigger('unit_wait', True, False, False, True),
+    Trigger('unit_wait', True, False, False, True, True),
     Trigger('unit_select', True, False, False, True),
     Trigger('unit_level_up', True, True, False, False),
     Trigger('during_unit_level_up', True, True, False, False),
@@ -83,6 +86,14 @@ class EventCatalog(Data[EventPrefab]):
     def get(self, trigger, level_nid):
         return [event for event in self._list if event.trigger == trigger and
                 (not event.level_nid or event.level_nid == level_nid)]
+
+    def get_by_level(self, level_nid: str) -> List[EventPrefab]:
+        return [event for event in self._list if (not event.level_nid or not level_nid or event.level_nid == level_nid)]
+
+    def get_by_nid_or_name(self, name_or_nid: str, level_nid: None) -> List[EventPrefab]:
+        level_events = self.get_by_level(level_nid)
+        return [event for event in level_events if
+                ((event.nid == name_or_nid) or (event.name == name_or_nid))]
 
     def get_from_nid(self, key, fallback=None):
         return self._dict.get(key, fallback)

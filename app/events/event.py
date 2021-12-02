@@ -1080,7 +1080,9 @@ class Event():
         elif command.nid == 'remove_region':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             nid = values[0]
-            if nid in game.level.regions.keys():
+            if nid == '{region}' and self.region:
+                action.do(action.RemoveRegion(self.region))
+            elif nid in game.level.regions.keys():
                 region = game.level.regions.get(nid)
                 action.do(action.RemoveRegion(region))
             else:
@@ -1115,12 +1117,20 @@ class Event():
         elif command.nid == 'add_weather':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             nid = values[0].lower()
-            action.do(action.AddWeather(nid))
+            if len(values) > 1 and values[1]:
+                pos = self.parse_pos(values[1])
+            else:
+                pos = None
+            action.do(action.AddWeather(nid, pos))
 
         elif command.nid == 'remove_weather':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             nid = values[0].lower()
-            action.do(action.RemoveWeather(nid))
+            if len(values) > 1 and values[1]:
+                pos = self.parse_pos(values[1])
+            else:
+                pos = None
+            action.do(action.RemoveWeather(nid, pos))
 
         elif command.nid == 'change_objective_simple':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
@@ -2754,6 +2764,7 @@ class Event():
         if 'only_once' in flags:
             new_region.only_once = True
 
+        game.register_region(new_region)
         action.do(action.AddRegion(new_region))
 
     def merge_parties(self, command):

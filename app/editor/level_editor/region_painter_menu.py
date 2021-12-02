@@ -253,6 +253,11 @@ class ModifyRegionWidget(QWidget):
             self.condition_box.show()
             self.only_once_box.show()
             self.status_box.hide()
+        elif self.current.region_type == 'time':
+            self.sub_nid_box.show()
+            self.condition_box.hide()
+            self.only_once_box.hide()
+            self.status_box.hide()
 
     def sub_nid_changed(self, text):
         self.current.sub_nid = text

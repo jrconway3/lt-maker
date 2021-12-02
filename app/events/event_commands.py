@@ -1476,6 +1476,7 @@ Adds the specified *Weather* to the current map.
         """
 
     keywords = ["Weather"]
+    optional_keywords = ["Position"]
 
 class RemoveWeather(EventCommand):
     nid = 'remove_weather'
@@ -1487,6 +1488,7 @@ Removes the specified *Weather* from the current map.
         """
 
     keywords = ["Weather"]
+    optional_keywords = ["Position"]
 
 class ChangeObjectiveSimple(EventCommand):
     nid = 'change_objective_simple'

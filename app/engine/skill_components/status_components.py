@@ -1,3 +1,5 @@
+import random
+
 from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
@@ -67,6 +69,24 @@ class Regeneration(SkillComponent):
                 name = 'MapSmallHealTrans'
             playback.append(('cast_anim', name, unit))
 
+def _playback_processing(self, playback, unit, hp_change):
+    # Playback
+    if hp_change < 0:
+        playback.append(('hit_sound', 'Attack Hit ' + str(random.randint(1, 5))))
+        playback.append(('unit_tint_add', unit, (255, 255, 255)))
+        playback.append(('damage_numbers', unit, self.value))
+    elif hp_change > 0:
+        playback.append(('hit_sound', 'MapHeal'))
+        if hp_change >= 30:
+            name = 'MapBigHealTrans'
+        elif hp_change >= 15:
+            name = 'MapMediumHealTrans'
+        else:
+            name = 'MapSmallHealTrans'
+        playback.append(('cast_anim', name, unit))
+        playback.append(('damage_numbers', unit, self.value))
+
+
 class UpkeepDamage(SkillComponent):
     nid = 'upkeep_damage'
     desc = "Unit takes damage at upkeep"
@@ -79,8 +99,9 @@ class UpkeepDamage(SkillComponent):
         hp_change = -self.value
         actions.append(action.ChangeHP(unit, hp_change))
         actions.append(action.TriggerCharge(unit, self.skill))
+        self._playback_processing(playback, unit, hp_change)
 
-class EndstepDamage(SkillComponent):
+class EndstepDamage(UpkeepDamage, SkillComponent):
     nid = 'endstep_damage'
     desc = "Unit takes damage at endstep"
     tag = "status"
@@ -88,10 +109,14 @@ class EndstepDamage(SkillComponent):
     expose = Type.Int
     value = 5
 
+    def on_upkeep(self, actions, playback, unit):
+        pass
+
     def on_endstep(self, actions, playback, unit):
         hp_change = -self.value
         actions.append(action.ChangeHP(unit, hp_change))
         actions.append(action.TriggerCharge(unit, self.skill))
+        self._playback_processing(playback, unit, hp_change)
 
 class GBAPoison(SkillComponent):
     nid = 'gba_poison'

@@ -7,9 +7,10 @@ from app.engine import engine, image_mods
 from app.engine.game_state import game
 
 class ParticleSystem():
-    def __init__(self, nid, particle, abundance, bounds, size, blend=None):
+    def __init__(self, nid, particle, abundance, bounds, size, blend=None, position=None):
         width, height = size
         self.nid = nid
+        self.pos = position
         self.particle = particle
         self.abundance = int(abundance * width * height)
         self.particles = []
@@ -20,7 +21,7 @@ class ParticleSystem():
         self.blend = blend
     
     def save(self):
-        return self.nid
+        return self.nid, self.pos
 
     def update(self):
         for particle in self.particles:
@@ -224,7 +225,7 @@ class DarkMote(LightMote):
     sprite = SPRITES.get('particle_dark_mote')
     speed = -0.16
 
-def create_system(nid, width, height):
+def create_system(nid, width, height, position):
     twidth, theight = width * TILEWIDTH, height * TILEHEIGHT
     if nid == 'rain':
         creation_bounds = -theight // 4, twidth, -16, -8

@@ -358,6 +358,8 @@ class GameState():
             for subitem_uid in item.subitem_uids:
                 subitem = self.item_registry.get(subitem_uid)
                 item.subitems.append(subitem)
+                for component in subitem.components:
+                    component.item = item
                 subitem.parent_item = item
         # Handle subskill
         for skill in self.skill_registry.values():

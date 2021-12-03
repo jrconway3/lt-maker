@@ -105,6 +105,8 @@ class Dialog():
         self.transition_progress = 0
         self.last_update = engine.get_time()
 
+        self.hold = False
+
         # For sound
         self.last_sound_update = 0
 
@@ -272,7 +274,7 @@ class Dialog():
         """
         Should no longer be drawn
         """
-        return self.state == 'done'
+        return self.state == 'done' and not self.hold
 
     def is_done(self):
         """

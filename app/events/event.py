@@ -1679,6 +1679,7 @@ class Event():
                 width = WINWIDTH - 8
 
         new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant)
+        new_dialog.hold = 'hold' in flags
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'
         # Bring portrait to forefront

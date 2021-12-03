@@ -525,9 +525,10 @@ class MoveState(MapState):
         game.cursor.remove_arrows()
         game.highlight.remove_highlights()
 
-class MovementState(MapState):
+class MovementState(State):
     # Responsible for moving units that need to be moved
     name = 'movement'
+    transparent = True
 
     def begin(self):
         game.cursor.hide()

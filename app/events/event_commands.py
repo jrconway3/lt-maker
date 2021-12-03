@@ -411,11 +411,12 @@ The *DialogVariant* optional keyword changes how the text is displayed graphical
 Extra flags:
 
 1. *low_priority*: The speaker's portrait will not be moved in front of other overlapping portraits.
+2. *hold*: The dialog box will remain even after the player has pressed A (useful for narration).
         """
 
     keywords = ['Speaker', 'Text']
     optional_keywords = ['ScreenPosition', 'Width', 'DialogVariant']
-    flags = ['low_priority']
+    flags = ['low_priority', 'hold']
 
 class Narrate(EventCommand):
     nid = "narrate"

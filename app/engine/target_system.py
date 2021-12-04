@@ -1,8 +1,15 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from app.data.database import DB
-from app.engine import (equations, item_funcs, item_system, line_of_sight,
-                        pathfinding, skill_system, combat_calcs)
+from app.engine import (combat_calcs, equations, item_funcs, item_system,
+                        line_of_sight, pathfinding, skill_system)
 from app.engine.game_state import game
 from app.utilities import utils
+
+if TYPE_CHECKING:
+    from app.engine.objects.unit import UnitObject
+    from app.engine.objects.item import ItemObject
 
 
 # Consider making these sections faster
@@ -65,7 +72,7 @@ def get_adj_allies(unit) -> list:
     adj_allies = [u for u in adj_units if skill_system.check_ally(unit, u)]
     return adj_allies
 
-def get_attacks(unit, item=None, force=False) -> set:
+def get_attacks(unit: UnitObject, item: ItemObject=None, force=False) -> set:
     """
     Determines all possible positions the unit could attack
     Does not attempt to determine if an enemy is actually in that place
@@ -75,6 +82,8 @@ def get_attacks(unit, item=None, force=False) -> set:
     if not item:
         item = unit.get_weapon()
     if not item:
+        return set()
+    if item_system.no_attack_after_move(unit, item) and unit.has_moved_any_distance:
         return set()
 
     item_range = item_funcs.get_range(unit, item)
@@ -93,7 +102,10 @@ def get_possible_attacks(unit, valid_moves) -> set:
         if max_range >= 99:
             attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
         else:
-            attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
+            if item_system.no_attack_after_move(unit, item):
+                attacks |= get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
+            else:
+                attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
 
     if DB.constants.value('line_of_sight'):
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))
@@ -108,7 +120,10 @@ def get_possible_spell_attacks(unit, valid_moves) -> set:
         if max_range >= 99:
             attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
         else:
-            attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
+            if item_system.no_attack_after_move(unit, item):
+                attacks |= get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
+            else:
+                attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
 
     if DB.constants.value('line_of_sight'):
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))
@@ -209,6 +224,8 @@ def get_valid_targets(unit, item=None) -> set:
     if not item:
         item = unit.get_weapon()
     if not item:
+        return set()
+    if item_system.no_attack_after_move(unit, item) and unit.has_moved_any_distance:
         return set()
 
     # Check sequence item targeting

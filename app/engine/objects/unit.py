@@ -479,6 +479,10 @@ class UnitObject(Prefab):
     def has_moved(self):
         return self._finished or self._has_attacked or self._has_traded or self._has_moved
 
+    @property
+    def has_moved_any_distance(self):
+        return self.position != self.previous_position
+
     @finished.setter
     def finished(self, val):
         self._finished = val

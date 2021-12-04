@@ -83,7 +83,8 @@ def get_attacks(unit: UnitObject, item: ItemObject=None, force=False) -> set:
         item = unit.get_weapon()
     if not item:
         return set()
-    if item_system.no_attack_after_move(unit, item) and unit.has_moved_any_distance:
+    if ((item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit))
+         and unit.has_moved_any_distance):
         return set()
 
     item_range = item_funcs.get_range(unit, item)
@@ -102,7 +103,8 @@ def get_possible_attacks(unit, valid_moves) -> set:
         if max_range >= 99:
             attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
         else:
-            if item_system.no_attack_after_move(unit, item):
+            if ((item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit))
+                 and unit.has_moved_any_distance):
                 attacks |= get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
             else:
                 attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
@@ -120,7 +122,8 @@ def get_possible_spell_attacks(unit, valid_moves) -> set:
         if max_range >= 99:
             attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
         else:
-            if item_system.no_attack_after_move(unit, item):
+            if ((item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit))
+                 and unit.has_moved_any_distance):
                 attacks |= get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
             else:
                 attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
@@ -225,7 +228,8 @@ def get_valid_targets(unit, item=None) -> set:
         item = unit.get_weapon()
     if not item:
         return set()
-    if item_system.no_attack_after_move(unit, item) and unit.has_moved_any_distance:
+    if ((item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit))
+         and unit.has_moved_any_distance):
         return set()
 
     # Check sequence item targeting

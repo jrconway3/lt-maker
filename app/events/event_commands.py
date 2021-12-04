@@ -412,11 +412,12 @@ Extra flags:
 
 1. *low_priority*: The speaker's portrait will not be moved in front of other overlapping portraits.
 2. *hold*: The dialog box will remain even after the player has pressed A (useful for narration).
+3. *no_popup*: The dialog box will transition in, but rather will appear immediately.
         """
 
     keywords = ['Speaker', 'Text']
     optional_keywords = ['ScreenPosition', 'Width', 'DialogVariant']
-    flags = ['low_priority', 'hold']
+    flags = ['low_priority', 'hold', 'no_popup']
 
 class Narrate(EventCommand):
     nid = "narrate"

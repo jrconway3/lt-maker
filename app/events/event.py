@@ -1736,6 +1736,8 @@ class Event():
 
         new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant)
         new_dialog.hold = 'hold' in flags
+        if 'no_popup' in flags:
+            new_dialog.last_update = engine.get_time() - 10000
         self.text_boxes.append(new_dialog)
         self.state = 'dialog'
         # Bring portrait to forefront

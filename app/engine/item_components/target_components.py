@@ -78,9 +78,11 @@ class EvalSpecialRange(ItemComponent):
     def calculate_range_restrict(condition, max_rng):
         valid_range_squares = set()
         try:
+            # neat performance trick
+            cond_as_func = eval('lambda x, y:' + condition)
             for x in range(-max_rng, max_rng+1):
                 for y in range(-max_rng, max_rng+1):
-                    if eval(condition):
+                    if cond_as_func(x, y):
                         valid_range_squares.add((x, y))
         except Exception as e:
             logging.error("eval_special_range failed for condition %s with error %s", condition, str(e))

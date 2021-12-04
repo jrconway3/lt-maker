@@ -25,7 +25,6 @@ from app.engine.overworld.overworld_map_view import OverworldMapView
 from app.engine.overworld.overworld_movement_manager import \
     OverworldMovementManager
 from app.engine.sound import SOUNDTHREAD
-from app.engine.game_state import game
 from app.events import event_commands, regions
 from app.events.event_portrait import EventPortrait
 from app.resources.resources import RESOURCES
@@ -1867,8 +1866,8 @@ class Event():
                 item_system.init(item)
                 game.register_item(item)
         else:
-            if unit1.get_weapon():
-                item = unit1.get_weapon()
+            if actor.get_weapon():
+                item = actor.get_weapon()
             elif items:
                 item = items[0]
             else:
@@ -2994,7 +2993,7 @@ class Event():
                 # both exist and node is enabled
                 # move the entity
                 entity.on_node = node.nid
-        if not 'no_animate' in flags:
+        if 'no_animate' not in flags:
             entity.sprite.set_transition('fade_in')
 
     def reveal_overworld_node(self, command):
@@ -3047,7 +3046,7 @@ class Event():
         if not entity:
             logging.error("%s: No such entity exists with nid %s", "disable_overworld_entity", values[0])
             return
-        if not 'no_animate' in flags:
+        if 'no_animate' not in flags:
             entity.sprite.set_transition('fade_out')
         entity.on_node = None
         entity.display_position = None
@@ -3055,7 +3054,8 @@ class Event():
     def overworld_move_unit(self, entity_nid: NID, target_location: Tuple[int, int] | NID,
                             speed_adj: float, path: List[Point], flags={}):
         # default values
-        if speed_adj is None: speed_adj = 5
+        if speed_adj is None: 
+            speed_adj = 5
 
         # function
         entity = game.overworld_controller.entities.get(entity_nid, None)
@@ -3207,7 +3207,7 @@ class Event():
             return
         if len(values) > 1 and values[1]:
             unit_nid = values[1]
-            if not unit_nid in DB.units.keys():
+            if unit_nid not in DB.units.keys():
                 logging.error('%s: No such unit with nid %s', 'create_overworld_entity', unit_nid)
             new_entity = OverworldEntityObject.from_unit_prefab(entity_nid, None, unit_nid)
             game.overworld_controller.add_entity(new_entity)

@@ -13,14 +13,14 @@ if TYPE_CHECKING:
 
 
 # Consider making these sections faster
-def get_shell(valid_moves: set, potential_range: set, width: int, height: int) -> set:
+def get_shell(valid_moves: set, potential_range: set, width: int, height: int, manhattan_restriction: set = None) -> set:
     valid_attacks = set()
     for valid_move in valid_moves:
-        valid_attacks |= find_manhattan_spheres(potential_range, valid_move[0], valid_move[1])
+        valid_attacks |= find_manhattan_spheres(potential_range, valid_move[0], valid_move[1], manhattan_restriction)
     return {pos for pos in valid_attacks if 0 <= pos[0] < width and 0 <= pos[1] < height}
 
 # Consider making these sections faster -- use memory?
-def find_manhattan_spheres(rng: set, x: int, y: int) -> set:
+def find_manhattan_spheres(rng: set, x: int, y: int, manhattan_restriction: set = None) -> set:
     _range = range
     _abs = abs
     main_set = set()
@@ -28,8 +28,13 @@ def find_manhattan_spheres(rng: set, x: int, y: int) -> set:
         # Finds manhattan spheres of radius r
         for i in _range(-r, r + 1):
             magn = _abs(i)
-            main_set.add((x + i, y + r - magn))
-            main_set.add((x + i, y - r + magn))
+            dx = i
+            dy = r - magn
+            if manhattan_restriction is not None: # empty set is ok
+                if not (dx, dy) in manhattan_restriction:
+                    continue
+            main_set.add((x + dx, y + dy))
+            main_set.add((x + dx, y - dy))
     return main_set
 
 def get_nearest_open_tile(unit, position):
@@ -91,7 +96,9 @@ def get_attacks(unit: UnitObject, item: ItemObject=None, force=False) -> set:
     if max(item_range) >= 99:
         attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
     else:
-        attacks = get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
+        manhattan_restriction = item_system.range_restrict(unit, item)
+        attacks = get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height, manhattan_restriction)
+
     return attacks
 
 def get_possible_attacks(unit, valid_moves) -> set:
@@ -103,11 +110,12 @@ def get_possible_attacks(unit, valid_moves) -> set:
         if max_range >= 99:
             attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
         else:
+            manhattan_restriction = item_system.range_restrict(unit, item)
             if ((item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit))
                  and unit.has_moved_any_distance):
-                attacks |= get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
+                attacks |= get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height, manhattan_restriction)
             else:
-                attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
+                attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height, manhattan_restriction)
 
     if DB.constants.value('line_of_sight'):
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))
@@ -122,11 +130,12 @@ def get_possible_spell_attacks(unit, valid_moves) -> set:
         if max_range >= 99:
             attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
         else:
+            manhattan_restriction = item_system.range_restrict(unit, item)
             if ((item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit))
                  and unit.has_moved_any_distance):
                 attacks |= get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
             else:
-                attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height)
+                attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height, manhattan_restriction)
 
     if DB.constants.value('line_of_sight'):
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))

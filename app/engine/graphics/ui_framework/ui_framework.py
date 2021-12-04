@@ -303,7 +303,7 @@ class UIComponent():
         """
         if isinstance(bg, engine.Surface):
             self.props.bg = bg
-        elif isinstance(bg, Color4):
+        elif isinstance(bg, Tuple):
             self.props.bg_color = bg
         # set this to none; the next time we render,
         # the component will regenerate the background.

@@ -616,6 +616,11 @@ class GameState():
         unit = self.unit_registry.get(unit_nid)
         return unit
 
+    def get_convoy_inventory(self, party=None):
+        if not party:
+            party = self.party
+        return party.convoy
+
     def get_item(self, item_uid):
         item = self.item_registry.get(item_uid)
         return item

@@ -670,6 +670,8 @@ the unit's class (*Klass*), the unit's level (*String*), and the unit's *Team*.
 **If the NID field is left empty, then the event's `{unit}` will be overwritten to refer to the result of MakeGeneric.
 Therefore, if you must refer to the current {unit} in the rest of the event, save it to a `game_var` or a `level_var`.**
 
+**You can also use {created_unit} to refer to the result of MakeGeneric. This is encouraged, as using {unit} may not be supported in the future.**
+
 Several optional keywords can also be provided to further modify the new unit:
 *AI* defines an AI preset to be given to the unit, *Faction* assignes the unit
 to one of the factions for the chapter, the unit can be given an animation variant
@@ -691,6 +693,8 @@ Creates a new instance of a unit and, optionally, places it on the map.
 
 **If the NID field is left empty, then the event's `{unit}` will be overwritten to refer to the result of CreateUnit.
 Therefore, if you must refer to the current {unit} in the rest of the event, save it to a `game_var` or a `level_var`.**
+
+**You can also use {created_unit} to refer to the result of MakeGeneric. This is encouraged, as using {unit} may not be supported in the future.**
 
 Several optional keywords can be provided to modify the unit and/or place it on the map.
 
@@ -1620,14 +1624,100 @@ class Choice(EventCommand):
         """
 Presents the player with a menu in which he/she can choose from several options. An example would be the choice to go with Eirika or Ephraim in The Sacred Stones.
 
-*Nid* is the name of this choice, which can be checked later to recall the player's decision.
-*Text* is the text describing the choice, such as "which will you choose?"
-*StringList* specifies the different options that the player can choose among.
-The optional *Orientation* keyword specifies whether the options are displayed as a vertical list or side-by-side.
-        """
+The result of the selection is stored in the game_var `$(nid)` - e.g. `routesplit` for a choice with NID `routesplit`.
 
-    keywords = ['Nid', 'Text', 'StringList']
-    optional_keywords = ['Orientation']
+The current selection is stored in the game_var `$(nid)_choice_hover` - e.g. `routesplit_choice_hover` for a choice with NID `routesplit`.
+
+The outcome of the previous choice dialog can be accessed in `_last_choice`.
+
+* *Nid* is the name of this choice, which can be checked later to recall the player's decision.
+* *Title* is the text describing the choice, such as "which will you choose?"
+* *Choices* is one of two things. It can be a *StringList*, i.e. a list of string choices, or it can be a Python Expression, which refers to a list of string choices.
+For example, `Eirika, Ephraim, Seth` would be a list of string choices. `[unit.nid for unit in game.get_units_in_party()]` is an expression that would evaluate to `Eirika, Ephraim, Seth`.
+What is the difference? The Python Expression will be constantly updated, which means that if the party changes, the choices will automatically change as well.
+
+**NOTE: Use the flags to determine the correct type.**
+
+**NOTE:** You can use the `|` delimiter to mark a distinction between the nid of a choice, and the text of a choice, if the nid is not meant to be read.
+For example, suppose you give the player a choice between two klasses, and these klasses are called ArmorKnight\_Sun and ArmorKnight\_Moon. Obviously, you don't
+want the player to be forced to read the weird nid. You can instead populate the choices like so:
+
+`choice;ClassSelection;Choose Class; ArmorKnight_Sun|Solar Knight,ArmorKnight_Moon|Lunar Knight;...`
+
+And the choice will use `Solar Knight` and `Lunar Knight` as its text.
+
+Optional args:
+
+* *RowWidth* allows you to specify the specific width of each row.
+* The *Orientation* keyword specifies whether the options are displayed as a vertical list or side-by-side.
+* The *Alignment* keyword specifies where on the screen the choice box will be displayed.
+* *BG* specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
+* The *Event* keyword gives you the option to call an event on selection, if you should so choose. The new event will have the same args {unit}, {unit2} etc. as the current event.
+* The *Type* keyword specifies the specific type of the options, and will change the way the entries are displayed.
+
+* *type_skill* will interpret all options as skill NIDs
+* *type_base_item* will interpret all options as item NIDs
+* *type_game_item* will interpret all options as item UIDs (i.e. actual items in game - important if you want to distiguish between a 1/40 vs 40/40 Iron Sword, for example)
+* *type_unit* will interpret all options as unit NIDs
+* *type_class* will interpret all options as class NIDs.
+* *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
+
+* The *persist* flag indicates whether or not the choice ends after you make a selection. If *persist* is true, then the choice can only be exited
+via hitting the back button, and the event will go on as normal.
+
+* The *expression* flag indicates that the provided table data should be be continually parsed as a python expression and updated.
+ """
+
+    keywords = ['Nid', 'Text', 'String']
+    optional_keywords = ['Width', 'Orientation', 'Align', 'Sprite', 'Event', 'TableEntryType']
+    keyword_names = ['NID', 'Title', 'Choices', 'RowWidth', 'Orientation', 'Alignment', 'BG', 'EventName', 'Type']
+    flags = ['persist', 'expression']
+
+class NoChoice(EventCommand):
+    nid = 'unchoice'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+    """
+If this event was called from a Choice, then prevents that Choice from ending once this event ends. Otherwise, does nothing.
+    """
+
+class Table(EventCommand):
+    nid = 'table'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+    """Displays a box on screen containing some text or tabulated information. This is distinct from dialogue and choice in that it is non-interactable,
+existing only to be looked at.
+
+* *Nid* is the name of this box.
+* *TableData* is one of many things. It can be a String, some simple text to display. It can be a *StringList*, i.e., a list of strings that can be parsed.
+This can be combined with the flags to display specific types of strings - skills, items, even units. Or it can be an Expression, a Python statement that resolves to
+a string or list of strings. For example, `game.get_money()` would resolve to the current amount of gold in the party. The difference between Expressions
+and String/StringLists is that Expressions will constantly update with current information. For example, if the party's gold is reduced, then the previous
+expression would automatically update the gold.
+
+* *Title* allows you to optionally add a title to the box.
+* *Dimensions* allows you to specify the size of the box in terms of (rows, columns).
+* *RowWidth* allows you to specify the specific width of each row.
+* The *Alignment* keyword specifies where on the screen the choice box will be displayed.
+* The *BG* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
+* The *Type* keyword specifies the specific type of the options, and will change the way the entries are displayed.
+
+* *type_skill* will interpret all options as skill NIDs
+* *type_base_item* will interpret all options as item NIDs
+* *type_game_item* will interpret all options as item UIDs (i.e. actual items in game - important if you want to distiguish between a 1/40 vs 40/40 Iron Sword, for example)
+* *type_unit* will interpret all options as unit NIDs
+* *type_class* will interpret all options as class NIDs.
+* *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
+
+* The *expression* flag indicates that the provided table data should be be continually parsed as a python expression and updated.
+    """
+
+    keywords = ['Nid', 'String']
+    optional_keywords = ['Text', 'Size', 'Width', 'Align', 'Sprite', 'TableEntryType']
+    keyword_names = ['NID', 'TableData', 'Title', 'Dimensions', 'RowWidth', 'Alignment', 'BG', 'Type']
+    flags = ['expression']
 
 class TextEntry(EventCommand):
     nid = 'text_entry'
@@ -1649,6 +1739,18 @@ If the force_entry flag is set, the player will not be able to exit text entry b
     keywords = ['Nid', 'Text']
     optional_keywords = ['Integer', 'IllegalCharacterList']
     flags = ['force_entry']
+class RemoveTable(EventCommand):
+    nid = 'rmtable'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+    """
+    Remove a table created by the `Table` command.
+
+    * *Nid* is the name of the table to be removed.
+    """
+
+    keywords = ['Nid']
 
 class ChapterTitle(EventCommand):
     nid = 'chapter_title'
@@ -1672,11 +1774,13 @@ Draws a sprite on the screen at the specified position. Position defaults to 0, 
 Will always draw immediately behind the dialog.
 You can control the order that multiple siimultaneous overlays are drawn by choosing a custom z-level.
 Higher z-level sprites will cover lower z-level sprites occupying the same positions.
+
+Can choose to animate the sprite sliding in or out in a specific direction.
 """
 
     keywords = ['String', 'Sprite']
-    optional_keywords = ['PositionOffset', 'Integer']
-    keyword_names = ['Name', 'Sprite_ID', 'Position', 'Z-Level']
+    optional_keywords = ['PositionOffset', 'Integer', 'CardinalDirection']
+    keyword_names = ['Name', 'Sprite_ID', 'Position', 'Z-Level', 'Animation Direction']
 
 class RemoveOverlaySprite(EventCommand):
     nid = 'remove_overlay_sprite'
@@ -2098,7 +2202,8 @@ def convert_parse(command: EventCommand, _eval_evals: Callable[[str], str] = Non
                 true_values[kwd_idx] = convert(command.optional_keywords[okeyword_idx], okeyword)
         kwd_idx += 1
     if _eval_evals:
-        true_values = [_eval_evals(value) for value in true_values if isinstance(value, str)]
+        true_values = [_eval_evals(value) if isinstance(value, str) else value for value in true_values]
     if _eval_vars:
-        true_values = [_eval_vars(value) for value in true_values if isinstance(value, str)]
+        true_values = [_eval_vars(value) if isinstance(value, str) else value for value in true_values]
+
     return true_values, flags

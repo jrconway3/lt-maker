@@ -395,6 +395,10 @@ class Bool(OptionValidator):
 class ShopFlavor(OptionValidator):
     valid = ['armory', 'vendor']
 
+class TableEntryType(OptionValidator):
+    valid = ['type_skill', 'type_base_item', 'type_game_item', 'type_unit', 'type_class', 'type_icon']
+
+
 class Position(Validator):
     desc = "accepts a valid `(x, y)` position. You use a unit's nid to use their position. Alternatively, you can use one of (`{unit}`, `{unit1}`, `{unit2}`, `{position}`)"
 

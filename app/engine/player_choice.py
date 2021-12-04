@@ -18,7 +18,7 @@ class PlayerChoiceState(MapState):
             game.memory['player_choice']
         ncols = 1
         if self.orientation == 'horizontal':
-            ncols = 2
+            ncols = len(options_list)
         self.menu = ChoiceMenuUI(options_list, data_type=self.data_type, row_width=self.row_width,
                                  title=self.header, cols=ncols, alignment=self.alignment, bg=self.bg)
 

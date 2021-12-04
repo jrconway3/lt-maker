@@ -1639,7 +1639,7 @@ What is the difference? The Python Expression will be constantly updated, which 
 **NOTE: Use the flags to determine the correct type.**
 
 **NOTE:** You can use the `|` delimiter to mark a distinction between the nid of a choice, and the text of a choice, if the nid is not meant to be read.
-For example, suppose you give the player a choice between two klasses, and these klasses are called ArmorKnight_Sun and ArmorKnight_Moon. Obviously, you don't
+For example, suppose you give the player a choice between two klasses, and these klasses are called ArmorKnight\_Sun and ArmorKnight\_Moon. Obviously, you don't
 want the player to be forced to read the weird nid. You can instead populate the choices like so:
 
 `choice;ClassSelection;Choose Class; ArmorKnight_Sun|Solar Knight,ArmorKnight_Moon|Lunar Knight;...`
@@ -1653,11 +1653,7 @@ Optional args:
 * The *Alignment* keyword specifies where on the screen the choice box will be displayed.
 * *BG* specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
 * The *Event* keyword gives you the option to call an event on selection, if you should so choose. The new event will have the same args {unit}, {unit2} etc. as the current event.
-
-* The *persist* flag indicates whether or not the choice ends after you make a selection. If *persist* is true, then the choice can only be exited
-via hitting the back button, and the event will go on as normal.
-
-There are some flags that you can use to further customize the type of options shown.
+* The *Type* keyword specifies the specific type of the options, and will change the way the entries are displayed.
 
 * *type_skill* will interpret all options as skill NIDs
 * *type_base_item* will interpret all options as item NIDs
@@ -1666,13 +1662,16 @@ There are some flags that you can use to further customize the type of options s
 * *type_class* will interpret all options as class NIDs.
 * *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
 
-* the *type* flags are exclusive, but can be combined with the *expression* flag.
-"""
+* The *persist* flag indicates whether or not the choice ends after you make a selection. If *persist* is true, then the choice can only be exited
+via hitting the back button, and the event will go on as normal.
+
+* The *expression* flag indicates that the provided table data should be be continually parsed as a python expression and updated.
+ """
 
     keywords = ['Nid', 'Text', 'String']
-    optional_keywords = ['Width', 'Orientation', 'Align', 'Sprite', 'Event']
-    keyword_names = ['NID', 'Title', 'Choices', 'RowWidth', 'Orientation', 'Alignment', 'BG', 'EventName']
-    flags = ['persist', 'type_skill', 'type_base_item', 'type_game_item', 'type_unit', 'type_class', 'type_icon', 'expression']
+    optional_keywords = ['Width', 'Orientation', 'Align', 'Sprite', 'Event', 'TableEntryType']
+    keyword_names = ['NID', 'Title', 'Choices', 'RowWidth', 'Orientation', 'Alignment', 'BG', 'EventName', 'Type']
+    flags = ['persist', 'expression']
 
 class NoChoice(EventCommand):
     nid = 'unchoice'
@@ -1682,27 +1681,6 @@ class NoChoice(EventCommand):
     """
 If this event was called from a Choice, then prevents that Choice from ending once this event ends. Otherwise, does nothing.
     """
-
-class TextEntry(EventCommand):
-    nid = 'text_entry'
-    tag = Tags.MISCELLANEOUS
-
-    desc = \
-        """
-Presents the player with a menu in which they can enter text. An example use-case would be to create a tactician name.
-
-*Nid* is the name of this entry, which can be checked later to recall the player's input.
-For instance, if nid was "tactician", use `{var:tactician}` anywhere in events to replace it with the user's entry.
-*Text* is the text describing the choice, such as "Please enter a name."
-*Integer* is the character limit. If not set, defaults to 16.
-*StringList* specifies which characters to ban. Only accepts 'uppercase', 'lowercase', 'uppercase_UTF8', 'lowercase_UTF8', 'numbers_and_punctuation'
-
-If the force_entry flag is set, the player will not be able to exit text entry before assigning a value to the game variables. (i.e., they must hit 'Yes' in the entry confirmation to end text entry)
-        """
-
-    keywords = ['Nid', 'Text']
-    optional_keywords = ['Integer', 'IllegalCharacterList']
-    flags = ['force_entry']
 
 class Table(EventCommand):
     nid = 'table'
@@ -1724,8 +1702,7 @@ expression would automatically update the gold.
 * *RowWidth* allows you to specify the specific width of each row.
 * The *Alignment* keyword specifies where on the screen the choice box will be displayed.
 * The *BG* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
-
-There are four flags that you can use to further customize the type of options shown.
+* The *Type* keyword specifies the specific type of the options, and will change the way the entries are displayed.
 
 * *type_skill* will interpret all options as skill NIDs
 * *type_base_item* will interpret all options as item NIDs
@@ -1733,15 +1710,35 @@ There are four flags that you can use to further customize the type of options s
 * *type_unit* will interpret all options as unit NIDs
 * *type_class* will interpret all options as class NIDs.
 * *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
-* the *type* flags are exclusive, but can be combined with the *expression* flag.
 
+* The *expression* flag indicates that the provided table data should be be continually parsed as a python expression and updated.
     """
 
     keywords = ['Nid', 'String']
-    optional_keywords = ['Text', 'Size', 'Width', 'Align', 'Sprite']
-    keyword_names = ['NID', 'TableData', 'Title', 'Dimensions', 'RowWidth', 'Alignment', 'BG']
-    flags = ['type_skill', 'type_base_item', 'type_unit', 'type_icon', 'type_class', 'expression']
+    optional_keywords = ['Text', 'Size', 'Width', 'Align', 'Sprite', 'TableEntryType']
+    keyword_names = ['NID', 'TableData', 'Title', 'Dimensions', 'RowWidth', 'Alignment', 'BG', 'Type']
+    flags = ['expression']
 
+class TextEntry(EventCommand):
+    nid = 'text_entry'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+Presents the player with a menu in which they can enter text. An example use-case would be to create a tactician name.
+
+*Nid* is the name of this entry, which can be checked later to recall the player's input.
+For instance, if nid was "tactician", use `{var:tactician}` anywhere in events to replace it with the user's entry.
+*Text* is the text describing the choice, such as "Please enter a name."
+*Integer* is the character limit. If not set, defaults to 16.
+*StringList* specifies which characters to ban. Only accepts 'uppercase', 'lowercase', 'uppercase_UTF8', 'lowercase_UTF8', 'numbers_and_punctuation'
+
+If the force_entry flag is set, the player will not be able to exit text entry before assigning a value to the game variables. (i.e., they must hit 'Yes' in the entry confirmation to end text entry)
+        """
+
+    keywords = ['Nid', 'Text']
+    optional_keywords = ['Integer', 'IllegalCharacterList']
+    flags = ['force_entry']
 class RemoveTable(EventCommand):
     nid = 'rmtable'
     tag = Tags.MISCELLANEOUS

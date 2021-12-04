@@ -1490,7 +1490,11 @@ class Event():
                 component.save_animation(exit_anim, '!exit')
 
             self.overlay_ui.add_child(component)
-            component.enter()
+            if self.do_skip:
+                component.enable()
+                return
+            else:
+                component.enter()
 
             if anim_dir and not 'no_block' in flags:
                 self.wait_time = engine.get_time() + 750
@@ -1501,10 +1505,13 @@ class Event():
             name = values[0]
             component = self.overlay_ui.get_child(name)
             if component:
-                component.exit()
-                if component.is_animating() and not 'no_block' in flags:
-                    self.wait_time = engine.get_time() + 750
-                    self.state = 'waiting'
+                if self.do_skip:
+                    component.disable()
+                else:
+                    component.exit()
+                    if component.is_animating() and not 'no_block' in flags:
+                        self.wait_time = engine.get_time() + 750
+                        self.state = 'waiting'
 
     def add_portrait(self, command):
         values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
@@ -2932,7 +2939,7 @@ class Event():
                 self.state = 'paused'
 
     def display_table(self, nid: NID, contents: str, desc: str,
-                      row_col_size: str, width: str, alignment: str, bg: str, flags: Dict):
+                      row_col_size: str, width: str, alignment: str, bg: str, entry_type: str, flags: Dict):
         box_nids = [nid for nid, _ in self.other_boxes]
         if nid in box_nids:
             logging.error("UI element with nid %s already exists" % nid)
@@ -2951,18 +2958,8 @@ class Event():
 
         # determine data type
         dtype = 'str'
-        if 'type_skill' in flags:
-            dtype = 'type_skill'
-        elif 'type_unit' in flags:
-            dtype = 'type_unit'
-        elif 'type_class' in flags:
-            dtype = 'type_class'
-        elif 'type_base_item' in flags:
-            dtype = 'type_base_item'
-        elif 'type_game_item' in flags:
-            dtype = 'type_game_item'
-        elif 'type_icon' in flags:
-            dtype = 'type_icon'
+        if entry_type:
+            dtype = entry_type
 
         # figure out function or list of NIDs
         if 'expression' in flags:
@@ -2993,7 +2990,7 @@ class Event():
         self.other_boxes.append((nid, table_ui))
 
     def choice(self, nid: NID, desc: str, choices: str, width: str, orientation: str,
-               alignment:str, bg: str, event_nid: str, flags: Dict):
+               alignment:str, bg: str, event_nid: str, entry_type: str, flags: Dict):
         nid = nid
         header = desc
 
@@ -3004,18 +3001,8 @@ class Event():
 
         # determine data type
         dtype = 'str'
-        if 'type_skill' in flags:
-            dtype = 'type_skill'
-        elif 'type_unit' in flags:
-            dtype = 'type_unit'
-        elif 'type_class' in flags:
-            dtype = 'type_class'
-        elif 'type_base_item' in flags:
-            dtype = 'type_base_item'
-        elif 'type_game_item' in flags:
-            dtype = 'type_game_item'
-        elif 'type_icon' in flags:
-            dtype = 'type_icon'
+        if entry_type:
+            dtype = entry_type
 
         # figure out function or list of NIDs
         if 'expression' in flags:

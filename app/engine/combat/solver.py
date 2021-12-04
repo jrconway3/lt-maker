@@ -16,11 +16,11 @@ class SolverState():
         return None
 
     def process_command(self, command):
-        if command in ('hit2', 'crit2', 'miss2'):
+        if command.lower() in ('hit2', 'crit2', 'miss2'):
             return 'defender'
-        elif command in ('hit1', 'crit1', 'miss1'):
+        elif command.lower() in ('hit1', 'crit1', 'miss1'):
             return 'attacker'
-        elif command == 'end':
+        elif command.lower() == 'end':
             return None
         return None
 
@@ -357,9 +357,9 @@ class CombatPhaseSolver():
 
         to_hit = combat_calcs.compute_hit(attacker, defender, item, def_item, mode, attack_info)
 
-        if self.current_command in ('hit1', 'hit2', 'crit1', 'crit2'):
+        if self.current_command.lower() in ('hit1', 'hit2', 'crit1', 'crit2'):
             roll = -1
-        elif self.current_command in ('miss1', 'miss2'):
+        elif self.current_command.lower() in ('miss1', 'miss2'):
             roll = 100
         else:
             roll = self.generate_roll()
@@ -375,9 +375,9 @@ class CombatPhaseSolver():
             if DB.constants.value('crit') or skill_system.crit_anyway(attacker) or self.current_command in ('crit1', 'crit2') \
                     and not guard_hit:
                 to_crit = combat_calcs.compute_crit(attacker, defender, item, def_item, mode, attack_info)
-                if self.current_command in ('crit1', 'crit2'):
+                if self.current_command.lower() in ('crit1', 'crit2'):
                     crit = True
-                elif self.current_command in ('hit1', 'hit2', 'miss1', 'miss2'):
+                elif self.current_command.lower() in ('hit1', 'hit2', 'miss1', 'miss2'):
                     crit = False
                 elif to_crit is not None:
                     crit_roll = self.generate_crit_roll()

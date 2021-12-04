@@ -7013,6 +7013,21 @@
                 ]
             ],
             [
+                "interact_unit",
+                [
+                    "Eirika",
+                    "Bone",
+                    "",
+                    "Iron Sword"
+                ],
+                [
+                    "Eirika (Eirika)",
+                    "Bone (Bone)",
+                    "",
+                    "Iron Sword (Iron Sword)"
+                ]
+            ],
+            [
                 "comment",
                 [
                     "# loop_units;[unit.nid for unit in game.get_player_units()];Trigger"

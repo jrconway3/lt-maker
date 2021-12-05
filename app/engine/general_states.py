@@ -591,7 +591,8 @@ class CantoWaitState(MapState):
 
     def draw(self, surf):
         surf = super().draw(surf)
-        surf = self.menu.draw(surf)
+        if self.menu:
+            surf = self.menu.draw(surf)
         return surf
 
 class MoveCameraState(MapState):

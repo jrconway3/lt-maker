@@ -2003,7 +2003,7 @@ class ChangePortrait(Action):
         self.unit.portrait_nid = self.new_portrait
 
     def reverse(self):
-        self.unit.portrait.nid = self.old_portrait
+        self.unit.portrait_nid = self.old_portrait
 
 
 class AddTag(Action):

@@ -3224,7 +3224,7 @@ class Event():
     def overworld_move_unit(self, entity_nid: NID, target_location: Tuple[int, int] | NID,
                             speed_adj: float, path: List[Point], flags={}):
         # default values
-        if speed_adj is None: 
+        if speed_adj is None:
             speed_adj = 5
 
         # function

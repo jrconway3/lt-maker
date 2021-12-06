@@ -24,7 +24,7 @@ class HeaderList(UIComponent, Generic[T]):
 
         # children references
         self.header_row = header_row
-        self.scrollable_list = None
+        self.scrollable_list = UIComponent('list', self)
         self.regenerate_list_component()
         self.repopulate_children()
 
@@ -117,8 +117,8 @@ class HeaderList(UIComponent, Generic[T]):
 
     def to_surf(self, no_cull=False) -> engine.Surface:
         # manually cull rows
-        self.scrollable_list._should_redraw = True
         if self.scrollable_list:
+            self.scrollable_list._should_redraw = True
             for idx, row in enumerate(self.scrollable_list.children):
                 if idx < self.scrolled_index - 0.4:
                     row.disable()

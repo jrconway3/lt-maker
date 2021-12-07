@@ -591,7 +591,7 @@ class CantoWaitState(MapState):
 
     def draw(self, surf):
         surf = super().draw(surf)
-        if self.menu:
+        if hasattr(self, 'menu') and self.menu:
             surf = self.menu.draw(surf)
         return surf
 

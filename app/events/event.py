@@ -2994,7 +2994,7 @@ class Event():
         self.other_boxes.append((nid, table_ui))
 
     def choice(self, nid: NID, desc: str, choices: str, width: str, orientation: str,
-               alignment:str, bg: str, event_nid: str, entry_type: str, flags: Dict):
+               alignment:str, bg: str, event_nid: str, entry_type: str, dims: str, flags: Dict):
         nid = nid
         header = desc
 
@@ -3043,11 +3043,15 @@ class Event():
         else:
             align = Alignments(alignment)
 
+        size = None
+        if dims:
+            size = tuple([int(x) for x in dims.split(',')])
+
         should_persist = False
         if 'persist' in flags:
             should_persist = True
 
-        game.memory['player_choice'] = (nid, header, data, row_width, orientation, dtype, should_persist, align, bg, event_nid)
+        game.memory['player_choice'] = (nid, header, data, row_width, orientation, dtype, should_persist, align, bg, event_nid, size)
         game.state.change('player_choice')
         self.state = 'paused'
 

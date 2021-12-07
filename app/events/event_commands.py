@@ -1655,6 +1655,7 @@ Optional args:
 * *BG* specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
 * The *Event* keyword gives you the option to call an event on selection, if you should so choose. The new event will have the same args {unit}, {unit2} etc. as the current event.
 * The *Type* keyword specifies the specific type of the options, and will change the way the entries are displayed.
+* The *Dimensions* keyword allows you to specify the size of the list in `(rows, columns)`.
 
 * *type_skill* will interpret all options as skill NIDs
 * *type_base_item* will interpret all options as item NIDs
@@ -1670,8 +1671,8 @@ via hitting the back button, and the event will go on as normal.
  """
 
     keywords = ['Nid', 'Text', 'String']
-    optional_keywords = ['Width', 'Orientation', 'Align', 'Sprite', 'Event', 'TableEntryType']
-    keyword_names = ['NID', 'Title', 'Choices', 'RowWidth', 'Orientation', 'Alignment', 'BG', 'EventName', 'Type']
+    optional_keywords = ['Width', 'Orientation', 'Align', 'Sprite', 'Event', 'TableEntryType', 'Size']
+    keyword_names = ['NID', 'Title', 'Choices', 'RowWidth', 'Orientation', 'Alignment', 'BG', 'EventName', 'Type', 'Dimensions']
     flags = ['persist', 'expression']
 
 class NoChoice(EventCommand):

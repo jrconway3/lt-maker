@@ -101,7 +101,7 @@ class SimpleIconTable(UIComponent):
         # regenerate bg
         if self._background:
             if 'menu_bg' in self._background:
-                menu_bg = create_base_surf(self.size[0] + 10, self.size[1] + 10, self._background)
+                menu_bg = create_base_surf(self.tsize[0] + 10, self.tsize[1] + 10, self._background)
                 self.set_background(menu_bg)
             else: # not actually a tileable base bg
                 menu_bg = SPRITES.get(self._background)

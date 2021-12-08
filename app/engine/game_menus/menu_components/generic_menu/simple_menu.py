@@ -163,6 +163,8 @@ class ChoiceTable(SimpleIconTable):
         self.column_components[x].add_surf(highlight_surf, (0, cy + 3), -1)
 
     def move_down(self):
+        if self.any_children_animating():
+            return
         x, y = self.selected_index
         self.selected_index = (x, min(y + 1, len(self.column_data[x]) - 1))
         if self.selected_index[1] > self.column_components[x].max_visible_rows + self.column_components[x].scrolled_index - 1:
@@ -170,6 +172,8 @@ class ChoiceTable(SimpleIconTable):
                 hl.scroll_down()
 
     def move_up(self):
+        if self.any_children_animating():
+            return
         x, y = self.selected_index
         self.selected_index = (x, max(y - 1, 0))
         if self.selected_index[1] < self.column_components[x].scrolled_index:

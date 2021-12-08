@@ -14,12 +14,20 @@ class PlayerChoiceState(MapState):
 
     def start(self):
         self.nid, self.header, options_list, self.row_width, self.orientation, \
-            self.data_type, self.should_persist, self.alignment, self.bg, self.event_on_choose = \
+            self.data_type, self.should_persist, self.alignment, self.bg, self.event_on_choose, \
+            self.size = \
             game.memory['player_choice']
-        ncols = 1
-        if self.orientation == 'horizontal':
-            ncols = len(options_list)
-        self.menu = ChoiceMenuUI(options_list, data_type=self.data_type, row_width=self.row_width,
+        if self.size:
+            rows, ncols = self.size
+        else:
+            if self.orientation == 'horizontal':
+                ncols = len(options_list)
+                self.size = (1, ncols)
+                rows, ncols = self.size
+            else:
+                self.size = (0, 1)
+                rows, ncols = self.size
+        self.menu = ChoiceMenuUI(options_list, data_type=self.data_type, rows=rows, row_width=self.row_width,
                                  title=self.header, cols=ncols, alignment=self.alignment, bg=self.bg)
 
         self.made_choice = False
@@ -33,16 +41,16 @@ class PlayerChoiceState(MapState):
         self.made_choice = False
 
     def take_input(self, event):
-        if (event == 'RIGHT' and self.orientation == 'horizontal'):
+        if (event == 'RIGHT' and self.size[1] > 1):
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_right()
-        elif (event == 'DOWN' and self.orientation == 'vertical'):
+        elif (event == 'DOWN' and self.size[0] > 1):
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_down()
-        elif (event == 'LEFT' and self.orientation == 'horizontal'):
+        elif (event == 'LEFT' and self.size[1] > 1):
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_left()
-        elif(event == 'UP' and self.orientation == 'vertical'):
+        elif(event == 'UP'and self.size[0] > 1):
             SOUNDTHREAD.play_sfx('Select 6')
             self.menu.move_up()
         elif event == 'BACK':

@@ -855,6 +855,12 @@ class Event():
         elif command.nid == 'set_stats':
             self.set_stats(command)
 
+        elif command.nid == 'change_growths':
+            self.change_growths(command)
+
+        elif command.nid == 'set_growths':
+            self.set_growths(command)
+        
         elif command.nid == 'autolevel_to':
             self.autolevel_to(command)
 
@@ -3287,3 +3293,40 @@ class Event():
                 if node_at_nid:
                     return node_at_nid
         return None
+
+    def _apply_growth_changes(self, unit, growth_changes):
+        action.do(action.ApplyGrowthChanges(unit, growth_changes))
+
+    def change_growths(self, command):
+        values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+        unit = self.get_unit(values[0])
+        if not unit:
+            logging.error("Couldn't find unit %s" % values[0])
+            return
+
+        s_list = values[1].split(',')
+        growth_changes = {}
+        for idx in range(len(s_list)//2):
+            stat_nid = s_list[idx*2]
+            stat_value = int(s_list[idx*2 + 1])
+            growth_changes[stat_nid] = stat_value
+
+        self._apply_growth_changes(unit, growth_changes)
+
+    def set_growths(self, command):
+        values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
+        unit = self.get_unit(values[0])
+        if not unit:
+            logging.error("Couldn't find unit %s" % values[0])
+            return
+
+        s_list = values[1].split(',')
+        growth_changes = {}
+        for idx in range(len(s_list)//2):
+            stat_nid = s_list[idx*2]
+            stat_value = int(s_list[idx*2 + 1])
+            if stat_nid in unit.growths:
+                current = unit.growths[stat_nid]
+                growth_changes[stat_nid] = stat_value - current
+
+        self._apply_growth_changes(unit, growth_changes)

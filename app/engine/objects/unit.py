@@ -25,6 +25,7 @@ class UnitObject(Prefab):
         self.generic: bool = None
         self.ai = None
         self.ai_group = None
+        self.is_dying: bool = False
         self._fields: Dict[str, str] = {}
 
     @classmethod

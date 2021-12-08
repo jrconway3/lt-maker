@@ -1211,6 +1211,28 @@ Sets the stats (STR, SKL, etc.) of *GlobalUnit* to specific values defined in *S
     keywords = ["GlobalUnit", "StatList"]
     flags = ['immediate']
 
+class ChangeGrowths(EventCommand):
+    nid = 'change_growths'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Changes the growths (STR, SKL, etc.) of *GlobalUnit*. The *StatList* defines the changes to be applied. Always silent.
+        """
+
+    keywords = ["GlobalUnit", "StatList"]
+
+class SetGrowths(EventCommand):
+    nid = 'set_growths'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets the growths (STR, SKL, etc.) of *GlobalUnit* to specific values defined in *StatList*. Always silent.
+        """
+
+    keywords = ["GlobalUnit", "StatList"]
+
 class AutolevelTo(EventCommand):
     nid = 'autolevel_to'
     tag = Tags.MODIFY_UNIT_PROPERTIES

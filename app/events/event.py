@@ -866,7 +866,7 @@ class Event():
 
         elif command.nid == 'set_growths':
             self.set_growths(command)
-        
+
         elif command.nid == 'autolevel_to':
             self.autolevel_to(command)
 
@@ -2159,6 +2159,9 @@ class Event():
                     action.do(action.LeaveMap(unit))
 
     def check_placement(self, unit, position, placement):
+        if not game.board.check_bounds(position):
+            logging.error("%s: position out of bounds %s", 'check_placement', position)
+            return None
         current_occupant = game.board.get_unit(position)
         if current_occupant:
             if placement == 'giveup':

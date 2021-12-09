@@ -59,7 +59,7 @@ class ManaOnKill(SkillComponent):
         return 0
 
 class EventAfterInitiatedCombat(SkillComponent):
-    nid = 'event_after_combat'
+    nid = 'event_after_initiated_combat'
     desc = 'calls event after combat initated by user'
     tag = 'advanced'
 

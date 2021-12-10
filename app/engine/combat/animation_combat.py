@@ -701,15 +701,21 @@ class AnimationCombat(BaseCombat, MockCombat):
             self.focus_right = False
         self.move_camera()
 
+    def special_boss_crit(self, defender):
+        return DB.constants.value('boss_crit') and \
+            self.get_from_playback('mark_hit') and \
+            'Boss' in defender.tags and \
+            self.get_damage() >= defender.get_hp()
+
     def set_up_combat_animation(self):
         self.state = 'anim'
-        _, _, _, _, self.current_battle_anim = self.get_actors()
+        _, _, defender, _, self.current_battle_anim = self.get_actors()
         alternate_pose = self.get_from_playback('alternate_battle_pose')
         if alternate_pose:
             alternate_pose = alternate_pose[0][1]
         if alternate_pose and self.current_battle_anim.has_pose(alternate_pose):
             self.current_battle_anim.start_anim(alternate_pose)
-        elif self.get_from_playback('mark_crit'):
+        elif self.get_from_playback('mark_crit') or self.special_boss_crit(defender):
             self.current_battle_anim.start_anim('Critical')
         elif self.get_from_playback('mark_hit'):
             self.current_battle_anim.start_anim('Attack')

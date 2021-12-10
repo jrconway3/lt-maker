@@ -1912,6 +1912,11 @@ class Event():
         else:
             script = None
 
+        if len(values) > 4 and values[4]:
+            total_rounds = utils.clamp(int(values[4]), 1, 99)
+        else:
+            total_rounds = 1
+
         items = item_funcs.get_all_items(actor)
         item = None
         # Get item
@@ -1939,7 +1944,7 @@ class Event():
                 logging.error("Unit does not have item!")
                 return
 
-        interaction.start_combat(actor, target, item, event_combat=True, script=script)
+        interaction.start_combat(actor, target, item, event_combat=True, script=script, total_rounds=total_rounds)
         self.state = "paused"
 
     def add_group(self, command):

@@ -26,7 +26,7 @@ from app.engine.combat.mock_combat import MockCombat
 class AnimationCombat(BaseCombat, MockCombat):
     alerts: bool = True
 
-    def __init__(self, attacker: UnitObject, main_item: ItemObject, defender: UnitObject, def_item: ItemObject, script: list):
+    def __init__(self, attacker: UnitObject, main_item: ItemObject, defender: UnitObject, def_item: ItemObject, script: list, total_rounds: int = 1):
         self.attacker = attacker
         self.defender = defender
         self.main_item = main_item
@@ -64,7 +64,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         self.state_machine = CombatPhaseSolver(
             self.attacker, self.main_item, [self.main_item],
             [self.defender], [[]], [self.defender.position],
-            self.defender, self.def_item, script)
+            self.defender, self.def_item, script, total_rounds)
 
         self.last_update = engine.get_time()
         self.state = 'init'

@@ -21,7 +21,7 @@ class SolverState():
         elif command.lower() in ('hit1', 'crit1', 'miss1'):
             return 'attacker'
         elif command.lower() == 'end':
-            return None
+            return 'done'
         return None
 
 class InitState(SolverState):
@@ -72,7 +72,7 @@ class AttackerState(SolverState):
             else:
                 return self.process_command(command)
         else:
-            return None
+            return 'done'
 
     def process(self, solver, actions, playback):
         playback.append(('attacker_phase',))
@@ -143,7 +143,7 @@ class AttackerPartnerState(SolverState):
             else:
                 return self.process_command(command)
         else:
-            return None
+            return 'done'
 
     def process(self, solver, actions, playback):
         playback.append(('attacker_partner_phase',))
@@ -196,7 +196,7 @@ class DefenderState(SolverState):
             else:
                 return self.process_command(command)
         else:
-            return None
+            return 'done'
 
     def process(self, solver, actions, playback):
         playback.append(('defender_phase',))
@@ -250,7 +250,7 @@ class DefenderPartnerState(SolverState):
             else:
                 return self.process_command(command)
         else:
-            return None
+            return 'done'
 
     def process(self, solver, actions, playback):
         playback.append(('defender_partner_phase',))
@@ -277,7 +277,7 @@ class CombatPhaseSolver():
 
     def __init__(self, attacker, main_item, items, defenders,
                  splashes, target_positions, defender, def_item,
-                 script=None):
+                 script=None, total_rounds=1):
         self.attacker = attacker
         self.main_item = main_item
         self.items = items
@@ -288,12 +288,19 @@ class CombatPhaseSolver():
         self.def_item = def_item
 
         self.state = InitState()
-        self.num_attacks, self.num_defends = 0, 0
-        self.num_subattacks, self.num_subdefends = 0, 0
+        self.reset()
+
+        # For having multi round ("arena") combats
+        self.num_rounds = 0
+        self.total_rounds = total_rounds
 
         # For event combats
         self.script = list(reversed(script)) if script else []
         self.current_command = '--'
+
+    def reset(self):
+        self.num_attacks, self.num_defends = 0, 0
+        self.num_subattacks, self.num_subdefends = 0, 0
 
     def get_attack_info(self) -> tuple:
         return self.num_attacks, self.num_subattacks
@@ -319,10 +326,17 @@ class CombatPhaseSolver():
         # Does actually change the state
         next_state = self.state.get_next_state(self)
         logging.debug("Next State: %s" % next_state)
-        if next_state:
-            self.state = self.states[next_state]()
-        else:
+        if next_state == 'done':
             self.state = None
+        elif next_state:
+            self.state = self.states[next_state]()
+        else:  # Round complete
+            self.num_rounds += 1
+            self.reset()
+            if self.num_rounds >= self.total_rounds:
+                self.state = None
+            else:
+                self.state = InitState()
 
     def get_script(self):
         if self.script:

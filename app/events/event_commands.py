@@ -805,10 +805,11 @@ class InteractUnit(EventCommand):
 Initiates a battle. The *Unit* will target the *Position* to start the combat.
 A *CombatScript* can optionally be provided to ensure a pre-set outcome to the battle.
 *Ability* can be used to specify which item or ability the attacker will use.
+*PositiveInteger* can be set to determine the number of rounds the combat will go on for. Defaults to 1. Useful for arena combats (set to 20+).
         """
 
     keywords = ["Unit", "Position"]
-    optional_keywords = ["CombatScript", "Ability"]
+    optional_keywords = ["CombatScript", "Ability", "PositiveInteger"]
 
 class SetName(EventCommand):
     nid = 'set_name'

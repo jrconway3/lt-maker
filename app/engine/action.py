@@ -951,7 +951,8 @@ class Transfer(Action):
             self.other.set_guard_gauge(val)
             self.unit.set_guard_gauge(self.unit.get_guard_gauge() + val)
 
-        logging.info(self.unit.traveler + " was paired with " + self.unit.nid + " but transfered to " + self.other.nid)
+        logging.info(self.unit.traveler + " was paired with " + self.unit.nid + " but transfered to " + self.other.nid) if self.unit.traveler else \
+            logging.info(self.other.traveler + " was paired with " + self.other.nid + " but transfered to " + self.unit.nid)
 
         self.unit.traveler, self.other.traveler = self.other.traveler, self.unit.traveler
 

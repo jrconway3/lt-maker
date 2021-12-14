@@ -15,12 +15,15 @@ if TYPE_CHECKING:
 # Consider making these sections faster
 def get_shell(valid_moves: set, potential_range: set, width: int, height: int, manhattan_restriction: set = None) -> set:
     valid_attacks = set()
-    for valid_move in valid_moves:
-        valid_attacks |= find_manhattan_spheres(potential_range, valid_move[0], valid_move[1], manhattan_restriction)
+    if manhattan_restriction:
+        for valid_move in valid_moves:
+            valid_attacks |= restricted_manhattan_spheres(potential_range, valid_move[0], valid_move[1], manhattan_restriction)
+    else:
+        for valid_move in valid_moves:
+            valid_attacks |= find_manhattan_spheres(potential_range, valid_move[0], valid_move[1])
     return {pos for pos in valid_attacks if 0 <= pos[0] < width and 0 <= pos[1] < height}
 
-# Consider making these sections faster -- use memory?
-def find_manhattan_spheres(rng: set, x: int, y: int, manhattan_restriction: set = None) -> set:
+def restricted_manhattan_spheres(rng: set, x: int, y: int, manhattan_restriction: set) -> set:
     _range = range
     _abs = abs
     main_set = set()
@@ -30,9 +33,23 @@ def find_manhattan_spheres(rng: set, x: int, y: int, manhattan_restriction: set 
             magn = _abs(i)
             dx = i
             dy = r - magn
-            if manhattan_restriction is not None: # empty set is ok
-                if not (dx, dy) in manhattan_restriction:
-                    continue
+            if not (dx, dy) in manhattan_restriction:
+                continue
+            main_set.add((x + dx, y + dy))
+            main_set.add((x + dx, y - dy))
+    return main_set
+
+# Consider making these sections faster -- use memory?
+def find_manhattan_spheres(rng: set, x: int, y: int) -> set:
+    _range = range
+    _abs = abs
+    main_set = set()
+    for r in rng:
+        # Finds manhattan spheres of radius r
+        for i in _range(-r, r + 1):
+            magn = _abs(i)
+            dx = i
+            dy = r - magn
             main_set.add((x + dx, y + dy))
             main_set.add((x + dx, y - dy))
     return main_set

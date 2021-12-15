@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import FrozenSet, TYPE_CHECKING
+from functools import lru_cache
 
 from app.data.database import DB
 from app.engine import (combat_calcs, equations, item_funcs, item_system,
@@ -24,35 +25,30 @@ def get_shell(valid_moves: set, potential_range: set, width: int, height: int, m
     return {pos for pos in valid_attacks if 0 <= pos[0] < width and 0 <= pos[1] < height}
 
 def restricted_manhattan_spheres(rng: set, x: int, y: int, manhattan_restriction: set) -> set:
-    _range = range
-    _abs = abs
-    main_set = set()
-    for r in rng:
-        # Finds manhattan spheres of radius r
-        for i in _range(-r, r + 1):
-            magn = _abs(i)
-            dx = i
-            dy = r - magn
-            if not (dx, dy) in manhattan_restriction:
-                continue
-            main_set.add((x + dx, y + dy))
-            main_set.add((x + dx, y - dy))
-    return main_set
+    sphere = cached_base_manhattan_spheres(frozenset(rng))
+    sphere = {(a + x, b + y) for (a, b) in sphere if (a, b) in manhattan_restriction}
+    return sphere
 
 # Consider making these sections faster -- use memory?
 def find_manhattan_spheres(rng: set, x: int, y: int) -> set:
+    sphere = cached_base_manhattan_spheres(frozenset(rng))
+    sphere = {(a + x, b + y) for (a, b) in sphere}
+    return sphere
+
+@lru_cache(1024)
+def cached_base_manhattan_spheres(rng: FrozenSet[int]) -> set:
     _range = range
     _abs = abs
-    main_set = set()
+    sphere = set()
     for r in rng:
-        # Finds manhattan spheres of radius r
-        for i in _range(-r, r + 1):
+        for i in _range(-r, r+1):
             magn = _abs(i)
             dx = i
             dy = r - magn
-            main_set.add((x + dx, y + dy))
-            main_set.add((x + dx, y - dy))
-    return main_set
+            sphere.add((dx, dy))
+            sphere.add((dx, -dy))
+    return sphere
+
 
 def get_nearest_open_tile(unit, position):
     r = 0

@@ -82,7 +82,7 @@ def get_adjacent_positions(pos):
 def get_adj_units(unit) -> list:
     adj_positions = get_adjacent_positions(unit.position)
     adj_units = [game.board.get_unit(pos) for pos in adj_positions]
-    adj_units = [_ for _ in adj_units if _]
+    adj_units = [u for u in adj_units if u]
     return adj_units
 
 def get_adj_allies(unit) -> list:
@@ -90,7 +90,7 @@ def get_adj_allies(unit) -> list:
     adj_allies = [u for u in adj_units if skill_system.check_ally(unit, u)]
     return adj_allies
 
-def get_attacks(unit: UnitObject, item: ItemObject=None, force=False) -> set:
+def get_attacks(unit: UnitObject, item: ItemObject = None, force=False) -> set:
     """
     Determines all possible positions the unit could attack
     Does not attempt to determine if an enemy is actually in that place
@@ -101,8 +101,8 @@ def get_attacks(unit: UnitObject, item: ItemObject=None, force=False) -> set:
         item = unit.get_weapon()
     if not item:
         return set()
-    if ((item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit))
-         and unit.has_moved_any_distance):
+    no_attack_after_move = item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit)
+    if no_attack_after_move and unit.has_moved_any_distance:
         return set()
 
     item_range = item_funcs.get_range(unit, item)
@@ -114,18 +114,20 @@ def get_attacks(unit: UnitObject, item: ItemObject=None, force=False) -> set:
 
     return attacks
 
-def get_possible_attacks(unit, valid_moves) -> set:
+def _get_possible_attacks(unit, valid_moves, items):
     attacks = set()
     max_range = 0
-    for item in get_all_weapons(unit):
+    for item in items:
+        no_attack_after_move = item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit)
+        if no_attack_after_move and unit.has_moved_any_distance:
+            continue
         item_range = item_funcs.get_range(unit, item)
         max_range = max(max_range, max(item_range))
         if max_range >= 99:
             attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
         else:
             manhattan_restriction = item_system.range_restrict(unit, item)
-            if ((item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit))
-                 and unit.has_moved_any_distance):
+            if no_attack_after_move:
                 attacks |= get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height, manhattan_restriction)
             else:
                 attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height, manhattan_restriction)
@@ -134,25 +136,11 @@ def get_possible_attacks(unit, valid_moves) -> set:
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))
     return attacks
 
-def get_possible_spell_attacks(unit, valid_moves) -> set:
-    attacks = set()
-    max_range = 0
-    for item in get_all_spells(unit):
-        item_range = item_funcs.get_range(unit, item)
-        max_range = max(max_range, max(item_range))
-        if max_range >= 99:
-            attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
-        else:
-            manhattan_restriction = item_system.range_restrict(unit, item)
-            if ((item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit))
-                 and unit.has_moved_any_distance):
-                attacks |= get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height)
-            else:
-                attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height, manhattan_restriction)
+def get_possible_attacks(unit, valid_moves) -> set:
+    return _get_possible_attacks(unit, valid_moves, get_all_weapons(unit))
 
-    if DB.constants.value('line_of_sight'):
-        attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))
-    return attacks
+def get_possible_spell_attacks(unit, valid_moves) -> set:
+    return _get_possible_attacks(unit, valid_moves, get_all_spells(unit))
 
 # Uses all weapons the unit has access to to find its potential range
 def find_potential_range(unit, weapon=True, spell=False, boundary=False) -> set:

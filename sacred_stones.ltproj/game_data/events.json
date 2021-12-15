@@ -7021,26 +7021,15 @@
                 ]
             ],
             [
-                "wait",
+                "comment",
                 [
-                    "2000"
+                    "#wait;2000"
                 ]
             ],
             [
-                "interact_unit",
+                "comment",
                 [
-                    "Eirika",
-                    "Bone",
-                    "",
-                    "Iron Sword",
-                    "2"
-                ],
-                [
-                    "Eirika (Eirika)",
-                    "Bone (Bone)",
-                    "",
-                    "Iron Sword (Iron Sword)",
-                    "2"
+                    "#interact_unit;Eirika (Eirika);Bone (Bone);;Iron Sword (Iron Sword);2"
                 ]
             ],
             [

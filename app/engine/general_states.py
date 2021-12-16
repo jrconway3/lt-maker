@@ -1612,8 +1612,8 @@ class CombatState(MapState):
                 self.skip = True
                 self.combat.skip()
         elif event == 'BACK':
-            # Arena
-            pass
+            if self.combat.arena_combat:
+                self.combat.stop_arena()  # So that we are forced out next time
 
     def update(self):
         super().update()

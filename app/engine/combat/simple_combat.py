@@ -12,6 +12,7 @@ from app.engine.objects.item import ItemObject
 class SimpleCombat():
     ai_combat: bool = False
     event_combat: bool = False
+    arena_combat: bool = False
     alerts: bool = False  # Whether to show end of combat alerts
     """
     Does the simple mechanical effects of combat without any effects
@@ -82,6 +83,9 @@ class SimpleCombat():
 
     def end_skip(self):
         pass
+
+    def stop_arena(self):
+        self.state_machine.total_rounds = 0  # So that we are forced out next time
 
     def update(self) -> bool:
         self.clean_up()
@@ -599,10 +603,12 @@ class SimpleCombat():
                         act.do()
 
     def handle_death(self, units):
-        for unit in units:
-            if unit.is_dying:
-                game.state.change('dying')
-                break
+        if not self.arena_combat:
+            for unit in units:
+                if unit.is_dying:
+                    game.state.change('dying')
+                    break
+
         for unit in units:
             if unit.is_dying:
                 killer = game.records.get_killer(unit.nid, game.level.nid if game.level else None)
@@ -610,3 +616,8 @@ class SimpleCombat():
                     killer = game.get_unit(killer)
                 game.events.trigger('unit_death', unit, killer, position=unit.position)
                 skill_system.on_death(unit)
+                
+        if self.arena_combat:
+            for unit in units:
+                if unit.is_dying:
+                    game.death.force_death(unit)

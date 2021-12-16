@@ -28,7 +28,7 @@ class Dialog():
         self.speaker = speaker
         self.variant = variant
         self.font_type = 'convo'
-        if self.variant in ('noir', 'narration', 'narration_top'):
+        if self.variant in ('noir', 'narration', 'narration_top', 'clear'):
             self.font_color = 'white'
         else:
             self.font_color = 'black'
@@ -38,6 +38,8 @@ class Dialog():
             self.font_type = 'chapter'
             self.font_color = 'grey'
             self.num_lines = 5
+            self.draw_cursor_flag = False
+        elif self.variant == 'clear':
             self.draw_cursor_flag = False
         self.font = FONT[self.font_type + '-' + self.font_color]
 

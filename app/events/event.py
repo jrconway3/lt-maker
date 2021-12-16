@@ -656,8 +656,8 @@ class Event():
             try:
                 val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
                 action.do(action.SetGameVar(nid, val))
-            except:
-                logging.error("Could not evaluate {%s}" % to_eval)
+            except Exception as e:
+                logging.error("Could not evaluate %s (%s)" % (to_eval, e))
 
         elif command.nid == 'inc_game_var':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
@@ -667,8 +667,8 @@ class Event():
                 try:
                     val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
                     action.do(action.SetGameVar(nid, game.game_vars.get(nid, 0) + val))
-                except:
-                    logging.error("Could not evaluate {%s}" % to_eval)
+                except Exception as e:
+                    logging.error("Could not evaluate %s (%s)" % (to_eval, e))
             else:
                 action.do(action.SetGameVar(nid, game.game_vars.get(nid, 0) + 1))
 
@@ -679,8 +679,8 @@ class Event():
             try:
                 val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
                 action.do(action.SetLevelVar(nid, val))
-            except:
-                logging.error("Could not evaluate {%s}" % to_eval)
+            except Exception as e:
+                logging.error("Could not evaluate %s (%s)" % (to_eval, e))
                 return
             # Need to update fog of war when we change it
             if nid in ('_fog_of_war', '_fog_of_war_radius', '_ai_fog_of_war_radius'):
@@ -696,8 +696,8 @@ class Event():
                 try:
                     val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
                     action.do(action.SetLevelVar(nid, game.level_vars.get(nid, 0) + val))
-                except:
-                    logging.error("Could not evaluate {%s}" % to_eval)
+                except Exception as e:
+                    logging.error("Could not evaluate %s (%s)" % (to_eval, e))
             else:
                 action.do(action.SetLevelVar(nid, game.level_vars.get(nid, 0) + 1))
 
@@ -1457,7 +1457,7 @@ class Event():
 
             sprite = SPRITES.get(sprite_nid)
             component = UIComponent.from_existing_surf(sprite)
-            component.name = sprite_nid
+            component.name = name
             component.disable()
             x, y = pos
             if anim_dir:
@@ -1485,7 +1485,7 @@ class Event():
             else:
                 component.enter()
 
-            if anim_dir and not 'no_block' in flags:
+            if anim_dir and 'no_block' not in flags:
                 self.wait_time = engine.get_time() + 750
                 self.state = 'waiting'
 
@@ -1498,7 +1498,7 @@ class Event():
                     component.disable()
                 else:
                     component.exit()
-                    if component.is_animating() and not 'no_block' in flags:
+                    if component.is_animating() and 'no_block' not in flags:
                         self.wait_time = engine.get_time() + 750
                         self.state = 'waiting'
 
@@ -1700,6 +1700,8 @@ class Event():
         bg = 'message_bg_base'
         if variant == 'noir':
             bg = 'menu_bg_dark'
+        elif variant == 'clear':
+            bg = None
         elif variant == 'cinematic':
             bg = None
             if not position:
@@ -1927,7 +1929,9 @@ class Event():
                 logging.error("Unit does not have item!")
                 return
 
-        interaction.start_combat(actor, target, item, event_combat=True, script=script, total_rounds=total_rounds)
+        interaction.start_combat(
+            actor, target, item, event_combat=True, script=script, total_rounds=total_rounds,
+            arena='arena' in flags, force_animation='force_animation' in flags)
         self.state = "paused"
 
     def add_group(self, command):
@@ -2323,7 +2327,7 @@ class Event():
         new_unit.party = game.current_party
         game.full_register(new_unit)
         if assign_unit:
-            self.unit = new_unit
+            self.unit2 = new_unit
             self.created_unit = new_unit
 
     def create_unit(self, command):
@@ -2377,7 +2381,7 @@ class Event():
         new_unit.party = game.current_party
         game.full_register(new_unit)
         if assign_unit:
-            self.unit = new_unit
+            self.unit2 = new_unit
             self.created_unit = new_unit
         if DB.constants.value('initiative'):
             action.do(action.InsertInitiative(unit))
@@ -3069,7 +3073,7 @@ class Event():
         self.other_boxes.append((nid, table_ui))
 
     def choice(self, nid: NID, desc: str, choices: str, width: str, orientation: str,
-               alignment:str, bg: str, event_nid: str, entry_type: str, dims: str, flags: Dict):
+               alignment: str, bg: str, event_nid: str, entry_type: str, dims: str, flags: Dict):
         nid = nid
         header = desc
 

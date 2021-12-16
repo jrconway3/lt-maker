@@ -2343,6 +2343,21 @@ class RecordRandomState(Action):
         static_random.set_combat_random_state(self.old)
 
 
+class RecordOtherRandomState(Action):
+    def __init__(self, old, new):
+        self.old = old
+        self.new = new
+
+    def do(self):
+        pass
+
+    def execute(self):
+        static_random.set_other_random_state(self.new)
+
+    def reverse(self):
+        static_random.set_other_random_state(self.old)
+
+
 class TriggerCharge(Action):
     def __init__(self, unit, skill):
         self.unit = unit

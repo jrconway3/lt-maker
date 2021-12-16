@@ -668,10 +668,7 @@ Fabricates a new generic unit from scratch. This does not place instances of the
 The required keywords are in the following order: nid to be given to the unit (*String*),
 the unit's class (*Klass*), the unit's level (*String*), and the unit's *Team*.
 
-**If the NID field is left empty, then the event's `{unit}` will be overwritten to refer to the result of MakeGeneric.
-Therefore, if you must refer to the current {unit} in the rest of the event, save it to a `game_var` or a `level_var`.**
-
-**You can also use {created_unit} to refer to the result of MakeGeneric. This is encouraged, as using {unit} may not be supported in the future.**
+**If the NID field is left empty, then the event's `{created_unit}` will be overwritten to refer to the result of CreateUnit.**
 
 Several optional keywords can also be provided to further modify the new unit:
 *AI* defines an AI preset to be given to the unit, *Faction* assignes the unit
@@ -692,10 +689,7 @@ class CreateUnit(EventCommand):
 Creates a new instance of a unit and, optionally, places it on the map.
 *Unit* points to the unit template to be used. A new nid can be assigned using *String* (can be empty: '').
 
-**If the NID field is left empty, then the event's `{unit}` will be overwritten to refer to the result of CreateUnit.
-Therefore, if you must refer to the current {unit} in the rest of the event, save it to a `game_var` or a `level_var`.**
-
-**You can also use {created_unit} to refer to the result of MakeGeneric. This is encouraged, as using {unit} may not be supported in the future.**
+**If the NID field is left empty, then the event's `{created_unit}` will be overwritten to refer to the result of CreateUnit.**
 
 Several optional keywords can be provided to modify the unit and/or place it on the map.
 
@@ -806,10 +800,13 @@ Initiates a battle. The *Unit* will target the *Position* to start the combat.
 A *CombatScript* can optionally be provided to ensure a pre-set outcome to the battle.
 *Ability* can be used to specify which item or ability the attacker will use.
 *PositiveInteger* can be set to determine the number of rounds the combat will go on for. Defaults to 1. Useful for arena combats (set to 20+).
+The *arena* flag should be set when you want to allow the player to be able to press B and leave the combat between rounds. It also sets the combat background to the arena.
+The *force_animation* flag tells the engine to ignore the player's settings and forcibly display a combat animation. Useful for arena combats.
         """
 
     keywords = ["Unit", "Position"]
     optional_keywords = ["CombatScript", "Ability", "PositiveInteger"]
+    flags = ["arena", "force_animation"]
 
 class SetName(EventCommand):
     nid = 'set_name'
@@ -1783,6 +1780,8 @@ If the force_entry flag is set, the player will not be able to exit text entry b
     keywords = ['Nid', 'Text']
     optional_keywords = ['Integer', 'IllegalCharacterList']
     flags = ['force_entry']
+
+
 class RemoveTable(EventCommand):
     nid = 'rmtable'
     tag = Tags.MISCELLANEOUS

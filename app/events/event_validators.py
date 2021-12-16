@@ -296,7 +296,7 @@ class IllegalCharacterList(Validator):
         return valids
 
 class DialogVariant(OptionValidator):
-    valid = ["thought_bubble", "noir", "hint", "narration", "narration_top", "cinematic"]
+    valid = ["thought_bubble", "noir", "hint", "narration", "narration_top", "cinematic", "clear"]
 
 class StringList(Validator):
     desc = "must be delimited by commas. For example: `Water,Earth,Fire,Air`"

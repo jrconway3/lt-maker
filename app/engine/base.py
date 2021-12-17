@@ -59,9 +59,9 @@ class BaseMainState(State):
         additional_ignore = game.game_vars.get('_base_options_enabled')
         additional_events = game.game_vars.get('_base_options_events')
 
-        options = options + additional_options
-        ignore = ignore + additional_ignore
-        events = events + additional_events
+        options = options + additional_options if additional_options else options
+        ignore = ignore + additional_ignore if additional_options else ignore
+        events = events + additional_events if additional_events else events
         return options, ignore, events
 
     def start(self):

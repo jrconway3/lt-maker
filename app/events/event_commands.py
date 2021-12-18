@@ -416,8 +416,20 @@ Extra flags:
         """
 
     keywords = ['Speaker', 'Text']
-    optional_keywords = ['ScreenPosition', 'Width', 'DialogVariant']
+    optional_keywords = ['ScreenPosition', 'Width', 'DialogVariant', 'Nid']
     flags = ['low_priority', 'hold', 'no_popup']
+
+class EndHoldSpeak(EventCommand):
+    nid = "unhold"
+    tag = Tags.DIALOGUE_TEXT
+
+    desc = """
+Remove a speak command from the screen. This is useful if you used the `hold` flag on a speak command earlier.
+
+This will 'unhold' the speak command with the specified NID.
+    """
+
+    keywords = ['NID']
 
 class Narrate(EventCommand):
     nid = "narrate"

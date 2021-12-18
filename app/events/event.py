@@ -79,7 +79,7 @@ class Event():
         self.region = region
 
         self.portraits: Dict[str, EventPortrait] = {}
-        self.text_boxes = []
+        self.text_boxes: List[dialog.Dialog] = []
         self.other_boxes: List[Tuple[NID, Any]] = []
         self.overlay_ui = uif.UIComponent.create_base_component()
 
@@ -527,6 +527,10 @@ class Event():
 
         elif command.nid == 'speak':
             self.speak(command)
+
+        elif command.nid == 'unhold':
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
+            self.unhold(*values, flags)
 
         elif command.nid == 'add_portrait':
             self.add_portrait(command)
@@ -1695,6 +1699,10 @@ class Event():
             variant = values[4]
         else:
             variant = None
+        if len(values) > 5 and values[5]:
+            nid = values[5]
+        else:
+            nid = None
 
         portrait = self.portraits.get(speaker)
         bg = 'message_bg_base'
@@ -1725,7 +1733,7 @@ class Event():
             if not width:
                 width = WINWIDTH - 8
 
-        new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant)
+        new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant, nid=nid)
         new_dialog.hold = 'hold' in flags
         if 'no_popup' in flags:
             new_dialog.last_update = engine.get_time() - 10000
@@ -1735,6 +1743,11 @@ class Event():
         if portrait and 'low_priority' not in flags:
             portrait.priority = self.priority_counter
             self.priority_counter += 1
+
+    def unhold(self, unhold_nid, flags):
+        for box in self.text_boxes:
+            if box.nid == unhold_nid:
+                box.hold = False
 
     def _place_unit(self, unit, position, entry_type):
         if self.do_skip:

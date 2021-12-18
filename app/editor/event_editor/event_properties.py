@@ -241,6 +241,7 @@ class CodeEditor(QPlainTextEdit):
             self.textChanged.connect(self.complete)
             self.textChanged.connect(self.display_function_hint)
             self.clicked.connect(self.display_function_hint)
+            self.cursorPositionChanged.connect(self.display_function_hint)
             self.prev_keyboard_press = None
 
             # function helper

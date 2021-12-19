@@ -1736,7 +1736,8 @@ class Event():
             if not width:
                 width = WINWIDTH - 8
 
-        new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant, nid=nid)
+        autosize = 'fit' in flags
+        new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant, nid=nid, autosize=autosize)
         new_dialog.hold = 'hold' in flags
         if 'no_popup' in flags:
             new_dialog.last_update = engine.get_time() - 10000

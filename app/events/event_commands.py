@@ -412,12 +412,13 @@ Extra flags:
 
 1. *low_priority*: The speaker's portrait will not be moved in front of other overlapping portraits.
 2. *hold*: The dialog box will remain even after the player has pressed A (useful for narration).
-3. *no_popup*: The dialog box will transition in, but rather will appear immediately.
+3. *no_popup*: The dialog box will not transition in, but rather will appear immediately.
+4. *fit*: The dialog box will shrink to fit the text.
         """
 
     keywords = ['Speaker', 'Text']
     optional_keywords = ['TextPosition', 'Width', 'DialogVariant', 'Nid']
-    flags = ['low_priority', 'hold', 'no_popup']
+    flags = ['low_priority', 'hold', 'no_popup', 'fit']
 
 class EndHoldSpeak(EventCommand):
     nid = "unhold"

@@ -22,13 +22,14 @@ class Dialog():
 
     aesthetic_commands = ('{red}', '{/red}', '{black}', '{/black}', '{white}', '{/white}', '{green}', '{/green}')
 
-    def __init__(self, text, portrait=None, background=None, position=None, width=None, speaker=None, variant=None, nid=None):
+    def __init__(self, text, portrait=None, background=None, position=None, width=None, speaker=None, variant=None, nid=None, autosize=False):
         self.plain_text = text
         self.portrait = portrait
         self.speaker = speaker
         self.variant = variant
         self.font_type = 'convo'
         self.nid = nid
+        self.autosize = autosize
         if self.variant in ('noir', 'narration', 'narration_top', 'clear'):
             self.font_color = 'white'
         else:
@@ -57,7 +58,7 @@ class Dialog():
             self.width -= self.width%8
             self.text_width = max(8, self.width - 24)
             self.determine_height()
-        elif self.portrait:
+        elif self.portrait or self.autosize:
             self.determine_size()
         else:
             self.text_width, self.text_height = (WINWIDTH - 24, self.num_lines * 16)

@@ -1688,7 +1688,10 @@ class Event():
         text = text.replace('\u2028', '{sub_break}')  # sub break to distinguish it
 
         if len(values) > 2 and values[2]:
-            position = self.parse_pos(values[2])
+            if values[2] == 'center':
+                position = 'center'
+            else:
+                position = self.parse_pos(values[2])
         else:
             position = None
         if len(values) > 3 and values[3]:

@@ -416,7 +416,7 @@ Extra flags:
         """
 
     keywords = ['Speaker', 'Text']
-    optional_keywords = ['ScreenPosition', 'Width', 'DialogVariant', 'Nid']
+    optional_keywords = ['TextPosition', 'Width', 'DialogVariant', 'Nid']
     flags = ['low_priority', 'hold', 'no_popup']
 
 class EndHoldSpeak(EventCommand):

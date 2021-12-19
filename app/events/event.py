@@ -3214,8 +3214,8 @@ class Event():
         # save level state
         self.prev_game_boundary = game.boundary
         self.prev_board = game.board
-        from app.engine.overworld.overworld_states import OverworldState
-        OverworldState.set_up_overworld_game_state(overworld_nid)
+        from app.engine.overworld.overworld_states import OverworldFreeState
+        OverworldFreeState.set_up_overworld_game_state(overworld_nid)
 
     def set_overworld_position(self, entity_nid: NID, location: NID | Tuple[float, float], flags={}):
         if isinstance(location, tuple): # setting to a direct coordinate

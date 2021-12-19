@@ -137,7 +137,7 @@ class StateMachine():
              'base_records': base.BaseRecordsState,
              'free_roam': roam_state.FreeRoamState,
              'debug': debug_mode.DebugState,
-             'overworld': overworld_states.OverworldState,
+             'overworld': overworld_states.OverworldFreeState,
              'overworld_movement': overworld_states.OverworldMovementState,
              'overworld_game_option_menu': overworld_states.OverworldGameOptionMenuState,
              'overworld_party_option_menu': overworld_states.OverworldPartyOptionMenu,

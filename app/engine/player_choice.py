@@ -1,5 +1,4 @@
 import logging
-from enum import Enum
 
 from app.data.database import DB
 from app.engine import action
@@ -25,7 +24,8 @@ class PlayerChoiceState(MapState):
                 self.size = (1, ncols)
                 rows, ncols = self.size
             else:
-                self.size = (0, 1)
+                nrows = len(options_list)
+                self.size = (nrows, 1)
                 rows, ncols = self.size
         self.menu = ChoiceMenuUI(options_list, data_type=self.data_type, rows=rows, row_width=self.row_width,
                                  title=self.header, cols=ncols, alignment=self.alignment, bg=self.bg)

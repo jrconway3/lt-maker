@@ -13,7 +13,7 @@ from app.engine.game_state import game
 
 class Dialog():
     num_lines = 2
-    solo_flag = True
+    solo_flag = False
     cursor = SPRITES.get('waiting_cursor')
     cursor_offset = [0]*20 + [1]*2 + [2]*8 + [1]*2
     draw_cursor_flag = True
@@ -22,12 +22,13 @@ class Dialog():
 
     aesthetic_commands = ('{red}', '{/red}', '{black}', '{/black}', '{white}', '{/white}', '{green}', '{/green}')
 
-    def __init__(self, text, portrait=None, background=None, position=None, width=None, speaker=None, variant=None):
+    def __init__(self, text, portrait=None, background=None, position=None, width=None, speaker=None, variant=None, nid=None):
         self.plain_text = text
         self.portrait = portrait
         self.speaker = speaker
         self.variant = variant
         self.font_type = 'convo'
+        self.nid = nid
         if self.variant in ('noir', 'narration', 'narration_top', 'clear'):
             self.font_color = 'white'
         else:

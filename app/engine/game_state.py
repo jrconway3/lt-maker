@@ -182,7 +182,8 @@ class GameState():
         self.base_convos = {}
         self.action_log = turnwheel.ActionLog()
         self.events = event_manager.EventManager()
-        self.dialog_log.clear()
+        if self.dialog_log:
+            self.dialog_log.clear()
 
     def generic(self):
         """

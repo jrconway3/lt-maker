@@ -162,7 +162,8 @@ class Event():
         self.should_update = {name: to_update for name, to_update in self.should_update.items() if not to_update(self.do_skip)}
 
         # Update movement so that no_block works correctly
-        game.movement.update()
+        if game.movement:
+            game.movement.update()
 
         # Can move through its own internal state up to 5 times in a frame
         counter = 0

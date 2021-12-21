@@ -616,7 +616,7 @@ class SimpleCombat():
                     killer = game.get_unit(killer)
                 game.events.trigger('unit_death', unit, killer, position=unit.position)
                 skill_system.on_death(unit)
-                
+
         if self.arena_combat:
             for unit in units:
                 if unit.is_dying:

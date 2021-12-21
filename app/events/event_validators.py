@@ -209,6 +209,25 @@ class Tag(Validator):
         valids = [(None, tag.nid) for tag in DB.tags.values()]
         return valids
 
+class TextPosition(Validator):
+    valid_positions = ['center']
+
+    desc = """
+Determines position to place text. Supports either pixels (`x,y`) or the `center` position.
+"""
+    def validate(self, text, level):
+        if text in self.valid_positions:
+            return text
+        elif ',' in text and len(text.split(',')) == 2 and all(str_utils.is_int(t) for t in text.split(',')):
+            return text
+        return None
+
+    @lru_cache()
+    def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
+        valids = [(None, option) for option in self.valid_positions]
+        return valids
+
+
 class ScreenPosition(Validator):
     valid_positions = ["OffscreenLeft", "FarLeft", "Left", "MidLeft", "CenterLeft", "CenterRight", "MidRight", "LevelUpRight", "Right", "FarRight", "OffscreenRight"]
 

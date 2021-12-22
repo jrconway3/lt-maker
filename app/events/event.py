@@ -449,10 +449,10 @@ class Event():
 
         elif command.nid == 'music':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
-            music = command.values[0]
+            music = values[0]
             fade = 400
-            if len(command.values) > 1 and command.values[1]:
-                fade = int(command.values[1])
+            if len(values) > 1 and values[1]:
+                fade = int(values[1])
             if self.do_skip:
                 fade = 0
             if music == 'None':
@@ -463,8 +463,8 @@ class Event():
         elif command.nid == 'music_clear':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
             fade = 0
-            if len(command.values) > 0 and command.values[0]:
-                fade = int(command.values[0])
+            if len(values) > 0 and values[0]:
+                fade = int(values[0])
             if self.do_skip:
                 fade = 0
             if fade > 0:
@@ -474,16 +474,16 @@ class Event():
 
         elif command.nid == 'sound':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
-            sound = command.values[0]
+            sound = values[0]
             volume = 1
-            if len(command.values) > 1 and command.values[1]:
-                volume = float(command.values[1])
+            if len(values) > 1 and values[1]:
+                volume = float(values[1])
             SOUNDTHREAD.play_sfx(sound, volume=volume)
 
         elif command.nid == 'change_music':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
-            phase = command.values[0]
-            music = command.values[1]
+            phase = values[0]
+            music = values[1]
             if music == 'None':
                 action.do(action.ChangePhaseMusic(phase, None))
             else:
@@ -598,7 +598,7 @@ class Event():
 
         elif command.nid == 'disp_cursor':
             values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
-            b = command.values[0]
+            b = values[0]
             if b.lower() in self.true_vals:
                 game.cursor.show()
             else:

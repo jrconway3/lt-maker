@@ -297,15 +297,14 @@ def on_hit(actions, playback, unit, item, target, target_pos, mode, attack_info,
                 component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode, attack_info)
 
     # Default playback
-    if not no_combat(unit, item):
-        if target and find_hp(actions, target) <= 0:
-            playback.append(('shake', 2))
-            if not any(brush for brush in playback if brush[0] == 'hit_sound'):
-                playback.append(('hit_sound', 'Final Hit'))
-        else:
-            playback.append(('shake', 1))
-            if not any(brush[0] == 'hit_sound' for brush in playback):
-                playback.append(('hit_sound', 'Attack Hit ' + str(random.randint(1, 5))))
+    if target and find_hp(actions, target) <= 0:
+        playback.append(('shake', 2))
+        if not any(brush for brush in playback if brush[0] == 'hit_sound'):
+            playback.append(('hit_sound', 'Final Hit'))
+    else:
+        playback.append(('shake', 1))
+        if not any(brush[0] == 'hit_sound' for brush in playback):
+            playback.append(('hit_sound', 'Attack Hit ' + str(random.randint(1, 5))))
     if target and not any(brush for brush in playback if brush[0] in ('unit_tint_add', 'unit_tint_sub')):
         playback.append(('unit_tint_add', target, (255, 255, 255)))
 

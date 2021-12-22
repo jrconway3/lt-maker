@@ -69,7 +69,7 @@ class MapCombat(SimpleCombat):
             if not self.actions and not self.playback:
                 self.state_machine.setup_next_state()
                 return False
-            if not item_system.no_combat(self.attacker, self.main_item):
+            if not item_system.no_map_hp_display(self.attacker, self.main_item):
                 self._build_health_bars()
             if self.first_phase:
                 self.set_up_pre_proc_animation('attack_pre_proc')

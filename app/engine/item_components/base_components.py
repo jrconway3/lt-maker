@@ -103,14 +103,6 @@ class Unrepairable(ItemComponent):
     def unrepairable(self, unit, item):
         return True
 
-class NoCombat(ItemComponent):
-    nid = 'no_combat'
-    desc = "Item does not do a map combat when used"
-    tag = 'base'
-
-    def no_combat(self, unit, item):
-        return True
-
 class Value(ItemComponent):
     nid = 'value'
     desc = "Item has a value and can be bought and sold. Items sell for half their value."

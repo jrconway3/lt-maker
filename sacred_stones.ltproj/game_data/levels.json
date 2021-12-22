@@ -3828,6 +3828,10 @@
                     [
                         "Heal",
                         false
+                    ],
+                    [
+                        "Fortify",
+                        false
                     ]
                 ],
                 "team": "player",

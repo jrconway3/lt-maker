@@ -57,7 +57,7 @@ class EnemyBlastAOE(BlastAOE, ItemComponent):
         else:
             # regular blast
             splash = [game.board.get_unit(s) for s in splash if s != position]
-            splash = [s.position for s in splash if s and skill_system.check_enemy(unit)]
+            splash = [s.position for s in splash if s and skill_system.check_enemy(unit, s)]
             return position if game.board.get_unit(position) else None, splash
 
     def splash_positions(self, unit, item, position) -> set:

@@ -3,7 +3,7 @@ from __future__ import annotations
 import ast
 import logging
 import re
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Set, Tuple
 
 import app.engine.config as cf
 import app.engine.graphics.ui_framework as uif
@@ -56,6 +56,17 @@ vertical_screen_positions = {'Top': 0,
                              'Middle': 40,
                              'Bottom': 80}
 
+class SpeakStyle():
+    def __init__(self, nid: NID = None, speaker: NID = None, text_position: str | Tuple[int, int]=None,
+                 width: int = None, dialog_variant: str = None, speed: int = None, flags: Set[str] = None):
+        self.nid: NID = nid
+        self.speaker: NID = speaker
+        self.text_position: str | Tuple[int, int] = text_position
+        self.width: int = width
+        self.dialog_variant: str = dialog_variant
+        self.speed: int = speed
+        self.flags: Set[str] = flags
+
 class Event():
     _transition_speed = 250
     _transition_color = (0, 0, 0)
@@ -77,6 +88,8 @@ class Event():
         self.item = item
         self.position = position
         self.region = region
+
+        self.speak_styles: Dict[NID, SpeakStyle] = {}
 
         self.portraits: Dict[str, EventPortrait] = {}
         self.text_boxes: List[dialog.Dialog] = []
@@ -527,7 +540,12 @@ class Event():
                 self.state = 'waiting'
 
         elif command.nid == 'speak':
-            self.speak(command)
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
+            self.speak(*values, flags)
+
+        elif command.nid == 'speak_style':
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
+            self.speak_style(*values, flags)
 
         elif command.nid == 'unhold':
             values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
@@ -1676,11 +1694,8 @@ class Event():
             text = text.replace(to_evaluate[idx], evaluated[idx])
         return text
 
-    def speak(self, command):
-        values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)
-
-        speaker = values[0]
-        text = values[1]
+    def speak(self, speaker, text, text_position, width, dialog_variant,
+              nid, speed, flags):
         # special char: this is a unicode single-line break.
         # basically equivalent to {br}
         # the first char shouldn't be one of these
@@ -1688,25 +1703,42 @@ class Event():
             text = text[1:]
         text = text.replace('\u2028', '{sub_break}')  # sub break to distinguish it
 
-        if len(values) > 2 and values[2]:
-            if values[2] == 'center':
+        speak_style = None
+        if nid and nid in self.speak_styles:
+            speak_style = self.speak_styles[nid]
+
+
+        if not speaker:
+            if speak_style:
+                speaker = speak_style.speaker
+
+        position = None
+        if text_position:
+            if text_position == 'center':
                 position = 'center'
             else:
-                position = self.parse_pos(values[2])
+                position = self.parse_pos(text_position)
+        elif speak_style:
+                position = speak_style.text_position
+
+        width = None
+        if width:
+            width = int(width)
+        elif speak_style:
+            width = speak_style.width
+
+        variant = None
+        if dialog_variant:
+            variant = dialog_variant
+        elif speak_style:
+            variant = speak_style.dialog_variant
+
+        if speed:
+            speed = speed
+        elif speak_style:
+            speed = speak_style.speed
         else:
-            position = None
-        if len(values) > 3 and values[3]:
-            width = int(values[3])
-        else:
-            width = None
-        if len(values) > 4 and values[4]:
-            variant = values[4]
-        else:
-            variant = None
-        if len(values) > 5 and values[5]:
-            nid = values[5]
-        else:
-            nid = None
+            speed = 1
 
         portrait = self.portraits.get(speaker)
         bg = 'message_bg_base'
@@ -1737,8 +1769,11 @@ class Event():
             if not width:
                 width = WINWIDTH - 8
 
+        if speak_style:
+            flags = speak_style.flags.union(flags)
+
         autosize = 'fit' in flags
-        new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant, nid=nid, autosize=autosize)
+        new_dialog = dialog.Dialog(text, portrait, bg, position, width, speaker=speaker, variant=variant, nid=nid, autosize=autosize, speed=speed)
         new_dialog.hold = 'hold' in flags
         if 'no_popup' in flags:
             new_dialog.last_update = engine.get_time() - 10000
@@ -1748,6 +1783,30 @@ class Event():
         if portrait and 'low_priority' not in flags:
             portrait.priority = self.priority_counter
             self.priority_counter += 1
+
+    def speak_style(self, nid, speaker, text_position, width,
+                    dialog_variant, speed, flags):
+        if nid in self.speak_styles:
+            style = self.speak_styles[nid]
+        else:
+            style = SpeakStyle(nid=nid)
+        # parse everything
+        if speaker:
+            style.speaker = speaker
+        if text_position:
+            if text_position == 'center':
+                style.text_position = text_position
+            else:
+                style.text_position  = self.parse_pos(text_position)
+        if width:
+            style.width = int(width)
+        if dialog_variant:
+            style.dialog_variant = dialog_variant
+        if speed:
+            style.speed = int(speed)
+        if flags:
+            style.flags = flags
+        self.speak_styles[nid] = style
 
     def unhold(self, unhold_nid, flags):
         for box in self.text_boxes:

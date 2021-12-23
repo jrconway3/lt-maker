@@ -386,6 +386,23 @@ Changes a portrait's facial expression.
 
     keywords = ['Portrait', 'ExpressionList']
 
+class SpeakStyle(EventCommand):
+    nid = "speak_style"
+    tag = Tags.DIALOGUE_TEXT
+
+    desc = \
+"""
+Automatically formats all `speak` commands with NID equal to the style's NID with the style.
+
+A style consists of all parameters that one can apply to individual speak commands, including flags.
+
+A style only applies to `speak` commands inside this event.
+"""
+
+    keywords = ['NID']
+    optional_keywords = ['Speaker', 'TextPosition', 'Width', 'DialogVariant', 'Integer']
+    flags = ['low_priority', 'hold', 'no_popup', 'fit']
+
 class Speak(EventCommand):
     nid = "speak"
     nickname = "s"
@@ -397,6 +414,8 @@ Causes the *Speaker* to speak some *Text*. If *Speaker* is a portrait nid that i
 *Text* will appear in a speech bubble from that portrait. If *Speaker* is left blank,
 *Text* will appear in a box with no name label. For all other values of *Speaker*,
 *Text* will appear in a box with the *Speaker* as the name label.
+
+*Integer* indicates the speed of the text - higher numbers are slower.
 
 The pipe | symbol can be used within the *Text* body to insert a line break.
 
@@ -417,7 +436,7 @@ Extra flags:
         """
 
     keywords = ['Speaker', 'Text']
-    optional_keywords = ['TextPosition', 'Width', 'DialogVariant', 'Nid']
+    optional_keywords = ['TextPosition', 'Width', 'DialogVariant', 'Nid', 'Integer']
     flags = ['low_priority', 'hold', 'no_popup', 'fit']
 
 class EndHoldSpeak(EventCommand):

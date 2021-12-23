@@ -1734,7 +1734,7 @@ class Event():
             variant = speak_style.dialog_variant
 
         if speed:
-            speed = speed
+            speed = float(speed)
         elif speak_style:
             speed = speak_style.speed
         else:
@@ -1803,7 +1803,7 @@ class Event():
         if dialog_variant:
             style.dialog_variant = dialog_variant
         if speed:
-            style.speed = int(speed)
+            style.speed = float(speed)
         if flags:
             style.flags = flags
         self.speak_styles[nid] = style

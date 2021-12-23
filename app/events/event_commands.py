@@ -400,7 +400,7 @@ A style only applies to `speak` commands inside this event.
 """
 
     keywords = ['NID']
-    optional_keywords = ['Speaker', 'TextPosition', 'Width', 'DialogVariant', 'Integer']
+    optional_keywords = ['Speaker', 'TextPosition', 'Width', 'DialogVariant', 'Float']
     flags = ['low_priority', 'hold', 'no_popup', 'fit']
 
 class Speak(EventCommand):
@@ -415,7 +415,7 @@ Causes the *Speaker* to speak some *Text*. If *Speaker* is a portrait nid that i
 *Text* will appear in a box with no name label. For all other values of *Speaker*,
 *Text* will appear in a box with the *Speaker* as the name label.
 
-*Integer* indicates the speed of the text - higher numbers are slower.
+*Float* indicates the speed of the text - higher numbers are slower.
 
 The pipe | symbol can be used within the *Text* body to insert a line break.
 
@@ -436,7 +436,7 @@ Extra flags:
         """
 
     keywords = ['Speaker', 'Text']
-    optional_keywords = ['TextPosition', 'Width', 'DialogVariant', 'Nid', 'Integer']
+    optional_keywords = ['TextPosition', 'Width', 'DialogVariant', 'Nid', 'Float']
     flags = ['low_priority', 'hold', 'no_popup', 'fit']
 
 class EndHoldSpeak(EventCommand):

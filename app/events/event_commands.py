@@ -1734,17 +1734,19 @@ Optional args:
 * *type_unit* will interpret all options as unit NIDs
 * *type_class* will interpret all options as class NIDs.
 * *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
+* *type_sprite* will interpret the options as sprite NIDs.
 
 * The *persist* flag indicates whether or not the choice ends after you make a selection. If *persist* is true, then the choice can only be exited
 via hitting the back button, and the event will go on as normal.
 
 * The *expression* flag indicates that the provided table data should be be continually parsed as a python expression and updated.
+* The *no_bg* flag removes the bg.
  """
 
     keywords = ['Nid', 'Text', 'String']
     optional_keywords = ['Width', 'Orientation', 'Align', 'Sprite', 'Event', 'TableEntryType', 'Size']
     keyword_names = ['NID', 'Title', 'Choices', 'RowWidth', 'Orientation', 'Alignment', 'BG', 'EventName', 'Type', 'Dimensions']
-    flags = ['persist', 'expression']
+    flags = ['persist', 'expression', 'no_bg']
 
 class NoChoice(EventCommand):
     nid = 'unchoice'
@@ -1783,14 +1785,16 @@ expression would automatically update the gold.
 * *type_unit* will interpret all options as unit NIDs
 * *type_class* will interpret all options as class NIDs.
 * *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
+* *type_sprite* will interpret the options as sprite NIDs.
 
 * The *expression* flag indicates that the provided table data should be be continually parsed as a python expression and updated.
+* The *no_bg* flag removes the bg.
     """
 
     keywords = ['Nid', 'String']
     optional_keywords = ['Text', 'Size', 'Width', 'Align', 'Sprite', 'TableEntryType']
     keyword_names = ['NID', 'TableData', 'Title', 'Dimensions', 'RowWidth', 'Alignment', 'BG', 'Type']
-    flags = ['expression']
+    flags = ['expression', 'no_bg']
 
 class TextEntry(EventCommand):
     nid = 'text_entry'

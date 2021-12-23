@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.constants import COLORKEY
 from app.engine.objects.item import ItemObject
 
 from typing import Callable, List, Tuple
@@ -15,6 +16,8 @@ from app.engine.graphics.ui_framework.ui_framework import UIComponent
 from app.engine.graphics.ui_framework.ui_framework_layout import convert_align
 from app.engine.icons import get_icon, get_icon_by_nid
 from app.engine.objects.unit import UnitObject
+from app.resources.resources import RESOURCES
+from app.sprites import SPRITES
 from app.utilities.enums import Alignments
 from app.utilities.typing import NID
 class SimpleMenuUI():
@@ -75,6 +78,8 @@ class SimpleMenuUI():
             return [self.parse_unit(game.unit_registry.get(unit_nid), choice_text) for unit_nid, choice_text in split_data]
         elif self._data_type == 'type_class':
             return [self.parse_klass(DB.classes.get(klass_nid), choice_text) for klass_nid, choice_text in split_data]
+        elif self._data_type == 'type_portrait':
+            return [self.parse_portrait(portrait_nid) for portrait_nid, _ in split_data]
         elif self._data_type == 'type_icon':
             parsed_data = [(datum.split('-'), choice_text) for datum, choice_text in split_data]
             return [self.parse_custom_icon_data(tup, choice_text) for tup, choice_text in parsed_data]
@@ -117,6 +122,17 @@ class SimpleMenuUI():
             return (unit_icon, unit.name if not choice_name else choice_name, unit.nid)
         else:
             return (get_icon(None), "ERR", "ERR")
+
+    def parse_portrait(self, portrait_nid: NID) -> Tuple[engine.Surface, str, str]:
+        # mostly copied from EventPortrait
+        portrait = RESOURCES.portraits.get(portrait_nid)
+        main_portrait_coords = (0, 0, 96, 80)
+        if not portrait.image:
+            portrait.image = engine.image_load(portrait.full_path)
+        portrait.image = portrait.image.convert()
+        engine.set_colorkey(portrait.image, COLORKEY, rleaccel=True)
+        main_portrait = engine.subsurface(portrait.image, main_portrait_coords)
+        return (main_portrait, "", "")
 
     def update(self):
         if self._get_data:

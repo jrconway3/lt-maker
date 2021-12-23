@@ -26,6 +26,8 @@ class SimpleIconTable(UIComponent):
         self._background = background
         self.column_data: List[List[IconRow]] = [list() for _ in range(self.num_columns)]
 
+        self.row_height = 16 # default icon. will be resized if any rows are larger.
+
         # subcomponents and layout
         self.props.layout = UILayoutType.LIST
         self.props.list_style = ListLayoutStyle.COLUMN
@@ -82,6 +84,7 @@ class SimpleIconTable(UIComponent):
         self.column_data = [list() for _ in range(self.num_columns)]
         for idx, item in enumerate(data):
             row_item = self.construct_row(item)
+            self.row_height = max(self.row_height, row_item.height)
             self.column_data[idx % self.num_columns].append(row_item)
         self._reset('set_data')
         for idx, col in enumerate(self.column_components):
@@ -120,9 +123,9 @@ class SimpleIconTable(UIComponent):
 
         table_height = 0
         if force_num_rows > 0:
-            table_height = self.num_rows * 16
+            table_height = self.num_rows * self.row_height
         else:
-            table_height = self.max_rows_in_cols * 16
+            table_height = self.max_rows_in_cols * self.row_height
 
         return max_row_width, table_height
 

@@ -415,7 +415,7 @@ class ShopFlavor(OptionValidator):
     valid = ['armory', 'vendor']
 
 class TableEntryType(OptionValidator):
-    valid = ['type_skill', 'type_base_item', 'type_game_item', 'type_unit', 'type_class', 'type_icon']
+    valid = ['type_skill', 'type_base_item', 'type_game_item', 'type_unit', 'type_class', 'type_icon', 'type_portrait']
 
 
 class Position(Validator):

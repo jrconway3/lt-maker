@@ -3118,6 +3118,8 @@ class Event():
             width = '-1'
         if not bg:
             bg = 'menu_bg_base'
+        if 'no_bg' in flags:
+            bg = None
 
         rows, cols = tuple(int(i) for i in row_col_size.split(','))
         row_width = int(width)
@@ -3164,6 +3166,8 @@ class Event():
             width = '-1'
         if not bg:
             bg = 'menu_bg_base'
+        if 'no_bg' in flags:
+            bg = None
 
         # determine data type
         dtype = 'str'

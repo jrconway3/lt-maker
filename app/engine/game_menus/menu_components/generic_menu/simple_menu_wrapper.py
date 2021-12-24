@@ -18,19 +18,19 @@ from app.engine.icons import get_icon, get_icon_by_nid
 from app.engine.objects.unit import UnitObject
 from app.resources.resources import RESOURCES
 from app.sprites import SPRITES
-from app.utilities.enums import Alignments
+from app.utilities.enums import Alignments, Orientation
 from app.utilities.typing import NID
 class SimpleMenuUI():
     def __init__(self, data: List[str] | Callable[[], List] = None, data_type: str = 'str',
                  title: str = None, rows: int = 0, cols: int = 1, row_width: int = -1,
-                 alignment: Alignments = Alignments.TOP_LEFT, bg: str = 'menu_bg_base'):
+                 alignment: Alignments = Alignments.TOP_LEFT, bg: str = 'menu_bg_base', orientation: Orientation = Orientation.VERTICAL):
         self._data_type = data_type
         self._data: List = None
         self._get_data: Callable[[], List] = None
 
         # UI stuff
         self.base_component = UIComponent.create_base_component()
-        self.table: SimpleIconTable = self.create_table(self.base_component, rows, cols, title, row_width, bg)
+        self.table: SimpleIconTable = self.create_table(self.base_component, rows, cols, title, row_width, bg, orientation)
         halign, valign = convert_align(alignment)
         self.table.props.h_alignment = halign
         self.table.props.v_alignment = valign

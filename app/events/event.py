@@ -3213,11 +3213,12 @@ class Event():
         if dims:
             size = tuple([int(x) for x in dims.split(',')])
 
-        should_persist = False
-        if 'persist' in flags:
-            should_persist = True
+        should_persist = 'persist' in flags
+        no_cursor = 'no_cursor' in flags
+        arrows = 'arrows' in flags and orientation == 'horizontal'
+        scroll_bar = 'scroll_bar' in flags and orientation == 'vertical'
 
-        game.memory['player_choice'] = (nid, header, data, row_width, orientation, dtype, should_persist, align, bg, event_nid, size)
+        game.memory['player_choice'] = (nid, header, data, row_width, orientation, dtype, should_persist, align, bg, event_nid, size, no_cursor, arrows, scroll_bar)
         game.state.change('player_choice')
         self.state = 'paused'
 

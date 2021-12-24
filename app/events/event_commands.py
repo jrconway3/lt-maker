@@ -1741,12 +1741,15 @@ via hitting the back button, and the event will go on as normal.
 
 * The *expression* flag indicates that the provided table data should be be continually parsed as a python expression and updated.
 * The *no_bg* flag removes the bg.
+* *no_cursor* removes the cursor.
+* *arrows* adds pulsing left/right arrows.
+* *scroll_bar* adds a vertical scroll bar
  """
 
     keywords = ['Nid', 'Text', 'String']
     optional_keywords = ['Width', 'Orientation', 'Align', 'Sprite', 'Event', 'TableEntryType', 'Size']
     keyword_names = ['NID', 'Title', 'Choices', 'RowWidth', 'Orientation', 'Alignment', 'BG', 'EventName', 'Type', 'Dimensions']
-    flags = ['persist', 'expression', 'no_bg']
+    flags = ['persist', 'expression', 'no_bg', 'no_cursor', 'arrows', 'scroll_bar']
 
 class NoChoice(EventCommand):
     nid = 'unchoice'

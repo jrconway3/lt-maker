@@ -15,7 +15,7 @@ class PlayerChoiceState(MapState):
     def start(self):
         self.nid, self.header, options_list, self.row_width, self.orientation, \
             self.data_type, self.should_persist, self.alignment, self.bg, self.event_on_choose, \
-            self.size, self.no_cursor, self.arrows, self.scroll_bar = \
+            self.size, self.no_cursor, self.arrows, self.scroll_bar, self.text_align = \
             game.memory['player_choice']
         self.tsize = [0, 0]
         if self.size:
@@ -30,7 +30,8 @@ class PlayerChoiceState(MapState):
                 self.size = (nrows, 1)
                 rows, ncols = self.size
         self.menu = ChoiceMenuUI(options_list, data_type=self.data_type, rows=rows, row_width=self.row_width,
-                                 title=self.header, cols=ncols, alignment=self.alignment, bg=self.bg, orientation=Orientation(self.orientation))
+                                 title=self.header, cols=ncols, alignment=self.alignment, bg=self.bg,
+                                 orientation=Orientation(self.orientation), text_align=self.text_align)
         self.menu.set_scrollbar(self.scroll_bar)
         self.menu.set_arrows(self.arrows)
 

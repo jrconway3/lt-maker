@@ -11,6 +11,7 @@ from app.engine.graphics.ui_framework import (HeaderList, IconRow,
                                             ListLayoutStyle, UIComponent,
                                             UILayoutType )
 from app.engine import engine
+from app.engine.graphics.ui_framework.ui_framework_layout import HAlignment
 from app.engine.gui import ScrollArrow, ScrollBar
 from app.sprites import SPRITES
 from app.utilities.enums import Orientation
@@ -20,7 +21,8 @@ class SimpleIconTable(UIComponent):
     def __init__(self, name: str, parent: UIComponent = None,
                  initial_data: List[str] | List[Tuple[engine.Surface, str, str]] = [],
                  num_columns: int = 1, num_rows: int = 0, row_width: int = -1,
-                 background = 'menu_bg_base', title: str = None, orientation: Orientation = Orientation.VERTICAL):
+                 background = 'menu_bg_base', title: str = None, orientation: Orientation = Orientation.VERTICAL,
+                 option_text_align: HAlignment = HAlignment.LEFT):
         super().__init__(name=name, parent=parent)
 
         self.num_display_columns = max(num_columns, 1)
@@ -30,6 +32,7 @@ class SimpleIconTable(UIComponent):
         self._title = None
         self._background = background
         self.orientation = orientation
+        self.text_align = option_text_align
         self.column_data: List[List[IconRow]] = []
 
         self.row_height = 16 # default icon. will be resized if any rows are larger.
@@ -86,7 +89,7 @@ class SimpleIconTable(UIComponent):
                 nid = datum[2]
             else:
                 nid = datum[1]
-            row = IconRow(text, text=text, icon=icon, data=nid)
+            row = IconRow(text, text=text, icon=icon, data=nid, text_align=self.text_align)
         else:
             row =  IconRow(datum, text=datum, data=datum)
         row.overflow = (15, 0, 15, 0)
@@ -191,10 +194,12 @@ class ChoiceTable(SimpleIconTable):
     def __init__(self, name: str, parent: UIComponent = None,
                  initial_data: List[str] | List[Tuple[engine.Surface, str, str]] = [],
                  num_columns: int = 1, num_rows: int = -1, row_width: int = -1,
-                 background='menu_bg_base', title: str = None, orientation: Orientation = Orientation.VERTICAL):
+                 background='menu_bg_base', title: str = None, orientation: Orientation = Orientation.VERTICAL,
+                 option_text_align: HAlignment = HAlignment.LEFT):
         super().__init__(name, parent=parent, initial_data=initial_data,
                          num_columns=num_columns, num_rows=num_rows, row_width=row_width,
-                         background=background, title=title, orientation=orientation)
+                         background=background, title=title, orientation=orientation,
+                         option_text_align=option_text_align)
         self.cursor_sprite = SPRITES.get('menu_hand')
         self.cursor_offsets = [0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
         self.cursor_offset_index = 0

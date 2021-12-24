@@ -1727,6 +1727,7 @@ Optional args:
 * The *Event* keyword gives you the option to call an event on selection, if you should so choose. The new event will have the same args {unit}, {unit2} etc. as the current event.
 * The *Type* keyword specifies the specific type of the options, and will change the way the entries are displayed.
 * The *Dimensions* keyword allows you to specify the size of the list in `(rows, columns)`.
+* The *TextAlign* keyword specifies the alignment of the choice text
 
 * *type_skill* will interpret all options as skill NIDs
 * *type_base_item* will interpret all options as item NIDs
@@ -1747,8 +1748,8 @@ via hitting the back button, and the event will go on as normal.
  """
 
     keywords = ['Nid', 'Text', 'String']
-    optional_keywords = ['Width', 'Orientation', 'Align', 'Sprite', 'Event', 'TableEntryType', 'Size']
-    keyword_names = ['NID', 'Title', 'Choices', 'RowWidth', 'Orientation', 'Alignment', 'BG', 'EventName', 'Type', 'Dimensions']
+    optional_keywords = ['Width', 'Orientation', 'Align', 'Sprite', 'Event', 'TableEntryType', 'Size', 'HAlign']
+    keyword_names = ['NID', 'Title', 'Choices', 'RowWidth', 'Orientation', 'Alignment', 'BG', 'EventName', 'Type', 'Dimensions', 'TextAlign']
     flags = ['persist', 'expression', 'no_bg', 'no_cursor', 'arrows', 'scroll_bar']
 
 class NoChoice(EventCommand):
@@ -1781,6 +1782,7 @@ expression would automatically update the gold.
 * The *Alignment* keyword specifies where on the screen the choice box will be displayed.
 * The *BG* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
 * The *Type* keyword specifies the specific type of the options, and will change the way the entries are displayed.
+* The *TextAlign* keyword specifies the alignment of the choice text
 
 * *type_skill* will interpret all options as skill NIDs
 * *type_base_item* will interpret all options as item NIDs
@@ -1795,8 +1797,8 @@ expression would automatically update the gold.
     """
 
     keywords = ['Nid', 'String']
-    optional_keywords = ['Text', 'Size', 'Width', 'Align', 'Sprite', 'TableEntryType']
-    keyword_names = ['NID', 'TableData', 'Title', 'Dimensions', 'RowWidth', 'Alignment', 'BG', 'Type']
+    optional_keywords = ['Text', 'Size', 'Width', 'Align', 'Sprite', 'TableEntryType', 'HAlign']
+    keyword_names = ['NID', 'TableData', 'Title', 'Dimensions', 'RowWidth', 'Alignment', 'BG', 'Type', 'TextAlign']
     flags = ['expression', 'no_bg']
 
 class TextEntry(EventCommand):

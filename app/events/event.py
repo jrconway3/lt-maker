@@ -24,6 +24,7 @@ from app.engine.graphics.ui_framework.premade_animations.animation_templates imp
 from app.engine.graphics.ui_framework.ui_framework import UIComponent
 from app.engine.graphics.ui_framework.ui_framework_animation import \
     InterpolationType
+from app.engine.graphics.ui_framework.ui_framework_layout import HAlignment
 from app.engine.objects.item import ItemObject
 from app.engine.objects.overworld import OverworldNodeObject
 from app.engine.objects.tilemap import TileMapObject
@@ -3105,7 +3106,7 @@ class Event():
                 self.state = 'paused'
 
     def display_table(self, nid: NID, contents: str, desc: str,
-                      row_col_size: str, width: str, alignment: str, bg: str, entry_type: str, flags: Dict):
+                      row_col_size: str, width: str, alignment: str, bg: str, entry_type: str, text_align: str, flags: Dict):
         box_nids = [nid for nid, _ in self.other_boxes]
         if nid in box_nids:
             logging.error("UI element with nid %s already exists" % nid)
@@ -3154,11 +3155,15 @@ class Event():
         align = Alignments.TOP_LEFT
         if alignment:
             align = Alignments(alignment)
-        table_ui = SimpleMenuUI(data, dtype, title=desc, rows=rows, cols=cols, row_width=row_width, alignment=align, bg=bg)
+
+        talign = HAlignment.LEFT
+        if text_align:
+            talign = HAlignment(text_align)
+        table_ui = SimpleMenuUI(data, dtype, title=desc, rows=rows, cols=cols, row_width=row_width, alignment=align, bg=bg, text_align=text_align)
         self.other_boxes.append((nid, table_ui))
 
     def choice(self, nid: NID, desc: str, choices: str, width: str, orientation: str,
-               alignment: str, bg: str, event_nid: str, entry_type: str, dims: str, flags: Dict):
+               alignment: str, bg: str, event_nid: str, entry_type: str, dims: str, text_align: str, flags: Dict):
         nid = nid
         header = desc
 
@@ -3209,6 +3214,10 @@ class Event():
         else:
             align = Alignments(alignment)
 
+        talign = HAlignment.LEFT
+        if text_align:
+            talign = HAlignment(text_align)
+
         size = None
         if dims:
             size = tuple([int(x) for x in dims.split(',')])
@@ -3218,7 +3227,10 @@ class Event():
         arrows = 'arrows' in flags and orientation == 'horizontal'
         scroll_bar = 'scroll_bar' in flags and orientation == 'vertical'
 
-        game.memory['player_choice'] = (nid, header, data, row_width, orientation, dtype, should_persist, align, bg, event_nid, size, no_cursor, arrows, scroll_bar)
+        game.memory['player_choice'] = (nid, header, data, row_width,
+                                        orientation, dtype, should_persist,
+                                        align, bg, event_nid, size, no_cursor,
+                                        arrows, scroll_bar, talign)
         game.state.change('player_choice')
         self.state = 'paused'
 

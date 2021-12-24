@@ -1776,7 +1776,7 @@ class Event():
             if not width:
                 width = WINWIDTH - 8
 
-        if speak_style:
+        if speak_style and speak_style.flags:
             flags = speak_style.flags.union(flags)
 
         autosize = 'fit' in flags

@@ -3832,6 +3832,10 @@
                     [
                         "Fortify",
                         false
+                    ],
+                    [
+                        "Refresh",
+                        false
                     ]
                 ],
                 "team": "player",

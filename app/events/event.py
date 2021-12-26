@@ -1710,6 +1710,9 @@ class Event():
             text = text[1:]
         text = text.replace('\u2028', '{sub_break}')  # sub break to distinguish it
 
+        if 'no_block' in flags:
+            text += '{no_wait}'
+
         speak_style = None
         if nid and nid in self.speak_styles:
             speak_style = self.speak_styles[nid]
@@ -1785,7 +1788,8 @@ class Event():
         if 'no_popup' in flags:
             new_dialog.last_update = engine.get_time() - 10000
         self.text_boxes.append(new_dialog)
-        self.state = 'dialog'
+        if 'no_block' not in flags:
+            self.state = 'dialog'
         # Bring portrait to forefront
         if portrait and 'low_priority' not in flags:
             portrait.priority = self.priority_counter

@@ -433,11 +433,12 @@ Extra flags:
 2. *hold*: The dialog box will remain even after the player has pressed A (useful for narration).
 3. *no_popup*: The dialog box will not transition in, but rather will appear immediately.
 4. *fit*: The dialog box will shrink to fit the text.
+5. *no_block*: the speak command will not block event execution.
         """
 
     keywords = ['Speaker', 'Text']
     optional_keywords = ['TextPosition', 'Width', 'DialogVariant', 'Nid', 'Float']
-    flags = ['low_priority', 'hold', 'no_popup', 'fit']
+    flags = ['low_priority', 'hold', 'no_popup', 'fit', 'no_block']
 
 class EndHoldSpeak(EventCommand):
     nid = "unhold"

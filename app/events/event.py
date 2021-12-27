@@ -1458,6 +1458,14 @@ class Event():
         elif command.nid == 'create_overworld_entity':
             self.create_overworld_entity(command)
 
+        elif command.nid == 'set_overworld_menu_option_enabled':
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
+            self.set_overworld_menu_option_enabled(*values, flags)
+            
+        elif command.nid == 'set_overworld_menu_option_visible':
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals, self._evaluate_vars)
+            self.set_overworld_menu_option_visible(*values, flags)
+        
         elif command.nid == 'clean_up_roaming':
             self.clean_up_roaming(command)
 
@@ -3569,6 +3577,14 @@ class Event():
             new_entity = OverworldEntityObject.from_unit_prefab(entity_nid, None, unit_nid)
             game.overworld_controller.add_entity(new_entity)
 
+    def set_overworld_menu_option_enabled(self, node_nid: NID, option_nid: NID, setting: bool, flags: Dict):
+        overworld = game.overworld_controller
+        overworld.toggle_menu_option_enabled(node_nid, option_nid, not setting)
+        
+    def set_overworld_menu_option_visible(self, node_nid: NID, option_nid: NID, setting: bool, flags: Dict):
+        overworld = game.overworld_controller
+        overworld.toggle_menu_option_visible(node_nid, option_nid, setting)
+    
     def clean_up_roaming(self, command):
         # WARNING: Not currently turnwheel combatible
         values, flags = event_commands.parse(command, self._evaluate_evals, self._evaluate_vars)

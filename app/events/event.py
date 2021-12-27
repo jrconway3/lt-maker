@@ -375,9 +375,12 @@ class Event():
             logging.info('%s: %s', command.nid, command.values)
             if not self.if_stack or self.if_stack[-1]:
                 try:
-                    truth = bool(evaluate.evaluate(command.values[0], self.unit, self.unit2, self.item, self.position, self.region))
+                    cond = command.values[0]
+                    cond = self._evaluate_vars(cond)
+                    cond = self._evaluate_evals(cond)
+                    truth = bool(evaluate.evaluate(cond, self.unit, self.unit2, self.item, self.position, self.region))
                 except Exception as e:
-                    logging.error("%s: Could not evaluate {%s}" % (e, command.values[0]))
+                    logging.error("%s: Could not evaluate {%s}" % (e, cond))
                     truth = False
                 logging.info("Result: %s" % truth)
                 self.if_stack.append(truth)
@@ -394,9 +397,12 @@ class Event():
             # If we haven't encountered a truth yet
             if not self.parse_stack[-1]:
                 try:
-                    truth = bool(evaluate.evaluate(command.values[0], self.unit, self.unit2, self.item, self.position, self.region))
+                    cond = command.values[0]
+                    cond = self._evaluate_vars(cond)
+                    cond = self._evaluate_evals(cond)
+                    truth = bool(evaluate.evaluate(cond, self.unit, self.unit2, self.item, self.position, self.region))
                 except Exception as e:
-                    logging.error("Could not evaluate {%s}" % command.values[0])
+                    logging.error("Could not evaluate {%s}" % cond)
                     truth = False
                 self.if_stack[-1] = truth
                 self.parse_stack[-1] = truth

@@ -24,6 +24,7 @@ from app.engine.graphics.ui_framework.premade_animations.animation_templates imp
 from app.engine.graphics.ui_framework.ui_framework import UIComponent
 from app.engine.graphics.ui_framework.ui_framework_animation import \
     InterpolationType
+from app.engine.graphics.ui_framework.ui_framework_layout import HAlignment
 from app.engine.objects.item import ItemObject
 from app.engine.objects.overworld import OverworldNodeObject
 from app.engine.objects.tilemap import TileMapObject
@@ -1709,6 +1710,9 @@ class Event():
             text = text[1:]
         text = text.replace('\u2028', '{sub_break}')  # sub break to distinguish it
 
+        if 'no_block' in flags:
+            text += '{no_wait}'
+
         speak_style = None
         if nid and nid in self.speak_styles:
             speak_style = self.speak_styles[nid]
@@ -1775,7 +1779,7 @@ class Event():
             if not width:
                 width = WINWIDTH - 8
 
-        if speak_style:
+        if speak_style and speak_style.flags:
             flags = speak_style.flags.union(flags)
 
         autosize = 'fit' in flags
@@ -1784,7 +1788,8 @@ class Event():
         if 'no_popup' in flags:
             new_dialog.last_update = engine.get_time() - 10000
         self.text_boxes.append(new_dialog)
-        self.state = 'dialog'
+        if 'no_block' not in flags:
+            self.state = 'dialog'
         # Bring portrait to forefront
         if portrait and 'low_priority' not in flags:
             portrait.priority = self.priority_counter
@@ -3105,7 +3110,7 @@ class Event():
                 self.state = 'paused'
 
     def display_table(self, nid: NID, contents: str, desc: str,
-                      row_col_size: str, width: str, alignment: str, bg: str, entry_type: str, flags: Dict):
+                      row_col_size: str, width: str, alignment: str, bg: str, entry_type: str, text_align: str, flags: Dict):
         box_nids = [nid for nid, _ in self.other_boxes]
         if nid in box_nids:
             logging.error("UI element with nid %s already exists" % nid)
@@ -3118,6 +3123,8 @@ class Event():
             width = '-1'
         if not bg:
             bg = 'menu_bg_base'
+        if 'no_bg' in flags:
+            bg = None
 
         rows, cols = tuple(int(i) for i in row_col_size.split(','))
         row_width = int(width)
@@ -3152,11 +3159,15 @@ class Event():
         align = Alignments.TOP_LEFT
         if alignment:
             align = Alignments(alignment)
-        table_ui = SimpleMenuUI(data, dtype, title=desc, rows=rows, cols=cols, row_width=row_width, alignment=align, bg=bg)
+
+        talign = HAlignment.LEFT
+        if text_align:
+            talign = HAlignment(text_align)
+        table_ui = SimpleMenuUI(data, dtype, title=desc, rows=rows, cols=cols, row_width=row_width, alignment=align, bg=bg, text_align=text_align)
         self.other_boxes.append((nid, table_ui))
 
     def choice(self, nid: NID, desc: str, choices: str, width: str, orientation: str,
-               alignment: str, bg: str, event_nid: str, entry_type: str, dims: str, flags: Dict):
+               alignment: str, bg: str, event_nid: str, entry_type: str, dims: str, text_align: str, flags: Dict):
         nid = nid
         header = desc
 
@@ -3164,6 +3175,8 @@ class Event():
             width = '-1'
         if not bg:
             bg = 'menu_bg_base'
+        if 'no_bg' in flags:
+            bg = None
 
         # determine data type
         dtype = 'str'
@@ -3205,15 +3218,23 @@ class Event():
         else:
             align = Alignments(alignment)
 
+        talign = HAlignment.LEFT
+        if text_align:
+            talign = HAlignment(text_align)
+
         size = None
         if dims:
             size = tuple([int(x) for x in dims.split(',')])
 
-        should_persist = False
-        if 'persist' in flags:
-            should_persist = True
+        should_persist = 'persist' in flags
+        no_cursor = 'no_cursor' in flags
+        arrows = 'arrows' in flags and orientation == 'horizontal'
+        scroll_bar = 'scroll_bar' in flags and orientation == 'vertical'
 
-        game.memory['player_choice'] = (nid, header, data, row_width, orientation, dtype, should_persist, align, bg, event_nid, size)
+        game.memory['player_choice'] = (nid, header, data, row_width,
+                                        orientation, dtype, should_persist,
+                                        align, bg, event_nid, size, no_cursor,
+                                        arrows, scroll_bar, talign)
         game.state.change('player_choice')
         self.state = 'paused'
 

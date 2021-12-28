@@ -399,7 +399,7 @@ A style consists of all parameters that one can apply to individual speak comman
 A style only applies to `speak` commands inside this event.
 """
 
-    keywords = ['NID']
+    keywords = ['Nid']
     optional_keywords = ['Speaker', 'TextPosition', 'Width', 'DialogVariant', 'Float']
     flags = ['low_priority', 'hold', 'no_popup', 'fit']
 
@@ -450,7 +450,7 @@ Remove a speak command from the screen. This is useful if you used the `hold` fl
 This will 'unhold' the speak command with the specified NID.
     """
 
-    keywords = ['NID']
+    keywords = ['Nid']
 
 class Narrate(EventCommand):
     nid = "narrate"
@@ -2185,19 +2185,19 @@ class ToggleNarrationMode(EventCommand):
 
     keywords = ['Direction']
     optional_keywords = ['Speed']
-    
+
 class SetOverworldMenuOptionEnabled(EventCommand):
     nid = 'set_overworld_menu_option_enabled'
     tag = Tags.OVERWORLD
     desc = ('Toggle whether the specified node menu option can be accessed by the player. Note that even if enabled, it must also be visible for the player to access it.')
-    
+
     keywords = ['OverworldNodeNID', 'OverworldNodeMenuOption', 'Bool']
-    
+
 class SetOverworldMenuOptionVisible(EventCommand):
     nid = 'set_overworld_menu_option_visible'
     tag = Tags.OVERWORLD
     desc = ('Toggle whether the specified node menu option can be seen by the player. Note that even if visible, it must also be enabled for the player to access it.')
-    
+
     keywords = ['OverworldNodeNID', 'OverworldNodeMenuOption', 'Bool']
 
 def get_commands():

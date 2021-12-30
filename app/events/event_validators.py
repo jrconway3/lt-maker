@@ -855,8 +855,9 @@ class Event(Validator):
     desc = "accepts the name or nid of an event. Will run the event appropriate for the level if more than one event with the same name exists."
 
     def validate(self, text, level):
-        if DB.events.get_by_nid_or_name(text, level.nid):
-            return text
+        if level:
+            if DB.events.get_by_nid_or_name(text, level.nid):
+                return text
         return None
 
     @lru_cache()

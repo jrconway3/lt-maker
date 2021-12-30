@@ -365,7 +365,7 @@ class CombatPhaseSolver():
 
     def process(self, actions, playback, attacker, defender, def_pos, item, def_item, mode, attack_info, assist=False):
         # Is the item I am processing the first one?
-        first_item = item is self.main_item or item is self.items[0]
+        first_item = item in (self.main_item, self.def_item, self.items[0])
         if assist:
             item = attacker.get_weapon()
 

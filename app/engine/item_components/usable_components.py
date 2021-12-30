@@ -169,7 +169,7 @@ class Cooldown(ItemComponent):
 
     def on_upkeep(self, actions, playback, unit, item):
         if item.data['cooldown'] > 0:
-            # Doesn't use actions list in order to prevent 
+            # Doesn't use actions list in order to prevent
             # requiring the status phase to show health bar
             action.do(action.SetObjData(item, 'cooldown', item.data['cooldown'] - 1))
 

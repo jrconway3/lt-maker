@@ -383,6 +383,13 @@ def can_unlock(unit, item, region) -> bool:
             if component.can_unlock(unit, item, region):
                 return True
     return False
+    
+def cannot_dual_strike(unit, item) -> bool:
+    for component in item.components:
+        if component.defines('cannot_dual_strike'):
+            if component.cannot_dual_strike(unit, item):
+                return True
+    return False
 
 def init(item):
     """

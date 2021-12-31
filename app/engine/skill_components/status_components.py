@@ -69,24 +69,6 @@ class Regeneration(SkillComponent):
                 name = 'MapSmallHealTrans'
             playback.append(('cast_anim', name, unit))
 
-def _playback_processing(self, playback, unit, hp_change):
-    # Playback
-    if hp_change < 0:
-        playback.append(('hit_sound', 'Attack Hit ' + str(random.randint(1, 5))))
-        playback.append(('unit_tint_add', unit, (255, 255, 255)))
-        playback.append(('damage_numbers', unit, self.value))
-    elif hp_change > 0:
-        playback.append(('hit_sound', 'MapHeal'))
-        if hp_change >= 30:
-            name = 'MapBigHealTrans'
-        elif hp_change >= 15:
-            name = 'MapMediumHealTrans'
-        else:
-            name = 'MapSmallHealTrans'
-        playback.append(('cast_anim', name, unit))
-        playback.append(('damage_numbers', unit, self.value))
-
-
 class UpkeepDamage(SkillComponent):
     nid = 'upkeep_damage'
     desc = "Unit takes damage at upkeep"
@@ -94,6 +76,23 @@ class UpkeepDamage(SkillComponent):
 
     expose = Type.Int
     value = 5
+
+    def _playback_processing(self, playback, unit, hp_change):
+        # Playback
+        if hp_change < 0:
+            playback.append(('hit_sound', 'Attack Hit ' + str(random.randint(1, 5))))
+            playback.append(('unit_tint_add', unit, (255, 255, 255)))
+            playback.append(('damage_numbers', unit, self.value))
+        elif hp_change > 0:
+            playback.append(('hit_sound', 'MapHeal'))
+            if hp_change >= 30:
+                name = 'MapBigHealTrans'
+            elif hp_change >= 15:
+                name = 'MapMediumHealTrans'
+            else:
+                name = 'MapSmallHealTrans'
+            playback.append(('cast_anim', name, unit))
+            playback.append(('damage_numbers', unit, self.value))
 
     def on_upkeep(self, actions, playback, unit):
         hp_change = -self.value

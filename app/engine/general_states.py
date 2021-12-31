@@ -1347,6 +1347,8 @@ class CombatTargetingState(MapState):
         attacker = self.cur_unit
         if isinstance(target, tuple):
             defender = game.board.get_unit(target)
+        elif isinstance(target, list):
+            defender = game.board.get_unit(target[0])
         else:
             defender = None
         partners = target_system.find_strike_partners(attacker, defender, self.item)

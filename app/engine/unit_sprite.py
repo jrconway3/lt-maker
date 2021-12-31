@@ -250,7 +250,10 @@ class UnitSprite():
             self.handle_net_position(self.net_position)
         elif self.state == 'combat_counter':
             attacker = game.memory['current_combat'].defender
-            self.net_position = attacker.position[0] - self.unit.position[0], attacker.position[1] - self.unit.position[1]
+            if attacker:
+                self.net_position = attacker.position[0] - self.unit.position[0], attacker.position[1] - self.unit.position[1]
+            else:
+                self.net_position = self.unit.position[0], self.unit.position[1]
             self.handle_net_position(self.net_position)
         elif self.state == 'fake_transition_in':
             pos = (self.unit.position[0] + utils.clamp(self.offset[0], -1, 1),

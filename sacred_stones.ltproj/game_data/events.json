@@ -13065,60 +13065,10 @@
         "priority": 20
     },
     {
-        "name": "Wait",
+        "name": "Trigger",
         "trigger": "unit_wait",
         "level_nid": "DEBUG",
-        "condition": "True",
-        "commands": [
-            [
-                "if",
-                [
-                    "False"
-                ]
-            ],
-            [
-                "if",
-                [
-                    "True"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Joshua",
-                    "Wow, such wait."
-                ]
-            ],
-            [
-                "elif",
-                [
-                    "False"
-                ]
-            ],
-            [
-                "speak",
-                [
-                    "Joshua",
-                    "No"
-                ]
-            ],
-            [
-                "end",
-                []
-            ],
-            [
-                "end",
-                []
-            ]
-        ],
-        "only_once": true,
-        "priority": 20
-    },
-    {
-        "name": "Trigger",
-        "trigger": null,
-        "level_nid": "DEBUG",
-        "condition": "True",
+        "condition": "unit.position in region.get_all_positions()",
         "commands": [
             [
                 "add_portrait",
@@ -13131,7 +13081,7 @@
                 "speak",
                 [
                     "{unit}",
-                    "This is a test"
+                    "{eval:unit.position}"
                 ]
             ],
             [
@@ -13142,7 +13092,7 @@
             ]
         ],
         "only_once": false,
-        "priority": 20
+        "priority": 26
     },
     {
         "name": "Summon Phantom",

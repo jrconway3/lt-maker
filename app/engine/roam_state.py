@@ -15,7 +15,7 @@ class FreeRoamState(MapState):
         self.fluid.update_speed(32)
         self.roam_unit = None
         self.last_move = 0
-        self.speed = 0.02
+        self.speed = 0.05
 
     def begin(self):
         game.cursor.hide()
@@ -52,8 +52,12 @@ class FreeRoamState(MapState):
         game.cursor.set_pos(rounded_pos)
 
     def take_input(self, event):
-        base_speed = 0.02
-        max_speed = 0.1
+        base_speed = 0.05
+        
+        if INPUT.is_pressed('BACK'):
+            max_speed = 0.15
+        else:
+            max_speed = 0.1
 
         if (INPUT.is_pressed('LEFT') or INPUT.just_pressed('LEFT')) and self.roam_unit.position[0] > 0:
             self.last_move = engine.get_time()
@@ -85,10 +89,14 @@ class FreeRoamState(MapState):
         
         if any((INPUT.just_pressed(direction) for direction in ('LEFT', 'RIGHT', 'UP', 'DOWN'))) \
                 or any((INPUT.is_pressed(direction) for direction in ('LEFT', 'RIGHT', 'UP', 'DOWN'))):
-            if self.speed < max_speed:
-                self.speed += 0.001
-        elif self.speed > base_speed:
-            self.speed -= 0.001
+            if self.speed < max_speed and INPUT.is_pressed('BACK'):
+                self.speed += 0.01
+            elif self.speed < max_speed:
+                self.speed += 0.008
+            elif self.speed > max_speed:
+                self.speed -= 0.01
+        elif self.speed > base_speed or self.speed > max_speed:
+            self.speed -= 0.01
 
         if event == 'SELECT':
             other_unit = self.can_talk()

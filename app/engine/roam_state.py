@@ -15,7 +15,12 @@ class FreeRoamState(MapState):
         self.fluid.update_speed(32)
         self.roam_unit = None
         self.last_move = 0
-        self.speed = 0.02
+        
+        # speed and direction variables
+        self.speed = 0.00
+        self.vspeed = 0.0
+        self.hspeed = 0.0
+        self.dir = [0, 0]
 
     def begin(self):
         game.cursor.hide()
@@ -50,37 +55,57 @@ class FreeRoamState(MapState):
 
         rounded_pos = int(self.roam_unit.position[0]), int(self.roam_unit.position[1])
         game.cursor.set_pos(rounded_pos)
-
+    
     def take_input(self, event):
-        base_speed = 0.02
-        max_speed = 0.1
+        base_speed = 0.008
+        
+        if INPUT.is_pressed('BACK'):
+            max_speed = 0.15
+        else:
+            max_speed = 0.1
 
+        # Horizontal direction
         if (INPUT.is_pressed('LEFT') or INPUT.just_pressed('LEFT')) and self.roam_unit.position[0] > 0:
             self.last_move = engine.get_time()
-            if self.can_move('LEFT'):
-                self.move(-self.speed, 0)
-                self.roam_unit.sprite.change_state('moving')
-                self.roam_unit.sprite.handle_net_position((-self.speed, 0))
+            self.dir[0] = -5
         elif (INPUT.is_pressed('RIGHT') or INPUT.just_pressed('RIGHT')) and self.roam_unit.position[0] < game.tilemap.width - 1:
             self.last_move = engine.get_time()
-            if self.can_move('RIGHT'):
-                self.move(self.speed, 0)
-                self.roam_unit.sprite.change_state('moving')
-                self.roam_unit.sprite.handle_net_position((self.speed, 0))
-
+            self.dir[0] = 5
+        
+        # Vertical direction
         if (INPUT.is_pressed('UP') or INPUT.just_pressed('UP')) and self.roam_unit.position[1] > 0:
             self.last_move = engine.get_time()
-            if self.can_move('UP'):
-                self.move(0, -self.speed)
-                self.roam_unit.sprite.change_state('moving')
-                self.roam_unit.sprite.handle_net_position((0, -self.speed))
-        elif (INPUT.is_pressed('DOWN') or INPUT.just_pressed('DOWN')) and self.roam_unit.position[1] < game.tilemap.height - 1:
+            self.dir[1] = -5
+        elif (INPUT.is_pressed('DOWN') or INPUT.just_pressed('DOWN')) and self.roam_unit.position[1] < game.tilemap.width - 1:
             self.last_move = engine.get_time()
-            if self.can_move('DOWN'):
-                self.move(0, self.speed)
-                self.roam_unit.sprite.change_state('moving')
-                self.roam_unit.sprite.handle_net_position((0, self.speed))
+            self.dir[1] = 5
 
+        # Horizontal speed
+        if self.dir[0] > 0 and self.can_move('RIGHT'):
+            self.hspeed = self.speed
+            self.dir[0] -= 1
+        elif self.dir[0] < 0 and self.can_move('LEFT'):
+            self.hspeed = -self.speed
+            self.dir[0] += 1
+        else:
+            self.hspeed = 0.0
+
+        # Vertcal speed
+        if self.dir[1] > 0 and self.can_move('DOWN'):
+            self.vspeed = self.speed
+            self.dir[1] -= 1
+        elif self.dir[1] < 0 and self.can_move('UP'):
+            self.vspeed = -self.speed
+            self.dir[1] += 1
+        else:
+            self.vspeed = 0.0
+            
+        # Actually move the unit
+        if abs(self.hspeed) > base_speed or abs(self.vspeed) > base_speed:
+            self.move(self.hspeed, self.vspeed)
+            self.roam_unit.sprite.change_state('moving')
+            self.roam_unit.sprite.handle_net_position((self.hspeed, self.vspeed))
+        
         game.camera.force_center(*self.roam_unit.position)
         
         if any((INPUT.just_pressed(direction) for direction in ('LEFT', 'RIGHT', 'UP', 'DOWN'))) \
@@ -93,10 +118,14 @@ class FreeRoamState(MapState):
                         new_pos = target_system.get_nearest_open_tile(current_occupant, new_pos)
                     self.roam_unit.position = new_pos
                     self.roam_unit.wait()
-            if self.speed < max_speed:
-                self.speed += 0.001
-        elif self.speed > base_speed:
-            self.speed -= 0.001
+            if self.speed < max_speed and INPUT.is_pressed('BACK'):
+                self.speed += 0.01
+            elif self.speed < max_speed:
+                self.speed += 0.008
+            elif self.speed > max_speed:
+                self.speed -= 0.01
+        elif self.speed >= base_speed or self.speed > max_speed:
+            self.speed -= 0.01
 
         if event == 'SELECT':
             other_unit = self.can_talk()
@@ -129,6 +158,7 @@ class FreeRoamState(MapState):
             self.last_move = 0
             self.roam_unit.sprite.change_state('normal')
             self.roam_unit.sound.stop()
+            self.dir = [0, 0]
 
     def move(self, dx, dy):
         x, y = self.roam_unit.position
@@ -136,7 +166,7 @@ class FreeRoamState(MapState):
         self.roam_unit.sound.play()
         rounded_pos = int(self.roam_unit.position[0]), int(self.roam_unit.position[1])
         game.cursor.set_pos(rounded_pos)
-
+    
     def can_move(self, direc: str) -> bool:
         if direc == 'LEFT':
             check_x = int(round(self.roam_unit.position[0] - 0.4))
@@ -159,7 +189,7 @@ class FreeRoamState(MapState):
             mcost = game.movement.get_mcost(self.roam_unit, (check_x, check_y))
             return mcost < 99 and self.no_bumps(check_x, check_y)
         return True
-
+    
     def no_bumps(self, x: int, y: int) -> bool:
         '''Used to detect if the space is occupied by an impassable unit'''
         new_pos = (x, y)

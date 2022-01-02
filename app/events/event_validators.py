@@ -826,6 +826,15 @@ class Layer(Validator):
             return text
         return None
 
+    @lru_cache()
+    def valid_entries(self, level: NID = None) -> List[Tuple[str, NID]]:
+        level = DB.levels.get(level)
+        if level:
+            tilemap_prefab = RESOURCES.tilemaps.get(level.tilemap)
+            valids = [(None, layer_nid) for layer_nid in tilemap_prefab.layers.keys()]
+            return valids
+        return []
+
 class LayerTransition(OptionValidator):
     valid = ['fade', 'immediate']
 

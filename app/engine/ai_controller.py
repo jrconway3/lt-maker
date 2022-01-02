@@ -96,7 +96,11 @@ class AIController():
     def attack(self):
         # Attacking or supporting
         if self.goal_target:  # Target is a position tuple
-            if self.goal_item and self.goal_item in item_funcs.get_all_items(self.unit):
+            if not self.goal_item:
+                return False
+            if not item_funcs.available(self.unit, self.goal_item):
+                return False
+            if self.goal_item in item_funcs.get_all_items(self.unit):
                 self.unit.equip(self.goal_item)
             # Highlights
             if item_system.is_weapon(self.unit, self.goal_item):

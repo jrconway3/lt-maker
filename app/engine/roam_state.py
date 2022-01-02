@@ -12,7 +12,6 @@ class FreeRoamState(MapState):
     name = 'free_roam'
 
     def start(self):
-        self.fluid.update_speed(32)
         self.roam_unit = None
         self.last_move = 0
         
@@ -71,6 +70,10 @@ class FreeRoamState(MapState):
         elif (INPUT.is_pressed('RIGHT') or INPUT.just_pressed('RIGHT')) and self.roam_unit.position[0] < game.tilemap.width - 1:
             self.last_move = engine.get_time()
             self.dir[0] = 5
+        elif not (INPUT.is_pressed('LEFT') or INPUT.is_pressed('RIGHT')) and self.dir[0] > 0:
+            self.dir[0] -= 1
+        elif not (INPUT.is_pressed('LEFT') or INPUT.is_pressed('DOWN')) and self.dir[0] < 0:
+            self.dir[0] += 1
         
         # Vertical direction
         if (INPUT.is_pressed('UP') or INPUT.just_pressed('UP')) and self.roam_unit.position[1] > 0:
@@ -79,24 +82,24 @@ class FreeRoamState(MapState):
         elif (INPUT.is_pressed('DOWN') or INPUT.just_pressed('DOWN')) and self.roam_unit.position[1] < game.tilemap.width - 1:
             self.last_move = engine.get_time()
             self.dir[1] = 5
+        elif not (INPUT.is_pressed('DOWN') or INPUT.is_pressed('UP')) and self.dir[1] > 0:
+            self.dir[1] -= 1
+        elif not (INPUT.is_pressed('DOWN') or INPUT.is_pressed('UP')) and self.dir[1] < 0:
+            self.dir[1] += 1
 
         # Horizontal speed
         if self.dir[0] > 0 and self.can_move('RIGHT'):
             self.hspeed = self.speed
-            self.dir[0] -= 1
         elif self.dir[0] < 0 and self.can_move('LEFT'):
             self.hspeed = -self.speed
-            self.dir[0] += 1
         else:
             self.hspeed = 0.0
 
         # Vertcal speed
         if self.dir[1] > 0 and self.can_move('DOWN'):
             self.vspeed = self.speed
-            self.dir[1] -= 1
         elif self.dir[1] < 0 and self.can_move('UP'):
             self.vspeed = -self.speed
-            self.dir[1] += 1
         else:
             self.vspeed = 0.0
             

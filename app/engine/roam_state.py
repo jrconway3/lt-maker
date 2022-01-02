@@ -70,7 +70,8 @@ class FreeRoamState(MapState):
         elif (INPUT.is_pressed('RIGHT') or INPUT.just_pressed('RIGHT')) and self.roam_unit.position[0] < game.tilemap.width - 1:
             self.last_move = engine.get_time()
             self.dir[0] = 5
-        elif not (INPUT.is_pressed('LEFT') or INPUT.is_pressed('RIGHT')) and self.dir[0] > 0:
+            
+        if not (INPUT.is_pressed('LEFT') or INPUT.is_pressed('RIGHT')) and self.dir[0] > 0:
             self.dir[0] -= 1
         elif not (INPUT.is_pressed('LEFT') or INPUT.is_pressed('DOWN')) and self.dir[0] < 0:
             self.dir[0] += 1
@@ -82,7 +83,8 @@ class FreeRoamState(MapState):
         elif (INPUT.is_pressed('DOWN') or INPUT.just_pressed('DOWN')) and self.roam_unit.position[1] < game.tilemap.width - 1:
             self.last_move = engine.get_time()
             self.dir[1] = 5
-        elif not (INPUT.is_pressed('DOWN') or INPUT.is_pressed('UP')) and self.dir[1] > 0:
+        
+        if not (INPUT.is_pressed('DOWN') or INPUT.is_pressed('UP')) and self.dir[1] > 0:
             self.dir[1] -= 1
         elif not (INPUT.is_pressed('DOWN') or INPUT.is_pressed('UP')) and self.dir[1] < 0:
             self.dir[1] += 1

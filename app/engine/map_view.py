@@ -24,7 +24,10 @@ class MapView():
                         (cull_rect[0] - TILEWIDTH*2 < (unit.position or unit.sprite.fake_position)[0] * TILEWIDTH < cull_rect[0] + cull_rect[2] + TILEWIDTH*2 and
                          cull_rect[1] - TILEHEIGHT*2 < (unit.position or unit.sprite.fake_position)[1] * TILEHEIGHT < cull_rect[1] + cull_rect[3] + TILEHEIGHT*2)]
         if game.level_vars.get('_fog_of_war'):
-            culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position or unit.sprite.fake_position)]
+            pos1 = (int(round(unit.position[0])), int(round(unit.position[1])))
+            if unit.sprite.fake_position:
+                pos2 = (int(round(unit.sprite.fake_position[0])), int(round(unit.sprite.fake_position[1]))) # In case a unit's fake_position is causing issues
+            culled_units = [unit for unit in culled_units if game.board.in_vision(pos1 or pos2)]
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])
 
         topleft = cull_rect[0], cull_rect[1]

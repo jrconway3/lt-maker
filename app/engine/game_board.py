@@ -144,7 +144,6 @@ class GameBoard(object):
                 grid[idx].add(unit.nid)
 
     def in_vision(self, pos, team='player') -> bool:
-        pos = (int(round(pos[0])), int(round(pos[1]))) # In case a unit's fake_position is causing issues
         if not game.level_vars.get('_fog_of_war'):
             return True  # Always in vision if not in fog of war
         idx = pos[0] * self.height + pos[1]

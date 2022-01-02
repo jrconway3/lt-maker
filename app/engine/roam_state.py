@@ -19,7 +19,7 @@ class FreeRoamState(MapState):
         self.speed = 0.00
         self.vspeed = 0.0
         self.hspeed = 0.0
-        self.dir = [0, 0]
+        self.direction = [0, 0]
 
     def begin(self):
         game.cursor.hide()
@@ -57,6 +57,8 @@ class FreeRoamState(MapState):
     
     def take_input(self, event):
         base_speed = 0.008
+        base_accel = 0.008
+        running_accel = 0.01
         
         if INPUT.is_pressed('BACK'):
             max_speed = 0.15
@@ -66,43 +68,43 @@ class FreeRoamState(MapState):
         # Horizontal direction
         if (INPUT.is_pressed('LEFT') or INPUT.just_pressed('LEFT')) and self.roam_unit.position[0] > 0:
             self.last_move = engine.get_time()
-            self.dir[0] = -5
+            self.direction[0] = -5
         elif (INPUT.is_pressed('RIGHT') or INPUT.just_pressed('RIGHT')) and self.roam_unit.position[0] < game.tilemap.width - 1:
             self.last_move = engine.get_time()
-            self.dir[0] = 5
+            self.direction[0] = 5
             
-        if not INPUT.is_pressed('RIGHT') and self.dir[0] > 0:
-            self.dir[0] -= 1
+        if not INPUT.is_pressed('RIGHT') and self.direction[0] > 0:
+            self.direction[0] -= 1
         
-        if not INPUT.is_pressed('LEFT') and self.dir[0] < 0:
-            self.dir[0] += 1
+        if not INPUT.is_pressed('LEFT') and self.direction[0] < 0:
+            self.direction[0] += 1
         
         # Vertical direction
         if (INPUT.is_pressed('UP') or INPUT.just_pressed('UP')) and self.roam_unit.position[1] > 0:
             self.last_move = engine.get_time()
-            self.dir[1] = -5
+            self.direction[1] = -5
         elif (INPUT.is_pressed('DOWN') or INPUT.just_pressed('DOWN')) and self.roam_unit.position[1] < game.tilemap.width - 1:
             self.last_move = engine.get_time()
-            self.dir[1] = 5
+            self.direction[1] = 5
         
-        if not INPUT.is_pressed('DOWN') and self.dir[1] > 0:
-            self.dir[1] -= 1
+        if not INPUT.is_pressed('DOWN') and self.direction[1] > 0:
+            self.direction[1] -= 1
         
-        if not INPUT.is_pressed('UP') and self.dir[1] < 0:
-            self.dir[1] += 1
+        if not INPUT.is_pressed('UP') and self.direction[1] < 0:
+            self.direction[1] += 1
 
         # Horizontal speed
-        if self.dir[0] > 0 and self.can_move('RIGHT'):
+        if self.direction[0] > 0 and self.can_move('RIGHT'):
             self.hspeed = self.speed
-        elif self.dir[0] < 0 and self.can_move('LEFT'):
+        elif self.direction[0] < 0 and self.can_move('LEFT'):
             self.hspeed = -self.speed
         else:
             self.hspeed = 0.0
 
         # Vertcal speed
-        if self.dir[1] > 0 and self.can_move('DOWN'):
+        if self.direction[1] > 0 and self.can_move('DOWN'):
             self.vspeed = self.speed
-        elif self.dir[1] < 0 and self.can_move('UP'):
+        elif self.direction[1] < 0 and self.can_move('UP'):
             self.vspeed = -self.speed
         else:
             self.vspeed = 0.0
@@ -126,13 +128,13 @@ class FreeRoamState(MapState):
                     self.roam_unit.position = new_pos
                     self.roam_unit.wait()
             if self.speed < max_speed and INPUT.is_pressed('BACK'):
-                self.speed += 0.01
+                self.speed += running_accel
             elif self.speed < max_speed:
-                self.speed += 0.008
+                self.speed += base_accel
             elif self.speed > max_speed:
-                self.speed -= 0.01
+                self.speed -= running_accel
         elif self.speed >= base_speed or self.speed > max_speed:
-            self.speed -= 0.01
+            self.speed -= running_accel
 
         if event == 'SELECT':
             other_unit = self.can_talk()
@@ -165,7 +167,7 @@ class FreeRoamState(MapState):
             self.last_move = 0
             self.roam_unit.sprite.change_state('normal')
             self.roam_unit.sound.stop()
-            self.dir = [0, 0]
+            self.direction = [0, 0]
 
     def move(self, dx, dy):
         x, y = self.roam_unit.position

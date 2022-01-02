@@ -539,10 +539,9 @@ class MovementState(State):
         if len(game.movement) <= 0:
             if game.movement.surprised:
                 game.movement.surprised = False
-                game.state.temp_state.insert(0, 'free')
-                game.state.temp_state.insert(0, 'clear')
-                # game.state.clear()
-                # game.state.change('free')
+                game.state.clear()
+                game.state.change('free')
+                game.state.change('wait')
             else:
                 game.state.back()
             return 'repeat'

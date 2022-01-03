@@ -930,7 +930,7 @@ class InfoMenuState(State):
 
     def create_skill_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)
-        skills = [skill for skill in self.unit.skills if not (skill.class_skill or skill.hidden)][:6]
+        skills = [skill for skill in self.unit.skills if not (skill.class_skill or skill_system.hidden(skill, self.unit))][:6]
 
         for idx, skill in enumerate(skills):
             left_pos = idx * 24
@@ -948,7 +948,7 @@ class InfoMenuState(State):
 
     def create_class_skill_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)
-        class_skills = [skill for skill in self.unit.skills if skill.class_skill and not skill.hidden][:6]
+        class_skills = [skill for skill in self.unit.skills if skill.class_skill and not skill_system.hidden(skill, self.unit)][:6]
 
         for idx, skill in enumerate(class_skills):
             left_pos = idx * 24

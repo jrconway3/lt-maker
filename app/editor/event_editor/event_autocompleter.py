@@ -47,7 +47,6 @@ class Completer(QCompleter):
                 self.popup().hide()
         return False
 
-@lru_cache()
 def generate_wordlist_from_validator_type(validator: event_validators.Validator, level: NID = None) -> List[str]:
     if not validator:
         return []

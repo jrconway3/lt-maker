@@ -58,7 +58,7 @@ def sell_price(unit, item):
 #             return False
 #     return True
 
-def create_item(unit, item_nid, droppable=False):
+def create_item(unit, item_nid, droppable=False, parent: ItemObject = None):
     item_prefab = DB.items.get(item_nid)
     if not item_prefab:
         logging.error("Couldn't find %s" % item_nid)
@@ -66,29 +66,23 @@ def create_item(unit, item_nid, droppable=False):
     item = ItemObject.from_prefab(item_prefab)
     if unit:
         item.owner_nid = unit.nid
-    item.droppable = droppable
     item_system.init(item)
-
-    def create_subitem(subitem_nid):
-        subitem_prefab = DB.items.get(subitem_nid)
-        subitem = ItemObject.from_prefab(subitem_prefab)
-        # Make self.item in components always point to parent item
-        for component in subitem.components:
-            component.item = item
-        if unit:
-            subitem.owner_nid = unit.nid
-        item_system.init(subitem)
-        item.subitem_uids.append(subitem.uid)
-        item.subitems.append(subitem)
-        subitem.parent_item = item
+    if parent: # sub item specific operations
+        for component in item.components:
+            component.item = parent
+        parent.subitem_uids.append(item.uid)
+        parent.subitems.append(item)
+        item.parent_item = parent
+    else: # main item specific operations
+        item.droppable = droppable
 
     if item.multi_item:
         for subitem_nid in item.multi_item.value:
-            create_subitem(subitem_nid)
+            create_item(unit, subitem_nid, parent=item)
 
     elif item.sequence_item:
         for subitem_nid in item.sequence_item.value:
-            create_subitem(subitem_nid)
+            create_item(unit, subitem_nid, parent=item)
 
     return item
 
@@ -191,7 +185,7 @@ def create_skill(unit, skill_nid):
         subskill = SkillObject.from_prefab(subskill_prefab)
         # Child skills are not owned by their parent skill unit
         # Since they are given to others
-        # if unit:  
+        # if unit:
         #     subskill.owner_nid = unit.nid
         skill_system.init(subskill)
         skill.subskill_uid = subskill.uid

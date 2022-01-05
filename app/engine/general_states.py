@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, TILEX
 from app.data.database import DB
+from app.engine.objects.item import ItemObject
 
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
@@ -868,6 +869,7 @@ class ItemState(MapState):
                 pass
             else:
                 SOUNDTHREAD.play_sfx('Select 1')
+                game.memory['is_subitem_child_menu'] = False
                 game.memory['parent_menu'] = self.menu
                 game.state.change('item_child')
 
@@ -888,31 +890,122 @@ class ItemState(MapState):
         surf = self.menu.draw(surf)
         return surf
 
+class SubItemChildState(MapState):
+    name = 'subitem_child'
+    transparent = True
+
+    def _get_options(self, parent_item):
+        subitems = [subitem for subitem in parent_item.subitems]
+        return subitems
+
+    def start(self):
+        self.cur_unit = game.cursor.cur_unit
+        parent_menu: menus.Choice = game.memory['parent_menu']
+        self.parent_item: ItemObject = game.memory['selected_item']
+        options = self._get_options(self.parent_item)
+        self.menu = menus.Choice(self.parent_item, options, parent_menu)
+
+    def begin(self):
+        game.cursor.hide()
+        self.menu.update_options(self._get_options(self.parent_item))
+        self.item_desc_panel = ui_view.ItemDescriptionPanel(self.cur_unit, self.menu.get_current())
+
+    def _item_desc_update(self):
+        current = self.menu.get_current()
+        self.item_desc_panel.set_item(current)
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        did_move = self.menu.handle_mouse()
+        if did_move:
+            self._item_desc_update()
+
+        if 'DOWN' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_down(first_push)
+            self._item_desc_update()
+
+        elif 'UP' in directions:
+            SOUNDTHREAD.play_sfx('Select 6')
+            self.menu.move_up(first_push)
+            self._item_desc_update()
+
+        if event == 'BACK':
+            if self.menu.info_flag:
+                self.menu.toggle_info()
+                SOUNDTHREAD.play_sfx('Info Out')
+            else:
+                SOUNDTHREAD.play_sfx('Select 4')
+                game.state.back()
+
+        elif event == 'SELECT':
+            if self.menu.info_flag:
+                pass
+            else:
+                SOUNDTHREAD.play_sfx('Select 1')
+                game.memory['parent_menu'] = self.menu
+                game.memory['is_subitem_child_menu'] = True
+                game.state.change('item_child')
+
+        elif event == 'INFO':
+            self.menu.toggle_info()
+            if self.menu.info_flag:
+                SOUNDTHREAD.play_sfx('Info In')
+            else:
+                SOUNDTHREAD.play_sfx('Info Out')
+
+    def update(self):
+        super().update()
+        self.menu.update()
+
+    def draw(self, surf):
+        surf = self.item_desc_panel.draw(surf)
+        surf = self.menu.draw(surf)
+        return surf
+
 class ItemChildState(MapState):
     name = 'item_child'
     transparent = True
 
+    def start(self):
+        self.parent_menu = game.memory['parent_menu']
+
     def begin(self):
-        parent_menu = game.memory['parent_menu']
-        item = parent_menu.get_current()
+        self.item = self.parent_menu.get_current()
+        item = self.item
         self.cur_unit = game.cursor.cur_unit
 
         options = []
-        if item_system.equippable(self.cur_unit, item) and \
-                item_funcs.available(self.cur_unit, item) and \
-                item in self.cur_unit.items:
-            options.append("Equip")
-        if item_funcs.can_use(self.cur_unit, item) and not self.cur_unit.has_attacked:
-            options.append("Use")
-        if not item_system.locked(self.cur_unit, item) and item in self.cur_unit.items:
-            if game.game_vars.get('_convoy'):
-                options.append('Storage')
-            else:
-                options.append('Discard')
-        if not options:
-            options.append('Nothing')
+        if not game.memory['is_subitem_child_menu']:
+            if item_system.equippable(self.cur_unit, item) and \
+                    item_funcs.available(self.cur_unit, item) and \
+                    item in self.cur_unit.items:
+                options.append("Equip")
+            if item.multi_item and \
+                    item in self.cur_unit.items:
+                options.append("Expand")
+            if item_funcs.can_use(self.cur_unit, item) and not self.cur_unit.has_attacked:
+                options.append("Use")
+            if not item_system.locked(self.cur_unit, item) and item in self.cur_unit.items:
+                if game.game_vars.get('_convoy'):
+                    options.append('Storage')
+                else:
+                    options.append('Discard')
+            if not options:
+                options.append('Nothing')
+        else:
+            if item_system.equippable(self.cur_unit, item) and item_funcs.available(self.cur_unit, item):
+                options.append("Equip")
+            if item.multi_item:
+                options.append("Expand")
+            if item_funcs.can_use(self.cur_unit, item) and not self.cur_unit.has_attacked:
+                options.append("Use")
+            if not options:
+                options.append('Nothing')
 
-        self.menu = menus.Choice(item, options, parent_menu)
+        self.menu = menus.Choice(item, options, self.parent_menu)
         self.menu.gem = False
 
     def take_input(self, event):
@@ -939,10 +1032,22 @@ class ItemChildState(MapState):
                 interaction.start_combat(self.cur_unit, self.cur_unit.position, item)
             elif selection == 'Equip':
                 action.do(action.EquipItem(self.cur_unit, item))
-                if item in self.cur_unit.items:
-                    action.do(action.BringToTopItem(self.cur_unit, item))
-                    game.memory['parent_menu'].current_index = 0  # Reset selection
+                if not game.memory['is_subitem_child_menu']:
+                    if item in self.cur_unit.items:
+                        action.do(action.BringToTopItem(self.cur_unit, item))
+                        self.parent_menu.current_index = 0  # Reset selection
+                else:
+                    # find ultimate parent item
+                    parent_item = item.parent_item
+                    while parent_item.parent_item:
+                        parent_item = parent_item.parent_item
+                    if parent_item in self.cur_unit.items:
+                        action.do(action.BringToTopItem(self.cur_unit, parent_item))
                 game.state.back()
+            elif selection == 'Expand':
+                game.memory['parent_menu'] = self.menu
+                game.memory['selected_item'] = self.item
+                game.state.change('subitem_child')
             elif selection == 'Storage' or selection == 'Discard':
                 game.memory['option_owner'] = selection
                 game.memory['option_item'] = item

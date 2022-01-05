@@ -26,17 +26,22 @@ from app.utilities import str_utils
 
 import logging
 
-def draw_tilemap(tilemap, autotile_fps=29):
+
+def get_tilemap_pixmap(tilemap):
+    return QPixmap.fromImage(draw_tilemap(tilemap))
+
+def draw_tilemap(tilemap, show_full_map = False, current_layer_index=-1, fade=2, autotile_fps=29):
     image = QImage(tilemap.width * TILEWIDTH,
                    tilemap.height * TILEHEIGHT,
                    QImage.Format_ARGB32)
     image.fill(QColor(0, 0, 0, 0))
 
     painter = QPainter()
+    painter.setOpacity(1.0)
     painter.begin(image)
     ms = QDateTime.currentMSecsSinceEpoch()
-    for layer in tilemap.layers:
-        if layer.visible:
+    for index, layer in enumerate(tilemap.layers):
+        if layer.visible or show_full_map:
             for coord, tile_sprite in layer.sprite_grid.items():
                 tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
                 if not tileset:
@@ -48,11 +53,21 @@ def draw_tilemap(tilemap, autotile_fps=29):
 
                 pix = tileset.get_pixmap(tile_sprite.tileset_position, ms, autotile_fps)
                 if pix:
+                    if current_layer_index > -1:
+                        painter.setOpacity(calculate_layer_fade(current_layer_index, index, fade))
                     painter.drawImage(coord[0] * TILEWIDTH,
                                       coord[1] * TILEHEIGHT,
                                       pix.toImage())
     painter.end()
     return image
+
+def calculate_layer_fade(current_layer_index, selected_layer_index, fade):
+    if current_layer_index > -1:
+        if selected_layer_index != current_layer_index:
+            return max(0, 1 - (abs(selected_layer_index - current_layer_index) / fade))
+        else:
+            return 1.0
+    return -1.0
 
 class PaintTool(IntEnum):
     NoTool = 0
@@ -89,6 +104,8 @@ class MapEditorView(QGraphicsView):
         self.draw_autotiles = True
         self.draw_gridlines = True
 
+        self.focus_layer = False
+
         timer.get_timer().tick_elapsed.connect(self.tick)
 
     def tick(self):
@@ -102,6 +119,11 @@ class MapEditorView(QGraphicsView):
     def clear_scene(self):
         self.scene.clear()
 
+    def get_focus_layer(self):
+        if self.focus_layer:
+            return self.get_current_layer_index()
+        return -1
+
     def update_view(self):
         if self.tilemap:
             pixmap = QPixmap.fromImage(self.get_map_image())
@@ -109,14 +131,15 @@ class MapEditorView(QGraphicsView):
         else:
             return
         if self.window.terrain_mode:
-            self.draw_terrain()
+            self.draw_terrain(current_layer_index=self.get_focus_layer())
         self.show_map()
 
     def get_map_image(self):
         if self.draw_autotiles:
-            image = draw_tilemap(self.tilemap, autotile_fps=self.tilemap.autotile_fps)
+            image = draw_tilemap(self.tilemap, current_layer_index=self.get_focus_layer(), autotile_fps=self.tilemap.autotile_fps)
         else:
-            image = draw_tilemap(self.tilemap, autotile_fps=0)
+            image = draw_tilemap(self.tilemap, current_layer_index=self.get_focus_layer(), autotile_fps=0)
+
         painter = QPainter()
         painter.begin(image)
         # Draw grid lines
@@ -148,7 +171,7 @@ class MapEditorView(QGraphicsView):
             painter.begin(self.working_image)
             alpha = self.window.terrain_painter_menu.get_alpha()
             explored_coords = set()
-            for layer in reversed(self.tilemap.layers):
+            for index, layer in reversed(list(enumerate(self.tilemap.layers))):
                 if layer.visible:
                     for coord, terrain_nid in layer.terrain_grid.items():
                         # Don't draw the one's below...
@@ -208,10 +231,17 @@ class MapEditorView(QGraphicsView):
             rect = QRect(true_coord[0] * TILEWIDTH, true_coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
             painter.fillRect(rect, color)
 
+    def get_layer(self, row):
+        return self.tilemap.layers[row]
+
     def get_current_layer(self):
         current_layer_index = self.window.layer_menu.view.currentIndex()
         idx = current_layer_index.row()
         return self.tilemap.layers[idx]
+
+    def get_current_layer_index(self):
+        current_layer_index = self.window.layer_menu.view.currentIndex()
+        return current_layer_index.row()
 
     def get_tile_sprite(self, pos):
         for layer in reversed(self.tilemap.layers):
@@ -234,83 +264,84 @@ class MapEditorView(QGraphicsView):
 
     def paint_terrain(self, tile_pos):
         current_layer = self.get_current_layer()
-        if self.tilemap.check_bounds(tile_pos):
-            current_nid = self.window.terrain_painter_menu.get_current_nid()
-            current_layer.terrain_grid[tile_pos] = current_nid
+        if current_layer.visible:
+            if self.tilemap.check_bounds(tile_pos):
+                current_nid = self.window.terrain_painter_menu.get_current_nid()
+                current_layer.terrain_grid[tile_pos] = current_nid
 
     def paint_tile(self, tile_pos):
         current_layer = self.get_current_layer()
-
-        if self.right_selection:
-            for coord, (true_coord, tile_sprite) in self.right_selection.items():
-                true_pos = tile_pos[0] + coord[0], tile_pos[1] + coord[1]
-                if self.tilemap.check_bounds(true_pos):
-                    if tile_sprite:
-                        tileset_nid = tile_sprite.tileset_nid
-                        pos = tile_sprite.tileset_position
-                        current_layer.set_sprite(true_pos, tileset_nid, pos)
-                    # else:
-                    #     current_layer.erase_sprite(true_pos)
-        else:
-            tileset, coords = self.window.get_tileset_coords()
-            if tileset and coords:
-                topleft = min(coords)
-                for coord in coords:
-                    rel_coord = coord[0] - topleft[0], coord[1] - topleft[1]
-                    true_pos = tile_pos[0] + rel_coord[0], tile_pos[1] + rel_coord[1]
+        if current_layer.visible:
+            if self.right_selection:
+                for coord, (true_coord, tile_sprite) in self.right_selection.items():
+                    true_pos = tile_pos[0] + coord[0], tile_pos[1] + coord[1]
                     if self.tilemap.check_bounds(true_pos):
-                        current_layer.set_sprite(true_pos, tileset.nid, coord)
+                        if tile_sprite:
+                            tileset_nid = tile_sprite.tileset_nid
+                            pos = tile_sprite.tileset_position
+                            current_layer.set_sprite(true_pos, tileset_nid, pos)
+                        # else:
+                        #     current_layer.erase_sprite(true_pos)
+            else:
+                tileset, coords = self.window.get_tileset_coords()
+                if tileset and coords:
+                    topleft = min(coords)
+                    for coord in coords:
+                        rel_coord = coord[0] - topleft[0], coord[1] - topleft[1]
+                        true_pos = tile_pos[0] + rel_coord[0], tile_pos[1] + rel_coord[1]
+                        if self.tilemap.check_bounds(true_pos):
+                            current_layer.set_sprite(true_pos, tileset.nid, coord)
 
     def erase_terrain(self, tile_pos):
         current_layer = self.get_current_layer()
-
-        if self.tilemap.check_bounds(tile_pos):
-            current_layer.erase_terrain(tile_pos)
+        if current_layer.visible:
+            if self.tilemap.check_bounds(tile_pos):
+                current_layer.erase_terrain(tile_pos)
 
     def erase_tile(self, tile_pos):
         current_layer = self.get_current_layer()
-
-        if self.tilemap.check_bounds(tile_pos):
-            current_layer.erase_sprite(tile_pos)
+        if current_layer.visible:
+            if self.tilemap.check_bounds(tile_pos):
+                current_layer.erase_sprite(tile_pos)
 
     def flood_fill_terrain(self, tile_pos):
         if not self.tilemap.check_bounds(tile_pos):
             return
 
         current_layer = self.get_current_layer()
+        if current_layer.visible:
+            coords_to_replace = set()
+            unexplored_stack = []
 
-        coords_to_replace = set()
-        unexplored_stack = []
+            def find_similar(starting_pos, terrain_nid):
+                unexplored_stack.append(starting_pos)
 
-        def find_similar(starting_pos, terrain_nid):
-            unexplored_stack.append(starting_pos)
+                while unexplored_stack:
+                    current_pos = unexplored_stack.pop()
 
-            while unexplored_stack:
-                current_pos = unexplored_stack.pop()
+                    if current_pos in coords_to_replace:
+                        continue
+                    if not self.tilemap.check_bounds(current_pos):
+                        continue
+                    other_nid = current_layer.get_terrain(current_pos)
+                    if terrain_nid != other_nid:
+                        continue
 
-                if current_pos in coords_to_replace:
-                    continue
-                if not self.tilemap.check_bounds(current_pos):
-                    continue
-                other_nid = current_layer.get_terrain(current_pos)
-                if terrain_nid != other_nid:
-                    continue
+                    coords_to_replace.add(current_pos)
+                    unexplored_stack.append((current_pos[0] + 1, current_pos[1]))
+                    unexplored_stack.append((current_pos[0] - 1, current_pos[1]))
+                    unexplored_stack.append((current_pos[0], current_pos[1] + 1))
+                    unexplored_stack.append((current_pos[0], current_pos[1] - 1))
 
-                coords_to_replace.add(current_pos)
-                unexplored_stack.append((current_pos[0] + 1, current_pos[1]))
-                unexplored_stack.append((current_pos[0] - 1, current_pos[1]))
-                unexplored_stack.append((current_pos[0], current_pos[1] + 1))
-                unexplored_stack.append((current_pos[0], current_pos[1] - 1))
+            # Get coords like current coord in current_layer
+            terrain_nid = current_layer.get_terrain(tile_pos)
+            # Determine which coords should be flood-filled
+            find_similar((tile_pos[0], tile_pos[1]), terrain_nid)
 
-        # Get coords like current coord in current_layer
-        terrain_nid = current_layer.get_terrain(tile_pos)
-        # Determine which coords should be flood-filled
-        find_similar((tile_pos[0], tile_pos[1]), terrain_nid)
-
-        # Do the deed
-        for coord in coords_to_replace:
-            current_nid = self.window.terrain_painter_menu.get_current_nid()
-            current_layer.terrain_grid[coord] = current_nid
+            # Do the deed
+            for coord in coords_to_replace:
+                current_nid = self.window.terrain_painter_menu.get_current_nid()
+                current_layer.terrain_grid[coord] = current_nid
 
     def flood_fill_tile(self, tile_pos):
         if not self.tilemap.check_bounds(tile_pos):
@@ -318,68 +349,69 @@ class MapEditorView(QGraphicsView):
 
         current_layer = self.get_current_layer()
 
-        coords_to_replace = set()
-        unexplored_stack = []
+        if current_layer.visible:
+            coords_to_replace = set()
+            unexplored_stack = []
 
-        def find_similar(starting_pos, sprite):
-            unexplored_stack.append(starting_pos)
+            def find_similar(starting_pos, sprite):
+                unexplored_stack.append(starting_pos)
 
-            while unexplored_stack:
-                current_pos = unexplored_stack.pop()
+                while unexplored_stack:
+                    current_pos = unexplored_stack.pop()
 
-                if current_pos in coords_to_replace:
-                    continue
-                if not self.tilemap.check_bounds(current_pos):
-                    continue
-                tile = current_layer.get_sprite(current_pos)
-                if tile:
-                    nid = tile.tileset_nid
-                    coord = tile.tileset_position
-                else:
-                    nid, coord = None, None
-                if sprite:
-                    if nid != sprite.tileset_nid or coord != sprite.tileset_position:
+                    if current_pos in coords_to_replace:
                         continue
-                elif tile:
-                    continue
+                    if not self.tilemap.check_bounds(current_pos):
+                        continue
+                    tile = current_layer.get_sprite(current_pos)
+                    if tile:
+                        nid = tile.tileset_nid
+                        coord = tile.tileset_position
+                    else:
+                        nid, coord = None, None
+                    if sprite:
+                        if nid != sprite.tileset_nid or coord != sprite.tileset_position:
+                            continue
+                    elif tile:
+                        continue
 
-                coords_to_replace.add(current_pos)
-                unexplored_stack.append((current_pos[0] + 1, current_pos[1]))
-                unexplored_stack.append((current_pos[0] - 1, current_pos[1]))
-                unexplored_stack.append((current_pos[0], current_pos[1] + 1))
-                unexplored_stack.append((current_pos[0], current_pos[1] - 1))
+                    coords_to_replace.add(current_pos)
+                    unexplored_stack.append((current_pos[0] + 1, current_pos[1]))
+                    unexplored_stack.append((current_pos[0] - 1, current_pos[1]))
+                    unexplored_stack.append((current_pos[0], current_pos[1] + 1))
+                    unexplored_stack.append((current_pos[0], current_pos[1] - 1))
 
-        # Get coords like current coord in current_layer
-        current_tile = current_layer.get_sprite(tile_pos)
-        # Determine which coords should be flood-filled
-        find_similar((tile_pos[0], tile_pos[1]), current_tile)
+            # Get coords like current coord in current_layer
+            current_tile = current_layer.get_sprite(tile_pos)
+            # Determine which coords should be flood-filled
+            find_similar((tile_pos[0], tile_pos[1]), current_tile)
 
-        if self.right_selection:
-            # Only handles the topleft tile
-            coords = list(self.right_selection.keys())
+            if self.right_selection:
+                # Only handles the topleft tile
+                coords = list(self.right_selection.keys())
+                topleft = min(coords)
+                true_coord, tile_sprite = self.right_selection[topleft]
+                coords = [true_coord]
+                tileset_nid = tile_sprite.tileset_nid
+            else:
+                tileset, coords = self.window.get_tileset_coords()
+                tileset_nid = tileset.nid
+
+            if not coords:
+                return
             topleft = min(coords)
-            true_coord, tile_sprite = self.right_selection[topleft]
-            coords = [true_coord]
-            tileset_nid = tile_sprite.tileset_nid
-        else:
-            tileset, coords = self.window.get_tileset_coords()
-            tileset_nid = tileset.nid
+            w = max(coord[0] for coord in coords) - topleft[0] + 1
+            h = max(coord[1] for coord in coords) - topleft[1] + 1
 
-        if not coords:
-            return
-        topleft = min(coords)
-        w = max(coord[0] for coord in coords) - topleft[0] + 1
-        h = max(coord[1] for coord in coords) - topleft[1] + 1
-
-        # Do the deed
-        for x in range(self.tilemap.width):
-            for y in range(self.tilemap.height):
-                if (x, y) in coords_to_replace:
-                    new_coord_x = x%w + topleft[0]
-                    new_coord_y = y%h + topleft[1]
-                    if (new_coord_x, new_coord_y) in coords:
-                        current_layer.set_sprite(
-                            (x, y), tileset_nid, (new_coord_x, new_coord_y))
+            # Do the deed
+            for x in range(self.tilemap.width):
+                for y in range(self.tilemap.height):
+                    if (x, y) in coords_to_replace:
+                        new_coord_x = (x % w) + topleft[0]
+                        new_coord_y = (y % h) + topleft[1]
+                        if (new_coord_x, new_coord_y) in coords:
+                            current_layer.set_sprite(
+                                (x, y), tileset_nid, (new_coord_x, new_coord_y))
 
     def mousePressEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
@@ -590,6 +622,10 @@ class MapEditor(QDialog):
         self.show_gridlines_action.setCheckable(True)
         self.show_gridlines_action.setChecked(True)
 
+        self.focus_layer_action = QAction(QIcon(f"{icon_folder}/focus_layer.png"), "Focus Current Layer", self, triggered=self.focus_layer_toggle)
+        self.focus_layer_action.setCheckable(True)
+        self.focus_layer_action.setChecked(False)
+
     def void_right_selection(self):
         self.view.right_selection.clear()
 
@@ -620,6 +656,7 @@ class MapEditor(QDialog):
         self.toolbar.addAction(self.export_as_png_action)
         self.toolbar.addAction(self.show_gridlines_action)
         self.toolbar.addAction(self.show_autotiles_action)
+        self.toolbar.addAction(self.focus_layer_action)
 
     def set_current(self, current):  # Current is a TileMapPrefab
         self.current = current
@@ -644,6 +681,10 @@ class MapEditor(QDialog):
 
     def autotile_toggle(self, val):
         self.view.draw_autotiles = val
+
+    def focus_layer_toggle(self, val):
+        self.view.focus_layer = val
+        self.view.update_view()
 
     def autotile_fps_changed(self, val):
         self.current.autotile_fps = val

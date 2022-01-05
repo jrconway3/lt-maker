@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QListView, QPushButton, \
     QDialog
 from PyQt5.QtCore import QSize
 
+from app.editor import tilemap_editor
 from app.resources.resources import RESOURCES
 from app.editor.data_editor import SingleResourceEditor, MultiResourceEditor
 
@@ -93,7 +94,7 @@ class TileMapDatabase(TileTab):
         if current_tilemap:
             map_editor = MapEditor(self, current_tilemap)
             map_editor.exec_()
-            tile_model.create_tilemap_pixmap(current_tilemap)
+            tilemap_editor.get_tilemap_pixmap(current_tilemap)
 
 def get_tilesets() -> tuple:
     window = SingleResourceEditor(TileSetDatabase, ["tilesets"])

@@ -2122,8 +2122,7 @@ class AddRegion(Action):
             if self.region.region_type == 'status':
                 for unit in game.units:
                     if unit.position and self.region.contains(unit.position):
-                        new_skill = DB.skills.get(self.region.sub_nid)
-                        self.subactions.append(AddSkill(unit, new_skill.nid))
+                        game.add_region_status(unit, self.region, False)
             for act in self.subactions:
                 act.do()
 

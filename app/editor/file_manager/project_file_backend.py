@@ -177,7 +177,7 @@ class ProjectFileBackend():
                 self.load()
                 return True
             except Exception as e:
-                logging.error(e)
+                logging.exception(e)
                 backup_project_name = path + '.lttmp'
                 corrupt_project_name = path + '.ltcorrupt'
                 logging.warning("Failed to load project at %s. Likely that project is corrupted.", path)

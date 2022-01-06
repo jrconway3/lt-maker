@@ -463,9 +463,10 @@ class UnitSprite():
                 color = (0, int(diff * .5), 0)  # Tint image green at magnitude depending on diff
                 image = image_mods.change_color(image.convert_alpha(), color)
 
-        for flicker_tint in self.flicker_tint:
+        for idx, flicker_tint in enumerate(self.flicker_tint):
             color, period, width = flicker_tint
-            diff = utils.model_wave(current_time, period, width)
+            offset = idx * period / len(self.flicker_tint)
+            diff = utils.model_wave(current_time + offset, period, width)
             diff = utils.clamp(diff, 0, 1)
             color = tuple([int(c * diff) for c in color])
             image = image_mods.add_tint(image.convert_alpha(), color)

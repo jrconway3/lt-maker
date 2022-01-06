@@ -5,7 +5,7 @@ from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.utilities import utils
-from app.engine import engine, image_mods, icons, unit_funcs, action, banner
+from app.engine import engine, image_mods, icons, unit_funcs, action, banner, skill_system
 from app.engine.sprites import SPRITES
 from app.engine.sound import SOUNDTHREAD
 from app.engine.fonts import FONT
@@ -322,7 +322,7 @@ class ExpState(State):
                 else:
                     act = action.AddSkill(unit, class_skill)
                     action.do(act)
-                    if act.skill_obj:
+                    if act.skill_obj and not skill_system.hidden(act.skill_obj, unit):
                         game.alerts.append(banner.GiveSkill(unit, act.skill_obj))
                         game.state.change('alert')
 
@@ -339,7 +339,7 @@ class ExpState(State):
                 else:
                     act = action.AddSkill(unit, personal_skill)
                     action.do(act)
-                    if act.skill_obj:
+                    if act.skill_obj and not skill_system.hidden(act.skill_obj, unit):
                         game.alerts.append(banner.GiveSkill(unit, act.skill_obj))
                         game.state.change('alert')
 

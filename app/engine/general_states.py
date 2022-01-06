@@ -542,6 +542,7 @@ class MovementState(State):
                 game.movement.surprised = False
                 game.state.clear()
                 game.state.change('free')
+                game.state.change('wait')
             else:
                 game.state.back()
             return 'repeat'

@@ -2922,6 +2922,8 @@ class Event():
 
         if 'only_once' in flags:
             new_region.only_once = True
+        if 'interrupt_move' in flags:
+            new_region.interrupt_move = True
 
         game.register_region(new_region)
         action.do(action.AddRegion(new_region))

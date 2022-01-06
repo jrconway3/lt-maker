@@ -1472,12 +1472,14 @@ class AddRegion(EventCommand):
         """
 Adds a new region to the map that can be referenced by events. *Nid* will be the new regions identifier. *Position* is the map coordinate desired for the upper-left corner of the new region. *Size* is the dimensions of the new region. *RegionType* defines the type of region that is created (status region, etc.).
 
-The optional *String* keyword can be used to specify the sub-region type. When set, the *only_once* flag prevents multiples of the same region from being created.
+The optional *String* keyword can be used to specify the sub-region type. 
+
+When set, the *only_once* flag prevents multiples of the same region from being created. The *interrupt_move* flag halts a unit's movement once they move into the region.
         """
 
     keywords = ["Nid", "Position", "Size", "RegionType"]
     optional_keywords = ["String"]
-    flags = ["only_once"]
+    flags = ["only_once", "interrupt_move"]
 
 class RegionCondition(EventCommand):
     nid = 'region_condition'

@@ -127,6 +127,11 @@ class UnitSprite():
         self.offset = [0, 0]
         ANIMATION_COUNTERS.attack_movement_counter.reset()
 
+    def get_round_fake_pos(self):
+        if self.fake_position:
+            return int(round(self.fake_position[0])), int(round(self.fake_position[1]))
+        return None
+
     def add_animation(self, animation_nid):
         anim = RESOURCES.animations.get(animation_nid)
         if anim:

@@ -588,7 +588,7 @@ class GameState():
         self.item_registry[item.uid] = item
         # For multi-items
         for subitem in item.subitems:
-            self.item_registry[subitem.uid] = subitem
+            self.register_item(subitem)
 
     def register_skill(self, skill):
         logging.debug("Registering skill %s as %s", skill, skill.uid)

@@ -37,8 +37,8 @@ def draw_tilemap(tilemap, show_full_map = False, current_layer_index=-1, fade=2,
     image.fill(QColor(0, 0, 0, 0))
 
     painter = QPainter()
-    painter.setOpacity(1.0)
     painter.begin(image)
+    painter.setOpacity(1.0)
     ms = QDateTime.currentMSecsSinceEpoch()
     for index, layer in enumerate(tilemap.layers):
         if layer.visible or show_full_map:
@@ -131,7 +131,7 @@ class MapEditorView(QGraphicsView):
         else:
             return
         if self.window.terrain_mode:
-            self.draw_terrain(current_layer_index=self.get_focus_layer())
+            self.draw_terrain()
         self.show_map()
 
     def get_map_image(self):

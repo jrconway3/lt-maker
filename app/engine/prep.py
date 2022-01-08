@@ -718,13 +718,18 @@ class PrepItemsState(State):
                 if context == 'inventory':
                     if current:
                         self.state = 'owner_item'
-                        options = ['Store', 'Trade']
+                        options = []
+                        if not item_system.locked(self.unit, current):
+                            options.append('Store')
+                            options.append('Trade')
                         if item_system.can_use(self.unit, current) and \
                                 item_funcs.available(self.unit, current) and \
                                 item_system.can_use_in_base(self.unit, current):
                             options.append('Use')
                         if convoy_funcs.can_restock(current):
                             options.append('Restock')
+                        if not options:
+                            options.append('Nothing')
                         topleft = (96, self.menu.get_current_index() * 16 + 68 - 8 * len(options))
                         self.sub_menu = menus.Choice(current, options, topleft)
                     else:

@@ -2300,7 +2300,7 @@ class RemoveMapAnim(Action):
 
     def reverse(self):
         anim = RESOURCES.animations.get(self.nid)
-        anim = animations.MapAnimation(anim, self.pos, loop=True, speed_mult=self.speed_mult)
+        anim = animations.MapAnimation(anim, self.pos, loop=True, speed_adj=self.speed_mult)
         game.tilemap.animations.append(anim)
 
 class ChangeObjective(Action):

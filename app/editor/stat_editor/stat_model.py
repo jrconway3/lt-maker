@@ -14,4 +14,14 @@ class StatTypeModel(DragDropCollectionModel):
         return None
 
     def create_new(self):
-        return self._data.add_new_default(DB)
+        new_stat = self._data.add_new_default(DB)
+        nid = new_stat.nid
+        for klass in DB.classes:
+            for stat_list in klass.get_stat_lists():
+                if nid not in stat_list:
+                    stat_list[nid] = 0
+        for unit in DB.units:
+            for stat_list in unit.get_stat_lists():
+                if nid not in stat_list:
+                    stat_list[nid] = 0
+        return new_stat

@@ -39,7 +39,23 @@ def evaluate(string: str, unit1=None, unit2=None, item=None, position=None,
             return unit1.nid not in t1
         else:
             return False
-    return eval(string)
+
+    temp_globals = globals().copy()
+    temp_globals.update({
+        'unit1': unit1,
+        'unit': unit1,
+        'unit2': unit2,
+        'target': unit2,
+        'item': item,
+        'position': position,
+        'region': region,
+        'mode': mode,
+        'skill': skill,
+        'attack_info': attack_info,
+        'base_value': base_value,
+        'check_pair': check_pair,
+        'check_default': check_default})
+    return eval(string, temp_globals)
 
 def eval_string(text: str) -> str:
     to_evaluate = re.findall(r'\{eval:[^{}]*\}', text)

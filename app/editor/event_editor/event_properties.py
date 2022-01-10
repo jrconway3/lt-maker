@@ -1031,7 +1031,15 @@ class ShowMapDialog(QDialog):
 
     def position_moved(self, x, y):
         if x >= 0 and y >= 0:
-            self.position_edit.setText("%d,%d" % (x, y))
+            unit_name = None
+            for unit in self.current_level.units:
+                if unit.starting_position and unit.starting_position[0] == x and unit.starting_position[1] == y:
+                    unit_name = unit.nid
+                    break
+            if unit_name:
+                self.position_edit.setText("%s: %d,%d" % (unit_name, x, y))
+            else:
+                self.position_edit.setText("%d,%d" % (x, y))
         else:
             self.position_edit.setText("")
 

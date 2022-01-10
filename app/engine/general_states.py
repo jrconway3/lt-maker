@@ -940,6 +940,7 @@ class SubItemChildState(MapState):
             else:
                 SOUNDTHREAD.play_sfx('Select 4')
                 game.state.back()
+                game.state.back()
 
         elif event == 'SELECT':
             if self.menu.info_flag:
@@ -1037,6 +1038,7 @@ class ItemChildState(MapState):
                     if item in self.cur_unit.items:
                         action.do(action.BringToTopItem(self.cur_unit, item))
                         self.parent_menu.current_index = 0  # Reset selection
+                    game.state.back()
                 else:
                     # find ultimate parent item
                     parent_item = item.parent_item
@@ -1044,7 +1046,9 @@ class ItemChildState(MapState):
                         parent_item = parent_item.parent_item
                     if parent_item in self.cur_unit.items:
                         action.do(action.BringToTopItem(self.cur_unit, parent_item))
-                game.state.back()
+                    game.state.back()
+                    game.state.back()
+                    game.state.back()
             elif selection == 'Expand':
                 game.memory['parent_menu'] = self.menu
                 game.memory['selected_item'] = self.item

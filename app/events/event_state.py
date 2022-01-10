@@ -53,7 +53,7 @@ class EventState(State):
         current_level_nid = game.level.nid
         game.memory['_prev_level_nid'] = current_level_nid
         current_level_index = DB.levels.index(game.level.nid)
-        should_go_to_overworld = DB.levels.get(game.level.nid).go_to_overworld
+        should_go_to_overworld = DB.levels.get(game.level.nid).go_to_overworld and DB.constants.value('overworld')
         game.clean_up()
         if current_level_index < len(DB.levels) - 1:
             game.game_vars['_should_go_to_overworld'] = should_go_to_overworld

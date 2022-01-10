@@ -182,6 +182,9 @@ def create_skill(unit, skill_nid):
 
     def create_subskill(subskill_nid):
         subskill_prefab = DB.skills.get(subskill_nid)
+        if not subskill_prefab:
+            logging.error("Couldn't find skill %s" % skill_nid)
+            return None
         subskill = SkillObject.from_prefab(subskill_prefab)
         # Child skills are not owned by their parent skill unit
         # Since they are given to others

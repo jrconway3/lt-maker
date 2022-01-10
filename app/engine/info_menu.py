@@ -580,19 +580,19 @@ class InfoMenuState(State):
             portrait_surf = engine.subsurface(im, (x_pos, 0, 80, 72))
             surf.blit(portrait_surf, (8, 8))
 
-        FONT['text-white'].blit_center(self.unit.name, surf, (48, 80))
+        FONT['text'].blit_center(self.unit.name, surf, (48, 80), 'white')
         self.info_graph.register((24, 80, 52, 24), self.unit.desc, 'all')
         class_obj = DB.classes.get(self.unit.klass)
-        FONT['text-white'].blit(class_obj.name, surf, (8, 104))
+        FONT['text'].blit(class_obj.name, surf, (8, 104), 'white')
         self.info_graph.register((8, 104, 72, 16), class_obj.desc, 'all')
-        FONT['text-blue'].blit_right(str(self.unit.level), surf, (39, 120))
+        FONT['text'].blit_right(str(self.unit.level), surf, (39, 120), 'blue')
         self.info_graph.register((8, 120, 30, 16), 'Level_desc', 'all')
-        FONT['text-blue'].blit_right(str(self.unit.exp), surf, (63, 120))
+        FONT['text'].blit_right(str(self.unit.exp), surf, (63, 120), 'blue')
         self.info_graph.register((38, 120, 30, 16), 'Exp_desc', 'all')
-        FONT['text-blue'].blit_right(str(self.unit.get_hp()), surf, (39, 136))
+        FONT['text'].blit_right(str(self.unit.get_hp()), surf, (39, 136), 'blue')
         self.info_graph.register((8, 136, 72, 16), 'HP_desc', 'all')
         max_hp = equations.parser.hitpoints(self.unit)
-        FONT['text-blue'].blit_right(str(max_hp), surf, (63, 136))
+        FONT['text'].blit_right(str(max_hp), surf, (63, 136), 'blue')
         # Blit the white status platform
         surf.blit(SPRITES.get('status_platform'), (66, 131))
         # Blit affinity
@@ -616,7 +616,7 @@ class InfoMenuState(State):
             self.logo.update()
             self.logo.draw(top_surf)
         page = str(info_states.index(self.state) + 1) + '/' + str(len(info_states))
-        FONT['small-white'].blit_right(page, top_surf, (235, 12))
+        FONT['small'].blit_right(page, top_surf, (235, 12))
 
         self.draw_top_arrows(top_surf)
 
@@ -987,7 +987,7 @@ class InfoMenuState(State):
             if affinity:
                 icons.draw_item(surf, affinity, (16, idx * 16 + top))
                 self.info_graph.register((112, idx * 16 + top, WINWIDTH - 120, 16), affinity.desc, 'support_skills')
-            FONT['text-white'].blit(other_unit.name, surf, (36, idx * 16 + top))
+            FONT['text'].blit(other_unit.name, surf, (36, idx * 16 + top))
             highest_rank = pair.unlocked_ranks[-1]
             FONT['text-yellow'].blit_right(highest_rank, surf, (surf.get_width() - 24, idx * 16 + top))
         return surf
@@ -1016,7 +1016,7 @@ class InfoMenuState(State):
     def create_notes_surf(self):
         # Menu background
         menu_surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT), transparent=True)
-        font = FONT['text-white']
+        font = FONT['text']
 
         my_notes = self.unit.notes
 

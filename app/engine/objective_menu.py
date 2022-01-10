@@ -78,14 +78,14 @@ class ObjectiveMenuState(State):
         FONT['text-yellow'].blit(text_funcs.translate('Win Conditions'), hold_surf, (4, 4))
 
         for idx, win_con in enumerate(win_lines):
-            FONT['text-white'].blit(win_con, hold_surf, (8, 20 + 16*idx))
+            FONT['text'].blit(win_con, hold_surf, (8, 20 + 16*idx))
 
         hold_surf.blit(SPRITES.get('lowlight'), (2, 28 + 16*len(win_lines)))
 
         FONT['text-yellow'].blit(text_funcs.translate('Loss Conditions'), hold_surf, (4, 20 + 16*len(win_lines)))
 
         for idx, loss_con in enumerate(loss_lines):
-            FONT['text-white'].blit(loss_con, hold_surf, (8, 36 + 16*len(win_lines) + idx*16))
+            FONT['text'].blit(loss_con, hold_surf, (8, 36 + 16*len(win_lines) + idx*16))
 
         surfaces.append((hold_surf, (8, 34 + back_surf.get_height() + 2)))
 

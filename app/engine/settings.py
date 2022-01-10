@@ -235,7 +235,7 @@ class SettingsMenuState(State):
         else:
             text = 'keymap_desc'
         text = text_funcs.translate(text)
-        FONT['text-white'].blit_center(text, surf, (WINWIDTH//2, WINHEIGHT - height))
+        FONT['text'].blit_center(text, surf, (WINWIDTH//2, WINHEIGHT - height))
     
     def draw(self, surf):
         if self.bg:

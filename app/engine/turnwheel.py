@@ -382,7 +382,7 @@ class TurnwheelDisplay():
 
         # Turnwheel message
         if self.desc:
-            font = FONT['text-white']
+            font = FONT['text']
             num_lines = len(self.desc)
             bg = base_surf.create_base_surf(WINWIDTH, 8 + font.height * num_lines, 'menu_bg_clear')
             for idx, line in enumerate(self.desc):

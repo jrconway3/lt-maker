@@ -21,7 +21,7 @@ def draw_unit_top(surf, topleft, unit):
     white_surf = SPRITES.get('prep_top')
     surf.blit(white_surf, (x - 6, y - white_surf.get_height()))
     icons.draw_chibi(surf, unit.portrait_nid, (x + 3, y - 35))
-    FONT['text-white'].blit_center(unit.name, surf, (x + 68, y - 35))
+    FONT['text'].blit_center(unit.name, surf, (x + 68, y - 35))
     FONT['text-blue'].blit_right(str(unit.level), surf, (x + 72, y - 19))
     FONT['text-blue'].blit_right(str(unit.exp), surf, (x + 97, y - 19))
 
@@ -82,14 +82,14 @@ def draw_unit_bexp(surf, topleft, unit, new_exp, new_bexp, current_bexp, include
         # Blit bonus exp
         button_right = SPRITES.get('buttons').subsurface(1, 19, 13, 12)
         FONT['text-blue'].blit('Current/New EXP', surf, (topleft[0] + 2, topleft[1] + 4))
-        FONT['text-white'].blit(str(unit.exp), surf, (topleft[0] + 2, topleft[1] + 20))
+        FONT['text'].blit(str(unit.exp), surf, (topleft[0] + 2, topleft[1] + 20))
         surf.blit(button_right, (topleft[0] + 20, topleft[1] + 23))
-        FONT['text-white'].blit(str(new_exp), surf, (topleft[0] + 35, topleft[1] + 20))
+        FONT['text'].blit(str(new_exp), surf, (topleft[0] + 35, topleft[1] + 20))
 
         FONT['text-blue'].blit('Current/New BEXP', surf, (topleft[0] + 2, topleft[1] + 36))
-        FONT['text-white'].blit(str(current_bexp), surf, (topleft[0] + 2, topleft[1] + 52))
+        FONT['text'].blit(str(current_bexp), surf, (topleft[0] + 2, topleft[1] + 52))
         surf.blit(button_right, (topleft[0] + 42, topleft[1] + 55))
-        FONT['text-white'].blit(str(new_bexp), surf, (topleft[0] + 57, topleft[1] + 52))
+        FONT['text'].blit(str(new_bexp), surf, (topleft[0] + 57, topleft[1] + 52))
 
 class Cursor():
     def __init__(self, sprite=None):
@@ -873,8 +873,8 @@ class Trade(Simple):
         # Draw trade names
         surf.blit(self.trade_name_surf, (-4, -1))
         surf.blit(self.trade_name_surf, (WINWIDTH - self.trade_name_surf.get_width() + 4, -1))
-        FONT['text-white'].blit(self.owner.name, surf, (24 - FONT['text-white'].width(self.owner.name)//2, 0))
-        FONT['text-white'].blit(self.partner.name, surf, (WINWIDTH - 24 - FONT['text-white'].width(self.partner.name)//2, 0))
+        FONT['text'].blit(self.owner.name, surf, (24 - FONT['text'].width(self.owner.name)//2, 0))
+        FONT['text'].blit(self.partner.name, surf, (WINWIDTH - 24 - FONT['text'].width(self.partner.name)//2, 0))
 
         # Draw Portraits
         # Owner
@@ -1439,7 +1439,7 @@ class Convoy():
 
     def draw(self, surf):
         surf.blit(self.trade_name_surf, (-4, -1))
-        FONT['text-white'].blit(self.owner.name, surf, (24 - FONT['text-white'].width(self.owner.name)//2, 0))
+        FONT['text'].blit(self.owner.name, surf, (24 - FONT['text'].width(self.owner.name)//2, 0))
 
         # Draw Portrait to left of menu
         # Owner
@@ -1466,7 +1466,7 @@ class Convoy():
             unit_str = "Owner: %s" % unit.name
         else:
             unit_str = "Owner: ---"
-        FONT['text-white'].blit(unit_str, surf, (160, 4))
+        FONT['text'].blit(unit_str, surf, (160, 4))
 
         # Draw item icons
         dist = (self.menu_width - 10)/len(self.order)
@@ -1856,12 +1856,12 @@ class KeyboardMenu(Table):
         else:
             FONT['text-grey'].blit("Nothing", surf, (self.topleft[0] + 16, self.topleft[1] + 4))
 
-        FONT['text-white'].blit(self.name, surf, (6, 20))
+        FONT['text'].blit(self.name, surf, (6, 20))
         if len(self.name) < self.character_limit:
             self.draw_underscore(surf)
 
     def draw_underscore(self, surf):
-        size = FONT['text-white'].size(self.name)
+        size = FONT['text'].size(self.name)
         left = 6 + size[0]
         top = 17 + size[1]
         underscore = SPRITES.get('Underscore')

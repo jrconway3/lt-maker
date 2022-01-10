@@ -2628,9 +2628,9 @@ class Event():
         action.do(action.GainMoney(party_nid, money))
         if banner_flag:
             if money >= 0:
-                b = banner.Advanced(['Got ', str(money), ' gold.'], ['text-white', 'text-blue', 'text-white'], 'Item')
+                b = banner.Advanced('Got <blue>{money}</> gold.'.format(money = str(money)), 'Item')
             else:
-                b = banner.Advanced(['Lost ', str(money), ' gold.'], ['text-white', 'text-blue', 'text-white'], 'ItemBreak')
+                b = banner.Advanced('Lost <blue>{money}</> gold.'.format(money = str(money)), 'ItemBreak')
             game.alerts.append(b)
             game.state.change('alert')
             self.state = 'paused'
@@ -2655,9 +2655,9 @@ class Event():
         # action.do(action.GiveBexp(party_nid, bexp))
         if banner_flag:
             if len(values) > 2 and values[2]:
-                b = banner.Advanced([values[2], ": ", str(val), " BEXP."], ['text-blue', 'text-white', 'text-blue', "text-white"], 'Item')
+                b = banner.Advanced('<blue>{val2}</>: <blue>{val}</> BEXP.'.format(val2=values[2], val=val), 'Item')
             else:
-                b = banner.Advanced(['Got ', str(val), ' BEXP.'], ['text-white', 'text-blue', 'text-white'], 'Item')
+                b = banner.Advanced('Got <blue>{val}</> BEXP.'.format(val=str(val)), 'Item')
             game.alerts.append(b)
             game.state.change('alert')
             self.state = 'paused'

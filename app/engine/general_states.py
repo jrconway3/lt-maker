@@ -698,7 +698,7 @@ class MenuState(MapState):
 
         self.menu = menus.Choice(self.cur_unit, options)
         self.menu.set_limit(8)
-        self.menu.set_color(['text-green' if option not in self.normal_options else 'text-white' for option in options])
+        self.menu.set_color(['green' if option not in self.normal_options else None for option in options])
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -1323,8 +1323,8 @@ class TargetingState(MapState):
         FONT['text-blue'].blit_right(aid, window, (window.get_width() - 5, 24))
         rescuer_sprite = self.cur_unit.sprite.create_image('passive')
         rescuee_sprite = rescuee.sprite.create_image('passive')
-        FONT['text-white'].blit(self.cur_unit.name, window, (32, 8))
-        FONT['text-white'].blit(rescuee.name, window, (32, 56))
+        FONT['text'].blit(self.cur_unit.name, window, (32, 8))
+        FONT['text'].blit(rescuee.name, window, (32, 56))
 
         if game.cursor.position[0] > TILEX//2 + game.camera.get_x() - 1:
             topleft = (0, 0)
@@ -1345,8 +1345,8 @@ class TargetingState(MapState):
         FONT['text-blue'].blit_right(aid, window, (window.get_width() - 5, 72))
         traveler_sprite = traveler.sprite.create_image('passive')
         give_to_sprite = give_to.sprite.create_image('passive')
-        FONT['text-white'].blit(traveler.name, window, (32, 8))
-        FONT['text-white'].blit(give_to.name, window, (32, 56))
+        FONT['text'].blit(traveler.name, window, (32, 8))
+        FONT['text'].blit(give_to.name, window, (32, 56))
 
         if game.cursor.position[0] > TILEX//2 + game.camera.get_x() - 1:
             topleft = (0, 0)

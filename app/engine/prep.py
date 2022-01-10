@@ -237,7 +237,7 @@ class PrepPickUnitsState(State):
             num_slots = len(game.get_all_formation_spots())
         num_on_map = len(on_map)
         pick_s = ['Pick ', str(num_slots - num_on_map), ' units  ', str(num_on_map), '/', str(num_slots)]
-        pick_f = ['text-white', 'text-blue', 'text-white', 'text-blue', 'text-white', 'text-blue']
+        pick_f = ['text', 'text-blue', 'text', 'text-blue', 'text', 'text-blue']
         left_justify = 8
         for word, font in zip(pick_s, pick_f):
             FONT[font].blit(word, bg_surf, (left_justify, 4))
@@ -255,7 +255,7 @@ class PrepPickUnitsState(State):
             text = text_funcs.translate('Fatigued')
         else:
             text = text_funcs.translate('Ready!')
-        FONT['text-white'].blit_center(text, bg_surf, (66, 4))
+        FONT['text'].blit_center(text, bg_surf, (66, 4))
         surf.blit(bg_surf, topleft)
 
     def draw(self, surf):
@@ -396,7 +396,7 @@ def draw_funds(surf):
     # Draw R: Info display
     helper = engine.get_key_name(cf.SETTINGS['key_INFO']).upper()
     FONT['text-yellow'].blit(helper, surf, (123, 143))
-    FONT['text-white'].blit(': Info', surf, (123 + FONT['text-blue'].width(helper), 143))
+    FONT['text'].blit(': Info', surf, (123 + FONT['text-blue'].width(helper), 143))
     # Draw Funds display
     surf.blit(SPRITES.get('funds_display'), (168, 137))
     money = str(game.get_money())
@@ -437,7 +437,7 @@ class PrepManageState(State):
     def create_quick_disp(self):
         sprite = SPRITES.get('buttons')
         buttons = [sprite.subsurface(0, 66, 14, 13), sprite.subsurface(0, 165, 33, 9)]
-        font = FONT['text-white']
+        font = FONT['text']
         commands = ['Manage', 'Optimize All']
         commands = [text_funcs.translate(c) for c in commands]
         size = (49 + max(font.width(c) for c in commands), 40)

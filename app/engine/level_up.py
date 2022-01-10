@@ -488,7 +488,7 @@ class LevelUpScreen():
 
         # Render top
         klass = DB.classes.get(self.unit.klass)
-        FONT['text-white'].blit(klass.name, sprite, (12, 3))
+        FONT['text'].blit(klass.name, sprite, (12, 3))
         FONT['text-yellow'].blit('Lv', sprite, (self.width//2 + 12, 3))
         if self.state in ('scroll_in', 'init_wait'):
             level = str(self.old_level)

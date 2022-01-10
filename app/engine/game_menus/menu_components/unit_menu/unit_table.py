@@ -56,7 +56,7 @@ def get_all_character_stats() -> List[StatPrefab]:
 def get_formatted_stat_pages() -> List[Tuple[str, List[Column]]]:
     all_pages = []
     first_page = [
-        Column('30%', 'Class', uif.HAlignment.LEFT, None, lambda unit: DB.classes.get(unit.klass).name, None, font='text-white'),
+        Column('30%', 'Class', uif.HAlignment.LEFT, None, lambda unit: DB.classes.get(unit.klass).name, None, font='text'),
         Column('16%', 'Lv', uif.HAlignment.RIGHT, None, lambda unit: unit.level, None, sort_by=lambda unit: unit.get_internal_level()),
         Column('16%', 'Exp', uif.HAlignment.RIGHT, None, lambda unit: unit.exp, None),
         Column('16%', 'HP', uif.HAlignment.RIGHT, None, lambda unit: unit.get_hp(), None),
@@ -81,7 +81,7 @@ def get_formatted_stat_pages() -> List[Tuple[str, List[Column]]]:
                 lambda unit: (icons.get_icon(unit.get_weapon()) if unit.get_weapon() else None),
                 lambda unit: (item_system.weapon_type(unit, unit.get_weapon()) if unit.get_weapon() else "",
                               unit.get_weapon().name if unit.get_weapon() else "",),
-                font='text-white'
+                font='text'
                ),
         Column('16%', 'Atk', uif.HAlignment.RIGHT, None,
                lambda unit: str(unit.get_damage_with_current_weapon()) if unit.get_damage_with_current_weapon() > 0 else '--',

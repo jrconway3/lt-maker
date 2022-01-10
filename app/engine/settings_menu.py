@@ -26,7 +26,7 @@ class ControlOption(menu_options.BasicOption):
         return 16
 
     def draw(self, surf, x, y, active=False, get_input=False):
-        name_font = 'text-white'
+        name_font = 'text'
         key_font = 'text-blue'
         if active and get_input:
             name_font = 'text-yellow'
@@ -97,7 +97,7 @@ class SliderOption(ConfigOption):
     def draw(self, surf, x, y, active=False):
         self.counter = (self.counter + 1) % len(self.anim)
         surf.blit(self.icon, (x + 16, y))
-        name_font = 'text-white'
+        name_font = 'text'
         FONT[name_font].blit(self.display_name, surf, (x + 32, y))
         slider_bar = SPRITES.get('health_bar_bg')
         if not slider_bar:
@@ -146,7 +146,7 @@ class ChoiceOption(ConfigOption):
 
     def draw(self, surf, x, y, active=False):
         surf.blit(self.icon, (x + 16, y))
-        name_font = FONT['text-white']
+        name_font = FONT['text']
         name_font.blit(self.display_name, surf, (x + 32, y))
         value_font = FONT['text-blue']
         value = cf.SETTINGS[self.name]
@@ -167,7 +167,7 @@ class SimpleOption(ConfigOption):
 
     def draw(self, surf, x, y, active=False):
         surf.blit(self.icon, (x + 16, y))
-        name_font = FONT['text-white']
+        name_font = FONT['text']
         name_font.blit(self.display_name, surf, (x + 32, y))
         value = str(cf.SETTINGS[self.name])
         
@@ -188,7 +188,7 @@ class ScreenSizeOption(SimpleOption):
 
     def draw(self, surf, x, y, active=False):
         surf.blit(self.icon, (x + 16, y))
-        name_font = FONT['text-white']
+        name_font = FONT['text']
         name_font.blit(self.display_name, surf, (x + 32, y))
         value = int(cf.SETTINGS[self.name])
         
@@ -240,7 +240,7 @@ class BoolOption(ConfigOption):
 
     def draw(self, surf, x, y, active=False):
         surf.blit(self.icon, (x + 16, y))
-        name_font = FONT['text-white']
+        name_font = FONT['text']
         name_font.blit(self.display_name, surf, (x + 32, y))
         value = cf.SETTINGS[self.name]
         

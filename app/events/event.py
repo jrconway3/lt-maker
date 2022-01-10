@@ -1752,7 +1752,7 @@ class Event():
 
         if speed:
             speed = float(speed)
-        elif speak_style:
+        elif speak_style and speak_style.speed:
             speed = speak_style.speed
         else:
             speed = 1

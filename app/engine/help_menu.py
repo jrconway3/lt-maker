@@ -30,7 +30,7 @@ class HelpDialog():
             self.num_lines += 1
         self.height = self.font.height * self.num_lines + 16
 
-        self.help_surf = base_surf.create_base_surf(self.width, self.height, 'message_bg_base') 
+        self.help_surf = base_surf.create_base_surf(self.width, self.height, 'message_bg_base')
         self.h_surf = engine.create_surface((self.width, self.height + 3), transparent=True)
 
     def get_width(self):
@@ -47,7 +47,9 @@ class HelpDialog():
         if '\n' in desc:
             self.lines = desc.splitlines()
         else:
-            if len(desc) < 28:
+            if len(desc) // 30 > 0:
+                self.num_lines = len(desc) // 30
+            else:
                 self.num_lines = 1
             self.lines = text_funcs.split(self.font, desc, self.num_lines, WINWIDTH - 8)
 
@@ -135,7 +137,7 @@ class StatDialog(HelpDialog):
 
         self.desc = text_funcs.translate(desc)
         self.bonuses = bonuses
-        
+
         self.lines = text_funcs.line_wrap(self.font, self.desc, 148)
         self.size_y = self.font.height * (len(self.lines) + len(self.bonuses)) + 16
 
@@ -155,7 +157,7 @@ class StatDialog(HelpDialog):
             num_characters = int(2 * (time - self.start_time) / float(cf.SETTINGS['text_speed']))
         else:
             num_characters = 1000
-        
+
         for idx, line in enumerate(self.lines):
             if num_characters > 0:
                 self.font.blit(line[:num_characters], help_surf, (8, self.font.height * idx + 6))
@@ -259,8 +261,8 @@ class ItemHelpDialog(HelpDialog):
             num_characters = int(2 * (time - self.start_time) / float(cf.SETTINGS['text_speed']))
         else:
             num_characters = 1000
-        
-        y_height = 32 if self.num_present > 3 else 16 
+
+        y_height = 32 if self.num_present > 3 else 16
         for idx, line in enumerate(self.lines):
             if num_characters > 0:
                 self.font.blit(line[:num_characters], help_surf, (8, self.font.height * idx + 6 + y_height))

@@ -371,7 +371,7 @@ class UnitOption(BasicOption):
         self.idx = idx
         self.unit = unit
         self.help_box = None
-        self.font = None
+        self.font = 'text'
         self.color = None
         self.ignore = False
         self.mode = None
@@ -395,6 +395,7 @@ class UnitOption(BasicOption):
         return 16
 
     def get_color(self):
+        color = None
         if self.ignore:
             color = 'grey'
         elif self.color:

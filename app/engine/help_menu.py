@@ -132,7 +132,7 @@ class HelpDialog():
         shrunk_desc = re.split(r'<[\w\/]*>', desc)
         cut_desc = ''.join(shrunk_desc)
         desc_length = FONT['text'].width(cut_desc)
-        return (desc_length // (WINWIDTH - 16)) + max(1, lines_to_add)
+        return (desc_length // (WINWIDTH - 30)) + max(1, lines_to_add)
 
 class StatDialog(HelpDialog):
     font_green = FONT['text-green']

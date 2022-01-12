@@ -1,6 +1,5 @@
 from app.constants import WINWIDTH, WINHEIGHT
 from app.data.database import DB
-import re
 
 from app.utilities import utils
 from app.engine.sprites import SPRITES
@@ -129,9 +128,7 @@ class HelpDialog():
         lines_to_add = 0
         lines_to_add += desc.count("\n")
         desc = desc.replace("\n", "")
-        shrunk_desc = re.split(r'<[\w\/]*>', desc)
-        cut_desc = ''.join(shrunk_desc)
-        desc_length = FONT['text'].width(cut_desc)
+        desc_length = FONT['text'].width(desc)
         return (desc_length // (WINWIDTH - 30)) + max(1, lines_to_add)
 
 class StatDialog(HelpDialog):

@@ -2122,7 +2122,10 @@ class AddRegion(Action):
             if self.region.region_type == 'status':
                 for unit in game.units:
                     if unit.position and self.region.contains(unit.position):
-                        game.add_region_status(unit, self.region, False)
+                        skill_obj = item_funcs.create_skill(unit, self.region.sub_nid)
+                        game.register_skill(skill_obj)
+                        game.register_terrain_status(self.region.nid, skill_obj.uid)
+                        self.subactions.append(AddSkill(unit, skill_obj))
             for act in self.subactions:
                 act.do()
 

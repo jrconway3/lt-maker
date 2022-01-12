@@ -51,6 +51,7 @@ class TurnChangeState(MapState):
                         # Give out fatigue statuses if necessary at the beginning of the level
                         action.do(action.ChangeFatigue(unit, 0))
                     game.events.trigger('level_start')
+
         else:
             game.phase.next()  # Go to next phase
             # If entering player phase

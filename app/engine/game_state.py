@@ -812,7 +812,7 @@ class GameState():
 
         if not skill_obj:
             skill_obj = item_funcs.create_skill(unit, region.sub_nid)
-            game.register_skill(skill_obj)
+            self.register_skill(skill_obj)
             self.register_terrain_status(region.nid, skill_obj.uid)
 
         if skill_obj:

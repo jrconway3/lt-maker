@@ -824,6 +824,7 @@ class GameState():
                 else:
                     act = action.AddSkill(unit, skill_obj)
                     action.do(act)
+                    return act
 
     def check_for_region(self, position, region_type, sub_nid=None):
         if not position:

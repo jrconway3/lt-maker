@@ -7,13 +7,34 @@ Welcome to lt-maker's documentation!
 ====================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :caption: Contents:
 
    source/home.md
-   source/Getting-Started.md
 
+.. toctree::
+   :maxdepth: 4
+   :caption: Getting Started:
 
+   source/getting_started/index
+
+.. toctree::
+   :maxdepth: 4
+   :caption: Events:
+   
+   source/events/index
+
+.. toctree::
+   :maxdepth: 4
+   :caption: Guides:
+   
+   source/guides/index
+
+.. toctree::
+   :maxdepth: 4
+   :caption: appendix:
+   
+   source/appendix/index
 
 Indices and tables
 ==================

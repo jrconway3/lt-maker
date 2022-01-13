@@ -5,20 +5,20 @@ from app.utilities import utils
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 import app.engine.config as cf
-from app.engine import engine, base_surf, text_funcs, icons, item_system, item_funcs
+from app.engine import engine, base_surf, text_funcs, icons, item_system, item_funcs, bmpfont
 from app.engine.game_state import game
 
 class HelpDialog():
     help_logo = SPRITES.get('help_logo')
     font = FONT['convo']
 
-    def __init__(self, desc, num_lines=2, name=False):
+    def __init__(self, desc, name=False):
         self.name = name
         self.last_time = self.start_time = 0
         self.transition_in = False
         self.transition_out = 0
-        self.num_lines = num_lines
 
+        self.num_lines = self.find_num_lines(desc)
         self.build_lines(desc)
 
         greater_line_len = max([self.font.width(line) for line in self.lines])
@@ -30,7 +30,7 @@ class HelpDialog():
             self.num_lines += 1
         self.height = self.font.height * self.num_lines + 16
 
-        self.help_surf = base_surf.create_base_surf(self.width, self.height, 'message_bg_base') 
+        self.help_surf = base_surf.create_base_surf(self.width, self.height, 'message_bg_base')
         self.h_surf = engine.create_surface((self.width, self.height + 3), transparent=True)
 
     def get_width(self):
@@ -47,8 +47,6 @@ class HelpDialog():
         if '\n' in desc:
             self.lines = desc.splitlines()
         else:
-            if len(desc) < 28:
-                self.num_lines = 1
             self.lines = text_funcs.split(self.font, desc, self.num_lines, WINWIDTH - 8)
 
     def set_transition_in(self):
@@ -124,6 +122,15 @@ class HelpDialog():
 
         return surf
 
+    def find_num_lines(self, desc: str) -> int:
+        '''Returns the number of lines in the description'''
+        desc = text_funcs.translate(desc)
+        lines_to_add = 0
+        lines_to_add += desc.count("\n")
+        desc = desc.replace("\n", "")
+        desc_length = FONT['text'].width(desc)
+        return (desc_length // (WINWIDTH - 30)) + max(1, lines_to_add)
+
 class StatDialog(HelpDialog):
     font_green = FONT['text-green']
     font_red = FONT['text-red']
@@ -135,7 +142,7 @@ class StatDialog(HelpDialog):
 
         self.desc = text_funcs.translate(desc)
         self.bonuses = bonuses
-        
+
         self.lines = text_funcs.line_wrap(self.font, self.desc, 148)
         self.size_y = self.font.height * (len(self.lines) + len(self.bonuses)) + 16
 
@@ -155,7 +162,7 @@ class StatDialog(HelpDialog):
             num_characters = int(2 * (time - self.start_time) / float(cf.SETTINGS['text_speed']))
         else:
             num_characters = 1000
-        
+
         for idx, line in enumerate(self.lines):
             if num_characters > 0:
                 self.font.blit(line[:num_characters], help_surf, (8, self.font.height * idx + 6))
@@ -259,8 +266,8 @@ class ItemHelpDialog(HelpDialog):
             num_characters = int(2 * (time - self.start_time) / float(cf.SETTINGS['text_speed']))
         else:
             num_characters = 1000
-        
-        y_height = 32 if self.num_present > 3 else 16 
+
+        y_height = 32 if self.num_present > 3 else 16
         for idx, line in enumerate(self.lines):
             if num_characters > 0:
                 self.font.blit(line[:num_characters], help_surf, (8, self.font.height * idx + 6 + y_height))

@@ -2122,9 +2122,9 @@ class AddRegion(Action):
             if self.region.region_type == 'status':
                 for unit in game.units:
                     if unit.position and self.region.contains(unit.position):
-                        game.add_region_status(unit, self.region, False)
-            for act in self.subactions:
-                act.do()
+                        add_skill_action =  game.add_region_status(unit, self.region, False)
+                        if add_skill_action:
+                            self.subactions.append(add_skill_action)
 
     def reverse(self):
         if self.did_add:

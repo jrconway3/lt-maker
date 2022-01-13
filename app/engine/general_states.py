@@ -153,6 +153,11 @@ class PhaseChangeState(MapState):
         logging.info("Phase Change End")
         phase.fade_in_phase_music()
 
+    def finish(self):
+        if game.turncount == 1 and game.phase.get_current() == 'player':
+            # The turnwheel will not be able to go before this moment
+            game.action_log.set_first_free_action()
+
     def save_state(self):
         GAME_NID = str(DB.constants.value('game_nid'))
         if game.phase.get_current() == 'player':
@@ -174,10 +179,7 @@ class FreeState(MapState):
 
         game.cursor.show()
         game.boundary.show()
-        # The turnwheel will not be able to go before this moment
         phase.fade_in_phase_music()
-        if game.turncount == 1:
-            game.action_log.set_first_free_action()
 
     def take_input(self, event):
         game.cursor.set_speed_state(INPUT.is_pressed('BACK'))

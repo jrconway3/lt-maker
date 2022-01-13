@@ -46,6 +46,7 @@ def draw_tilemap(tilemap, show_full_map = False, current_layer_index=-1, fade=2,
                 tileset = RESOURCES.tilesets.get(tile_sprite.tileset_nid)
                 if not tileset:
                     logging.warning("Could not find tileset %s" % tile_sprite.tileset_nid)
+                    continue
                 if not tileset.pixmap:
                     tileset.set_pixmap(QPixmap(tileset.full_path))
                 if not tileset.autotile_pixmap:

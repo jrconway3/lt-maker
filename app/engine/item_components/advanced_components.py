@@ -58,7 +58,7 @@ class UnloadUnit(ItemComponent):
     tag = 'advanced'
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
-        if not game.board.get_unit(def_pos) and game.movement.check_simple_traversable(def_pos):
+        if def_pos and not game.board.get_unit(def_pos) and game.movement.check_simple_traversable(def_pos):
             return True
         return False
 

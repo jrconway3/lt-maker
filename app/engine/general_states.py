@@ -547,6 +547,7 @@ class MovementState(State):
                 game.state.change('free')
                 game.state.change('wait')
             else:
+                game.boundary.frozen = False
                 game.state.back()
             return 'repeat'
 

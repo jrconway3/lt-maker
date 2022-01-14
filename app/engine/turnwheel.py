@@ -325,9 +325,8 @@ class ActionLog():
         return unit.position
 
     def set_first_free_action(self):
-        if self.first_free_action == -1:
-            logging.debug("*** First Free Action ***")
-            self.first_free_action = self.action_index
+        logging.debug("*** First Free Action ***")
+        self.first_free_action = self.action_index
 
     def hover_on(self, unit):
         game.cursor.set_turnwheel_sprite()

@@ -194,9 +194,7 @@ endf
 ```
     """
     keywords = ['Nid', 'Expression']
-
-    _flags = ['no_warn']
-
+    
 class Endf(EventCommand):
     nid = "endf"
     tag = Tags.FLOW_CONTROL

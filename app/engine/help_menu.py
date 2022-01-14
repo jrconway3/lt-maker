@@ -125,11 +125,13 @@ class HelpDialog():
     def find_num_lines(self, desc: str) -> int:
         '''Returns the number of lines in the description'''
         desc = text_funcs.translate(desc)
-        lines_to_add = 0
-        lines_to_add += desc.count("\n")
-        desc = desc.replace("\n", "")
-        desc_length = FONT['text'].width(desc)
-        return (desc_length // (WINWIDTH - 30)) + max(1, lines_to_add)
+        # Split on \n, then go through each element in the list and break it into further strings if too long
+        lines = desc.split("\n")
+        total_lines = len(lines)
+        for line in lines:
+            desc_length = self.font.width(line)
+            total_lines += desc_length // (WINWIDTH - 20)
+        return total_lines
 
 class StatDialog(HelpDialog):
     font_green = FONT['text-green']

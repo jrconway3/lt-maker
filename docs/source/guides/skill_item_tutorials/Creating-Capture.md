@@ -6,13 +6,13 @@ In Thracia 776, capture works the following way: An attack is initiated with sta
 
 We will implement this in Lex Talionis. First, we'll create the capture skill.
 
-![Screenshot_2022-01-10_141154](../../uploads/8e16758a21deed403452b45ae2538fcb/Screenshot_2022-01-10_141154.png)
-
-Event After Initiated Combat "Global Capture" refers to an event named Capture in the global section that we'll create later.
+![Capture_Skill](../../uploads/capture/capture_skill.png)
 
 Combat Art "CaptureArt" refers to the following skill:
 
-![Screenshot_2022-01-10_153443](../../uploads/3b0515ab3526bd9bc136a6707cdc654f/Screenshot_2022-01-10_153443.png)
+![Screenshot_2022-01-10_153443](../../uploads/capture/capture_art.png)
+
+Event After Initiated Combat "Global Capture" refers to an event named Capture in the global section that we'll create later.
 
 Following our desired implementation, attacking with the Capture command will have the unit initiate an attack with their strength, magic, skill, luck, and speed halved. After the battle, the Capture event will be called. Here's what that event looks like:
 
@@ -32,7 +32,7 @@ We'll now create a new event in the Global level. I called mine "Search for Empt
 
 ![Screenshot_2022-01-10_154802](../../uploads/a42cd391c974f7a2b5ce3f5b4e757616/Screenshot_2022-01-10_154802.png)
 
-This is the only line in the event. Loop units can sometimes be hard to understand, so let's break it down. The first parameter (the one surrounded by square brackets) gives the command a list of units that are on the map. The second parameter refers to an event we're about to write named "Kill Empty HP". 
+This is the only line in the event. Loop units can sometimes be hard to understand, so let's break it down. The first parameter (the one surrounded by square brackets) gives the command a list of units that are on the map. The second parameter refers to an event we're about to write named "Kill Empty HP".
 
 **NOTE: Do not let the event editor autofill the second parameter for you!**
 
@@ -48,9 +48,14 @@ Now, a problem might arise if you ended the chapter while holding a captured uni
 
 Where Kill 0 HP Travelers refers to the following event in the Global level:
 
-![Screenshot_2022-01-10_170330](../../uploads/0a63844f241b18b0e151c5679c285584/Screenshot_2022-01-10_170330.png)
+![Screenshot_2022-01-10_170330](../../uploads/capture/kill_event.png)
+~~~
+if;game.get_unit(unit.traveler) and game.get_unit(unit.traveler).get_hp() == 0
+    kill_unit;{eval:game.get_unit(unit.traveler)};FLAG(immediate)
+end
+~~~
 
-And that's it! You should now have a Thracia-style capture system. You can trade with captured units and transfer them between party members, as well as release them to remove them from the map. 
+And that's it! You should now have a Thracia-style capture system. You can trade with captured units and transfer them between party members, as well as release them to remove them from the map.
 
 If you want to check for the status of a unit at the end of a chapter (i.e., if Lifis is captured by the player at the end of 2x) you'll want to use a similar loop_units setup. Create a game_var or level_var and set it to 0. Construct a block of event code that looks similar to this:
 

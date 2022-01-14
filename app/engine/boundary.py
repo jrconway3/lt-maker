@@ -42,6 +42,7 @@ class BoundaryInterface():
         self.surf = None
         self.fog_of_war_surf = None
         self.should_reset_surf: bool = False
+        self.frozen: bool = False  # Whether I should update my display surf (generally False, for immediate updates)
 
     def init_grid(self):
         cells = []
@@ -193,7 +194,7 @@ class BoundaryInterface():
         if not self.draw_flag:
             return surf
 
-        if self.should_reset_surf and len(game.movement) <= 0:
+        if self.should_reset_surf and not self.frozen:
             self.surf = None
             self.should_reset_surf = False
 

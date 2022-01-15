@@ -20,8 +20,5 @@ class MapTerrainModel(QAbstractListModel):
             return text
         elif role == Qt.DecorationRole:
             terrain = self._data[index.row()]
-            if not terrain.tileset_pixmap:
-                terrain.tileset_pixmap = QPixmap(terrain.tileset_path)
-                terrain.display_pixmap = terrain.tileset_pixmap.copy(*self.display_tile_coord, 16, 16)
-            return QIcon(terrain.display_pixmap)
+            return QIcon(terrain.get_display_pixmap().scaled(32, 32))
         return None

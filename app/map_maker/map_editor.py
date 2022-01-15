@@ -7,13 +7,11 @@ from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
-from app.editor.map_maker import TerrainPainterMenu
 from app.extensions.custom_gui import PropertyBox
-
-from app.map_maker.resize_dialog import ResizeDialog
-
 from app.editor.settings import MainSettingsController
 
+from app.map_maker.resize_dialog import ResizeDialog
+from app.map_maker.terrain_painter_menu import TerrainPainterMenu
 from app.map_maker.map_editor_view import PaintTool, MapEditorView
 from app.map_maker.draw_tilemap import draw_tilemap
 from app.map_maker.map_prefab import MapPrefab
@@ -35,6 +33,8 @@ class MapEditor(QDialog):
         self.current = current
         self.save()
         self.current_tool = PaintTool.NoTool
+
+        self.terrain_painter_menu = TerrainPainterMenu(self)
 
         self.view = MapEditorView(self)
         self.view.set_current(current)
@@ -59,8 +59,6 @@ class MapEditor(QDialog):
         view_layout.addLayout(toolbar_layout)
         view_layout.addWidget(self.view)
         view_frame.setLayout(view_layout)
-
-        self.terrain_painter_menu = TerrainPainterMenu(self)
 
         self.main_splitter.addWidget(view_frame)
         self.main_splitter.addWidget(self.terrain_painter_menu)
@@ -192,7 +190,13 @@ class MapEditor(QDialog):
 if __name__ == "__main__":
     import sys
     from PyQt5.QtWidgets import QApplication
-    app = QApplication(sys.argv)
-    map_editor = MapEditor()
+    from app import dark_theme
+    ap = QApplication(sys.argv)
+    ap.setWindowIcon(QIcon('favicon.ico'))
+    settings = MainSettingsController()
+    theme = settings.get_theme(0)
+    dark_theme.set(ap, theme)
+    sample_tilemap = MapPrefab('sample')
+    map_editor = MapEditor(current=sample_tilemap)
     map_editor.show()
-    app.exec_()
+    ap.exec_()

@@ -20,6 +20,9 @@ class Terrain(Prefab):
     regular: list = None
     wang_edge2: bool = False
     wang_edge2_limits: dict = None
+    # For forests only
+    forest: bool = False
+    subforests: set = None
 
     def set_tileset(self, tileset_path=None):
         if tileset_path:
@@ -80,7 +83,10 @@ Plains.regular = [(2, 2), (3, 2), (2, 3), (3, 3), (4, 3), (2, 4), (3, 4), (4, 4)
 Road = Terrain('Road', 'Road', 'app/map_maker/rainlash_fields1_road.png')
 Road.wang_edge2 = True
 
-Forest = Terrain('Forest', 'Forest', tileset, (16, 22))
+Forest = Terrain('Forest', 'Forest', 'app/map_maker/rainlash_fields1_forest.png', (16, 22))
+Forest.wang_edge2 = True
+Forest.forest = True
+Forest.subforests = set()
 Thicket = Terrain('Thicket', 'Thicket', tileset, (17, 22))
 
 d = [Plains, Road, Forest, Thicket]

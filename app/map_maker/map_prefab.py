@@ -11,10 +11,25 @@ class MapPrefab(Prefab):
         self.pixmap = None
         
         self.terrain_grid = {}  # Key: Position, Value: Terrain Nids
+        self.terrain_grid_to_update = set()  # Positions
         self.tile_grid = {}  # Key: Position, Value: Tileset Coordinate (twice as large on each axis)
 
     def set(self, pos: tuple, terrain: str):
         self.terrain_grid[pos] = terrain
+        self.terrain_grid_to_update.add(pos)
+        self._update_adjacent(pos)
+
+    def _update_adjacent(self, pos):
+        # Now ask to update all the adjacent ones as well
+        north, east, south, west = (pos[0], pos[1] - 1), (pos[0] + 1, pos[1]), (pos[0], pos[1] + 1), (pos[0] - 1, pos[1])
+        if self.check_bounds(north) and self.get_terrain(north):
+            self.terrain_grid_to_update.add(north)
+        if self.check_bounds(east) and self.get_terrain(east):
+            self.terrain_grid_to_update.add(east)
+        if self.check_bounds(south) and self.get_terrain(south):
+            self.terrain_grid_to_update.add(south)
+        if self.check_bounds(west) and self.get_terrain(west):
+            self.terrain_grid_to_update.add(west)
 
     def get_terrain(self, pos: tuple):
         return self.terrain_grid.get(pos)
@@ -23,16 +38,29 @@ class MapPrefab(Prefab):
         if pos in self.terrain_grid:
             del self.terrain_grid[pos]
 
+        if (pos[0] * 2, pos[1] * 2) in self.tile_grid:
+            del self.tile_grid[(pos[0] * 2, pos[1] * 2)]
+        if (pos[0] * 2 + 1, pos[1] * 2) in self.tile_grid:
+            del self.tile_grid[(pos[0] * 2 + 1, pos[1] * 2)]
+        if (pos[0] * 2 + 1, pos[1] * 2 + 1) in self.tile_grid:
+            del self.tile_grid[(pos[0] * 2 + 1, pos[1] * 2 + 1)]
+        if (pos[0] * 2, pos[1] * 2 + 1) in self.tile_grid:
+            del self.tile_grid[(pos[0] * 2, pos[1] * 2 + 1)]
+
+        self._update_adjacent(pos)
+
     def get_cardinal_terrain(self, pos: tuple):
-        north = self.terrain_grid.get((pos[0], pos[1] - 1))
-        east = self.terrain_grid.get((pos[0] + 1, pos[1]))
-        south = self.terrain_grid.get((pos[0], pos[1] + 1))
-        west = self.terrain_grid.get((pos[0] - 1, pos[1]))
+        north = self.get_terrain((pos[0], pos[1] - 1))
+        east = self.get_terrain((pos[0] + 1, pos[1]))
+        south = self.get_terrain((pos[0], pos[1] + 1))
+        west = self.get_terrain((pos[0] - 1, pos[1]))
         return north, east, south, west
 
     def clear(self):
         self.width, self.height = TILEX, TILEY
         self.terrain_grid.clear()
+        self.terrain_grid_to_update.clear()
+        self.tile_grid.clear()
 
     def check_bounds(self, pos):
         return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height

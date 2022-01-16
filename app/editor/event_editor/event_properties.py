@@ -1127,6 +1127,7 @@ class ShowCommandsDialog(QDialog):
             idx = index.row()
             command = self._data[idx]
             if command not in self.categories:
+                command = command()
                 # command name
                 if command.nickname:
                     text = '**%s**' % command.nickname

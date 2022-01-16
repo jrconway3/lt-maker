@@ -85,3 +85,16 @@ def is_float(s: str) -> bool:
 
 def camel_case(s: str) -> str:
     return functools.reduce(lambda a, b: a + ((b.upper() == b and (a and a[-1].upper() != a[-1])) and (' ' + b) or b), s, '')
+
+def camel_to_snake(name: str) -> str:
+    """
+    https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
+    """
+    name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()    
+
+if __name__ == '__main__':
+    print(camel_to_snake("Direction"))
+    print(camel_to_snake("EntityID"))
+    print(camel_to_snake("Node1"))
+    print(camel_to_snake("OverworldNodeNid"))

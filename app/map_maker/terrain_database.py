@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from PyQt5.QtGui import QPixmap, QPainter
+from PyQt5.QtGui import QPixmap, QPainter, qRgb
 
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.utilities.data import Data, Prefab
@@ -19,6 +19,7 @@ class Terrain(Prefab):
     # Extra database information
     regular: list = None
     wang_edge2: bool = False
+    wang_edge2_limits: dict = None
 
     def set_tileset(self, tileset_path=None):
         if tileset_path:
@@ -26,6 +27,11 @@ class Terrain(Prefab):
         self.tileset_pixmap = QPixmap(self.tileset_path)
         self.display_pixmap = None
         self.get_display_pixmap()
+
+        # Find limits for wang tiles
+        if self.wang_edge2:
+            self.wang_edge2_limits = {k: self._find_limit(k) for k in range(16)}
+            print(self.nid, self.wang_edge2_limits)
 
     def get_display_pixmap(self):
         if not self.display_pixmap:
@@ -47,6 +53,16 @@ class Terrain(Prefab):
                 self.display_pixmap = pix
         return self.display_pixmap
 
+    def _find_limit(self, idx: int) -> int:
+        bg_color = qRgb(0, 0, 0)
+        img = self.tileset_pixmap.toImage()
+        x = idx * TILEWIDTH//2
+        for y in range(0, img.height(), TILEHEIGHT//2):
+            current_color = img.pixel(x, y)
+            if current_color == bg_color:
+                return y // (TILEHEIGHT//2)
+        return (img.height() // (TILEHEIGHT//2))
+        
     def restore_attr(self, name, value):
         if name in ('tileset_path', 'display_tile_coord'):
             value = tuple(value)

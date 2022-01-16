@@ -91,10 +91,10 @@ def determine_sprite(pos: tuple, terrain, tilemap) -> tuple:
         index4 = \
             4 * bool(south and south != terrain.nid) + \
             8 * bool(west and west != terrain.nid)
-        new_coords1 = [(index1, 0)]
-        new_coords2 = [(index2, 0)]
-        new_coords3 = [(index3, 0)]
-        new_coords4 = [(index4, 0)]
+        new_coords1 = [(index1, k) for k in range(terrain.wang_edge2_limits[index1])]
+        new_coords2 = [(index2, k) for k in range(terrain.wang_edge2_limits[index2])]
+        new_coords3 = [(index3, k) for k in range(terrain.wang_edge2_limits[index3])]
+        new_coords4 = [(index4, k) for k in range(terrain.wang_edge2_limits[index4])]
     elif terrain.regular:
         new_coords1 = [(p[0]*2, p[1]*2) for p in terrain.regular]
         new_coords2 = [(p[0]*2 + 1, p[1]*2) for p in terrain.regular]

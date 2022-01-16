@@ -11,7 +11,7 @@ class MapPrefab(Prefab):
         self.pixmap = None
         
         self.terrain_grid = {}  # Key: Position, Value: Terrain Nids
-        self.tile_grid = {}  # Key: Position, Value: Tileset Coordinate
+        self.tile_grid = {}  # Key: Position, Value: Tileset Coordinate (twice as large on each axis)
 
     def set(self, pos: tuple, terrain: str):
         self.terrain_grid[pos] = terrain
@@ -22,6 +22,13 @@ class MapPrefab(Prefab):
     def erase_terrain(self, pos: tuple):
         if pos in self.terrain_grid:
             del self.terrain_grid[pos]
+
+    def get_cardinal_terrain(self, pos: tuple):
+        north = self.terrain_grid.get((pos[0], pos[1] - 1))
+        east = self.terrain_grid.get((pos[0] + 1, pos[1]))
+        south = self.terrain_grid.get((pos[0], pos[1] + 1))
+        west = self.terrain_grid.get((pos[0] - 1, pos[1]))
+        return north, east, south, west
 
     def clear(self):
         self.width, self.height = TILEX, TILEY

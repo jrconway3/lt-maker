@@ -51,6 +51,7 @@ tileset = 'app/map_maker/rainlash_fields1.png'
 Plains = Terrain('Plains', 'Plains', tileset, (2, 2))
 Plains.regular = [(2, 2), (3, 2), (2, 3), (3, 3), (4, 3), (2, 4), (3, 4), (4, 4), (5, 4), (2, 5), (3, 5), (4, 5), (5, 5)]
 Road = Terrain('Road', 'Road', tileset, (20, 22))
+Road.regular = [(20, 22), (20, 23), (20, 24)]
 Forest = Terrain('Forest', 'Forest', tileset, (16, 22))
 Thicket = Terrain('Thicket', 'Thicket', tileset, (17, 22))
 

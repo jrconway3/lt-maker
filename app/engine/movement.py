@@ -156,6 +156,11 @@ class MovementManager():
                             self.done_moving(unit_nid, data, unit, surprise=True)
                             if unit.team == 'player':
                                 self.surprised = True
+                                for region in game.level.regions:
+                                    if region.contains(unit.position) and region.interrupt_move and region.only_once:
+                                        did_trigger = game.events.trigger(region.sub_nid, unit, position=unit.position, region=region)
+                                        if did_trigger:
+                                            action.do(action.RemoveRegion(region))
                             continue
 
                         mcost = self.get_mcost(unit, new_position)

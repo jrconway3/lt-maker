@@ -176,4 +176,11 @@ class MovementManager():
                             game.camera.set_center(*unit.position)
 
                 else: # Path is empty, so we are done
-                    self.done_moving(unit_nid, data, unit)
+                    surprise = False
+                    for region in game.level.regions:
+                        if region.contains(unit.position) and region.interrupt_move:
+                            surprise = True
+                            did_trigger = game.events.trigger(region.sub_nid, unit, position=unit.position, region=region)
+                            if did_trigger and region.only_once:
+                                action.do(action.RemoveRegion(region))
+                    self.done_moving(unit_nid, data, unit, surprise=surprise)

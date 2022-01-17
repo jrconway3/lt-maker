@@ -128,7 +128,8 @@ class AIController():
                 self.goal_item.data['target_item'] = items[-1]
 
             # Combat
-            interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True, skip=self.do_skip)
+            if self.goal_position == self.unit.position:
+                interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True, skip=self.do_skip)
             return True
         # Interacting with regions
         elif self.goal_position and self.behaviour and self.behaviour.action == 'Interact':

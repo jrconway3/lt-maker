@@ -128,7 +128,12 @@ class AIController():
                 self.goal_item.data['target_item'] = items[-1]
 
             # Combat
-            if self.goal_position == self.unit.position:
+            # Checks to make sure the unit wasn't interrupted during movement
+            surprised = False
+            for r in game.level.regions:
+                if r.contains(self.unit.position) and r.interrupt_move:
+                    surprised = True
+            if not surprised:
                 interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True, skip=self.do_skip)
             return True
         # Interacting with regions

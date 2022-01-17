@@ -1,6 +1,7 @@
 from app.constants import TILEX, TILEY
 
 from app.utilities.data import Prefab
+import app.map_maker.utilities as map_utils
 
 class MapPrefab(Prefab):
     def __init__(self, nid):
@@ -14,9 +15,9 @@ class MapPrefab(Prefab):
         self.terrain_grid_to_update = set()  # Positions
         self.tile_grid = {}  # Key: Position, Value: Tileset Coordinate (twice as large on each axis)
 
-    def set(self, pos: tuple, terrain: str):
+    def set(self, pos: tuple, terrain):
         self._update_flood_fill(pos)  # Need to check flood fill both before and after changing terrain
-        self.terrain_grid[pos] = terrain
+        self.terrain_grid[pos] = terrain.nid
         self.terrain_grid_to_update.add(pos)
         self._update_adjacent(pos)
         self._update_flood_fill(pos)
@@ -34,40 +35,14 @@ class MapPrefab(Prefab):
             self.terrain_grid_to_update.add(west)
 
     def _update_flood_fill(self, pos):
-        blob_positions = set()
-        unexplored_stack = []
-
-        def find_similar(starting_pos, terrain_nid):
-            unexplored_stack.append(starting_pos)
-
-            while unexplored_stack:
-                current_pos = unexplored_stack.pop()
-
-                if current_pos in blob_positions:
-                    continue
-                if not self.check_bounds(current_pos):
-                    continue
-                nid = self.get_terrain(current_pos)
-                if nid != terrain_nid:
-                    continue
-
-                blob_positions.add(current_pos)
-                unexplored_stack.append((current_pos[0] + 1, current_pos[1]))
-                unexplored_stack.append((current_pos[0] - 1, current_pos[1]))
-                unexplored_stack.append((current_pos[0], current_pos[1] + 1))
-                unexplored_stack.append((current_pos[0], current_pos[1] - 1))
-
-        # Get coords like current coord in current_layer
-        current_tile = self.get_terrain(pos)
-        # Determine which coords should be flood-filled
-        find_similar(pos, current_tile)
+        blob_positions = map_utils.flood_fill(self, pos)
         for p in blob_positions:
             self.terrain_grid_to_update.add(p)
 
-    def get_terrain(self, pos: tuple):
+    def get_terrain(self, pos: tuple) -> str:
         return self.terrain_grid.get(pos)
 
-    def erase_terrain(self, pos: tuple):
+    def erase_terrain(self, pos: tuple, terrain):
         self._update_flood_fill(pos)
         if pos in self.terrain_grid:
             del self.terrain_grid[pos]

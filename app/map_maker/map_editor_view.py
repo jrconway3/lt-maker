@@ -8,6 +8,7 @@ from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 
 from app.map_maker.draw_tilemap import draw_tilemap
 from app.map_maker.terrain_database import DB_terrain
+import app.map_maker.utilities as map_utils
 from app.editor import timer
 
 class PaintTool(IntEnum):
@@ -159,46 +160,23 @@ class MapEditorView(QGraphicsView):
             for coord, (true_coord, terrain_nid) in self.right_selection.items():
                 true_pos = tile_pos[0] + coord[0], tile_pos[1] + coord[1]
                 if self.tilemap.check_bounds(true_pos):
-                    self.tilemap.set(true_pos, terrain_nid)
+                    terrain = DB_terrain.get(terrain_nid)
+                    self.tilemap.set(true_pos, terrain)
         elif self.tilemap.check_bounds(tile_pos):
             current_nid = self.window.terrain_painter_menu.get_current_nid()
-            self.tilemap.set(tile_pos, current_nid)
+            terrain = DB_terrain.get(current_nid)
+            self.tilemap.set(tile_pos, terrain)
 
     def erase_terrain(self, tile_pos):
         if self.tilemap.check_bounds(tile_pos):
-            self.tilemap.erase_terrain(tile_pos)
+            terrain = DB_terrain.get(self.tilemap.get_terrain(tile_pos))
+            self.tilemap.erase_terrain(tile_pos, terrain)
 
     def flood_fill_terrain(self, tile_pos):
         if not self.tilemap.check_bounds(tile_pos):
             return
 
-        coords_to_replace = set()
-        unexplored_stack = []
-
-        def find_similar(starting_pos, terrain_nid):
-            unexplored_stack.append(starting_pos)
-
-            while unexplored_stack:
-                current_pos = unexplored_stack.pop()
-
-                if current_pos in coords_to_replace:
-                    continue
-                if not self.tilemap.check_bounds(current_pos):
-                    continue
-                nid = self.tilemap.get_terrain(current_pos)
-                if nid != terrain_nid:
-                    continue
-
-                coords_to_replace.add(current_pos)
-                unexplored_stack.append((current_pos[0] + 1, current_pos[1]))
-                unexplored_stack.append((current_pos[0] - 1, current_pos[1]))
-                unexplored_stack.append((current_pos[0], current_pos[1] + 1))
-                unexplored_stack.append((current_pos[0], current_pos[1] - 1))
-
-        # Get coords like current coord in current_layer
-        current_tile = self.tilemap.get_terrain(tile_pos)
-        # Determine which coords should be flood-filled
-        find_similar((tile_pos[0], tile_pos[1]), current_tile)
+        coords_to_replace = map_utils.flood_fill(self.tilemap, tile_pos)
 
         if self.right_selection:
             # Only handles the topleft tile
@@ -215,11 +193,13 @@ class MapEditorView(QGraphicsView):
                         new_coord_y = (y % h) + topleft[1]
                         if (new_coord_x, new_coord_y) in coords:
                             current_nid = self.right_selection[(new_coord_x, new_coord_y)][1]
-                            self.tilemap.set((x, y), current_nid)
+                            terrain = DB_terrain.get(current_nid)
+                            self.tilemap.set((x, y), terrain)
         else:
             terrain_nid = self.window.terrain_painter_menu.get_current_nid()
             for coord in coords_to_replace:
-                self.tilemap.set(coord, terrain_nid)
+                terrain = DB_terrain.get(terrain_nid)
+                self.tilemap.set(coord, terrain)
 
     def mousePressEvent(self, event):
         scene_pos = self.mapToScene(event.pos())

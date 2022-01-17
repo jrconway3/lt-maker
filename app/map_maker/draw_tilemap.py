@@ -60,79 +60,14 @@ def determine_sprite(pos: tuple, terrain, tilemap) -> tuple:
         """
         pos is in tile space (8x8)
         """
-        new_coord = random.choice(new_coords)
-        tilemap.tile_grid[pos] = new_coord
-
-    # Calculate correct tile sprite
-    if terrain.forest:
-        north, east, south, west = tilemap.get_cardinal_terrain(pos)
-        north_pos = pos[0], pos[1] - 1
-        east_pos = pos[0] + 1, pos[1]
-        south_pos = pos[0], pos[1] + 1
-        west_pos = pos[0] - 1, pos[1]
-        total_index = \
-            bool(north and (north != terrain.nid or north_pos in terrain.subforests)) + \
-            2 * bool(east and (east != terrain.nid or east_pos in terrain.subforests)) + \
-            4 * bool(south and (south != terrain.nid or south_pos in terrain.subforests)) + \
-            8 * bool(west and (west != terrain.nid or west_pos in terrain.subforests))
-        index1 = \
-            bool(north and (north != terrain.nid or north_pos in terrain.subforests)) + \
-            8 * bool(west and (west != terrain.nid or west_pos in terrain.subforests))
-        index2 = \
-            bool(north and (north != terrain.nid or north_pos in terrain.subforests)) + \
-            2 * bool(east and (east != terrain.nid or east_pos in terrain.subforests))
-        index3 = \
-            4 * bool(south and (south != terrain.nid or south_pos in terrain.subforests)) + \
-            2 * bool(east and (east != terrain.nid or east_pos in terrain.subforests))
-        index4 = \
-            4 * bool(south and (south != terrain.nid or south_pos in terrain.subforests)) + \
-            8 * bool(west and (west != terrain.nid or west_pos in terrain.subforests))
-        if total_index == 15 and random.choice([1, 2, 3]) != 3:
-            new_coords1 = [(14, 0)]
-            new_coords2 = [(15, 0)]
-            new_coords3 = [(15, 1)]
-            new_coords4 = [(14, 1)]
-            terrain.subforests.add(pos)  # Mark that this forest does not count for adjacency
-        elif total_index in (7, 11, 13, 14) and random.choice([1, 2]) == 2:
-            new_coords1 = [(14, 0)]
-            new_coords2 = [(15, 0)]
-            new_coords3 = [(15, 1)]
-            new_coords4 = [(14, 1)]
-            terrain.subforests.add(pos)
+        if tilemap.tile_grid.get(pos) in new_coords:
+            pass
         else:
-            new_coords1 = [(index1, {0: 0, 1: 0, 8: 0, 9: 0}[index1])]
-            new_coords2 = [(index2, {0: 1, 1: 1, 2: 0, 3: 0}[index2])]
-            new_coords3 = [(index3, {0: 3, 2: 1, 4: 1, 6: 0}[index3])]
-            new_coords4 = [(index4, {0: 2, 4: 0, 8: 1, 12: 0}[index4])]
-            terrain.subforests.discard(pos)
-    elif terrain.wang_edge2:
-        north, east, south, west = tilemap.get_cardinal_terrain(pos)
-        index1 = \
-            bool(north and north != terrain.nid) + \
-            8 * bool(west and west != terrain.nid)
-        index2 = \
-            bool(north and north != terrain.nid) + \
-            2 * bool(east and east != terrain.nid)
-        index3 = \
-            4 * bool(south and south != terrain.nid) + \
-            2 * bool(east and east != terrain.nid)
-        index4 = \
-            4 * bool(south and south != terrain.nid) + \
-            8 * bool(west and west != terrain.nid)
-        new_coords1 = [(index1, k) for k in range(terrain.wang_edge2_limits[index1])]
-        new_coords2 = [(index2, k) for k in range(terrain.wang_edge2_limits[index2])]
-        new_coords3 = [(index3, k) for k in range(terrain.wang_edge2_limits[index3])]
-        new_coords4 = [(index4, k) for k in range(terrain.wang_edge2_limits[index4])]
-    elif terrain.regular:
-        new_coords1 = [(p[0]*2, p[1]*2) for p in terrain.regular]
-        new_coords2 = [(p[0]*2 + 1, p[1]*2) for p in terrain.regular]
-        new_coords3 = [(p[0]*2 + 1, p[1]*2 + 1) for p in terrain.regular]
-        new_coords4 = [(p[0]*2, p[1]*2 + 1) for p in terrain.regular]
-    else:
-        new_coords1 = [(terrain.display_tile_coord[0]*2, terrain.display_tile_coord[1]*2)]
-        new_coords2 = [(terrain.display_tile_coord[0]*2 + 1, terrain.display_tile_coord[1]*2)]
-        new_coords3 = [(terrain.display_tile_coord[0]*2 + 1, terrain.display_tile_coord[1]*2 + 1)]
-        new_coords4 = [(terrain.display_tile_coord[0]*2, terrain.display_tile_coord[1]*2 + 1)]
+            new_coord = random.choice(new_coords)
+            tilemap.tile_grid[pos] = new_coord
+
+    new_coords1, new_coords2, new_coords3, new_coords4 = \
+        terrain.determine_sprite_coords(tilemap, pos)
 
     _push_to_tilemap((pos[0] * 2, pos[1] * 2), new_coords1)
     _push_to_tilemap((pos[0] * 2 + 1, pos[1] * 2), new_coords2)

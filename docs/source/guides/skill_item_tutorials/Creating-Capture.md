@@ -6,11 +6,11 @@ In Thracia 776, capture works the following way: An attack is initiated with sta
 
 We will implement this in Lex Talionis. First, we'll create the capture skill.
 
-![Capture_Skill](../../uploads/capture/capture_skill.png)
+![Capture_Skill](./captureimgs/capture_skill.png)
 
 Combat Art "CaptureArt" refers to the following skill:
 
-![Screenshot_2022-01-10_153443](../../uploads/capture/capture_art.png)
+![Screenshot_2022-01-10_153443](./captureimgs/capture_art.png)
 
 Event After Initiated Combat "Global Capture" refers to an event named Capture in the global section that we'll create later.
 
@@ -48,7 +48,7 @@ Now, a problem might arise if you ended the chapter while holding a captured uni
 
 Where Kill 0 HP Travelers refers to the following event in the Global level:
 
-![Screenshot_2022-01-10_170330](../../uploads/capture/kill_event.png)
+![Screenshot_2022-01-10_170330](./captureimgs/kill_event.png)
 ~~~
 if;game.get_unit(unit.traveler) and game.get_unit(unit.traveler).get_hp() == 0
     kill_unit;{eval:game.get_unit(unit.traveler)};FLAG(immediate)

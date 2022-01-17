@@ -31,20 +31,21 @@ class Oversplash(SkillComponent):
         from app.engine.item_components.aoe_components import BlastAOE
         return BlastAOE(0)
 
-class EnemyOversplash(SkillComponent):
+class EnemyOversplash(Oversplash, SkillComponent):
     nid = 'enemy_oversplash'
     desc = "Grants unit +X area of effect for regular and blast items that only affects enemies"
-    tag = 'advanced'
-
-    expose = Type.Int
-    value = 1
-
-    def empower_splash(self, unit):
-        return self.value
 
     def alternate_splash(self, unit):
         from app.engine.item_components.aoe_components import EnemyBlastAOE
         return EnemyBlastAOE(0)
+
+class SmartOversplash(Oversplash, SkillComponent):
+    nid = 'smart_oversplash'
+    desc = "Grants unit +X area of effect for regular and blast items"
+
+    def alternate_splash(self, unit):
+        from app.engine.item_components.aoe_components import SmartBlastAOE
+        return SmartBlastAOE(0)
 
 class EmpowerHeal(SkillComponent):
     nid = 'empower_heal'

@@ -130,7 +130,6 @@ class MovementManager():
             unit.sprite.change_state('normal')
             unit.sprite.reset()
             action.do(action.HasAttacked(unit))
-            self.remove_interrupt_regions(unit)
             if unit.team == 'player':
                 self.surprised = True
 
@@ -191,4 +190,5 @@ class MovementManager():
 
                 else: # Path is empty, so we are done
                     surprise = self.check_region_interrupt(unit)
+                    self.remove_interrupt_regions(unit)
                     self.done_moving(unit_nid, data, unit, surprise=surprise)

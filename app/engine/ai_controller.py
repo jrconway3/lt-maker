@@ -67,6 +67,12 @@ class AIController():
         logging.info("AI Act!")
 
         change = False
+        if game.movement.check_region_interrupt(self.unit):
+            self.move_ai_complete = True
+            self.attack_ai_complete = True
+            self.canto_ai_complete = True
+            game.movement.remove_interrupt_regions(self.unit)
+
         if not self.move_ai_complete:
             if self.think():
                 change = self.move()
@@ -129,15 +135,7 @@ class AIController():
 
             # Combat
             # Checks to make sure the unit wasn't interrupted during movement
-            surprised = False
-            for r in game.level.regions:
-                if r.contains(self.unit.position) and r.interrupt_move:
-                    surprised = True
-                    did_trigger = game.events.trigger(r.sub_nid, self.unit, position=self.unit.position, region=r)
-                    if did_trigger and r.only_once:
-                        action.do(action.RemoveRegion(r))
-            if not surprised:
-                interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True, skip=self.do_skip)
+            interaction.start_combat(self.unit, self.goal_target, self.goal_item, ai_combat=True, skip=self.do_skip)
             return True
         # Interacting with regions
         elif self.goal_position and self.behaviour and self.behaviour.action == 'Interact':

@@ -131,6 +131,21 @@ class MovementManager():
             unit.sprite.reset()
             action.do(action.HasAttacked(unit))
 
+    def check_region_interrupt(self, unit) -> bool:
+        '''Checks if the unit is in a region that interrupts. If so, checks if the trigger conditions for the region are met. If so, runs the even and removes the region if appropriate.
+        Returns true if the unit was interrupted, false otherwise.'''
+        for region in game.level.regions:
+            if region.contains(unit.position) and region.interrupt_move:
+                return True
+        return False
+
+    def remove_interrupt_regions(self, unit):
+        for region in game.level.regions:
+            if region.contains(unit.position) and region.interrupt_move:
+                did_trigger = game.events.trigger(region.sub_nid, unit, position=unit.position, region=region)
+                if did_trigger and region.only_once:
+                    action.do(action.RemoveRegion(region))
+
     def update(self):
         current_time = engine.get_time()
         for unit_nid in list(self.moving_units.keys()):
@@ -155,12 +170,8 @@ class MovementManager():
                         else:  # Can only happen when not in an event
                             self.done_moving(unit_nid, data, unit, surprise=True)
                             if unit.team == 'player':
+                                self.remove_interrupt_regions(unit)
                                 self.surprised = True
-                                for region in game.level.regions:
-                                    if region.contains(unit.position) and region.interrupt_move and region.only_once:
-                                        did_trigger = game.events.trigger(region.sub_nid, unit, position=unit.position, region=region)
-                                        if did_trigger:
-                                            action.do(action.RemoveRegion(region))
                             continue
 
                         mcost = self.get_mcost(unit, new_position)
@@ -176,11 +187,6 @@ class MovementManager():
                             game.camera.set_center(*unit.position)
 
                 else: # Path is empty, so we are done
-                    surprise = False
-                    for region in game.level.regions:
-                        if region.contains(unit.position) and region.interrupt_move:
-                            surprise = True
-                            did_trigger = game.events.trigger(region.sub_nid, unit, position=unit.position, region=region)
-                            if did_trigger and region.only_once:
-                                action.do(action.RemoveRegion(region))
+                    surprise = self.check_region_interrupt(unit)
+                    self.remove_interrupt_regions(unit)
                     self.done_moving(unit_nid, data, unit, surprise=surprise)

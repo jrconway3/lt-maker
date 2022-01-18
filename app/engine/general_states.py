@@ -543,9 +543,6 @@ class MovementState(State):
         if len(game.movement) <= 0:
             if game.movement.surprised:
                 game.movement.surprised = False
-                game.state.clear()
-                game.state.change('free')
-                game.state.change('wait')
             else:
                 game.boundary.frozen = False
                 game.state.back()

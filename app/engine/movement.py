@@ -111,6 +111,17 @@ class MovementManager():
                 return False
 
     def done_moving(self, unit_nid, data, unit, surprise=False):
+        if surprise:
+            SOUNDTHREAD.play_sfx('Surprise')
+            unit.sprite.change_state('normal')
+            unit.sprite.reset()
+            action.do(action.HasAttacked(unit))
+            if unit.team == 'player':
+                self.surprised = True
+                self.update_surprise()
+        self.remove_interrupt_regions(unit)
+
+
         del self.moving_units[unit_nid]
         game.arrive(unit)
         if unit.sound:
@@ -124,14 +135,6 @@ class MovementManager():
         # Handle camera auto-follow
         if self.camera_follow == unit_nid:
             self.camera_follow = None
-
-        if surprise:
-            SOUNDTHREAD.play_sfx('Surprise')
-            unit.sprite.change_state('normal')
-            unit.sprite.reset()
-            action.do(action.HasAttacked(unit))
-            if unit.team == 'player':
-                self.surprised = True
 
     def check_region_interrupt(self, unit) -> bool:
         '''Checks if the unit is in a region that interrupts. If so, checks if the trigger conditions for the region are met. If so, runs the even and removes the region if appropriate.
@@ -147,6 +150,11 @@ class MovementManager():
                 did_trigger = game.events.trigger(region.sub_nid, unit, position=unit.position, region=region)
                 if did_trigger and region.only_once:
                     action.do(action.RemoveRegion(region))
+
+    def update_surprise(self):
+        game.state.clear()
+        game.state.change('free')
+        game.state.change('wait')
 
     def update(self):
         current_time = engine.get_time()
@@ -172,6 +180,7 @@ class MovementManager():
                         else:  # Can only happen when not in an event
                             self.done_moving(unit_nid, data, unit, surprise=True)
                             if unit.team == 'player':
+                                self.update_surprise()
                                 self.remove_interrupt_regions(unit)
                                 self.surprised = True
                             continue
@@ -190,5 +199,4 @@ class MovementManager():
 
                 else: # Path is empty, so we are done
                     surprise = self.check_region_interrupt(unit)
-                    self.remove_interrupt_regions(unit)
                     self.done_moving(unit_nid, data, unit, surprise=surprise)

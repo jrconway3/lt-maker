@@ -43,9 +43,7 @@ class IconRow(UIComponent):
     def update_font(self):
         total_width = self.icon.width + self.text.twidth
         if total_width > self.max_width:
-            [_, fcolor] = self.text.props.font_name.split('-')
-            new_font_name = 'narrow-' + fcolor
-            self.text.set_font_name(new_font_name)
+            self.text.set_font_name('narrow')
 
     def process_icon(self, icon: UIComponent | engine.Surface | None) -> UIComponent:
         if isinstance(icon, UIComponent):

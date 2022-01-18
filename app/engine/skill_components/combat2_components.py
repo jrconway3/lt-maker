@@ -142,6 +142,21 @@ class ModifyMaximumRange(SkillComponent):
     def modify_maximum_range(self, unit, item):
         return self.value
 
+class EvalMaximumRange(SkillComponent):
+    nid = 'eval_range'
+    desc = "Gives +X range solved using evaluate"
+    tag = 'combat2'
+
+    expose = Type.String
+
+    def modify_maximum_range(self, unit, item):
+        from app.engine import evaluate
+        try:
+            return int(evaluate.evaluate(self.value, unit, item=item))
+        except:
+            print("Couldn't evaluate %s conditional" % self.value)
+        return 0
+
 class CannotDouble(SkillComponent):
     nid = 'cannot_double'
     desc = "Unit cannot double"

@@ -243,6 +243,19 @@ class MenuAfterCombat(ItemComponent):
     def menu_after_combat(self, unit, item):
         return True
 
+class AttackAfterCombat(ItemComponent):
+    nid = 'attack_after_combat'
+    desc = "Can access menu and attack after combat"
+    tag = 'utility'
+
+    def menu_after_combat(self, unit, item):
+        return True
+
+    def can_attack_after_combat(self, unit, item):
+        return True
+
+
+
 class NoAttackAfterMove(ItemComponent):
     nid = 'no_attack_after_move'
     desc = "Cannot be used after moving"

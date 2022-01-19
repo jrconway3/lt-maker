@@ -553,6 +553,9 @@ class HasTraded(Reset):
     def do(self):
         self.unit.has_traded = True
 
+class HasNotAttacked(Reset):
+    def do(self):
+        self.unit.has_attacked = False
 
 class HasNotTraded(Reset):
     def do(self):

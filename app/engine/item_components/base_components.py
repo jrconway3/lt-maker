@@ -103,6 +103,14 @@ class Unrepairable(ItemComponent):
     def unrepairable(self, unit, item):
         return True
 
+class Unsplashable(ItemComponent):
+    nid = 'unsplashable'
+    desc = "Item cannot have its targeting affected by splash"
+    tag = 'base'
+
+    def unsplashable(self, unit, item):
+        return True
+
 class Value(ItemComponent):
     nid = 'value'
     desc = "Item has a value and can be bought and sold. Items sell for half their value."

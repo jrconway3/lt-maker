@@ -14,7 +14,7 @@ All conditionals in the **Lex Talionis** engine are evaluated at runtime by a Py
 
 While checking the conditionals for an event (whether that be through the Condition box in the left pane of the Event Editor or through an if statement), the event may expose certain variables with extra information.
 
-For instance, in a `unit_wait` event, the `unit` variable is set to the unit that just waited. You could use the `unit` variable now to figure out which unit just waited, their team, their class, etc. 
+For instance, in a `unit_wait` event, the `unit` variable is set to the unit that just waited. You could use the `unit` variable now to figure out which unit just waited, their team, their class, etc.
 
 Each event exposes a different set of variables. Check out the Trigger List section in the [Event-Overview](EventOverview) for more information.
 
@@ -28,7 +28,7 @@ Example Use Case: `game.check_alive('Joel') and game.check_alive('Nia')` to chec
 
 ## List comprehensions
 
-Sometimes you need to check the values for several objects at once. You can do this using Python *list comprehensions*. 
+Sometimes you need to check the values for several objects at once. You can do this using Python *list comprehensions*.
 
 Python list comprehensions follow a simple syntax:
 
@@ -45,7 +45,7 @@ if;'Vantage' in [skill.nid for skill in unit.skills]
 end
 ```
 
-You can use the python functions `len`, `sum`, `any`, and `all` on list comprehensions. 
+You can use the python functions `len`, `sum`, `any`, and `all` on list comprehensions.
 
 Example (Checks if any player unit's y position on the map is less than 13)
 ```

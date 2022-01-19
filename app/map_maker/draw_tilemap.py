@@ -1,5 +1,3 @@
-import random
-
 from PyQt5.QtCore import QDateTime
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QColor
 
@@ -7,6 +5,7 @@ from app.constants import TILEWIDTH, TILEHEIGHT
 
 from app.map_maker.map_prefab import MapPrefab
 from app.map_maker.terrain_database import DB_terrain
+from app.map_maker.utilities import random_choice
 
 import logging
 
@@ -60,11 +59,13 @@ def determine_sprite(pos: tuple, terrain, tilemap) -> tuple:
         """
         pos is in tile space (8x8)
         """
-        if tilemap.tile_grid.get(pos) in new_coords:
-            pass
-        else:
-            new_coord = random.choice(new_coords)
-            tilemap.tile_grid[pos] = new_coord
+        # if tilemap.tile_grid.get(pos) in new_coords:
+        #     pass
+        # else:
+        #     new_coord = random.choice(new_coords)
+        #     tilemap.tile_grid[pos] = new_coord
+        new_coord = random_choice(new_coords, pos)
+        tilemap.tile_grid[pos] = new_coord
 
     new_coords1, new_coords2, new_coords3, new_coords4 = \
         terrain.determine_sprite_coords(tilemap, pos)

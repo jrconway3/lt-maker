@@ -1,3 +1,30 @@
+import random
+
+RANDOM_SEED = 0
+
+def random_choice(choices: list, pos: tuple, seed: int = None):
+    if seed is None:
+        seed = RANDOM_SEED
+    random.seed(seed + pos[0] * 1024 + pos[1])
+    return random.choice(choices)
+
+def random_random(pos: tuple, seed: int = None, offset: int = 0):
+    if seed is None:
+        seed = RANDOM_SEED
+    random.seed(seed + pos[0] * 1024 + pos[1] + offset)
+    return random.random()
+
+def edge_random(pos1: tuple, pos2: tuple, seed: int = None):
+    """
+    Uses two positions (essentially the edge between these two positions)
+    to seed the RNG
+    north, then south; west, then east
+    """
+    if seed is None:
+        seed = RANDOM_SEED
+    random.seed(seed + pos1[0] * 1024**3 + pos1[1] * 1024**2 + pos2[0] * 1024 + pos2[1])
+    return random.random()
+
 def flood_fill(tilemap, pos: tuple) -> set:
     blob_positions = set()
     unexplored_stack = []

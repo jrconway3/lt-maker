@@ -15,6 +15,7 @@ from app.map_maker.terrain_painter_menu import TerrainPainterMenu
 from app.map_maker.map_editor_view import PaintTool, MapEditorView
 from app.map_maker.draw_tilemap import draw_tilemap
 from app.map_maker.map_prefab import MapPrefab
+import app.map_maker.utilities as map_utils
 
 class MapEditor(QDialog):
     def __init__(self, parent=None, current=None):
@@ -51,11 +52,19 @@ class MapEditor(QDialog):
         self.autotile_fps_box.edit.setAlignment(Qt.AlignRight)
         self.autotile_fps_box.edit.valueChanged.connect(self.autotile_fps_changed)
 
+        self.random_seed_box = PropertyBox("RNG Seed", QSpinBox, self)
+        self.random_seed_box.edit.setRange(0, 1023)
+        self.random_seed_box.edit.setValue(map_utils.RANDOM_SEED)
+        self.random_seed_box.setMaximumWidth(100)
+        self.random_seed_box.edit.setAlignment(Qt.AlignRight)
+        self.random_seed_box.edit.valueChanged.connect(self.random_seed_changed)
+
         view_frame = QFrame()
         view_layout = QVBoxLayout()
         toolbar_layout = QHBoxLayout()
         toolbar_layout.addWidget(self.toolbar)
         toolbar_layout.addWidget(self.autotile_fps_box)
+        toolbar_layout.addWidget(self.random_seed_box)
         view_layout.addLayout(toolbar_layout)
         view_layout.addWidget(self.view)
         view_frame.setLayout(view_layout)
@@ -143,6 +152,10 @@ class MapEditor(QDialog):
 
     def autotile_fps_changed(self, val):
         self.current.autotile_fps = val
+
+    def random_seed_changed(self, val):
+        map_utils.RANDOM_SEED = val
+        self.current.reset_all()
 
     def export_as_png(self):
         if self.current:

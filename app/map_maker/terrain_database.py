@@ -1,10 +1,11 @@
-import random
 from dataclasses import dataclass
 
 from PyQt5.QtGui import QPixmap, QPainter, qRgb
 
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.utilities.data import Data, Prefab
+import app.utilities as utils
+from app.map_maker.utilities import random_choice, edge_random, flood_fill
 
 @dataclass
 class Terrain(Prefab):
@@ -61,6 +62,8 @@ class RandomTerrain(Terrain):
         return new_coords1, new_coords2, new_coords3, new_coords4
 
 class WangEdge2Terrain(Terrain):
+    terrain_like = ()
+
     def set_tileset(self, tileset_path=None):
         super().set_tileset(tileset_path)
         self.limits = {k: self._find_limit(k) for k in range(16)}
@@ -81,28 +84,56 @@ class WangEdge2Terrain(Terrain):
             main_pix = QPixmap(16, 16)
             painter = QPainter()
             painter.begin(main_pix)
-            painter.drawPixmap(0, 0, self.tileset_pixmap.copy(0, 0 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
-            painter.drawPixmap(0, TILEHEIGHT//2, self.tileset_pixmap.copy(0, 1 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
-            painter.drawPixmap(TILEWIDTH//2, 0, self.tileset_pixmap.copy(0, 2 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
-            painter.drawPixmap(TILEWIDTH//2, TILEHEIGHT//2, self.tileset_pixmap.copy(0, 3 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
+            painter.drawPixmap(0, 0, self.tileset_pixmap.copy(TILEWIDTH//2 * 15, 0 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
+            painter.drawPixmap(0, TILEHEIGHT//2, self.tileset_pixmap.copy(TILEWIDTH//2 * 15, 1 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
+            painter.drawPixmap(TILEWIDTH//2, 0, self.tileset_pixmap.copy(TILEWIDTH//2 * 15, 2 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
+            painter.drawPixmap(TILEWIDTH//2, TILEHEIGHT//2, self.tileset_pixmap.copy(TILEWIDTH//2 * 15, 3 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
             painter.end()
             self.display_pixmap = main_pix
         return self.display_pixmap
 
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
-        index1 = \
-            bool(north and north != self.nid) + \
-            8 * bool(west and west != self.nid)
-        index2 = \
-            bool(north and north != self.nid) + \
-            2 * bool(east and east != self.nid)
-        index3 = \
-            4 * bool(south and south != self.nid) + \
-            2 * bool(east and east != self.nid)
-        index4 = \
-            4 * bool(south and south != self.nid) + \
-            8 * bool(west and west != self.nid)
+        index1 = 6 + \
+            bool(not north or north in self.terrain_like) + \
+            8 * bool(not west or west in self.terrain_like)
+        index2 = 12 + \
+            bool(not north or north in self.terrain_like) + \
+            2 * bool(not east or east in self.terrain_like)
+        index3 = 9 + \
+            4 * bool(not south or south in self.terrain_like) + \
+            2 * bool(not east or east in self.terrain_like)
+        index4 = 3 + \
+            4 * bool(not south or south in self.terrain_like) + \
+            8 * bool(not west or west in self.terrain_like)
+        new_coords1 = [(index1, k) for k in range(self.limits[index1])]
+        new_coords2 = [(index2, k) for k in range(self.limits[index2])]
+        new_coords3 = [(index3, k) for k in range(self.limits[index3])]
+        new_coords4 = [(index4, k) for k in range(self.limits[index4])]
+        return new_coords1, new_coords2, new_coords3, new_coords4
+
+class WangCorner2Terrain(WangEdge2Terrain):
+    terrain_like = ()
+
+    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
+        north, east, south, west = tilemap.get_cardinal_terrain(pos)
+        northeast, southeast, southwest, northwest = tilemap.get_diagonal_terrain(pos)
+        index1 = 1 * bool(not north or north in self.terrain_like) + \
+            2 * True + \
+            4 * bool(not west or west in self.terrain_like) + \
+            8 * bool(not northwest or northwest in self.terrain_like)
+        index2 = 1 * bool(not northeast or northeast in self.terrain_like) + \
+            2 * bool(not east or east in self.terrain_like) + \
+            4 * True + \
+            8 * bool(not north or north in self.terrain_like)
+        index3 = 1 * bool(not east or east in self.terrain_like) + \
+            2 * bool(not southeast or southeast in self.terrain_like) + \
+            4 * bool(not south or south in self.terrain_like) + \
+            8 * True
+        index4 = 1 * True + \
+            2 * bool(not south or south in self.terrain_like) + \
+            4 * bool(not southwest or southwest in self.terrain_like) + \
+            8 * bool(not west or west in self.terrain_like)
         new_coords1 = [(index1, k) for k in range(self.limits[index1])]
         new_coords2 = [(index2, k) for k in range(self.limits[index2])]
         new_coords3 = [(index3, k) for k in range(self.limits[index3])]
@@ -110,37 +141,64 @@ class WangEdge2Terrain(Terrain):
         return new_coords1, new_coords2, new_coords3, new_coords4
 
 class ForestTerrain(Terrain):
+    forest_like = ('Forest', 'Thicket')
+
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:    
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
-        forest_like = ('Forest', 'Thicket')
+        blob_positions = flood_fill(tilemap, pos)
+        left_most = min(p[0] for p in blob_positions)
+        right_most = max(p[0] for p in blob_positions)
+        top_most = min(p[1] for p in blob_positions)
+        bottom_most = max(p[1] for p in blob_positions)
+        # Extend to out of bounds when we are on a tilemap edge
+        if left_most == 0 and right_most == tilemap.width - 1:
+            left_most = -tilemap.width
+            right_most = tilemap.width*2 - 1
+        elif left_most == 0:
+            left_most = -right_most
+        elif right_most == tilemap.width - 1:
+            right_most = left_most + 2*(tilemap.width - left_most)
+        if top_most == 0 and bottom_most == tilemap.height - 1:
+            top_most = -tilemap.height
+            bottom_most = tilemap.height*2 - 1
+        elif top_most == 0:
+            top_most = -bottom_most
+        elif bottom_most == tilemap.height - 1:
+            bottom_most = top_most + 2*(tilemap.height - top_most)
+        right_most += 1
+        bottom_most += 1
+        blob_width = (right_most - left_most)
+        blob_height = (bottom_most - top_most)
+        center_x = (right_most - left_most)/2 + left_most
+        center_y = (bottom_most - top_most)/2 + top_most
+        my_radius_width = abs(pos[0] + 0.5 - center_x)
+        my_radius_height = abs(pos[1] + 0.5 - center_y)
+        depth_w = (blob_width / 2) - my_radius_width
+        depth_h = (blob_height / 2) - my_radius_height
+        chance_w = utils.lerp(1, 0, depth_w/4)
+        chance_h = utils.lerp(1, 0, depth_h/4)
+        chance_to_lose_adjacent_edges = utils.clamp(max(chance_w, chance_h), 0, 1)
+
+        north_edge = bool(north and north not in self.forest_like)  # Whether we don't border a forest
+        if not north_edge and north and north != 'Thicket':  # We border a forest
+            north_edge = (edge_random((pos[0], pos[1] - 1), pos) < chance_to_lose_adjacent_edges)
+        east_edge = bool(east and east not in self.forest_like)
+        if not east_edge and east and east != 'Thicket':  # We border a forest
+            east_edge = (edge_random(pos, (pos[0] + 1, pos[1])) < chance_to_lose_adjacent_edges)
+        south_edge = bool(south and south not in self.forest_like)
+        if not south_edge and south and south != 'Thicket':  # We border a forest
+            south_edge = (edge_random(pos, (pos[0], pos[1] + 1)) < chance_to_lose_adjacent_edges)
+        west_edge = bool(west and west not in self.forest_like)
+        if not west_edge and west and west != 'Thicket':  # We border a forest
+            west_edge = (edge_random((pos[0] - 1, pos[1]), pos) < chance_to_lose_adjacent_edges)
+        
         total_index = \
-            bool(north and north not in forest_like) + \
-            2 * bool(east and east not in forest_like) + \
-            4 * bool(south and south not in forest_like) + \
-            8 * bool(west and west not in forest_like)
-        index1 = \
-            bool(north and north not in forest_like) + \
-            8 * bool(west and west not in forest_like)
-        index2 = \
-            bool(north and north not in forest_like) + \
-            2 * bool(east and east not in forest_like)
-        index3 = \
-            4 * bool(south and south not in forest_like) + \
-            2 * bool(east and east not in forest_like)
-        index4 = \
-            4 * bool(south and south not in forest_like) + \
-            8 * bool(west and west not in forest_like)
-        if total_index == 15 and random.choice([1, 2, 3]) != 3:  # When by itself
-            new_coords1 = [(14, 0)]
-            new_coords2 = [(15, 0)]
-            new_coords3 = [(15, 1)]
-            new_coords4 = [(14, 1)]
-        elif total_index in (7, 11, 13, 14) and random.choice([1, 2]) == 2:  # When at the edge of a treeline
-            new_coords1 = [(14, 0)]
-            new_coords2 = [(15, 0)]
-            new_coords3 = [(15, 1)]
-            new_coords4 = [(14, 1)]
-        elif total_index in (1, 2, 3, 4, 6, 8, 9, 12) and random.choice([1, 2, 3, 4]) == 4:  # When at the corner of a treeline
+            north_edge + 2 * east_edge + 4 * south_edge + 8 * west_edge
+        index1 = north_edge + 8 * west_edge
+        index2 = north_edge + 2 * east_edge
+        index3 = 4 * south_edge + 2 * east_edge
+        index4 = 4 * south_edge + 8 * west_edge
+        if total_index == 15 and random_choice([1, 2, 3], pos) != 3:  # When by itself
             new_coords1 = [(14, 0)]
             new_coords2 = [(15, 0)]
             new_coords3 = [(15, 1)]
@@ -160,7 +218,7 @@ class HillTerrain(Terrain):
         _, far_east, _, _ = tilemap.get_cardinal_terrain((pos[0] + 1, pos[1]))
         _, _, _, far_west = tilemap.get_cardinal_terrain((pos[0] - 1, pos[1]))
         if east != self.nid and west != self.nid:
-            choice = random.choice([1, 2, 3, 4, 5, 6])
+            choice = random_choice([1, 2, 3, 4, 5, 6], pos)
             if choice <= 3:
                 coord = self.data['main']
             elif choice in (4, 5):
@@ -188,6 +246,10 @@ Plains = RandomTerrain('Plains', 'Plains', tileset, (2, 2))
 Plains.data = [(2, 2), (3, 2), (2, 3), (3, 3), (4, 3), (2, 4), (3, 4), (4, 4), (5, 4), (2, 5), (3, 5), (4, 5), (5, 5)]
 
 Road = WangEdge2Terrain('Road', 'Road', 'app/map_maker/rainlash_fields1_road.png')
+Road.terrain_like = ('Sand', 'Road')
+
+Sand = WangCorner2Terrain('Sand', 'Sand', 'app/map_maker/rainlash_fields1_sand.png')
+Sand.terrain_like = ('Sand', 'Road')
 
 Forest = ForestTerrain('Forest', 'Forest', 'app/map_maker/rainlash_fields1_forest.png', (7, 0))
 

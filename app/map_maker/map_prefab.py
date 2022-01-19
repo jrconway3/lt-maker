@@ -15,6 +15,10 @@ class MapPrefab(Prefab):
         self.terrain_grid_to_update = set()  # Positions
         self.tile_grid = {}  # Key: Position, Value: Tileset Coordinate (twice as large on each axis)
 
+    def reset_all(self):
+        for position in self.terrain_grid:
+            self.terrain_grid_to_update.add(position)
+
     def set(self, pos: tuple, terrain):
         self._update_flood_fill(pos)  # Need to check flood fill both before and after changing terrain
         self.terrain_grid[pos] = terrain.nid

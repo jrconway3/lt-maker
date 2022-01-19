@@ -94,18 +94,14 @@ class WangEdge2Terrain(Terrain):
 
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
-        index1 = 6 + \
-            bool(not north or north in self.terrain_like) + \
-            8 * bool(not west or west in self.terrain_like)
-        index2 = 12 + \
-            bool(not north or north in self.terrain_like) + \
-            2 * bool(not east or east in self.terrain_like)
-        index3 = 9 + \
-            4 * bool(not south or south in self.terrain_like) + \
-            2 * bool(not east or east in self.terrain_like)
-        index4 = 3 + \
-            4 * bool(not south or south in self.terrain_like) + \
-            8 * bool(not west or west in self.terrain_like)
+        north_edge = bool(not north or north in self.terrain_like)
+        south_edge = bool(not south or south in self.terrain_like)
+        east_edge = bool(not east or east in self.terrain_like)
+        west_edge = bool(not west or west in self.terrain_like)
+        index1 = 6 + 1 * north_edge + 8 * west_edge
+        index2 = 12 + 1 * north_edge + 2 * east_edge
+        index3 = 9 + 4 * south_edge + 2 * east_edge
+        index4 = 3 + 4 * south_edge + 8 * west_edge
         new_coords1 = [(index1, k) for k in range(self.limits[index1])]
         new_coords2 = [(index2, k) for k in range(self.limits[index2])]
         new_coords3 = [(index3, k) for k in range(self.limits[index3])]

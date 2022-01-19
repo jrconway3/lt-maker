@@ -161,11 +161,13 @@ class MapEditorView(QGraphicsView):
                 true_pos = tile_pos[0] + coord[0], tile_pos[1] + coord[1]
                 if self.tilemap.check_bounds(true_pos):
                     terrain = DB_terrain.get(terrain_nid)
-                    self.tilemap.set(true_pos, terrain)
+                    old_terrain = DB_terrain.get(self.tilemap.get_terrain(true_pos))
+                    self.tilemap.set(true_pos, old_terrain, terrain)
         elif self.tilemap.check_bounds(tile_pos):
             current_nid = self.window.terrain_painter_menu.get_current_nid()
             terrain = DB_terrain.get(current_nid)
-            self.tilemap.set(tile_pos, terrain)
+            old_terrain = DB_terrain.get(self.tilemap.get_terrain(tile_pos))
+            self.tilemap.set(tile_pos, old_terrain, terrain)
 
     def erase_terrain(self, tile_pos):
         if self.tilemap.check_bounds(tile_pos):
@@ -192,14 +194,16 @@ class MapEditorView(QGraphicsView):
                         new_coord_x = (x % w) + topleft[0]
                         new_coord_y = (y % h) + topleft[1]
                         if (new_coord_x, new_coord_y) in coords:
+                            old_terrain = DB_terrain.get(self.tilemap.get_terrain((x, y)))
                             current_nid = self.right_selection[(new_coord_x, new_coord_y)][1]
-                            terrain = DB_terrain.get(current_nid)
-                            self.tilemap.set((x, y), terrain)
+                            new_terrain = DB_terrain.get(current_nid)
+                            self.tilemap.set((x, y), old_terrain, new_terrain)
         else:
             terrain_nid = self.window.terrain_painter_menu.get_current_nid()
-            for coord in coords_to_replace:
-                terrain = DB_terrain.get(terrain_nid)
-                self.tilemap.set(coord, terrain)
+            for pos in coords_to_replace:
+                old_terrain = DB_terrain.get(self.tilemap.get_terrain(pos))
+                new_terrain = DB_terrain.get(terrain_nid)
+                self.tilemap.set(pos, old_terrain, new_terrain)
 
     def mousePressEvent(self, event):
         scene_pos = self.mapToScene(event.pos())

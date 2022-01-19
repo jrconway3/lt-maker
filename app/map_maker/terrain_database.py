@@ -18,6 +18,9 @@ class Terrain(Prefab):
     display_pixmap: QPixmap = None
     tileset_pixmap: QPixmap = None
 
+    # Determines whether we should put all types of this terrain to be updated
+    check_flood_fill: bool = False
+
     def set_tileset(self, tileset_path=None):
         if tileset_path:
             self.tileset_path = tileset_path
@@ -111,33 +114,148 @@ class WangEdge2Terrain(Terrain):
 class WangCorner2Terrain(WangEdge2Terrain):
     terrain_like = ()
 
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
+    def _determine_index(self, tilemap, pos: tuple) -> tuple:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
         northeast, southeast, southwest, northwest = tilemap.get_diagonal_terrain(pos)
-        index1 = 1 * bool(not north or north in self.terrain_like) + \
+        north_edge = bool(not north or north in self.terrain_like)
+        south_edge = bool(not south or south in self.terrain_like)
+        east_edge = bool(not east or east in self.terrain_like)
+        west_edge = bool(not west or west in self.terrain_like)
+        index1 = 1 * north_edge + \
             2 * True + \
-            4 * bool(not west or west in self.terrain_like) + \
-            8 * bool(not northwest or northwest in self.terrain_like)
-        index2 = 1 * bool(not northeast or northeast in self.terrain_like) + \
-            2 * bool(not east or east in self.terrain_like) + \
+            4 * west_edge + \
+            8 * (bool(not northwest or northwest in self.terrain_like) and north_edge and west_edge)
+        index2 = 1 * (bool(not northeast or northeast in self.terrain_like) and north_edge and east_edge) + \
+            2 * east_edge + \
             4 * True + \
-            8 * bool(not north or north in self.terrain_like)
-        index3 = 1 * bool(not east or east in self.terrain_like) + \
-            2 * bool(not southeast or southeast in self.terrain_like) + \
-            4 * bool(not south or south in self.terrain_like) + \
+            8 * north_edge
+        index3 = 1 * east_edge + \
+            2 * (bool(not southeast or southeast in self.terrain_like) and south_edge and east_edge) + \
+            4 * south_edge + \
             8 * True
         index4 = 1 * True + \
-            2 * bool(not south or south in self.terrain_like) + \
-            4 * bool(not southwest or southwest in self.terrain_like) + \
-            8 * bool(not west or west in self.terrain_like)
+            2 * south_edge + \
+            4 * (bool(not southwest or southwest in self.terrain_like) and south_edge and west_edge) + \
+            8 * west_edge
+        return index1, index2, index3, index4
+
+    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
+        index1, index2, index3, index4 = self._determine_index(tilemap, pos)
         new_coords1 = [(index1, k) for k in range(self.limits[index1])]
         new_coords2 = [(index2, k) for k in range(self.limits[index2])]
         new_coords3 = [(index3, k) for k in range(self.limits[index3])]
         new_coords4 = [(index4, k) for k in range(self.limits[index4])]
         return new_coords1, new_coords2, new_coords3, new_coords4
 
+class SandTerrain(WangCorner2Terrain):
+    terrain_like = ('Sand', 'Road')
+    memory = {}
+
+    def _kth_bit_set(self, n: int, k: int) -> bool:
+        """
+        n is number you are checking
+        k is which bit to check
+        1 => 0
+        2 => 1
+        4 => 2
+        8 => 3
+        """
+        return bool(n & (1 << k))
+
+    def _determine_index(self, tilemap, pos: tuple, use_memory: bool = False) -> tuple:
+        """
+        pos is in 16x16 space
+        assumes tiles fill left to right, then top to bottom
+        [
+         00 10 20 30
+         01 11 21 31
+         02 12 22 32
+         03 13 23 33
+        ]
+        00 10 01 11 is [0]
+        20 30 21 31 is [1]
+        22 32 23 33 is [2]
+        02 12 03 13 is [3]
+        # For additive indexing
+        northwest == 8
+        northeast == 1
+        southwest == 4
+        southeast == 2
+        """
+        if use_memory and pos in self.memory:
+            return self.memory[pos]
+        north, east, south, west = tilemap.get_cardinal_terrain(pos)
+        northeast, southeast, southwest, northwest = tilemap.get_diagonal_terrain(pos)
+        north_edge = bool(not north or north in self.terrain_like)
+        south_edge = bool(not south or south in self.terrain_like)
+        east_edge = bool(not east or east in self.terrain_like)
+        west_edge = bool(not west or west in self.terrain_like)
+        northeast_edge = bool(not northeast or northeast in self.terrain_like)
+        southeast_edge = bool(not southeast or southeast in self.terrain_like)
+        southwest_edge = bool(not southwest or southwest in self.terrain_like)
+        northwest_edge = bool(not northwest or northwest in self.terrain_like)
+        north_index = self._determine_index(tilemap, (pos[0], pos[1] - 1), True) if north_edge and north else ((0, 0, 0, 0) if north else (15, 15, 15, 15,))
+        west_index = self._determine_index(tilemap, (pos[0] - 1, pos[1]), True) if west_edge and west else ((0, 0, 0, 0) if west else (15, 15, 15, 15))
+        northwest_index = self._determine_index(tilemap, (pos[0] - 1, pos[1] - 1), True) if northwest_edge and northwest else ((0, 0, 0, 0) if northwest else (15, 15, 15, 15))
+        # northeast_index = self._determine_index(tilemap, (pos[0] + 1, pos[1] - 1), True) if northeast_edge and northeast else ((0, 0, 0, 0) if northeast else (15, 15, 15, 15))
+        southwest_index = self._determine_index(tilemap, (pos[0] - 1, pos[1] + 1), True) if southwest_edge and southwest else ((0, 0, 0, 0) if southwest else (15, 15, 15, 15))
+
+        # Topleft
+        corner00_full = north_edge and northwest_edge and west_edge
+        corner10_full = north_edge
+        corner01_full = west_edge
+        corner11_full = True
+        # Check if partners have a corner there
+        corner00 = corner00_full and self._kth_bit_set(north_index[3], 2) and self._kth_bit_set(northwest_index[2], 1) and self._kth_bit_set(west_index[1], 0)
+        corner10 = corner10_full and self._kth_bit_set(north_index[3], 1)
+        corner01 = corner01_full and self._kth_bit_set(west_index[1], 1)
+        corner11 = corner11_full
+        index1 = 1 * corner10 + 2 * corner11 + 4 * corner01 + 8 * corner00
+
+        # Topright
+        corner20_full = north_edge
+        corner30_full = north_edge and northeast_edge and east_edge
+        corner21_full = True
+        corner31_full = east_edge
+        # Check if partners have a corner there
+        corner20 = corner20_full and self._kth_bit_set(north_index[2], 2)
+        corner30 = corner30_full and self._kth_bit_set(north_index[2], 1) and True and True
+        corner21 = corner21_full
+        corner31 = corner31_full and True
+        index2 = 1 * corner30 + 2 * corner31 + 4 * corner21 + 8 * corner20
+
+        # Bottomleft
+        corner02_full = west_edge
+        corner12_full = True
+        corner03_full = west_edge and southwest_edge and south_edge
+        corner13_full = south_edge
+        # Check if partners have a corner there
+        corner02 = corner02_full and self._kth_bit_set(west_index[2], 0)
+        corner12 = corner12_full
+        corner03 = corner03_full and self._kth_bit_set(west_index[2], 1) and self._kth_bit_set(southwest_index[1], 0) and True
+        corner13 = corner13_full and True
+        index4 = 1 * corner12 + 2 * corner13 + 4 * corner03 + 8 * corner02
+
+        # Bottomright
+        corner22_full = True
+        corner32_full = east_edge
+        corner23_full = south_edge
+        corner33_full = east_edge and southeast_edge and south_edge
+        # Check if partners have a corner there
+        corner22 = corner22_full
+        corner32 = corner32_full and True
+        corner23 = corner23_full and True
+        corner33 = corner33_full and True and True and True
+        index3 = 1 * corner32 + 2 * corner33 + 4 * corner23 + 8 * corner22
+
+        # Save so we can use these results later
+        self.memory[pos] = index1, index2, index3, index4
+
+        return index1, index2, index3, index4
+
 class ForestTerrain(Terrain):
     forest_like = ('Forest', 'Thicket')
+    check_flood_fill = True
 
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:    
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
@@ -208,6 +326,7 @@ class ForestTerrain(Terrain):
 
 class HillTerrain(Terrain): 
     data = {'main': (12, 21), 'pair1': (13, 20), 'pair2': (14, 20), 'alter1': (13, 21)}
+    check_flood_fill = True
 
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
         _, east, _, west = tilemap.get_cardinal_terrain(pos)
@@ -244,8 +363,7 @@ Plains.data = [(2, 2), (3, 2), (2, 3), (3, 3), (4, 3), (2, 4), (3, 4), (4, 4), (
 Road = WangEdge2Terrain('Road', 'Road', 'app/map_maker/rainlash_fields1_road.png')
 Road.terrain_like = ('Sand', 'Road')
 
-Sand = WangCorner2Terrain('Sand', 'Sand', 'app/map_maker/rainlash_fields1_sand.png')
-Sand.terrain_like = ('Sand', 'Road')
+Sand = SandTerrain('Sand', 'Sand', 'app/map_maker/rainlash_fields1_sand.png')
 
 Forest = ForestTerrain('Forest', 'Forest', 'app/map_maker/rainlash_fields1_forest.png', (7, 0))
 
@@ -254,5 +372,5 @@ Thicket.data = [(17, 22), (18, 22), (19, 22), (17, 23), (18, 23), (19, 23), (18,
 
 Hill = HillTerrain('Hill', 'Hill', tileset, (13, 21))
 
-d = [Plains, Road, Forest, Thicket, Hill]
+d = [Plains, Road, Sand, Forest, Thicket, Hill]
 DB_terrain = TerrainCatalog(d)

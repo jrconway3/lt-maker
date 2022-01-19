@@ -19,12 +19,15 @@ class MapPrefab(Prefab):
         for position in self.terrain_grid:
             self.terrain_grid_to_update.add(position)
 
-    def set(self, pos: tuple, terrain):
-        self._update_flood_fill(pos)  # Need to check flood fill both before and after changing terrain
-        self.terrain_grid[pos] = terrain.nid
+    def set(self, pos: tuple, old_terrain, new_terrain):
+        if old_terrain and old_terrain.check_flood_fill:
+            self._update_flood_fill(pos)  # Need to check flood fill both before and after changing terrain
+        self.terrain_grid[pos] = new_terrain.nid
         self.terrain_grid_to_update.add(pos)
         self._update_adjacent(pos)
-        self._update_flood_fill(pos)
+        self._update_diagonal(pos)
+        if new_terrain.check_flood_fill:
+            self._update_flood_fill(pos)
 
     def _update_adjacent(self, pos):
         # Now ask to update all the adjacent ones as well
@@ -38,6 +41,18 @@ class MapPrefab(Prefab):
         if self.check_bounds(west) and self.get_terrain(west):
             self.terrain_grid_to_update.add(west)
 
+    def _update_diagonal(self, pos):
+        # Now ask to update all the adjacent ones as well
+        northeast, southeast, southwest, northwest = (pos[0] + 1, pos[1] - 1), (pos[0] + 1, pos[1] + 1), (pos[0] - 1, pos[1] + 1), (pos[0] - 1, pos[1] - 1)
+        if self.check_bounds(northeast) and self.get_terrain(northeast):
+            self.terrain_grid_to_update.add(northeast)
+        if self.check_bounds(southeast) and self.get_terrain(southeast):
+            self.terrain_grid_to_update.add(southeast)
+        if self.check_bounds(southwest) and self.get_terrain(southwest):
+            self.terrain_grid_to_update.add(southwest)
+        if self.check_bounds(northwest) and self.get_terrain(northwest):
+            self.terrain_grid_to_update.add(northwest)
+
     def _update_flood_fill(self, pos):
         blob_positions = map_utils.flood_fill(self, pos)
         for p in blob_positions:
@@ -46,8 +61,9 @@ class MapPrefab(Prefab):
     def get_terrain(self, pos: tuple) -> str:
         return self.terrain_grid.get(pos)
 
-    def erase_terrain(self, pos: tuple, terrain):
-        self._update_flood_fill(pos)
+    def erase_terrain(self, pos: tuple, old_terrain):
+        if old_terrain and old_terrain.check_flood_fill:
+            self._update_flood_fill(pos)
         if pos in self.terrain_grid:
             del self.terrain_grid[pos]
 
@@ -61,13 +77,21 @@ class MapPrefab(Prefab):
             del self.tile_grid[(pos[0] * 2, pos[1] * 2 + 1)]
 
         self._update_adjacent(pos)
+        self._update_diagonal(pos)
 
-    def get_cardinal_terrain(self, pos: tuple):
+    def get_cardinal_terrain(self, pos: tuple) -> tuple:
         north = self.get_terrain((pos[0], pos[1] - 1))
         east = self.get_terrain((pos[0] + 1, pos[1]))
         south = self.get_terrain((pos[0], pos[1] + 1))
         west = self.get_terrain((pos[0] - 1, pos[1]))
         return north, east, south, west
+
+    def get_diagonal_terrain(self, pos: tuple) -> tuple:
+        northeast = self.get_terrain((pos[0] + 1, pos[1] - 1))
+        southeast = self.get_terrain((pos[0] + 1, pos[1] + 1))
+        southwest = self.get_terrain((pos[0] - 1, pos[1] + 1))
+        northwest = self.get_terrain((pos[0] - 1, pos[1] - 1))
+        return northeast, southeast, southwest, northwest
 
     def clear(self):
         self.width, self.height = TILEX, TILEY

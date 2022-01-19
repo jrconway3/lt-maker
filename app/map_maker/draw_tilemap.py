@@ -23,7 +23,7 @@ def draw_tilemap(tilemap: MapPrefab, autotile_fps=29) -> QImage:
     ms = QDateTime.currentMSecsSinceEpoch()
 
     # Only process the ones that need to be updated
-    for pos in tilemap.terrain_grid_to_update:
+    for pos in sorted(tilemap.terrain_grid_to_update):
         terrain_nid = tilemap.get_terrain(pos)
         if not terrain_nid:
             continue

@@ -5,8 +5,10 @@ Forest
 Thicket
 Water
 Mountain
-Hill
+Hill (include Mountain tiles where appropriate (while within distance of mountain))
 Sand
+Sandy Road Hybrid
 Cliff
 House
 Castle
+Fence/Wall

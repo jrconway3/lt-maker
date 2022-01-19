@@ -309,6 +309,9 @@ class SimpleCombat():
         else:
             if not self.attacker.has_attacked or \
                     (self.attacker.team == 'player' and item_system.menu_after_combat(self.attacker, self.main_item)):
+                if item_system.can_attack_after_combat(self.attacker, self.main_item):
+                    action.do(action.HasNotAttacked(self.attacker))
+                    action.do(action.HasTraded(self.attacker))
                 game.state.change('menu')
             elif skill_system.has_canto(self.attacker, self.defender):
                 game.cursor.set_pos(self.attacker.position)

@@ -1071,7 +1071,7 @@ class ShowCommandsDialog(QDialog):
             if category == event_commands.Tags.HIDDEN.value:
                 continue
             self._data.append(category)
-            commands = [command for command in self.commands if command.tag.value == category]
+            commands = [command() for command in self.commands if command.tag.value == category]
             self._data += commands
 
         self.model = EventCommandModel(self._data, self.categories, self)
@@ -1127,7 +1127,6 @@ class ShowCommandsDialog(QDialog):
             idx = index.row()
             command = self._data[idx]
             if command not in self.categories:
-                command = command()
                 # command name
                 if command.nickname:
                     text = '**%s**' % command.nickname

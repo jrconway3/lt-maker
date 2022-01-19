@@ -330,7 +330,7 @@ class Event():
             iterator_nid = command.values[0]
             arg_list_str = command.values[1]
             try:
-                arg_list = evaluate.evaluate(arg_list_str)
+                arg_list = evaluate.evaluate(arg_list_str, self.unit, self.unit2, self.item, self.position, self.region)
                 arg_list = [str(arg) for arg in arg_list]
             except Exception as e:
                 self.logger.error("%s: Could not evaluate {%s}" % (e, arg_list_str))
@@ -2500,12 +2500,14 @@ class Event():
             if not unit:
                 self.logger.error("Couldn't find unit with nid %s" % values[0])
                 return
-        item_nid = values[1]
-        if item_nid in DB.items.keys():
-            item = item_funcs.create_item(None, item_nid)
+        item_id = values[1]
+        if item_id in DB.items.keys():
+            item = item_funcs.create_item(None, item_id)
             game.register_item(item)
+        elif str_utils.is_int(item_id) and int(item_id) in game.item_registry:
+            item = game.item_registry[int(item_id)]
         else:
-            self.logger.error("Couldn't find item with nid %s" % item_nid)
+            self.logger.error("Couldn't find item with id %s" % item_id)
             return
         if 'no_banner' in flags:
             banner_flag = False
@@ -2548,11 +2550,13 @@ class Event():
         if not unit:
             self.logger.error("Couldn't find unit with nid %s" % values[0])
             return None, None
-        item_nid = values[1]
-        if item_nid not in [item.nid for item in unit.items]:
-            self.logger.error("Couldn't find item with nid %s" % values[1])
+        item_id = values[1]
+        inids = [item.nid for item in unit.items]
+        iuids = [item.uid for item in unit.items]
+        if (not item_id in inids) and (not str_utils.is_int(item_id) or not int(item_id) in iuids):
+            self.logger.error("Couldn't find item with id %s" % values[1])
             return None, None
-        item = [item for item in unit.items if item.nid == item_nid][0]
+        item = [item for item in unit.items if (item.nid == item_id or item.uid == int(item_id))][0]
         return unit, item
 
     def remove_item(self, command):

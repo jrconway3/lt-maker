@@ -16,6 +16,7 @@ These pages will contain various guides.
     Overworld-Nodes
     Summoning
     Supports
+    Unit-Groups
     Title-Screen
 
 .. toctree::

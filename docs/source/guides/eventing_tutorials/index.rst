@@ -8,4 +8,5 @@ These are guides on various useful applications of events.
     :caption: Contents
 
     A-Simple-Mercenary-Shop
-    Eventing-Tutorials
+    Death-Quotes
+    Conditional-Personal-Skills

@@ -477,7 +477,7 @@ class MoveState(MapState):
         cur_unit = game.cursor.cur_unit
 
         if event == 'INFO':
-            pass
+            info_menu.handle_info()
         elif event == 'AUX':
             pass
 

@@ -457,6 +457,38 @@ class RuinsTerrain(BuildingTerrain):
             else:
                 self._finalize(positions, position, 'single', (0, 0))
 
+class HouseTerrain(BuildingTerrain):
+    data = {'single': [(4, 25)], '3x3': [(7, 25)], '3x2': [(10, 25)]}
+    organization = {}
+
+    def single_process(self, tilemap):
+        self.organization.clear()
+        positions: set = tilemap.get_all_terrain(self.nid)
+        order: list = sorted(positions)
+        while order:
+            position = order.pop(0)
+            if position not in positions:
+                continue
+            if self._fits_3x3(positions, position):
+                self._finalize(positions, position, '3x3', (0, 0))
+                self._finalize(positions, position, '3x3', (0, 1))
+                self._finalize(positions, position, '3x3', (0, 2))
+                self._finalize(positions, position, '3x3', (1, 0))
+                self._finalize(positions, position, '3x3', (1, 1))
+                self._finalize(positions, position, '3x3', (1, 2))
+                self._finalize(positions, position, '3x3', (2, 0))
+                self._finalize(positions, position, '3x3', (2, 1))
+                self._finalize(positions, position, '3x3', (2, 2))
+            elif self._fits_3x2(positions, position):
+                self._finalize(positions, position, '3x2', (0, 0))
+                self._finalize(positions, position, '3x2', (0, 1))
+                self._finalize(positions, position, '3x2', (1, 0))
+                self._finalize(positions, position, '3x2', (1, 1))
+                self._finalize(positions, position, '3x2', (2, 0))
+                self._finalize(positions, position, '3x2', (2, 1))
+            else:
+                self._finalize(positions, position, 'single', (0, 0))
+
 class HillTerrain(Terrain): 
     data = {'main': (12, 21), 'pair1': (13, 20), 'pair2': (14, 20), 'alter1': (13, 21)}
     
@@ -509,8 +541,8 @@ Thicket.data = [(17, 22), (18, 22), (19, 22), (17, 23), (18, 23), (19, 23), (18,
 Hill = HillTerrain('Hill', 'Hill', tileset, (13, 21))
 
 Castle = CastleTerrain('Castle', 'Castle', tileset, (4, 27))
-
+House = HouseTerrain('House', 'House', tileset, (4, 25))
 Ruins = RuinsTerrain('Ruins', 'Ruins', tileset, (3, 28))
 
-d = [Plains, Road, Sand, Forest, Thicket, Hill, Castle, Ruins]
+d = [Plains, Road, Sand, Forest, Thicket, Hill, Castle, House, Ruins]
 DB_terrain = TerrainCatalog(d)

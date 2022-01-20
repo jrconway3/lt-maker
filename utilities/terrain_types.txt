@@ -12,5 +12,5 @@ Sandy Road Hybrid
 Cliff
 Fence/Wall
 House
-Castle (check if better way to find dense packing)
-Ruins (check if better way to find dense packing)
+Castle (complete)
+Ruins (complete)

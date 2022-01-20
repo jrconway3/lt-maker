@@ -18,8 +18,9 @@ class Terrain(Prefab):
     display_pixmap: QPixmap = None
     tileset_pixmap: QPixmap = None
 
-    # Determines whether we should put all types of this terrain to be updated
-    check_flood_fill: bool = False
+    @property
+    def check_flood_fill(self):
+        return False
 
     def set_tileset(self, tileset_path=None):
         if tileset_path:
@@ -50,6 +51,9 @@ class Terrain(Prefab):
         new_coords3 = [(self.display_tile_coord[0]*2 + 1, self.display_tile_coord[1]*2 + 1)]
         new_coords4 = [(self.display_tile_coord[0]*2, self.display_tile_coord[1]*2 + 1)]
         return new_coords1, new_coords2, new_coords3, new_coords4
+
+    def single_process(self, tilemap):
+        pass
 
 class TerrainCatalog(Data[Terrain]):
     datatype = Terrain
@@ -255,7 +259,10 @@ class SandTerrain(WangCorner2Terrain):
 
 class ForestTerrain(Terrain):
     forest_like = ('Forest', 'Thicket')
-    check_flood_fill = True
+    
+    @property
+    def check_flood_fill(self):
+        return True
 
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:    
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
@@ -324,9 +331,138 @@ class ForestTerrain(Terrain):
             new_coords4 = [(index4, {0: 2, 4: 0, 8: 1, 12: 0}[index4])]
         return new_coords1, new_coords2, new_coords3, new_coords4
 
+class BuildingTerrain(Terrain):
+    data = {}
+    organization = {}  # Key: position, value: type
+
+    @property
+    def check_flood_fill(self):
+        return True
+
+    def single_process(self, tilemap):
+        raise NotImplementedError
+
+    def _finalize(self, positions: set, position: tuple, sprite_type: str, offset: tuple):
+        actual_position = (position[0] + offset[0], position[1] + offset[1])
+        self.organization[actual_position] = (sprite_type, offset)
+        positions.discard(actual_position)
+
+    def _fits_3x3(self, positions: set, position: tuple) -> bool:
+        return \
+            position in positions and \
+            (position[0], position[1] + 1) in positions and \
+            (position[0], position[1] + 2) in positions and \
+            (position[0] + 1, position[1]) in positions and \
+            (position[0] + 1, position[1] + 1) in positions and \
+            (position[0] + 1, position[1] + 2) in positions and \
+            (position[0] + 2, position[1]) in positions and \
+            (position[0] + 2, position[1] + 1) in positions and \
+            (position[0] + 2, position[1] + 2) in positions
+
+    def _fits_3x2(self, positions: set, position: tuple) -> bool:
+        return \
+            position in positions and \
+            (position[0], position[1] + 1) in positions and \
+            (position[0] + 1, position[1]) in positions and \
+            (position[0] + 1, position[1] + 1) in positions and \
+            (position[0] + 2, position[1]) in positions and \
+            (position[0] + 2, position[1] + 1) in positions
+
+    def _fits_2x2(self, positions: set, position: tuple) -> bool:
+        return \
+            position in positions and \
+            (position[0], position[1] + 1) in positions and \
+            (position[0] + 1, position[1]) in positions and \
+            (position[0] + 1, position[1] + 1) in positions
+
+    def _fits_2x1(self, positions: set, position: tuple) -> bool:
+        return \
+            position in positions and \
+            (position[0] + 1, position[1]) in positions
+
+    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
+        sprite_type, offset = self.organization[pos]
+        coord = [(c[0] + offset[0], c[1] + offset[1]) for c in self.data[sprite_type]]
+
+        # So it always uses the same set of coords...
+        new_coords1 = [random_choice([(c[0]*2, c[1]*2) for c in coord], (pos[0] - offset[0], pos[1] - offset[1]))]
+        new_coords2 = [random_choice([(c[0]*2 + 1, c[1]*2) for c in coord], (pos[0] - offset[0], pos[1] - offset[1]))]
+        new_coords3 = [random_choice([(c[0]*2 + 1, c[1]*2 + 1) for c in coord], (pos[0] - offset[0], pos[1] - offset[1]))]
+        new_coords4 = [random_choice([(c[0]*2, c[1]*2 + 1) for c in coord], (pos[0] - offset[0], pos[1] - offset[1]))]
+
+        return new_coords1, new_coords2, new_coords3, new_coords4
+
+class CastleTerrain(BuildingTerrain):
+    data = {'single': [(4, 27), (4, 29)], '3x3': [(13, 26), (10, 29), (19, 26), (22, 26), (25, 26), (28, 26)]}
+    organization = {}
+
+    def single_process(self, tilemap):
+        self.organization.clear()
+        positions: set = tilemap.get_all_terrain(self.nid)
+        order: list = sorted(positions)
+        while order:
+            position = order.pop(0)
+            if position not in positions:
+                continue
+            if self._fits_3x3(positions, position):
+                self._finalize(positions, position, '3x3', (0, 0))
+                self._finalize(positions, position, '3x3', (0, 1))
+                self._finalize(positions, position, '3x3', (0, 2))
+                self._finalize(positions, position, '3x3', (1, 0))
+                self._finalize(positions, position, '3x3', (1, 1))
+                self._finalize(positions, position, '3x3', (1, 2))
+                self._finalize(positions, position, '3x3', (2, 0))
+                self._finalize(positions, position, '3x3', (2, 1))
+                self._finalize(positions, position, '3x3', (2, 2))
+            else:
+                self._finalize(positions, position, 'single', (0, 0))
+    
+class RuinsTerrain(BuildingTerrain):
+    data = {'single': [(3, 28), (3, 29)], '3x3': [(7, 28)], '2x2': [(1, 28)], '2x1': [(1, 29)], '3x2': [(28, 29)]}
+    organization = {}
+
+    def single_process(self, tilemap):
+        self.organization.clear()
+        positions: set = tilemap.get_all_terrain(self.nid)
+        order: list = sorted(positions)
+        while order:
+            position = order.pop(0)
+            if position not in positions:
+                continue
+            if self._fits_3x3(positions, position):
+                self._finalize(positions, position, '3x3', (0, 0))
+                self._finalize(positions, position, '3x3', (0, 1))
+                self._finalize(positions, position, '3x3', (0, 2))
+                self._finalize(positions, position, '3x3', (1, 0))
+                self._finalize(positions, position, '3x3', (1, 1))
+                self._finalize(positions, position, '3x3', (1, 2))
+                self._finalize(positions, position, '3x3', (2, 0))
+                self._finalize(positions, position, '3x3', (2, 1))
+                self._finalize(positions, position, '3x3', (2, 2))
+            elif self._fits_3x2(positions, position):
+                self._finalize(positions, position, '3x2', (0, 0))
+                self._finalize(positions, position, '3x2', (0, 1))
+                self._finalize(positions, position, '3x2', (1, 0))
+                self._finalize(positions, position, '3x2', (1, 1))
+                self._finalize(positions, position, '3x2', (2, 0))
+                self._finalize(positions, position, '3x2', (2, 1))
+            elif self._fits_2x2(positions, position):
+                self._finalize(positions, position, '2x2', (0, 0))
+                self._finalize(positions, position, '2x2', (0, 1))
+                self._finalize(positions, position, '2x2', (1, 0))
+                self._finalize(positions, position, '2x2', (1, 1))
+            elif self._fits_2x1(positions, position):
+                self._finalize(positions, position, '2x1', (0, 0))
+                self._finalize(positions, position, '2x1', (1, 0))
+            else:
+                self._finalize(positions, position, 'single', (0, 0))
+
 class HillTerrain(Terrain): 
     data = {'main': (12, 21), 'pair1': (13, 20), 'pair2': (14, 20), 'alter1': (13, 21)}
-    check_flood_fill = True
+    
+    @property
+    def check_flood_fill(self):
+        return True
 
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
         _, east, _, west = tilemap.get_cardinal_terrain(pos)
@@ -372,5 +508,9 @@ Thicket.data = [(17, 22), (18, 22), (19, 22), (17, 23), (18, 23), (19, 23), (18,
 
 Hill = HillTerrain('Hill', 'Hill', tileset, (13, 21))
 
-d = [Plains, Road, Sand, Forest, Thicket, Hill]
+Castle = CastleTerrain('Castle', 'Castle', tileset, (4, 27))
+
+Ruins = RuinsTerrain('Ruins', 'Ruins', tileset, (3, 28))
+
+d = [Plains, Road, Sand, Forest, Thicket, Hill, Castle, Ruins]
 DB_terrain = TerrainCatalog(d)

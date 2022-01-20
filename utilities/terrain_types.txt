@@ -1,14 +1,16 @@
 # For Field
-Plains
-Road
-Forest
-Thicket
-Water
+Plains (needs grass shape -- use technology from sand)
+Road (complete)
+Forest (complete)
+Thicket (mostly complete)
+River
+Sea
 Mountain
 Hill (include Mountain tiles where appropriate (while within distance of mountain))
-Sand
+Sand (needs new technology)
 Sandy Road Hybrid
 Cliff
-House
-Castle
 Fence/Wall
+House
+Castle (check if better way to find dense packing)
+Ruins (check if better way to find dense packing)

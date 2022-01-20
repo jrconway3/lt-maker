@@ -102,6 +102,13 @@ class MapPrefab(Prefab):
     def check_bounds(self, pos):
         return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
 
+    def get_all_terrain(self, terrain_nid: str) -> set:
+        all_positions = set()
+        for position, nid in self.terrain_grid.items():
+            if nid == terrain_nid:
+                all_positions.add(position)
+        return all_positions
+
     def resize(self, width, height, x_offset, y_offset):
         self.width = width
         self.height = height

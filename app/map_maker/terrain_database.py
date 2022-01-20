@@ -165,7 +165,7 @@ class SandTerrain(WangCorner2Terrain):
     def _determine_index(self, tilemap, pos: tuple, use_memory: bool = False) -> tuple:
         """
         pos is in 16x16 space
-        assumes tiles fill left to right, then top to bottom
+        assumes tiles fill top to bottom, then left to right (00, 01, 02, 03, 10, 11, etc.)
         [
          00 10 20 30
          01 11 21 31
@@ -218,10 +218,10 @@ class SandTerrain(WangCorner2Terrain):
         corner21_full = True
         corner31_full = east_edge
         # Check if partners have a corner there
-        corner20 = corner20_full and self._kth_bit_set(north_index[2], 2)
-        corner30 = corner30_full and self._kth_bit_set(north_index[2], 1) and True and True
+        corner20 = corner20_full and self._kth_bit_set(north_index[2], 2) and corner10
+        corner30 = corner30_full and self._kth_bit_set(north_index[2], 1) and True
         corner21 = corner21_full
-        corner31 = corner31_full and True
+        corner31 = corner31_full and random_choice([1, 2, 3, 4], pos, 1) in (1,)
         index2 = 1 * corner30 + 2 * corner31 + 4 * corner21 + 8 * corner20
 
         # Bottomleft
@@ -230,10 +230,10 @@ class SandTerrain(WangCorner2Terrain):
         corner03_full = west_edge and southwest_edge and south_edge
         corner13_full = south_edge
         # Check if partners have a corner there
-        corner02 = corner02_full and self._kth_bit_set(west_index[2], 0)
+        corner02 = corner02_full and self._kth_bit_set(west_index[2], 0) and corner01
         corner12 = corner12_full
         corner03 = corner03_full and self._kth_bit_set(west_index[2], 1) and self._kth_bit_set(southwest_index[1], 0) and True
-        corner13 = corner13_full and True
+        corner13 = corner13_full and random_choice([1, 2, 3, 4], pos, 2) in (1,)
         index4 = 1 * corner12 + 2 * corner13 + 4 * corner03 + 8 * corner02
 
         # Bottomright
@@ -243,9 +243,9 @@ class SandTerrain(WangCorner2Terrain):
         corner33_full = east_edge and southeast_edge and south_edge
         # Check if partners have a corner there
         corner22 = corner22_full
-        corner32 = corner32_full and True
-        corner23 = corner23_full and True
-        corner33 = corner33_full and True and True and True
+        corner32 = corner32_full and corner31
+        corner23 = corner23_full and corner13
+        corner33 = corner33_full and True and True and True and random_choice([1, 2, 3, 4], pos, 3) in (1,)
         index3 = 1 * corner32 + 2 * corner33 + 4 * corner23 + 8 * corner22
 
         # Save so we can use these results later

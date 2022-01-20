@@ -2,16 +2,16 @@ import random
 
 RANDOM_SEED = 0
 
-def random_choice(choices: list, pos: tuple, seed: int = None):
+def random_choice(choices: list, pos: tuple, seed: int = None, offset: int = 0):
     if seed is None:
         seed = RANDOM_SEED
-    random.seed(seed + pos[0] * 1024 + pos[1])
+    random.seed(seed + pos[0] * 1024**2 + pos[1] * 1024 + offset)
     return random.choice(choices)
 
 def random_random(pos: tuple, seed: int = None, offset: int = 0):
     if seed is None:
         seed = RANDOM_SEED
-    random.seed(seed + pos[0] * 1024 + pos[1] + offset)
+    random.seed(seed + pos[0] * 1024**2 + pos[1] * 1024 + offset)
     return random.random()
 
 def edge_random(pos1: tuple, pos2: tuple, seed: int = None):

@@ -540,9 +540,12 @@ Thicket.data = [(17, 22), (18, 22), (19, 22), (17, 23), (18, 23), (19, 23), (18,
 
 Hill = HillTerrain('Hill', 'Hill', tileset, (13, 21))
 
+BridgeH = RandomTerrain('BridgeH', 'Bridge', tileset, (2, 0))
+BridgeV = RandomTerrain('BridgeV', 'Bridge', tileset, (2, 1))
+
 Castle = CastleTerrain('Castle', 'Castle', tileset, (4, 27))
 House = HouseTerrain('House', 'House', tileset, (4, 25))
 Ruins = RuinsTerrain('Ruins', 'Ruins', tileset, (3, 28))
 
-d = [Plains, Road, Sand, Forest, Thicket, Hill, Castle, House, Ruins]
+d = [Plains, Sand, Road, Forest, Thicket, Hill, BridgeH, BridgeV, House, Castle, Ruins]
 DB_terrain = TerrainCatalog(d)

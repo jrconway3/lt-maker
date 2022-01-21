@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPixmap, QPainter, qRgb
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.utilities.data import Data, Prefab
 import app.utilities as utils
-from app.map_maker.utilities import random_choice, edge_random, flood_fill
+from app.map_maker.utilities import random_choice, random_random, edge_random, flood_fill
 
 @dataclass
 class Terrain(Prefab):
@@ -153,6 +153,130 @@ class WangCorner2Terrain(WangEdge2Terrain):
 
 class SandTerrain(WangCorner2Terrain):
     terrain_like = ('Sand', 'Road')
+    vertices: dict = {}
+
+    def _pos_to_vertices(self, pos) -> tuple:
+        center_vertex_pos = pos[0]*2 + 1, pos[1]*2 + 1
+        left_vertex_pos = pos[0]*2, pos[1]*2 + 1
+        right_vertex_pos = pos[0]*2 + 2, pos[1]*2 + 1
+        top_vertex_pos = pos[0]*2 + 1, pos[1]*2
+        bottom_vertex_pos = pos[0]*2 + 1, pos[1]*2 + 2
+        topleft_vertex_pos = pos[0]*2, pos[1]*2
+        topright_vertex_pos = pos[0]*2 + 2, pos[1]*2
+        bottomleft_vertex_pos = pos[0]*2, pos[1]*2 + 2
+        bottomright_vertex_pos = pos[0]*2 + 2, pos[1]*2 + 2
+        return center_vertex_pos, left_vertex_pos, right_vertex_pos, \
+            top_vertex_pos, bottom_vertex_pos, topleft_vertex_pos, \
+            topright_vertex_pos, bottomleft_vertex_pos, bottomright_vertex_pos
+
+    def single_process(self, tilemap):
+        # For each vertex, assign a random value
+        # Then go through each vertex and determine if corner, edge, or neither
+        # Check values for each vertex to decide if it should be removed
+        # Save data somewhere
+        positions: set = tilemap.get_all_terrain(self.nid)
+        self.vertices.clear()
+        for pos in positions:
+            north, east, south, west = tilemap.get_cardinal_terrain(pos)
+            north_edge = bool(not north or north in self.terrain_like)
+            south_edge = bool(not south or south in self.terrain_like)
+            east_edge = bool(not east or east in self.terrain_like)
+            west_edge = bool(not west or west in self.terrain_like)
+            northeast, southeast, southwest, northwest = tilemap.get_diagonal_terrain(pos)
+            northeast_edge = bool(not northeast or northeast in self.terrain_like)
+            southeast_edge = bool(not southeast or southeast in self.terrain_like)
+            southwest_edge = bool(not southwest or southwest in self.terrain_like)
+            northwest_edge = bool(not northwest or northwest in self.terrain_like)
+            # 0 is patch
+            # 1 is end
+            # 2 is corner (unless north and south or east and west, then end)
+            # 3 is edge
+            # 4 is center
+            center_vertex_type = sum((north_edge, south_edge, east_edge, west_edge))
+            if center_vertex_type == 2 and ((north_edge and south_edge) or (east_edge and west_edge)):
+                center_vertex_type = 1
+            # if not north: 0
+            # if north: 0
+            # if north and ((east and northeast) or (west and northwest)): edge
+            # if north and both: center
+            left_vertex_type = west_edge + (south_edge and southwest_edge) + (north_edge and northwest_edge)
+            if left_vertex_type == 3:
+                left_vertex_type = 4
+            elif left_vertex_type == 2 and west_edge:
+                left_vertex_type = 3
+            else:
+                left_vertex_type = west_edge
+            right_vertex_type = east_edge + (south_edge and southeast_edge) + (north_edge and northeast_edge)
+            if right_vertex_type == 3:
+                right_vertex_type = 4
+            elif right_vertex_type == 2 and east_edge:
+                right_vertex_type = 3
+            else:
+                right_vertex_type = east_edge
+            top_vertex_type = north_edge + (west_edge and northwest_edge) + (east_edge and northeast_edge)
+            if top_vertex_type == 3:
+                top_vertex_type = 4
+            elif top_vertex_type == 2 and north_edge:
+                top_vertex_type = 3
+            else:
+                top_vertex_type = north_edge
+            bottom_vertex_type = south_edge + (west_edge and southwest_edge) + (east_edge and southeast_edge)
+            if bottom_vertex_type == 3:
+                bottom_vertex_type = 4
+            elif bottom_vertex_type == 2 and south_edge:
+                bottom_vertex_type = 3
+            else:
+                bottom_vertex_type = south_edge
+            # 0 is not possible
+            # 1 is empty
+            # 2 is empty
+            # 3 is empty
+            # 4 is center
+            topleft_vertex_type = 4 if (1 + sum((north_edge, west_edge, northwest_edge))) == 4 else 0
+            bottomleft_vertex_type = 4 if (1 + sum((south_edge, west_edge, southwest_edge))) == 4 else 0
+            topright_vertex_type = 4 if (1 + sum((north_edge, east_edge, northeast_edge))) == 4 else 0
+            bottomright_vertex_type = 4 if (1 + sum((south_edge, east_edge, southeast_edge))) == 4 else 0
+
+            center, left, right, top, bottom, topleft, topright, bottomleft, bottomright = self._pos_to_vertices(pos)
+
+            self.vertices[center] = (center_vertex_type, random_random(center))
+            self.vertices[left] = (left_vertex_type, random_random(left))
+            self.vertices[right] = (right_vertex_type, random_random(right))
+            self.vertices[top] = (top_vertex_type, random_random(top))
+            self.vertices[bottom] = (bottom_vertex_type, random_random(bottom))
+            self.vertices[topleft] = (topleft_vertex_type, random_random(topleft))
+            self.vertices[topright] = (topright_vertex_type, random_random(topright))
+            self.vertices[bottomleft] = (bottomleft_vertex_type, random_random(bottomleft))
+            self.vertices[bottomright] = (bottomright_vertex_type, random_random(bottomright))
+
+    def _determine_index(self, tilemap, pos: tuple) -> tuple:
+        center, left, right, top, bottom, topleft, topright, bottomleft, bottomright = self._pos_to_vertices(pos)
+        left_edge = bool(self.vertices[left][0])
+        right_edge = bool(self.vertices[right][0])
+        top_edge = bool(self.vertices[top][0])
+        bottom_edge = bool(self.vertices[bottom][0])
+        topleft_edge = bool(self.vertices[topleft][0])
+        topright_edge = bool(self.vertices[topright][0])
+        bottomleft_edge = bool(self.vertices[bottomleft][0])
+        bottomright_edge = bool(self.vertices[bottomright][0])
+        # TODO: Add missing vertices
+        index1 = 1 * top_edge + \
+            2 * True + \
+            4 * left_edge + \
+            8 * topleft_edge
+        index2 = 1 * topright_edge + \
+            2 * right_edge + \
+            4 * True + \
+            8 * top_edge
+        index3 = 1 * right_edge + \
+            2 * bottomright_edge + \
+            4 * bottom_edge + \
+            8 * True
+        index4 = 1 * True + \
+            2 * bottom_edge + \
+            4 * bottomleft_edge + \
+            8 * left_edge
+        return index1, index2, index3, index4
 
 class ForestTerrain(Terrain):
     forest_like = ('Forest', 'Thicket')

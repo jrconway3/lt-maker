@@ -194,7 +194,7 @@ endf
 ```
     """
     keywords = ['Nid', 'Expression']
-    
+
 class Endf(EventCommand):
     nid = "endf"
     tag = Tags.FLOW_CONTROL
@@ -1476,7 +1476,7 @@ class AddRegion(EventCommand):
         """
 Adds a new region to the map that can be referenced by events. *Nid* will be the new regions identifier. *Position* is the map coordinate desired for the upper-left corner of the new region. *Size* is the dimensions of the new region. *RegionType* defines the type of region that is created (status region, etc.).
 
-The optional *String* keyword can be used to specify the sub-region type. 
+The optional *String* keyword can be used to specify the sub-region type.
 
 When set, the *only_once* flag prevents multiples of the same region from being created. The *interrupt_move* flag halts a unit's movement once they move into the region.
         """
@@ -2275,7 +2275,7 @@ def parse_text(text: str, strict=False) -> EventCommand:
     else:
         return Comment([text])
 
-def parse(command: EventCommand, _eval_evals: Callable[[str], str] = None, _eval_vars: Callable[[str], str] = None):
+def parse(command: EventCommand, _eval_evals: Callable[[str], str] = None):
     values = command.values
     num_keywords = len(command.keywords)
     true_values = values[:num_keywords]
@@ -2284,11 +2284,9 @@ def parse(command: EventCommand, _eval_evals: Callable[[str], str] = None, _eval
     true_values += optional_keywords
     if _eval_evals:
         true_values = [_eval_evals(value) for value in true_values]
-    if _eval_vars:
-        true_values = [_eval_vars(value) for value in true_values]
     return true_values, flags
 
-def convert_parse(command: EventCommand, _eval_evals: Callable[[str], str] = None, _eval_vars: Callable[[str], str] = None):
+def convert_parse(command: EventCommand, _eval_evals: Callable[[str], str] = None):
     from app.events.event_validators import convert
     values = command.values
     num_keywords = len(command.keywords)
@@ -2307,7 +2305,4 @@ def convert_parse(command: EventCommand, _eval_evals: Callable[[str], str] = Non
         kwd_idx += 1
     if _eval_evals:
         true_values = [_eval_evals(value) if isinstance(value, str) else value for value in true_values]
-    if _eval_vars:
-        true_values = [_eval_vars(value) if isinstance(value, str) else value for value in true_values]
-
     return true_values, flags

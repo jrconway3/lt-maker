@@ -251,6 +251,7 @@ class SandTerrain(WangCorner2Terrain):
 
     def _determine_index(self, tilemap, pos: tuple) -> tuple:
         center, left, right, top, bottom, topleft, topright, bottomleft, bottomright = self._pos_to_vertices(pos)
+        center_edge = True
         left_edge = bool(self.vertices[left][0])
         right_edge = bool(self.vertices[right][0])
         top_edge = bool(self.vertices[top][0])
@@ -259,20 +260,31 @@ class SandTerrain(WangCorner2Terrain):
         topright_edge = bool(self.vertices[topright][0])
         bottomleft_edge = bool(self.vertices[bottomleft][0])
         bottomright_edge = bool(self.vertices[bottomright][0])
-        # TODO: Add missing vertices
+        # Randomly determine some to remove
+        if self.vertices[center][0] in (2, 3) and self.vertices[center][1] < 0.5:
+            center_edge = False
+        if self.vertices[left][0] in (2, 3) and self.vertices[left][1] < 0.5:
+            left_edge = False
+        if self.vertices[right][0] in (2, 3) and self.vertices[right][1] < 0.5:
+            right_edge = False
+        if self.vertices[top][0] in (2, 3) and self.vertices[top][1] < 0.5:
+            top_edge = False
+        if self.vertices[bottom][0] in (2, 3) and self.vertices[bottom][1] < 0.5:
+            bottom_edge = False
+
         index1 = 1 * top_edge + \
-            2 * True + \
+            2 * center_edge + \
             4 * left_edge + \
             8 * topleft_edge
         index2 = 1 * topright_edge + \
             2 * right_edge + \
-            4 * True + \
+            4 * center_edge + \
             8 * top_edge
         index3 = 1 * right_edge + \
             2 * bottomright_edge + \
             4 * bottom_edge + \
-            8 * True
-        index4 = 1 * True + \
+            8 * center_edge
+        index4 = 1 * center_edge + \
             2 * bottom_edge + \
             4 * bottomleft_edge + \
             8 * left_edge
@@ -562,7 +574,9 @@ Thicket.data = [(17, 22), (18, 22), (19, 22), (17, 23), (18, 23), (19, 23), (18,
 Hill = HillTerrain('Hill', 'Hill', tileset, (13, 21))
 
 BridgeH = RandomTerrain('BridgeH', 'Bridge', tileset, (2, 0))
+BridgeH.data = [(2, 0)]
 BridgeV = RandomTerrain('BridgeV', 'Bridge', tileset, (2, 1))
+BridgeH.data = [(2, 1)]
 
 Castle = CastleTerrain('Castle', 'Castle', tileset, (4, 27))
 House = HouseTerrain('House', 'House', tileset, (4, 25))

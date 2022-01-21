@@ -547,15 +547,20 @@ class EventCollection(QWidget):
         self.level_filter_box.edit.addItem("All")
         self.level_filter_box.edit.addItem("Global")
         self.level_filter_box.edit.addItems(DB.levels.keys())
-        self.level_filter_box.edit.currentIndexChanged.connect(self.level_filter_changed)
+        self.level_filter_box.edit.currentIndexChanged.connect(self.filter_changed)
+
+        self.event_name_filter_box = PropertyBox("Filter by name", QLineEdit, self)
+        self.event_name_filter_box.edit.textChanged.connect(self.filter_changed)
 
         self.model = collection_model(self._data, self)
-        self.proxy_model = table_model.ProxyModel()
-        self.proxy_model.setSourceModel(self.model)
+        self.name_filtered_model = table_model.ProxyModel()
+        self.name_filtered_model.setSourceModel(self.model)
+        self.level_filtered_model = table_model.ProxyModel()
+        self.level_filtered_model.setSourceModel(self.name_filtered_model)
         self.view: TableView = view_type(self)
         self.view.setAlternatingRowColors(True)
         self.view.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.view.setModel(self.proxy_model)
+        self.view.setModel(self.level_filtered_model)
         # self.view.setModel(self.model)
         self.view.setSortingEnabled(True)
         # sort is stored as (col, dir)
@@ -577,9 +582,10 @@ class EventCollection(QWidget):
         self.create_actions()
         self.create_toolbar()
         grid.addWidget(self.toolbar, 0, 0, Qt.AlignLeft)
-        grid.addWidget(self.level_filter_box, 0, 1, Qt.AlignRight)
-        grid.addWidget(self.view, 1, 0, 1, 2)
-        grid.addWidget(self.button, 2, 0, 1, 2)
+        grid.addWidget(self.event_name_filter_box, 0, 1, Qt.AlignRight)
+        grid.addWidget(self.level_filter_box, 0, 2, Qt.AlignRight)
+        grid.addWidget(self.view, 1, 0, 1, 3)
+        grid.addWidget(self.button, 2, 0, 1, 3)
 
         if self.current_level:
             self.level_filter_box.edit.setValue(self.current_level.nid)
@@ -615,15 +621,15 @@ class EventCollection(QWidget):
 
     def delete(self):
         current_index = self.view.currentIndex()
-        model_index = self.proxy_model.mapToSource(current_index)
+        model_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(current_index))
         row = current_index.row()
         self.model.delete(model_index)
 
-        if self.proxy_model.rowCount() > 0:
-            if row >= self.proxy_model.rowCount():
-                new_index = self.proxy_model.index(row - 1, 0)
+        if self.level_filtered_model.rowCount() > 0:
+            if row >= self.level_filtered_model.rowCount():
+                new_index = self.level_filtered_model.index(row - 1, 0)
             else:
-                new_index = self.proxy_model.index(row, 0)
+                new_index = self.level_filtered_model.index(row, 0)
             self.view.setCurrentIndex(new_index)
             self.set_current_index(new_index)
         else:
@@ -638,10 +644,10 @@ class EventCollection(QWidget):
 
     def duplicate(self):
         current_index = self.view.currentIndex()
-        model_index = self.proxy_model.mapToSource(current_index)
+        model_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(current_index))
         new_index = self.model.duplicate(model_index)
         if new_index:
-            new_proxy_index = self.proxy_model.mapFromSource(new_index)
+            new_proxy_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(new_index))
 
             self.view.setCurrentIndex(new_proxy_index)
             self.set_current_index(new_proxy_index)
@@ -666,7 +672,7 @@ class EventCollection(QWidget):
 
         last_index = self.model.index(self.model.rowCount() - 1, 0)
 
-        proxy_last_index = self.proxy_model.mapFromSource(last_index)
+        proxy_last_index = self.level_filtered_model.mapFromSource(self.name_filtered_model.mapFromSource(last_index))
         self.view.setCurrentIndex(proxy_last_index)
         self.set_current_index(proxy_last_index)
 
@@ -676,7 +682,7 @@ class EventCollection(QWidget):
         if self._data:
             if curr.indexes():
                 index = curr.indexes()[0]
-                correct_index = self.proxy_model.mapToSource(index)
+                correct_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(index))
                 row = correct_index.row()
             else:
                 return
@@ -688,7 +694,7 @@ class EventCollection(QWidget):
                 self.display.setEnabled(True)
 
     def set_current_index(self, index):
-        correct_index = self.proxy_model.mapToSource(index)
+        correct_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(index))
         row = correct_index.row()
         new_data = self._data[row]
         if self.display:
@@ -697,45 +703,58 @@ class EventCollection(QWidget):
 
     def set_display(self, disp):
         self.display = disp
-        first_index = self.proxy_model.index(0, 0)
+        first_index = self.level_filtered_model.index(0, 0)
         self.view.setCurrentIndex(first_index)
 
         self.display.setEnabled(False)
-        if self.proxy_model.rowCount() > 0:
+        if self.level_filtered_model.rowCount() > 0:
             self.display.setEnabled(True)
 
-    def level_filter_changed(self, idx):
-        filt = self.level_filter_box.edit.currentText()
-        self.view.selectionModel().selectionChanged.disconnect(self.on_item_changed)
-        self.proxy_model.setFilterKeyColumn(1)
-        if filt == 'All':
-            self.proxy_model.setFilterFixedString("")
+    def filter_changed(self, idx):
+        level = self.level_filter_box.edit.currentText()
+        name = self.event_name_filter_box.edit.text()
+
+        if level == 'All':
+            level = ""
+        if not name:
+            name = ""
+
+        if not name:
+            self.name_filtered_model.setFilterFixedString("")
         else:
-            search = "^" + filt + "$"
-            self.proxy_model.setFilterRegularExpression(search)
+            self.name_filtered_model.setFilterRegularExpression('(?i){}'.format(name))
+
+        self.view.selectionModel().selectionChanged.disconnect(self.on_item_changed)
+        self.level_filtered_model.setFilterKeyColumn(1)
+        if not level:
+            self.level_filtered_model.setFilterFixedString("")
+        else:
+            search = "^" + level + "$"
+            self.level_filtered_model.setFilterRegularExpression(search)
         self.view.selectionModel().selectionChanged.connect(self.on_item_changed)
         # Determine if we should reselect something
-        if filt != "All" and self.display:
+        if level and self.display:
             # current_index = self.view.currentIndex()
-            # real_index = self.proxy_model.mapToSource(current_index)
+            # real_index = self.level_filtered_model.mapToSource(current_index)
             # obj = self._data[real_index.row()]
             obj = self.display.current
-            if obj and ((filt != "Global" and filt != obj.level_nid) or (filt == "Global" and obj.level_nid)):
+            if obj and ((level != "Global" and level != obj.level_nid) or (level == "Global" and obj.level_nid)):
                 # Change selection only if we need to!
-                first_index = self.proxy_model.index(0, 0)
+                first_index = self.level_filtered_model.index(0, 0)
                 self.view.setCurrentIndex(first_index)
                 self.set_current_index(first_index)
         self.update_list()
 
-        if self.proxy_model.rowCount() > 0:
+        if self.level_filtered_model.rowCount() > 0:
             self._set_enabled(True)
         else:
             self._set_enabled(False)
 
+
     def update_list(self):
         # self.model.layoutChanged.emit()
-        # self.proxy_model.invalidate()
-        self.proxy_model.layoutChanged.emit()
+        # self.level_filtered_model.invalidate()
+        self.level_filtered_model.layoutChanged.emit()
 
     def leaveEvent(self, event) -> None:
         sort_dir = self.view.horizontalHeader().sortIndicatorOrder()

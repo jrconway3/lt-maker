@@ -294,7 +294,7 @@ class CodeEditor(QPlainTextEdit):
 
         # determine which command and validator is under the cursor
         command = event_autocompleter.detect_command_under_cursor(line)
-        validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos)
+        validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos, None)
 
         if not command or command == event_commands.Comment:
             return
@@ -374,6 +374,17 @@ class CodeEditor(QPlainTextEdit):
         line = tc.block().text()
         cursor_pos = tc.positionInBlock()
 
+        def arg_text_under_cursor(text: str, cursor_pos):
+            before_text = text[0:cursor_pos]
+            after_text = text[cursor_pos:]
+            idx = before_text.rfind(';')
+            before_arg = before_text[idx + 1:]
+            idx = after_text.find(';')
+            after_arg = after_text[0:idx]
+            return (before_arg + after_arg)
+
+        arg_under_cursor = arg_text_under_cursor(line, cursor_pos)
+
         if len(line) != cursor_pos:
             return  # Only do autocomplete on end of line
         if tc.blockNumber() <= 0 and cursor_pos <= 0:  # Remove if cursor is at the very top left of event
@@ -387,8 +398,8 @@ class CodeEditor(QPlainTextEdit):
             return
 
         # determine what dictionary to use for completion
-        validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos)
-        autofill_dict = event_autocompleter.generate_wordlist_from_validator_type(validator, self.window.current.level_nid)
+        validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos, arg_under_cursor)
+        autofill_dict = event_autocompleter.generate_wordlist_from_validator_type(validator, self.window.current.level_nid, arg_under_cursor)
         if flags:
             autofill_dict = autofill_dict + event_autocompleter.generate_flags_wordlist(flags)
         if len(autofill_dict) == 0:

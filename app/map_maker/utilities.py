@@ -1,5 +1,4 @@
 import random
-import heapq
 
 RANDOM_SEED = 0
 
@@ -32,7 +31,7 @@ def flood_fill(tilemap, pos: tuple, diagonal: bool = False, match: set = None) -
     # Get coords like current coord in current_layer
     if not match:
         current_tile = tilemap.get_terrain(pos)
-        match = {tilemap.get_terrain(current_tile)}
+        match = {current_tile}
 
     def find_similar(starting_pos: tuple, match: set):
         unexplored_stack.append(starting_pos)

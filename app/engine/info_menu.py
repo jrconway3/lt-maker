@@ -1,3 +1,5 @@
+from typing import List, Tuple
+from app.engine.objects.unit import UnitObject
 from dataclasses import dataclass
 
 from app.constants import WINWIDTH, WINHEIGHT
@@ -226,7 +228,7 @@ class InfoMenuState(State):
         self.create_background()
 
         # Unit to be displayed
-        self.unit = game.memory.get('current_unit')
+        self.unit: UnitObject = game.memory.get('current_unit')
         self.scroll_units = game.memory.get('scroll_units')
         if self.scroll_units is None:
             self.scroll_units = [unit for unit in game.units if not unit.dead and unit.team == self.unit.team and unit.party == self.unit.party]
@@ -270,15 +272,15 @@ class InfoMenuState(State):
         self.info_graph.clear()
         self.portrait_surf = None
 
-        self.personal_data_surf = None
-        self.growths_surf = None
-        self.wexp_surf = None
-        self.equipment_surf = None
-        self.support_surf = None
-        self.skill_surf = None
-        self.class_skill_surf = None
-        self.fatigue_surf = None
-        self.notes_surf = None
+        self.personal_data_surf: engine.Surface = None
+        self.growths_surf: engine.Surface = None
+        self.wexp_surf: engine.Surface = None
+        self.equipment_surf: engine.Surface = None
+        self.support_surf: engine.Surface = None
+        self.skill_surf: engine.Surface = None
+        self.class_skill_surf: engine.Surface = None
+        self.fatigue_surf: engine.Surface = None
+        self.notes_surf: engine.Surface = None
 
     def switch_logo(self, name):
         if name == 'personal_data':
@@ -801,16 +803,20 @@ class InfoMenuState(State):
         surf.blit(self.growths_surf, (96, 0))
 
     def create_wexp_surf(self):
-        surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)
-
-        how_many = len([wexp for wexp in self.unit.wexp.values() if wexp > 0])
-        x_pos = (WINWIDTH - 102) // max(how_many, 2)
-
         class_obj = DB.classes.get(self.unit.klass)
+        wexp_to_draw: List[Tuple[str, int]] = []
+        for weapon, wexp in self.unit.wexp.items():
+            if wexp > 0 and (class_obj.wexp_gain.get(weapon).usable or skill_system.wexp_usable_skill(self.unit, weapon)):
+                wexp_to_draw.append((weapon, wexp))
+        width = (WINWIDTH - 102) // 2
+        height = 16 * 2 + 4
+
+        surf = engine.create_surface((WINWIDTH - 96, height), transparent=True)
+
         counter = 0
-        for idx, weapon in enumerate(self.unit.wexp.keys()):
-            value = self.unit.wexp[weapon]
-            if value > 0 and (class_obj.wexp_gain.get(weapon).usable or skill_system.wexp_usable_skill(self.unit, weapon)):
+        for y in range(0, 32, 16):
+            for x in range(0, 2):
+                weapon, value = wexp_to_draw[counter]
                 weapon_rank = DB.weapon_ranks.get_rank_from_wexp(value)
                 next_weapon_rank = DB.weapon_ranks.get_next_rank_from_wexp(value)
                 if not weapon_rank:
@@ -819,17 +825,21 @@ class InfoMenuState(State):
                     perc = 1
                 else:
                     perc = (value - weapon_rank.requirement) / (next_weapon_rank.requirement - weapon_rank.requirement)
-                offset = 8 + counter * x_pos
-                counter += 1
+                offset = 8 + x * width
 
-                icons.draw_weapon(surf, weapon, (offset, 4))
+                icons.draw_weapon(surf, weapon, (offset, 4 + y))
 
                 # Build groove
-                build_groove(surf, (offset + 18, 10), x_pos - 24, perc)
+                build_groove(surf, (offset + 18, 10 + y), width - 24, perc)
                 # Add text
-                pos = (offset + 7 + x_pos//2, 4)
+                pos = (offset + 7 + width//2, 4 + y)
                 FONT['text-blue'].blit_center(weapon_rank.nid, surf, pos)
-                self.info_graph.register((96 + pos[0] - x_pos//2 - 8, 24 + pos[1], x_pos, 16), "%s mastery level: %d" % (DB.weapons.get(weapon).name, value), 'support_skills', first=(idx==0))
+                self.info_graph.register((96 + pos[0] - width//2 - 8, 24 + pos[1], width, 16), "%s mastery level: %d" % (DB.weapons.get(weapon).name, value), 'support_skills', first=(counter==0))
+                counter += 1
+                if counter >= len(wexp_to_draw):
+                    break
+            if counter >= len(wexp_to_draw):
+                break
 
         return surf
 
@@ -967,6 +977,7 @@ class InfoMenuState(State):
 
     def create_support_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT), transparent=True)
+        width = (WINWIDTH - 102) // 2
 
         if game.game_vars.get('_supports'):
             pairs = game.supports.get_pairs(self.unit.nid)
@@ -974,8 +985,11 @@ class InfoMenuState(State):
         else:
             pairs = []
 
-        top = 48
+        pairs = pairs[:6] # max six supports displayed
+
+        top = self.wexp_surf.get_height() + 24
         for idx, pair in enumerate(pairs):
+            x, y = (idx) % 2, idx // 2
             other_unit = None
             if pair.unit1 == self.unit.nid:
                 other_unit = game.get_unit(pair.unit2)
@@ -985,11 +999,11 @@ class InfoMenuState(State):
                 continue
             affinity = DB.affinities.get(other_unit.affinity)
             if affinity:
-                icons.draw_item(surf, affinity, (16, idx * 16 + top))
-                self.info_graph.register((112, idx * 16 + top, WINWIDTH - 120, 16), affinity.desc, 'support_skills')
-            FONT['text'].blit(other_unit.name, surf, (36, idx * 16 + top))
+                icons.draw_item(surf, affinity, (x * width + 8, y * 16 + top))
+                self.info_graph.register((96 + x * width + 8, y * 16 + top, WINWIDTH - 120, 16), affinity.desc, 'support_skills')
+            FONT['narrow'].blit(other_unit.name, surf, (x * width + 22, y * 16 + top))
             highest_rank = pair.unlocked_ranks[-1]
-            FONT['text-yellow'].blit_right(highest_rank, surf, (surf.get_width() - 24, idx * 16 + top))
+            FONT['text'].blit_right(highest_rank, surf, ( x * width + surf.get_width()/2 - 2, y * 16 + top), 'yellow')
         return surf
 
     def draw_support_surf(self, surf):

@@ -1,62 +1,12 @@
-from dataclasses import dataclass
+import itertools
 
 from PyQt5.QtGui import QPixmap, QPainter, qRgb
 
 from app.constants import TILEWIDTH, TILEHEIGHT
-from app.utilities.data import Data, Prefab
 import app.utilities as utils
 from app.map_maker.utilities import random_choice, random_random, edge_random, flood_fill
-
-@dataclass
-class Terrain(Prefab):
-    nid: str = None
-    name: str = None
-    tileset_path: str = None
-
-    display_tile_coord: tuple = (0, 0)
-
-    display_pixmap: QPixmap = None
-    tileset_pixmap: QPixmap = None
-
-    @property
-    def check_flood_fill(self):
-        return False
-
-    def set_tileset(self, tileset_path=None):
-        if tileset_path:
-            self.tileset_path = tileset_path
-        self.tileset_pixmap = QPixmap(self.tileset_path)
-        self.display_pixmap = None
-        self.get_display_pixmap()
-
-    def get_display_pixmap(self):
-        if not self.display_pixmap:
-            pix = self.tileset_pixmap.copy(
-                self.display_tile_coord[0] * TILEWIDTH, 
-                self.display_tile_coord[1] * TILEHEIGHT,
-                TILEWIDTH, TILEHEIGHT)
-            self.display_pixmap = pix
-        return self.display_pixmap
-        
-    def restore_attr(self, name, value):
-        if name in ('tileset_path', 'display_tile_coord'):
-            value = tuple(value)
-        else:
-            value = super().restore_attr(name, value)
-        return value
-
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
-        new_coords1 = [(self.display_tile_coord[0]*2, self.display_tile_coord[1]*2)]
-        new_coords2 = [(self.display_tile_coord[0]*2 + 1, self.display_tile_coord[1]*2)]
-        new_coords3 = [(self.display_tile_coord[0]*2 + 1, self.display_tile_coord[1]*2 + 1)]
-        new_coords4 = [(self.display_tile_coord[0]*2, self.display_tile_coord[1]*2 + 1)]
-        return new_coords1, new_coords2, new_coords3, new_coords4
-
-    def single_process(self, tilemap):
-        pass
-
-class TerrainCatalog(Data[Terrain]):
-    datatype = Terrain
+from app.map_maker.terrain import Terrain, TerrainCatalog
+from app.map_maker.building_terrain import CastleTerrain, HouseTerrain, RuinsTerrain
 
 class RandomTerrain(Terrain):
     data = []
@@ -153,6 +103,8 @@ class WangCorner2Terrain(WangEdge2Terrain):
 
 class SandTerrain(WangCorner2Terrain):
     terrain_like = ('Sand', 'Road')
+    corner_chance = 0.6
+    edge_chance = 0.4
     vertices: dict = {}
 
     def _pos_to_vertices(self, pos) -> tuple:
@@ -261,15 +213,17 @@ class SandTerrain(WangCorner2Terrain):
         bottomleft_edge = bool(self.vertices[bottomleft][0])
         bottomright_edge = bool(self.vertices[bottomright][0])
         # Randomly determine some to remove
-        if self.vertices[center][0] in (2, 3) and self.vertices[center][1] < 0.5:
+        if self.vertices[center][0] == 3 and self.vertices[center][1] < self.edge_chance:
             center_edge = False
-        if self.vertices[left][0] in (2, 3) and self.vertices[left][1] < 0.5:
+        if self.vertices[center][0] == 2 and self.vertices[center][1] < self.corner_chance:
+            center_edge = False
+        if self.vertices[left][0] in (2, 3) and self.vertices[left][1] < self.edge_chance:
             left_edge = False
-        if self.vertices[right][0] in (2, 3) and self.vertices[right][1] < 0.5:
+        if self.vertices[right][0] in (2, 3) and self.vertices[right][1] < self.edge_chance:
             right_edge = False
-        if self.vertices[top][0] in (2, 3) and self.vertices[top][1] < 0.5:
+        if self.vertices[top][0] in (2, 3) and self.vertices[top][1] < self.edge_chance:
             top_edge = False
-        if self.vertices[bottom][0] in (2, 3) and self.vertices[bottom][1] < 0.5:
+        if self.vertices[bottom][0] in (2, 3) and self.vertices[bottom][1] < self.edge_chance:
             bottom_edge = False
 
         index1 = 1 * top_edge + \
@@ -364,164 +318,6 @@ class ForestTerrain(Terrain):
             new_coords4 = [(index4, {0: 2, 4: 0, 8: 1, 12: 0}[index4])]
         return new_coords1, new_coords2, new_coords3, new_coords4
 
-class BuildingTerrain(Terrain):
-    data = {}
-    organization = {}  # Key: position, value: type
-
-    @property
-    def check_flood_fill(self):
-        return True
-
-    def single_process(self, tilemap):
-        raise NotImplementedError
-
-    def _finalize(self, positions: set, position: tuple, sprite_type: str, offset: tuple):
-        actual_position = (position[0] + offset[0], position[1] + offset[1])
-        self.organization[actual_position] = (sprite_type, offset)
-        positions.discard(actual_position)
-
-    def _fits_3x3(self, positions: set, position: tuple) -> bool:
-        return \
-            position in positions and \
-            (position[0], position[1] + 1) in positions and \
-            (position[0], position[1] + 2) in positions and \
-            (position[0] + 1, position[1]) in positions and \
-            (position[0] + 1, position[1] + 1) in positions and \
-            (position[0] + 1, position[1] + 2) in positions and \
-            (position[0] + 2, position[1]) in positions and \
-            (position[0] + 2, position[1] + 1) in positions and \
-            (position[0] + 2, position[1] + 2) in positions
-
-    def _fits_3x2(self, positions: set, position: tuple) -> bool:
-        return \
-            position in positions and \
-            (position[0], position[1] + 1) in positions and \
-            (position[0] + 1, position[1]) in positions and \
-            (position[0] + 1, position[1] + 1) in positions and \
-            (position[0] + 2, position[1]) in positions and \
-            (position[0] + 2, position[1] + 1) in positions
-
-    def _fits_2x2(self, positions: set, position: tuple) -> bool:
-        return \
-            position in positions and \
-            (position[0], position[1] + 1) in positions and \
-            (position[0] + 1, position[1]) in positions and \
-            (position[0] + 1, position[1] + 1) in positions
-
-    def _fits_2x1(self, positions: set, position: tuple) -> bool:
-        return \
-            position in positions and \
-            (position[0] + 1, position[1]) in positions
-
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
-        sprite_type, offset = self.organization[pos]
-        coord = [(c[0] + offset[0], c[1] + offset[1]) for c in self.data[sprite_type]]
-
-        # So it always uses the same set of coords...
-        new_coords1 = [random_choice([(c[0]*2, c[1]*2) for c in coord], (pos[0] - offset[0], pos[1] - offset[1]))]
-        new_coords2 = [random_choice([(c[0]*2 + 1, c[1]*2) for c in coord], (pos[0] - offset[0], pos[1] - offset[1]))]
-        new_coords3 = [random_choice([(c[0]*2 + 1, c[1]*2 + 1) for c in coord], (pos[0] - offset[0], pos[1] - offset[1]))]
-        new_coords4 = [random_choice([(c[0]*2, c[1]*2 + 1) for c in coord], (pos[0] - offset[0], pos[1] - offset[1]))]
-
-        return new_coords1, new_coords2, new_coords3, new_coords4
-
-class CastleTerrain(BuildingTerrain):
-    data = {'single': [(4, 27), (4, 29)], '3x3': [(13, 26), (10, 29), (19, 26), (22, 26), (25, 26), (28, 26)]}
-    organization = {}
-
-    def single_process(self, tilemap):
-        self.organization.clear()
-        positions: set = tilemap.get_all_terrain(self.nid)
-        order: list = sorted(positions)
-        while order:
-            position = order.pop(0)
-            if position not in positions:
-                continue
-            if self._fits_3x3(positions, position):
-                self._finalize(positions, position, '3x3', (0, 0))
-                self._finalize(positions, position, '3x3', (0, 1))
-                self._finalize(positions, position, '3x3', (0, 2))
-                self._finalize(positions, position, '3x3', (1, 0))
-                self._finalize(positions, position, '3x3', (1, 1))
-                self._finalize(positions, position, '3x3', (1, 2))
-                self._finalize(positions, position, '3x3', (2, 0))
-                self._finalize(positions, position, '3x3', (2, 1))
-                self._finalize(positions, position, '3x3', (2, 2))
-            else:
-                self._finalize(positions, position, 'single', (0, 0))
-    
-class RuinsTerrain(BuildingTerrain):
-    data = {'single': [(3, 28), (3, 29)], '3x3': [(7, 28)], '2x2': [(1, 28)], '2x1': [(1, 29)], '3x2': [(28, 29)]}
-    organization = {}
-
-    def single_process(self, tilemap):
-        self.organization.clear()
-        positions: set = tilemap.get_all_terrain(self.nid)
-        order: list = sorted(positions)
-        while order:
-            position = order.pop(0)
-            if position not in positions:
-                continue
-            if self._fits_3x3(positions, position):
-                self._finalize(positions, position, '3x3', (0, 0))
-                self._finalize(positions, position, '3x3', (0, 1))
-                self._finalize(positions, position, '3x3', (0, 2))
-                self._finalize(positions, position, '3x3', (1, 0))
-                self._finalize(positions, position, '3x3', (1, 1))
-                self._finalize(positions, position, '3x3', (1, 2))
-                self._finalize(positions, position, '3x3', (2, 0))
-                self._finalize(positions, position, '3x3', (2, 1))
-                self._finalize(positions, position, '3x3', (2, 2))
-            elif self._fits_3x2(positions, position):
-                self._finalize(positions, position, '3x2', (0, 0))
-                self._finalize(positions, position, '3x2', (0, 1))
-                self._finalize(positions, position, '3x2', (1, 0))
-                self._finalize(positions, position, '3x2', (1, 1))
-                self._finalize(positions, position, '3x2', (2, 0))
-                self._finalize(positions, position, '3x2', (2, 1))
-            elif self._fits_2x2(positions, position):
-                self._finalize(positions, position, '2x2', (0, 0))
-                self._finalize(positions, position, '2x2', (0, 1))
-                self._finalize(positions, position, '2x2', (1, 0))
-                self._finalize(positions, position, '2x2', (1, 1))
-            elif self._fits_2x1(positions, position):
-                self._finalize(positions, position, '2x1', (0, 0))
-                self._finalize(positions, position, '2x1', (1, 0))
-            else:
-                self._finalize(positions, position, 'single', (0, 0))
-
-class HouseTerrain(BuildingTerrain):
-    data = {'single': [(4, 25)], '3x3': [(7, 25)], '3x2': [(10, 25)]}
-    organization = {}
-
-    def single_process(self, tilemap):
-        self.organization.clear()
-        positions: set = tilemap.get_all_terrain(self.nid)
-        order: list = sorted(positions)
-        while order:
-            position = order.pop(0)
-            if position not in positions:
-                continue
-            if self._fits_3x3(positions, position):
-                self._finalize(positions, position, '3x3', (0, 0))
-                self._finalize(positions, position, '3x3', (0, 1))
-                self._finalize(positions, position, '3x3', (0, 2))
-                self._finalize(positions, position, '3x3', (1, 0))
-                self._finalize(positions, position, '3x3', (1, 1))
-                self._finalize(positions, position, '3x3', (1, 2))
-                self._finalize(positions, position, '3x3', (2, 0))
-                self._finalize(positions, position, '3x3', (2, 1))
-                self._finalize(positions, position, '3x3', (2, 2))
-            elif self._fits_3x2(positions, position):
-                self._finalize(positions, position, '3x2', (0, 0))
-                self._finalize(positions, position, '3x2', (0, 1))
-                self._finalize(positions, position, '3x2', (1, 0))
-                self._finalize(positions, position, '3x2', (1, 1))
-                self._finalize(positions, position, '3x2', (2, 0))
-                self._finalize(positions, position, '3x2', (2, 1))
-            else:
-                self._finalize(positions, position, 'single', (0, 0))
-
 class HillTerrain(Terrain): 
     data = {'main': (12, 21), 'pair1': (13, 20), 'pair2': (14, 20), 'alter1': (13, 21)}
     
@@ -556,6 +352,222 @@ class HillTerrain(Terrain):
         new_coords4 = [(coord[0]*2, coord[1]*2 + 1)]
         return new_coords1, new_coords2, new_coords3, new_coords4
 
+class CliffTerrain(WangCorner2Terrain):
+    terrain_like = ('Cliff_Topleft', 'Cliff_Bottomright')
+    organization = {}
+
+    @property
+    def check_flood_fill(self):
+        return 'diagonal'
+
+    # def _find_longest_path(self, group: set) -> list:
+    #     Permutation brute force. Far too slow
+    #     def is_adjacent(seq: list) -> bool:
+    #         _abs = abs
+    #         curr_pos: tuple = seq[0]
+    #         for link in seq[1:]:
+    #             if _abs(curr_pos[0] - link[0]) <= 1 and _abs(curr_pos[0] - link[0]) <= 1:
+    #                 curr_pos = link
+    #             else:
+    #                 return False
+    #         return True
+
+    #     permutations = itertools.permutations(group)
+    #     for permutation in permutations:
+    #         if is_adjacent(permutation):
+    #             return permutation
+
+    def _find_longest_path(self, group: set) -> list:
+        # https://stackoverflow.com/questions/21880419/how-to-find-the-longest-simple-path-in-a-graph
+        path = []
+        best_path = []
+        used = set()
+
+        def find_path(pos):
+            nonlocal path
+            nonlocal best_path
+            used.add(pos)
+            adj = {(pos[0] - 1, pos[1] - 1), (pos[0], pos[1] - 1), (pos[0] + 1, pos[1] - 1),
+                   (pos[0] - 1, pos[1]), (pos[0] + 1, pos[1]),
+                   (pos[0] - 1, pos[1] + 1), (pos[0], pos[1] + 1), (pos[0] + 1, pos[1] + 1)}
+            for v in adj & group:
+                if v not in used:
+                    path.append(v)
+                    if len(path) > len(best_path):
+                        best_path = path[:]
+                    find_path(v)
+                    path.pop()
+            used.discard(pos)
+
+        for pos in group:
+            path.append(pos)
+            if len(path) > len(best_path):
+                best_path = path[:]
+            find_path(pos)
+            path.pop()
+
+        return best_path
+
+    def _calc_corners(self, pos: tuple, partners: list) -> tuple:
+        corner_topleft = 0
+        corner_bottomleft = 0
+        corner_topright = 0
+        corner_bottomright = 0
+        for other_pos in partners:
+            # Topleft
+            if other_pos[0] == pos[0] - 1 and other_pos[1] == pos[1] - 1:
+                corner_topleft += 2
+            # Topright
+            elif other_pos[0] == pos[0] + 1 and other_pos[1] == pos[1] - 1:
+                corner_topright += 2
+            # Bottomleft
+            elif other_pos[0] == pos[0] - 1 and other_pos[1] == pos[1] + 1:
+                corner_bottomleft += 2
+            # Bottomright
+            elif other_pos[0] == pos[0] + 1 and other_pos[1] == pos[1] + 1:
+                corner_bottomright += 2
+            # Top
+            elif other_pos[0] == pos[0] and other_pos[1] == pos[1] - 1:
+                corner_topleft += 1
+                corner_topright += 1
+            # Bottom
+            elif other_pos[0] == pos[0] and other_pos[1] == pos[1] + 1:
+                corner_bottomleft += 1
+                corner_bottomright += 1
+            # Left
+            elif other_pos[0] == pos[0] - 1 and other_pos[1] == pos[1]:
+                corner_topleft += 1
+                corner_bottomleft += 1
+            # Right
+            elif other_pos[0] == pos[0] + 1 and other_pos[1] == pos[1]:
+                corner_topright += 1
+                corner_bottomright += 1
+        return corner_topright, corner_bottomright, corner_bottomleft, corner_topleft
+
+    def _chain_end_process(self, pos: tuple, other_pos: tuple) -> tuple:
+        topright, bottomright, bottomleft, topleft = \
+            self._calc_corners(pos, [other_pos])
+        corner_topright = False
+        corner_topleft = False
+        corner_bottomleft = False
+        corner_bottomright = False
+        if topright >= 2:
+            corner_topright = True
+            corner_topleft = True
+            corner_bottomleft = True
+        elif bottomright >= 2:
+            corner_bottomright = True
+            corner_topright = True
+            corner_topleft = True
+        elif topleft >= 2:
+            corner_topright = True
+            corner_topleft = True
+            corner_bottomright = True
+        elif bottomleft >= 2:
+            corner_bottomleft = True
+            corner_topright = True
+            corner_topleft = True
+        else:
+            corner_topright = bool(topright)
+            corner_topleft = bool(topleft)
+            corner_bottomright = bool(bottomright)
+            corner_bottomleft = bool(bottomleft)
+
+        return corner_topright, corner_bottomright, corner_bottomleft, corner_topleft
+
+    def single_process(self, tilemap):
+        match_set: set = {'Cliff_Topleft', 'Cliff_Bottomright'}
+        positions: set = tilemap.get_all_terrain('Cliff_Topleft')
+        positions |= tilemap.get_all_terrain('Cliff_Bottomright')
+        self.organization.clear()
+        groupings: list = [] # of sets
+        while positions:
+            pos = positions.pop()
+            near_positions: set = flood_fill(tilemap, pos, diagonal=True, match=match_set)
+            groupings.append(near_positions)
+            for near_pos in near_positions:
+                positions.discard(near_pos)
+
+        while groupings:
+            group = groupings.pop()
+            if not (group & tilemap.terrain_grid_to_update):
+                # Don't need to bother updating this one if no intersections
+                continue
+            longest_path: list = self._find_longest_path(group)
+
+            # Handle the case where the longest path does not include some members of the group
+            present = set(longest_path)
+            new_group = group - present  # The leftovers become a new group
+            if new_group:
+                groupings.append(new_group)
+
+            # now that we have longest path, we can fill in according to rules
+            for idx, pos in list(enumerate(longest_path))[1:-1]:  # Skip first
+                prev_pos = longest_path[idx - 1]              
+                next_pos = longest_path[idx + 1]
+                topright, bottomright, bottomleft, topleft = \
+                    self._calc_corners(pos, [prev_pos, next_pos])
+                corner_topleft = topleft >= 2
+                corner_topright = topright >= 2
+                corner_bottomleft = bottomleft >= 2
+                corner_bottomright = bottomright >= 2
+                # if corner_topleft and corner_bottomright:
+                #     corner_topright = True
+                # elif corner_topright and corner_bottomleft:
+                #     corner_topleft = True
+                if sum([corner_topleft, corner_topright, corner_bottomleft, corner_bottomright]) < 2:
+                    corner_topleft = topleft >= 1
+                    corner_topright = topright >= 1
+                    corner_bottomleft = bottomleft >= 1
+                    corner_bottomright = bottomright >= 1
+                
+                self.organization[pos] = (corner_topright, corner_bottomright, corner_bottomleft, corner_topleft)
+            # For first and last path
+            if len(longest_path) > 1:
+                self.organization[longest_path[0]] = self._chain_end_process(longest_path[0], longest_path[1])
+                self.organization[longest_path[-1]] = self._chain_end_process(longest_path[-1], longest_path[-2])
+            else:
+                self.organization[longest_path[0]] = (True, False, False, True)  # Facing down
+
+    def _determine_index(self, tilemap, pos: tuple) -> tuple:
+        corner_topright, corner_bottomright, corner_bottomleft, corner_topleft = self.organization[pos]
+        index = 1 * corner_topright + \
+            2 * corner_bottomright + \
+            4 * corner_bottomleft + \
+            8 * corner_topleft
+        return index
+
+    def _find_limit(self, idx: int) -> int:
+        bg_color = qRgb(0, 0, 0)
+        img = self.tileset_pixmap.toImage()
+        x = idx * TILEWIDTH
+        for y in range(0, img.height(), TILEHEIGHT):
+            current_color = img.pixel(x, y)
+            if current_color == bg_color:
+                return y // TILEHEIGHT
+        return (img.height() // TILEHEIGHT)
+
+    def get_display_pixmap(self):
+        if not self.display_pixmap:
+            main_pix = QPixmap(16, 16)
+            painter = QPainter()
+            painter.begin(main_pix)
+            painter.drawPixmap(0, 0, self.tileset_pixmap.copy(TILEWIDTH * 15, 0, TILEWIDTH, TILEHEIGHT))
+            painter.end()
+            self.display_pixmap = main_pix
+        return self.display_pixmap
+
+    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
+        index = self._determine_index(tilemap, pos)
+        new_coords = [(index, k) for k in range(self.limits[index])]
+
+        # So it always uses the same set of coords...
+        new_coords1 = [random_choice([(c[0]*2, c[1]*2) for c in new_coords], pos)]
+        new_coords2 = [random_choice([(c[0]*2 + 1, c[1]*2) for c in new_coords], pos)]
+        new_coords3 = [random_choice([(c[0]*2 + 1, c[1]*2 + 1) for c in new_coords], pos)]
+        new_coords4 = [random_choice([(c[0]*2, c[1]*2 + 1) for c in new_coords], pos)]
+        return new_coords1, new_coords2, new_coords3, new_coords4
+                
 tileset = 'app/map_maker/rainlash_fields1.png'
 
 Plains = RandomTerrain('Plains', 'Plains', tileset, (2, 2))
@@ -573,6 +585,9 @@ Thicket.data = [(17, 22), (18, 22), (19, 22), (17, 23), (18, 23), (19, 23), (18,
 
 Hill = HillTerrain('Hill', 'Hill', tileset, (13, 21))
 
+Cliff_Topleft = CliffTerrain('Cliff_Topleft', 'Cliff', 'app/map_maker/rainlash_fields1_cliff_topleft.png', (15, 0))
+Cliff_Bottomright = CliffTerrain('Cliff_Bottomright', 'Cliff', 'app/map_maker/rainlash_fields1_cliff_bottomright.png', (15, 0))
+
 BridgeH = RandomTerrain('BridgeH', 'Bridge', tileset, (2, 0))
 BridgeH.data = [(2, 0)]
 BridgeV = RandomTerrain('BridgeV', 'Bridge', tileset, (2, 1))
@@ -582,5 +597,5 @@ Castle = CastleTerrain('Castle', 'Castle', tileset, (4, 27))
 House = HouseTerrain('House', 'House', tileset, (4, 25))
 Ruins = RuinsTerrain('Ruins', 'Ruins', tileset, (3, 28))
 
-d = [Plains, Sand, Road, Forest, Thicket, Hill, BridgeH, BridgeV, House, Castle, Ruins]
+d = [Plains, Sand, Road, Forest, Thicket, Cliff_Topleft, Cliff_Bottomright, Hill, BridgeH, BridgeV, House, Castle, Ruins]
 DB_terrain = TerrainCatalog(d)

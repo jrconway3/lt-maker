@@ -21,13 +21,13 @@ class MapPrefab(Prefab):
 
     def set(self, pos: tuple, old_terrain, new_terrain):
         if old_terrain and old_terrain.check_flood_fill:
-            self._update_flood_fill(pos)  # Need to check flood fill both before and after changing terrain
+            self._update_flood_fill(pos, old_terrain.check_flood_fill == 'diagonal')  # Need to check flood fill both before and after changing terrain
         self.terrain_grid[pos] = new_terrain.nid
         self.terrain_grid_to_update.add(pos)
         self._update_adjacent(pos)
         self._update_diagonal(pos)
         if new_terrain.check_flood_fill:
-            self._update_flood_fill(pos)
+            self._update_flood_fill(pos, new_terrain.check_flood_fill == 'diagonal')
 
     def _update_adjacent(self, pos):
         # Now ask to update all the adjacent ones as well
@@ -53,8 +53,8 @@ class MapPrefab(Prefab):
         if self.check_bounds(northwest) and self.get_terrain(northwest):
             self.terrain_grid_to_update.add(northwest)
 
-    def _update_flood_fill(self, pos):
-        blob_positions = map_utils.flood_fill(self, pos)
+    def _update_flood_fill(self, pos, diagonal=False):
+        blob_positions = map_utils.flood_fill(self, pos, diagonal)
         for p in blob_positions:
             self.terrain_grid_to_update.add(p)
 
@@ -63,7 +63,7 @@ class MapPrefab(Prefab):
 
     def erase_terrain(self, pos: tuple, old_terrain):
         if old_terrain and old_terrain.check_flood_fill:
-            self._update_flood_fill(pos)
+            self._update_flood_fill(pos, old_terrain.check_flood_fill == 'diagonal')
         if pos in self.terrain_grid:
             del self.terrain_grid[pos]
 

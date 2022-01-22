@@ -1,4 +1,5 @@
 import random
+import heapq
 
 RANDOM_SEED = 0
 
@@ -25,11 +26,15 @@ def edge_random(pos1: tuple, pos2: tuple, seed: int = None):
     random.seed(seed + pos1[0] * 1024**3 + pos1[1] * 1024**2 + pos2[0] * 1024 + pos2[1])
     return random.random()
 
-def flood_fill(tilemap, pos: tuple) -> set:
+def flood_fill(tilemap, pos: tuple, diagonal: bool = False, match: set = None) -> set:
     blob_positions = set()
     unexplored_stack = []
+    # Get coords like current coord in current_layer
+    if not match:
+        current_tile = tilemap.get_terrain(pos)
+        match = {tilemap.get_terrain(current_tile)}
 
-    def find_similar(starting_pos, terrain_nid):
+    def find_similar(starting_pos: tuple, match: set):
         unexplored_stack.append(starting_pos)
 
         while unexplored_stack:
@@ -40,7 +45,7 @@ def flood_fill(tilemap, pos: tuple) -> set:
             if not tilemap.check_bounds(current_pos):
                 continue
             nid = tilemap.get_terrain(current_pos)
-            if nid != terrain_nid:
+            if nid not in match:
                 continue
 
             blob_positions.add(current_pos)
@@ -48,9 +53,12 @@ def flood_fill(tilemap, pos: tuple) -> set:
             unexplored_stack.append((current_pos[0] - 1, current_pos[1]))
             unexplored_stack.append((current_pos[0], current_pos[1] + 1))
             unexplored_stack.append((current_pos[0], current_pos[1] - 1))
+            if diagonal:
+                unexplored_stack.append((current_pos[0] - 1, current_pos[1] - 1))
+                unexplored_stack.append((current_pos[0] - 1, current_pos[1] + 1))
+                unexplored_stack.append((current_pos[0] + 1, current_pos[1] - 1))
+                unexplored_stack.append((current_pos[0] + 1, current_pos[1] + 1))
 
-    # Get coords like current coord in current_layer
-    current_tile = tilemap.get_terrain(pos)
     # Determine which coords should be flood-filled
-    find_similar(pos, current_tile)
+    find_similar(pos, match)
     return blob_positions

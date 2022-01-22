@@ -290,6 +290,51 @@ class GrassTerrain(RandomTerrain):
         new_coords3 = [(p[0]*2 + 1, p[1]*2 + 1) for p in coord]
         new_coords4 = [(p[0]*2, p[1]*2 + 1) for p in coord]
         return new_coords1, new_coords2, new_coords3, new_coords4
+
+class RiverTerrain(WangEdge2Terrain):
+    terrain_like = ('River', 'Sea', 'BridgeH', 'BridgeV')
+
+    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
+        north, east, south, west = tilemap.get_cardinal_terrain(pos)
+        north_edge = bool(not north or north in self.terrain_like)
+        south_edge = bool(not south or south in self.terrain_like)
+        east_edge = bool(not east or east in self.terrain_like)
+        west_edge = bool(not west or west in self.terrain_like)
+        # Handle true diagonals
+        # Topleft
+        if north_edge and west_edge and not south_edge and not east_edge:
+            new_coords1 = [(2, k) for k in (6, 7)]
+            new_coords2 = [(9, k) for k in range(self.limits[9])]
+            new_coords3 = [(8, k) for k in range(self.limits[8])]
+            new_coords4 = [(9, k) for k in range(self.limits[9])]
+        # Topright
+        elif north_edge and east_edge and not south_edge and not west_edge:
+            new_coords1 = [(3, k) for k in range(self.limits[3])]
+            new_coords2 = [(4, k) for k in (6, 7)]
+            new_coords3 = [(3, k) for k in range(self.limits[3])]
+            new_coords4 = [(1, k) for k in range(self.limits[1])]
+        # Bottomleft
+        elif south_edge and west_edge and not north_edge and not east_edge:
+            new_coords1 = [(12, k) for k in range(self.limits[12])]
+            new_coords2 = [(4, k) for k in range(self.limits[4])]
+            new_coords3 = [(12, k) for k in range(self.limits[12])]
+            new_coords4 = [(1, k) for k in (6, 7)]
+        # Bottomright
+        elif south_edge and east_edge and not north_edge and not west_edge:
+            new_coords1 = [(2, k) for k in range(self.limits[2])]
+            new_coords2 = [(6, k) for k in range(self.limits[6])]
+            new_coords3 = [(8, k) for k in (6, 7)]
+            new_coords4 = [(6, k) for k in range(self.limits[6])]
+        else:
+            index1 = 6 + 1 * north_edge + 8 * west_edge
+            index2 = 12 + 1 * north_edge + 2 * east_edge
+            index3 = 9 + 4 * south_edge + 2 * east_edge
+            index4 = 3 + 4 * south_edge + 8 * west_edge
+            new_coords1 = [(index1, k) for k in range(self.limits[index1])]
+            new_coords2 = [(index2, k) for k in range(self.limits[index2])]
+            new_coords3 = [(index3, k) for k in range(self.limits[index3])]
+            new_coords4 = [(index4, k) for k in range(self.limits[index4])]
+        return new_coords1, new_coords2, new_coords3, new_coords4
                 
 tileset = 'app/map_maker/rainlash_fields1.png'
 
@@ -297,6 +342,8 @@ Plains = GrassTerrain('Plains', 'Plains', tileset, (2, 2))
 
 Road = WangEdge2Terrain('Road', 'Road', 'app/map_maker/rainlash_fields1_road.png')
 Road.terrain_like = ('Sand', 'Road')
+
+River = RiverTerrain('River', 'River', 'app/map_maker/rainlash_fields1_river.png')
 
 Sand = SandTerrain('Sand', 'Sand', 'app/map_maker/rainlash_fields1_sand.png')
 
@@ -313,11 +360,11 @@ Cliff_Bottomright = CliffTerrain('Cliff_Bottomright', 'Cliff', 'app/map_maker/ra
 BridgeH = RandomTerrain('BridgeH', 'Bridge', tileset, (2, 0))
 BridgeH.data = [(2, 0)]
 BridgeV = RandomTerrain('BridgeV', 'Bridge', tileset, (2, 1))
-BridgeH.data = [(2, 1)]
+BridgeV.data = [(2, 1)]
 
 Castle = CastleTerrain('Castle', 'Castle', tileset, (4, 27))
 House = HouseTerrain('House', 'House', tileset, (4, 25))
 Ruins = RuinsTerrain('Ruins', 'Ruins', tileset, (3, 28))
 
-d = [Plains, Sand, Road, Forest, Thicket, Cliff_Topleft, Cliff_Bottomright, Hill, BridgeH, BridgeV, House, Castle, Ruins]
+d = [Plains, Sand, Road, Forest, Thicket, Cliff_Topleft, Cliff_Bottomright, Hill, River, BridgeH, BridgeV, House, Castle, Ruins]
 DB_terrain = TerrainCatalog(d)

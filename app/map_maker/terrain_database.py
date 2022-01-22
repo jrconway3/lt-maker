@@ -409,39 +409,35 @@ class CliffTerrain(WangCorner2Terrain):
         return best_path
 
     def _calc_corners(self, pos: tuple, partners: list) -> tuple:
-        corner_topleft = 0
-        corner_bottomleft = 0
-        corner_topright = 0
-        corner_bottomright = 0
+        corner_topleft = False
+        corner_bottomleft = False
+        corner_topright = False
+        corner_bottomright = False
         for other_pos in partners:
             # Topleft
             if other_pos[0] == pos[0] - 1 and other_pos[1] == pos[1] - 1:
-                corner_topleft += 2
+                corner_topleft = True
             # Topright
             elif other_pos[0] == pos[0] + 1 and other_pos[1] == pos[1] - 1:
-                corner_topright += 2
+                corner_topright = True
             # Bottomleft
             elif other_pos[0] == pos[0] - 1 and other_pos[1] == pos[1] + 1:
-                corner_bottomleft += 2
+                corner_bottomleft = True
             # Bottomright
             elif other_pos[0] == pos[0] + 1 and other_pos[1] == pos[1] + 1:
-                corner_bottomright += 2
+                corner_bottomright = True
             # Top
             elif other_pos[0] == pos[0] and other_pos[1] == pos[1] - 1:
-                corner_topleft += 1
-                corner_topright += 1
+                corner_topleft = True
             # Bottom
             elif other_pos[0] == pos[0] and other_pos[1] == pos[1] + 1:
-                corner_bottomleft += 1
-                corner_bottomright += 1
+                corner_bottomleft = True
             # Left
             elif other_pos[0] == pos[0] - 1 and other_pos[1] == pos[1]:
-                corner_topleft += 1
-                corner_bottomleft += 1
+                corner_topleft = True
             # Right
             elif other_pos[0] == pos[0] + 1 and other_pos[1] == pos[1]:
-                corner_topright += 1
-                corner_bottomright += 1
+                corner_topright = True
         return corner_topright, corner_bottomright, corner_bottomleft, corner_topleft
 
     def _chain_end_process(self, pos: tuple, other_pos: tuple) -> tuple:
@@ -451,27 +447,18 @@ class CliffTerrain(WangCorner2Terrain):
         corner_topleft = False
         corner_bottomleft = False
         corner_bottomright = False
-        if topright >= 2:
+        if topright:
             corner_topright = True
-            corner_topleft = True
             corner_bottomleft = True
-        elif bottomright >= 2:
+        elif bottomright:
             corner_bottomright = True
-            corner_topright = True
             corner_topleft = True
-        elif topleft >= 2:
-            corner_topright = True
+        elif topleft:
             corner_topleft = True
             corner_bottomright = True
-        elif bottomleft >= 2:
+        elif bottomleft:
             corner_bottomleft = True
             corner_topright = True
-            corner_topleft = True
-        else:
-            corner_topright = bool(topright)
-            corner_topleft = bool(topleft)
-            corner_bottomright = bool(bottomright)
-            corner_bottomleft = bool(bottomleft)
 
         return corner_topright, corner_bottomright, corner_bottomleft, corner_topleft
 
@@ -507,21 +494,8 @@ class CliffTerrain(WangCorner2Terrain):
                 next_pos = longest_path[idx + 1]
                 topright, bottomright, bottomleft, topleft = \
                     self._calc_corners(pos, [prev_pos, next_pos])
-                corner_topleft = topleft >= 2
-                corner_topright = topright >= 2
-                corner_bottomleft = bottomleft >= 2
-                corner_bottomright = bottomright >= 2
-                # if corner_topleft and corner_bottomright:
-                #     corner_topright = True
-                # elif corner_topright and corner_bottomleft:
-                #     corner_topleft = True
-                if sum([corner_topleft, corner_topright, corner_bottomleft, corner_bottomright]) < 2:
-                    corner_topleft = topleft >= 1
-                    corner_topright = topright >= 1
-                    corner_bottomleft = bottomleft >= 1
-                    corner_bottomright = bottomright >= 1
                 
-                self.organization[pos] = (corner_topright, corner_bottomright, corner_bottomleft, corner_topleft)
+                self.organization[pos] = (topright, bottomright, bottomleft, topleft)
             # For first and last path
             if len(longest_path) > 1:
                 self.organization[longest_path[0]] = self._chain_end_process(longest_path[0], longest_path[1])

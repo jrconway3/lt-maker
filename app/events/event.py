@@ -328,16 +328,18 @@ class Event():
             if 'no_warn' in command.flags:
                 show_warning = False
             iterator_nid = command.values[0]
-            arg_list_str = command.values[1]
+            cond = command.values[1]
+            cond = self._evaluate_vars(cond)
+            cond = self._evaluate_evals(cond)
             try:
-                arg_list = evaluate.evaluate(arg_list_str, self.unit, self.unit2, self.item, self.position, self.region)
+                arg_list = evaluate.evaluate(cond, self.unit, self.unit2, self.item, self.position, self.region)
                 arg_list = [str(arg) for arg in arg_list]
             except Exception as e:
-                self.logger.error("%s: Could not evaluate {%s}" % (e, arg_list_str))
+                self.logger.error("%s: Could not evaluate {%s}" % (e, cond))
                 return False
             if not arg_list:
                 if show_warning:
-                    self.logger.warning("Arg list is empty for: %s" % (arg_list_str))
+                    self.logger.warning("Arg list is empty for: %s" % (cond))
 
             # template and paste all commands inside the for loop
             # to find the correct endf, we'll need to make sure that
@@ -355,7 +357,7 @@ class Event():
                 looped_commands.append(curr_command)
                 curr_idx += 1
                 if curr_idx > len(self.commands):
-                    self.logger.error("%s: could not find end command for loop %s" % ('handle_conditional', arg_list_str))
+                    self.logger.error("%s: could not find end command for loop %s" % ('handle_conditional', cond))
                     return False
                 curr_command = self.commands[curr_idx]
 
@@ -2630,7 +2632,7 @@ class Event():
         if (not item_id in inids) and (not str_utils.is_int(item_id) or not int(item_id) in iuids):
             self.logger.error("Couldn't find item with id %s" % values[1])
             return None, None
-        item = [item for item in unit.items if (item.nid == item_id or item.uid == int(item_id))][0]
+        item = [item for item in unit.items if (item.nid == item_id or (str_utils.is_int(item_id) and item.uid == int(item_id)))][0]
         return unit, item
 
     def remove_item(self, command):

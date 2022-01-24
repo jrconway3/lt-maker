@@ -2,6 +2,9 @@ import random
 
 RANDOM_SEED = 0
 
+def get_random_seed() -> int:
+    return RANDOM_SEED
+
 def random_choice(choices: list, pos: tuple, seed: int = None, offset: int = 0):
     if seed is None:
         seed = RANDOM_SEED

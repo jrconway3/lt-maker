@@ -81,4 +81,3 @@ class WangCorner2Terrain(WangEdge2Terrain):
             4 * (bool(not southwest or southwest in self.terrain_like) and south_edge and west_edge) + \
             8 * west_edge
         return index1, index2, index3, index4
-

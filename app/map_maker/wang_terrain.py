@@ -34,7 +34,7 @@ class WangEdge2Terrain(Terrain):
             self.display_pixmap = main_pix
         return self.display_pixmap
 
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
+    def _determine_index(self, tilemap, pos: tuple) -> tuple:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
         north_edge = bool(not north or north in self.terrain_like)
         south_edge = bool(not south or south in self.terrain_like)
@@ -44,6 +44,10 @@ class WangEdge2Terrain(Terrain):
         index2 = 12 + 1 * north_edge + 2 * east_edge
         index3 = 9 + 4 * south_edge + 2 * east_edge
         index4 = 3 + 4 * south_edge + 8 * west_edge
+        return index1, index2, index3, index4
+
+    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
+        index1, index2, index3, index4 = self._determine_index(tilemap, pos)        
         new_coords1 = [(index1, k) for k in range(self.limits[index1])]
         new_coords2 = [(index2, k) for k in range(self.limits[index2])]
         new_coords3 = [(index3, k) for k in range(self.limits[index3])]
@@ -78,10 +82,3 @@ class WangCorner2Terrain(WangEdge2Terrain):
             8 * west_edge
         return index1, index2, index3, index4
 
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
-        index1, index2, index3, index4 = self._determine_index(tilemap, pos)
-        new_coords1 = [(index1, k) for k in range(self.limits[index1])]
-        new_coords2 = [(index2, k) for k in range(self.limits[index2])]
-        new_coords3 = [(index3, k) for k in range(self.limits[index3])]
-        new_coords4 = [(index4, k) for k in range(self.limits[index4])]
-        return new_coords1, new_coords2, new_coords3, new_coords4

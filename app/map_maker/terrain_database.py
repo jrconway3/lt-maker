@@ -4,6 +4,7 @@ from app.map_maker.terrain import Terrain, TerrainCatalog
 from app.map_maker.wang_terrain import WangCorner2Terrain, WangEdge2Terrain
 from app.map_maker.building_terrain import CastleTerrain, HouseTerrain, RuinsTerrain
 from app.map_maker.cliff_terrain import CliffTerrain
+from app.map_maker.sea_terrain import SeaTerrain
 
 class RandomTerrain(Terrain):
     data = []
@@ -16,7 +17,7 @@ class RandomTerrain(Terrain):
         return new_coords1, new_coords2, new_coords3, new_coords4
 
 class SandTerrain(WangCorner2Terrain):
-    terrain_like = ('Sand', 'Road')
+    terrain_like = ('Sand', 'Road', 'Sea')
     corner_chance = 0.6
     edge_chance = 0.4
     vertices: dict = {}
@@ -282,6 +283,15 @@ class GrassTerrain(RandomTerrain):
             coord = [self.cliff_data[1]]
         elif south and south.startswith('Cliff') and west and west.startswith('Cliff') and not (southwest and southwest.startswith('Cliff')):
             coord = [self.cliff_data[2]]
+        # Handle seacliffs
+        elif north and north == 'Sea' and east and east == 'Sea' and northeast and northeast == 'Sea':
+            coord = [self.cliff_data[0]]
+        elif north and north == 'Sea' and west and west == 'Sea' and northwest and northwest == 'Sea':
+            coord = [self.cliff_data[3]]
+        elif south and south == 'Sea' and east and east == 'Sea' and southeast and southeast == 'Sea':
+            coord = [self.cliff_data[1]]
+        elif south and south == 'Sea' and west and west == 'Sea' and southwest and southwest == 'Sea':
+            coord = [self.cliff_data[2]]
         else:
             coord = self.data
 
@@ -357,6 +367,9 @@ Hill = HillTerrain('Hill', 'Hill', tileset, (13, 21))
 Cliff_Topleft = CliffTerrain('Cliff_Topleft', 'Cliff', 'app/map_maker/rainlash_fields1_cliff_topleft.png', (15, 0))
 Cliff_Bottomright = CliffTerrain('Cliff_Bottomright', 'Cliff', 'app/map_maker/rainlash_fields1_cliff_bottomright.png', (15, 0))
 
+Sea = SeaTerrain('Sea', 'Sea', 'app/map_maker/rainlash_fields1_sea_cliff.png', (15, 0))
+Sea.set_sand_tileset('app/map_maker/rainlash_fields1_sea_sand.png')
+
 BridgeH = RandomTerrain('BridgeH', 'Bridge', tileset, (2, 0))
 BridgeH.data = [(2, 0)]
 BridgeV = RandomTerrain('BridgeV', 'Bridge', tileset, (2, 1))
@@ -366,5 +379,5 @@ Castle = CastleTerrain('Castle', 'Castle', tileset, (4, 27))
 House = HouseTerrain('House', 'House', tileset, (4, 25))
 Ruins = RuinsTerrain('Ruins', 'Ruins', tileset, (3, 28))
 
-d = [Plains, Sand, Road, Forest, Thicket, Cliff_Topleft, Cliff_Bottomright, Hill, River, BridgeH, BridgeV, House, Castle, Ruins]
+d = [Plains, Sand, Road, Forest, Thicket, Cliff_Topleft, Cliff_Bottomright, Hill, River, Sea, BridgeH, BridgeV, House, Castle, Ruins]
 DB_terrain = TerrainCatalog(d)

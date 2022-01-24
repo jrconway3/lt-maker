@@ -310,31 +310,55 @@ class RiverTerrain(WangEdge2Terrain):
         south_edge = bool(not south or south in self.terrain_like)
         east_edge = bool(not east or east in self.terrain_like)
         west_edge = bool(not west or west in self.terrain_like)
+        if random_choice([1, 2], pos) == 1:
+            use_top = True
+        else:
+            use_top = False
         # Handle true diagonals
         # Topleft
         if north_edge and west_edge and not south_edge and not east_edge:
+            if use_top:
+                new_coords2 = [(9, 0)]
+                new_coords4 = [(9, 1)]
+                new_coords3 = [(8, 0)]
+            else:
+                new_coords2 = [(9, 2)]
+                new_coords4 = [(9, 3)]
+                new_coords3 = [(8, 1)]
             new_coords1 = [(2, k) for k in (6, 7)]
-            new_coords2 = [(9, k) for k in range(self.limits[9])]
-            new_coords3 = [(8, k) for k in range(self.limits[8])]
-            new_coords4 = [(9, k) for k in range(self.limits[9])]
         # Topright
         elif north_edge and east_edge and not south_edge and not west_edge:
-            new_coords1 = [(3, k) for k in range(self.limits[3])]
+            if use_top:
+                new_coords1 = [(3, 0)]
+                new_coords3 = [(3, 1)]
+                new_coords4 = [(1, 0)]
+            else:
+                new_coords1 = [(3, 2)]
+                new_coords3 = [(3, 3)]
+                new_coords4 = [(1, 1)]
             new_coords2 = [(4, k) for k in (6, 7)]
-            new_coords3 = [(3, k) for k in range(self.limits[3])]
-            new_coords4 = [(1, k) for k in range(self.limits[1])]
         # Bottomleft
         elif south_edge and west_edge and not north_edge and not east_edge:
-            new_coords1 = [(12, k) for k in range(self.limits[12])]
-            new_coords2 = [(4, k) for k in range(self.limits[4])]
-            new_coords3 = [(12, k) for k in range(self.limits[12])]
+            if use_top:
+                new_coords1 = [(12, 0)]
+                new_coords3 = [(12, 1)]
+                new_coords2 = [(4, 0)]
+            else:
+                new_coords1 = [(12, 2)]
+                new_coords3 = [(12, 3)]
+                new_coords2 = [(4, 1)]
             new_coords4 = [(1, k) for k in (6, 7)]
         # Bottomright
         elif south_edge and east_edge and not north_edge and not west_edge:
-            new_coords1 = [(2, k) for k in range(self.limits[2])]
-            new_coords2 = [(6, k) for k in range(self.limits[6])]
+            if use_top:
+                new_coords2 = [(6, 0)]
+                new_coords4 = [(6, 1)]
+                new_coords1 = [(2, 0)]
+            else:
+                new_coords2 = [(6, 2)]
+                new_coords4 = [(6, 3)]
+                new_coords1 = [(2, 1)]
             new_coords3 = [(8, k) for k in (6, 7)]
-            new_coords4 = [(6, k) for k in range(self.limits[6])]
         else:
             index1 = 6 + 1 * north_edge + 8 * west_edge
             index2 = 12 + 1 * north_edge + 2 * east_edge
@@ -344,6 +368,16 @@ class RiverTerrain(WangEdge2Terrain):
             new_coords2 = [(index2, k) for k in range(self.limits[index2])]
             new_coords3 = [(index3, k) for k in range(self.limits[index3])]
             new_coords4 = [(index4, k) for k in range(self.limits[index4])]
+            # Handle using the same set for vertical edges
+            if index1 == 7:
+                new_coords1 = [(index1, k*2) for k in range(self.limits[index1]//2)]
+            if index4 == 7:
+                new_coords4 = [(index4, k*2 + 1) for k in range(self.limits[index4]//2)]
+            if index2 == 13:
+                new_coords2 = [(index2, k*2) for k in range(self.limits[index2]//2)]
+            if index3 == 13:
+                new_coords3 = [(index3, k*2 + 1) for k in range(self.limits[index3]//2)]
+
         return new_coords1, new_coords2, new_coords3, new_coords4
                 
 tileset = 'app/map_maker/rainlash_fields1.png'

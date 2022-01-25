@@ -17,7 +17,7 @@ class RandomTerrain(Terrain):
         return new_coords1, new_coords2, new_coords3, new_coords4
 
 class SandTerrain(WangCorner2Terrain):
-    terrain_like = ('Sand', 'Road', 'Sea')
+    terrain_like = ('Sand', 'Road', 'Sea', 'BridgeV', 'BridgeH')
     corner_chance = 0.6
     edge_chance = 0.4
     vertices: dict = {}
@@ -359,6 +359,12 @@ class RiverTerrain(WangEdge2Terrain):
                 new_coords4 = [(6, 3)]
                 new_coords1 = [(2, 1)]
             new_coords3 = [(8, k) for k in (6, 7)]
+        # Waterfall -- TODO check the chirality of the cliff
+        elif south_edge and north_edge and west and west.startswith('Cliff') and east and east.startswith('Cliff'):
+            new_coords1 = [(0, 8)]
+            new_coords2 = [(1, 8)]
+            new_coords3 = [(1, 9)]
+            new_coords4 = [(0, 9)]
         else:
             index1 = 6 + 1 * north_edge + 8 * west_edge
             index2 = 12 + 1 * north_edge + 2 * east_edge
@@ -385,7 +391,7 @@ tileset = 'app/map_maker/rainlash_fields1.png'
 Plains = GrassTerrain('Plains', 'Plains', tileset, (2, 2))
 
 Road = WangEdge2Terrain('Road', 'Road', 'app/map_maker/rainlash_fields1_road.png')
-Road.terrain_like = ('Sand', 'Road')
+Road.terrain_like = ('Sand', 'Road', 'BridgeH', 'BridgeV')
 
 River = RiverTerrain('River', 'River', 'app/map_maker/rainlash_fields1_river.png')
 
@@ -401,8 +407,7 @@ Hill = HillTerrain('Hill', 'Hill', tileset, (13, 21))
 Cliff_Topleft = CliffTerrain('Cliff_Topleft', 'Cliff', 'app/map_maker/rainlash_fields1_cliff_topleft.png', (15, 0))
 Cliff_Bottomright = CliffTerrain('Cliff_Bottomright', 'Cliff', 'app/map_maker/rainlash_fields1_cliff_bottomright.png', (15, 0))
 
-Sea = SeaTerrain('Sea', 'Sea', 'app/map_maker/rainlash_fields1_sea_cliff.png', (15, 0))
-Sea.set_sand_tileset('app/map_maker/rainlash_fields1_sea_sand.png')
+Sea = SeaTerrain('Sea', 'Sea', 'app/map_maker/rainlash_fields1_sea.png', (15, 0))
 
 BridgeH = RandomTerrain('BridgeH', 'Bridge', tileset, (2, 0))
 BridgeH.data = [(2, 0)]

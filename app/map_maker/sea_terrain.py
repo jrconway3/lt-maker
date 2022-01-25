@@ -1,22 +1,25 @@
 from PyQt5.QtGui import QPixmap, QPainter, qRgb
 
 from app.constants import TILEWIDTH, TILEHEIGHT
-from app.map_maker.utilities import random_choice, edge_random, get_random_seed
+from app.map_maker.utilities import random_choice, random_random, edge_random, get_random_seed
 from app.map_maker.wang_terrain import WangEdge2Terrain
 from app.utilities import utils
 
 class SeaTerrain(WangEdge2Terrain):
     terrain_like = ('Sea', 'River', 'BridgeH', 'BridgeV')
-    sand_tileset_path = None
-    sand_tileset_pixmap = None
     serration_chance = 0.6
-
-    def set_sand_tileset(self, tileset_path):
-        self.sand_tileset_path = tileset_path
+    sand_start_px = 144
+    sand_limits = {}
 
     @property
     def check_flood_fill(self):
         return True
+
+    def set_tileset(self, tileset_path=None):
+        super().set_tileset(tileset_path)
+        self.limits = {k: self._find_limit(k) for k in range(16)}
+        self.sand_limits = {k: self._find_sand_limit(k) for k in range(16)}
+        print(self.nid, self.limits, self.sand_limits)
 
     def _find_limit(self, idx: int) -> int:
         bg_color = qRgb(0, 0, 0)
@@ -28,6 +31,16 @@ class SeaTerrain(WangEdge2Terrain):
                 return y // TILEHEIGHT
         return (img.height() // TILEHEIGHT)
 
+    def _find_sand_limit(self, idx: int) -> int:
+        bg_color = qRgb(0, 0, 0)
+        img = self.tileset_pixmap.toImage()
+        x = idx * TILEWIDTH
+        for y in range(self.sand_start_px, img.height(), TILEHEIGHT):
+            current_color = img.pixel(x, y)
+            if current_color == bg_color:
+                return (y - self.sand_start_px) // TILEHEIGHT
+        return (img.height() // TILEHEIGHT)
+
     def get_display_pixmap(self):
         if not self.display_pixmap:
             main_pix = QPixmap(16, 16)
@@ -36,7 +49,6 @@ class SeaTerrain(WangEdge2Terrain):
             painter.drawPixmap(0, 0, self.tileset_pixmap.copy(TILEWIDTH * 15, 0, TILEWIDTH, TILEHEIGHT))
             painter.end()
             self.display_pixmap = main_pix
-            self.sand_tileset_pixmap = QPixmap(self.sand_tileset_path)
         return self.display_pixmap
 
     def _determine_index(self, tilemap, pos: tuple) -> int:
@@ -47,6 +59,10 @@ class SeaTerrain(WangEdge2Terrain):
         west_edge = bool(not west or west in self.terrain_like)
         index = 1 * north_edge + 2 * east_edge + 4 * south_edge + 8 * west_edge
         return index
+
+    def _near_sand(self, tilemap, pos: tuple) -> bool:
+        north, east, south, west = tilemap.get_cardinal_terrain(pos)
+        return any(x == 'Sand' for x in tilemap.get_cardinal_terrain(pos))
 
     def _modify_index(self, index: int, tilemap, pos: tuple) -> int:
         # For randomly serrating the straight edges of the sea
@@ -91,11 +107,18 @@ class SeaTerrain(WangEdge2Terrain):
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
         index = self._determine_index(tilemap, pos)
         index = self._modify_index(index, tilemap, pos)
-        if index == 15 and self._distance_to_closest(tilemap, pos) > 2:  # Open Sea
-            # Measure distance to closest non sea, bridge terrain
-            new_coords = [(0, k) for k in range(2, 9)]
+        if index == 15:
+            dist = self._distance_to_closest(tilemap, pos)
+            if dist > (2 + 2*random_random(pos)): # Open Sea (adds random number between 0 and 1 for rng)
+                # Measure distance to closest non sea, bridge terrain
+                new_coords = [(0, k) for k in range(2, 9)]
+            else:
+                new_coords = [(index, k) for k in range(self.limits[index])]
         else:
-            new_coords = [(index, k) for k in range(self.limits[index])]
+            if self._near_sand(tilemap, pos):
+                new_coords = [(index, k + self.sand_start_px//TILEHEIGHT) for k in range(self.sand_limits[index])]
+            else:
+                new_coords = [(index, k) for k in range(self.limits[index])]
 
         # So it always uses the same set of coords...
         new_coords1 = [random_choice([(c[0]*2, c[1]*2) for c in new_coords], pos)]

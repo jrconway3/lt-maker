@@ -1,8 +1,9 @@
+import os
 from dataclasses import dataclass
 
 from PyQt5.QtGui import QPixmap
 
-from app.constants import TILEWIDTH, TILEHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT, AUTOTILE_FRAMES
 from app.utilities.data import Data, Prefab
 
 @dataclass
@@ -16,6 +17,9 @@ class Terrain(Prefab):
     display_pixmap: QPixmap = None
     tileset_pixmap: QPixmap = None
 
+    autotiles: dict = None
+    autotile_pixmap: QPixmap = None
+
     @property
     def check_flood_fill(self):
         return False
@@ -24,6 +28,9 @@ class Terrain(Prefab):
         if tileset_path:
             self.tileset_path = tileset_path
         self.tileset_pixmap = QPixmap(self.tileset_path)
+        autotile_path = self.tileset_path[:-4] + '_autotiles.png'
+        if os.path.exists(autotile_path):
+            self.autotile_pixmap = QPixmap(autotile_path)
         self.display_pixmap = None
         self.get_display_pixmap()
 
@@ -52,6 +59,22 @@ class Terrain(Prefab):
 
     def single_process(self, tilemap):
         pass
+
+    def get_pixmap(self, tile_coord: tuple, ms: float = 0, autotile_fps: float = 29) -> QPixmap:
+        if autotile_fps and self.autotile_pixmap and self.autotiles and tile_coord in self.autotiles:
+            column = self.autotiles[tile_coord]
+            autotile_wait = autotile_fps * 16.66
+            num = int(ms / autotile_wait) % AUTOTILE_FRAMES
+            pix = self.autotile_pixmap.copy(
+                column * TILEWIDTH//2, 
+                num * TILEHEIGHT//2, 
+                TILEWIDTH//2, TILEHEIGHT//2)
+        else:
+            pix = self.tileset_pixmap.copy(
+                tile_coord[0] * TILEWIDTH//2,
+                tile_coord[1] * TILEHEIGHT//2,
+                TILEWIDTH//2, TILEHEIGHT//2)
+        return pix
 
 class TerrainCatalog(Data[Terrain]):
     datatype = Terrain

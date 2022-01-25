@@ -42,10 +42,7 @@ def draw_tilemap(tilemap: MapPrefab, autotile_fps=29) -> QImage:
         if not terrain_nid:
             continue
         terrain = DB_terrain.get(terrain_nid)
-        pix = terrain.tileset_pixmap.copy(
-            tile_coord[0] * TILEWIDTH//2,
-            tile_coord[1] * TILEHEIGHT//2,
-            TILEWIDTH//2, TILEHEIGHT//2)
+        pix = terrain.get_pixmap(tile_coord, ms, autotile_fps)
         assert pix.width() == TILEWIDTH//2, pix.width()
         assert pix.height() == TILEHEIGHT//2, pix.height()
         painter.drawPixmap(pos[0] * TILEWIDTH//2,

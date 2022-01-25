@@ -11,12 +11,27 @@ from app.constants import TILEWIDTH, TILEHEIGHT, AUTOTILE_FRAMES
 
 def similar(p1, p2):
     def similar(p1, p2):
+        """
+        Attempts to compare the pattern of the tiles, not the actual values themselves
+        """
+        mapping = {}
+        count = 0
+        for i, j in zip(p1, p2):
+            if i == j:
+                pass
+            elif i in mapping and j != mapping[i]:
+                count += 1
+            else:
+                mapping[i] = j
+        return count
+
+    def similar_bad(p1, p2):
         return sum(i != j for i, j in zip(p1, p2))
 
-    def similar_fast(p1, p2):
+    def similar_bad_fast(p1, p2):
         return 0 if p1 == p2 else TILEWIDTH * TILEHEIGHT
 
-    return similar_fast(p1, p2)
+    return similar(p1, p2)
 
 class Series(list):
     def is_present(self, test) -> bool:
@@ -42,8 +57,10 @@ class PaletteData():
             # So palette is a unique string of ints
 
 class AutotileMaker():
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, width=TILEWIDTH, height=TILEHEIGHT):
         self.window = parent
+        self.tilewidth = width
+        self.tileheight = height
 
         self.map_tiles = OrderedDict()
         self.books = []
@@ -118,6 +135,7 @@ class AutotileMaker():
         # A book contains a dictionary
         # Key: position
         # Value: Series
+        self.num_tiles_x_list = []
         for idx, template in enumerate(self.autotile_templates):
             if self.progress_dialog.wasCanceled():
                 return False
@@ -125,8 +143,10 @@ class AutotileMaker():
             image = QImage(template)
             width = image.width() // AUTOTILE_FRAMES
             height = image.height()
-            num_tiles_x = width // TILEWIDTH
-            num_tiles_y = height // TILEHEIGHT
+            num_tiles_x = width // self.tilewidth
+            num_tiles_y = height // self.tileheight
+            self.num_tiles_x_list.append(num_tiles_x)
+            print(num_tiles_x, num_tiles_y)
             num = num_tiles_x * num_tiles_y
             minitiles = [Series() for _ in range(num)]
 
@@ -136,7 +156,7 @@ class AutotileMaker():
                 x_offset = frame * width
                 for x in range(num_tiles_x):
                     for y in range(num_tiles_y):
-                        rect = (x_offset + x * TILEWIDTH, y * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
+                        rect = (x_offset + x * self.tilewidth, y * self.tileheight, self.tilewidth, self.tileheight)
                         palette = image.copy(*rect)  # crop
                         d = PaletteData(palette)
                         minitiles[x + y * num_tiles_x].append(d)
@@ -157,7 +177,7 @@ class AutotileMaker():
 
         for x in range(self.tileset.width):
             for y in range(self.tileset.height):
-                rect = (x * TILEWIDTH, y * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
+                rect = (x * self.tilewidth, y * self.tileheight, self.tilewidth, self.tileheight)
                 tile = self.tileset_image.copy(*rect)  # Crop
                 tile_palette = PaletteData(tile)
                 self.map_tiles[(x, y)] = tile_palette
@@ -170,10 +190,11 @@ class AutotileMaker():
         if len(tile_palette.uniques) < 2:
             return
 
+        print("Attempting to find match for position (%d, %d)..." % (pos[0], pos[1]))
         closest_series = None
         closest_frame = None
         closest_book = None
-        min_sim = 16
+        min_sim = 4
 
         for book_idx, book in enumerate(self.books):
             for series_idx, series in enumerate(book):
@@ -184,7 +205,11 @@ class AutotileMaker():
                         closest_series = series
                         closest_frame = frame
                         closest_book = book
-                        print("Similarity met for ", pos, book_idx, series_idx, frame_idx)
+                        num_tiles_x = self.num_tiles_x_list[book_idx]
+                        pos_x = series_idx%num_tiles_x
+                        pos_y = series_idx//num_tiles_x
+                        print("Similarity met for position %s using template: %s at template pos (%d, %d), frame %d" % 
+                              (pos, self.autotile_templates[book_idx], pos_x, pos_y, frame_idx))
 
         if closest_series:
             if closest_series in self.recognized_series:
@@ -198,6 +223,8 @@ class AutotileMaker():
                     self.color_change(tile_palette, closest_frame, closest_series, closest_book)
             print("Final column idx", column_idx)
             self.autotile_column_idxs[(x, y)] = (column_idx, closest_frame, closest_series, closest_book)
+        else:
+            print("No match.")
 
     def color_change(self, tile, closest_frame, closest_series, closest_book):
         # Converts color from closest frame to tile
@@ -224,26 +251,26 @@ class AutotileMaker():
                             print("%s has become %s" % (color, new_color))
                             return
 
-        for palette_data in closest_series:
-            for idx, color in enumerate(palette_data.colors):
-                if color not in truecolor:
-                    print("Missing color: %s" % str(color))
-                    fix_missing_color(color)
+        # for palette_data in closest_series:
+        #     for idx, color in enumerate(palette_data.colors):
+        #         if color not in truecolor:
+        #             print("Missing color: %s" % str(color))
+        #             fix_missing_color(color)
 
         for palette_data in closest_series:
             new_im = editor_utilities.color_convert(palette_data.im.copy(), color_conversion)
             palette_data.new_im = new_im
 
     def create_final_image(self):
-        width = len(self.recognized_series) * TILEWIDTH
-        height = AUTOTILE_FRAMES * TILEHEIGHT
+        width = len(self.recognized_series) * self.tilewidth
+        height = AUTOTILE_FRAMES * self.tileheight
         new_im = QImage(width, height, QImage.Format_ARGB32)
         new_im.fill(QColor(255, 255, 255, 0))
 
         painter = QPainter(new_im)
         for i, series in enumerate(self.recognized_series):
             for j, palette_data in enumerate(series):
-                x, y = i * TILEWIDTH, j * TILEHEIGHT
+                x, y = i * self.tilewidth, j * self.tileheight
                 # Paste image
                 if palette_data.new_im:
                     painter.drawImage(x, y, palette_data.new_im)
@@ -254,8 +281,39 @@ class AutotileMaker():
         self.companion_autotile_im = new_im
 
 AUTOTILEMAKER = None
-def get_maker():
+def get_maker(width=TILEWIDTH, height=TILEHEIGHT):
     global AUTOTILEMAKER
     if not AUTOTILEMAKER:
-        AUTOTILEMAKER = AutotileMaker()
+        AUTOTILEMAKER = AutotileMaker(width=width, height=height)
     return AUTOTILEMAKER
+
+if __name__ == '__main__':
+    import os
+    from PyQt5.QtGui import QPixmap
+
+    import sys
+    from PyQt5.QtWidgets import QApplication
+    app = QApplication(sys.argv)
+
+    maker = get_maker(width=TILEWIDTH//2, height=TILEHEIGHT//2)
+
+    class FakeTileset():
+        def __init__(self, img_path):
+            self.full_path = img_path
+            self.pixmap = QPixmap(img_path)
+            self.width = self.pixmap.width() // (TILEWIDTH//2)
+            self.height = self.pixmap.height() // (TILEHEIGHT//2)
+
+    tileset = FakeTileset('app/map_maker/rainlash_fields1_river.png')
+    companion_tileset, column_idxs = maker.run(tileset, True)
+    print("Column Idxs")
+    print(column_idxs)
+    full_path = tileset.full_path
+    new_full_path = full_path[:-4] + '_autotiles.png'
+    fn = os.path.abspath(new_full_path)
+    companion_tileset.save(fn)
+    tileset.autotiles = column_idxs
+    tileset.autotile_full_path = fn
+    pix = QPixmap(companion_tileset)
+    tileset.autotile_pixmap = pix
+    print("Done!")

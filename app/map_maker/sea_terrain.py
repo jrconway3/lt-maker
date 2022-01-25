@@ -19,7 +19,7 @@ class SeaTerrain(WangEdge2Terrain):
         super().set_tileset(tileset_path)
         self.limits = {k: self._find_limit(k) for k in range(16)}
         self.sand_limits = {k: self._find_sand_limit(k) for k in range(16)}
-        print(self.nid, self.limits, self.sand_limits)
+        print(self.sand_limits)
 
     def _find_limit(self, idx: int) -> int:
         bg_color = qRgb(0, 0, 0)

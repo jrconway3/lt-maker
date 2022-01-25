@@ -321,44 +321,48 @@ class RiverTerrain(WangEdge2Terrain):
                 new_coords2 = [(9, 0)]
                 new_coords4 = [(9, 1)]
                 new_coords3 = [(8, 0)]
+                new_coords1 = [(2, 6)]
             else:
                 new_coords2 = [(9, 2)]
                 new_coords4 = [(9, 3)]
                 new_coords3 = [(8, 1)]
-            new_coords1 = [(2, k) for k in (6, 7)]
+                new_coords1 = [(2, 7)]
         # Topright
         elif north_edge and east_edge and not south_edge and not west_edge:
             if use_top:
                 new_coords1 = [(3, 0)]
                 new_coords3 = [(3, 1)]
                 new_coords4 = [(1, 0)]
+                new_coords2 = [(4, 6)]
             else:
                 new_coords1 = [(3, 2)]
                 new_coords3 = [(3, 3)]
                 new_coords4 = [(1, 1)]
-            new_coords2 = [(4, k) for k in (6, 7)]
+                new_coords2 = [(4, 7)]
         # Bottomleft
         elif south_edge and west_edge and not north_edge and not east_edge:
             if use_top:
                 new_coords1 = [(12, 0)]
                 new_coords3 = [(12, 1)]
                 new_coords2 = [(4, 0)]
+                new_coords4 = [(1, 6)]
             else:
                 new_coords1 = [(12, 2)]
                 new_coords3 = [(12, 3)]
                 new_coords2 = [(4, 1)]
-            new_coords4 = [(1, k) for k in (6, 7)]
+                new_coords4 = [(1, 7)]
         # Bottomright
         elif south_edge and east_edge and not north_edge and not west_edge:
             if use_top:
                 new_coords2 = [(6, 0)]
                 new_coords4 = [(6, 1)]
                 new_coords1 = [(2, 0)]
+                new_coords3 = [(8, 6)]
             else:
                 new_coords2 = [(6, 2)]
                 new_coords4 = [(6, 3)]
                 new_coords1 = [(2, 1)]
-            new_coords3 = [(8, k) for k in (6, 7)]
+                new_coords3 = [(8, 7)]
         # Waterfall -- TODO check the chirality of the cliff
         elif south_edge and north_edge and west and west.startswith('Cliff') and east and east.startswith('Cliff'):
             new_coords1 = [(0, 8)]
@@ -394,6 +398,11 @@ Road = WangEdge2Terrain('Road', 'Road', 'app/map_maker/rainlash_fields1_road.png
 Road.terrain_like = ('Sand', 'Road', 'BridgeH', 'BridgeV')
 
 River = RiverTerrain('River', 'River', 'app/map_maker/rainlash_fields1_river.png')
+River.autotiles = \
+    {(0, 0): 0, (0, 1): 1, (0, 2): 2, (0, 8): 3, (0, 9): 4, (1, 0): 5, (1, 1): 6, (1, 6): 7, (1, 7): 8, (1, 8): 9, (1, 9): 10, (2, 0): 11, (2, 1): 12, (2, 6): 13, (2, 7): 14, (2, 8): 15, (2, 9): 16, (3, 0): 17, (3, 1): 18, (3, 2): 19, (3, 3): 20, (3, 8): 21, (3, 9): 22, (4, 0): 23, (4, 1): 24, (4, 6): 25, (4, 7): 26, (4, 8): 27, (4, 9): 28, (5, 8): 29, (5, 9): 30, (6, 0): 31, (6, 1): 32, (6, 2): 33, (6, 3): 34, (7, 0): 35, (7, 3): 36, (7, 4): 20, (7, 5): 33, (7, 6): 37, (7, 7): 38, (7, 8): 39, (7, 9): 40, (8, 0): 0, (8, 1): 41, (8, 6): 42, (8, 7): 43, (9, 0): 44, (9, 1): 45, (9, 2): 46, (9, 3): 47, (11, 1): 48, (11, 2): 49, (12, 0): 50, (12, 1): 51, (12, 2): 52, (12, 3): 53, (13, 6): 54, (13, 7): 55, (13, 8): 56, (14, 0): 57, (14, 1): 58, (14, 3): 59, (15, 0): 60, (15, 1): 60, (15, 2): 61, (15, 3): 61, (15, 4): 62, (15, 5): 62, (15, 6): 63, (15, 7): 63, (15, 8): 64, (15, 9): 64}
+
+print("Autotiles")
+print(River.autotiles)
 
 Sand = SandTerrain('Sand', 'Sand', 'app/map_maker/rainlash_fields1_sand.png')
 

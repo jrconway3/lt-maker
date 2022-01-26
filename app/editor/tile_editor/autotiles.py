@@ -320,7 +320,8 @@ if __name__ == '__main__':
             self.width = self.pixmap.width() // (TILEWIDTH//2)
             self.height = self.pixmap.height() // (TILEHEIGHT//2)
 
-    tileset = FakeTileset('app/map_maker/rainlash_fields1_river.png')
+    # tileset = FakeTileset('app/map_maker/rainlash_fields1_river.png')
+    tileset = FakeTileset('app/map_maker/rainlash_fields1_sea.png')
     companion_tileset, column_idxs = maker.run(tileset, True)
     print("Column Idxs")
     print(column_idxs)

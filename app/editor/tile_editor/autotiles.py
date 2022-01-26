@@ -9,35 +9,40 @@ from app.editor import utilities as editor_utilities
 
 from app.constants import TILEWIDTH, TILEHEIGHT, AUTOTILE_FRAMES
 
-def similar(p1, p2):
-    def similar(p1, p2):
-        """
-        Attempts to compare the pattern of the tiles, not the actual values themselves
-        """
-        mapping = {}
-        count = 0
-        for i, j in zip(p1, p2):
-            if i == j:
-                pass
-            elif i in mapping and j != mapping[i]:
-                count += 1
-            else:
-                mapping[i] = j
-        return count
+def similar(p1: list, p2: list) -> int:
+    """
+    Attempts to compare the pattern of the tiles, not the actual values themselves
+    """
+    mapping = {}
+    count = 0
+    for i, j in zip(p1, p2):
+        if i == j:
+            pass
+        elif i in mapping and j != mapping[i]:
+            count += 1
+        else:
+            mapping[i] = j
+    return count
 
-    def similar_bad(p1, p2):
-        return sum(i != j for i, j in zip(p1, p2))
-
-    def similar_bad_fast(p1, p2):
-        return 0 if p1 == p2 else TILEWIDTH * TILEHEIGHT
-
-    return similar(p1, p2)
+def similar_fast(p1: list, p2: list) -> int:
+    """
+    Attempts to compare the pattern of the tiles, not the actual values themselves
+    """
+    mapping = {}
+    for i, j in zip(p1, p2):
+        if i == j:
+            pass
+        elif i in mapping and j != mapping[i]:
+            return TILEWIDTH * TILEHEIGHT
+        else:
+            mapping[i] = j
+    return 0
 
 class Series(list):
     def is_present(self, test) -> bool:
         test_palette = test.palette
         all_palettes = [im.palette for im in self]
-        return any(similar(test_palette, palette) for palette in all_palettes)
+        return any(similar_fast(test_palette, palette) for palette in all_palettes)
 
     def get_frames_with_color(self, color: tuple) -> list:
         return [im for im in self if color in im.colors]
@@ -57,10 +62,11 @@ class PaletteData():
             # So palette is a unique string of ints
 
 class AutotileMaker():
-    def __init__(self, parent=None, width=TILEWIDTH, height=TILEHEIGHT):
+    def __init__(self, parent=None, width=TILEWIDTH, height=TILEHEIGHT, fast=True):
         self.window = parent
         self.tilewidth = width
         self.tileheight = height
+        self.similar_func = similar_fast if fast else similar
 
         self.map_tiles = OrderedDict()
         self.books = []
@@ -198,8 +204,10 @@ class AutotileMaker():
 
         for book_idx, book in enumerate(self.books):
             for series_idx, series in enumerate(book):
+                if not self.series_has_changes(series):
+                    continue  # Don't bother checking if it doesn't have changes
                 for frame_idx, frame in enumerate(series):
-                    similarity = similar(frame.palette, tile_palette.palette)
+                    similarity = self.similar_func(frame.palette, tile_palette.palette)
                     if similarity < min_sim:
                         min_sim = similarity
                         closest_series = series
@@ -240,9 +248,13 @@ class AutotileMaker():
             for series in closest_book:
                 frames_with_color = series.get_frames_with_color(color)
                 for f in frames_with_color:
+                    if len(f.uniques) < 2:
+                        continue
                     for map_tile in self.map_tiles.values():
+                        if len(map_tile.uniques) < 2:
+                            continue
                         # If so, do those frames show up in the map sprite?
-                        if similar(f.palette, map_tile.palette):
+                        if similar_fast(f.palette, map_tile.palette) == 0:
                             # If so, add to the color conversion
                             color_idx = f.colors.index(color)
                             new_color = map_tile.colors[color_idx]
@@ -251,11 +263,11 @@ class AutotileMaker():
                             print("%s has become %s" % (color, new_color))
                             return
 
-        # for palette_data in closest_series:
-        #     for idx, color in enumerate(palette_data.colors):
-        #         if color not in truecolor:
-        #             print("Missing color: %s" % str(color))
-        #             fix_missing_color(color)
+        for palette_data in closest_series:
+            for idx, color in enumerate(palette_data.colors):
+                if color not in truecolor:
+                    print("Missing color: %s" % str(color))
+                    fix_missing_color(color)
 
         for palette_data in closest_series:
             new_im = editor_utilities.color_convert(palette_data.im.copy(), color_conversion)
@@ -280,11 +292,15 @@ class AutotileMaker():
 
         self.companion_autotile_im = new_im
 
+    def series_has_changes(self, series: list) -> bool:
+        no_changes = all(frame.palette == series[0].palette for frame in series)
+        return not no_changes
+
 AUTOTILEMAKER = None
-def get_maker(width=TILEWIDTH, height=TILEHEIGHT):
+def get_maker(width=TILEWIDTH, height=TILEHEIGHT, fast=True):
     global AUTOTILEMAKER
     if not AUTOTILEMAKER:
-        AUTOTILEMAKER = AutotileMaker(width=width, height=height)
+        AUTOTILEMAKER = AutotileMaker(width=width, height=height, fast=fast)
     return AUTOTILEMAKER
 
 if __name__ == '__main__':
@@ -295,7 +311,7 @@ if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
 
-    maker = get_maker(width=TILEWIDTH//2, height=TILEHEIGHT//2)
+    maker = get_maker(width=TILEWIDTH//2, height=TILEHEIGHT//2, fast=False)
 
     class FakeTileset():
         def __init__(self, img_path):

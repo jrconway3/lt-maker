@@ -5,7 +5,7 @@ from app.map_maker.utilities import random_choice, edge_random, flood_fill
 from app.map_maker.wang_terrain import WangCorner2Terrain
 
 class CliffTerrain(WangCorner2Terrain):
-    terrain_like = ('Cliff_Topleft', 'Cliff_Bottomright')
+    terrain_like = ('Cliff')
     organization = {}
 
     @property
@@ -102,14 +102,12 @@ class CliffTerrain(WangCorner2Terrain):
         return topright, bottomright, bottomleft, topleft
 
     def single_process(self, tilemap):
-        match_set: set = {'Cliff_Topleft', 'Cliff_Bottomright'}
-        positions: set = tilemap.get_all_terrain('Cliff_Topleft')
-        positions |= tilemap.get_all_terrain('Cliff_Bottomright')
+        positions: set = tilemap.get_all_terrain('Cliff')
         self.organization.clear()
         groupings: list = [] # of sets
         while positions:
             pos = positions.pop()
-            near_positions: set = flood_fill(tilemap, pos, diagonal=True, match=match_set)
+            near_positions: set = flood_fill(tilemap, pos, diagonal=True)
             groupings.append(near_positions)
             for near_pos in near_positions:
                 positions.discard(near_pos)

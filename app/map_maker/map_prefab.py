@@ -15,6 +15,8 @@ class MapPrefab(Prefab):
         self.terrain_grid_to_update = set()  # Positions
         self.tile_grid = {}  # Key: Position, Value: Tileset Coordinate (twice as large on each axis)
 
+        self.cliff_markers = [(0, 0)]  # Markers for how to point cliffs
+
     def reset_all(self):
         for position in self.terrain_grid:
             self.terrain_grid_to_update.add(position)
@@ -134,6 +136,7 @@ class MapPrefab(Prefab):
         if self.width == 0 or self.height == 0:
             print("TileMap: Width or Height == 0!!!")
         s_dict['autotile_fps'] = self.autotile_fps
+        s_dict['cliff_markers'] = self.cliff_markers[:]
         s_dict['terrain_grid'] = {}
         for coord, terrain_nid in self.terrain_grid.items():
             str_coord = "%d,%d" % (coord[0], coord[1])
@@ -150,6 +153,8 @@ class MapPrefab(Prefab):
         self = cls(s_dict['nid'])
         self.width, self.height = s_dict['size']
         self.autotile_fps = s_dict.get('autotile_fps', 29)
+        self.cliff_markers = s_dict.get('cliff_markers', [(0, 0)])
+        self.cliff_markers = [tuple(_) for _ in self.cliff_markers]
         for str_coord, terrain_nid in s_dict['terrain_grid'].items():
             coord = tuple(int(_) for _ in str_coord.split(','))
             self.terrain_grid[coord] = terrain_nid

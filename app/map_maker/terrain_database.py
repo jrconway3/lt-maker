@@ -439,8 +439,7 @@ Thicket.data = [(17, 22), (18, 22), (19, 22), (17, 23), (18, 23), (19, 23), (18,
 
 Hill = HillTerrain('Hill', 'Hill', tileset, (13, 21))
 
-Cliff_Topleft = CliffTerrain('Cliff_Topleft', 'Cliff', 'app/map_maker/rainlash_fields1_cliff_topleft.png', (15, 0))
-Cliff_Bottomright = CliffTerrain('Cliff_Bottomright', 'Cliff', 'app/map_maker/rainlash_fields1_cliff_bottomright.png', (15, 0))
+Cliff = CliffTerrain('Cliff', 'Cliff', 'app/map_maker/rainlash_fields1_cliff.png', (15, 0))
 
 Sea = SeaTerrain('Sea', 'Sea', 'app/map_maker/rainlash_fields1_sea.png', (15, 0))
 Sea.autotiles = \
@@ -455,5 +454,5 @@ Castle = CastleTerrain('Castle', 'Castle', tileset, (4, 27))
 House = HouseTerrain('House', 'House', tileset, (4, 25))
 Ruins = RuinsTerrain('Ruins', 'Ruins', tileset, (3, 28))
 
-d = [Plains, Sand, Road, Forest, Thicket, Cliff_Topleft, Cliff_Bottomright, Hill, River, Sea, BridgeH, BridgeV, House, Castle, Ruins]
+d = [Plains, Sand, Road, Forest, Thicket, Cliff, Hill, River, Sea, BridgeH, BridgeV, House, Castle, Ruins]
 DB_terrain = TerrainCatalog(d)

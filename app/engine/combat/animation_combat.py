@@ -904,7 +904,7 @@ class AnimationCombat(BaseCombat, MockCombat):
                     anim_order = [(self.lp_battle_anim, left_range_offset, self.left_battle_anim, lp_range_offset),
                                   (self.right_battle_anim, right_range_offset, self.rp_battle_anim, rp_range_offset)]
                 else:  # Normal right anim
-                    anim_order = [(self.left_battle_anim, left_range_offset, self.lp_battle_anim, lp_range_offset), 
+                    anim_order = [(self.left_battle_anim, left_range_offset, self.lp_battle_anim, lp_range_offset),
                                   (self.right_battle_anim, right_range_offset, self.rp_battle_anim, rp_range_offset)]
                 self.draw_battle_anims(surf, shake, anim_order, y_offset)
             # Right partner is main boi
@@ -1058,6 +1058,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         if self.defender and self.def_item and not self.defender.is_dying:
             self.handle_wexp(self.defender, self.def_item, self.attacker)
 
+        self.handle_mana(all_units)
         self.handle_exp()
 
     def clean_up2(self):

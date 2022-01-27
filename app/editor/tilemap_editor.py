@@ -292,6 +292,8 @@ class MapEditorView(QGraphicsView):
                         true_pos = tile_pos[0] + rel_coord[0], tile_pos[1] + rel_coord[1]
                         if self.tilemap.check_bounds(true_pos):
                             current_layer.set_sprite(true_pos, tileset.nid, coord)
+                            if coord in tileset.terrain_grid:
+                                current_layer.terrain_grid[true_pos] = tileset.terrain_grid[coord]
 
     def erase_terrain(self, tile_pos):
         current_layer = self.get_current_layer()

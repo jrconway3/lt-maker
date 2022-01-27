@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QListView, QPushButton, \
 from PyQt5.QtCore import QSize
 
 from app.editor import tilemap_editor
+from app.editor import tileset_editor
+from app.editor.tileset_editor import TileSetEditor
 from app.resources.resources import RESOURCES
 from app.editor.data_editor import SingleResourceEditor, MultiResourceEditor
 
@@ -69,7 +71,17 @@ class TileSetDatabase(TileTab):
         deletion_criteria = None
 
         dialog = cls(data, title, collection_model, parent)
+        dialog.edit_button = QPushButton("Edit Terrain for Current %s..." % dialog.title)
+        dialog.edit_button.clicked.connect(dialog.edit_current)
+        dialog.layout.addWidget(dialog.edit_button, 1, 1, 1, 1)
         return dialog
+
+
+    def edit_current(self):
+        current_tileset = self.current
+        if current_tileset:
+            tileset_editor = TileSetEditor(self, current_tileset)
+            tileset_editor.exec_()
 
 class TileMapDatabase(TileTab):
     @classmethod
@@ -115,7 +127,7 @@ def get_tilemaps() -> tuple:
         return None, False
 
 def get_full_editor() -> MultiResourceEditor:
-    editor = MultiResourceEditor((TileSetDatabase, TileMapDatabase), 
+    editor = MultiResourceEditor((TileSetDatabase, TileMapDatabase),
                                  ("tilesets", "tilemaps"))
     editor.setWindowTitle("Tile Editor")
     return editor
@@ -128,7 +140,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     RESOURCES.load('default.ltproj')
     # DB.load('default.ltproj')
-    window = MultiResourceEditor((TileSetDatabase, TileMapDatabase), 
+    window = MultiResourceEditor((TileSetDatabase, TileMapDatabase),
                                  ("tilesets", "tilemaps"))
     window.show()
     app.exec_()

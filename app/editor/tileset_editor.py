@@ -1,0 +1,305 @@
+from enum import IntEnum
+
+from app.constants import TILEHEIGHT, TILEWIDTH, WINHEIGHT, WINWIDTH
+from app.data.database import DB
+from app.editor import timer
+from app.editor.settings import MainSettingsController
+from app.editor.terrain_painter_menu import TerrainPainterMenu
+from app.resources.tiles import TileSet
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor, QIcon, QPainter, QPen
+from PyQt5.QtWidgets import (QAction, QActionGroup, QDesktopWidget, QDialog,
+                             QDialogButtonBox, QFrame, QGraphicsScene,
+                             QGraphicsView, QHBoxLayout, QSplitter, QToolBar,
+                             QVBoxLayout)
+
+
+class PaintTool(IntEnum):
+    NoTool = 0
+    Brush = 1
+    Fill = 2
+    Erase = 3
+
+class TileSetEditorView(QGraphicsView):
+    min_scale = 1
+    max_scale = 6
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.window = parent
+
+        self.scene = QGraphicsScene(self)
+        self.setScene(self.scene)
+        self.setMouseTracking(True)
+
+        self.setMinimumSize(WINWIDTH, WINHEIGHT)
+        self.setStyleSheet("background-color:rgb(128, 128, 128);")
+
+        self.screen_scale = 1
+
+        self.tileset: TileSet = None
+
+        self.current_mouse_position = (0, 0)
+        self.old_middle_pos = None
+
+        self.left_selecting = False
+        self.right_selecting = False
+        self.right_selection = {}  # Dictionary of tile_sprites
+
+        self.draw_autotiles = True
+        self.draw_gridlines = True
+
+        self.focus_layer = False
+
+        timer.get_timer().tick_elapsed.connect(self.tick)
+
+    def tick(self):
+        if self.tileset:
+            self.update_view()
+
+    def set_current(self, current: TileSet):
+        self.tileset = current
+        self.update_view()
+
+    def clear_scene(self):
+        self.scene.clear()
+
+    def update_view(self):
+        if self.tileset:
+            pixmap = self.tileset.pixmap.copy()
+            self.working_image = pixmap
+        else:
+            return
+        self.draw_terrain()
+        self.show_map()
+
+    def get_map_image(self):
+        image = self.tileset.pixmap
+
+        painter = QPainter()
+        painter.begin(image)
+        # Draw grid lines
+        if self.draw_gridlines:
+            painter.setPen(QPen(QColor(0, 0, 0, 128), 1, Qt.DotLine))
+            for x in range(self.tileset.width):
+                painter.drawLine(x * TILEWIDTH, 0, x * TILEWIDTH, self.tileset.height * TILEHEIGHT)
+            for y in range(self.tileset.height):
+                painter.drawLine(0, y * TILEHEIGHT, self.tileset.width * TILEWIDTH, y * TILEHEIGHT)
+
+        painter.end()
+        return image
+
+    def draw_terrain(self):
+        if self.working_image:
+            painter = QPainter()
+            painter.begin(self.working_image)
+            alpha = self.window.terrain_painter_menu.get_alpha()
+            for coord, terrain_nid in self.tileset.terrain_grid.items():
+                terrain = DB.terrain.get(terrain_nid)
+                if terrain:
+                    color = terrain.color
+                    write_color = QColor(color[0], color[1], color[2])
+                    write_color.setAlpha(alpha)
+                    print(alpha)
+                    painter.fillRect(coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT, write_color)
+            painter.end()
+
+    def show_map(self):
+        self.clear_scene()
+        self.scene.addPixmap(self.working_image)
+
+    def paint_terrain(self, tile_pos):
+        if self.tileset.check_bounds(tile_pos):
+            current_nid = self.window.terrain_painter_menu.get_current_nid()
+            self.tileset.terrain_grid[tile_pos] = current_nid
+
+    def erase_terrain(self, tile_pos):
+        if self.tileset.check_bounds(tile_pos):
+            self.tileset.terrain_grid[tile_pos] = None
+
+    def mousePressEvent(self, event):
+        scene_pos = self.mapToScene(event.pos())
+        tile_pos = int(scene_pos.x() // TILEWIDTH), \
+            int(scene_pos.y() // TILEHEIGHT)
+
+        if event.button() == Qt.LeftButton:
+            if self.window.current_tool == PaintTool.Brush:
+                self.paint_terrain(tile_pos)
+                self.left_selecting = True
+            elif self.window.current_tool == PaintTool.Erase:
+                self.erase_terrain(tile_pos)
+                self.left_selecting = True
+        elif event.button() == Qt.MiddleButton:
+            self.old_middle_pos = event.pos()
+
+    def mouseMoveEvent(self, event):
+        scene_pos = self.mapToScene(event.pos())
+        tile_pos = int(scene_pos.x() // TILEWIDTH), \
+            int(scene_pos.y() // TILEHEIGHT)
+
+        self.current_mouse_position = tile_pos
+
+        if self.left_selecting and self.tileset.check_bounds(tile_pos):
+            if self.window.current_tool == PaintTool.Brush:
+                self.paint_terrain(tile_pos)
+            elif self.window.current_tool == PaintTool.Erase:
+                self.erase_terrain(tile_pos)
+        elif event.buttons() & Qt.MiddleButton:
+            offset = self.old_middle_pos - event.pos()
+            self.old_middle_pos = event.pos()
+
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() + offset.y())
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + offset.x())
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.left_selecting = False
+
+    def zoom_in(self):
+        if self.screen_scale < self.max_scale:
+            self.screen_scale += 1
+            self.scale(2, 2)
+
+    def zoom_out(self):
+        if self.screen_scale > self.min_scale:
+            self.screen_scale -= 1
+            self.scale(0.5, 0.5)
+
+    def wheelEvent(self, event):
+        if event.angleDelta().y() > 0:
+            self.zoom_in()
+        elif event.angleDelta().y() < 0:
+            self.zoom_out()
+
+class TileSetEditor(QDialog):
+    def __init__(self, parent=None, current: TileSet=None):
+        super().__init__(parent)
+        self.window = parent
+        self.setWindowTitle("Tileset Editor")
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+
+        self.settings = MainSettingsController()
+
+        desktop = QDesktopWidget()
+        main_screen_size = desktop.availableGeometry(desktop.primaryScreen())
+        default_size = main_screen_size.width()*0.7, main_screen_size.height()*0.7
+        self.resize(*default_size)
+
+        self.current = current
+        self.save()
+        self.current_tool = PaintTool.NoTool
+
+        self.terrain_painter_menu = TerrainPainterMenu(self)
+        self.view = TileSetEditorView(self)
+        self.view.set_current(current)
+
+        self.create_actions()
+        self.create_toolbar()
+
+        self.main_splitter = QSplitter(self)
+        self.main_splitter.setChildrenCollapsible(False)
+
+        view_frame = QFrame()
+        view_layout = QVBoxLayout()
+        toolbar_layout = QHBoxLayout()
+        toolbar_layout.addWidget(self.toolbar)
+        view_layout.addLayout(toolbar_layout)
+        view_layout.addWidget(self.view)
+        view_frame.setLayout(view_layout)
+
+
+        self.main_splitter.addWidget(self.terrain_painter_menu)
+        self.main_splitter.addWidget(view_frame)
+
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+        self.layout.addWidget(self.main_splitter)
+
+        self.buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
+        self.layout.addWidget(self.buttonbox)
+        self.buttonbox.accepted.connect(self.accept)
+        self.buttonbox.rejected.connect(self.reject)
+
+        self.check_brush()
+
+        # Restore Geometry
+        geometry = self.settings.component_controller.get_geometry(self._type())
+        if geometry:
+            self.restoreGeometry(geometry)
+        state = self.settings.component_controller.get_state(self._type())
+        if state:
+            self.main_splitter.restoreState(state)
+
+        self.view.update_view()
+
+    def create_actions(self):
+        theme = self.settings.get_theme()
+        if theme == 0:
+            icon_folder = 'icons/icons'
+        else:
+            icon_folder = 'icons/dark_icons'
+
+        paint_group = QActionGroup(self)
+        self.brush_action = QAction(QIcon(f"{icon_folder}/brush.png"), "&Brush", self, shortcut="B", triggered=self.set_brush)
+        self.brush_action.setCheckable(True)
+        paint_group.addAction(self.brush_action)
+        self.erase_action = QAction(QIcon(f"{icon_folder}/eraser.png"), "&Erase", self, shortcut="E", triggered=self.set_erase)
+        self.erase_action.setCheckable(True)
+        paint_group.addAction(self.erase_action)
+
+        self.show_gridlines_action = QAction(QIcon(f"{icon_folder}/gridlines.png"), "Show GridLines", self, triggered=self.gridline_toggle)
+        self.show_gridlines_action.setCheckable(True)
+        self.show_gridlines_action.setChecked(True)
+
+    def check_brush(self):
+        self.brush_action.setChecked(True)
+        self.set_brush(True)
+
+    def set_brush(self, val):
+        self.current_tool = PaintTool.Brush
+
+    def set_erase(self, val):
+        self.current_tool = PaintTool.Erase
+
+    def create_toolbar(self):
+        self.toolbar = QToolBar(self)
+        self.toolbar.addAction(self.brush_action)
+        self.toolbar.addAction(self.erase_action)
+        self.toolbar.addAction(self.show_gridlines_action)
+
+    def set_current(self, current: TileSet):
+        self.current = current
+        self.view.set_current(current)
+        self.view.update_view()
+
+    def gridline_toggle(self, val):
+        self.view.draw_gridlines = val
+
+    def update_view(self):
+        self.view.update_view()
+
+    def accept(self):
+        self.save_geometry()
+        super().accept()
+
+    def reject(self):
+        self.restore()
+        self.save_geometry()
+        super().reject()
+
+    def closeEvent(self, event):
+        self.save_geometry()
+        super().closeEvent(event)
+
+    def save(self):
+        self.saved_data = self.current.terrain_grid.copy()
+
+    def restore(self):
+        self.current.terrain_grid = self.saved_data
+
+    def _type(self):
+        return 'tileset_editor'
+
+    def save_geometry(self):
+        self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
+        self.settings.component_controller.set_state(self._type(), self.main_splitter.saveState())

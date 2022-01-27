@@ -141,6 +141,7 @@ class TileSet(Prefab):
         s_dict = {}
         s_dict['nid'] = self.nid
         s_dict['terrain_grid'] = {}
+        print("ok", self.terrain_grid)
         for coord, terrain_nid in self.terrain_grid.items():
             str_coord = "%d,%d" % (coord[0], coord[1])
             s_dict['terrain_grid'][str_coord] = terrain_nid

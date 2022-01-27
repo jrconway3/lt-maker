@@ -10,7 +10,7 @@ from app.engine.objects.tilemap import TileMapObject
 from app.engine.sound import SOUNDTHREAD
 from app.engine.sprites import SPRITES
 from app.utilities.enums import Direction
-from app.utilities.utils import frames2ms, tclamp, tmult
+from app.utilities.utils import frames2ms, tclamp, tmult, tuple_sub
 from app.engine.engine import Surface
 
 class BaseCursor():
@@ -19,6 +19,7 @@ class BaseCursor():
     Camera and Tilemap are optional, but unlock some additional functionality
     such as automatic camera manipulation, and cursor movement boundaries.
     """
+    TRANSITION_FRAMES = 10
     def __init__(self, camera: Camera = None, tilemap: TileMapObject = None):
         # internal scroll controller
         self.fluid: FluidScroll = FluidScroll(frames2ms(4), 3.25)
@@ -38,8 +39,10 @@ class BaseCursor():
         self._sprite_dim: Tuple[int, int] = (32, 32)
 
         # used for animating between squares
+        # gba formula: 8 frames.
+        # 2 at 0px, 2 at 4px, 2 at 12px, 2 at 16px
         self.offset_x, self.offset_y = 0, 0
-        self._transition_duration = frames2ms(4)
+        self._transition_duration = frames2ms(self.TRANSITION_FRAMES)
         self._transition_speed = 1
         self._transition_remaining: Tuple[int, int] = (0, 0)
         self._transition_direction: Tuple[Direction, Direction] = (Direction.LEFT, Direction.UP)
@@ -73,8 +76,21 @@ class BaseCursor():
 
     @property
     def transition_progress(self):
-        remaining_transition = tmult(self._transition_remaining, 1 / self.transition_duration)
-        return tclamp(remaining_transition, (0, 0), (1, 1))
+        xprog, yprog = tmult(self._transition_remaining, 1 / self.transition_duration)
+        # floor progress according to breakpoints in gba formula
+        # gba formula: 10 frames.
+        # 4 at 0px (0%), 2 at 4px (25%), 2 at 12px (75%), 2 at 16px (100%)
+        def bucket_prog(prog):
+            if prog < 0.2:
+                return 0.0
+            elif prog < 0.4:
+                return 0.25
+            elif prog < 0.6:
+                return 0.75
+            else:
+                return 1.0
+        bucketed_progress = bucket_prog(xprog), bucket_prog(yprog)
+        return tclamp(bucketed_progress, (0, 0), (1, 1))
 
     def get_image(self) -> Surface:
         """Returns the current image of the cursor.
@@ -200,12 +216,12 @@ class BaseCursor():
             xdt = current_time - self._transition_start[0]
             ydt = current_time - self._transition_start[1]
             self._transition_remaining = (
-                max(0, self._transition_remaining[0] - xdt),
-                max(0, self._transition_remaining[1] - ydt))
+                max(0, self._transition_duration - xdt),
+                max(0, self._transition_duration - ydt))
             # update offset based on progress
             ox = TILEWIDTH * self.transition_progress[0] * Direction.which_horizontal_dir(self._transition_direction[0])
             oy = TILEHEIGHT * -1 * self.transition_progress[1] * Direction.which_vertical_dir(self._transition_direction[1])
-            self.offset_x, self.offset_y = ox * 0.75, oy * 0.75
+            self.offset_x, self.offset_y = ox, oy
         else:
             self.offset_x, self.offset_y = 0, 0
 

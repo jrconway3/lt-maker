@@ -19,7 +19,7 @@ class BaseCursor():
     Camera and Tilemap are optional, but unlock some additional functionality
     such as automatic camera manipulation, and cursor movement boundaries.
     """
-    TRANSITION_FRAMES = 10
+    TRANSITION_FRAMES = 8
     def __init__(self, camera: Camera = None, tilemap: TileMapObject = None):
         # internal scroll controller
         self.fluid: FluidScroll = FluidScroll(frames2ms(4), 3.25)
@@ -39,8 +39,7 @@ class BaseCursor():
         self._sprite_dim: Tuple[int, int] = (32, 32)
 
         # used for animating between squares
-        # gba formula: 8 frames.
-        # 2 at 0px, 2 at 4px, 2 at 12px, 2 at 16px
+        # gba formula: 8 frames, linear interpolation I think?
         self.offset_x, self.offset_y = 0, 0
         self._transition_duration = frames2ms(self.TRANSITION_FRAMES)
         self._transition_speed = 1
@@ -76,21 +75,7 @@ class BaseCursor():
 
     @property
     def transition_progress(self):
-        xprog, yprog = tmult(self._transition_remaining, 1 / self.transition_duration)
-        # floor progress according to breakpoints in gba formula
-        # gba formula: 10 frames.
-        # 4 at 0px (0%), 2 at 4px (25%), 2 at 12px (75%), 2 at 16px (100%)
-        def bucket_prog(prog):
-            if prog < 0.2:
-                return 0.0
-            elif prog < 0.4:
-                return 0.25
-            elif prog < 0.6:
-                return 0.75
-            else:
-                return 1.0
-        bucketed_progress = bucket_prog(xprog), bucket_prog(yprog)
-        return tclamp(bucketed_progress, (0, 0), (1, 1))
+        return tclamp(tmult(self._transition_remaining, 1 / self.transition_duration), (0, 0), (1, 1))
 
     def get_image(self) -> Surface:
         """Returns the current image of the cursor.

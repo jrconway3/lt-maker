@@ -18,27 +18,17 @@ class SeaTerrain(WangEdge2Terrain):
     def set_tileset(self, tileset_path=None):
         super().set_tileset(tileset_path)
         self.limits = {k: self._find_limit(k) for k in range(16)}
-        self.sand_limits = {k: self._find_sand_limit(k) for k in range(16)}
+        self.sand_limits = {k: self._find_limit(k, self.sand_start_px) for k in range(16)}
         print(self.sand_limits)
 
-    def _find_limit(self, idx: int) -> int:
+    def _find_limit(self, idx: int, offset: int = 0) -> int:
         bg_color = qRgb(0, 0, 0)
         img = self.tileset_pixmap.toImage()
         x = idx * TILEWIDTH
-        for y in range(0, img.height(), TILEHEIGHT):
+        for y in range(offset, img.height(), TILEHEIGHT):
             current_color = img.pixel(x, y)
             if current_color == bg_color:
-                return y // TILEHEIGHT
-        return (img.height() // TILEHEIGHT)
-
-    def _find_sand_limit(self, idx: int) -> int:
-        bg_color = qRgb(0, 0, 0)
-        img = self.tileset_pixmap.toImage()
-        x = idx * TILEWIDTH
-        for y in range(self.sand_start_px, img.height(), TILEHEIGHT):
-            current_color = img.pixel(x, y)
-            if current_color == bg_color:
-                return (y - self.sand_start_px) // TILEHEIGHT
+                return (y - offset) // TILEHEIGHT
         return (img.height() // TILEHEIGHT)
 
     def get_display_pixmap(self):

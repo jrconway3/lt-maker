@@ -1,11 +1,15 @@
+import math
+
 from PyQt5.QtGui import QPixmap, QPainter, qRgb
 
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.map_maker.utilities import random_choice, edge_random, flood_fill
+from app.utilities import utils
 from app.map_maker.wang_terrain import WangCorner2Terrain
 
 class CliffTerrain(WangCorner2Terrain):
     terrain_like = ('Cliff')
+    second_start_px = 96
     organization = {}
 
     @property
@@ -148,14 +152,20 @@ class CliffTerrain(WangCorner2Terrain):
             8 * corner_topleft
         return index
 
-    def _find_limit(self, idx: int) -> int:
+    def set_tileset(self, tileset_path=None):
+        super().set_tileset(tileset_path)
+        self.limits = {k: self._find_limit(k) for k in range(16)}
+        self.second_limits = {k: self._find_limit(k, self.second_start_px) for k in range(16)}
+        print(self.second_limits)
+
+    def _find_limit(self, idx: int, offset: int = 0) -> int:
         bg_color = qRgb(0, 0, 0)
         img = self.tileset_pixmap.toImage()
         x = idx * TILEWIDTH
-        for y in range(0, img.height(), TILEHEIGHT):
+        for y in range(offset, img.height(), TILEHEIGHT):
             current_color = img.pixel(x, y)
             if current_color == bg_color:
-                return y // TILEHEIGHT
+                return (y - offset) // TILEHEIGHT
         return (img.height() // TILEHEIGHT)
 
     def get_display_pixmap(self):
@@ -170,7 +180,11 @@ class CliffTerrain(WangCorner2Terrain):
 
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
         index = self._determine_index(tilemap, pos)
-        new_coords = [(index, k) for k in range(self.limits[index])]
+        bottomright = self._determine_cliff_vector(tilemap, pos)
+        if bottomright:
+            new_coords = [(index, k) for k in range(self.limits[index])]
+        else:
+            new_coords = [(index, k + self.second_start_px//TILEHEIGHT) for k in range(self.second_limits[index])]
 
         # So it always uses the same set of coords...
         new_coords1 = [random_choice([(c[0]*2, c[1]*2) for c in new_coords], pos)]
@@ -178,3 +192,16 @@ class CliffTerrain(WangCorner2Terrain):
         new_coords3 = [random_choice([(c[0]*2 + 1, c[1]*2 + 1) for c in new_coords], pos)]
         new_coords4 = [random_choice([(c[0]*2, c[1]*2 + 1) for c in new_coords], pos)]
         return new_coords1, new_coords2, new_coords3, new_coords4
+
+    def _determine_cliff_vector(self, tilemap, pos: tuple) -> bool:
+        """
+        Returns True is cliff should be facing bottomright
+        Returns False if cliff should be facing topleft
+        """
+        closest_cliff_marker = list(sorted(tilemap.cliff_markers, key=lambda x: utils.distance(pos, x)))[0]
+        x_diff = closest_cliff_marker[0] - pos[0]
+        y_diff = closest_cliff_marker[1] - pos[1]
+        angle = math.atan2(y_diff, x_diff)
+        if angle < 0:
+            angle += 2 * math.pi
+        return angle >= math.pi  # pointing upwards

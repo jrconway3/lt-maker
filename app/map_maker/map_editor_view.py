@@ -16,6 +16,7 @@ class PaintTool(IntEnum):
     Brush = 1
     Fill = 2
     Erase = 3
+    CliffMarker = 4
 
 class MapEditorView(QGraphicsView):
     min_scale = 1
@@ -82,6 +83,11 @@ class MapEditorView(QGraphicsView):
                 painter.drawLine(x * TILEWIDTH, 0, x * TILEWIDTH, self.tilemap.height * TILEHEIGHT)
             for y in range(self.tilemap.height):
                 painter.drawLine(0, y * TILEHEIGHT, self.tilemap.width * TILEWIDTH, y * TILEHEIGHT)
+
+        # Draw cliff markers
+        painter.setPen(QPen(QColor(255, 0, 0, 128), 2))
+        for cliff_marker in self.tilemap.cliff_markers:
+            painter.drawPoint(cliff_marker[0] * TILEWIDTH, cliff_marker[1] * TILEHEIGHT)
 
         # Draw cursor...
         if self.right_selecting:
@@ -223,6 +229,9 @@ class MapEditorView(QGraphicsView):
             # Flood-fill terrain on location
             elif self.window.current_tool == PaintTool.Fill:
                 self.flood_fill_terrain(tile_pos)
+            # Add new cliff marker on location
+            elif self.window.current_tool == PaintTool.CliffMarker:
+                self.window.cliff_marker_widget.add_new_marker(tile_pos)
         # Select the current terrain under cursor
         elif event.button() == Qt.RightButton and self.tilemap.check_bounds(tile_pos):
             current_nid = self.tilemap.get_terrain(tile_pos)

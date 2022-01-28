@@ -2,8 +2,8 @@ import os
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QToolBar, QDialog, QSpinBox, QAction, \
-    QActionGroup, \
-    QDesktopWidget, QFileDialog, QHBoxLayout
+    QActionGroup, QWidget, QComboBox, QPushButton, \
+    QDesktopWidget, QFileDialog, QHBoxLayout, QMessageBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
@@ -16,6 +16,66 @@ from app.map_maker.map_editor_view import PaintTool, MapEditorView
 from app.map_maker.draw_tilemap import draw_tilemap
 from app.map_maker.map_prefab import MapPrefab
 import app.map_maker.utilities as map_utils
+
+class CliffMarkerWidget(QWidget):
+    def __init__(self, parent=None, tilemap=None):
+        super().__init__(parent)
+        self.tilemap = tilemap
+
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.main_box = PropertyBox("Cliff Markers", QComboBox, self)
+        self.main_box.setMaximumWidth(100)
+        self.main_box.edit.setAlignment(Qt.AlignRight)
+        for cliff_marker in self.tilemap.cliff_markers:
+            self.main_box.edit.addItem(cliff_marker)
+        self.main_box.edit.activated.connect(self.main_box_activation)
+
+        self.add_button = QPushButton("+")
+        self.add_button.setCheckable(True)
+        self.add_button.activated.connect(self.choose_marker)
+        self.remove_button = QPushButton("-")
+        self.remove_button.activated.connect(self.remove_current_marker)
+        self.remove_button.setEnabled(False)
+
+        self.layout.addWidget(self.main_box)
+        self.layout.addWidget(self.add_button)
+        self.layout.addWidget(self.remove_button)
+
+    def set_current(self, current):
+        self.tilemap = current
+        self.main_box.edit.clear()
+        for cliff_marker in self.tilemap.cliff_markers:
+            self.main_box.edit.addItem(cliff_marker)
+        self.reset()
+
+    def reset(self):
+        self.add_button.setChecked(False)
+
+    def choose_marker(self):
+        self.parent().set_cliff_marker()
+        self.add_button.setChecked(True)
+
+    def add_new_marker(self, pos):
+        self.reset()
+        self.tilemap.cliff_markers.append(pos)
+        self.main_box.edit.addItem(self.tilemap.cliff_markers[-1])
+        self.tilemap.reset_all()
+        self.toggle_remove_button()
+
+    def remove_current_marker(self):
+        if len(self.tilemap.cliff_markers) > 1:
+            idx = self.main_box.edit.currentRow()
+            self.tilemap.cliff_markers.pop(idx)
+            self.main_box.edit.removeItem(idx)
+            self.tilemap.reset_all()
+        else:
+            QMessageBox.warning("Warning", "Cannot remove last cliff marker!")
+        self.toggle_remove_button()
+
+    def toggle_remove_button(self):
+        self.remove_button.setEnabled(len(self.tilemap.cliff_markers) > 1)
 
 class MapEditor(QDialog):
     def __init__(self, parent=None, current=None):
@@ -59,10 +119,13 @@ class MapEditor(QDialog):
         self.random_seed_box.edit.setAlignment(Qt.AlignRight)
         self.random_seed_box.edit.valueChanged.connect(self.random_seed_changed)
 
+        self.cliff_marker_widget = CliffMarkerWidget(self)
+
         view_frame = QFrame()
         view_layout = QVBoxLayout()
         toolbar_layout = QHBoxLayout()
         toolbar_layout.addWidget(self.toolbar)
+        toolbar_layout.addWidget(self.cliff_marker_widget)
         toolbar_layout.addWidget(self.autotile_fps_box)
         toolbar_layout.addWidget(self.random_seed_box)
         view_layout.addLayout(toolbar_layout)
@@ -121,13 +184,22 @@ class MapEditor(QDialog):
         self.set_brush(True)
 
     def set_brush(self, val):
+        self.cliff_marker_widget.reset()
         self.current_tool = PaintTool.Brush
 
     def set_fill(self, val):
+        self.cliff_marker_widget.reset()
         self.current_tool = PaintTool.Fill
 
     def set_erase(self, val):
+        self.cliff_marker_widget.reset()
         self.current_tool = PaintTool.Erase
+
+    def set_cliff_marker(self):
+        self.brush_action.setChecked(False)
+        self.paint_action.setChecked(False)
+        self.erase_action.setChecked(False)
+        self.current_tool = PaintTool.CliffMarker
 
     def create_toolbar(self):
         self.toolbar = QToolBar(self)
@@ -142,6 +214,7 @@ class MapEditor(QDialog):
         self.current = current
         self.view.set_current(current)
         self.autotile_fps_box.edit.setValue(current.autotile_fps)
+        self.cliff_marker_widget.set_current(current)
         self.view.update_view()
 
     def resize_map(self):

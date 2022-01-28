@@ -15,7 +15,7 @@ class MapPrefab(Prefab):
         self.terrain_grid_to_update = set()  # Positions
         self.tile_grid = {}  # Key: Position, Value: Tileset Coordinate (twice as large on each axis)
 
-        self.cliff_markers = [(0, 0)]  # Markers for how to point cliffs
+        self.cliff_markers = [(7, 5)]  # Markers for how to point cliffs
 
     def reset_all(self):
         for position in self.terrain_grid:

@@ -123,14 +123,13 @@ class ExpState(State):
         # Increment exp until done or 100 exp is reached
         elif self.state.get_state() == 'exp0':
             progress = (current_time - self.start_time)/float(self.total_time_for_exp)
+            progress = utils.clamp(progress, 0, 1)
             exp_set = self.old_exp + progress * self.exp_gain
-            exp_set = min(self.old_exp + self.exp_gain, exp_set)
             self.exp_bar.update(exp_set)
             exp_set = int(exp_set)
 
             if self.mana_bar:
                 mana_set = self.old_mana + progress * self.mana_to_gain
-                mana_set = min(self.old_mana + self.mana_to_gain, mana_set)
                 self.mana_bar.update(mana_set)
                 mana_set = int(mana_set)
 

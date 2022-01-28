@@ -20,6 +20,7 @@ import app.map_maker.utilities as map_utils
 class CliffMarkerWidget(QWidget):
     def __init__(self, parent=None, tilemap=None):
         super().__init__(parent)
+        self.window = parent
         self.tilemap = tilemap
 
         self.layout = QHBoxLayout()
@@ -59,7 +60,7 @@ class CliffMarkerWidget(QWidget):
 
     def choose_marker(self, checked):
         if checked:
-            self.parent().set_cliff_marker()
+            self.window.set_cliff_marker()
             self.add_button.setChecked(True)
 
     def add_new_marker(self, pos):
@@ -71,7 +72,7 @@ class CliffMarkerWidget(QWidget):
 
     def remove_current_marker(self):
         if len(self.tilemap.cliff_markers) > 1:
-            idx = self.main_box.edit.currentRow()
+            idx = self.main_box.edit.currentIndex()
             self.tilemap.cliff_markers.pop(idx)
             self.main_box.edit.removeItem(idx)
             self.tilemap.reset_all()

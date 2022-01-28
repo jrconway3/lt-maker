@@ -39,7 +39,8 @@ def flood_fill(tilemap, pos: tuple, diagonal: bool = False, match: set = None) -
     def find_similar(starting_pos: tuple, match: set):
         unexplored_stack.append(starting_pos)
 
-        while unexplored_stack:
+        counter = 0
+        while unexplored_stack and counter < 99999:
             current_pos = unexplored_stack.pop()
 
             if current_pos in blob_positions:
@@ -60,6 +61,9 @@ def flood_fill(tilemap, pos: tuple, diagonal: bool = False, match: set = None) -
                 unexplored_stack.append((current_pos[0] - 1, current_pos[1] + 1))
                 unexplored_stack.append((current_pos[0] + 1, current_pos[1] - 1))
                 unexplored_stack.append((current_pos[0] + 1, current_pos[1] + 1))
+            counter += 1
+        if counter >= 99999:
+            raise RuntimeError("Unexpected infinite loop in generic flood_fill")
 
     # Determine which coords should be flood-filled
     find_similar(pos, match)

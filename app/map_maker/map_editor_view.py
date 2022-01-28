@@ -90,7 +90,11 @@ class MapEditorView(QGraphicsView):
             painter.drawPoint(cliff_marker[0] * TILEWIDTH, cliff_marker[1] * TILEHEIGHT)
 
         # Draw cursor...
-        if self.right_selecting:
+        if self.window.current_tool == PaintTool.CliffMarker:
+            painter.setPen(QPen(QColor(128, 0, 128, 255), 3))
+            mouse_pos = self.current_mouse_position
+            painter.drawPoint(mouse_pos[0] * TILEWIDTH, mouse_pos[1] * TILEHEIGHT)
+        elif self.right_selecting:
             # Currently holding down right click and selecting area
             self.draw_selection(painter)
         elif self.right_selection:

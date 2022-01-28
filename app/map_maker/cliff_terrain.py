@@ -110,12 +110,16 @@ class CliffTerrain(WangCorner2Terrain):
         positions: set = tilemap.get_all_terrain('Cliff')
         self.organization.clear()
         groupings: list = [] # of sets
-        while positions:
+        counter: int = 0
+        while positions and counter <= 99999:
             pos = positions.pop()
             near_positions: set = flood_fill(tilemap, pos, diagonal=True)
             groupings.append(near_positions)
             for near_pos in near_positions:
                 positions.discard(near_pos)
+            counter += 1
+        if counter > 99999:
+            raise RuntimeError("Unexpected infinite loop in cliff flood_fill")
 
         while groupings:
             group = groupings.pop()

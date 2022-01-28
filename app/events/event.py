@@ -2431,7 +2431,7 @@ class Event():
             return None
         new_nid = str_utils.get_next_int(level_unit_prefab.nid, game.unit_registry.keys())
         level_unit_prefab.nid = new_nid
-        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit = UnitObject.from_prefab(level_unit_prefab, game.current_mode)
         level_unit_prefab.nid = unit_nid  # Set back to old nid
         new_unit.position = None
         new_unit.dead = False
@@ -2458,7 +2458,7 @@ class Event():
         else:
             ai_nid = 'None'
         level_unit_prefab = UniqueUnit(unit_nid, team, ai_nid, None)
-        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit = UnitObject.from_prefab(level_unit_prefab, game.current_mode)
         new_unit.party = game.current_party
         game.full_register(new_unit)
 
@@ -2502,7 +2502,7 @@ class Event():
         else:
             starting_items = []
         level_unit_prefab = GenericUnit(unit_nid, variant, level, klass, faction, starting_items, team, ai_nid)
-        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit = UnitObject.from_prefab(level_unit_prefab, game.current_mode)
         new_unit.party = game.current_party
         game.full_register(new_unit)
         if assign_unit:
@@ -2553,7 +2553,7 @@ class Event():
 
         level_unit_prefab = GenericUnit(
             unit_nid, unit.variant, level, unit.klass, unit.faction, [item.nid for item in unit.items], unit.team, unit.ai)
-        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit = UnitObject.from_prefab(level_unit_prefab, game.current_mode)
         position = self.check_placement(new_unit, position, placement)
         if not position:
             return None

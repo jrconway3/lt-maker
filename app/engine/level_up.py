@@ -379,11 +379,17 @@ class LevelUpScreen():
             return Animation(anim, topleft)
         return None
 
-    def get_position(self, i):
+    def topleft(self):
+        return (6 - self.screen_scroll_offset, WINHEIGHT - 8 - self.height)
+
+    def get_position(self, i, absolute=False):
+        tl_offset = (0, 0)
+        if absolute:
+            tl_offset = self.topleft()
         if i >= 4:
-            position = (self.width//2 + 8, (i - 4) * 16 + 35)
+            position = (self.width//2 + 8 + tl_offset[0], (i - 4) * 16 + 35 + tl_offset[1])
         else:
-            position = (10, i * 16 + 35)
+            position = (10 + tl_offset[0], i * 16 + 35 + tl_offset[1])
         return position
 
     def inc_spark(self):
@@ -448,8 +454,10 @@ class LevelUpScreen():
                 if anim:
                     arrow_animation = Animation(anim, (pos[0] + 45, pos[1] - 11), hold=True)
                     self.arrow_animations.append(arrow_animation)
+
+                offset_pos = self.get_position(self.current_spark, True)
                 # Spark
-                spark_pos = pos[0] + 14, pos[1] + 26
+                spark_pos = offset_pos[0] + 8, offset_pos[1] - 19
                 spark_anim = self.make_spark(spark_pos)
                 if spark_anim:
                     self.animations.append(spark_anim)
@@ -459,7 +467,7 @@ class LevelUpScreen():
                 elif increase < 0:
                     anim = RESOURCES.animations.get('LevelDownNumber' + str(-increase))
                 if anim:
-                    number_animation = Animation(anim, (pos[0] + 43, pos[1] + 49), delay=80, hold=True)
+                    number_animation = Animation(anim, (offset_pos[0] + 37, offset_pos[1] + 4), delay=80, hold=True)
                     self.animations.append(number_animation)
 
                 SOUNDTHREAD.play_sfx('Stat Up')

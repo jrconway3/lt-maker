@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
 from PyQt5.QtCore import Qt, QRect, QDateTime
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
-from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT, TILEX, TILEY, WINWIDTH, WINHEIGHT
 from app.resources.resources import RESOURCES
 from app.resources.tiles import LayerGrid
 from app.data.database import DB
@@ -755,12 +755,12 @@ class ResizeDialog(Dialog):
         size_layout = QFormLayout()
         self.width_box = QSpinBox()
         self.width_box.setValue(self.current.width)
-        self.width_box.setRange(15, 255)
+        self.width_box.setRange(TILEX, 255)
         self.width_box.valueChanged.connect(self.on_width_changed)
         size_layout.addRow("Width:", self.width_box)
         self.height_box = QSpinBox()
         self.height_box.setValue(self.current.height)
-        self.height_box.setRange(10, 255)
+        self.height_box.setRange(TILEY, 255)
         self.height_box.valueChanged.connect(self.on_height_changed)
         size_layout.addRow("Height:", self.height_box)
         size_section.setLayout(size_layout)

@@ -13,6 +13,7 @@ from app.engine.engine import Surface
 class LevelCursor(BaseCursor):
     def __init__(self, game: GameState):
         super().__init__(camera=game.camera, tilemap=game.tilemap)
+        # this is frame-accurate to GBA
         self.cursor_counter = generic3counter(frames2ms(20), frames2ms(2), frames2ms(8))
         self.game = game
         self.cur_unit = None
@@ -239,6 +240,7 @@ class LevelCursor(BaseCursor):
                 dpos = new_pos[0] - self.position[0], new_pos[1] - self.position[1]
                 dx = dpos[0]
                 dy = dpos[1]
+                # self._transition_speed = 2
 
         if dx != 0 or dy != 0:
             # adjust camera accordingly

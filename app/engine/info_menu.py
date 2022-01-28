@@ -533,6 +533,9 @@ class InfoMenuState(State):
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
+        else:
+            # info menu shouldn't be transparent
+            surf.blit(SPRITES.get('bg_black'), (0, 0))
 
         # Image flashy thing at the top of the InfoMenu
         num_frames = 8

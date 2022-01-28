@@ -47,7 +47,7 @@ class CliffTerrain(WangCorner2Terrain):
 
         return best_path
 
-    def _calc_corners(self, pos: tuple, partners: list) -> tuple:
+    def _calc_corners(self, tilemap, pos: tuple, partners: list) -> tuple:
         corner_topleft = False
         corner_bottomleft = False
         corner_topright = False
@@ -67,16 +67,17 @@ class CliffTerrain(WangCorner2Terrain):
                 corner_bottomright = True
             # Top
             elif other_pos[0] == pos[0] and other_pos[1] == pos[1] - 1:
+                # if edge_random(other_pos, pos) < 0.5:
                 if edge_random(other_pos, pos) < 0.5:
-                    corner_topleft = True
-                else:
                     corner_topright = True
+                else:
+                    corner_topleft = True
             # Bottom
             elif other_pos[0] == pos[0] and other_pos[1] == pos[1] + 1:
                 if edge_random(pos, other_pos) < 0.5:
-                    corner_bottomleft = True
-                else:
                     corner_bottomright = True
+                else:
+                    corner_bottomleft = True
             # Left
             elif other_pos[0] == pos[0] - 1 and other_pos[1] == pos[1]:
                 if edge_random(other_pos, pos) < 0.5:
@@ -91,9 +92,9 @@ class CliffTerrain(WangCorner2Terrain):
                     corner_bottomright = True
         return corner_topright, corner_bottomright, corner_bottomleft, corner_topleft
 
-    def _chain_end_process(self, pos: tuple, other_pos: tuple) -> tuple:
+    def _chain_end_process(self, tilemap, pos: tuple, other_pos: tuple) -> tuple:
         topright, bottomright, bottomleft, topleft = \
-            self._calc_corners(pos, [other_pos])
+            self._calc_corners(tilemap, pos, [other_pos])
         if topright:
             bottomleft = True
         elif bottomright:
@@ -134,13 +135,13 @@ class CliffTerrain(WangCorner2Terrain):
                 prev_pos = longest_path[idx - 1]              
                 next_pos = longest_path[idx + 1]
                 topright, bottomright, bottomleft, topleft = \
-                    self._calc_corners(pos, [prev_pos, next_pos])
+                    self._calc_corners(tilemap, pos, [prev_pos, next_pos])
                 
                 self.organization[pos] = (topright, bottomright, bottomleft, topleft)
             # For first and last path
             if len(longest_path) > 1:
-                self.organization[longest_path[0]] = self._chain_end_process(longest_path[0], longest_path[1])
-                self.organization[longest_path[-1]] = self._chain_end_process(longest_path[-1], longest_path[-2])
+                self.organization[longest_path[0]] = self._chain_end_process(tilemap, longest_path[0], longest_path[1])
+                self.organization[longest_path[-1]] = self._chain_end_process(tilemap, longest_path[-1], longest_path[-2])
             else:
                 self.organization[longest_path[0]] = (True, False, False, True)  # Facing down
 
@@ -180,8 +181,23 @@ class CliffTerrain(WangCorner2Terrain):
 
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
         index = self._determine_index(tilemap, pos)
-        bottomright = self._determine_cliff_vector(tilemap, pos)
-        if bottomright:
+        right, bottom, x_stronger = self._determine_cliff_vector(tilemap, pos)
+        use_bottomright = True
+        if index in (3, 12):
+            use_bottomright = right
+        elif index in (5, 7, 13):
+            if x_stronger:
+                use_bottomright = right
+            else:
+                use_bottomright = bottom
+        elif index in (6, 9):
+            use_bottomright = bottom
+        elif index in (10, 11, 14):
+            if x_stronger:
+                use_bottomright = not right
+            else:
+                use_bottomright = bottom
+        if use_bottomright:
             new_coords = [(index, k) for k in range(self.limits[index])]
         else:
             new_coords = [(index, k + self.second_start_px//TILEHEIGHT) for k in range(self.second_limits[index])]
@@ -193,15 +209,20 @@ class CliffTerrain(WangCorner2Terrain):
         new_coords4 = [random_choice([(c[0]*2, c[1]*2 + 1) for c in new_coords], pos)]
         return new_coords1, new_coords2, new_coords3, new_coords4
 
-    def _determine_cliff_vector(self, tilemap, pos: tuple) -> bool:
+    def _determine_cliff_vector(self, tilemap, pos: tuple) -> tuple:
         """
-        Returns True is cliff should be facing bottomright
-        Returns False if cliff should be facing topleft
+        Returns True is cliff should be facing bottom
+        Returns False if cliff should be facing top
         """
         closest_cliff_marker = list(sorted(tilemap.cliff_markers, key=lambda x: utils.distance(pos, x)))[0]
-        x_diff = closest_cliff_marker[0] - pos[0]
-        y_diff = closest_cliff_marker[1] - pos[1]
+        x_diff = closest_cliff_marker[0] - (pos[0] + .5)
+        y_diff = closest_cliff_marker[1] - (pos[1] + .5)
         angle = math.atan2(y_diff, x_diff)
         if angle < 0:
             angle += 2 * math.pi
-        return angle >= math.pi  # pointing upwards
+        bottom = angle >= math.pi  # vector points up
+        right = 0.5*math.pi <= angle <= 1.5*math.pi  # vector points left
+        # Tells you whether the angle is more horizontal or vertical
+        x_stronger = angle < 0.25*math.pi or angle > 1.75*math.pi or 0.75*math.pi < angle < 1.25*math.pi
+        # print("vert", pos, angle, right, bottom, x_stronger)
+        return right, bottom, x_stronger

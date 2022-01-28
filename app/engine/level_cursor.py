@@ -239,7 +239,7 @@ class LevelCursor(BaseCursor):
                 dpos = new_pos[0] - self.position[0], new_pos[1] - self.position[1]
                 dx = dpos[0]
                 dy = dpos[1]
-                self._transition_speed = 2
+                # self._transition_speed = 2
 
         if dx != 0 or dy != 0:
             # adjust camera accordingly

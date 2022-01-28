@@ -133,7 +133,7 @@ class BaseCursor():
         # queue transition
         transition_start = engine.get_time()
         if mouse:
-            duration = self.transition_duration / 4
+            duration = self.transition_duration / 2
         else:
             duration = self.transition_duration
         final_x, final_y = x, y
@@ -162,7 +162,6 @@ class BaseCursor():
             if this_transition_direction == self._transition_direction: # in motion; start a "slide"
                 self._transition_start = (self._transition_start[0], self._transition_start[1] + duration)
                 final_y = y + dy
-
 
         self.position = final_x, final_y
 
@@ -201,7 +200,7 @@ class BaseCursor():
                 dpos = new_pos[0] - self.position[0], new_pos[1] - self.position[1]
                 dx = dpos[0]
                 dy = dpos[1]
-                self._transition_speed = 2
+                # self._transition_speed = 2
 
         if dx != 0 or dy != 0:
             # adjust camera accordingly
@@ -229,7 +228,7 @@ class BaseCursor():
             oy = TILEHEIGHT * -1 * self.transition_progress[1] * Direction.which_vertical_dir(self._transition_direction[1])
             self.offset_x, self.offset_y = ox, oy
         else:
-            self._transition_speed = 1
+            # self._transition_speed = 1
             self.offset_x, self.offset_y = 0, 0
 
     def draw(self, surf: Surface, cull_rect: Tuple[int, int, int, int]):

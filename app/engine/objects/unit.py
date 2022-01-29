@@ -21,34 +21,54 @@ if TYPE_CHECKING:
 
 # Main unit object used by engine
 class UnitObject(Prefab):
-    def __init__(self, prefab: UniqueUnit | GenericUnit | UnitPrefab):
+    def __init__(self, prefab: UniqueUnit | GenericUnit | UnitPrefab = None):
         # the raw method is purely to initialize all fields
         # use from_prefab to actually init into game engine
-        self.nid: NID = prefab.nid
-        if isinstance(prefab, UnitPrefab): # initing a non-level unit
+        if not prefab:
+            self.nid: NID = None
             self.generic: bool = False
             self.ai: str = None
             self.ai_group: str = None
             self.faction: NID = None
-            self.team: str = 'player'
+            self.team: str = None
+            self.portrait_nid: NID = None
+            self.affinity: NID =None
+            self.notes: List[Tuple[str, str]] = None
+            self._fields: Dict[str, str] = None
+            self.klass: NID = None
+            self.variant: str = None
+
+            self.name: str = None
+            self.desc: str = None
+            self._tags: List[str] = None
+            self.party: NID = None
         else:
-            self.generic: bool = prefab.generic
-            self.ai: str = prefab.ai
-            self.ai_group: str = prefab.ai_group
-            self.faction: NID = prefab.faction
-            self.team: str = prefab.team
+            self.nid: NID = prefab.nid
+            if isinstance(prefab, UnitPrefab): # initing a non-level unit
+                self.generic: bool = False
+                self.ai: str = None
+                self.ai_group: str = None
+                self.faction: NID = None
+                self.team: str = 'player'
+            else:
+                self.generic: bool = prefab.generic
+                self.ai: str = prefab.ai
+                self.ai_group: str = prefab.ai_group
+                self.faction: NID = prefab.faction
+                self.team: str = prefab.team
 
-        self.portrait_nid: NID = prefab.portrait_nid if not self.generic else None
-        self.affinity: NID = prefab.affinity if not self.generic else None
-        self.notes: List[Tuple[str, str]] = [(n[0], n[1]) for n in prefab.unit_notes] if not self.generic else []
-        self._fields: Dict[str, str] = {key: value for (key, value) in prefab.fields} if not self.generic else {}
-        self.klass: NID = prefab.klass
-        self.variant: str = prefab.variant
+            self.portrait_nid: NID = prefab.portrait_nid if not self.generic else None
+            self.affinity: NID = prefab.affinity if not self.generic else None
+            self.notes: List[Tuple[str, str]] = [(n[0], n[1]) for n in prefab.unit_notes] if not self.generic else []
+            self._fields: Dict[str, str] = {key: value for (key, value) in prefab.fields} if not self.generic else {}
+            self.klass: NID = prefab.klass
+            self.variant: str = prefab.variant
 
-        self.name: str = prefab.name
-        self.desc: str = prefab.desc
-        self._tags: List[str] = [tag for tag in prefab.tags] if not self.generic else []
-        self.party: NID = None
+            self.name: str = prefab.name
+            self.desc: str = prefab.desc
+            self._tags: List[str] = [tag for tag in prefab.tags] if not self.generic else []
+            self.party: NID = None
+
 
         self.level: int = 1
         self.exp: int = 0

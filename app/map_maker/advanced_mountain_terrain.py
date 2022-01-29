@@ -65,8 +65,8 @@ class MountainTerrain(Terrain):
             index = 1 * north_edge + 2 * east_edge + 4 * south_edge + 8 * west_edge
             self.border_dict[coord] = index
             self.index_dict[index].add(coord)
-        # for index, coord in self.index_dict.items():
-        #     print(index, coord)
+        for index, coord in self.index_dict.items():
+            print(index, sorted(coord))
 
     def find_valid_coord(self, tilemap, pos) -> bool:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
@@ -85,7 +85,7 @@ class MountainTerrain(Terrain):
         east_pos = (pos[0] + 1, pos[1])
         west_pos = (pos[0] - 1, pos[1])
         print("*Valid Coord", pos, self.order)
-        print(sorted(valid_coords))
+        # print(sorted(valid_coords))
         # Remove locked coords
         if pos in self.locked_values:
             print("Locked", sorted(self.locked_values[pos]))
@@ -102,7 +102,7 @@ class MountainTerrain(Terrain):
         if not west_edge and west_pos in self.organization:
             chosen_coord = self.organization[west_pos]
             valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord]['right']]
-        print(sorted(valid_coords))
+        # print(sorted(valid_coords))
         if not valid_coords:
             print("Reverting Order...")
             if pos in self.locked_values:
@@ -118,29 +118,22 @@ class MountainTerrain(Terrain):
     def revert_order(self, positions):
         if not self.order:
             print("Major loop error! No valid solution")
-            sys.exit()
-        first = self.order[0]
+            # Just fill it up with generic pieces
+            for pos in self.to_process:
+                valid_coords = self.index_dict[15]
+                valid_coord = random_choice(list(valid_coords), pos)
+                self.organization[pos] = valid_coord
+            self.to_process.clear()
+            return
 
-        while self.order:
-            pos = self.order.pop()
-            coord = self.organization[pos]
-            del self.organization[pos]
-            self.to_process.insert(0, pos)
-            if pos in positions:
-                if pos not in self.locked_values:
-                    self.locked_values[pos] = set()
-                self.locked_values[pos].add(coord)
-                print("Locking ", coord, "for ", pos)
-                return
-            elif pos in self.locked_values and pos is not first:
-                del self.locked_values[pos]
-
-        # Handle the first one
-        if first:
-            if first not in self.locked_values:
-                self.locked_values[first] = set()
-            self.locked_values[first].add(coord)
-            print("Locking ", coord, "for ", first)
+        pos = self.order.pop()
+        coord = self.organization[pos]
+        del self.organization[pos]
+        self.to_process.insert(0, pos)
+        if pos not in self.locked_values:
+            self.locked_values[pos] = set()
+        self.locked_values[pos].add(coord)
+        print("Locking ", coord, "for ", pos)
 
     def find_num_borders(self, tilemap, pos) -> int:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)

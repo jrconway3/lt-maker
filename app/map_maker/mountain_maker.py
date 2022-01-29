@@ -131,18 +131,18 @@ def assign_rules(palette_templates: dict, fns: list):
                     mountain_match.rules['up'][up_palette.coord] += 1
                 else:
                     mountain_match.rules['up'][None] += 1
-                    # if mountain_match.coord == (13, 13):
-                    #     print(fn, position, 'up')
+                    if mountain_match.coord == (13, 13):
+                        print(fn, position, 'up')
             if down[1] < num_tiles_y:
                 if down_palette:
                     mountain_match.rules['down'][down_palette.coord] += 1
                 else:
                     mountain_match.rules['down'][None] += 1
-                    # if mountain_match.coord == (13, 13):
-                    #     print(fn, position, 'down')
+                    if mountain_match.coord == (13, 13):
+                        print(fn, position, 'down')
 
 def is_present(palette: QuadPaletteData, palette_templates: dict) -> MountainQuadPaletteData:
-    MUST_MATCH = 3
+    MUST_MATCH = 4
     for coord, mountain in palette_templates.items():
         if similar(palette, mountain, MUST_MATCH):
             return mountain

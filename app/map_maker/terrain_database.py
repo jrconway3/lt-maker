@@ -1,10 +1,11 @@
 import app.utilities as utils
-from app.map_maker.utilities import random_choice, random_random, edge_random, flood_fill
+from app.map_maker.utilities import random_choice, random_random, edge_random, flood_fill, find_bounds
 from app.map_maker.terrain import Terrain, TerrainCatalog
 from app.map_maker.wang_terrain import WangCorner2Terrain, WangEdge2Terrain
 from app.map_maker.building_terrain import CastleTerrain, HouseTerrain, RuinsTerrain
 from app.map_maker.cliff_terrain import CliffTerrain
 from app.map_maker.sea_terrain import SeaTerrain
+from app.map_maker.mountain_terrain import MountainTerrain
 
 class RandomTerrain(Terrain):
     data = []
@@ -169,31 +170,8 @@ class ForestTerrain(Terrain):
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:    
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
         blob_positions = flood_fill(tilemap, pos)
-        left_most = min(p[0] for p in blob_positions)
-        right_most = max(p[0] for p in blob_positions)
-        top_most = min(p[1] for p in blob_positions)
-        bottom_most = max(p[1] for p in blob_positions)
-        # Extend to out of bounds when we are on a tilemap edge
-        if left_most == 0 and right_most == tilemap.width - 1:
-            left_most = -tilemap.width
-            right_most = tilemap.width*2 - 1
-        elif left_most == 0:
-            left_most = -right_most
-        elif right_most == tilemap.width - 1:
-            right_most = left_most + 2*(tilemap.width - left_most)
-        if top_most == 0 and bottom_most == tilemap.height - 1:
-            top_most = -tilemap.height
-            bottom_most = tilemap.height*2 - 1
-        elif top_most == 0:
-            top_most = -bottom_most
-        elif bottom_most == tilemap.height - 1:
-            bottom_most = top_most + 2*(tilemap.height - top_most)
-        right_most += 1
-        bottom_most += 1
-        blob_width = (right_most - left_most)
-        blob_height = (bottom_most - top_most)
-        center_x = (right_most - left_most)/2 + left_most
-        center_y = (bottom_most - top_most)/2 + top_most
+        _, _, _, _, blob_width, blob_height, center_x, center_y = \
+            find_bounds(tilemap, blob_positions)
         my_radius_width = abs(pos[0] + 0.5 - center_x)
         my_radius_height = abs(pos[1] + 0.5 - center_y)
         depth_w = (blob_width / 2) - my_radius_width
@@ -439,6 +417,8 @@ Thicket.data = [(17, 22), (18, 22), (19, 22), (17, 23), (18, 23), (19, 23), (18,
 
 Hill = HillTerrain('Hill', 'Hill', tileset, (13, 21))
 
+Mountain = MountainTerrain('Mountain', 'Mountain', 'app/map_maker/rainlash_fields1_mountain.png', (15, 0))
+
 Cliff = CliffTerrain('Cliff', 'Cliff', 'app/map_maker/rainlash_fields1_cliff.png', (15, 0))
 
 Sea = SeaTerrain('Sea', 'Sea', 'app/map_maker/rainlash_fields1_sea.png', (15, 0))
@@ -454,5 +434,5 @@ Castle = CastleTerrain('Castle', 'Castle', tileset, (4, 27))
 House = HouseTerrain('House', 'House', tileset, (4, 25))
 Ruins = RuinsTerrain('Ruins', 'Ruins', tileset, (3, 28))
 
-d = [Plains, Sand, Road, Forest, Thicket, Cliff, Hill, River, Sea, BridgeH, BridgeV, House, Castle, Ruins]
+d = [Plains, Sand, Road, Forest, Thicket, Cliff, Hill, Mountain, River, Sea, BridgeH, BridgeV, House, Castle, Ruins]
 DB_terrain = TerrainCatalog(d)

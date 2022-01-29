@@ -68,3 +68,31 @@ def flood_fill(tilemap, pos: tuple, diagonal: bool = False, match: set = None) -
     # Determine which coords should be flood-filled
     find_similar(pos, match)
     return blob_positions
+
+def find_bounds(tilemap, group: set) -> tuple:
+    left_most = min(p[0] for p in group)
+    right_most = max(p[0] for p in group)
+    top_most = min(p[1] for p in group)
+    bottom_most = max(p[1] for p in group)
+    # Extend to out of bounds when we are on a tilemap edge
+    if left_most == 0 and right_most == tilemap.width - 1:
+        left_most = -tilemap.width
+        right_most = tilemap.width*2 - 1
+    elif left_most == 0:
+        left_most = -right_most
+    elif right_most == tilemap.width - 1:
+        right_most = left_most + 2*(tilemap.width - left_most)
+    if top_most == 0 and bottom_most == tilemap.height - 1:
+        top_most = -tilemap.height
+        bottom_most = tilemap.height*2 - 1
+    elif top_most == 0:
+        top_most = -bottom_most
+    elif bottom_most == tilemap.height - 1:
+        bottom_most = top_most + 2*(tilemap.height - top_most)
+    right_most += 1
+    bottom_most += 1
+    blob_width = (right_most - left_most)
+    blob_height = (bottom_most - top_most)
+    center_x = (right_most - left_most)/2 + left_most
+    center_y = (bottom_most - top_most)/2 + top_most
+    return left_most, right_most, top_most, bottom_most, blob_width, blob_height, center_x, center_y

@@ -1,3 +1,4 @@
+import sys
 try:
     import cPickle as pickle
 except ImportError:
@@ -83,15 +84,12 @@ class MountainTerrain(Terrain):
         south_pos = (pos[0], pos[1] + 1)
         east_pos = (pos[0] + 1, pos[1])
         west_pos = (pos[0] - 1, pos[1])
-        print("Valid coord")
-        print(pos, self.order)
-        print(north_edge, south_edge, east_edge, west_edge)
-        print(valid_coords)
+        print("*Valid Coord", pos, self.order)
+        print(sorted(valid_coords))
         # Remove locked coords
         if pos in self.locked_values:
-            print("Locked", self.locked_values[pos])
+            print("Locked", sorted(self.locked_values[pos]))
             valid_coords = [coord for coord in valid_coords if coord not in self.locked_values[pos]]
-            print(valid_coords)
         if not north_edge and north_pos in self.organization:
             chosen_coord = self.organization[north_pos]
             valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord]['down']]
@@ -104,8 +102,11 @@ class MountainTerrain(Terrain):
         if not west_edge and west_pos in self.organization:
             chosen_coord = self.organization[west_pos]
             valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord]['right']]
-        print(valid_coords)
+        print(sorted(valid_coords))
         if not valid_coords:
+            print("Reverting Order...")
+            if pos in self.locked_values:
+                del self.locked_values[pos]
             self.revert_order((north_pos, south_pos, east_pos, west_pos))
             # valid_coords = self.index_dict[15]
             return False
@@ -115,19 +116,31 @@ class MountainTerrain(Terrain):
         return True
 
     def revert_order(self, positions):
+        if not self.order:
+            print("Major loop error! No valid solution")
+            sys.exit()
+        first = self.order[0]
+
         while self.order:
             pos = self.order.pop()
             coord = self.organization[pos]
             del self.organization[pos]
             self.to_process.insert(0, pos)
-            # if pos in self.locked_values:
-            #     del self.locked_values[pos]
             if pos in positions:
                 if pos not in self.locked_values:
                     self.locked_values[pos] = set()
                 self.locked_values[pos].add(coord)
                 print("Locking ", coord, "for ", pos)
-                break
+                return
+            elif pos in self.locked_values and pos is not first:
+                del self.locked_values[pos]
+
+        # Handle the first one
+        if first:
+            if first not in self.locked_values:
+                self.locked_values[first] = set()
+            self.locked_values[first].add(coord)
+            print("Locking ", coord, "for ", first)
 
     def find_num_borders(self, tilemap, pos) -> int:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
@@ -152,6 +165,7 @@ class MountainTerrain(Terrain):
 
     def process_group(self, tilemap, group: set):
         # Determine coord 
+        print("--- Process Group ---")
         self.locked_values.clear()
         self.order.clear()
         self.to_process = sorted(group)
@@ -162,6 +176,7 @@ class MountainTerrain(Terrain):
             if did_work:
                 self.to_process.remove(pos)
                 self.order.append(pos)
+            self.to_process = sorted(self.to_process)
 
         while self.to_process:
             four_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 4]
@@ -187,6 +202,10 @@ class MountainTerrain(Terrain):
             two_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 2]
             if two_partners:
                 process(two_partners)
+                continue
+            one_and_one = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 1 and self.find_num_partners(tilemap, pos) == 1]
+            if one_and_one:
+                process(one_and_one)
                 continue
             one_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 1]
             if one_borders:

@@ -234,6 +234,7 @@ class MapEditor(QDialog):
 
     def random_seed_changed(self, val):
         map_utils.RANDOM_SEED = val
+        print("--- Seed Changed ---")
         self.current.reset_all()
 
     def export_as_png(self):

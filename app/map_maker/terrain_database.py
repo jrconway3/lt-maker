@@ -5,7 +5,7 @@ from app.map_maker.wang_terrain import WangCorner2Terrain, WangEdge2Terrain
 from app.map_maker.building_terrain import CastleTerrain, HouseTerrain, RuinsTerrain
 from app.map_maker.cliff_terrain import CliffTerrain
 from app.map_maker.sea_terrain import SeaTerrain
-from app.map_maker.mountain_terrain import MountainTerrain
+from app.map_maker.advanced_mountain_terrain import MountainTerrain
 
 class RandomTerrain(Terrain):
     data = []
@@ -417,7 +417,8 @@ Thicket.data = [(17, 22), (18, 22), (19, 22), (17, 23), (18, 23), (19, 23), (18,
 
 Hill = HillTerrain('Hill', 'Hill', tileset, (13, 21))
 
-Mountain = MountainTerrain('Mountain', 'Mountain', 'app/map_maker/rainlash_fields1_mountain.png', (15, 0))
+Mountain = MountainTerrain('Mountain', 'Mountain', tileset, (8, 23))
+Mountain.initial_process()
 
 Cliff = CliffTerrain('Cliff', 'Cliff', 'app/map_maker/rainlash_fields1_cliff.png', (15, 0))
 

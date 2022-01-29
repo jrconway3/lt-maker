@@ -17,7 +17,7 @@ def similar(p1: list, p2: list) -> int:
     count = 0
     for i, j in zip(p1, p2):
         if i == j:
-            pass
+            mapping[i] = j
         elif i in mapping and j != mapping[i]:
             count += 1
         else:

@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
-    QToolBar, QDialog, QSpinBox, QAction, QSizePolicy, \
+    QToolBar, QDialog, QSpinBox, QAction, \
     QActionGroup, QWidget, QComboBox, QPushButton, \
     QDesktopWidget, QFileDialog, QHBoxLayout, QMessageBox
 from PyQt5.QtCore import Qt

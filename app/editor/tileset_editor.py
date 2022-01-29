@@ -1,175 +1,70 @@
-from enum import IntEnum
-
-from app.constants import TILEHEIGHT, TILEWIDTH, WINHEIGHT, WINWIDTH
+from app.constants import TILEHEIGHT, TILEWIDTH
 from app.data.database import DB
 from app.editor import timer
 from app.editor.settings import MainSettingsController
 from app.editor.terrain_painter_menu import TerrainPainterMenu
+from app.editor.tilemap_editor import PaintTool
+from app.extensions.tiled_view import DraggableTileImageView
 from app.resources.tiles import TileSet
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QIcon, QPainter, QPen
 from PyQt5.QtWidgets import (QAction, QActionGroup, QDesktopWidget, QDialog,
-                             QDialogButtonBox, QFrame, QGraphicsScene,
-                             QGraphicsView, QHBoxLayout, QSplitter, QToolBar,
+                             QDialogButtonBox, QFrame, QHBoxLayout, QSplitter, QToolBar,
                              QVBoxLayout)
 
-
-class PaintTool(IntEnum):
-    NoTool = 0
-    Brush = 1
-    Fill = 2
-    Erase = 3
-
-class TileSetEditorView(QGraphicsView):
-    min_scale = 1
-    max_scale = 6
-
+class TileSetEditorView(DraggableTileImageView):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.window = parent
-
-        self.scene = QGraphicsScene(self)
-        self.setScene(self.scene)
-        self.setMouseTracking(True)
-
-        self.setMinimumSize(WINWIDTH, WINHEIGHT)
-        self.setStyleSheet("background-color:rgb(128, 128, 128);")
-
-        self.screen_scale = 1
-
         self.tileset: TileSet = None
-
-        self.current_mouse_position = (0, 0)
-        self.old_middle_pos = None
-
-        self.left_selecting = False
-        self.right_selecting = False
-        self.right_selection = {}  # Dictionary of tile_sprites
-
-        self.draw_autotiles = True
-        self.draw_gridlines = True
-
-        self.focus_layer = False
-
-        timer.get_timer().tick_elapsed.connect(self.tick)
-
-    def tick(self):
-        if self.tileset:
-            self.update_view()
+        self.alpha = 128
 
     def set_current(self, current: TileSet):
         self.tileset = current
         self.update_view()
 
-    def clear_scene(self):
-        self.scene.clear()
+    def set_alpha(self, alpha: float):
+        self.alpha = alpha
 
     def update_view(self):
         if self.tileset:
             pixmap = self.tileset.pixmap.copy()
             self.working_image = pixmap
         else:
+            self.clear_scene()
             return
         self.draw_terrain()
+        self.draw_gridlines()
         self.show_map()
 
-    def get_map_image(self):
-        image = self.tileset.pixmap
-
-        painter = QPainter()
-        painter.begin(image)
-        # Draw grid lines
-        if self.draw_gridlines:
-            painter.setPen(QPen(QColor(0, 0, 0, 128), 1, Qt.DotLine))
-            for x in range(self.tileset.width):
-                painter.drawLine(x * TILEWIDTH, 0, x * TILEWIDTH, self.tileset.height * TILEHEIGHT)
-            for y in range(self.tileset.height):
-                painter.drawLine(0, y * TILEHEIGHT, self.tileset.width * TILEWIDTH, y * TILEHEIGHT)
-
-        painter.end()
-        return image
+    def draw_gridlines(self):
+        if self.working_image:
+            painter = QPainter()
+            painter.begin(self.working_image)
+            # Draw grid lines
+            if self.draw_gridlines:
+                painter.setPen(QPen(QColor(0, 0, 0, 128), 1, Qt.DotLine))
+                for x in range(self.tileset.width):
+                    painter.drawLine(x * TILEWIDTH, 0, x * TILEWIDTH, self.tileset.height * TILEHEIGHT)
+                for y in range(self.tileset.height):
+                    painter.drawLine(0, y * TILEHEIGHT, self.tileset.width * TILEWIDTH, y * TILEHEIGHT)
+            painter.end()
 
     def draw_terrain(self):
         if self.working_image:
             painter = QPainter()
             painter.begin(self.working_image)
-            alpha = self.window.terrain_painter_menu.get_alpha()
             for coord, terrain_nid in self.tileset.terrain_grid.items():
                 terrain = DB.terrain.get(terrain_nid)
                 if terrain:
                     color = terrain.color
                     write_color = QColor(color[0], color[1], color[2])
-                    write_color.setAlpha(alpha)
-                    print(alpha)
+                    write_color.setAlpha(self.alpha)
                     painter.fillRect(coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT, write_color)
             painter.end()
 
     def show_map(self):
         self.clear_scene()
         self.scene.addPixmap(self.working_image)
-
-    def paint_terrain(self, tile_pos):
-        if self.tileset.check_bounds(tile_pos):
-            current_nid = self.window.terrain_painter_menu.get_current_nid()
-            self.tileset.terrain_grid[tile_pos] = current_nid
-
-    def erase_terrain(self, tile_pos):
-        if self.tileset.check_bounds(tile_pos):
-            self.tileset.terrain_grid[tile_pos] = None
-
-    def mousePressEvent(self, event):
-        scene_pos = self.mapToScene(event.pos())
-        tile_pos = int(scene_pos.x() // TILEWIDTH), \
-            int(scene_pos.y() // TILEHEIGHT)
-
-        if event.button() == Qt.LeftButton:
-            if self.window.current_tool == PaintTool.Brush:
-                self.paint_terrain(tile_pos)
-                self.left_selecting = True
-            elif self.window.current_tool == PaintTool.Erase:
-                self.erase_terrain(tile_pos)
-                self.left_selecting = True
-        elif event.button() == Qt.MiddleButton:
-            self.old_middle_pos = event.pos()
-
-    def mouseMoveEvent(self, event):
-        scene_pos = self.mapToScene(event.pos())
-        tile_pos = int(scene_pos.x() // TILEWIDTH), \
-            int(scene_pos.y() // TILEHEIGHT)
-
-        self.current_mouse_position = tile_pos
-
-        if self.left_selecting and self.tileset.check_bounds(tile_pos):
-            if self.window.current_tool == PaintTool.Brush:
-                self.paint_terrain(tile_pos)
-            elif self.window.current_tool == PaintTool.Erase:
-                self.erase_terrain(tile_pos)
-        elif event.buttons() & Qt.MiddleButton:
-            offset = self.old_middle_pos - event.pos()
-            self.old_middle_pos = event.pos()
-
-            self.verticalScrollBar().setValue(self.verticalScrollBar().value() + offset.y())
-            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() + offset.x())
-
-    def mouseReleaseEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.left_selecting = False
-
-    def zoom_in(self):
-        if self.screen_scale < self.max_scale:
-            self.screen_scale += 1
-            self.scale(2, 2)
-
-    def zoom_out(self):
-        if self.screen_scale > self.min_scale:
-            self.screen_scale -= 1
-            self.scale(0.5, 0.5)
-
-    def wheelEvent(self, event):
-        if event.angleDelta().y() > 0:
-            self.zoom_in()
-        elif event.angleDelta().y() < 0:
-            self.zoom_out()
 
 class TileSetEditor(QDialog):
     def __init__(self, parent=None, current: TileSet=None):
@@ -185,13 +80,19 @@ class TileSetEditor(QDialog):
         default_size = main_screen_size.width()*0.7, main_screen_size.height()*0.7
         self.resize(*default_size)
 
-        self.current = current
+        self.current: TileSet = current
         self.save()
         self.current_tool = PaintTool.NoTool
+        self.tool_active = False
 
         self.terrain_painter_menu = TerrainPainterMenu(self)
+        self.terrain_painter_menu.alpha_updated.connect(self.on_terrain_alpha_change)
         self.view = TileSetEditorView(self)
         self.view.set_current(current)
+        self.view.set_alpha(self.terrain_painter_menu.get_alpha())
+        self.view.left_clicked.connect(self.handle_left_click)
+        self.view.left_released.connect(self.handle_mouse_release)
+        self.view.mouse_moved.connect(self.handle_mouse_move)
 
         self.create_actions()
         self.create_toolbar()
@@ -231,6 +132,34 @@ class TileSetEditor(QDialog):
             self.main_splitter.restoreState(state)
 
         self.view.update_view()
+
+    def on_terrain_alpha_change(self, alpha: int):
+        self.view.set_alpha(alpha)
+
+    def handle_left_click(self, x, y):
+        tile_pos = (x, y)
+        if self.current_tool == PaintTool.Brush:
+            if self.current.check_bounds(tile_pos):
+                current_nid = self.terrain_painter_menu.get_current_nid()
+                self.current.terrain_grid[tile_pos] = current_nid
+        elif self.current_tool == PaintTool.Erase:
+            if self.current.check_bounds(tile_pos):
+                self.current.terrain_grid[tile_pos] = None
+        self.tool_active = True
+
+    def handle_mouse_release(self):
+        self.tool_active = False
+
+    def handle_mouse_move(self, x, y):
+        tile_pos = (x, y)
+        if self.tool_active:
+            if self.current_tool == PaintTool.Brush:
+                if self.current.check_bounds(tile_pos):
+                    current_nid = self.terrain_painter_menu.get_current_nid()
+                    self.current.terrain_grid[tile_pos] = current_nid
+            elif self.current_tool == PaintTool.Erase:
+                if self.current.check_bounds(tile_pos):
+                    self.current.terrain_grid[tile_pos] = None
 
     def create_actions(self):
         theme = self.settings.get_theme()

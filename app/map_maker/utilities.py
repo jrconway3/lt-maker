@@ -106,4 +106,4 @@ def find_bounding_rect(coords: set) -> tuple:
     bottom_most += 1
     blob_width = (right_most - left_most)
     blob_height = (bottom_most - top_most)
-    return blob_width, blob_height
+    return left_most, top_most, blob_width, blob_height

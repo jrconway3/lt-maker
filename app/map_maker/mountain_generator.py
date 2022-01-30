@@ -4,8 +4,10 @@ except ImportError:
     import pickle
 
 from app.map_maker.utilities import random_choice, find_bounding_rect
-
 class Generator():
+    MAX_SIZE = 3
+    NUM_VARIANTS = 10
+
     def __init__(self):
         self.seed = 0
         self.organization = {}
@@ -33,23 +35,90 @@ class Generator():
         for index, coord in self.index_dict.items():
             print(index, sorted(coord))
 
+        import time
+        total_time = 0
         self.terrain_organization = {}
         for terrain_grid in self.terrain_grids:
+            print(terrain_grid)
             self.terrain_grid = terrain_grid
-            _hash = frozenset(self.terrain_grid)
-            if _hash not in self.terrain_organization:
-                self.terrain_organization[_hash] = []
+            if self.terrain_grid not in self.terrain_organization:
+                self.terrain_organization[self.terrain_grid] = []
             # For each seed
-            for idx in range(10):
+            start = time.time_ns() / 1e6
+            for idx in range(self.NUM_VARIANTS):
+                print(idx)
                 self.seed = idx
                 self.organization.clear()
                 self.process_terrain_grid()
-                self.terrain_organization[_hash].append(self.organization.copy())
+                self.terrain_organization[self.terrain_grid].append(self.organization.copy())
+            duration = time.time_ns() / 1e6 - start
+            print(duration)
+            total_time += duration
+        print("Total Time %f ms" % total_time)
+
+    def flood_fill(self, pos: tuple) -> set:
+        blob_positions = set()
+        unexplored_stack = []
+
+        def find_similar(starting_pos: tuple):
+            unexplored_stack.append(starting_pos)
+
+            counter = 0
+            while unexplored_stack and counter < 99999:
+                current_pos = unexplored_stack.pop()
+
+                if current_pos in blob_positions:
+                    continue
+                if not self.get_terrain(current_pos):
+                    continue
+
+                blob_positions.add(current_pos)
+                unexplored_stack.append((current_pos[0] + 1, current_pos[1]))
+                unexplored_stack.append((current_pos[0] - 1, current_pos[1]))
+                unexplored_stack.append((current_pos[0], current_pos[1] + 1))
+                unexplored_stack.append((current_pos[0], current_pos[1] - 1))
+                counter += 1
+            if counter >= 99999:
+                raise RuntimeError("Unexpected infinite loop in generic flood_fill")
+
+        # Determine which coords should be flood-filled
+        find_similar(pos)
+        return blob_positions
+
+    def generate_terrain_grids_procedural(self) -> list:
+        terrain_grids = set()
+        size = self.MAX_SIZE
+        square = size**2
+        for num in range(1, 2**square):
+            terrain_grid = set()
+            b = bin(num)[2:][-square:]
+            b = '0'*(square - len(b)) + b
+            for counter in range(square):
+                x = counter % size
+                y = counter // size
+                if b[counter] == '1':
+                    terrain_grid.add((x, y))
+            x_start, y_start, width, height = find_bounding_rect(terrain_grid)
+            self.terrain_grid = {(pos[0] - x_start, pos[1] - y_start) for pos in terrain_grid}
+            # Check if it's fully contiguous
+            near_positions: set = self.flood_fill(next(iter(self.terrain_grid)))
+            if len(near_positions) == len(self.terrain_grid):
+                terrain_grids.add(frozenset(self.terrain_grid))
+        return list(terrain_grids)
 
     def generate_terrain_grids(self) -> list:
-        terrain_grid1 = {(0, 0)}
-        terrain_grid2 = {(0, 0), (1, 0)}
-        return [terrain_grid1, terrain_grid2]
+        terrain_grids = set()
+        terrain_grid_example = {
+            (0, 2), (0, 4), (0, 5), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
+            (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7),
+            (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7),
+            (4, 1), (4, 2), (4, 3), (4, 4), (4, 5), (4, 6), (4, 7),
+            (5, 0), (5, 1), (5, 2), (5, 3), (5, 4), (5, 5), (5, 6),
+            (6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 6),
+            (7, 4)
+        }
+        terrain_grids.add(frozenset(terrain_grid_example))
+        return list(terrain_grids)
 
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
         new_coords = self.organization[pos]
@@ -75,11 +144,11 @@ class Generator():
         south_pos = (pos[0], pos[1] + 1)
         east_pos = (pos[0] + 1, pos[1])
         west_pos = (pos[0] - 1, pos[1])
-        print("*Valid Coord", pos, self.order)
+        # print("*Valid Coord", pos, self.order)
         # print(sorted(valid_coords))
         # Remove locked coords
         if pos in self.locked_values:
-            print("Locked", sorted(self.locked_values[pos]))
+            # print("Locked", sorted(self.locked_values[pos]))
             valid_coords = [coord for coord in valid_coords if coord not in self.locked_values[pos]]
         if not north_edge and north_pos in self.organization:
             chosen_coord = self.organization[north_pos]
@@ -95,14 +164,14 @@ class Generator():
             valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord]['right']]
         # print(sorted(valid_coords))
         if not valid_coords:
-            print("Reverting Order...")
+            # print("Reverting Order...")
             if pos in self.locked_values:
                 del self.locked_values[pos]
             self.revert_order()
             # valid_coords = self.index_dict[15]
             return False
         valid_coord = random_choice(list(valid_coords), pos, self.seed)
-        print("Final", valid_coord)
+        # print("Final", valid_coord)
         self.organization[pos] = valid_coord
         return True
 
@@ -124,7 +193,7 @@ class Generator():
         if pos not in self.locked_values:
             self.locked_values[pos] = set()
         self.locked_values[pos].add(coord)
-        print("Locking ", coord, "for ", pos)
+        # print("Locking ", coord, "for ", pos)
 
     def get_terrain(self, pos: tuple) -> bool:
         return pos in self.terrain_grid
@@ -155,7 +224,7 @@ class Generator():
 
     def process_terrain_grid(self):
         # Determine coord 
-        print("--- Process Group ---")
+        # print("--- Process Group ---")
         self.locked_values.clear()
         self.order.clear()
         self.to_process = sorted(self.terrain_grid)
@@ -169,46 +238,48 @@ class Generator():
             self.to_process = sorted(self.to_process)
 
         while self.to_process:
-            four_borders = [pos for pos in self.to_process if self.find_num_borders(pos) == 4]
-            if four_borders:
-                process(four_borders)
-                continue
-            four_partners = [pos for pos in self.to_process if self.find_num_partners(pos) == 4]
-            if four_partners:
-                process(four_partners)
-                continue
-            three_borders = [pos for pos in self.to_process if self.find_num_borders(pos) == 3]
-            if three_borders:
-                process(three_borders)
-                continue
-            three_partners = [pos for pos in self.to_process if self.find_num_partners(pos) == 3]
-            if three_partners:
-                process(three_partners)
-                continue
-            two_borders = [pos for pos in self.to_process if self.find_num_borders(pos) == 2]
-            if two_borders:
-                process(two_borders)
-                continue
-            two_partners = [pos for pos in self.to_process if self.find_num_partners(pos) == 2]
-            if two_partners:
-                process(two_partners)
-                continue
-            one_and_one = [pos for pos in self.to_process if self.find_num_borders(pos) == 1 and self.find_num_partners(pos) == 1]
-            if one_and_one:
-                process(one_and_one)
-                continue
-            one_borders = [pos for pos in self.to_process if self.find_num_borders(pos) == 1]
-            if one_borders:
-                process(one_borders)
-                continue
-            one_partners = [pos for pos in self.to_process if self.find_num_partners(pos) == 1]
-            if one_partners:
-                process(one_partners)
-                continue
+            # four_borders = [pos for pos in self.to_process if self.find_num_borders(pos) == 4]
+            # if four_borders:
+            #     process(four_borders)
+            #     continue
+            # four_partners = [pos for pos in self.to_process if self.find_num_partners(pos) == 4]
+            # if four_partners:
+            #     process(four_partners)
+            #     continue
+            # three_borders = [pos for pos in self.to_process if self.find_num_borders(pos) == 3]
+            # if three_borders:
+            #     process(three_borders)
+            #     continue
+            # three_partners = [pos for pos in self.to_process if self.find_num_partners(pos) == 3]
+            # if three_partners:
+            #     process(three_partners)
+            #     continue
+            # two_borders = [pos for pos in self.to_process if self.find_num_borders(pos) == 2]
+            # if two_borders:
+            #     process(two_borders)
+            #     continue
+            # two_partners = [pos for pos in self.to_process if self.find_num_partners(pos) == 2]
+            # if two_partners:
+            #     process(two_partners)
+            #     continue
+            # one_and_one = [pos for pos in self.to_process if self.find_num_borders(pos) == 1 and self.find_num_partners(pos) == 1]
+            # if one_and_one:
+            #     process(one_and_one)
+            #     continue
+            # one_borders = [pos for pos in self.to_process if self.find_num_borders(pos) == 1]
+            # if one_borders:
+            #     process(one_borders)
+            #     continue
+            # one_partners = [pos for pos in self.to_process if self.find_num_partners(pos) == 1]
+            # if one_partners:
+            #     process(one_partners)
+            #     continue
             process(self.to_process)
 
+# Run from main lt-maker directory with
+# python -m app.map_maker.mountain_generator
 if __name__ == '__main__':
-    import sys
+    import os, sys
     from PyQt5.QtGui import QImage, QColor, QPainter
     from PyQt5.QtWidgets import QApplication
 
@@ -218,12 +289,14 @@ if __name__ == '__main__':
 
     tileset = 'app/map_maker/rainlash_fields1.png'
     save_dir = 'app/map_maker/test_output/'
+    if not os.path.exists(save_dir):
+        os.mkdir(save_dir)
     main_image = QImage(tileset)
 
     g = Generator()
     for key, terrain_grids in g.terrain_organization.items():
-        # print(key, terrain_grids)
-        width, height = find_bounding_rect(key)
+        print(key)
+        _, _, width, height = find_bounding_rect(key)
 
         for idx, terrain_grid in enumerate(terrain_grids):
             new_im = QImage(width * TILEWIDTH, height * TILEHEIGHT, QImage.Format_RGB32)

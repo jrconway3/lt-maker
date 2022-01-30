@@ -170,40 +170,40 @@ class MountainTerrain(Terrain):
             self.to_process = sorted(self.to_process)
 
         while self.to_process:
-            four_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 4]
-            if four_borders:
-                process(four_borders)
-                continue
-            four_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 4]
-            if four_partners:
-                process(four_partners)
-                continue
-            three_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 3]
-            if three_borders:
-                process(three_borders)
-                continue
-            three_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 3]
-            if three_partners:
-                process(three_partners)
-                continue
-            two_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 2]
-            if two_borders:
-                process(two_borders)
-                continue
-            two_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 2]
-            if two_partners:
-                process(two_partners)
-                continue
-            one_and_one = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 1 and self.find_num_partners(tilemap, pos) == 1]
-            if one_and_one:
-                process(one_and_one)
-                continue
-            one_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 1]
-            if one_borders:
-                process(one_borders)
-                continue
-            one_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 1]
-            if one_partners:
-                process(one_partners)
-                continue
+            # four_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 4]
+            # if four_borders:
+            #     process(four_borders)
+            #     continue
+            # four_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 4]
+            # if four_partners:
+            #     process(four_partners)
+            #     continue
+            # three_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 3]
+            # if three_borders:
+            #     process(three_borders)
+            #     continue
+            # three_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 3]
+            # if three_partners:
+            #     process(three_partners)
+            #     continue
+            # two_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 2]
+            # if two_borders:
+            #     process(two_borders)
+            #     continue
+            # two_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 2]
+            # if two_partners:
+            #     process(two_partners)
+            #     continue
+            # one_and_one = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 1 and self.find_num_partners(tilemap, pos) == 1]
+            # if one_and_one:
+            #     process(one_and_one)
+            #     continue
+            # one_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 1]
+            # if one_borders:
+            #     process(one_borders)
+            #     continue
+            # one_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 1]
+            # if one_partners:
+            #     process(one_partners)
+            #     continue
             process(self.to_process)

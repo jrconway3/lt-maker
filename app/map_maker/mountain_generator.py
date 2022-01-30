@@ -3,53 +3,20 @@ try:
 except ImportError:
     import pickle
 
-from app.map_maker.utilities import random_choice, flood_fill
-from app.map_maker.terrain import Terrain
+from app.map_maker.utilities import random_choice, find_bounding_rect
 
-class MountainTerrain(Terrain):
-    terrain_like = ('Mountain')
-    organization = {}
-    to_process = []  # Keeps track of what tiles still need to be process for group
-    order = []  # Keeps track of the order that tiles have been processed
-    locked_values = {}  # Keeps track of what coords unfortunately don't work
-    mountain_data = None
+class Generator():
+    def __init__(self):
+        self.seed = 0
+        self.organization = {}
+        self.to_process = []  # Keeps track of what tiles still need to be process for group
+        self.order = []  # Keeps track of the order that tiles have been processed
+        self.locked_values = {}  # Keeps track of what coords unfortunately don't work
+        self.mountain_data = None
 
-    @property
-    def check_flood_fill(self):
-        return True
+        self.terrain_grid = None
+        self.terrain_grids = self.generate_terrain_grids()
 
-    def single_process(self, tilemap):
-        positions: set = tilemap.get_all_terrain(self.nid)
-        self.organization.clear()
-        groupings: list = [] # of sets
-        counter: int = 0
-        while positions and counter < 99999:
-            pos = positions.pop()
-            near_positions: set = flood_fill(tilemap, pos)
-            groupings.append(near_positions)
-            for near_pos in near_positions:
-                positions.discard(near_pos)
-            counter += 1
-        if counter >= 99999:
-            raise RuntimeError("Unexpected infinite loop in mountain flood_fill")
-
-        while groupings:
-            group = groupings.pop()
-            if not (group & tilemap.terrain_grid_to_update):
-                # Don't need to bother updating this one if no intersections
-                continue
-
-            self.process_group(tilemap, group)
-
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
-        new_coords = self.organization[pos]
-        new_coords1 = [(new_coords[0]*2, new_coords[1]*2)]
-        new_coords2 = [(new_coords[0]*2 + 1, new_coords[1]*2)]
-        new_coords3 = [(new_coords[0]*2 + 1, new_coords[1]*2 + 1)]
-        new_coords4 = [(new_coords[0]*2, new_coords[1]*2 + 1)]
-        return new_coords1, new_coords2, new_coords3, new_coords4
-
-    def initial_process(self, ):
         data_loc = 'app/map_maker/mountain_data.p'
         with open(data_loc, 'rb') as fp:
             self.mountain_data = pickle.load(fp)
@@ -66,12 +33,38 @@ class MountainTerrain(Terrain):
         for index, coord in self.index_dict.items():
             print(index, sorted(coord))
 
-    def find_valid_coord(self, tilemap, pos) -> bool:
-        north, east, south, west = tilemap.get_cardinal_terrain(pos)
-        north_edge = bool(north and north not in self.terrain_like)
-        south_edge = bool(south and south not in self.terrain_like)
-        east_edge = bool(east and east not in self.terrain_like)
-        west_edge = bool(west and west not in self.terrain_like)
+        self.terrain_organization = {}
+        for terrain_grid in self.terrain_grids:
+            self.terrain_grid = terrain_grid
+            _hash = frozenset(self.terrain_grid)
+            if _hash not in self.terrain_organization:
+                self.terrain_organization[_hash] = []
+            # For each seed
+            for idx in range(10):
+                self.seed = idx
+                self.organization.clear()
+                self.process_terrain_grid()
+                self.terrain_organization[_hash].append(self.organization.copy())
+
+    def generate_terrain_grids(self) -> list:
+        terrain_grid1 = {(0, 0)}
+        terrain_grid2 = {(0, 0), (1, 0)}
+        return [terrain_grid1, terrain_grid2]
+
+    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
+        new_coords = self.organization[pos]
+        new_coords1 = [(new_coords[0]*2, new_coords[1]*2)]
+        new_coords2 = [(new_coords[0]*2 + 1, new_coords[1]*2)]
+        new_coords3 = [(new_coords[0]*2 + 1, new_coords[1]*2 + 1)]
+        new_coords4 = [(new_coords[0]*2, new_coords[1]*2 + 1)]
+        return new_coords1, new_coords2, new_coords3, new_coords4
+
+    def find_valid_coord(self, pos) -> bool:
+        north, east, south, west = self.get_cardinal_terrain(pos)
+        north_edge = not north
+        south_edge = not south
+        east_edge = not east
+        west_edge = not west
         valid_coords = \
             [coord for coord, rules in self.mountain_data.items() if
              ((north_edge and None in rules['up']) or (not north_edge and rules['up'])) and
@@ -105,21 +98,21 @@ class MountainTerrain(Terrain):
             print("Reverting Order...")
             if pos in self.locked_values:
                 del self.locked_values[pos]
-            self.revert_order((north_pos, south_pos, east_pos, west_pos))
+            self.revert_order()
             # valid_coords = self.index_dict[15]
             return False
-        valid_coord = random_choice(list(valid_coords), pos)
+        valid_coord = random_choice(list(valid_coords), pos, self.seed)
         print("Final", valid_coord)
         self.organization[pos] = valid_coord
         return True
 
-    def revert_order(self, positions):
+    def revert_order(self):
         if not self.order:
             print("Major loop error! No valid solution")
             # Just fill it up with generic pieces
             for pos in self.to_process:
                 valid_coords = self.index_dict[15]
-                valid_coord = random_choice(list(valid_coords), pos)
+                valid_coord = random_choice(list(valid_coords), pos, self.seed)
                 self.organization[pos] = valid_coord
             self.to_process.clear()
             return
@@ -133,16 +126,22 @@ class MountainTerrain(Terrain):
         self.locked_values[pos].add(coord)
         print("Locking ", coord, "for ", pos)
 
-    def find_num_borders(self, tilemap, pos) -> int:
-        north, east, south, west = tilemap.get_cardinal_terrain(pos)
-        north_edge = bool(north and north not in self.terrain_like)
-        south_edge = bool(south and south not in self.terrain_like)
-        east_edge = bool(east and east not in self.terrain_like)
-        west_edge = bool(west and west not in self.terrain_like)
-        num_borders = sum((north_edge, south_edge, east_edge, west_edge))
+    def get_terrain(self, pos: tuple) -> bool:
+        return pos in self.terrain_grid
+
+    def get_cardinal_terrain(self, pos: tuple) -> tuple:
+        north = self.get_terrain((pos[0], pos[1] - 1))
+        east = self.get_terrain((pos[0] + 1, pos[1]))
+        south = self.get_terrain((pos[0], pos[1] + 1))
+        west = self.get_terrain((pos[0] - 1, pos[1]))
+        return north, east, south, west
+
+    def find_num_borders(self, pos) -> int:
+        north, east, south, west = self.get_cardinal_terrain(pos)
+        num_borders = sum((not north, not south, not east, not west))
         return num_borders
 
-    def find_num_partners(self, tilemap, pos) -> int:
+    def find_num_partners(self, pos) -> int:
         north_pos = (pos[0], pos[1] - 1)
         south_pos = (pos[0], pos[1] + 1)
         east_pos = (pos[0] + 1, pos[1])
@@ -154,56 +153,90 @@ class MountainTerrain(Terrain):
         num_partners = sum((north_edge, south_edge, east_edge, west_edge))
         return num_partners
 
-    def process_group(self, tilemap, group: set):
+    def process_terrain_grid(self):
         # Determine coord 
         print("--- Process Group ---")
         self.locked_values.clear()
         self.order.clear()
-        self.to_process = sorted(group)
+        self.to_process = sorted(self.terrain_grid)
 
         def process(seq):
             pos = seq[0]
-            did_work = self.find_valid_coord(tilemap, pos)
+            did_work = self.find_valid_coord(pos)
             if did_work:
                 self.to_process.remove(pos)
                 self.order.append(pos)
             self.to_process = sorted(self.to_process)
 
         while self.to_process:
-            four_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 4]
+            four_borders = [pos for pos in self.to_process if self.find_num_borders(pos) == 4]
             if four_borders:
                 process(four_borders)
                 continue
-            four_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 4]
+            four_partners = [pos for pos in self.to_process if self.find_num_partners(pos) == 4]
             if four_partners:
                 process(four_partners)
                 continue
-            three_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 3]
+            three_borders = [pos for pos in self.to_process if self.find_num_borders(pos) == 3]
             if three_borders:
                 process(three_borders)
                 continue
-            three_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 3]
+            three_partners = [pos for pos in self.to_process if self.find_num_partners(pos) == 3]
             if three_partners:
                 process(three_partners)
                 continue
-            two_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 2]
+            two_borders = [pos for pos in self.to_process if self.find_num_borders(pos) == 2]
             if two_borders:
                 process(two_borders)
                 continue
-            two_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 2]
+            two_partners = [pos for pos in self.to_process if self.find_num_partners(pos) == 2]
             if two_partners:
                 process(two_partners)
                 continue
-            one_and_one = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 1 and self.find_num_partners(tilemap, pos) == 1]
+            one_and_one = [pos for pos in self.to_process if self.find_num_borders(pos) == 1 and self.find_num_partners(pos) == 1]
             if one_and_one:
                 process(one_and_one)
                 continue
-            one_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 1]
+            one_borders = [pos for pos in self.to_process if self.find_num_borders(pos) == 1]
             if one_borders:
                 process(one_borders)
                 continue
-            one_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 1]
+            one_partners = [pos for pos in self.to_process if self.find_num_partners(pos) == 1]
             if one_partners:
                 process(one_partners)
                 continue
             process(self.to_process)
+
+if __name__ == '__main__':
+    import sys
+    from PyQt5.QtGui import QImage, QColor, QPainter
+    from PyQt5.QtWidgets import QApplication
+
+    from app.constants import TILEWIDTH, TILEHEIGHT
+
+    app = QApplication(sys.argv)
+
+    tileset = 'app/map_maker/rainlash_fields1.png'
+    save_dir = 'app/map_maker/test_output/'
+    main_image = QImage(tileset)
+
+    g = Generator()
+    for key, terrain_grids in g.terrain_organization.items():
+        # print(key, terrain_grids)
+        width, height = find_bounding_rect(key)
+
+        for idx, terrain_grid in enumerate(terrain_grids):
+            new_im = QImage(width * TILEWIDTH, height * TILEHEIGHT, QImage.Format_RGB32)
+            new_im.fill(QColor(0, 0, 0))
+            painter = QPainter()
+            painter.begin(new_im)
+
+            for pos, coord in terrain_grid.items():
+                rect = (coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
+                im = main_image.copy(*rect)
+                painter.drawImage(pos[0] * TILEWIDTH, pos[1] * TILEHEIGHT, im)
+
+            painter.end()
+
+            h = str(hash(key))[:16]
+            new_im.save(save_dir + ('%s_%02d.png' % (h, idx)))

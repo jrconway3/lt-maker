@@ -96,3 +96,14 @@ def find_bounds(tilemap, group: set) -> tuple:
     center_x = (right_most - left_most)/2 + left_most
     center_y = (bottom_most - top_most)/2 + top_most
     return left_most, right_most, top_most, bottom_most, blob_width, blob_height, center_x, center_y
+
+def find_bounding_rect(coords: set) -> tuple:
+    left_most = min(p[0] for p in coords)
+    right_most = max(p[0] for p in coords)
+    top_most = min(p[1] for p in coords)
+    bottom_most = max(p[1] for p in coords)
+    right_most += 1
+    bottom_most += 1
+    blob_width = (right_most - left_most)
+    blob_height = (bottom_most - top_most)
+    return blob_width, blob_height

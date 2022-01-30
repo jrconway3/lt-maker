@@ -280,6 +280,7 @@ class Generator():
 # python -m app.map_maker.mountain_generator
 if __name__ == '__main__':
     import os, sys
+
     from PyQt5.QtGui import QImage, QColor, QPainter
     from PyQt5.QtWidgets import QApplication
 

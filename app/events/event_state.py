@@ -22,10 +22,11 @@ class EventState(State):
                 game.cursor.hide()
 
     def take_input(self, event):
-        if self.event.state == 'dialog' and event == 'INFO':
-            game.state.change('dialog_log')
-        else:
-            self.event.take_input(event)
+        if self.event:
+            if self.event.state == 'dialog' and event == 'INFO':
+                game.state.change('dialog_log')
+            else:
+                self.event.take_input(event)
 
     def update(self):
         if self.game_over:

@@ -229,7 +229,7 @@ class GameState():
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
         tilemap = TileMapObject.from_prefab(tilemap_prefab)
         self.cursor = LevelCursor(self)
-        self.current_level = LevelObject.from_prefab(level_prefab, tilemap, self.unit_registry)
+        self.current_level = LevelObject.from_prefab(level_prefab, tilemap, self.unit_registry, self.current_mode)
         if with_party:
             self.current_party = with_party
         else:
@@ -352,7 +352,7 @@ class GameState():
         save.set_next_uids(self)
         self.terrain_status_registry = s_dict.get('terrain_status_registry', {})
         self.region_registry = {region['nid']: Region.restore(region) for region in s_dict.get('regions', [])}
-        self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
+        self.unit_registry = {unit['nid']: UnitObject.restore(unit, self) for unit in s_dict['units']}
 
         # Handle subitems
         for item in self.item_registry.values():

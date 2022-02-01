@@ -163,8 +163,11 @@ class MaximumEquationRange(ItemComponent):
 
     def maximum_range(self, unit, item) -> int:
         from app.engine import equations
-        value = equations.parser.get(self.value, unit)
-        return int(value)
+        if unit:
+            value = equations.parser.get(self.value, unit)
+            return int(value)
+        else:
+            return -1
 
 class GlobalRange(ItemComponent):
     nid = 'global_range'

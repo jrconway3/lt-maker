@@ -477,7 +477,7 @@ class MoveState(MapState):
         cur_unit = game.cursor.cur_unit
 
         if event == 'INFO':
-            pass
+            info_menu.handle_info()
         elif event == 'AUX':
             pass
 
@@ -488,7 +488,8 @@ class MoveState(MapState):
             game.state.change('free')
             if cur_unit.has_attacked or cur_unit.has_traded:
                 if not cur_unit.finished:
-                    cur_unit.wait()
+                    game.events.trigger('unit_wait', cur_unit, position=cur_unit.position, region=game.get_region_under_pos(cur_unit.position))
+                    action.do(action.Wait(cur_unit))
             else:
                 cur_unit.sprite.change_state('normal')
 
@@ -499,7 +500,8 @@ class MoveState(MapState):
                     game.state.clear()
                     game.state.change('free')
                     if not cur_unit.finished:
-                        cur_unit.wait()
+                        game.events.trigger('unit_wait', cur_unit, position=cur_unit.position, region=game.get_region_under_pos(cur_unit.position))
+                        action.do(action.Wait(cur_unit))
                 else:
                     # Just move in place
                     cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
@@ -543,9 +545,6 @@ class MovementState(State):
         if len(game.movement) <= 0:
             if game.movement.surprised:
                 game.movement.surprised = False
-                game.state.clear()
-                game.state.change('free')
-                game.state.change('wait')
             else:
                 game.boundary.frozen = False
                 game.state.back()
@@ -562,7 +561,8 @@ class WaitState(MapState):
         game.state.back()
         for unit in game.units:
             if unit.has_attacked and not unit.finished:
-                unit.wait()
+                game.events.trigger('unit_wait', unit, position=unit.position, region=game.get_region_under_pos(unit.position))
+                action.do(action.Wait(unit))
         return 'repeat'
 
 class CantoWaitState(MapState):
@@ -582,7 +582,8 @@ class CantoWaitState(MapState):
         elif event == 'SELECT':
             game.state.clear()
             game.state.change('free')
-            self.cur_unit.wait()
+            game.events.trigger('unit_wait', self.cur_unit, position=self.cur_unit.position, region=game.get_region_under_pos(self.cur_unit.position))
+            action.do(action.Wait(self.cur_unit))
 
         elif event == 'BACK':
             if self.cur_unit.current_move:
@@ -676,7 +677,7 @@ class MenuState(MapState):
         else:
             start_index = len(self.valid_regions)
         for ability_name, ability in self.extra_abilities.items():
-            if target_system.get_valid_targets(self.cur_unit, ability):
+            if target_system.get_valid_targets(self.cur_unit, ability) and item_system.available(self.cur_unit, ability):
                 options.insert(start_index, ability_name)
 
         # Handle combat art options
@@ -727,7 +728,8 @@ class MenuState(MapState):
                 else:
                     game.state.clear()
                     game.state.change('free')
-                    self.cur_unit.wait()
+                    game.events.trigger('unit_wait', self.cur_unit, position=self.cur_unit.position, region=game.get_region_under_pos(self.cur_unit.position))
+                    action.do(action.Wait(self.cur_unit))
             else:
                 # Reverse Swap here
                 if not self.cur_unit.lead_unit and self.cur_unit.traveler:
@@ -771,7 +773,8 @@ class MenuState(MapState):
             elif selection == 'Wait':
                 game.state.clear()
                 game.state.change('free')
-                self.cur_unit.wait()
+                game.events.trigger('unit_wait', self.cur_unit, position=self.cur_unit.position, region=game.get_region_under_pos(self.cur_unit.position))
+                action.do(action.Wait(self.cur_unit))
             # A region event
             elif selection in [region.sub_nid for region in self.valid_regions]:
                 for region in self.valid_regions:
@@ -1901,7 +1904,8 @@ class AIState(MapState):
             if not change and game.ai.is_done():
                 logging.info("Current AI %s is done with turn.", self.cur_unit.nid)
                 if did_something:  # Don't turn grey if didn't actually do anything
-                    self.cur_unit.wait()
+                    game.events.trigger('unit_wait', self.cur_unit, position=self.cur_unit.position, region=game.get_region_under_pos(self.cur_unit.position))
+                    action.do(action.Wait(self.cur_unit))
                 game.ai.reset()
                 self.cur_unit.has_run_ai = True
                 self.cur_unit = None

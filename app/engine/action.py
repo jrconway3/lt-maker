@@ -450,6 +450,8 @@ class Wait(Action):
         self.unit.current_move = None
         self.unit.sprite.change_state('normal')
         self.update_fow_action.do()
+        if game.cursor and game.cursor.cur_unit == self.unit:
+            game.cursor.cur_unit = None
 
     def reverse(self):
         self.unit.set_action_state(self.action_state)
@@ -553,6 +555,9 @@ class HasTraded(Reset):
     def do(self):
         self.unit.has_traded = True
 
+class HasNotAttacked(Reset):
+    def do(self):
+        self.unit.has_attacked = False
 
 class HasNotTraded(Reset):
     def do(self):

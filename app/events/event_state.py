@@ -122,12 +122,14 @@ class EventState(State):
             game.state.change('transition_to')
 
         elif self.event.battle_save_flag:
+            game.state.back()
             game.memory['save_kind'] = 'battle'
             game.memory['next_state'] = 'in_chapter_save'
             game.state.change('transition_to')
             self.event.battle_save_flag = False
 
         elif self.event.turnwheel_flag:
+            game.state.back()
             game.state.change('turnwheel')
             if self.event.turnwheel_flag == 2:
                 game.memory['force_turnwheel'] = True

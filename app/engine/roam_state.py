@@ -83,7 +83,7 @@ class FreeRoamState(MapState):
         if (INPUT.is_pressed('UP') or INPUT.just_pressed('UP')) and self.roam_unit.position[1] > 0:
             self.last_move = engine.get_time()
             self.direction[1] = -5
-        elif (INPUT.is_pressed('DOWN') or INPUT.just_pressed('DOWN')) and self.roam_unit.position[1] < game.tilemap.width - 1:
+        elif (INPUT.is_pressed('DOWN') or INPUT.just_pressed('DOWN')) and self.roam_unit.position[1] < game.tilemap.height - 1:
             self.last_move = engine.get_time()
             self.direction[1] = 5
 

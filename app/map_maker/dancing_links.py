@@ -44,10 +44,10 @@ class DLX:
         # We need column headers equal to the number of columns, and one
         # more for the problem header.
         self.nodect = len(columns) + 1
-        self.U = list(range(self.nodect))
-        self.D = list(range(self.nodect))
-        self.L = [0] * self.nodect
-        self.R = list(range(self.nodect))
+        self.up = list(range(self.nodect))
+        self.down = list(range(self.nodect))
+        self.left = [0] * self.nodect
+        self.right = list(range(self.nodect))
         self.C = list(range(self.nodect))
         self.S = [0] * self.nodect
 
@@ -62,21 +62,21 @@ class DLX:
         cur = 0
         for (_, columntype) in columns:
             if columntype == DLX.PRIMARY:
-                self.L[cur] = prev
+                self.left[cur] = prev
                 prev = cur
             else:
-                self.L[cur] = cur
+                self.left[cur] = cur
             cur += 1
-        self.L[self.nodect - 1] = prev
+        self.left[self.nodect - 1] = prev
 
         # Now process the R nodes.
         prev = self.nodect - 1
-        cur = self.L[prev]
-        while cur != self.nodect-1:
-            self.R[cur] = prev
+        cur = self.left[prev]
+        while cur != self.nodect - 1:
+            self.right[cur] = prev
             prev = cur
-            cur = self.L[cur]
-        self.R[self.nodect - 1] = prev
+            cur = self.left[cur]
+        self.right[self.nodect - 1] = prev
 
         # Store the header index.
         self.header = len(columns)
@@ -114,19 +114,19 @@ class DLX:
         prev = self.nodect
         for index in row:
             # Append data to all lists for the node representing this row.
-            self.U.append(self.U[index])
-            self.D.append(index)
-            self.D[self.U[index]] = self.nodect
-            self.U[index] = self.nodect
+            self.up.append(self.up[index])
+            self.down.append(index)
+            self.down[self.up[index]] = self.nodect
+            self.up[index] = self.nodect
             self.S[index] += 1
             self.C.append(index)
 
-            self.R.append(self.nodect)
-            self.L.append(prev)
-            self.R[self.nodect] = self.R[prev]
+            self.right.append(self.nodect)
+            self.left.append(prev)
+            self.right[self.nodect] = self.right[prev]
 
-            self.R[prev] = self.nodect
-            self.L[self.R[self.nodect]] = self.nodect
+            self.right[prev] = self.nodect
+            self.left[self.right[self.nodect]] = self.nodect
 
             self.N.append(rowName)
             self.prev = self.nodect
@@ -163,7 +163,7 @@ class DLX:
         i = rowindex
         while 1:
             self._cover(self.C[i])
-            i = self.R[i]
+            i = self.right[i]
             if i == rowindex:
                 break
 
@@ -191,11 +191,11 @@ class DLX:
         assert(self.partialsolution.pop() == rowindex)
 
         # Uncover all columns in the row.
-        i = self.L[rowindex]
+        i = self.left[rowindex]
         while 1:
             self._uncover(self.C[i])
-            i = self.L[i]
-            if i == self.L[rowindex]:
+            i = self.left[i]
+            if i == self.left[rowindex]:
                 break
 
     # *** PROVIDED COLUMN SELECTORS ***
@@ -204,7 +204,7 @@ class DLX:
 
         Note that the userdata (second parameter) is ignored."""
 
-        return self.R[self.header]
+        return self.right[self.header]
 
     def smallestColumnSelector(self, _):
         """Select the column with the fewest rows covering it, i.e. minimize
@@ -212,12 +212,12 @@ class DLX:
 
         Note that the userdata (second parameter) is ignored."""
 
-        smallest = self.R[self.header]
-        j = self.R[self.R[self.header]]
+        smallest = self.right[self.header]
+        j = self.right[self.right[self.header]]
         while j != self.header:
             if self.S[j] < self.S[smallest]:
                 smallest = j
-            j = self.R[j]
+            j = self.right[j]
         return smallest
 
     def getRowList(self, row):
@@ -227,7 +227,7 @@ class DLX:
         i = row
         while True:
             names.append(self.N[self.C[i]])
-            i = self.R[i]
+            i = self.right[i]
             if i == row:
                 break
         return names
@@ -278,7 +278,7 @@ class DLX:
         # result = None
 
         # Check to see if we have a complete solution.
-        if self.R[self.header] == self.header:
+        if self.right[self.header] == self.header:
             # Make a copy so that it is preserved.
             yield self.partialsolution[:]
             return
@@ -298,16 +298,16 @@ class DLX:
         statistics.updates[depth] += self._cover(c)
 
         # Extend the solution by trying each possible row in the column.
-        r = self.D[c]
+        r = self.down[c]
         while r != c:
             self.partialsolution.append(r)
             statistics.nodes[depth] += 1
 
             # Now cover the columns that are handled by the inclusion of this row.
-            j = self.R[r]
+            j = self.right[r]
             while j != r:
                 self._cover(self.C[j])
-                j = self.R[j]
+                j = self.right[j]
 
             # Recursively search.
             for sol in self._solve(depth+1, columnselector, columnselectoruserdata, statistics):
@@ -317,17 +317,17 @@ class DLX:
             self.partialsolution.pop()
 
             # We are no longer using this row right now, so uncover.
-            j = self.L[r]
+            j = self.left[r]
             while j != r:
                 self._uncover(self.C[j])
-                j = self.L[j]
+                j = self.left[j]
 
             # If the result was not None, then terminate prematurely.
             # if result is not None:
                 # break
 
             # Try the next row.
-            r = self.D[r]
+            r = self.down[r]
 
         self._uncover(c)
         return
@@ -337,22 +337,22 @@ class DLX:
         updates = 1
 
         # Remove this column from the header.
-        self.L[self.R[c]] = self.L[c]
-        self.R[self.L[c]] = self.R[c]
+        self.left[self.right[c]] = self.left[c]
+        self.right[self.left[c]] = self.right[c]
 
         # Iterate over the rows covered by this column.
         # Stop when we reach the header.
-        i = self.D[c]
+        i = self.down[c]
         while i != c:
             # Remove this row from the problem.
-            j = self.R[i]
+            j = self.right[i]
             while j != i:
-                self.U[self.D[j]] = self.U[j]
-                self.D[self.U[j]] = self.D[j]
+                self.up[self.down[j]] = self.up[j]
+                self.down[self.up[j]] = self.down[j]
                 self.S[self.C[j]] -= 1
-                j = self.R[j]
+                j = self.right[j]
                 updates += 1
-            i = self.D[i]
+            i = self.down[i]
 
         return updates
 
@@ -360,19 +360,19 @@ class DLX:
         """This is an internal function and should not be called directly."""
 
         # Reverse the operations done in _cover.
-        i = self.U[c]
+        i = self.up[c]
         while i != c:
-            j = self.L[i]
+            j = self.left[i]
             while j != i:
                 self.S[self.C[j]] += 1
-                self.D[self.U[j]] = j
-                self.U[self.D[j]] = j
-                j = self.L[j]
-            i = self.U[i]
+                self.down[self.up[j]] = j
+                self.up[self.down[j]] = j
+                j = self.left[j]
+            i = self.up[i]
 
         # Readd the column to the header.
-        self.R[self.L[c]] = c
-        self.L[self.R[c]] = c
+        self.right[self.left[c]] = c
+        self.left[self.right[c]] = c
 
 
 class DLXStatistics:

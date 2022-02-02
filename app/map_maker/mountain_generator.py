@@ -4,7 +4,8 @@ except ImportError:
     import pickle
 
 from app.map_maker.utilities import random_choice, find_bounding_rect
-import app.map_maker.dancing_links as dancing_links
+# import app.map_maker.dancing_links as dancing_links
+import app.map_maker.rain_algorithm_x as rain_algorithm_x
 
 class Generator():
     MAX_SIZE = 3
@@ -19,14 +20,15 @@ class Generator():
         self.mountain_data = None
 
         self.terrain_grid = None
-        self.terrain_grids = self.generate_terrain_grids()
-        # self.terrain_grids = self.generate_simple_terrain_grid()
+        # self.terrain_grids = self.generate_terrain_grids()
+        self.terrain_grids = self.generate_simple_terrain_grid3()
 
         data_loc = 'app/map_maker/mountain_data.p'
         with open(data_loc, 'rb') as fp:
             self.mountain_data = pickle.load(fp)
         self.border_dict = {}  # Coord: Index (0-15)
         self.index_dict = {i: set() for i in range(16)}  # Index: Coord 
+        self.noneless_rules = {}
         for coord, rules in self.mountain_data.items():
             north_edge = None in rules['up']
             south_edge = None in rules['down']
@@ -35,6 +37,13 @@ class Generator():
             index = 1 * north_edge + 2 * east_edge + 4 * south_edge + 8 * west_edge
             self.border_dict[coord] = index
             self.index_dict[index].add(coord)
+            # Keep track of the rules when None is not present as well
+            noneless_rules = {}
+            noneless_rules['up'] = {k: v for k, v in rules['up'].items() if k is not None}
+            noneless_rules['down'] = {k: v for k, v in rules['down'].items() if k is not None}
+            noneless_rules['left'] = {k: v for k, v in rules['left'].items() if k is not None}
+            noneless_rules['right'] = {k: v for k, v in rules['right'].items() if k is not None}
+            self.noneless_rules[coord] = noneless_rules
         for index, coord in self.index_dict.items():
             print(index, sorted(coord))
 
@@ -46,14 +55,13 @@ class Generator():
             self.terrain_grid = terrain_grid
             if self.terrain_grid not in self.terrain_organization:
                 self.terrain_organization[self.terrain_grid] = []
-            dancer = self.build_dancing_links()
             # For each seed
             for idx in range(self.NUM_VARIANTS):
                 print(idx)
                 self.seed = idx
                 self.organization.clear()
-                self.process_dancer(dancer)
                 # self.process_terrain_grid()
+                self.process_algorithm_x()
                 self.terrain_organization[self.terrain_grid].append(self.organization.copy())
         total_time = time.time_ns() / 1e6 - start
         print("Total Time %f ms" % total_time)
@@ -130,6 +138,24 @@ class Generator():
         terrain_grids.add(frozenset(terrain_grid_example))
         return list(terrain_grids)
 
+    def generate_simple_terrain_grid2(self) -> list:
+        terrain_grids = set()
+        terrain_grid_example = {
+            (0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1)
+        }
+        terrain_grids.add(frozenset(terrain_grid_example))
+        return list(terrain_grids)
+
+    def generate_simple_terrain_grid3(self) -> list:
+        terrain_grids = set()
+        terrain_grid_example = {
+            (0, 2), (0, 4), (0, 5), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
+            (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7),
+            (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7)
+        }
+        terrain_grids.add(frozenset(terrain_grid_example))
+        return list(terrain_grids)
+
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
         new_coords = self.organization[pos]
         new_coords1 = [(new_coords[0]*2, new_coords[1]*2)]
@@ -146,10 +172,10 @@ class Generator():
         west_edge = not west
         valid_coords = \
             [coord for coord, rules in self.mountain_data.items() if
-             ((north_edge and None in rules['up']) or (not north_edge and [r for r in rules['up'] if r is not None])) and
-             ((south_edge and None in rules['down']) or (not south_edge and [r for r in rules['down'] if r is not None])) and
-             ((east_edge and None in rules['right']) or (not east_edge and [r for r in rules['right'] if r is not None])) and
-             ((west_edge and None in rules['left']) or (not west_edge and [r for r in rules['left'] if r is not None]))]
+             ((north_edge and None in rules['up']) or (not north_edge and self.noneless_rules[coord]['up'])) and
+             ((south_edge and None in rules['down']) or (not south_edge and self.noneless_rules[coord]['down'])) and
+             ((east_edge and None in rules['right']) or (not east_edge and self.noneless_rules[coord]['right'])) and
+             ((west_edge and None in rules['left']) or (not west_edge and self.noneless_rules[coord]['left']))]
         north_pos = (pos[0], pos[1] - 1)
         south_pos = (pos[0], pos[1] + 1)
         east_pos = (pos[0] + 1, pos[1])
@@ -258,16 +284,17 @@ class Generator():
         west_edge = not west
         valid_coords = \
             [coord for coord, rules in self.mountain_data.items() if
-             ((north_edge and None in rules['up']) or (not north_edge and [r for r in rules['up'] if r is not None])) and
-             ((south_edge and None in rules['down']) or (not south_edge and [r for r in rules['down'] if r is not None])) and
-             ((east_edge and None in rules['right']) or (not east_edge and [r for r in rules['right'] if r is not None])) and
-             ((west_edge and None in rules['left']) or (not west_edge and [r for r in rules['left'] if r is not None]))]
+             ((north_edge and None in rules['up']) or (not north_edge and self.noneless_rules[coord]['up'])) and
+             ((south_edge and None in rules['down']) or (not south_edge and self.noneless_rules[coord]['down'])) and
+             ((east_edge and None in rules['right']) or (not east_edge and self.noneless_rules[coord]['right'])) and
+             ((west_edge and None in rules['left']) or (not west_edge and self.noneless_rules[coord]['left']))]
         return valid_coords
 
-    def build_dancing_links(self) -> dancing_links.DLX:
+    def process_algorithm_x(self):
+        blob = set(self.to_process)
         self.to_process = sorted(self.terrain_grid)
 
-        columns = [(pos, dancing_links.DLX.PRIMARY) for pos in self.to_process]
+        columns = [(pos, True) for pos in self.to_process]
         # valid_coords = [self.find_valid_coords(pos) for pos in self.to_process]
         valid_coords_dict = {pos: self.find_valid_coords(pos) for pos in self.to_process}
 
@@ -284,23 +311,25 @@ class Generator():
                 row_names.append((pos, valid_coord))
 
                 # Right
-                if right in self.to_process:
+                if right in blob:
                     invalid_coords_right = {coord for coord in valid_coords_dict[right] if coord not in self.mountain_data[valid_coord]['right']}
                     if invalid_coords_right:
                         identifier = (pos, right, valid_coord, invalid_coords_right)
                         row_idx = len(columns)
                         column_names.append(identifier)
-                        columns.append((identifier, dancing_links.DLX.SECONDARY))
+                        # columns.append((identifier, dancing_links.DLX.SECONDARY))
+                        columns.append((identifier, False))
                         row.append(row_idx)
 
                 # Down
-                if down in self.to_process:
+                if down in blob:
                     invalid_coords_down = {coord for coord in valid_coords_dict[down] if coord not in self.mountain_data[valid_coord]['down']}
                     if invalid_coords_down:
                         identifier = (pos, down, valid_coord, invalid_coords_down)
                         row_idx = len(columns)
                         column_names.append(identifier)
-                        columns.append((identifier, dancing_links.DLX.SECONDARY))
+                        # columns.append((identifier, dancing_links.DLX.SECONDARY))
+                        columns.append((identifier, False))
                         row.append(row_idx)
 
         # Now we have each column and row, the primary columns are completely filled
@@ -328,22 +357,13 @@ class Generator():
         #     print(r)
         # print("Num Rows: %d, Num Cols: %d" % (len(rows), len(columns)))
 
-        d = dancing_links.DLX(columns)                
-        d.appendRows(rows, row_names)
-        return d
-
-    def process_dancer(self, dancer):
-        for sol in dancer.solve():
-            print("Solution")
-            row_names = []
-            for i in sol:
-                row_name = dancer.N[i]
-                row_names.append(row_name)
-            for pos, coord in row_names:
-                print(pos, coord)
-            for pos, coord in row_names:
+        d = rain_algorithm_x.RainAlgorithmX(columns, row_names, rows, self.to_process[0], self.seed)
+        output = d.solve()
+        if output:
+            for pos, coord in d.get_solution():
                 self.organization[pos] = coord
-            return row_names
+        else:
+            print("No valid solution!")
 
 # Run from main lt-maker directory with
 # python -m app.map_maker.mountain_generator
@@ -355,6 +375,9 @@ if __name__ == '__main__':
 
     from app.constants import TILEWIDTH, TILEHEIGHT
 
+    import cProfile
+    pr = cProfile.Profile()
+
     app = QApplication(sys.argv)
 
     tileset = 'app/map_maker/rainlash_fields1.png'
@@ -363,7 +386,10 @@ if __name__ == '__main__':
         os.mkdir(save_dir)
     main_image = QImage(tileset)
 
+    pr.enable()
     g = Generator()
+    pr.disable()
+    pr.print_stats(sort='time')
     for key, terrain_grids in g.terrain_organization.items():
         print(key)
         _, _, width, height = find_bounding_rect(key)

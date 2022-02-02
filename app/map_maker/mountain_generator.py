@@ -4,6 +4,8 @@ except ImportError:
     import pickle
 
 from app.map_maker.utilities import random_choice, find_bounding_rect
+import app.map_maker.dancing_links as dancing_links
+
 class Generator():
     MAX_SIZE = 3
     NUM_VARIANTS = 10
@@ -17,8 +19,8 @@ class Generator():
         self.mountain_data = None
 
         self.terrain_grid = None
-        # self.terrain_grids = self.generate_terrain_grids()
-        self.terrain_grids = self.generate_simple_terrain_grid()
+        self.terrain_grids = self.generate_terrain_grids()
+        # self.terrain_grids = self.generate_simple_terrain_grid()
 
         data_loc = 'app/map_maker/mountain_data.p'
         with open(data_loc, 'rb') as fp:
@@ -37,24 +39,23 @@ class Generator():
             print(index, sorted(coord))
 
         import time
-        total_time = 0
+        start = time.time_ns() / 1e6
         self.terrain_organization = {}
         for terrain_grid in self.terrain_grids:
             print(terrain_grid)
             self.terrain_grid = terrain_grid
             if self.terrain_grid not in self.terrain_organization:
                 self.terrain_organization[self.terrain_grid] = []
+            dancer = self.build_dancing_links()
             # For each seed
-            start = time.time_ns() / 1e6
             for idx in range(self.NUM_VARIANTS):
                 print(idx)
                 self.seed = idx
                 self.organization.clear()
-                self.process_terrain_grid()
+                self.process_dancer(dancer)
+                # self.process_terrain_grid()
                 self.terrain_organization[self.terrain_grid].append(self.organization.copy())
-            duration = time.time_ns() / 1e6 - start
-            print(duration)
-            total_time += duration
+        total_time = time.time_ns() / 1e6 - start
         print("Total Time %f ms" % total_time)
 
     def flood_fill(self, pos: tuple) -> set:
@@ -145,10 +146,10 @@ class Generator():
         west_edge = not west
         valid_coords = \
             [coord for coord, rules in self.mountain_data.items() if
-             ((north_edge and None in rules['up']) or (not north_edge and rules['up'])) and
-             ((south_edge and None in rules['down']) or (not south_edge and rules['down'])) and
-             ((east_edge and None in rules['right']) or (not east_edge and rules['right'])) and
-             ((west_edge and None in rules['left']) or (not west_edge and rules['left']))]
+             ((north_edge and None in rules['up']) or (not north_edge and [r for r in rules['up'] if r is not None])) and
+             ((south_edge and None in rules['down']) or (not south_edge and [r for r in rules['down'] if r is not None])) and
+             ((east_edge and None in rules['right']) or (not east_edge and [r for r in rules['right'] if r is not None])) and
+             ((west_edge and None in rules['left']) or (not west_edge and [r for r in rules['left'] if r is not None]))]
         north_pos = (pos[0], pos[1] - 1)
         south_pos = (pos[0], pos[1] + 1)
         east_pos = (pos[0] + 1, pos[1])
@@ -183,20 +184,6 @@ class Generator():
         # print("Final", valid_coord)
         self.organization[pos] = valid_coord
         return True
-
-    def find_valid_coords(self, pos) -> list:
-        north, east, south, west = self.get_cardinal_terrain(pos)
-        north_edge = not north
-        south_edge = not south
-        east_edge = not east
-        west_edge = not west
-        valid_coords = \
-            [coord for coord, rules in self.mountain_data.items() if
-             ((north_edge and None in rules['up']) or (not north_edge and rules['up'])) and
-             ((south_edge and None in rules['down']) or (not south_edge and rules['down'])) and
-             ((east_edge and None in rules['right']) or (not east_edge and rules['right'])) and
-             ((west_edge and None in rules['left']) or (not west_edge and rules['left']))]
-        return valid_coords
 
     def revert_order(self):
         if not self.order:
@@ -245,7 +232,7 @@ class Generator():
         num_partners = sum((north_edge, south_edge, east_edge, west_edge))
         return num_partners
 
-    def process_terrain_grid_recursive_backtracking(self):
+    def process_terrain_grid(self):
         # Determine coord 
         # print("--- Process Group ---")
         self.locked_values.clear()
@@ -263,8 +250,21 @@ class Generator():
         while self.to_process:
             process(self.to_process)
 
-    def process_terrain_grid(self):
-        import app.map_maker.dancing_links as dancing_links
+    def find_valid_coords(self, pos) -> list:
+        north, east, south, west = self.get_cardinal_terrain(pos)
+        north_edge = not north
+        south_edge = not south
+        east_edge = not east
+        west_edge = not west
+        valid_coords = \
+            [coord for coord, rules in self.mountain_data.items() if
+             ((north_edge and None in rules['up']) or (not north_edge and [r for r in rules['up'] if r is not None])) and
+             ((south_edge and None in rules['down']) or (not south_edge and [r for r in rules['down'] if r is not None])) and
+             ((east_edge and None in rules['right']) or (not east_edge and [r for r in rules['right'] if r is not None])) and
+             ((west_edge and None in rules['left']) or (not west_edge and [r for r in rules['left'] if r is not None]))]
+        return valid_coords
+
+    def build_dancing_links(self) -> dancing_links.DLX:
         self.to_process = sorted(self.terrain_grid)
 
         columns = [(pos, dancing_links.DLX.PRIMARY) for pos in self.to_process]
@@ -273,6 +273,7 @@ class Generator():
 
         rows = []
         row_names = []
+        column_names = [pos for pos in self.to_process]
 
         for idx, pos in enumerate(self.to_process):
             right = (pos[0] + 1, pos[1])
@@ -280,38 +281,69 @@ class Generator():
             for valid_coord in valid_coords_dict[pos]:
                 row = [idx]
                 rows.append(row)
-                row_names.append((pos[0], pos[1], valid_coord[0], valid_coord[1]))
+                row_names.append((pos, valid_coord))
 
                 # Right
                 if right in self.to_process:
-                    valid_coords_right = [coord for coord in self.mountain_data[valid_coord]['right'] if coord in valid_coords_dict[right]]
-                    for possible_partner_coord in valid_coords_right:
-                        identifier = (*pos, *right, *valid_coord, *possible_partner_coord)
-                        columns.append((identifier, dancing_links.DLX.PRIMARY))
-                        row.append()
+                    invalid_coords_right = {coord for coord in valid_coords_dict[right] if coord not in self.mountain_data[valid_coord]['right']}
+                    if invalid_coords_right:
+                        identifier = (pos, right, valid_coord, invalid_coords_right)
+                        row_idx = len(columns)
+                        column_names.append(identifier)
+                        columns.append((identifier, dancing_links.DLX.SECONDARY))
+                        row.append(row_idx)
+
                 # Down
                 if down in self.to_process:
-                    valid_coords_down = [coord for coord in self.mountain_data[valid_coord]['down'] if coord in valid_coords_dict[down]]
-                    for possible_partner_coord in valid_coords_down:
-                        identifier = (*pos, *right, *valid_coord, *possible_partner_coord)
-                        columns.append((identifier, dancing_links.DLX.PRIMARY))
+                    invalid_coords_down = {coord for coord in valid_coords_dict[down] if coord not in self.mountain_data[valid_coord]['down']}
+                    if invalid_coords_down:
+                        identifier = (pos, down, valid_coord, invalid_coords_down)
+                        row_idx = len(columns)
+                        column_names.append(identifier)
+                        columns.append((identifier, dancing_links.DLX.SECONDARY))
+                        row.append(row_idx)
 
-        print("Columns")
-        print([c[0] for c in columns])
-        print("Rows")
-        print(row_names)
+        # Now we have each column and row, the primary columns are completely filled
+        # the secondary columns are halfway filled. They need their other sections to 
+        # be filled to completion
+        assert len(row_names) == len(rows)
+        column_idxs_to_be_filled = range(len(self.to_process), len(columns))
+        for cidx in column_idxs_to_be_filled:
+            pos, partner_pos, valid_coord, invalid_coords = column_names[cidx]
+            for ridx, row_name in enumerate(row_names):
+                # Find the rows that apply to this partner pos and are in the set of invalid coords
+                if partner_pos == row_name[0] and row_name[1] in invalid_coords:
+                    # Add a 1 here
+                    rows[ridx].append(cidx)
+
+        # print("Column Names")
+        # for c in columns:
+        #     print(c[0])
+        # print("Row Names")
+        # for row_name in row_names:
+        #     print(row_name)
+        # print("Grid")
+        # for idx, r in enumerate(rows):
+        #     print(row_names[idx]),
+        #     print(r)
+        # print("Num Rows: %d, Num Cols: %d" % (len(rows), len(columns)))
 
         d = dancing_links.DLX(columns)                
         d.appendRows(rows, row_names)
+        return d
 
-        sol = d.solve()
-        print("Solution:")
-        row_names = []
-        for i in sol:
-            row_names.append(d.N[i])
-        print(row_names)
-        for x, y, coord_x, coord_y in row_names:
-            self.organization[(x, y)] = (coord_x, coord_y)
+    def process_dancer(self, dancer):
+        for sol in dancer.solve():
+            print("Solution")
+            row_names = []
+            for i in sol:
+                row_name = dancer.N[i]
+                row_names.append(row_name)
+            for pos, coord in row_names:
+                print(pos, coord)
+            for pos, coord in row_names:
+                self.organization[pos] = coord
+            return row_names
 
 # Run from main lt-maker directory with
 # python -m app.map_maker.mountain_generator

@@ -275,7 +275,7 @@ class DLX:
     def _solve(self, depth, columnselector, columnselectoruserdata, statistics):
         """This is an internal function and should not be called directly."""
 
-        result = None
+        # result = None
 
         # Check to see if we have a complete solution.
         if self.R[self.header] == self.header:
@@ -323,8 +323,8 @@ class DLX:
                 j = self.L[j]
 
             # If the result was not None, then terminate prematurely.
-            if result is not None:
-                break
+            # if result is not None:
+                # break
 
             # Try the next row.
             r = self.D[r]
@@ -385,6 +385,7 @@ class DLXStatistics:
 
     Updates represents the number of link updates performed at each
     depth of the search tree."""
+    __slots__ = ['nodes', 'updates']
 
     def __init__(self):
         """__init__(self)
@@ -407,6 +408,7 @@ if __name__ == '__main__':
     for sol in d.solve():
         print("Solution:")
         for i in sol:
+            print(i)
             print(d.N[i])
         # d.printSolution(sol)
         # create_solution_grid(d, sol)

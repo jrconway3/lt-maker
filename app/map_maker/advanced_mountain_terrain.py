@@ -12,6 +12,7 @@ class MountainTerrain(Terrain):
     to_process = []  # Keeps track of what tiles still need to be process for group
     order = []  # Keeps track of the order that tiles have been processed
     locked_values = {}  # Keeps track of what coords unfortunately don't work
+    inexact_choices = set()  # Keeps track of what positions have bad choices
     mountain_data = None
 
     @property
@@ -21,6 +22,7 @@ class MountainTerrain(Terrain):
     def single_process(self, tilemap):
         positions: set = tilemap.get_all_terrain(self.nid)
         self.organization.clear()
+        self.inexact_choices.clear()
         groupings: list = [] # of sets
         counter: int = 0
         while positions and counter < 99999:
@@ -55,6 +57,8 @@ class MountainTerrain(Terrain):
             self.mountain_data = pickle.load(fp)
         self.border_dict = {}  # Coord: Index (0-15)
         self.index_dict = {i: set() for i in range(16)}  # Index: Coord 
+        self.noneless_rules = {}
+
         for coord, rules in self.mountain_data.items():
             north_edge = None in rules['up']
             south_edge = None in rules['down']
@@ -63,30 +67,39 @@ class MountainTerrain(Terrain):
             index = 1 * north_edge + 2 * east_edge + 4 * south_edge + 8 * west_edge
             self.border_dict[coord] = index
             self.index_dict[index].add(coord)
+            # Keep track of the rules when None is not present as well
+            noneless_rules = {}
+            noneless_rules['up'] = {k: v for k, v in rules['up'].items() if k is not None}
+            noneless_rules['down'] = {k: v for k, v in rules['down'].items() if k is not None}
+            noneless_rules['left'] = {k: v for k, v in rules['left'].items() if k is not None}
+            noneless_rules['right'] = {k: v for k, v in rules['right'].items() if k is not None}
+            self.noneless_rules[coord] = noneless_rules
         for index, coord in self.index_dict.items():
             print(index, sorted(coord))
 
-    def find_valid_coord(self, tilemap, pos) -> bool:
+    def find_valid_coord(self, tilemap, pos, exact=True) -> bool:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
+        # Whether there is a border to the north
         north_edge = bool(north and north not in self.terrain_like)
         south_edge = bool(south and south not in self.terrain_like)
         east_edge = bool(east and east not in self.terrain_like)
         west_edge = bool(west and west not in self.terrain_like)
         valid_coords = \
             [coord for coord, rules in self.mountain_data.items() if
-             ((north_edge and None in rules['up']) or (not north_edge and rules['up'])) and
-             ((south_edge and None in rules['down']) or (not south_edge and rules['down'])) and
-             ((east_edge and None in rules['right']) or (not east_edge and rules['right'])) and
-             ((west_edge and None in rules['left']) or (not west_edge and rules['left']))]
+             ((north_edge and None in rules['up']) or (not north_edge and self.noneless_rules[coord]['up'])) and
+             ((south_edge and None in rules['down']) or (not south_edge and self.noneless_rules[coord]['down'])) and
+             ((east_edge and None in rules['right']) or (not east_edge and self.noneless_rules[coord]['right'])) and
+             ((west_edge and None in rules['left']) or (not west_edge and self.noneless_rules[coord]['left']))]
+        orig_valid_coords = valid_coords[:]
         north_pos = (pos[0], pos[1] - 1)
         south_pos = (pos[0], pos[1] + 1)
         east_pos = (pos[0] + 1, pos[1])
         west_pos = (pos[0] - 1, pos[1])
-        print("*Valid Coord", pos, self.order)
+        # print("*Valid Coord", pos, self.order)
         # print(sorted(valid_coords))
         # Remove locked coords
-        if pos in self.locked_values:
-            print("Locked", sorted(self.locked_values[pos]))
+        if pos in self.locked_values and exact:
+            # print("Locked", sorted(self.locked_values[pos]))
             valid_coords = [coord for coord in valid_coords if coord not in self.locked_values[pos]]
         if not north_edge and north_pos in self.organization:
             chosen_coord = self.organization[north_pos]
@@ -101,19 +114,22 @@ class MountainTerrain(Terrain):
             chosen_coord = self.organization[west_pos]
             valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord]['right']]
         # print(sorted(valid_coords))
+        if not valid_coords and not exact:
+            valid_coords = orig_valid_coords
+            self.inexact_choices.add(pos)
         if not valid_coords:
-            print("Reverting Order...")
+            # print("Reverting Order...")
             if pos in self.locked_values:
                 del self.locked_values[pos]
-            self.revert_order((north_pos, south_pos, east_pos, west_pos))
+            self.revert_order()
             # valid_coords = self.index_dict[15]
             return False
         valid_coord = random_choice(list(valid_coords), pos)
-        print("Final", valid_coord)
+        # print("Final", valid_coord)
         self.organization[pos] = valid_coord
         return True
 
-    def revert_order(self, positions):
+    def revert_order(self):
         if not self.order:
             print("Major loop error! No valid solution")
             # Just fill it up with generic pieces
@@ -131,7 +147,7 @@ class MountainTerrain(Terrain):
         if pos not in self.locked_values:
             self.locked_values[pos] = set()
         self.locked_values[pos].add(coord)
-        print("Locking ", coord, "for ", pos)
+        # print("Locking ", coord, "for ", pos)
 
     def find_num_borders(self, tilemap, pos) -> int:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
@@ -156,54 +172,24 @@ class MountainTerrain(Terrain):
 
     def process_group(self, tilemap, group: set):
         # Determine coord 
-        print("--- Process Group ---")
         self.locked_values.clear()
         self.order.clear()
         self.to_process = sorted(group)
 
-        def process(seq):
+        def process(seq, exact=True):
             pos = seq[0]
-            did_work = self.find_valid_coord(tilemap, pos)
+            did_work = self.find_valid_coord(tilemap, pos, exact=exact)
             if did_work:
                 self.to_process.remove(pos)
                 self.order.append(pos)
             self.to_process = sorted(self.to_process)
 
-        while self.to_process:
-            # four_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 4]
-            # if four_borders:
-            #     process(four_borders)
-            #     continue
-            # four_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 4]
-            # if four_partners:
-            #     process(four_partners)
-            #     continue
-            # three_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 3]
-            # if three_borders:
-            #     process(three_borders)
-            #     continue
-            # three_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 3]
-            # if three_partners:
-            #     process(three_partners)
-            #     continue
-            # two_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 2]
-            # if two_borders:
-            #     process(two_borders)
-            #     continue
-            # two_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 2]
-            # if two_partners:
-            #     process(two_partners)
-            #     continue
-            # one_and_one = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 1 and self.find_num_partners(tilemap, pos) == 1]
-            # if one_and_one:
-            #     process(one_and_one)
-            #     continue
-            # one_borders = [pos for pos in self.to_process if self.find_num_borders(tilemap, pos) == 1]
-            # if one_borders:
-            #     process(one_borders)
-            #     continue
-            # one_partners = [pos for pos in self.to_process if self.find_num_partners(tilemap, pos) == 1]
-            # if one_partners:
-            #     process(one_partners)
-            #     continue
+        # Try about 1000 times for real, before entering don't care mode
+        counter = 0
+        max_counter = len(self.to_process) * 10
+        while self.to_process and counter < max_counter:
+            counter += 1
             process(self.to_process)
+        # Just throw shit at the wall
+        while self.to_process:
+            process(self.to_process, exact=False)

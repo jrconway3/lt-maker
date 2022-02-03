@@ -18,10 +18,7 @@ class Generator():
         self.order = []  # Keeps track of the order that tiles have been processed
         self.locked_values = {}  # Keeps track of what coords unfortunately don't work
         self.mountain_data = None
-
-        self.terrain_grid = None
-        # self.terrain_grids = self.generate_terrain_grids()
-        self.terrain_grids = self.generate_simple_terrain_grid3()
+        self.terrain_grid = self.generate_simple_terrain_grid3()
 
         data_loc = 'app/map_maker/mountain_data.p'
         with open(data_loc, 'rb') as fp:
@@ -44,80 +41,22 @@ class Generator():
             noneless_rules['left'] = {k: v for k, v in rules['left'].items() if k is not None}
             noneless_rules['right'] = {k: v for k, v in rules['right'].items() if k is not None}
             self.noneless_rules[coord] = noneless_rules
-        for index, coord in self.index_dict.items():
-            print(index, sorted(coord))
 
         import time
         start = time.time_ns() / 1e6
-        self.terrain_organization = {}
-        for terrain_grid in self.terrain_grids:
-            print(terrain_grid)
-            self.terrain_grid = terrain_grid
-            if self.terrain_grid not in self.terrain_organization:
-                self.terrain_organization[self.terrain_grid] = []
-            # For each seed
-            for idx in range(self.NUM_VARIANTS):
-                print(idx)
-                self.seed = idx
-                self.organization.clear()
-                # self.process_terrain_grid()
-                self.process_algorithm_x()
-                self.terrain_organization[self.terrain_grid].append(self.organization.copy())
+        self.terrain_organization = (self.terrain_grid, [])
+        # For each seed
+        for idx in range(self.NUM_VARIANTS):
+            print(idx)
+            self.seed = idx
+            self.organization.clear()
+            # self.process_terrain_grid()
+            self.process_algorithm_x()
+            self.terrain_organization[1].append(self.organization.copy())
         total_time = time.time_ns() / 1e6 - start
         print("Total Time %f ms" % total_time)
 
-    def flood_fill(self, pos: tuple) -> set:
-        blob_positions = set()
-        unexplored_stack = []
-
-        def find_similar(starting_pos: tuple):
-            unexplored_stack.append(starting_pos)
-
-            counter = 0
-            while unexplored_stack and counter < 99999:
-                current_pos = unexplored_stack.pop()
-
-                if current_pos in blob_positions:
-                    continue
-                if not self.get_terrain(current_pos):
-                    continue
-
-                blob_positions.add(current_pos)
-                unexplored_stack.append((current_pos[0] + 1, current_pos[1]))
-                unexplored_stack.append((current_pos[0] - 1, current_pos[1]))
-                unexplored_stack.append((current_pos[0], current_pos[1] + 1))
-                unexplored_stack.append((current_pos[0], current_pos[1] - 1))
-                counter += 1
-            if counter >= 99999:
-                raise RuntimeError("Unexpected infinite loop in generic flood_fill")
-
-        # Determine which coords should be flood-filled
-        find_similar(pos)
-        return blob_positions
-
-    def generate_terrain_grids_procedural(self) -> list:
-        terrain_grids = set()
-        size = self.MAX_SIZE
-        square = size**2
-        for num in range(1, 2**square):
-            terrain_grid = set()
-            b = bin(num)[2:][-square:]
-            b = '0'*(square - len(b)) + b
-            for counter in range(square):
-                x = counter % size
-                y = counter // size
-                if b[counter] == '1':
-                    terrain_grid.add((x, y))
-            x_start, y_start, width, height = find_bounding_rect(terrain_grid)
-            self.terrain_grid = {(pos[0] - x_start, pos[1] - y_start) for pos in terrain_grid}
-            # Check if it's fully contiguous
-            near_positions: set = self.flood_fill(next(iter(self.terrain_grid)))
-            if len(near_positions) == len(self.terrain_grid):
-                terrain_grids.add(frozenset(self.terrain_grid))
-        return list(terrain_grids)
-
-    def generate_terrain_grids(self) -> list:
-        terrain_grids = set()
+    def generate_complex_terrain_grid(self) -> set:
         terrain_grid_example = {
             (0, 2), (0, 4), (0, 5), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
             (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7),
@@ -127,34 +66,27 @@ class Generator():
             (6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 6),
             (7, 4)
         }
-        terrain_grids.add(frozenset(terrain_grid_example))
-        return list(terrain_grids)
+        return frozenset(terrain_grid_example)
 
-    def generate_simple_terrain_grid(self) -> list:
-        terrain_grids = set()
+    def generate_simple_terrain_grid(self) -> set:
         terrain_grid_example = {
             (0, 0), (0, 1), (1, 0), (1, 1), (2, 0)
         }
-        terrain_grids.add(frozenset(terrain_grid_example))
-        return list(terrain_grids)
+        return frozenset(terrain_grid_example)
 
-    def generate_simple_terrain_grid2(self) -> list:
-        terrain_grids = set()
+    def generate_simple_terrain_grid2(self) -> set:
         terrain_grid_example = {
             (0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1)
         }
-        terrain_grids.add(frozenset(terrain_grid_example))
-        return list(terrain_grids)
+        return frozenset(terrain_grid_example)
 
-    def generate_simple_terrain_grid3(self) -> list:
-        terrain_grids = set()
+    def generate_simple_terrain_grid3(self) -> set:
         terrain_grid_example = {
             (0, 2), (0, 4), (0, 5), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
             (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7),
             (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7)
         }
-        terrain_grids.add(frozenset(terrain_grid_example))
-        return list(terrain_grids)
+        return frozenset(terrain_grid_example)
 
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
         new_coords = self.organization[pos]
@@ -291,7 +223,6 @@ class Generator():
         return valid_coords
 
     def process_algorithm_x(self):
-        blob = set(self.to_process)
         self.to_process = sorted(self.terrain_grid)
 
         columns = [(pos, True) for pos in self.to_process]
@@ -311,26 +242,22 @@ class Generator():
                 row_names.append((pos, valid_coord))
 
                 # Right
-                if right in blob:
+                if right in valid_coords_dict:
                     invalid_coords_right = {coord for coord in valid_coords_dict[right] if coord not in self.mountain_data[valid_coord]['right']}
                     if invalid_coords_right:
                         identifier = (pos, right, valid_coord, invalid_coords_right)
-                        row_idx = len(columns)
                         column_names.append(identifier)
-                        # columns.append((identifier, dancing_links.DLX.SECONDARY))
                         columns.append((identifier, False))
-                        row.append(row_idx)
+                        row.append(len(columns) - 1)
 
                 # Down
-                if down in blob:
+                if down in valid_coords_dict:
                     invalid_coords_down = {coord for coord in valid_coords_dict[down] if coord not in self.mountain_data[valid_coord]['down']}
                     if invalid_coords_down:
                         identifier = (pos, down, valid_coord, invalid_coords_down)
-                        row_idx = len(columns)
                         column_names.append(identifier)
-                        # columns.append((identifier, dancing_links.DLX.SECONDARY))
                         columns.append((identifier, False))
-                        row.append(row_idx)
+                        row.append(len(columns) - 1)
 
         # Now we have each column and row, the primary columns are completely filled
         # the secondary columns are halfway filled. They need their other sections to 
@@ -355,7 +282,8 @@ class Generator():
         # for idx, r in enumerate(rows):
         #     print(row_names[idx]),
         #     print(r)
-        # print("Num Rows: %d, Num Cols: %d" % (len(rows), len(columns)))
+        if self.seed == 0:
+            print("Num Rows: %d, Num Cols: %d" % (len(rows), len(columns)))
 
         d = rain_algorithm_x.RainAlgorithmX(columns, row_names, rows, self.to_process[0], self.seed)
         output = d.solve()
@@ -390,22 +318,22 @@ if __name__ == '__main__':
     g = Generator()
     pr.disable()
     pr.print_stats(sort='time')
-    for key, terrain_grids in g.terrain_organization.items():
-        print(key)
-        _, _, width, height = find_bounding_rect(key)
+    key, terrain_grids = g.terrain_organization
+    print(key)
+    _, _, width, height = find_bounding_rect(key)
 
-        for idx, terrain_grid in enumerate(terrain_grids):
-            new_im = QImage(width * TILEWIDTH, height * TILEHEIGHT, QImage.Format_RGB32)
-            new_im.fill(QColor(0, 0, 0))
-            painter = QPainter()
-            painter.begin(new_im)
+    for idx, terrain_grid in enumerate(terrain_grids):
+        new_im = QImage(width * TILEWIDTH, height * TILEHEIGHT, QImage.Format_RGB32)
+        new_im.fill(QColor(0, 0, 0))
+        painter = QPainter()
+        painter.begin(new_im)
 
-            for pos, coord in terrain_grid.items():
-                rect = (coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
-                im = main_image.copy(*rect)
-                painter.drawImage(pos[0] * TILEWIDTH, pos[1] * TILEHEIGHT, im)
+        for pos, coord in terrain_grid.items():
+            rect = (coord[0] * TILEWIDTH, coord[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
+            im = main_image.copy(*rect)
+            painter.drawImage(pos[0] * TILEWIDTH, pos[1] * TILEHEIGHT, im)
 
-            painter.end()
+        painter.end()
 
-            h = str(hash(key))[:16]
-            new_im.save(save_dir + ('%s_%02d.png' % (h, idx)))
+        h = str(hash(key))[:16]
+        new_im.save(save_dir + ('%s_%02d.png' % (h, idx)))

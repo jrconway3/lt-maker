@@ -1,13 +1,31 @@
 from app.map_maker.utilities import random_choice
 
-class HeaderCell:
-    __slots__ = ['name', 'size', 'primary', 'row_idx']
+class EmptyMatrixError(Exception):
+    pass
+
+class Cell:
+    __slots__ = ['up', 'down', 'left', 'right', 'header', 'indexes']
+
+    def __init__(self):
+        self.up = self.down = self.left = self.right = self
+        self.header = None
+        self.indexes = None
+
+    def __str__(self):
+        return f"Node: {self.indexes}"
+
+    def __repr__(self):
+        return f"Cell[{self.indexes}]"
+
+class HeaderCell(Cell):
+    __slots__ = ['name', 'size', 'primary', 'is_first']
 
     def __init__(self, name, primary=True):
+        super().__init__()
         self.name = name
         self.size: int = 0
         self.primary: bool = primary
-        self.row_idx = []
+        self.is_first: bool = False
 
 class RainAlgorithmX:
     def __init__(self, column_headers: list, row_headers: list, rows: list, 
@@ -16,50 +34,84 @@ class RainAlgorithmX:
         self.pos = pos
         self.seed = seed
 
-        self.column_headers = [HeaderCell(*c) for c in column_headers]
-        self.primary_column_headers = []
-        for header in self.column_headers:
-            if header.primary:
-                self.primary_column_headers.append(header)
-            else:
-                break
+        self.solution_rows = [] # List of row cell
+        self.bad_solutions = {} # Key: Depth int, Value set of row cells
+
+        self.header = HeaderCell("<H>")
+        self.header.is_first = True
+        self.num_rows = self.num_columns = 0
+        self.column_list = []
+
+        # Add columns
+        previous = self.header
+        # Link every column together
+        for name, primary in column_headers:
+            cell = HeaderCell(name, primary)
+            cell.indexes = (-1, self.num_columns)
+            self.column_list.append(cell)
+            if primary:
+                previous.right = cell
+                cell.left = previous
+                previous = cell
+            self.num_columns += 1
+
+        previous.right = self.header
+        self.header.left = previous
+
+        # Add rows
         self.row_headers = row_headers
-        self.rows = rows
-        self.uncovered_columns = {y for y in range(len(self.column_headers))}
-        self.uncovered_primary_columns = {y for y in range(len(self.primary_column_headers))}
-        self.uncovered_rows = {x for x in range(len(self.row_headers))}
+        for row in rows:
+            previous = None
+            start = None
+            cell = None
+            for idx in row:
+                cell = Cell()
+                cell.indexes = (self.num_rows, idx)
 
-        self.solution_rows = []
-        self.covered_rows = []
-        self.bad_solutions = {} # Key: Depth int, Value: Set
+                if previous:
+                    previous.right = cell
+                    cell.left = previous
+                else:
+                    start = cell
 
-        # Set size
-        for column_idx, column_header in enumerate(self.column_headers):
-            for row_idx, row in enumerate(self.rows):
-                if column_idx in row:
-                    column_header.size += 1
-                    column_header.row_idx.append(row_idx)
+                column_header_cell = self.column_list[idx]
+                # Link the cell with the previous one and with the correct column cell
+                last = column_header_cell.up
+                last.down = cell
+                cell.up = last
+                column_header_cell.up = cell
+                cell.down = column_header_cell
+                cell.header = column_header_cell
+                column_header_cell.size += 1
+                previous = cell
+
+            start.left = cell
+            cell.right = start
+            self.num_rows += 1
 
     def get_solution(self):
-        return sorted([self.row_headers[row_idx] for row_idx in self.solution_rows])
+        return sorted([self.row_headers[row_cell.indexes[0]] for row_cell in self.solution_rows])
 
-    def choose_column(self) -> int:
+    def choose_column(self) -> HeaderCell:
         """
         Finds the column with the minimum size.
         Returns it's index
         """
-        minimum_column_index = 0
-        min_size = 99999
-        for idx, col in enumerate(self.primary_column_headers):
-            if idx in self.uncovered_primary_columns and col.size < min_size:
-                minimum_column_index = idx
-                min_size = col.size
-        return minimum_column_index, min_size
+        if self.header.right.is_first:
+            raise EmptyMatrixError()
+        col_min = self.header.right
+        for col in iterate_cell(self.header, 'right'):
+            if not col.is_first and col.size < col_min.size:
+                col_min = col
+        return col_min
 
     def solve(self) -> bool:
         counter = 0
-        while self.uncovered_primary_columns and counter < 99999:
+        while counter < 99999:
             counter += 1
+            if self.header.right == self.header:
+                # Solution is found
+                return True
             output = self.process()
             if not output:
                 # No valid solutions at all
@@ -75,16 +127,12 @@ class RainAlgorithmX:
             self.bad_solutions[depth].clear()
         if self.solution_rows:
             bad_row = self.solution_rows.pop()
-            covered_rows = self.covered_rows.pop()
-            self.uncover(bad_row, covered_rows)
+            for j_cell in iterate_cell(bad_row, 'left'):
+                self.uncover(j_cell.header)
+            self.uncover(bad_row.header)
             if depth - 1 not in self.bad_solutions:
                 self.bad_solutions[depth - 1] = set()
             self.bad_solutions[depth - 1].add(bad_row)
-            # print("Uncover")
-            # print(covered_rows)
-            # print(self.uncovered_columns)
-            # print(self.uncovered_rows)
-            # print([c.size for c in self.column_headers])
             return True
         else:
             return False  # No valid solutions at all
@@ -92,72 +140,61 @@ class RainAlgorithmX:
     def process(self):
         # print("Process")
         # Choose a column
-        column_idx, min_size = self.choose_column()
-        # print("Column Choice", column_idx, min_size)
+        column_header_cell = self.choose_column()
+        # print("Column Index:", column_header_cell.indexes[1])
 
-        if min_size == 0:
+        if column_header_cell.size == 0:
             return self.revert()
 
         # Choose a row that has a 1 in the column
         bad_rows = self.bad_solutions.get(len(self.solution_rows), set())
-        possible_rows = [idx for idx, row in enumerate(self.rows) if 
-                         idx in self.uncovered_rows and 
-                         idx not in bad_rows and 
-                         column_idx in row]
-        # print("Possible Rows", possible_rows)
+        possible_rows = [row for row in iterate_cell(column_header_cell, 'down') if row not in bad_rows]
+        # print("Possible Row Idxs", [r.indexes[0] for r in possible_rows])
         if not possible_rows:
             return self.revert()
-        row_idx = random_choice(possible_rows, self.pos, self.seed)
-        # print("Row choice", row_idx)
+        row = random_choice(possible_rows, self.pos, self.seed)
+        # print("Row choice", row)
 
         # Include row in solution
-        self.solution_rows.append(row_idx)
+        self.solution_rows.append(row)
 
-        covered_rows = self.cover(row_idx)
-        self.covered_rows.append(covered_rows)
-        # print("Cover")
-        # print(self.uncovered_columns)
-        # print(self.uncovered_rows)
-        # print([c.size for c in self.column_headers])
+        # Cover
+        self.cover(column_header_cell)
+        for j_cell in iterate_cell(row, 'right'):
+            self.cover(j_cell.header)
 
         return True
 
-    def cover(self, row_idx) -> list:
-        # For each column where the row has a 1
-        row = self.rows[row_idx]
-        covered_rows = []
-        for column_idx in row:
-            # For each row where this column has a 1
-            for ridx in self.column_headers[column_idx].row_idx:
-                if ridx in self.uncovered_rows:
-                    other_row = self.rows[ridx]
-                    # cover the row
-                    self.uncovered_rows.discard(ridx)
-                    covered_rows.append(ridx)
-                    for cidx in other_row:
-                        self.column_headers[cidx].size -= 1
-            # cover the column
-            self.uncovered_columns.discard(column_idx)
-            if self.column_headers[column_idx].primary:
-                self.uncovered_primary_columns.discard(column_idx)
-        return covered_rows
+    def cover(self, column_header_cell):
+        """
+        # Covers the column of the column_header_cell and all rows connected to that column
+        """
+        column_header_cell.right.left = column_header_cell.left
+        column_header_cell.left.right = column_header_cell.right
 
-    def uncover(self, row_idx, covered_rows):
-        # Add it back
-        # For each column where the row has a 1
-        row = self.rows[row_idx]
-        for column_idx in row:
-            # uncover the column
-            self.uncovered_columns.add(column_idx)
-            if self.column_headers[column_idx].primary:
-                self.uncovered_primary_columns.add(column_idx)
+        for i_cell in iterate_cell(column_header_cell, 'down'):
+            for j_cell in iterate_cell(i_cell, 'right'):
+                j_cell.down.up = j_cell.up
+                j_cell.up.down = j_cell.down
+                j_cell.header.size -= 1
 
-        # For each row to uncover
-        for ridx in covered_rows:
-            # uncover the row
-            self.uncovered_rows.add(ridx)
-            for cidx in self.rows[ridx]:
-                self.column_headers[cidx].size += 1
+    def uncover(self, column_header_cell):
+        """
+        # Uncovers the column of the column_header_cell and also all the row connected to that column
+        """
+        for i_cell in iterate_cell(column_header_cell, 'up'):
+            for j_cell in iterate_cell(i_cell, 'left'):
+                j_cell.header.size += 1
+                j_cell.down.up = j_cell.up.down = j_cell
+
+        column_header_cell.right.left = column_header_cell.left.right = column_header_cell
+
+def iterate_cell(cell, direction):
+    cur = getattr(cell, direction)
+    while cur is not cell:
+        yield cur
+        cur = getattr(cur, direction)
+
 # Testing code.
 if __name__ == '__main__':
     import cProfile
@@ -175,7 +212,7 @@ if __name__ == '__main__':
     def test2():
         columns = [('a', True), ('b', True), ('c', True), ('d', True), ('e', True), ('f', True), ('g', True)]
         rows = [[2, 4, 5],
-                [0, 3, 6],
+                [0],
                 [1, 2, 5],
                 [0, 3],
                 [1, 6],

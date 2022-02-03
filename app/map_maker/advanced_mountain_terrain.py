@@ -12,7 +12,6 @@ class MountainTerrain(Terrain):
     to_process = []  # Keeps track of what tiles still need to be process for group
     order = []  # Keeps track of the order that tiles have been processed
     locked_values = {}  # Keeps track of what coords unfortunately don't work
-    inexact_choices = set()  # Keeps track of what positions have bad choices
     mountain_data = None
 
     @property
@@ -22,7 +21,6 @@ class MountainTerrain(Terrain):
     def single_process(self, tilemap):
         positions: set = tilemap.get_all_terrain(self.nid)
         self.organization.clear()
-        self.inexact_choices.clear()
         groupings: list = [] # of sets
         counter: int = 0
         while positions and counter < 99999:
@@ -95,6 +93,7 @@ class MountainTerrain(Terrain):
         south_pos = (pos[0], pos[1] + 1)
         east_pos = (pos[0] + 1, pos[1])
         west_pos = (pos[0] - 1, pos[1])
+        southwest_pos = (pos[0] - 1, pos[1] + 1)
         # print("*Valid Coord", pos, self.order)
         # print(sorted(valid_coords))
         # Remove locked coords
@@ -113,10 +112,20 @@ class MountainTerrain(Terrain):
         if not west_edge and west_pos in self.organization:
             chosen_coord = self.organization[west_pos]
             valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord]['right']]
+        # If there's already a position filled to the southwest, check that we can find a reasonable
+        # choice for the 
+        if southwest_pos in self.organization and south and south in self.terrain_like:
+            chosen_coord = self.organization[southwest_pos]
+            valid_right_coords = self.noneless_rules[chosen_coord]['right']
+            # For the remaining valid coords for this coordinate
+            # check if any of that coordinate's southward connections match with the rightward coordinates
+            # of the southwesst position
+            valid_coords = [coord for coord in valid_coords if any(c in valid_right_coords for c in self.noneless_rules[coord]['down'])]
+        # print(sorted(valid_coords))
+
         # print(sorted(valid_coords))
         if not valid_coords and not exact:
             valid_coords = orig_valid_coords
-            self.inexact_choices.add(pos)
         if not valid_coords:
             # print("Reverting Order...")
             if pos in self.locked_values:
@@ -170,11 +179,14 @@ class MountainTerrain(Terrain):
         num_partners = sum((north_edge, south_edge, east_edge, west_edge))
         return num_partners
 
-    def process_group(self, tilemap, group: set):
+    def process_group(self, tilemap, group: set, exact=False):
+        print("--- Process Group ---")
         # Determine coord 
         self.locked_values.clear()
         self.order.clear()
-        self.to_process = sorted(group)
+        # Sort from top left to bottom right
+        # Break ties starting from the left
+        self.to_process = sorted(group, key=lambda x: (x[0] + x[1], x[0]))
 
         def process(seq, exact=True):
             pos = seq[0]
@@ -182,14 +194,19 @@ class MountainTerrain(Terrain):
             if did_work:
                 self.to_process.remove(pos)
                 self.order.append(pos)
-            self.to_process = sorted(self.to_process)
+            self.to_process = sorted(self.to_process, key=lambda x: (x[0] + x[1], x[0]))
 
         # Try about 1000 times for real, before entering don't care mode
         counter = 0
-        max_counter = len(self.to_process) * 10
+        if exact:
+            max_counter = int(1e6)
+        else:
+            max_counter = len(self.to_process) * 10
         while self.to_process and counter < max_counter:
             counter += 1
             process(self.to_process)
         # Just throw shit at the wall
-        while self.to_process:
-            process(self.to_process, exact=False)
+        if self.to_process:
+            print("Inexact solution found")
+            while self.to_process:
+                process(self.to_process, exact=False)

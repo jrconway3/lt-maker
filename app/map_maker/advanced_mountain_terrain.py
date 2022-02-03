@@ -133,7 +133,27 @@ class MountainTerrain(Terrain):
             self.revert_order()
             # valid_coords = self.index_dict[15]
             return False
-        valid_coord = random_choice(list(valid_coords), pos)
+
+        # Weight the valid coord list by the likelihood that it's partners use it
+        valid_coord_list = []
+        for valid_coord in valid_coords:
+            if west_pos in self.organization:
+                west_coord = self.organization[west_pos]
+                count = self.mountain_data[west_coord]['right'][valid_coord]
+                valid_coord_list += [valid_coord] * count
+            if north_pos in self.organization:
+                north_coord = self.organization[north_pos]
+                count = self.mountain_data[north_coord]['down'][valid_coord]
+                valid_coord_list += [valid_coord] * count
+            if south and south in self.terrain_like:
+                count = sum(self.noneless_rules[valid_coord]['down'].values())
+                valid_coord_list += [valid_coord] * count
+            if east and east in self.terrain_like:
+                count = sum(self.noneless_rules[valid_coord]['right'].values())
+                valid_coord_list += [valid_coord] * count
+        if not valid_coord_list:
+            valid_coord_list = valid_coords
+        valid_coord = random_choice(valid_coord_list, pos)
         # print("Final", valid_coord)
         self.organization[pos] = valid_coord
         return True
@@ -201,7 +221,7 @@ class MountainTerrain(Terrain):
         if exact:
             max_counter = int(1e6)
         else:
-            max_counter = len(self.to_process) * 10
+            max_counter = len(self.to_process) * 12
         while self.to_process and counter < max_counter:
             counter += 1
             process(self.to_process)

@@ -55,15 +55,15 @@ def similar(p1: QuadPaletteData, p2: MountainQuadPaletteData, must_match=4) -> b
 
 def get_mountain_coords(fn) -> set:
     if fn.endswith('rainlash_fields1.png'):
-        topleft = {(0, 11), (0, 12), (1, 11), (1, 12), (2, 12), (3, 11), (3, 12)}
+        topleft = {(0, 11), (0, 12), (1, 11), (1, 12), (1, 12), (2, 12), (3, 11), (3, 12)}
         main = {(x, y) for x in range(17) for y in range(13, 20)}
         # (18, 18) is a duplicate of (15, 17)
         right = {(17, 14), (17, 15), (17, 16), (17, 17), (17, 18), (17, 19), (18, 16), (18, 17), (18, 19)}
-        bottomleft = {(4, 22), (5, 22), (1, 26), (2, 27), (3, 27)}
+        bottomleft = {(4, 22), (5, 22), (0, 26), (0, 27), (0, 28), (1, 26), (1, 27), (2, 27), (3, 27)}
         bottom = {(x, y) for x in range(6, 12) for y in range(20, 25)}
         bottomright = {(12, 22), (13, 22), (14, 22), (15, 22), (12, 23), (13, 23), (14, 23), (15, 23), (16, 23), (12, 24), (13, 24), (13, 25), (15, 20), (16, 20), (17, 20), (18, 20), (17, 21), (18, 21)}
         # extra = {(0, 6), (1, 6), (2, 6)}
-        extra = {(0, 5)}
+        extra = {(0, 5), (14, 21)}
         return topleft | main | right | bottomleft | bottom | bottomright | extra
     return set()
 
@@ -97,7 +97,7 @@ def assign_rules(palette_templates: dict, fns: list):
             mountain_match = is_present(palette, palette_templates)
             if mountain_match:
                 best_matches[position] = mountain_match
-        print({k: v.coord for k, v in best_matches.items()})
+        # print({k: v.coord for k, v in best_matches.items()})
 
         for position, mountain_match in best_matches.items():
             # Find adjacent positions
@@ -117,29 +117,29 @@ def assign_rules(palette_templates: dict, fns: list):
                     mountain_match.rules['left'][left_palette.coord] += 1
                 else:
                     mountain_match.rules['left'][None] += 1
-                    # if mountain_match.coord == (13, 13):
-                    #     print(fn, position, 'left')
+                    if mountain_match.coord in ((11, 16), (11, 18), (13, 16)):
+                        print(fn, position, 'left', mountain_match.coord)
             if right[0] < num_tiles_x:
                 if right_palette:
                     mountain_match.rules['right'][right_palette.coord] += 1
                 else:
                     mountain_match.rules['right'][None] += 1
-                    # if mountain_match.coord == (13, 13):
-                    #     print(fn, position, 'right')
+                    if mountain_match.coord in ((11, 23), (12, 15)):
+                        print(fn, position, 'right', mountain_match.coord)
             if up[1] >= 0:
                 if up_palette:
                     mountain_match.rules['up'][up_palette.coord] += 1
                 else:
                     mountain_match.rules['up'][None] += 1
-                    if mountain_match.coord == (13, 13):
-                        print(fn, position, 'up')
+                    # if mountain_match.coord in ((2, 12), (1, 16), (1, 17), (4, 18), (8, 19), (9, 19)):
+                    #     print(fn, position, 'up', mountain_match.coord)
             if down[1] < num_tiles_y:
                 if down_palette:
                     mountain_match.rules['down'][down_palette.coord] += 1
                 else:
                     mountain_match.rules['down'][None] += 1
-                    if mountain_match.coord == (13, 13):
-                        print(fn, position, 'down')
+                    if mountain_match.coord in ((13, 16), (17, 15)):
+                        print(fn, position, 'down', mountain_match.coord)
 
 def is_present(palette: QuadPaletteData, palette_templates: dict) -> MountainQuadPaletteData:
     MUST_MATCH = 4
@@ -169,6 +169,7 @@ if __name__ == '__main__':
 
     print("--- Final Rules ---")
     final_rules = {coord: mountain_palette.rules for coord, mountain_palette in mountain_palettes.items()}
+    to_watch = []
     for coord, rules in sorted(final_rules.items()):
         print("---", coord, "---")
         if rules['left']:
@@ -179,6 +180,17 @@ if __name__ == '__main__':
             print('up', rules['up'])
         if rules['down']:
             print('down', rules['down'])
+        if None in rules['left'] and rules['left'][None] < (0.1 * sum(rules['left'].values())):
+            to_watch.append((coord, 'left'))
+        if None in rules['right'] and rules['right'][None] < (0.1 * sum(rules['right'].values())):
+            to_watch.append((coord, 'right'))
+        if None in rules['up'] and rules['up'][None] < (0.1 * sum(rules['up'].values())):
+            to_watch.append((coord, 'up'))
+        if None in rules['down'] and rules['down'][None] < (0.1 * sum(rules['down'].values())):
+            to_watch.append((coord, 'down'))
+    print("--- Watch for: ---")
+    print(to_watch)
+
     data_loc = 'app/map_maker/mountain_data.p'
     with open(data_loc, 'wb') as fp:
         pickle.dump(final_rules, fp)

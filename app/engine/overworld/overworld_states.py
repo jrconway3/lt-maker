@@ -18,7 +18,7 @@ from app.engine.state import MapState, State
 from app.utilities.typing import NID
 
 
-class OverworldState(MapState):
+class OverworldFreeState(MapState):
     """The main overworld state - sprite is on the map and you can navigate around.
     """
     name = 'overworld'
@@ -50,8 +50,25 @@ class OverworldState(MapState):
             game.overworld_controller.set_node_property(next_level_node_nid, OverworldNodeProperty.IS_NEXT_LEVEL, True)
 
     def start(self):
-        OverworldState.set_up_overworld_game_state()
+        OverworldFreeState.set_up_overworld_game_state()
         self.begin_time = engine.get_time()
+
+        # the free state requires that the main party is initialized.
+        if not game.overworld_controller.selected_party_node():
+            # if it's not, add it to the current level's node and forcibly enable it
+            current_level = game.memory['_prev_level_nid']
+            current_level_node = game.overworld_controller.node_by_level(current_level)
+            if not current_level_node:
+                current_level_node = list(game.overworld_controller.nodes.values())[0]
+            if current_level_node not in game.overworld_controller.revealed_nodes:
+                game.overworld_controller.enable_node(current_level_node)
+            game.overworld_controller.move_party_to_node(game.overworld_controller.selected_entity.nid, current_level_node.nid)
+            logging.warning('%s: no position detected. automatically placing party %s at node %s. Use the set_overworld_position command \
+                                    in a previous event to circumvent this.',
+                            'OverworldFreeState',
+                            game.overworld_controller.selected_entity.nid,
+                            current_level_node.name)
+
         game.cursor.set_pos(game.overworld_controller.selected_party_node().position)
         game.camera.force_center(*game.overworld_controller.selected_party_node().position)
         if game.overworld_controller.next_level:
@@ -315,6 +332,21 @@ class OverworldPartyOptionMenu(State):
         info_desc = ['Convoy_desc']
         ignore = [False]
 
+        self.events = [None for option in options]
+        current_node = game.overworld_controller.selected_party_node()
+        all_options = current_node.menu_options
+        
+        additional_option_names = [option.option_name for option in all_options if game.overworld_controller.menu_option_visible(current_node.nid, option.nid)]
+        additional_ignore = [not game.overworld_controller.menu_option_enabled(current_node.nid, option.nid) for option in all_options if game.overworld_controller.menu_option_visible(current_node.nid, option.nid)]
+        additional_events = [option.event for option in all_options if game.overworld_controller.menu_option_visible(current_node.nid, option.nid)]
+        additional_info = [None for option in all_options if game.overworld_controller.menu_option_visible(current_node.nid, option.nid)]
+        
+        options += additional_option_names
+        ignore += additional_ignore
+        self.events += additional_events
+        #Options seem to need info_descs, no idea what to do with those. They're just None for now to prevent crashes
+        info_desc += additional_info
+        
         self.menu = menus.Choice(None, options, info=info_desc)
         self.menu.set_ignore(ignore)
 
@@ -340,6 +372,13 @@ class OverworldPartyOptionMenu(State):
             if selection == 'Base Camp':
                 game.memory['next_state'] = 'base_main'
                 game.state.change('transition_to')
+            else:
+                game.state.back()
+                selected_index = self.menu.get_current_index()
+                event_to_trigger = self.events[selected_index]
+                valid_events = DB.events.get_by_nid_or_name(event_to_trigger, None)
+                for event_prefab in valid_events:
+                    game.events.trigger_specific_event(event_prefab.nid)
 
         elif event == 'INFO':
             self.menu.toggle_info()

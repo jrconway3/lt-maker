@@ -130,17 +130,26 @@ class ProjectFileBackend():
         return True
 
     def new(self):
-        if self.maybe_save():
-            result = NewGameDialog.get()
-            if result:
-                identifier, title = result
-
-                RESOURCES.load('default.ltproj')
-                DB.load('default.ltproj')
-                DB.constants.get('game_nid').set_value(identifier)
-                DB.constants.get('title').set_value(title)
-            return result
-        return False
+        if not self.maybe_save():
+            return False
+        result = NewGameDialog.get()
+        if not result:
+            return False
+        identifier, title = result
+        curr_path = QDir()
+        curr_path.cdUp()
+        starting_path = curr_path.path() + '/' + title + '.ltproj'
+        fn, ok = QFileDialog.getSaveFileName(self.parent, "Save Project", starting_path,
+                                                "All Files (*)")
+        if not ok:
+            return
+        shutil.copytree(QDir.currentPath() + '/' + 'default.ltproj', fn)
+        self.current_proj = fn
+        self.settings.set_current_project(fn)
+        self.load()
+        DB.constants.get('game_nid').set_value(identifier)
+        DB.constants.get('title').set_value(title)
+        return result
 
     def open(self):
         if self.maybe_save():
@@ -177,7 +186,7 @@ class ProjectFileBackend():
                 self.load()
                 return True
             except Exception as e:
-                logging.error(e)
+                logging.exception(e)
                 backup_project_name = path + '.lttmp'
                 corrupt_project_name = path + '.ltcorrupt'
                 logging.warning("Failed to load project at %s. Likely that project is corrupted.", path)

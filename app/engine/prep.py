@@ -1,3 +1,4 @@
+from typing import List, Tuple
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 
 # from app.resources.resources import RESOURCES
@@ -22,6 +23,29 @@ class PrepMainState(MapState):
     bg = None
     menu = None
 
+    def populate_options(self) -> Tuple[List[str], List[str], List[str]]:
+        """return (options, ignore, events), which should all be the same size
+        """
+        # basic options
+        options = ['Manage', 'Formation', 'Options', 'Save', 'Fight']
+        if game.level_vars.get('_prep_pick'):
+            options.insert(0, 'Pick Units')
+        if cf.SETTINGS['debug']:
+            options.insert(0, 'Debug')
+        ignore = [False for option in options]
+
+        # initialize custom options and events
+        events = [None for option in options]
+        additional_options = game.game_vars.get('_prep_additional_options')
+        additional_ignore = game.game_vars.get('_prep_options_enabled')
+        additional_events = game.game_vars.get('_prep_options_events')
+
+        options = options + additional_options if additional_options else options
+        ignore = ignore + additional_ignore if additional_options else ignore
+        events = events + additional_events if additional_events else events
+
+        return options, ignore, events
+
     def start(self):
         prep_music = game.game_vars.get('_prep_music')
         if prep_music:
@@ -32,12 +56,11 @@ class PrepMainState(MapState):
 
         self.create_background()
 
-        options = ['Manage', 'Formation', 'Options', 'Save', 'Fight']
-        if game.level_vars.get('_prep_pick'):
-            options.insert(0, 'Pick Units')
-        if cf.SETTINGS['debug']:
-            options.insert(0, 'Debug')
+        options, ignore, events_on_options = self.populate_options()
+        self.events_on_option_select = events_on_options
+
         self.menu = menus.Choice(None, options, topleft='center')
+        self.menu.set_ignore(ignore)
 
         # Force place any required units
         for unit in game.get_units_in_party():
@@ -105,6 +128,13 @@ class PrepMainState(MapState):
                     alert = banner.Custom("Must select at least one unit!")
                     game.alerts.append(alert)
                     game.state.change('alert')
+            else:
+                option_index = self.menu.get_current_index()
+                if self.events_on_option_select[option_index]:
+                    event_to_trigger = self.events_on_option_select[option_index]
+                    valid_events = DB.events.get_by_nid_or_name(event_to_trigger, game.level.nid)
+                    for event_prefab in valid_events:
+                        game.events.trigger_specific_event(event_prefab.nid)
 
     def update(self):
         super().update()
@@ -207,7 +237,7 @@ class PrepPickUnitsState(State):
             num_slots = len(game.get_all_formation_spots())
         num_on_map = len(on_map)
         pick_s = ['Pick ', str(num_slots - num_on_map), ' units  ', str(num_on_map), '/', str(num_slots)]
-        pick_f = ['text-white', 'text-blue', 'text-white', 'text-blue', 'text-white', 'text-blue']
+        pick_f = ['text', 'text-blue', 'text', 'text-blue', 'text', 'text-blue']
         left_justify = 8
         for word, font in zip(pick_s, pick_f):
             FONT[font].blit(word, bg_surf, (left_justify, 4))
@@ -225,7 +255,7 @@ class PrepPickUnitsState(State):
             text = text_funcs.translate('Fatigued')
         else:
             text = text_funcs.translate('Ready!')
-        FONT['text-white'].blit_center(text, bg_surf, (66, 4))
+        FONT['text'].blit_center(text, bg_surf, (66, 4))
         surf.blit(bg_surf, topleft)
 
     def draw(self, surf):
@@ -366,7 +396,7 @@ def draw_funds(surf):
     # Draw R: Info display
     helper = engine.get_key_name(cf.SETTINGS['key_INFO']).upper()
     FONT['text-yellow'].blit(helper, surf, (123, 143))
-    FONT['text-white'].blit(': Info', surf, (123 + FONT['text-blue'].width(helper), 143))
+    FONT['text'].blit(': Info', surf, (123 + FONT['text-blue'].width(helper), 143))
     # Draw Funds display
     surf.blit(SPRITES.get('funds_display'), (168, 137))
     money = str(game.get_money())
@@ -407,7 +437,7 @@ class PrepManageState(State):
     def create_quick_disp(self):
         sprite = SPRITES.get('buttons')
         buttons = [sprite.subsurface(0, 66, 14, 13), sprite.subsurface(0, 165, 33, 9)]
-        font = FONT['text-white']
+        font = FONT['text']
         commands = ['Manage', 'Optimize All']
         commands = [text_funcs.translate(c) for c in commands]
         size = (49 + max(font.width(c) for c in commands), 40)
@@ -688,13 +718,18 @@ class PrepItemsState(State):
                 if context == 'inventory':
                     if current:
                         self.state = 'owner_item'
-                        options = ['Store', 'Trade']
+                        options = []
+                        if not item_system.locked(self.unit, current):
+                            options.append('Store')
+                            options.append('Trade')
                         if item_system.can_use(self.unit, current) and \
                                 item_funcs.available(self.unit, current) and \
                                 item_system.can_use_in_base(self.unit, current):
                             options.append('Use')
                         if convoy_funcs.can_restock(current):
                             options.append('Restock')
+                        if not options:
+                            options.append('Nothing')
                         topleft = (96, self.menu.get_current_index() * 16 + 68 - 8 * len(options))
                         self.sub_menu = menus.Choice(current, options, topleft)
                     else:

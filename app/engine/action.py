@@ -112,6 +112,7 @@ class Move(Action):
     def do(self):
         if self.path is None:
             self.path = game.cursor.path[:]
+        game.boundary.frozen = True
         game.movement.begin_move(self.unit, self.path, self.event, self.follow)
 
     def execute(self):
@@ -449,6 +450,8 @@ class Wait(Action):
         self.unit.current_move = None
         self.unit.sprite.change_state('normal')
         self.update_fow_action.do()
+        if game.cursor and game.cursor.cur_unit == self.unit:
+            game.cursor.cur_unit = None
 
     def reverse(self):
         self.unit.set_action_state(self.action_state)
@@ -552,6 +555,9 @@ class HasTraded(Reset):
     def do(self):
         self.unit.has_traded = True
 
+class HasNotAttacked(Reset):
+    def do(self):
+        self.unit.has_attacked = False
 
 class HasNotTraded(Reset):
     def do(self):
@@ -951,7 +957,10 @@ class Transfer(Action):
             self.other.set_guard_gauge(val)
             self.unit.set_guard_gauge(self.unit.get_guard_gauge() + val)
 
-        logging.info(self.unit.traveler + " was paired with " + self.unit.nid + " but transfered to " + self.other.nid)
+        if self.unit.traveler:
+            logging.info(self.unit.traveler + " was paired with " + self.unit.nid + " but transfered to " + self.other.nid)
+        else:
+            logging.info(self.other.traveler + " was paired with " + self.other.nid + " but transfered to " + self.unit.nid)
 
         self.unit.traveler, self.other.traveler = self.other.traveler, self.unit.traveler
 
@@ -1634,6 +1643,18 @@ class ChangeHP(Action):
     def reverse(self):
         self.unit.set_hp(self.old_hp)
 
+class SetName(Action):
+    def __init__(self, unit, new_name):
+        self.unit = unit
+        self.new_name = new_name
+        self.old_name = self.unit.name
+
+    def do(self):
+        self.unit.name = self.new_name
+
+    def reverse(self):
+        self.unit.name = self.old_name
+
 class SetHP(Action):
     def __init__(self, unit, new_hp):
         self.unit = unit
@@ -1991,7 +2012,7 @@ class ChangePortrait(Action):
         self.unit.portrait_nid = self.new_portrait
 
     def reverse(self):
-        self.unit.portrait.nid = self.old_portrait
+        self.unit.portrait_nid = self.old_portrait
 
 
 class AddTag(Action):
@@ -2107,10 +2128,9 @@ class AddRegion(Action):
             if self.region.region_type == 'status':
                 for unit in game.units:
                     if unit.position and self.region.contains(unit.position):
-                        new_skill = DB.skills.get(self.region.sub_nid)
-                        self.subactions.append(AddSkill(unit, new_skill))
-            for act in self.subactions:
-                act.do()
+                        add_skill_action =  game.add_region_status(unit, self.region, False)
+                        if add_skill_action:
+                            self.subactions.append(add_skill_action)
 
     def reverse(self):
         if self.did_add:
@@ -2222,33 +2242,35 @@ class HideLayer(Action):
 
 
 class AddWeather(Action):
-    def __init__(self, weather_nid):
+    def __init__(self, weather_nid, position):
         self.weather_nid = weather_nid
+        self.position = position
 
     def do(self):
-        new_ps = particles.create_system(self.weather_nid, game.tilemap.width, game.tilemap.height)
+        new_ps = particles.create_system(self.weather_nid, game.tilemap.width, game.tilemap.height, self.position)
         game.tilemap.weather.append(new_ps)
 
     def reverse(self):
-        if any(ps.nid == self.weather_nid for ps in game.tilemap.weather):
-            bad_weather = [ps for ps in game.tilemap.weather if ps.nid == self.weather_nid]
+        bad_weather = [ps for ps in game.tilemap.weather if ps.nid == self.weather_nid and ps.pos == self.position]
+        if bad_weather:
             game.tilemap.weather.remove(bad_weather[0])
 
 
 class RemoveWeather(Action):
-    def __init__(self, weather_nid):
+    def __init__(self, weather_nid, position):
         self.weather_nid = weather_nid
+        self.position = position
         self.did_remove = False
 
     def do(self):
-        if any(ps.nid == self.weather_nid for ps in game.tilemap.weather):
-            bad_weather = [ps for ps in game.tilemap.weather if ps.nid == self.weather_nid]
+        bad_weather = [ps for ps in game.tilemap.weather if ps.nid == self.weather_nid and ps.pos == self.position]
+        if bad_weather:
             game.tilemap.weather.remove(bad_weather[0])
             self.did_remove = True
 
     def reverse(self):
         if self.did_remove:
-            new_ps = particles.create_system(self.weather_nid, game.tilemap.width, game.tilemap.height)
+            new_ps = particles.create_system(self.weather_nid, game.tilemap.width, game.tilemap.height, self.position)
             game.tilemap.weather.append(new_ps)
 
 class AddMapAnim(Action):
@@ -2284,7 +2306,7 @@ class RemoveMapAnim(Action):
 
     def reverse(self):
         anim = RESOURCES.animations.get(self.nid)
-        anim = animations.MapAnimation(anim, self.pos, loop=True, speed_mult=self.speed_mult)
+        anim = animations.MapAnimation(anim, self.pos, loop=True, speed_adj=self.speed_mult)
         game.tilemap.animations.append(anim)
 
 class ChangeObjective(Action):
@@ -2324,6 +2346,21 @@ class RecordRandomState(Action):
 
     def reverse(self):
         static_random.set_combat_random_state(self.old)
+
+
+class RecordOtherRandomState(Action):
+    def __init__(self, old, new):
+        self.old = old
+        self.new = new
+
+    def do(self):
+        pass
+
+    def execute(self):
+        static_random.set_other_random_state(self.new)
+
+    def reverse(self):
+        static_random.set_other_random_state(self.old)
 
 
 class TriggerCharge(Action):

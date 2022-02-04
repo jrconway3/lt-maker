@@ -6,7 +6,7 @@ default_behaviours = (
     'pass_through', 'vantage', 'ignore_terrain', 'crit_anyway',
     'ignore_region_status', 'no_double', 'def_double', 'alternate_splash',
     'ignore_rescue_penalty', 'ignore_forced_movement', 'distant_counter',
-    'ignore_fatigue')
+    'ignore_fatigue', 'no_attack_after_move')
 # Takes in unit, returns default value
 exclusive_behaviours = ('can_select', 'movement_type', 'sight_range', 'empower_splash', 'num_items_offset', 'num_accessories_offset', 'change_variant', 'change_animation', 'change_ai', 'witch_warp')
 
@@ -177,7 +177,8 @@ def %s(actions, playback, unit, item, target, mode, attack_info):
     for skill in unit.skills:
         for component in skill.components:
             if component.defines('%s'):
-                component.%s(actions, playback, unit, item, target, mode, attack_info)""" \
+                if component.ignore_conditional or condition(skill, unit):
+                    component.%s(actions, playback, unit, item, target, mode, attack_info)""" \
             % (hook, hook, hook)
         compiled_skill_system.write(func)
         compiled_skill_system.write('\n')
@@ -188,7 +189,8 @@ def %s(unit, item):
     for skill in unit.skills:
         for component in skill.components:
             if component.defines('%s'):
-                component.%s(unit, item)""" \
+                if component.ignore_conditional or condition(skill, unit):
+                    component.%s(unit, item)""" \
             % (hook, hook, hook)
         compiled_skill_system.write(func)
         compiled_skill_system.write('\n')

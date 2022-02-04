@@ -2,7 +2,7 @@ from app.data.item_components import ItemComponent
 from app.data.components import Type
 
 from app.utilities import utils
-from app.engine import action, combat_calcs, image_mods, engine
+from app.engine import action, combat_calcs, image_mods, engine, item_system
 
 class Effective(ItemComponent):
     nid = 'effective'
@@ -27,7 +27,7 @@ class EffectiveTag(ItemComponent):
     expose = (Type.List, Type.Tag)
     value = []
 
-    def _check_negate(self, target) -> bool:  
+    def _check_negate(self, target) -> bool:
         # Returns whether it DOES negate the effectiveness
         # Still need to check negation (Fili Shield, etc.)
         if any(skill.negate for skill in target.skills):
@@ -106,7 +106,7 @@ class DamageOnMiss(ItemComponent):
     value = 0.5
 
     def on_miss(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
-        damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode)
+        damage = combat_calcs.compute_damage(unit, target, item, target.get_weapon(), mode, attack_info)
         damage = int(damage * self.value)
 
         true_damage = min(damage, target.get_hp())

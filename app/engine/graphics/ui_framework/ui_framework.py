@@ -303,7 +303,7 @@ class UIComponent():
         """
         if isinstance(bg, engine.Surface):
             self.props.bg = bg
-        elif isinstance(bg, Color4):
+        elif isinstance(bg, Tuple):
             self.props.bg_color = bg
         # set this to none; the next time we render,
         # the component will regenerate the background.
@@ -409,9 +409,7 @@ class UIComponent():
         self.manual_surfaces = [surf_tup for surf_tup in self.manual_surfaces if not surf_tup[3] == surf_name]
 
     def should_redraw(self) -> bool:
-        if not self.enabled:
-            return False
-        return self._should_redraw or any([child.should_redraw() for child in self.children])
+        return self._should_redraw or any([child.should_redraw() for child in self.children if child.enabled])
 
     def did_redraw(self):
         pass
@@ -458,6 +456,7 @@ class UIComponent():
         for child in self.children:
             child.enter()
         self.enabled = True
+        self._should_redraw = True
 
     @animated('!exit')
     def exit(self, is_top_level=True) -> bool:
@@ -479,8 +478,11 @@ class UIComponent():
         Returns:
             bool: whether or not this is disabled, or is waiting on children to finish animating.
         """
+        self._should_redraw = True
         for child in self.children:
             child.exit(False)
+        if '!exit' not in self.saved_animations:
+            self.enabled = False
         if not is_top_level:
             return
         if self.any_children_animating() or self.is_animating():
@@ -492,6 +494,7 @@ class UIComponent():
     def enable(self):
         """does the same thing as enter(), except forgoes all animations
         """
+        self._should_redraw = True
         self.enabled = True
         for child in self.children:
             child.enable()
@@ -502,6 +505,7 @@ class UIComponent():
         Args:
             force (bool): Whether or not to clear all animations as well
         """
+        self._should_redraw = True
         self.enabled = False
         if force:
             self.skip_all_animations()
@@ -660,6 +664,7 @@ class UIComponent():
 
     def to_surf(self, no_cull=False, should_not_cull_on_redraw=True) -> engine.Surface:
         if not self.enabled:
+            self._should_redraw = False
             return engine.create_surface(self.size, True)
         if self.is_root:
             self.update()

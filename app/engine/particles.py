@@ -1,15 +1,16 @@
 import math, random
 
-from app.constants import WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT
+from app.constants import TILEX, WINWIDTH, WINHEIGHT, TILEWIDTH, TILEHEIGHT
 from app.engine.sprites import SPRITES
 
 from app.engine import engine, image_mods
 from app.engine.game_state import game
 
 class ParticleSystem():
-    def __init__(self, nid, particle, abundance, bounds, size, blend=None):
+    def __init__(self, nid, particle, abundance, bounds, size, blend=None, position=None):
         width, height = size
         self.nid = nid
+        self.pos = position
         self.particle = particle
         self.abundance = int(abundance * width * height)
         self.particles = []
@@ -18,9 +19,9 @@ class ParticleSystem():
 
         self.lx, self.ux, self.ly, self.uy = bounds
         self.blend = blend
-    
+
     def save(self):
-        return self.nid
+        return self.nid, self.pos
 
     def update(self):
         for particle in self.particles:
@@ -91,7 +92,7 @@ class Smoke(Particle):
     def update(self):
         self.x += random.randint(self.speed//2, self.speed)
         self.y -= random.randint(self.speed//2, self.speed)
-        if game.tilemap and (self.x > game.tilemap.width * TILEWIDTH or self.y < -32):
+        if game.tilemap and (self.x > max(TILEX, game.tilemap.width) * TILEWIDTH or self.y < -32):
             self.remove_me_flag = True
         elif self.x > WINWIDTH:
             self.remove_me_flag = True
@@ -224,7 +225,7 @@ class DarkMote(LightMote):
     sprite = SPRITES.get('particle_dark_mote')
     speed = -0.16
 
-def create_system(nid, width, height):
+def create_system(nid, width, height, position):
     twidth, theight = width * TILEWIDTH, height * TILEHEIGHT
     if nid == 'rain':
         creation_bounds = -theight // 4, twidth, -16, -8

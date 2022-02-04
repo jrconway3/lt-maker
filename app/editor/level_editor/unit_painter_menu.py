@@ -306,10 +306,10 @@ def valid_partners(units, unit) -> list:
         return []
     # Must be same team and not on the board and not a traveler unless your my traveler
     partners = {u.starting_traveler for u in units}
-    return [u for u in units if 
-            u.team == unit.team 
+    return [u for u in units if
+            u.team == unit.team
             and not u.starting_position
-            and (unit.starting_traveler == u.nid 
+            and (unit.starting_traveler == u.nid
                  or u.nid not in partners)]
 
 def build_traveler_box(self):
@@ -608,10 +608,7 @@ class GenericUnitDialog(Dialog):
 
     def faction_changed(self, index):
         faction_nid = self.faction_box.edit.currentText()
-        faction = DB.factions.get(faction_nid)
         self.current.faction = faction_nid
-        self.current.name = faction.name
-        self.current.desc = faction.desc
 
     def ai_changed(self, val):
         self.current.ai = self.ai_box.edit.currentText()

@@ -1,4 +1,5 @@
 import random
+from typing import Set, Tuple
 
 class Defaults():
     @staticmethod
@@ -189,6 +190,18 @@ def target_restrict(unit, item, def_pos, splash) -> bool:
                 return False
     return True
 
+def range_restrict(unit, item) -> Tuple[Set, bool]:
+    restricted_range = set()
+    any_defined = False
+    for component in item.components:
+        if component.defines('range_restrict'):
+            any_defined = True
+            restricted_range |= component.range_restrict(unit, item)
+    if any_defined:
+        return restricted_range
+    else:
+        return None
+
 def item_restrict(unit, item, defender, def_item) -> bool:
     for component in item.components:
         if component.defines('item_restrict'):
@@ -235,7 +248,7 @@ def splash(unit, item, position) -> tuple:
     else: # DEFAULT
         from app.engine import skill_system
         alternate_splash_component = skill_system.alternate_splash(unit)
-        if alternate_splash_component:
+        if alternate_splash_component and not unsplashable(unit, item):
             main_target, splash = alternate_splash_component.splash(unit, item, position)
             return main_target, splash
         else:
@@ -250,7 +263,7 @@ def splash_positions(unit, item, position) -> set:
     if not positions:
         from app.engine import skill_system
         alternate_splash_component = skill_system.alternate_splash(unit)
-        if alternate_splash_component:
+        if alternate_splash_component and not unsplashable(unit, item):
             positions = alternate_splash_component.splash_positions(unit, item, position)
             return positions
         else:

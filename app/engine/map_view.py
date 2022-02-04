@@ -1,6 +1,7 @@
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 
 from app.engine import engine
+from app.engine.fonts import FONT
 from app.engine.game_state import game
 
 class MapView():
@@ -23,7 +24,7 @@ class MapView():
                         (cull_rect[0] - TILEWIDTH*2 < (unit.position or unit.sprite.fake_position)[0] * TILEWIDTH < cull_rect[0] + cull_rect[2] + TILEWIDTH*2 and
                          cull_rect[1] - TILEHEIGHT*2 < (unit.position or unit.sprite.fake_position)[1] * TILEHEIGHT < cull_rect[1] + cull_rect[3] + TILEHEIGHT*2)]
         if game.level_vars.get('_fog_of_war'):
-            culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position or unit.sprite.fake_position)]
+            culled_units = [unit for unit in culled_units if game.board.in_vision(unit.position or unit.sprite.get_round_fake_pos())]
         draw_units = sorted(culled_units, key=lambda unit: unit.position[1] if unit.position else unit.sprite.fake_position[1])
 
         topleft = cull_rect[0], cull_rect[1]
@@ -82,6 +83,17 @@ class MapView():
                 pass # Don't draw units
         else:
             self.draw_units(surf, cull_rect)
+
+        # Handle time region text
+        font = FONT['text-yellow']
+        current_time = engine.get_time()
+        for region in game.level.regions:
+            if region.region_type == 'time' and region.position:
+                text = str(region.sub_nid)
+                w = font.width(text)
+                pos = (region.center[0] * TILEWIDTH - cull_rect[0], region.center[1] * TILEHEIGHT - cull_rect[1])
+                pos = (pos[0] + TILEWIDTH//2 - w//2, pos[1] - TILEHEIGHT//2 - 1 + 2*math.sin(current_time//500))
+                font.blit(text, surf, pos)
 
         surf = game.cursor.draw(surf, cull_rect)
 

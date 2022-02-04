@@ -83,6 +83,14 @@ class BattleAnimationMusic(ItemComponent):
     def battle_music(self, unit, item, target, mode):
         return self.value
 
+class NoMapCombatDispla(ItemComponent):
+    nid = 'no_map_hp_display'
+    desc = "Item does not show full map hp display when used"
+    tag = 'base'
+
+    def no_map_hp_display(self, unit, item):
+        return True
+
 class PreCombatEffect(ItemComponent):
     nid = 'pre_combat_effect'
     desc = "Item plays a combat effect right before combat."
@@ -128,5 +136,5 @@ class TextColor(ItemComponent):
 
     def text_color(self, unit, item):
         if self.value not in NORMAL_FONT_COLORS:
-            return 'text-white'
-        return 'text-' + self.value
+            return 'white'
+        return self.value

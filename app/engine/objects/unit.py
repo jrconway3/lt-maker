@@ -1,83 +1,155 @@
-from typing import Dict, Tuple
+from __future__ import annotations
+from typing import TYPE_CHECKING, Dict, List, Tuple
 
 from app.data.database import DB
 from app.data.difficulty_modes import GrowthOption
+from app.data.level_units import GenericUnit, UniqueUnit
 from app.data.units import UnitPrefab
-from app.engine import (action, combat_calcs, equations, item_funcs,
+from app.data.weapons import WexpGain
+from app.engine import (combat_calcs, equations, item_funcs,
                         item_system, skill_system, unit_funcs)
-from app.engine.game_state import game
+from app.engine.objects.difficulty_mode import DifficultyModeObject
+from app.engine.objects.item import ItemObject
+from app.engine.objects.skill import SkillObject
 from app.utilities import utils
 from app.utilities.data import Prefab
 from app.utilities.typing import NID
 
+if TYPE_CHECKING:
+    from app.engine.unit_sound import UnitSound
+    from app.engine.unit_sprite import UnitSprite
 
 # Main unit object used by engine
 class UnitObject(Prefab):
-    def __init__(self):
-        self.nid: NID = None
-        self.position: Tuple[int, int] = None
-        self.team: str = None
-        self.party: NID = None
-        self.klass: NID = None
-        self.variant: str = None
-        self.level: int = None
+    def __init__(self, prefab: UniqueUnit | GenericUnit | UnitPrefab = None):
+        # the raw method is purely to initialize all fields
+        # use from_prefab to actually init into game engine
+        if not prefab:
+            self.nid: NID = None
+            self.generic: bool = False
+            self.ai: str = None
+            self.ai_group: str = None
+            self.faction: NID = None
+            self.team: str = None
+            self.portrait_nid: NID = None
+            self.affinity: NID =None
+            self.notes: List[Tuple[str, str]] = None
+            self._fields: Dict[str, str] = None
+            self.klass: NID = None
+            self.variant: str = None
+
+            self.name: str = None
+            self.desc: str = None
+            self._tags: List[str] = None
+            self.party: NID = None
+        else:
+            self.nid: NID = prefab.nid
+            if isinstance(prefab, UnitPrefab): # initing a non-level unit
+                self.generic: bool = False
+                self.ai: str = None
+                self.ai_group: str = None
+                self.faction: NID = None
+                self.team: str = 'player'
+            else:
+                self.generic: bool = prefab.generic
+                self.ai: str = prefab.ai
+                self.ai_group: str = prefab.ai_group
+                self.faction: NID = prefab.faction
+                self.team: str = prefab.team
+
+            self.portrait_nid: NID = prefab.portrait_nid if not self.generic else None
+            self.affinity: NID = prefab.affinity if not self.generic else None
+            self.notes: List[Tuple[str, str]] = [(n[0], n[1]) for n in prefab.unit_notes] if not self.generic else []
+            self._fields: Dict[str, str] = {key: value for (key, value) in prefab.fields} if not self.generic else {}
+            self.klass: NID = prefab.klass
+            self.variant: str = prefab.variant
+
+            self.name: str = prefab.name
+            self.desc: str = prefab.desc
+            self._tags: List[str] = [tag for tag in prefab.tags] if not self.generic else []
+            self.party: NID = None
+
+
+        self.level: int = 1
         self.exp: int = 0
-        self.generic: bool = None
-        self.ai = None
-        self.ai_group = None
-        self._fields: Dict[str, str] = {}
+        self.stats: Dict[NID, int] = {}
+        self.growths: Dict[NID, int] = {}
+        self.growth_points: Dict[NID, int] = {}
+        self.wexp: Dict[NID, WexpGain] = {}
+
+        self.position: Tuple[int, int] = (0,0)
+        self.starting_position: Tuple[int, int] = (0, 0)
+        self.current_hp: int = 0
+        self.current_mana: int = 0
+        self.current_fatigue: int = 0
+        self.movement_left: int = 0
+        self.current_guard_gauge: int = 0
+
+        self.traveler: NID = None
+        self.strike_partner: UnitObject = None
+        self.lead_unit: bool = False
+        self.built_guard: bool = False
+
+        self.dead: bool = False
+        self.is_dying: bool = False
+        self._finished: bool = False
+        self._has_attacked: bool = False
+        self._has_traded: bool = False
+        self._has_moved: bool = False
+
+        self.items: List[ItemObject] = []
+        self.equipped_weapon: ItemObject = None
+        self.equipped_accessory: ItemObject = None
+
+        self.skills: List[SkillObject] = []
+
+        self.has_rescued: bool = False
+        self.has_taken: bool = False
+        self.has_given: bool = False
+        self.has_dropped: bool = False
+
+        self.has_run_ai: bool = False
+        self.ai_group_active: bool = False
+
+        self._sprite: UnitSprite = None
+        self._sound: UnitSound = None
+        self._battle_anim = None
+
+        self.current_move = None
+
+    # If the attribute is not found
+    def __getattr__(self, attr):
+        if attr.startswith('__') and attr.endswith('__'):
+            return super().__getattr__(attr)
+        elif self.nid:
+            prefab = DB.units.get(self.nid)
+            return getattr(prefab, attr)
+        return None
 
     @classmethod
-    def from_prefab(cls, prefab: UnitPrefab):
-        self = cls()
-        self.nid: str = prefab.nid
+    def from_prefab(cls, prefab: UniqueUnit | GenericUnit, current_mode: DifficultyModeObject):
+        self = cls(prefab)
         if prefab.starting_position:
             self.position = self.previous_position = tuple(prefab.starting_position)
         else:
             self.position = self.previous_position = None
-        self.team: str = prefab.team
-        self.party: str = None
-        self.klass: str = prefab.klass
-        self.variant: str = prefab.variant
-        self.level: int = prefab.level
-        self.exp: int = 0
-        self.generic: bool = prefab.generic
-
-        self.ai: str = prefab.ai
-        self.ai_group: str = prefab.ai_group
+        self.level = prefab.level
 
         if self.generic:
-            self.faction: str = prefab.faction
-            self.name: str = DB.factions.get(self.faction).name
-            self.desc: str = DB.factions.get(self.faction).desc
-            self._tags = []
             klass_obj = DB.classes.get(self.klass)
             bases = klass_obj.bases
             growths = klass_obj.growths
-            self.stats: dict = {stat_nid: bases.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
-            self.growths: dict = {stat_nid: growths.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
+            self.stats = {stat_nid: bases.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
+            self.growths = {stat_nid: growths.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
             weapon_gain = klass_obj.wexp_gain
-            self.wexp: dict = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
-            self.portrait_nid: str = None
-            self.affinity: str = None
-            self.notes: list = []
+            self.wexp = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
         else:
-            self.faction = None
-            self.name = prefab.name
-            self.desc = prefab.desc
-            self._tags = [tag for tag in prefab.tags]
             bases = prefab.bases
             growths = prefab.growths
             self.stats = {stat_nid: bases.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
             self.growths = {stat_nid: growths.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
             weapon_gain = prefab.wexp_gain
             self.wexp = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
-            self.portrait_nid = prefab.portrait_nid
-            self.affinity = prefab.affinity
-            self.notes = [[n[0], n[1]] for n in prefab.unit_notes]
-            if prefab.fields:
-                for (key, value) in prefab.fields:
-                    self._fields[key] = value
         self.starting_position = self.position
 
         method = unit_funcs.get_leveling_method(self)
@@ -87,29 +159,7 @@ class UnitObject(Prefab):
         else:
             self.growth_points = {k: 0 for k in self.stats.keys()}
 
-        self.current_hp = 0
-        self.current_mana = 0
-        self.current_fatigue = 0
-        self.movement_left = 0
-        self.current_guard_gauge = 0
-
-        self.traveler: str = prefab.starting_traveler  # Always a nid of a unit
-        self.strike_partner = None # Not saved because only used for solver
-        self.lead_unit: bool = False # I don't need to save this because it's only for move/menu states
-        self.built_guard: bool = False # A bool to check if guard should be subtracted at turn end
-
-        # -- Other properties
-        self.dead = False
-        self.is_dying = False
-        self._finished = False
-        self._has_attacked = False
-        self._has_traded = False
-        self._has_moved = False
-
-        # -- Equipped Items
-        self.items = []
-        self.equipped_weapon = None
-        self.equipped_accessory = None
+        self.traveler = prefab.starting_traveler  # Always a nid of a unit
 
         # Handle skills
         self.skills = []
@@ -138,22 +188,6 @@ class UnitObject(Prefab):
         self.equipped_weapon = self.get_weapon()
         self.equipped_accessory = self.get_accessory()
 
-        # For rescue
-        self.has_rescued = False
-        self.has_taken = False
-        self.has_given = False
-        self.has_dropped = False
-
-        self.has_run_ai = False
-        self.ai_group_active = False
-
-        self._sprite = None
-        self._sound = None
-        self._battle_anim = None
-
-        self.current_move = None  # Holds the move action the unit last used
-        # Maybe move to movement manager?
-
         klass = DB.classes.get(self.klass)
         if klass.tier == 0:
             num_levels = self.level - 1
@@ -161,7 +195,8 @@ class UnitObject(Prefab):
             num_levels = self.get_internal_level() - 1
 
         # Difficulty mode stat bonuses
-        stat_bonus = game.mode.get_base_bonus(self)
+        mode = DB.difficulty_modes.get(current_mode.nid)
+        stat_bonus = mode.get_base_bonus(self)
         bonus = {nid: 0 for nid in DB.stats.keys()}
         for nid in DB.stats.keys():
             bonus[nid] = utils.clamp(stat_bonus.get(nid, 0), -self.stats.get(nid, 0), klass.max_stats.get(nid, 30) - self.stats.get(nid, 0))
@@ -172,19 +207,19 @@ class UnitObject(Prefab):
             unit_funcs.auto_level(self, num_levels)
         # Existing units would have leveled up different with bonus growths
         elif DB.constants.value('backpropagate_difficulty_growths'):
-            difficulty_growth_bonus = game.mode.get_growth_bonus(self)
+            difficulty_growth_bonus = mode.get_growth_bonus(self)
             if difficulty_growth_bonus:
                 unit_funcs.auto_level(self, num_levels, difficulty_growths=True)
 
-        difficulty_autolevels = game.mode.get_difficulty_autolevels(self)
+        difficulty_autolevels = mode.get_difficulty_autolevels(self)
         if self.team.startswith('enemy'):
             # Handle the ones that you can change in events
-            difficulty_autolevels += game.current_mode.enemy_autolevels
-            difficulty_autolevels += game.current_mode.enemy_truelevels
+            difficulty_autolevels += current_mode.enemy_autolevels
+            difficulty_autolevels += current_mode.enemy_truelevels
         if difficulty_autolevels > 0:
             unit_funcs.auto_level(self, difficulty_autolevels, num_levels + 1)
         if self.team.startswith('enemy'):
-            difficulty_truelevels = game.current_mode.enemy_truelevels
+            difficulty_truelevels = current_mode.enemy_truelevels
             self.level += difficulty_truelevels
 
         for skill in self.skills:
@@ -376,6 +411,8 @@ class UnitObject(Prefab):
                 if item_system.is_accessory(self, item) and \
                         item_funcs.available(self, item) and \
                         item_system.equippable(self, item):
+                    # Rediscovered each time if necessary
+                    self.equip(item)
                     return item
         return None
 
@@ -477,6 +514,10 @@ class UnitObject(Prefab):
     def has_moved(self):
         return self._finished or self._has_attacked or self._has_traded or self._has_moved
 
+    @property
+    def has_moved_any_distance(self):
+        return self.position != self.previous_position
+
     @finished.setter
     def finished(self, val):
         self._finished = val
@@ -521,12 +562,6 @@ class UnitObject(Prefab):
 
         self.strike_partner = None
 
-    def wait(self):
-        game.events.trigger('unit_wait', self, position=self.position)
-        action.do(action.Wait(self))
-        if game.cursor and game.cursor.cur_unit == self:
-            game.cursor.cur_unit = None
-
     def __repr__(self):
         return "Unit %s: %s" % (self.nid, self.position)
 
@@ -570,7 +605,7 @@ class UnitObject(Prefab):
         return s_dict
 
     @classmethod
-    def restore(cls, s_dict):
+    def restore(cls, s_dict, game):
         self = cls()
         self.nid = s_dict['nid']
         if s_dict['position']:

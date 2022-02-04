@@ -68,6 +68,18 @@ class OverworldManager():
         self._overworld.enabled_roads.add(road)
         self.regenerate_explored_graph()
 
+    def toggle_menu_option_enabled(self, node: NID, menu_option: NID, setting: bool):
+        self._overworld.enabled_menu_options[node][menu_option] = setting
+        
+    def menu_option_enabled(self, node: NID, menu_option: NID) -> bool:
+        return self._overworld.enabled_menu_options[node].get(menu_option)
+    
+    def toggle_menu_option_visible(self, node: NID, menu_option: NID, setting: bool):
+        self._overworld.visible_menu_options[node][menu_option] = setting
+        
+    def menu_option_visible(self, node: NID, menu_option: NID) -> bool:
+        return self._overworld.visible_menu_options[node].get(menu_option)
+    
     @property
     def tilemap(self) -> TileMapObject:
         return self._overworld.tilemap
@@ -212,8 +224,14 @@ class OverworldManager():
                 return node
         return None
 
+    def move_party_to_node(self, entity_nid: NID, node_nid: NID):
+        entity = self.entities[entity_nid]
+        entity.on_node = node_nid
+
     def selected_party_node(self) -> OverworldNodeObject:
-        return self.nodes[self.selected_entity.on_node]
+        if self.selected_entity.on_node:
+            return self.nodes[self.selected_entity.on_node]
+        return None
 
     def any_path(self, n1: OverworldNodeObject | NID,
                  n2: OverworldNodeObject | NID, force: bool = False) -> bool:

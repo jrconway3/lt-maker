@@ -1,3 +1,4 @@
+from app.engine.objects.unit import UnitObject
 from app.data.skill_components import SkillComponent
 from app.data.components import Type
 
@@ -30,6 +31,22 @@ class Oversplash(SkillComponent):
         from app.engine.item_components.aoe_components import BlastAOE
         return BlastAOE(0)
 
+class EnemyOversplash(Oversplash, SkillComponent):
+    nid = 'enemy_oversplash'
+    desc = "Grants unit +X area of effect for regular and blast items that only affects enemies"
+
+    def alternate_splash(self, unit):
+        from app.engine.item_components.aoe_components import EnemyBlastAOE
+        return EnemyBlastAOE(0)
+
+class SmartOversplash(Oversplash, SkillComponent):
+    nid = 'smart_oversplash'
+    desc = "Grants unit +X area of effect for regular and blast items"
+
+    def alternate_splash(self, unit):
+        from app.engine.item_components.aoe_components import SmartBlastAOE
+        return SmartBlastAOE(0)
+
 class EmpowerHeal(SkillComponent):
     nid = 'empower_heal'
     desc = "Gives +X extra healing"
@@ -56,3 +73,15 @@ class ManaOnKill(SkillComponent):
         if target and target.is_dying:
             return self.value
         return 0
+
+class EventAfterInitiatedCombat(SkillComponent):
+    nid = 'event_after_initiated_combat'
+    desc = 'calls event after combat initated by user'
+    tag = 'advanced'
+
+    expose = Type.Event
+    value = ''
+
+    def end_combat(self, playback, unit: UnitObject, item, target: UnitObject, mode):
+        if mode == 'attack':
+            game.events.trigger_specific_event(self.value, unit, target, item, unit.position)

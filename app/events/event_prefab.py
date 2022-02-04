@@ -1,5 +1,9 @@
-from app.utilities.data import Data, Prefab
+from typing import List
+
 from app.events import event_commands
+from app.utilities.data import Data, Prefab
+from app.utilities.typing import NID
+
 
 class Trigger(object):
     def __init__(self, nid, unit1=False, unit2=False, item=False, position=False, region=False):
@@ -19,8 +23,9 @@ all_triggers = Data([
     Trigger('enemy_turn_change'),
     Trigger('enemy2_turn_change'),
     Trigger('other_turn_change'),
+    Trigger('on_region_interact', unit1=True, position=True, region=True),
     Trigger('unit_death', True, False, False, True),
-    Trigger('unit_wait', True, False, False, True),
+    Trigger('unit_wait', True, False, False, True, True),
     Trigger('unit_select', True, False, False, True),
     Trigger('unit_level_up', True, True, False, False),
     Trigger('during_unit_level_up', True, True, False, False),
@@ -31,6 +36,7 @@ all_triggers = Data([
     Trigger('on_base_convo', True, True, False, False),
     Trigger('on_turnwheel'),
     Trigger('on_title_screen'),
+    Trigger('time_region_complete', region=True),
     Trigger('on_overworld_node_select', unit1=True, region=True) # unit1 is entity nid, region is node nid
 ])
 
@@ -83,6 +89,14 @@ class EventCatalog(Data[EventPrefab]):
     def get(self, trigger, level_nid):
         return [event for event in self._list if event.trigger == trigger and
                 (not event.level_nid or event.level_nid == level_nid)]
+
+    def get_by_level(self, level_nid: str) -> List[EventPrefab]:
+        return [event for event in self._list if (not event.level_nid or not level_nid or event.level_nid == level_nid)]
+
+    def get_by_nid_or_name(self, name_or_nid: str, level_nid: None) -> List[EventPrefab]:
+        level_events = self.get_by_level(level_nid)
+        return [event for event in level_events if
+                ((event.nid == name_or_nid) or (event.name == name_or_nid))]
 
     def get_from_nid(self, key, fallback=None):
         return self._dict.get(key, fallback)

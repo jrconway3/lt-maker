@@ -4,7 +4,7 @@ from app.engine.sound import SOUNDTHREAD
 from app.engine.state import MapState
 from app.engine.game_state import game
 from app.engine import engine, action, skill_system, \
-    health_bar, animations, item_system, item_funcs
+    health_bar, animations, item_system, item_funcs, gui
 
 import logging
 
@@ -51,9 +51,13 @@ class StatusUpkeepState(MapState):
                     skill_system.on_endstep(self.actions, self.playback, self.cur_unit)
                     for item in item_funcs.get_all_items(self.cur_unit):
                         item_system.on_endstep(self.actions, self.playback, self.cur_unit, item)
+                    for item in skill_system.get_extra_abilities(self.cur_unit).values():
+                        item_system.on_endstep(self.actions, self.playback, self.cur_unit, item)
                 else:
                     skill_system.on_upkeep(self.actions, self.playback, self.cur_unit)
                     for item in item_funcs.get_all_items(self.cur_unit):
+                        item_system.on_upkeep(self.actions, self.playback, self.cur_unit, item)
+                    for item in skill_system.get_extra_abilities(self.cur_unit).values():
                         item_system.on_upkeep(self.actions, self.playback, self.cur_unit, item)
                 if self.playback and self.cur_unit.position:
                     game.cursor.set_pos(self.cur_unit.position)
@@ -112,6 +116,19 @@ class StatusUpkeepState(MapState):
                 if anim:
                     anim = animations.MapAnimation(anim, pos)
                     self.animations.append(anim)
+            elif brush[0] == 'damage_numbers':
+                damage = brush[2]
+                if damage == 0:
+                    continue
+                str_damage = str(abs(damage))
+                target = brush[1]
+                if damage < 0:
+                    color = 'small_cyan'
+                else:
+                    color = 'small_red'
+                for idx, num in enumerate(str_damage):
+                    d = gui.DamageNumber(int(num), idx, len(str_damage), target.position, color)
+                    target.sprite.damage_numbers.append(d)
 
     def check_death(self):
         if self.cur_unit.get_hp() <= 0:

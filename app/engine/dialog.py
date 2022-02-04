@@ -13,7 +13,7 @@ from app.engine.game_state import game
 
 class Dialog():
     num_lines = 2
-    solo_flag = True
+    solo_flag = False
     cursor = SPRITES.get('waiting_cursor')
     cursor_offset = [0]*20 + [1]*2 + [2]*8 + [1]*2
     draw_cursor_flag = True
@@ -22,13 +22,17 @@ class Dialog():
 
     aesthetic_commands = ('{red}', '{/red}', '{black}', '{/black}', '{white}', '{/white}', '{green}', '{/green}')
 
-    def __init__(self, text, portrait=None, background=None, position=None, width=None, speaker=None, variant=None):
+    def __init__(self, text, portrait=None, background=None, position=None, width=None,
+                 speaker=None, variant=None, nid=None, autosize=False, speed=1):
         self.plain_text = text
         self.portrait = portrait
         self.speaker = speaker
         self.variant = variant
         self.font_type = 'convo'
-        if self.variant in ('noir', 'narration', 'narration_top'):
+        self.nid = nid
+        self.autosize = autosize
+        self.speed = speed
+        if self.variant in ('noir', 'narration', 'narration_top', 'clear'):
             self.font_color = 'white'
         else:
             self.font_color = 'black'
@@ -39,7 +43,9 @@ class Dialog():
             self.font_color = 'grey'
             self.num_lines = 5
             self.draw_cursor_flag = False
-        self.font = FONT[self.font_type + '-' + self.font_color]
+        elif self.variant == 'clear':
+            self.draw_cursor_flag = False
+        self.font = FONT[self.font_type]
 
         # States: process, transition, pause, wait, done, new_line
         self.state = 'transition'
@@ -54,7 +60,7 @@ class Dialog():
             self.width -= self.width%8
             self.text_width = max(8, self.width - 24)
             self.determine_height()
-        elif self.portrait:
+        elif self.portrait or self.autosize:
             self.determine_size()
         else:
             self.text_width, self.text_height = (WINWIDTH - 24, self.num_lines * 16)
@@ -75,10 +81,10 @@ class Dialog():
                 pos_x += 4
             if pos_x == 0:
                 pos_x = 4
-            pos_y = 24
+            pos_y =  WINHEIGHT - self.height - 80
         else:
             pos_x = 4
-            pos_y = 110
+            pos_y = WINHEIGHT - self.height - 4
         self.position = pos_x, pos_y
 
         if background:
@@ -104,6 +110,8 @@ class Dialog():
         # For state transitions
         self.transition_progress = 0
         self.last_update = engine.get_time()
+
+        self.hold = False
 
         # For sound
         self.last_sound_update = 0
@@ -153,16 +161,17 @@ class Dialog():
         width = 0
         current_line = ''
         preceded_by_wait: bool = False
+        waiting_cursor = False
         for command in self.text_commands:
-            if command in ('{br}', '{break}', '{clear}'):
-                if not preceded_by_wait:
+            if command in ('{br}', '{break}', '{clear}', '{sub_break}'):
+                if not preceded_by_wait or command == '{sub_break}':
                     # Force it to be only one line
                     split_lines = self.get_lines_from_block(current_line, 1)
                 else:
                     split_lines = self.get_lines_from_block(current_line)
                 width = max(width, max(self.font.width(s) for s in split_lines))
                 if len(split_lines) == 1:
-                    width += 16
+                    waiting_cursor = True
                 current_line = ''
                 preceded_by_wait = False
             elif command in ('{w}', '{wait}'):
@@ -174,7 +183,9 @@ class Dialog():
         if current_line:
             split_lines = self.get_lines_from_block(current_line)
             width = max(width, max(self.font.width(s) for s in split_lines))
-            # Account for "waiting cursor"
+            if len(split_lines) == 1:
+                waiting_cursor = True
+        if waiting_cursor:
             if len(split_lines) == 1:
                 width += 16
         return width
@@ -225,7 +236,7 @@ class Dialog():
             self.pause()
             return
         command = self.text_commands[self.text_index]
-        if command == '{br}' or command == '{break}':
+        if command in ('{br}', '{break}', '{sub_break}'):
             self._next_line()
         elif command == '{w}' or command == '{wait}':
             self.pause()
@@ -269,7 +280,7 @@ class Dialog():
         """
         Should no longer be drawn
         """
-        return self.state == 'done'
+        return self.state == 'done' and not self.hold
 
     def is_done(self):
         """
@@ -313,7 +324,7 @@ class Dialog():
                 self._next_line()
         elif self.state == 'process':
             if cf.SETTINGS['text_speed'] > 0:
-                num_updates = engine.get_delta() / float(cf.SETTINGS['text_speed'])
+                num_updates = engine.get_delta() / (float(cf.SETTINGS['text_speed']) * self.speed)
                 self.total_num_updates += num_updates
                 while self.total_num_updates >= 1 and self.state == 'process':
                     self.total_num_updates -= 1
@@ -378,9 +389,9 @@ class Dialog():
             line_chunks, current_color = self.chunkify(line, current_color)
             for chunk in line_chunks:
                 text, color = chunk
-                font = FONT[self.font_type + '-' + color]
+                font = FONT[self.font_type]
                 width = font.width(text)
-                font.blit(text, text_surf, (x_pos, y_pos))
+                font.blit(text, text_surf, (x_pos, y_pos), color)
                 x_pos += width
 
         display_lines = self.text_lines[-self.num_lines:]
@@ -395,9 +406,9 @@ class Dialog():
             line_chunks, current_color = self.chunkify(line, current_color)
             for chunk in line_chunks:
                 text, color = chunk
-                font = FONT[self.font_type + '-' + color]
+                font = FONT[self.font_type]
                 width = font.width(text)
-                font.blit(text, text_surf, (x_pos, y_set))
+                font.blit(text, text_surf, (x_pos, y_set), color)
                 x_pos += width
 
             end_x_pos = self.position[0] + 8 + x_pos
@@ -431,7 +442,7 @@ class Dialog():
         if x_pos < 0:
             x_pos = self.position[0] + 16
         name_tag_surf = self.name_tag_surf.copy()
-        self.font.blit_center(name, name_tag_surf, (name_tag_surf.get_width()//2, name_tag_surf.get_height()//2 - self.font.height//2))
+        self.font.blit_center(name, name_tag_surf, (name_tag_surf.get_width()//2, name_tag_surf.get_height()//2 - self.font.height//2), self.font_color)
         surf.blit(name_tag_surf, (x_pos, y_pos))
         return surf
 
@@ -471,7 +482,7 @@ class LocationCard():
 
     def __init__(self, text, background='menu_bg_brown'):
         self.plain_text = text
-        self.font = FONT['text-white']
+        self.font = FONT['text']
 
         self.text_lines = self.format_text(text)
         self.determine_size()
@@ -625,7 +636,7 @@ class Ending():
         self.title = title
         self.plain_text = text
         self.unit = unit
-        self.font = FONT['text-white']
+        self.font = FONT['text']
 
         # Build dialog
         class EndingDialog(Dialog):
@@ -636,7 +647,7 @@ class Ending():
         self.dialog.position = (8, 40)
         self.dialog.text_width = WINWIDTH - 32
         self.dialog.width = self.dialog.text_width + 16
-        self.dialog.font = FONT['text-white']
+        self.dialog.font = FONT['text']
         self.dialog.font_type = 'text'
         self.dialog.font_color = 'white'
 

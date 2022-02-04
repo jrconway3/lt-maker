@@ -182,7 +182,8 @@ class GameState():
         self.base_convos = {}
         self.action_log = turnwheel.ActionLog()
         self.events = event_manager.EventManager()
-        self.dialog_log.clear()
+        if self.dialog_log:
+            self.dialog_log.clear()
 
     def generic(self):
         """
@@ -228,7 +229,7 @@ class GameState():
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
         tilemap = TileMapObject.from_prefab(tilemap_prefab)
         self.cursor = LevelCursor(self)
-        self.current_level = LevelObject.from_prefab(level_prefab, tilemap, self.unit_registry)
+        self.current_level = LevelObject.from_prefab(level_prefab, tilemap, self.unit_registry, self.current_mode)
         if with_party:
             self.current_party = with_party
         else:
@@ -351,13 +352,15 @@ class GameState():
         save.set_next_uids(self)
         self.terrain_status_registry = s_dict.get('terrain_status_registry', {})
         self.region_registry = {region['nid']: Region.restore(region) for region in s_dict.get('regions', [])}
-        self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
+        self.unit_registry = {unit['nid']: UnitObject.restore(unit, self) for unit in s_dict['units']}
 
         # Handle subitems
         for item in self.item_registry.values():
             for subitem_uid in item.subitem_uids:
                 subitem = self.item_registry.get(subitem_uid)
                 item.subitems.append(subitem)
+                for component in subitem.components:
+                    component.item = item
                 subitem.parent_item = item
         # Handle subskill
         for skill in self.skill_registry.values():
@@ -585,7 +588,7 @@ class GameState():
         self.item_registry[item.uid] = item
         # For multi-items
         for subitem in item.subitems:
-            self.item_registry[subitem.uid] = subitem
+            self.register_item(subitem)
 
     def register_skill(self, skill):
         logging.debug("Registering skill %s as %s", skill, skill.uid)
@@ -614,6 +617,18 @@ class GameState():
         unit = self.unit_registry.get(unit_nid)
         return unit
 
+    def get_klass(self, unit_nid):
+        unit = self.unit_registry.get(unit_nid)
+        if not unit:
+            return None
+        klass = DB.classes.get(unit.klass)
+        return klass
+
+    def get_convoy_inventory(self, party=None):
+        if not party:
+            party = self.party
+        return party.convoy
+
     def get_item(self, item_uid):
         item = self.item_registry.get(item_uid)
         return item
@@ -629,6 +644,12 @@ class GameState():
     def get_region(self, region_nid):
         region = self.region_registry.get(region_nid)
         return region
+
+    def get_region_under_pos(self, pos: Tuple[int, int]) -> Region:
+        if pos:
+            for region in self.region_registry.values():
+                if region.contains(pos):
+                    return region
 
     def get_all_units(self) -> List[UnitObject]:
         return [unit for unit in self.units if unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]
@@ -791,7 +812,7 @@ class GameState():
 
         if not skill_obj:
             skill_obj = item_funcs.create_skill(unit, region.sub_nid)
-            game.register_skill(skill_obj)
+            self.register_skill(skill_obj)
             self.register_terrain_status(region.nid, skill_obj.uid)
 
         if skill_obj:
@@ -803,6 +824,7 @@ class GameState():
                 else:
                     act = action.AddSkill(unit, skill_obj)
                     action.do(act)
+                    return act
 
     def check_for_region(self, position, region_type, sub_nid=None):
         if not position:
@@ -846,6 +868,18 @@ class GameState():
 
     def set_bexp(self, amount):
         self.parties[self.current_party].bexp = amount
+
+    def get_random(self, a: int, b: int):
+        """
+        Canonical method for getting a random number from within an event
+        without screwing up the turnwheel
+        """
+        from app.engine import action
+        old = static_random.get_other_random_state()
+        result = static_random.get_other(a, b)
+        new = static_random.get_other_random_state()
+        action.do(action.RecordOtherRandomState(old, new))
+        return result
 
 game = GameState()
 

@@ -54,14 +54,14 @@ class DebugState(MapState):
         event_command = event_commands.parse_text(command)
         if not event_command:
             return
-        game.events.add_event('debug_console', [event_command], game.cursor.get_hover())
+        game.events._add_event('debug_console', [event_command], game.cursor.get_hover())
 
     def draw(self, surf):
         surf = super().draw(surf)
         surf.blit(self.bg, (0, WINHEIGHT - (5 * 16)))
         for idx, command in enumerate(reversed(self.commands[-self.num_back:])):
-            FONT['text-white'].blit(command, surf, (0, WINHEIGHT - idx * 16 - 32))
-        FONT['text-white'].blit(self.current_command, surf, (0, WINHEIGHT - 16))
+            FONT['text'].blit(command, surf, (0, WINHEIGHT - idx * 16 - 32))
+        FONT['text'].blit(self.current_command, surf, (0, WINHEIGHT - 16))
         return surf
 
     def end(self):

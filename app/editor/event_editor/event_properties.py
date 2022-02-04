@@ -16,7 +16,7 @@ from app.extensions.custom_gui import (ComboBox, PropertyBox, PropertyCheckBox,
 from app.resources.resources import RESOURCES
 from app.utilities import str_utils
 from PyQt5.QtCore import (QRect, QRegularExpression, QSize,
-                          QSortFilterProxyModel, QStringListModel, Qt)
+                          QSortFilterProxyModel, QStringListModel, Qt, pyqtSignal)
 from PyQt5.QtGui import (QColor, QFont, QFontMetrics, QIcon, QPainter,
                          QPalette, QSyntaxHighlighter, QTextCharFormat,
                          QTextCursor)
@@ -81,6 +81,7 @@ class Highlighter(QSyntaxHighlighter):
         self.highlight_rules.append(self.comment_rule)
 
     def highlightBlock(self, text):
+        text = text.replace('\u2028', ' ')
         for rule in self.highlight_rules:
             match_iterator = rule.pattern.globalMatch(text)
             while match_iterator.hasNext():
@@ -203,6 +204,10 @@ class LineNumberArea(QWidget):
         self.editor.lineNumberAreaPaintEvent(event)
 
 class CodeEditor(QPlainTextEdit):
+    clicked = pyqtSignal()
+    def mouseReleaseEvent(self, event):
+        self.clicked.emit()
+
     def __init__(self, parent):
         super().__init__(parent)
         self.window = parent
@@ -235,6 +240,8 @@ class CodeEditor(QPlainTextEdit):
             self.setCompleter(event_autocompleter.Completer(parent=self))
             self.textChanged.connect(self.complete)
             self.textChanged.connect(self.display_function_hint)
+            self.clicked.connect(self.display_function_hint)
+            self.cursorPositionChanged.connect(self.display_function_hint)
             self.prev_keyboard_press = None
 
             # function helper
@@ -272,9 +279,9 @@ class CodeEditor(QPlainTextEdit):
         tc = self.textCursor()
         line = tc.block().text()
         cursor_pos = tc.positionInBlock()
-        if len(line) != cursor_pos:
+        if len(line) != cursor_pos and line[cursor_pos-1] !=';':
             self.function_annotator.hide()
-            return  # Only do function hint on end of line
+            return  # Only do function hint on end of line or when clicking at the beginning of a field
         if tc.blockNumber() <= 0 and cursor_pos <= 0:  # don't do hint if cursor is at the very top left of event
             self.function_annotator.hide()
             return
@@ -287,15 +294,22 @@ class CodeEditor(QPlainTextEdit):
 
         # determine which command and validator is under the cursor
         command = event_autocompleter.detect_command_under_cursor(line)
-        validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos)
+        validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos, None)
 
         if not command or command == event_commands.Comment:
             return
 
         hint_words = []
         hint_words.append(command.nid)
-        hint_words = hint_words + command.keywords
-        hint_words = hint_words + command.optional_keywords
+        all_keywords = command.keywords + command.optional_keywords
+        all_keyword_names = command.keyword_names
+        for idx, keyword in enumerate(all_keywords):
+            keyword_name = ""
+            if idx < len(all_keyword_names):
+                keyword_name = all_keyword_names[idx]
+                hint_words.append(keyword_name + '=' + keyword)
+            else:
+                hint_words.append(keyword)
         if command.flags:
             hint_words.append('FLAGS')
         hint_cmd = ""
@@ -306,15 +320,19 @@ class CodeEditor(QPlainTextEdit):
             return
         else:
             try:
-                arg_idx = hint_words.index(validator.__name__)
-                hint_words[arg_idx] = '<b>' + hint_words[arg_idx] + '</b>'
-                hint_desc = hint_words[arg_idx] + ' ' + validator().desc
+                arg_idx = line.count(';', 0, cursor_pos)
+                if arg_idx != len(hint_words) - 1:
+                    hint_words[arg_idx] = '<b>' + hint_words[arg_idx] + '</b>'
+                    hint_desc = validator.__name__ + ' ' + validator().desc
+                elif cursor_pos > 0 and command.flags:
+                    hint_words[-1] = '<b>' + hint_words[-1] + '</b>'
+                    hint_desc = 'Must be one of (`' + str.join('`,`', flags) + '`)'
             except:
                 if cursor_pos > 0 and command.flags:
                     hint_words[-1] = '<b>' + hint_words[-1] + '</b>'
                     hint_desc = 'Must be one of (`' + str.join('`,`', flags) + '`)'
 
-        hint_cmd = str.join(';', hint_words)
+        hint_cmd = str.join(';\u200b', hint_words)
         # style both components
         hint_cmd = '<div class="command_text">' + hint_cmd + '</div>'
         hint_desc = '<div class="desc_text">' + hint_desc + '</div>'
@@ -331,6 +349,7 @@ class CodeEditor(QPlainTextEdit):
         if self.settings.get_event_autocomplete_desc():
             hint_text += '<hr>' + hint_command_desc
         self.function_annotator.setText(hint_text)
+        self.function_annotator.setWordWrap(True)
         self.function_annotator.adjustSize()
 
         # offset the position and display
@@ -355,6 +374,17 @@ class CodeEditor(QPlainTextEdit):
         line = tc.block().text()
         cursor_pos = tc.positionInBlock()
 
+        def arg_text_under_cursor(text: str, cursor_pos):
+            before_text = text[0:cursor_pos]
+            after_text = text[cursor_pos:]
+            idx = before_text.rfind(';')
+            before_arg = before_text[idx + 1:]
+            idx = after_text.find(';')
+            after_arg = after_text[0:idx]
+            return (before_arg + after_arg)
+
+        arg_under_cursor = arg_text_under_cursor(line, cursor_pos)
+
         if len(line) != cursor_pos:
             return  # Only do autocomplete on end of line
         if tc.blockNumber() <= 0 and cursor_pos <= 0:  # Remove if cursor is at the very top left of event
@@ -368,8 +398,8 @@ class CodeEditor(QPlainTextEdit):
             return
 
         # determine what dictionary to use for completion
-        validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos)
-        autofill_dict = event_autocompleter.generate_wordlist_from_validator_type(validator, self.window.current.level_nid)
+        validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos, arg_under_cursor)
+        autofill_dict = event_autocompleter.generate_wordlist_from_validator_type(validator, self.window.current.level_nid, arg_under_cursor)
         if flags:
             autofill_dict = autofill_dict + event_autocompleter.generate_flags_wordlist(flags)
         if len(autofill_dict) == 0:
@@ -528,17 +558,27 @@ class EventCollection(QWidget):
         self.level_filter_box.edit.addItem("All")
         self.level_filter_box.edit.addItem("Global")
         self.level_filter_box.edit.addItems(DB.levels.keys())
-        self.level_filter_box.edit.currentIndexChanged.connect(self.level_filter_changed)
+        self.level_filter_box.edit.currentIndexChanged.connect(self.filter_changed)
+
+        self.event_name_filter_box = PropertyBox("Filter by name", QLineEdit, self)
+        self.event_name_filter_box.edit.textChanged.connect(self.filter_changed)
 
         self.model = collection_model(self._data, self)
-        self.proxy_model = table_model.ProxyModel()
-        self.proxy_model.setSourceModel(self.model)
-        self.view = view_type(self)
+        self.name_filtered_model = table_model.ProxyModel()
+        self.name_filtered_model.setSourceModel(self.model)
+        self.level_filtered_model = table_model.ProxyModel()
+        self.level_filtered_model.setSourceModel(self.name_filtered_model)
+        self.view: TableView = view_type(self)
         self.view.setAlternatingRowColors(True)
         self.view.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.view.setModel(self.proxy_model)
+        self.view.setModel(self.level_filtered_model)
         # self.view.setModel(self.model)
         self.view.setSortingEnabled(True)
+        # sort is stored as (col, dir)
+        # see leaveEvent
+        sort = self.settings.component_controller.get_sort(self.__class__.__name__)
+        if sort:
+            self.view.sortByColumn(sort[0], sort[1])
         # self.view.clicked.connect(self.on_single_click)
         # Remove edit on double click
         self.view.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -553,9 +593,10 @@ class EventCollection(QWidget):
         self.create_actions()
         self.create_toolbar()
         grid.addWidget(self.toolbar, 0, 0, Qt.AlignLeft)
-        grid.addWidget(self.level_filter_box, 0, 1, Qt.AlignRight)
-        grid.addWidget(self.view, 1, 0, 1, 2)
-        grid.addWidget(self.button, 2, 0, 1, 2)
+        grid.addWidget(self.event_name_filter_box, 0, 1, Qt.AlignRight)
+        grid.addWidget(self.level_filter_box, 0, 2, Qt.AlignRight)
+        grid.addWidget(self.view, 1, 0, 1, 3)
+        grid.addWidget(self.button, 2, 0, 1, 3)
 
         if self.current_level:
             self.level_filter_box.edit.setValue(self.current_level.nid)
@@ -591,15 +632,15 @@ class EventCollection(QWidget):
 
     def delete(self):
         current_index = self.view.currentIndex()
-        model_index = self.proxy_model.mapToSource(current_index)
+        model_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(current_index))
         row = current_index.row()
         self.model.delete(model_index)
 
-        if self.proxy_model.rowCount() > 0:
-            if row >= self.proxy_model.rowCount():
-                new_index = self.proxy_model.index(row - 1, 0)
+        if self.level_filtered_model.rowCount() > 0:
+            if row >= self.level_filtered_model.rowCount():
+                new_index = self.level_filtered_model.index(row - 1, 0)
             else:
-                new_index = self.proxy_model.index(row, 0)
+                new_index = self.level_filtered_model.index(row, 0)
             self.view.setCurrentIndex(new_index)
             self.set_current_index(new_index)
         else:
@@ -614,10 +655,10 @@ class EventCollection(QWidget):
 
     def duplicate(self):
         current_index = self.view.currentIndex()
-        model_index = self.proxy_model.mapToSource(current_index)
+        model_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(current_index))
         new_index = self.model.duplicate(model_index)
         if new_index:
-            new_proxy_index = self.proxy_model.mapFromSource(new_index)
+            new_proxy_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(new_index))
 
             self.view.setCurrentIndex(new_proxy_index)
             self.set_current_index(new_proxy_index)
@@ -642,7 +683,7 @@ class EventCollection(QWidget):
 
         last_index = self.model.index(self.model.rowCount() - 1, 0)
 
-        proxy_last_index = self.proxy_model.mapFromSource(last_index)
+        proxy_last_index = self.level_filtered_model.mapFromSource(self.name_filtered_model.mapFromSource(last_index))
         self.view.setCurrentIndex(proxy_last_index)
         self.set_current_index(proxy_last_index)
 
@@ -652,7 +693,7 @@ class EventCollection(QWidget):
         if self._data:
             if curr.indexes():
                 index = curr.indexes()[0]
-                correct_index = self.proxy_model.mapToSource(index)
+                correct_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(index))
                 row = correct_index.row()
             else:
                 return
@@ -664,7 +705,7 @@ class EventCollection(QWidget):
                 self.display.setEnabled(True)
 
     def set_current_index(self, index):
-        correct_index = self.proxy_model.mapToSource(index)
+        correct_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(index))
         row = correct_index.row()
         new_data = self._data[row]
         if self.display:
@@ -673,45 +714,64 @@ class EventCollection(QWidget):
 
     def set_display(self, disp):
         self.display = disp
-        first_index = self.proxy_model.index(0, 0)
+        first_index = self.level_filtered_model.index(0, 0)
         self.view.setCurrentIndex(first_index)
 
         self.display.setEnabled(False)
-        if self.proxy_model.rowCount() > 0:
+        if self.level_filtered_model.rowCount() > 0:
             self.display.setEnabled(True)
 
-    def level_filter_changed(self, idx):
-        filt = self.level_filter_box.edit.currentText()
-        self.view.selectionModel().selectionChanged.disconnect(self.on_item_changed)
-        self.proxy_model.setFilterKeyColumn(1)
-        if filt == 'All':
-            self.proxy_model.setFilterFixedString("")
+    def filter_changed(self, idx):
+        level = self.level_filter_box.edit.currentText()
+        name = self.event_name_filter_box.edit.text()
+
+        if level == 'All':
+            level = ""
+        if not name:
+            name = ""
+
+        if not name:
+            self.name_filtered_model.setFilterFixedString("")
         else:
-            search = "^" + filt + "$"
-            self.proxy_model.setFilterRegularExpression(search)
+            self.name_filtered_model.setFilterRegularExpression('(?i){}'.format(name))
+
+        self.view.selectionModel().selectionChanged.disconnect(self.on_item_changed)
+        self.level_filtered_model.setFilterKeyColumn(1)
+        if not level:
+            self.level_filtered_model.setFilterFixedString("")
+        else:
+            search = "^" + level + "$"
+            self.level_filtered_model.setFilterRegularExpression(search)
         self.view.selectionModel().selectionChanged.connect(self.on_item_changed)
         # Determine if we should reselect something
-        if filt != "All" and self.display:
+        if level and self.display:
             # current_index = self.view.currentIndex()
-            # real_index = self.proxy_model.mapToSource(current_index)
+            # real_index = self.level_filtered_model.mapToSource(current_index)
             # obj = self._data[real_index.row()]
             obj = self.display.current
-            if obj and ((filt != "Global" and filt != obj.level_nid) or (filt == "Global" and obj.level_nid)):
+            if obj and ((level != "Global" and level != obj.level_nid) or (level == "Global" and obj.level_nid)):
                 # Change selection only if we need to!
-                first_index = self.proxy_model.index(0, 0)
+                first_index = self.level_filtered_model.index(0, 0)
                 self.view.setCurrentIndex(first_index)
                 self.set_current_index(first_index)
         self.update_list()
 
-        if self.proxy_model.rowCount() > 0:
+        if self.level_filtered_model.rowCount() > 0:
             self._set_enabled(True)
         else:
             self._set_enabled(False)
 
+
     def update_list(self):
         # self.model.layoutChanged.emit()
-        # self.proxy_model.invalidate()
-        self.proxy_model.layoutChanged.emit()
+        # self.level_filtered_model.invalidate()
+        self.level_filtered_model.layoutChanged.emit()
+
+    def leaveEvent(self, event) -> None:
+        sort_dir = self.view.horizontalHeader().sortIndicatorOrder()
+        sort_col = self.view.horizontalHeader().sortIndicatorSection()
+        self.settings.component_controller.set_sort(self.__class__.__name__, (sort_col, sort_dir))
+        return super().leaveEvent(event)
 
 class EventProperties(QWidget):
     def __init__(self, parent, current=None):
@@ -923,8 +983,11 @@ class EventProperties(QWidget):
 
     def text_changed(self):
         self.current.commands.clear()
-        text = self.text_box.toPlainText()
-        lines = [line.strip() for line in text.splitlines()]
+        lines = []
+        for doc_idx in range(self.text_box.document().blockCount()):
+            line = self.text_box.document().findBlockByNumber(doc_idx).text().strip()
+            if line:
+                lines.append(line)
         for line in lines:
             command = event_commands.parse_text(line)
             if command:
@@ -998,7 +1061,15 @@ class ShowMapDialog(QDialog):
 
     def position_moved(self, x, y):
         if x >= 0 and y >= 0:
-            self.position_edit.setText("%d,%d" % (x, y))
+            unit_name = None
+            for unit in self.current_level.units:
+                if unit.starting_position and unit.starting_position[0] == x and unit.starting_position[1] == y:
+                    unit_name = unit.nid
+                    break
+            if unit_name:
+                self.position_edit.setText("%s: %d,%d" % (unit_name, x, y))
+            else:
+                self.position_edit.setText("%d,%d" % (x, y))
         else:
             self.position_edit.setText("")
 
@@ -1030,7 +1101,7 @@ class ShowCommandsDialog(QDialog):
             if category == event_commands.Tags.HIDDEN.value:
                 continue
             self._data.append(category)
-            commands = [command for command in self.commands if command.tag.value == category]
+            commands = [command() for command in self.commands if command.tag.value == category]
             self._data += commands
 
         self.model = EventCommandModel(self._data, self.categories, self)

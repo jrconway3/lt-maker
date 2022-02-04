@@ -126,3 +126,13 @@ class ChangeAnimation(SkillComponent):
 
     def change_animation(self, unit):
         return self.value
+
+class MapCastAnim(SkillComponent):
+    nid = 'map_cast_anim'
+    desc = "Adds a map animation on cast"
+    tag = 'aesthetic'
+
+    expose = Type.MapAnimation
+
+    def start_combat(self, playback, unit, item, target, mode):
+        playback.append(('cast_anim', self.value))

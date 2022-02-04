@@ -112,6 +112,19 @@ class StatusOnHit(ItemComponent):
             else:
                 return -0.5 * accuracy_term
         return 0
+        
+class StatusesOnHit(ItemComponent):
+    nid = 'statuses_on_hit'
+    desc = "Item gives statuses to target when it hits, do not use for enemy items"
+    tag = 'special'
+
+    expose = (Type.List, Type.Skill)  # Nid
+
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
+        for s in self.value:
+            act = action.AddSkill(target, s, unit)
+            actions.append(act)
+        playback.append(('status_hit', unit, item, target, self.value))      
 
 class StatusAfterCombatOnHit(StatusOnHit, ItemComponent):
     nid = 'status_after_combat_on_hit'

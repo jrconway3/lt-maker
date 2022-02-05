@@ -2,12 +2,12 @@ import os
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
     QToolBar, QDialog, QSpinBox, QAction, \
-    QActionGroup, QWidget, QComboBox, QPushButton, \
+    QActionGroup, QWidget, QPushButton, \
     QDesktopWidget, QFileDialog, QHBoxLayout, QMessageBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 
-from app.extensions.custom_gui import PropertyBox
+from app.extensions.custom_gui import PropertyBox, ComboBox
 from app.editor.settings import MainSettingsController
 
 from app.map_maker.resize_dialog import ResizeDialog
@@ -15,6 +15,8 @@ from app.map_maker.terrain_painter_menu import TerrainPainterMenu
 from app.map_maker.map_editor_view import PaintTool, MapEditorView
 from app.map_maker.draw_tilemap import draw_tilemap
 from app.map_maker.map_prefab import MapPrefab
+from app.map_maker import map_maker_palette
+from app.map_maker.terrain_database import DB_terrain
 import app.map_maker.utilities as map_utils
 
 class CliffMarkerWidget(QWidget):
@@ -26,7 +28,7 @@ class CliffMarkerWidget(QWidget):
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
 
-        self.main_box = PropertyBox("Cliff Markers", QComboBox, self)
+        self.main_box = PropertyBox("Cliff Markers", ComboBox, self)
         self.main_box.setMaximumWidth(100)
         self.main_box.setMinimumWidth(100)
         for cliff_marker in self.tilemap.cliff_markers:
@@ -138,8 +140,20 @@ class MapEditor(QDialog):
         view_layout.addWidget(self.view)
         view_frame.setLayout(view_layout)
 
+        self.palette_selector = PropertyBox("Palette", ComboBox, self)
+        palette_model = map_maker_palette.PaletteModel(map_maker_palette.PALETTES, self)
+        self.palette_selector.edit.setModel(palette_model)
+        self.palette_selector.edit.currentIndexChanged.connect(self.palette_changed)
+        self.palette_changed(0)  # Apply it for the current palette
+
+        self.right_splitter = QSplitter(self)
+        self.right_splitter.setOrientation(Qt.Vertical)
+        self.right_splitter.setChildrenCollapsible(False)
+        self.right_splitter.addWidget(self.terrain_painter_menu)
+        self.right_splitter.addWidget(self.palette_selector)
+
         self.main_splitter.addWidget(view_frame)
-        self.main_splitter.addWidget(self.terrain_painter_menu)
+        self.main_splitter.addWidget(self.right_splitter)
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
@@ -152,7 +166,10 @@ class MapEditor(QDialog):
         if geometry:
             self.restoreGeometry(geometry)
         state = self.settings.component_controller.get_state(self._type())
-        if state:
+        if isinstance(state, tuple):
+            self.main_splitter.restoreState(state[0])
+            self.right_splitter.restoreState(state[1])
+        else:
             self.main_splitter.restoreState(state)
 
         self.view.update_view()
@@ -237,6 +254,13 @@ class MapEditor(QDialog):
         print("--- Seed Changed to %d ---" % val)
         self.current.reset_all()
 
+    def palette_changed(self, idx):
+        palette = map_maker_palette.PALETTES[idx]
+        for terrain in DB_terrain:
+            terrain.palette_path = palette.palette_path
+            terrain.set_tileset()
+        # self.current.reset_all()
+
     def export_as_png(self):
         if self.current:
             image = draw_tilemap(self.current, autotile_fps=0)
@@ -276,7 +300,7 @@ class MapEditor(QDialog):
 
     def save_geometry(self):
         self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
-        self.settings.component_controller.set_state(self._type(), self.main_splitter.saveState())
+        self.settings.component_controller.set_state(self._type(), (self.main_splitter.saveState(), self.right_splitter.saveState()))
 
 # Testing
 # Run "python -m app.map_maker.map_editor" from main directory

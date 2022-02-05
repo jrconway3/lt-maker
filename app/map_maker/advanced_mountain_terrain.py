@@ -89,8 +89,10 @@ class MountainTerrain(Terrain):
         self.tilemap = tilemap
 
         # But then, start the thread
-        # thread = NaiveBacktrackingThread(tilemap, self.mountain_data, self.noneless_rules, group)
-        thread = AlgorithmXThread(tilemap, self.mountain_data, self.noneless_rules, group)
+        if len(group) < 20:
+            thread = NaiveBacktrackingThread(tilemap, self.mountain_data, self.noneless_rules, group)
+        else:
+            thread = AlgorithmXThread(tilemap, self.mountain_data, self.noneless_rules, group)
         thread.finished.connect(functools.partial(self.mountain_process_finished, thread))
         thread.waiting.connect(functools.partial(self.mountain_processing, thread))
         self.current_threads.append(thread)

@@ -308,7 +308,7 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
-    tileset = 'app/map_maker/rainlash_fields1.png'
+    tileset = 'app/map_maker/palettes/westmarch/main.png'
     save_dir = 'app/map_maker/test_output/'
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)

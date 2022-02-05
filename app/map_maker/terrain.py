@@ -10,6 +10,7 @@ from app.utilities.data import Data, Prefab
 class Terrain(Prefab):
     nid: str = None
     name: str = None
+    palette_path: str = None
     tileset_path: str = None
 
     display_tile_coord: tuple = (0, 0)
@@ -24,11 +25,10 @@ class Terrain(Prefab):
     def check_flood_fill(self):
         return False
 
-    def set_tileset(self, tileset_path=None):
-        if tileset_path:
-            self.tileset_path = tileset_path
-        self.tileset_pixmap = QPixmap(self.tileset_path)
-        autotile_path = self.tileset_path[:-4] + '_autotiles.png'
+    def set_tileset(self):
+        full_path = os.path.join(self.palette_path, self.tileset_path)
+        self.tileset_pixmap = QPixmap(full_path)
+        autotile_path = full_path[:-4] + '_autotiles.png'
         if os.path.exists(autotile_path):
             self.autotile_pixmap = QPixmap(autotile_path)
         self.display_pixmap = None

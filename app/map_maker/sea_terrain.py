@@ -15,8 +15,8 @@ class SeaTerrain(WangEdge2Terrain):
     def check_flood_fill(self):
         return True
 
-    def set_tileset(self, tileset_path=None):
-        super().set_tileset(tileset_path)
+    def set_tileset(self):
+        super().set_tileset()
         self.limits = {k: self._find_limit(k) for k in range(16)}
         self.sand_limits = {k: self._find_limit(k, self.sand_start_px) for k in range(16)}
         print(self.sand_limits)

@@ -199,7 +199,7 @@ class AlgorithmXThread(QThread):
         # valid_coords = [self.find_valid_coords(pos) for pos in self.to_process]
         valid_coords_dict = {pos: self.find_valid_coords(pos) for pos in self.to_process}
 
-        time.sleep(0.1)
+        time.sleep(0.001)
         if self.broke_out:
             return
 
@@ -236,7 +236,7 @@ class AlgorithmXThread(QThread):
                         columns.append((identifier, False))
                         row.append(len(columns) - 1)
 
-        time.sleep(0.1)
+        time.sleep(0.001)
         if self.broke_out:
             return
 
@@ -253,7 +253,7 @@ class AlgorithmXThread(QThread):
                     # Add a 1 here
                     rows[ridx].append(cidx)
 
-        time.sleep(0.1)
+        time.sleep(0.001)
         if self.broke_out:
             return
 
@@ -261,7 +261,7 @@ class AlgorithmXThread(QThread):
         d = rain_algorithm_x.RainAlgorithmX(columns, row_names, rows, self.to_process[0], get_random_seed())
         print("Setup 2 complete", id(self))
 
-        time.sleep(0.1)
+        time.sleep(0.001)
         if self.broke_out:
             return
 

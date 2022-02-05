@@ -54,7 +54,7 @@ def similar(p1: QuadPaletteData, p2: MountainQuadPaletteData, must_match=4) -> b
     return num_match >= must_match
 
 def get_mountain_coords(fn) -> set:
-    if fn.endswith('rainlash_fields1.png'):
+    if fn.endswith('main.png'):
         topleft = {(0, 11), (0, 12), (1, 11), (1, 12), (1, 12), (2, 12), (3, 11), (3, 12)}
         main = {(x, y) for x in range(17) for y in range(13, 20)}
         # (18, 18) is a duplicate of (15, 17)
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
 
-    tileset = 'app/map_maker/rainlash_fields1.png'
+    tileset = 'app/map_maker/palettes/westmarch/main.png'
     mountain_coords = get_mountain_coords(tileset)
 
     mountain_palettes = load_mountain_palettes(tileset, mountain_coords)

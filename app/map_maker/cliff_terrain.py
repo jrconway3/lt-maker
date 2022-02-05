@@ -157,8 +157,8 @@ class CliffTerrain(WangCorner2Terrain):
             8 * corner_topleft
         return index
 
-    def set_tileset(self, tileset_path=None):
-        super().set_tileset(tileset_path)
+    def set_tileset(self):
+        super().set_tileset()
         self.limits = {k: self._find_limit(k) for k in range(16)}
         self.second_limits = {k: self._find_limit(k, self.second_start_px) for k in range(16)}
         print(self.second_limits)

@@ -6,8 +6,8 @@ from app.map_maker.terrain import Terrain
 class WangEdge2Terrain(Terrain):
     terrain_like = ()
 
-    def set_tileset(self, tileset_path=None):
-        super().set_tileset(tileset_path)
+    def set_tileset(self):
+        super().set_tileset()
         self.limits = {k: self._find_limit(k) for k in range(16)}
         print(self.nid, self.limits)
 

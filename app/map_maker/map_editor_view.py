@@ -100,6 +100,8 @@ class MapEditorView(QGraphicsView):
         elif self.right_selection:
             # Currently drawing with a right click held down area
             self.draw_right_cursor(painter)
+        elif self.window.current_tool in (PaintTool.Erase, PaintTool.NoTool):
+            self.draw_simple_cursor(painter)
         else:
             # Currently drawing with a terrain
             self.draw_normal_cursor(painter)
@@ -110,6 +112,12 @@ class MapEditorView(QGraphicsView):
     def show_map(self):
         self.clear_scene()
         self.scene.addPixmap(self.working_image)
+
+    def draw_simple_cursor(self, painter):
+        mouse_pos = self.current_mouse_position
+        # Fill with blue
+        rect = QRect(mouse_pos[0] * TILEWIDTH, mouse_pos[1] * TILEHEIGHT, TILEWIDTH, TILEHEIGHT)
+        painter.fillRect(rect, QColor(0, 255, 255, 96))
 
     def draw_normal_cursor(self, painter):
         mouse_pos = self.current_mouse_position

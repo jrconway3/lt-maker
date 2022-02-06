@@ -35,18 +35,12 @@ class CliffMarkerWidget(QWidget):
             self.main_box.edit.addItem("%d, %d" % cliff_marker)
         # self.main_box.edit.activated.connect(self.main_box_activation)
 
-        self.add_button = QPushButton("+")
-        self.add_button.setCheckable(True)
-        self.add_button.clicked.connect(self.choose_marker)
-        self.add_button.setMaximumWidth(20)
-        self.remove_button = QPushButton("-")
-        self.remove_button.clicked.connect(self.remove_current_marker)
-        self.remove_button.setEnabled(False)
-        self.remove_button.setMaximumWidth(20)
+        self.toolbar = QToolBar(self)
+        self.toolbar.addAction(self.window.add_cliff_marker_action)
+        self.toolbar.addAction(self.window.remove_cliff_marker_action)
 
         self.layout.addWidget(self.main_box)
-        self.main_box.bottom_section.addWidget(self.add_button)
-        self.main_box.bottom_section.addWidget(self.remove_button)
+        self.layout.addWidget(self.toolbar)
         # self.layout.addWidget(self.add_button)
         # self.layout.addWidget(self.remove_button)
 
@@ -58,12 +52,7 @@ class CliffMarkerWidget(QWidget):
         self.reset()
 
     def reset(self):
-        self.add_button.setChecked(False)
-
-    def choose_marker(self, checked):
-        if checked:
-            self.window.set_cliff_marker()
-            self.add_button.setChecked(True)
+        self.window.add_cliff_marker_action.setChecked(False)
 
     def add_new_marker(self, pos):
         self.reset()
@@ -72,18 +61,8 @@ class CliffMarkerWidget(QWidget):
         self.tilemap.reset_all()
         self.toggle_remove_button()
 
-    def remove_current_marker(self):
-        if len(self.tilemap.cliff_markers) > 1:
-            idx = self.main_box.edit.currentIndex()
-            self.tilemap.cliff_markers.pop(idx)
-            self.main_box.edit.removeItem(idx)
-            self.tilemap.reset_all()
-        else:
-            QMessageBox.warning("Warning", "Cannot remove last cliff marker!")
-        self.toggle_remove_button()
-
     def toggle_remove_button(self):
-        self.remove_button.setEnabled(len(self.tilemap.cliff_markers) > 1)
+        self.window.remove_cliff_marker_action.setEnabled(len(self.tilemap.cliff_markers) > 1)
 
 class MapEditor(QDialog):
     def __init__(self, parent=None, current=None):
@@ -108,9 +87,6 @@ class MapEditor(QDialog):
         self.view = MapEditorView(self)
         self.view.set_current(current)
 
-        self.create_actions()
-        self.create_toolbar()
-
         self.main_splitter = QSplitter(self)
         self.main_splitter.setChildrenCollapsible(False)
 
@@ -126,6 +102,9 @@ class MapEditor(QDialog):
         self.random_seed_box.setMaximumWidth(100)
         self.random_seed_box.edit.setAlignment(Qt.AlignRight)
         self.random_seed_box.edit.valueChanged.connect(self.random_seed_changed)
+
+        self.create_actions()
+        self.create_toolbar()
 
         self.cliff_marker_widget = CliffMarkerWidget(self, self.current)
 
@@ -199,6 +178,11 @@ class MapEditor(QDialog):
         self.show_gridlines_action.setCheckable(True)
         self.show_gridlines_action.setChecked(True)
 
+        self.add_cliff_marker_action = QAction(QIcon(f"{icon_folder}/plus.png"), "Add Cliff Marker", self, triggered=self.choose_cliff_marker)
+        self.add_cliff_marker_action.setCheckable(True)
+        self.remove_cliff_marker_action = QAction(QIcon(f"{icon_folder}/minus.png"), "Remove Cliff Marker", self, triggered=self.remove_cliff_marker)
+        self.remove_cliff_marker_action.setEnabled(False)
+
     def void_right_selection(self):
         self.view.right_selection.clear()
 
@@ -218,11 +202,26 @@ class MapEditor(QDialog):
         self.cliff_marker_widget.reset()
         self.current_tool = PaintTool.Erase
 
+    def choose_cliff_marker(self, checked):
+        if checked:
+            self.set_cliff_marker()
+            self.add_cliff_marker_action.setChecked(True)
+
     def set_cliff_marker(self):
         self.brush_action.setChecked(False)
         self.paint_action.setChecked(False)
         self.erase_action.setChecked(False)
         self.current_tool = PaintTool.CliffMarker
+
+    def remove_cliff_marker(self):
+        if len(self.current.cliff_markers) > 1:
+            idx = self.cliff_marker_widget.main_box.edit.currentIndex()
+            self.current.cliff_markers.pop(idx)
+            self.cliff_marker_widget.main_box.edit.removeItem(idx)
+            self.current.reset_all()
+        else:
+            QMessageBox.warning("Warning", "Cannot remove last cliff marker!")
+        self.cliff_marker_widget.toggle_remove_button()
 
     def create_toolbar(self):
         self.toolbar = QToolBar(self)

@@ -31,7 +31,7 @@ def similar_fast(p1: list, p2: list) -> int:
     mapping = {}
     for i, j in zip(p1, p2):
         if i == j:
-            pass
+            mapping[i] = j
         elif i in mapping and j != mapping[i]:
             return TILEWIDTH * TILEHEIGHT
         else:

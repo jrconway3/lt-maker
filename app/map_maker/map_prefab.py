@@ -144,7 +144,7 @@ class MapPrefab(Prefab):
             str_coord = "%d,%d" % (coord[0], coord[1])
             s_dict['terrain_grid'][str_coord] = terrain_nid
         s_dict['tile_grid'] = {}
-        for coord, tile_coord in self.terrain_grid.items():
+        for coord, tile_coord in self.tile_grid.items():
             str_coord = "%d,%d" % (coord[0], coord[1])
             str_tile_coord = "%d,%d" % (tile_coord[0], tile_coord[1])
             s_dict['tile_grid'][str_coord] = str_tile_coord

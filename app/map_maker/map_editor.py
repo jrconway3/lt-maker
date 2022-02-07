@@ -68,10 +68,12 @@ class CliffMarkerWidget(QWidget):
         self.window.remove_cliff_marker_action.setEnabled(len(self.tilemap.cliff_markers) > 1)
 
 class MapEditor(QMainWindow):
+    title = "LT Map Maker"
+
     def __init__(self, parent=None, current=None):
         super().__init__(parent)
         self.window = parent
-        self.setWindowTitle("Map Maker")
+        self.setWindowTitle(self.title)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
         self.settings = MainSettingsController()
@@ -255,6 +257,12 @@ class MapEditor(QMainWindow):
         self.toolbar.setFloatable(False)
         self.toolbar.setMovable(False)
 
+    def set_title(self):
+        if self.current_map_save_location:
+            self.setWindowTitle(self.current_map_save_location + " -- " + self.title)
+        else:
+            self.setWindowTitle(self.title)
+
     def set_message(self, msg):
         if msg:
             self.statusBar().showMessage(msg)
@@ -367,7 +375,7 @@ class MapEditor(QMainWindow):
 
     def save(self, new=False):
         if new or not self.current_map_save_location:
-            starting_path = self.current_proj or QDir.currentPath()
+            starting_path = self.current_map_save_location or QDir.currentPath()
             fn, ok = QFileDialog.getSaveFileName(self, "Save Map", starting_path,
                                                  "All Files (*)")
             if ok:
@@ -392,6 +400,7 @@ class MapEditor(QMainWindow):
         self.saved_data = self.current.save()
         with open(self.current_map_save_location, 'w') as save_file:
             json.dump(self.saved_data, save_file, indent=4)
+        self.set_title()
         return True
 
     def save_as(self):
@@ -408,6 +417,7 @@ class MapEditor(QMainWindow):
         self.current = new_tilemap_prefab
         self.current.reset_all()
         self.view.set_current(self.current)
+        self.set_title()
         return result
 
     def open(self):
@@ -416,10 +426,11 @@ class MapEditor(QMainWindow):
                 starting_path = os.path.join(self.current_map_save_location, '..')
             else:
                 starting_path = QDir.currentPath()
-            fn = QFileDialog.getOpenFileName(self, "Open Saved Map", starting_path)
+            fn, ok = QFileDialog.getOpenFileName(self, "Open Saved Map", starting_path)
             if fn:
                 self.current_map_save_location = fn
                 self.load()
+                self.set_title()
                 return True
             else:
                 return False

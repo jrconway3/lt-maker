@@ -260,6 +260,13 @@ class MapEditorView(QGraphicsView):
 
         self.current_mouse_position = tile_pos
 
+        self.window.set_position_bar(tile_pos)
+        terrain_nid = self.tilemap.get_terrain(tile_pos)
+        if terrain_nid:
+            self.window.set_message("%s" % terrain_nid)
+        else:
+            self.window.set_message(None)
+
         # If holding down mouse, paint or erase
         if self.left_selecting and self.tilemap.check_bounds(tile_pos):
             if self.window.current_tool == PaintTool.Brush:

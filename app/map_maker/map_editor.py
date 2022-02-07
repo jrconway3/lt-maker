@@ -1,10 +1,11 @@
 import os
+import json
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
-    QToolBar, QDialog, QSpinBox, QAction, \
-    QActionGroup, QWidget, QPushButton, \
+    QToolBar, QSpinBox, QAction, QMenu, QDockWidget, \
+    QActionGroup, QWidget, QMainWindow, QLabel, QSizePolicy, \
     QDesktopWidget, QFileDialog, QHBoxLayout, QMessageBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDir
 from PyQt5.QtGui import QIcon
 
 from app.extensions.custom_gui import PropertyBox, ComboBox
@@ -27,6 +28,8 @@ class CliffMarkerWidget(QWidget):
 
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
+        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
 
         self.main_box = PropertyBox("Cliff Markers", ComboBox, self)
         self.main_box.setMaximumWidth(100)
@@ -64,7 +67,7 @@ class CliffMarkerWidget(QWidget):
     def toggle_remove_button(self):
         self.window.remove_cliff_marker_action.setEnabled(len(self.tilemap.cliff_markers) > 1)
 
-class MapEditor(QDialog):
+class MapEditor(QMainWindow):
     def __init__(self, parent=None, current=None):
         super().__init__(parent)
         self.window = parent
@@ -79,16 +82,13 @@ class MapEditor(QDialog):
         self.resize(*default_size)
 
         self.current = current
-        self.save()
+        self.current_map_save_location = None
         self.current_tool = PaintTool.NoTool
 
         self.terrain_painter_menu = TerrainPainterMenu(self)
 
         self.view = MapEditorView(self)
         self.view.set_current(current)
-
-        self.main_splitter = QSplitter(self)
-        self.main_splitter.setChildrenCollapsible(False)
 
         self.autotile_fps_box = PropertyBox("Autotile Speed", QSpinBox, self)
         self.autotile_fps_box.edit.setValue(self.current.autotile_fps)
@@ -103,40 +103,51 @@ class MapEditor(QDialog):
         self.random_seed_box.edit.setAlignment(Qt.AlignRight)
         self.random_seed_box.edit.valueChanged.connect(self.random_seed_changed)
 
+        self.setCentralWidget(self.view)
+
         self.create_actions()
+        self.create_menus()
         self.create_toolbar()
 
         self.cliff_marker_widget = CliffMarkerWidget(self, self.current)
 
-        view_frame = QFrame()
-        view_layout = QVBoxLayout()
-        toolbar_layout = QHBoxLayout()
-        toolbar_layout.addWidget(self.toolbar)
-        toolbar_layout.addWidget(self.cliff_marker_widget, 0, Qt.AlignRight)
-        toolbar_layout.addWidget(self.autotile_fps_box)
-        toolbar_layout.addWidget(self.random_seed_box)
-        view_layout.addLayout(toolbar_layout)
-        view_layout.addWidget(self.view)
-        view_frame.setLayout(view_layout)
+        self.toolbar.addSeparator()
+        self.toolbar.addWidget(self.cliff_marker_widget)
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.toolbar.addWidget(spacer)
+        self.toolbar.addWidget(self.autotile_fps_box)
+        fixed_space = QLabel()
+        fixed_space.setFixedWidth(10)
+        self.toolbar.addWidget(fixed_space)
+        self.toolbar.addWidget(self.random_seed_box)
 
         self.palette_selector = PropertyBox("Palette", ComboBox, self)
         palette_model = map_maker_palette.PaletteModel(map_maker_palette.PALETTES, self)
         self.palette_selector.edit.setModel(palette_model)
         self.palette_selector.edit.currentIndexChanged.connect(self.palette_changed)
-        self.palette_changed(0)  # Apply it for the current palette
+        if self.current.current_palette:
+            idx = map_maker_palette.PALETTES.index(self.current.current_palette)
+            self.palette_changed(idx)
+        else:
+            self.palette_changed(0)  # Apply it for the current palette
 
-        self.right_splitter = QSplitter(self)
-        self.right_splitter.setOrientation(Qt.Vertical)
-        self.right_splitter.setChildrenCollapsible(False)
-        self.right_splitter.addWidget(self.terrain_painter_menu)
-        self.right_splitter.addWidget(self.palette_selector)
+        self.right_frame = QFrame(self)
+        right_layout = QVBoxLayout()
+        self.right_frame.setLayout(right_layout)
+        right_layout.addWidget(self.terrain_painter_menu)
+        right_layout.addWidget(self.palette_selector)
 
-        self.main_splitter.addWidget(view_frame)
-        self.main_splitter.addWidget(self.right_splitter)
+        self.terrain_dock = QDockWidget("Terrain", self)
+        self.terrain_dock.setAllowedAreas(Qt.RightDockWidgetArea)
+        self.terrain_dock.setWidget(self.right_frame)
+        self.terrain_dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.terrain_dock)
 
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
-        self.layout.addWidget(self.main_splitter)
+        self.position_bar = QLabel("", self)
+        self.position_bar.setFrameStyle(QFrame.Panel | QFrame.Sunken)
+        self.position_bar.setMinimumWidth(100)
+        self.statusBar().addPermanentWidget(self.position_bar)
 
         self.check_brush()
 
@@ -144,12 +155,6 @@ class MapEditor(QDialog):
         geometry = self.settings.component_controller.get_geometry(self._type())
         if geometry:
             self.restoreGeometry(geometry)
-        state = self.settings.component_controller.get_state(self._type())
-        if isinstance(state, tuple):
-            self.main_splitter.restoreState(state[0])
-            self.right_splitter.restoreState(state[1])
-        else:
-            self.main_splitter.restoreState(state)
 
         self.view.update_view()
 
@@ -172,7 +177,8 @@ class MapEditor(QDialog):
         paint_group.addAction(self.erase_action)
         self.resize_action = QAction(QIcon(f"{icon_folder}/resize.png"), "&Resize", self, shortcut="R", triggered=self.resize_map)
 
-        self.export_as_png_action = QAction(QIcon(f"{icon_folder}/export_as_png.png"), "E&xport Current Image as PNG", self, shortcut="X", triggered=self.export_as_png)
+        self.export_as_png_action = QAction(QIcon(f"{icon_folder}/export_as_png.png"), "E&xport Current Image as PNG", self, triggered=self.export_as_png)
+        self.export_to_lt_action = QAction("Export to LT-maker", self, triggered=self.export_to_lt)
 
         self.show_gridlines_action = QAction(QIcon(f"{icon_folder}/gridlines.png"), "Show GridLines", self, triggered=self.gridline_toggle)
         self.show_gridlines_action.setCheckable(True)
@@ -182,6 +188,84 @@ class MapEditor(QDialog):
         self.add_cliff_marker_action.setCheckable(True)
         self.remove_cliff_marker_action = QAction(QIcon(f"{icon_folder}/minus.png"), "Remove Cliff Marker", self, triggered=self.remove_cliff_marker)
         self.remove_cliff_marker_action.setEnabled(False)
+
+        self.new_action = QAction("New Project...", self,
+                                  shortcut="Ctrl+N", triggered=self.new)
+        self.open_action = QAction("Open Project...", self,
+                                   shortcut="Ctrl+O", triggered=self.open)
+        self.save_action = QAction("Save Project", self,
+                                   shortcut="Ctrl+S", triggered=self.save)
+        self.save_as_action = QAction(
+            "Save Project As...", self, shortcut="Ctrl+Shift+S", triggered=self.save_as)
+        self.quit_action = QAction(
+            "&Quit", self, shortcut="Ctrl+Q", triggered=self.close)
+
+        self.about_action = QAction("About", self, triggered=self.about)
+        self.help_action = QAction("Help", self, triggered=self.display_help)
+
+        # menu actions
+        self.zoom_in_action = QAction(
+            QIcon(f"{icon_folder}/zoom_in.png"),
+            "Zoom in", self, shortcut="Ctrl++", triggered=self.view.zoom_in)
+        self.zoom_out_action = QAction(
+            QIcon(f"{icon_folder}/zoom_out.png"),
+            "Zoom out", self, shortcut="Ctrl+-", triggered=self.view.zoom_out)
+
+    def create_menus(self):
+        self.menuBar().clear()
+        file_menu = QMenu("File", self)
+        file_menu.addAction(self.new_action)
+        file_menu.addAction(self.open_action)
+        file_menu.addSeparator()
+        file_menu.addAction(self.save_action)
+        file_menu.addAction(self.save_as_action)
+        file_menu.addAction(self.export_as_png_action)
+        file_menu.addAction(self.export_to_lt_action)
+        file_menu.addSeparator()
+        file_menu.addAction(self.quit_action)
+
+        edit_menu = QMenu("Edit", self)
+        edit_menu.addAction(self.brush_action)
+        edit_menu.addAction(self.paint_action)
+        edit_menu.addAction(self.erase_action)
+        edit_menu.addAction(self.add_cliff_marker_action)
+        edit_menu.addAction(self.remove_cliff_marker_action)
+        edit_menu.addSeparator()
+        edit_menu.addAction(self.show_gridlines_action)
+        edit_menu.addAction(self.zoom_in_action)
+        edit_menu.addAction(self.zoom_out_action)
+
+        extra_menu = QMenu("Extra", self)
+        extra_menu.addAction(self.about_action)
+        extra_menu.addAction(self.help_action)
+
+        self.menuBar().addMenu(file_menu)
+        self.menuBar().addMenu(edit_menu)
+        self.menuBar().addMenu(extra_menu)
+
+    def create_toolbar(self):
+        self.toolbar = self.addToolBar("Edit")
+        self.toolbar.addAction(self.brush_action)
+        self.toolbar.addAction(self.paint_action)
+        self.toolbar.addAction(self.erase_action)
+        self.toolbar.addAction(self.resize_action)
+        self.toolbar.addAction(self.export_as_png_action)
+        self.toolbar.addAction(self.show_gridlines_action)
+        self.toolbar.setAllowedAreas(Qt.TopToolBarArea)
+        self.toolbar.setFloatable(False)
+        self.toolbar.setMovable(False)
+
+    def set_message(self, msg):
+        if msg:
+            self.statusBar().showMessage(msg)
+        else:
+            self.statusBar().clearMessage()
+
+    def set_position_bar(self, pos):
+        if pos:
+            self.position_bar.setText("Position (%d, %d)" % (pos[0], pos[1]))
+        else:
+            self.position_bar.setText("")
 
     def void_right_selection(self):
         self.view.right_selection.clear()
@@ -223,15 +307,6 @@ class MapEditor(QDialog):
             QMessageBox.warning("Warning", "Cannot remove last cliff marker!")
         self.cliff_marker_widget.toggle_remove_button()
 
-    def create_toolbar(self):
-        self.toolbar = QToolBar(self)
-        self.toolbar.addAction(self.brush_action)
-        self.toolbar.addAction(self.paint_action)
-        self.toolbar.addAction(self.erase_action)
-        self.toolbar.addAction(self.resize_action)
-        self.toolbar.addAction(self.export_as_png_action)
-        self.toolbar.addAction(self.show_gridlines_action)
-
     def set_current(self, current: MapPrefab):
         self.current = current
         self.view.set_current(current)
@@ -249,12 +324,13 @@ class MapEditor(QDialog):
         self.current.autotile_fps = val
 
     def random_seed_changed(self, val):
-        map_utils.RANDOM_SEED = val
+        map_utils.set_random_seed(val)
         print("--- Seed Changed to %d ---" % val)
         self.current.reset_all()
 
     def palette_changed(self, idx):
         palette = map_maker_palette.PALETTES[idx]
+        self.current.current_palette = palette.nid
         for terrain in DB_terrain:
             terrain.palette_path = palette.palette_path
             terrain.set_tileset()
@@ -272,34 +348,119 @@ class MapEditor(QDialog):
                 parent_dir = os.path.split(fn)[0]
                 self.settings.set_last_open_path(parent_dir)
 
+    def export_to_lt(self):
+        if self.current:
+            pass
+
     def update_view(self):
         self.view.update_view()
 
-    def accept(self):
-        self.save_geometry()
-        super().accept()
+    def maybe_save(self):
+        ret = QMessageBox.warning(self, "Map Maker", "The current map may have been modified.\n"
+                                  "Do you want to save your changes?",
+                                  QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+        if ret == QMessageBox.Save:
+            return self.save()
+        elif ret == QMessageBox.Cancel:
+            return False
+        return True
 
-    def reject(self):
-        self.restore()
-        self.save_geometry()
-        super().reject()
+    def save(self, new=False):
+        if new or not self.current_map_save_location:
+            starting_path = self.current_proj or QDir.currentPath()
+            fn, ok = QFileDialog.getSaveFileName(self, "Save Map", starting_path,
+                                                 "All Files (*)")
+            if ok:
+                if fn.endswith('.json'):
+                    self.current_map_save_location = fn
+                else:
+                    self.current_map_save_location = fn + '.json'
+            else:
+                return False
+            new = True
+
+        if new:
+            if os.path.exists(self.current_map_save_location):
+                ret = QMessageBox.warning(self, "Save Map", "The file already exists.\nDo you want to overwrite it?",
+                                          QMessageBox.Save | QMessageBox.Cancel)
+                if ret == QMessageBox.Save:
+                    pass
+                else:
+                    return False
+
+        # Actually save project
+        self.saved_data = self.current.save()
+        with open(self.current_map_save_location, 'w') as save_file:
+            json.dump(self.saved_data, save_file, indent=4)
+        return True
+
+    def save_as(self):
+        return self.save(True)
+
+    def new(self):
+        if not self.maybe_save():
+            return False
+        new_tilemap_prefab = MapPrefab('sample')
+        result = ResizeDialog.get_new_size(new_tilemap_prefab)
+        if not result:
+            return False
+        self.current_map_save_location = None
+        self.current = new_tilemap_prefab
+        self.current.reset_all()
+        self.view.set_current(self.current)
+        return result
+
+    def open(self):
+        if self.maybe_save():
+            if self.current_map_save_location:
+                starting_path = os.path.join(self.current_map_save_location, '..')
+            else:
+                starting_path = QDir.currentPath()
+            fn = QFileDialog.getOpenFileName(self, "Open Saved Map", starting_path)
+            if fn:
+                self.current_map_save_location = fn
+                self.load()
+                return True
+            else:
+                return False
+        return False
+
+    def load(self):
+        if os.path.exists(self.current_map_save_location):
+            with open(self.current_map_save_location) as load_file:
+                s_dict = json.load(load_file)
+                self.current = MapPrefab.restore(s_dict)
+            self.current.reset_all()
+            self.view.set_current(self.current)
 
     def closeEvent(self, event):
+        if self.maybe_save():
+            event.accept()
+        else:
+            event.ignore()
         self.save_geometry()
-        super().closeEvent(event)
 
-    def save(self):
-        self.saved_data = self.current.save()
+    def about(self):
+        QMessageBox.about(self, "About Lex Talionis Map Maker",
+                          "<p>This is the <b>Lex Talionis</b> Map Maker.</p>"
+                          "<p>Check out <a href='https://lt-maker.readthedocs.io/'>https://lt-maker.readthedocs.io/</a> "
+                          "for more information and helpful tutorials.</p>"
+                          "<p>This program has been freely distributed under the MIT License.</p>"
+                          "<p>Copyright 2014-2022 rainlash.</p>")
 
-    def restore(self):
-        self.current.restore_edits(self.saved_data)
+    def display_help(self):
+        QMessageBox.about(self, "Help for Lex Talionis Map Maker",
+                          "<p>Check out <a href='https://lt-maker.readthedocs.io/'>https://lt-maker.readthedocs.io/</a> "
+                          "for information and helpful tutorials.</p>"
+                          "<p>Or visit the LT community discord at <a href='https://discord.gg/dC6VWGh4sw'>https://discord.gg/dC6VWGh4sw</a> "
+                          "for answers to your questions and a helpful community..</p>")
 
     def _type(self):
         return 'map_maker'
 
     def save_geometry(self):
         self.settings.component_controller.set_geometry(self._type(), self.saveGeometry())
-        self.settings.component_controller.set_state(self._type(), (self.main_splitter.saveState(), self.right_splitter.saveState()))
+        # self.settings.component_controller.set_state(self._type(), (self.main_splitter.saveState(), self.right_frame.saveState()))
 
 # Testing
 # Run "python -m app.map_maker.map_editor" from main directory

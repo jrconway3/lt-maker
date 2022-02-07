@@ -17,6 +17,8 @@ class MapPrefab(Prefab):
 
         self.cliff_markers = [(7, 5)]  # Markers for how to point cliffs
 
+        self.current_palette = None
+
     def reset_all(self):
         for position in self.terrain_grid:
             self.terrain_grid_to_update.add(position)
@@ -146,6 +148,8 @@ class MapPrefab(Prefab):
             str_coord = "%d,%d" % (coord[0], coord[1])
             str_tile_coord = "%d,%d" % (tile_coord[0], tile_coord[1])
             s_dict['tile_grid'][str_coord] = str_tile_coord
+        s_dict['seed'] = map_utils.get_random_seed()
+        s_dict['palette'] = self.current_palette
         return s_dict
 
     @classmethod
@@ -162,16 +166,6 @@ class MapPrefab(Prefab):
             coord = tuple(int(_) for _ in str_coord.split(','))
             tile_coord = tuple(int(_) for _ in str_tile_coord.split(','))
             self.tile_grid[coord] = tile_coord
-        return self
-
-    # Used only in tilemap editor
-    def restore_edits(self, s_dict):
-        self.width, self.height = s_dict['size']
-        for str_coord, terrain_nid in s_dict['terrain_grid'].items():
-            coord = tuple(int(_) for _ in str_coord.split(','))
-            self.terrain_grid[coord] = terrain_nid
-        for str_coord, str_tile_coord in s_dict['tile_grid'].items():
-            coord = tuple(int(_) for _ in str_coord.split(','))
-            tile_coord = tuple(int(_) for _ in str_tile_coord.split(','))
-            self.tile_grid[coord] = tile_coord
+        map_utils.set_random_seed(s_dict.get('seed', 0))
+        self.current_palette = s_dict.get('palette')
         return self

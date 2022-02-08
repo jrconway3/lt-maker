@@ -51,7 +51,7 @@ class Weapon(ItemComponent):
         return True
 
     def wexp(self, playback, unit, item, target):
-        return 0
+        return 1
 
 class SiegeWeapon(ItemComponent):
     nid = 'siege_weapon'

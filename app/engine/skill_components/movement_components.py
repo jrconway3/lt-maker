@@ -104,27 +104,3 @@ class WitchWarp(SkillComponent):
                     if game.tilemap.check_bounds(point):
                         warp_spots.add(point)
         return warp_spots
-        
-class ConditionalWitchWarp(SkillComponent):
-    nid = 'conditional_witch_warp'
-    desc = 'Unit can warp to any ally meeting the condition'
-    tag = 'movement'
-
-    def witch_warp(self, unit: UnitObject) -> Set[Tuple[int, int]]:
-        from app.engine import evaluate
-        warp_spots = set()
-        for ally in game.get_all_units():
-            try:
-                if ally.team == unit.team and ally.position and game.tilemap.check_bounds(ally.position) and ally.nid == 'Arvinder':
-                    pos = ally.position
-                    up = (pos[0], pos[1] - 1)
-                    down = (pos[0], pos[1] + 1)
-                    left = (pos[0] - 1, pos[1])
-                    right = (pos[0] + 1, pos[1])
-                    for point in [up, down, left, right]:
-                        if game.tilemap.check_bounds(point):
-                            warp_spots.add(point)
-            except Exception as e:
-                print("%s: Could not evaluate condition %s" % (e, self.value))
-            
-        return warp_spots

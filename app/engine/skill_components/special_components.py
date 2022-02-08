@@ -76,6 +76,19 @@ class ManaOnHit(SkillComponent):
                 for p in mark_playbacks):  # Unit is overall attacker
             return self.value
         return 0
+        
+class ManaOnKill(SkillComponent):
+    nid = 'mana_on_kill'
+    desc = 'Gives +X mana on kill'
+    tag = 'advanced'
+
+    expose = Type.Int
+
+    def mana(self, playback, unit, item, target):
+        if target and target.is_dying:
+            return self.value
+        return 0
+
 
 class EventAfterInitiatedCombat(SkillComponent):
     nid = 'event_after_initiated_combat'

@@ -386,8 +386,7 @@ class SimpleCombat():
         if DB.constants.value('miss_wexp'):
             marks += self.get_from_full_playback('mark_miss')
         marks = [mark for mark in marks if mark[1] == unit and mark[4] == item]
-        # wexp = item_system.wexp(self.full_playback, unit, item, target)
-        wexp = 0
+        wexp = item_system.wexp(self.full_playback, unit, item, target)
 
         if self.alerts:
             func = action.do

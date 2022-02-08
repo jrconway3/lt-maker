@@ -62,6 +62,21 @@ class EmpowerHeal(SkillComponent):
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
 
+class ManaOnHit(SkillComponent):
+    nid = 'mana_on_hit'
+    desc = 'Gives +X mana on hit'
+    tag = 'advanced'
+
+    expose = Type.Int
+
+    def mana(self, playback, unit, item, target):
+        mark_playbacks = [p for p in playback if p[0] in ('mark_hit', 'mark_crit')]
+
+        if target and any(p[3] == unit or p[1] == p[3].strike_partner \
+                for p in mark_playbacks):  # Unit is overall attacker
+            return self.value
+        return 0
+        
 class ManaOnKill(SkillComponent):
     nid = 'mana_on_kill'
     desc = 'Gives +X mana on kill'
@@ -73,6 +88,7 @@ class ManaOnKill(SkillComponent):
         if target and target.is_dying:
             return self.value
         return 0
+
 
 class EventAfterInitiatedCombat(SkillComponent):
     nid = 'event_after_initiated_combat'

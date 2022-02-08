@@ -567,7 +567,7 @@ class GenericUnitDialog(Dialog):
         other_nids = [d.nid for d in self._data.values()
                       if d is not self.current]
         other_nids += DB.units.keys()  # Can't use these either
-        if self.current.nid in other_nids:
+        if not self.current.nid or self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning',
                                 'Unit ID %s already in use' % self.current.nid)
             new_nid = str_utils.get_next_generic_nid("101", other_nids)
@@ -581,7 +581,7 @@ class GenericUnitDialog(Dialog):
             unit_group.swap(old_nid, self.current.nid)
         # Swap travelers
         for unit in self.window.current_level.units:
-            if unit.starting_traveler == old_nid:
+            if old_nid and unit.starting_traveler == old_nid:
                 unit.starting_traveler = self.current.nid
 
     def team_changed(self, val):

@@ -73,8 +73,7 @@ class ManaOnHit(SkillComponent):
     def mana(self, playback, unit, item, target):
         mark_playbacks = [p for p in playback if p[0] in ('mark_hit', 'mark_crit')]
 
-        if target and any(p[3] == unit or p[1] == p[3].strike_partner \
-                for p in mark_playbacks):  # Unit is overall attacker
+        if target and any(p[2] == target for p in mark_playbacks):
             return self.value
         return 0
         

@@ -115,8 +115,9 @@ class StatusOnHit(ItemComponent):
         
 class StatusesOnHit(ItemComponent):
     nid = 'statuses_on_hit'
-    desc = "Item gives statuses to target when it hits, do not use for enemy items"
+    desc = "Item gives statuses to target when it hits"
     tag = 'special'
+    author = 'BigMood'
 
     expose = (Type.List, Type.Skill)  # Nid
 

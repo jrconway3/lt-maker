@@ -391,6 +391,7 @@ class AllBrave(SkillComponent):
     nid = 'all_brave'
     desc = "All items multi-attack"
     tag = 'combat2'
+    author = 'BigMood'
 
     def dynamic_multiattacks(self, unit, item, target, mode, attack_info, base_value):
         return 1

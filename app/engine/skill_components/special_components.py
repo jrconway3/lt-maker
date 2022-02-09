@@ -66,6 +66,7 @@ class ManaOnHit(SkillComponent):
     nid = 'mana_on_hit'
     desc = 'Gives +X mana on hit'
     tag = 'advanced'
+    author = 'BigMood'
 
     expose = Type.Int
 

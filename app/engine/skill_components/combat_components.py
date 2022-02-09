@@ -212,8 +212,9 @@ class PCCStatic(SkillComponent):
     nid = 'pcc_static'
     desc = "Multiplies crit chance by a fixed value on second strike"
     tag = 'combat'
+    author = 'BigMood'
 
-    expose = Type.Int
+    expose = Type.Float
     value = 1
 
     def crit_multiplier(self, unit, item, target, mode, attack_info, base_value):

@@ -233,53 +233,61 @@ def is_present(palette: QuadPaletteData, palette_templates: dict) -> MountainQua
             return mountain
     return None
 
+def calc_distance(palette1, palette2) -> float:
+    directions = ('left', 'right', 'up', 'down')
+    return max([hellinger_distance(palette1.rules[direction], palette2.rules[direction]) for direction in directions])
+
 def generate_clusters(mountain_palettes: dict):
     """
     Attempts to simplify the ~195 tiles by clustering similar ones together
     This should speed up the mountain generation in later steps
     """
     directions = ('left', 'right', 'up', 'down')
-    similar_pairs = []
-    distances = []
+    # distance_dict = {}
+    pairs = {}
     for coord1, palette1 in mountain_palettes.items():
+        # distance_dict[coord1] = {}
         for coord2, palette2 in mountain_palettes.items():
-            # if coord1 == coord2:
-            #     continue
-            dists = [hellinger_distance(palette1.rules[direction], palette2.rules[direction]) for direction in directions]
-            # 0.5 distance
-            # 169 -> 156
-            # 0.6 distance
-            # 169 -> 147
-            # 0.7 distance
-            # 169 -> 136
-            # 0.8 distance
-            # 169 -> 114
+            if coord1 == coord2:
+                continue
             # 0.9 distance seems to work very well
             # 169 -> 73 
-            if all(dist < 0.9 for dist in dists):
-                similar_pairs.append((coord1, coord2))
-                distances.append(dists)
-    # Do some debug printing
-    print("--- Print Matches ---")
-    for idx in range(len(similar_pairs)):
-        c1, c2 = similar_pairs[idx]
-        if c1 != c2:
-            dist = distances[idx]
-            print(c1, c2, dist)
-    # Now put into tile clusters
+            dist = calc_distance(palette1, palette2)
+            # distance_dict[coord1][coord2] = dist
+            pairs[(coord1, coord2)] = dist
+    # Now cluster together
+    sorted_pairs = sorted(pairs.items(), key=lambda x: x[1])
     clusters = []
-    for c1, c2 in similar_pairs:
-        for cluster in clusters:
-            if c1 in cluster.coords or c2 in cluster.coords:
-                # Add pair to cluster
-                cluster.coords.add(c1)
-                cluster.coords.add(c2)
-                break
-        else:
-            # Create new cluster
+    # Now iterate through the pairs, assigning them to clusters
+    distance_limit = 0.5
+    for pair in sorted_pairs:
+        coords, dist = pair
+        coord1, coord2 = coords
+        added_flag = False
+        if dist <= distance_limit:  # Only bother with this if we have a distance less than the limit
+            for cluster in clusters:
+                if coord1 in cluster.coords or coord2 in cluster.coords:
+                    if coord1 not in cluster.coords:
+                        for coord in cluster.coords:
+                            subdist = calc_distance(mountain_palettes[coord1], mountain_palettes[coord])
+                            if subdist > distance_limit:
+                                break
+                        else:  # If it doesn't break
+                            added_flag = True
+                            cluster.coords.add(coord1)
+                    elif coord2 not in cluster.coords:
+                        for coord in cluster.coords:
+                            subdist = calc_distance(mountain_palettes[coord2], mountain_palettes[coord])
+                            if subdist > distance_limit:
+                                break
+                        else:  # If it doesn't break
+                            added_flag = True
+                            cluster.coords.add(coord2)
+        # New cluster
+        if not added_flag:  # Just a single pair...
             new_cluster = TileCluster(len(clusters))
-            new_cluster.coords.add(c1)
-            new_cluster.coords.add(c2)
+            new_cluster.coords.add(coord1)
+            new_cluster.coords.add(coord2)
             clusters.append(new_cluster)
     print("--- Clusters ---")
     for cluster in clusters:

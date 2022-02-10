@@ -109,6 +109,23 @@ def similar(p1: QuadPaletteData, p2: MountainQuadPaletteData, must_match=4) -> b
     num_match = sum((topleft_similar, topright_similar, bottomleft_similar, bottomright_similar))
     return num_match >= must_match
 
+class TileCluster:
+    def __init__(self, nid):
+        self.nid = nid
+        self.coords = set()
+        self.secondary_rules = {}
+        self.primary_rules = {}
+        self.primary_rules['left'] = Counter()
+        self.primary_rules['right'] = Counter()
+        self.primary_rules['up'] = Counter()
+        self.primary_rules['down'] = Counter()
+
+    def save(self):
+        s_dict = {}
+        s_dict['nid'] = self.nid
+        s_dict['secondary_rules'] = self.secondary_rules
+        s_dict['primary_rules'] = self.primary_rules
+
 def get_mountain_coords(fn) -> set:
     if fn.endswith('main.png'):
         topleft = {(0, 11), (0, 12), (1, 11), (1, 12), (1, 12), (2, 12), (3, 11), (3, 12)}
@@ -204,6 +221,66 @@ def is_present(palette: QuadPaletteData, palette_templates: dict) -> MountainQua
             return mountain
     return None
 
+def generate_clusters(mountain_palettes: dict):
+    """
+    Attempts to simplify the ~195 tiles by clustering similar ones together
+    This should speed up the mountain generation in later steps
+    """
+    directions = ('left', 'right', 'up', 'down')
+    similar_pairs = []
+    for coord1, palette1 in mountain_palettes.items():
+        for coord2, palette2 in mountain_palettes.items():
+            if coord1 == coord2:
+                continue
+            dist1 = 0
+            dist2 = 0
+            dist3 = 0
+            for direction in directions:
+                dist1 += jsd_distance(palette1.rules[direction], palette2.rules[direction])
+                dist2 += bhattacharyya_distance(palette1.rules[direction], palette2.rules[direction])
+                dist3 += hellinger_distance(palette1.rules[direction], palette2.rules[direction])
+            if dist1 < 0.1 or dist2 < 0.1 or dist3 < 0.1:
+                similar_pairs.append((coord1, coord2))
+    # Do some debug printing
+    for c1, c2 in similar_pairs:
+        print(c1, c2)
+    # Now put into tile clusters
+    clusters = []
+    for c1, c2 in similar_pairs:
+        for cluster in clusters:
+            if c1 in cluster.coords or c2 in cluster.coords:
+                # Add pair to cluster
+                cluster.coords.add(c1)
+                cluster.coords.add(c2)
+                break
+        else:
+            # Create new cluster
+            new_cluster = TileCluster(len(clusters))
+            new_cluster.coords.add(c1)
+            new_cluster.coords.add(c2)
+            clusters.append(new_cluster)
+    for cluster in clusters:
+        print(cluster.nid, cluster.coords)
+    # Now populate clusters with their individual rules
+    for cluster in clusters:
+        for coord in cluster.coords:
+            rules = mountain_palettes[coord]
+            cluster.secondary_rules[coord] = rules
+    # Now connect clusters with one another using the final rules
+    for cluster in clusters:
+        for coord, rules in cluster.secondary_rules.items():
+            for direction in directions:
+                for other_coord, incidence in rules[direction].items():
+                    for other_cluster in clusters:
+                        if other_coord in other_cluster.coords:
+                            cluster.primary_rules[direction][other_cluster.nid] += incidence
+                            break
+    # Should now be connected
+    for cluster in clusters:
+        for direction in directions:
+            print(cluster.nid, cluster.primary_rules[direction])
+    return clusters
+
 if __name__ == '__main__':
     import os, sys, glob
     try:
@@ -222,31 +299,35 @@ if __name__ == '__main__':
     mountain_data_dir = glob.glob(home_dir + '/Pictures/Fire Emblem/MapReferences/custom_mountain_data/*.png')
     # Stores rules in the palette data itself
     assign_rules(mountain_palettes, mountain_data_dir)
+    # Generates clusters
+    clusters = generate_clusters(mountain_clusters)
 
-    print("--- Final Rules ---")
-    final_rules = {coord: mountain_palette.rules for coord, mountain_palette in mountain_palettes.items()}
-    to_watch = []
-    for coord, rules in sorted(final_rules.items()):
-        print("---", coord, "---")
-        if rules['left']:
-            print('left', rules['left'])
-        if rules['right']:
-            print('right', rules['right'])
-        if rules['up']:
-            print('up', rules['up'])
-        if rules['down']:
-            print('down', rules['down'])
-        if None in rules['left'] and rules['left'][None] < (0.1 * sum(rules['left'].values())):
-            to_watch.append((coord, 'left'))
-        if None in rules['right'] and rules['right'][None] < (0.1 * sum(rules['right'].values())):
-            to_watch.append((coord, 'right'))
-        if None in rules['up'] and rules['up'][None] < (0.1 * sum(rules['up'].values())):
-            to_watch.append((coord, 'up'))
-        if None in rules['down'] and rules['down'][None] < (0.1 * sum(rules['down'].values())):
-            to_watch.append((coord, 'down'))
-    print("--- Watch for: ---")
-    print(to_watch)
+    save_data = [c.save() for c in clusters]
+
+    # print("--- Final Rules ---")
+    # final_rules = {coord: mountain_palette.rules for coord, mountain_palette in mountain_palettes.items()}
+    # to_watch = []
+    # for coord, rules in sorted(final_rules.items()):
+    #     print("---", coord, "---")
+    #     if rules['left']:
+    #         print('left', rules['left'])
+    #     if rules['right']:
+    #         print('right', rules['right'])
+    #     if rules['up']:
+    #         print('up', rules['up'])
+    #     if rules['down']:
+    #         print('down', rules['down'])
+    #     if None in rules['left'] and rules['left'][None] < (0.1 * sum(rules['left'].values())):
+    #         to_watch.append((coord, 'left'))
+    #     if None in rules['right'] and rules['right'][None] < (0.1 * sum(rules['right'].values())):
+    #         to_watch.append((coord, 'right'))
+    #     if None in rules['up'] and rules['up'][None] < (0.1 * sum(rules['up'].values())):
+    #         to_watch.append((coord, 'up'))
+    #     if None in rules['down'] and rules['down'][None] < (0.1 * sum(rules['down'].values())):
+    #         to_watch.append((coord, 'down'))
+    # print("--- Watch for: ---")
+    # print(to_watch)
 
     data_loc = 'app/map_maker/mountain_data.p'
     with open(data_loc, 'wb') as fp:
-        pickle.dump(final_rules, fp)
+        pickle.dump(save_data, fp)

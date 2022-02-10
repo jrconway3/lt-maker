@@ -63,6 +63,17 @@ def hellinger_distance(p: dict, q: dict) -> float:
     bc = min(bhattacharyya_coefficient(p, q), 1)
     return math.sqrt(1 - bc)
 
+def simple_distance(p: dict, q: dict) -> float:
+    """
+    Calculates a simple distance between the two discrete probability distributions.
+    Just determines the fraction of elements that are shared between the probability distributions.
+    Distance values range from 0 to 1.
+    """
+    shared = len(p.keys() & q.keys())
+    p_shared = shared / len(p.keys())
+    q_shared = shared / len(q.keys())
+    return 1 - max(p_shared, q_shared)
+
 class QuadPaletteData():
     def __init__(self, im: QImage):
         topleft_rect = (0, 0, TILEWIDTH//2, TILEHEIGHT//2)

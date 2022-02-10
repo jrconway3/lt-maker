@@ -53,14 +53,15 @@ def bhattacharyya_distance(p: dict, q: dict) -> float:
     Calculates the Bhattacharyya distance of two discrete probability distributions.
     Distance values range from 0 to positive infinity.
     """
-    return -math.ln(bhattacharyya_coefficient(p, q))
+    return -math.log(bhattacharyya_coefficient(p, q))
 
 def hellinger_distance(p: dict, q: dict) -> float:
     """
     Calculates the Hellinger distance of two discrete probability distributions.
     Distance values range from 0 to 1.
     """
-    return math.sqrt(1 - bhattacharyya_coefficient(p, q))
+    bc = min(bhattacharyya_coefficient(p, q), 1)
+    return math.sqrt(1 - bc)
 
 class QuadPaletteData():
     def __init__(self, im: QImage):
@@ -228,22 +229,32 @@ def generate_clusters(mountain_palettes: dict):
     """
     directions = ('left', 'right', 'up', 'down')
     similar_pairs = []
+    distances = []
     for coord1, palette1 in mountain_palettes.items():
         for coord2, palette2 in mountain_palettes.items():
-            if coord1 == coord2:
-                continue
-            dist1 = 0
-            dist2 = 0
-            dist3 = 0
-            for direction in directions:
-                dist1 += jsd_distance(palette1.rules[direction], palette2.rules[direction])
-                dist2 += bhattacharyya_distance(palette1.rules[direction], palette2.rules[direction])
-                dist3 += hellinger_distance(palette1.rules[direction], palette2.rules[direction])
-            if dist1 < 0.1 or dist2 < 0.1 or dist3 < 0.1:
+            # if coord1 == coord2:
+            #     continue
+            dists = [hellinger_distance(palette1.rules[direction], palette2.rules[direction]) for direction in directions]
+            # 0.5 distance
+            # 169 -> 156
+            # 0.6 distance
+            # 169 -> 147
+            # 0.7 distance
+            # 169 -> 136
+            # 0.8 distance
+            # 169 -> 114
+            # 0.9 distance seems to work very well
+            # 169 -> 73 
+            if all(dist < 0.9 for dist in dists):
                 similar_pairs.append((coord1, coord2))
+                distances.append(dists)
     # Do some debug printing
-    for c1, c2 in similar_pairs:
-        print(c1, c2)
+    print("--- Print Matches ---")
+    for idx in range(len(similar_pairs)):
+        c1, c2 = similar_pairs[idx]
+        if c1 != c2:
+            dist = distances[idx]
+            print(c1, c2, dist)
     # Now put into tile clusters
     clusters = []
     for c1, c2 in similar_pairs:
@@ -259,13 +270,14 @@ def generate_clusters(mountain_palettes: dict):
             new_cluster.coords.add(c1)
             new_cluster.coords.add(c2)
             clusters.append(new_cluster)
+    print("--- Clusters ---")
     for cluster in clusters:
-        print(cluster.nid, cluster.coords)
+        print(cluster.nid, len(cluster.coords), cluster.coords)
     # Now populate clusters with their individual rules
     for cluster in clusters:
         for coord in cluster.coords:
-            rules = mountain_palettes[coord]
-            cluster.secondary_rules[coord] = rules
+            palette = mountain_palettes[coord]
+            cluster.secondary_rules[coord] = palette.rules
     # Now connect clusters with one another using the final rules
     for cluster in clusters:
         for coord, rules in cluster.secondary_rules.items():
@@ -278,7 +290,7 @@ def generate_clusters(mountain_palettes: dict):
     # Should now be connected
     for cluster in clusters:
         for direction in directions:
-            print(cluster.nid, cluster.primary_rules[direction])
+            print(cluster.nid, direction, cluster.primary_rules[direction])
     return clusters
 
 if __name__ == '__main__':
@@ -300,7 +312,7 @@ if __name__ == '__main__':
     # Stores rules in the palette data itself
     assign_rules(mountain_palettes, mountain_data_dir)
     # Generates clusters
-    clusters = generate_clusters(mountain_clusters)
+    clusters = generate_clusters(mountain_palettes)
 
     save_data = [c.save() for c in clusters]
 

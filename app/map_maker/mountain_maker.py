@@ -237,58 +237,46 @@ def calc_distance(palette1, palette2) -> float:
     directions = ('left', 'right', 'up', 'down')
     return max([hellinger_distance(palette1.rules[direction], palette2.rules[direction]) for direction in directions])
 
+def get_closest_clusters(mountain_palettes: dict, clusters: list) -> tuple:
+    min_distance: float = 1
+    min_cluster1: TileCluster, min_cluster2: TileCluster = None, None
+    for cluster1, cluster2 in itertools.combinations(clusters, 2):
+        max_distance: float = 0
+        for coord1 in cluster1.coords:
+            for coord2 in cluster2.coords:
+                dist = calc_distance(mountain_palettes[coord1], mountain_palettes[coord2])
+                if dist > max_distance:
+                    max_distance = dist
+        if max_distance < min_distance:
+            min_distance = max_distance
+            min_cluster1 = cluster1
+            min_cluster2 = cluster2
+    # Rearrange order if necessary
+    if min_cluster1.nid > min_cluster2.nid:
+        min_cluster1, min_cluster2 = min_cluster2, min_cluster1  # swap
+    return min_cluster1, min_cluster2, min_distance
+
 def generate_clusters(mountain_palettes: dict):
     """
     Attempts to simplify the ~195 tiles by clustering similar ones together
     This should speed up the mountain generation in later steps
     """
     directions = ('left', 'right', 'up', 'down')
-    # distance_dict = {}
-    pairs = {}
-    for coord1, palette1 in mountain_palettes.items():
-        # distance_dict[coord1] = {}
-        for coord2, palette2 in mountain_palettes.items():
-            if coord1 == coord2:
-                continue
-            # 0.9 distance seems to work very well
-            # 169 -> 73 
-            dist = calc_distance(palette1, palette2)
-            # distance_dict[coord1][coord2] = dist
-            pairs[(coord1, coord2)] = dist
-    # Now cluster together
-    sorted_pairs = sorted(pairs.items(), key=lambda x: x[1])
+    # create initial clusters
     clusters = []
-    # Now iterate through the pairs, assigning them to clusters
-    distance_limit = 0.5
-    for pair in sorted_pairs:
-        coords, dist = pair
-        coord1, coord2 = coords
-        added_flag = False
-        if dist <= distance_limit:  # Only bother with this if we have a distance less than the limit
-            for cluster in clusters:
-                if coord1 in cluster.coords or coord2 in cluster.coords:
-                    if coord1 not in cluster.coords:
-                        for coord in cluster.coords:
-                            subdist = calc_distance(mountain_palettes[coord1], mountain_palettes[coord])
-                            if subdist > distance_limit:
-                                break
-                        else:  # If it doesn't break
-                            added_flag = True
-                            cluster.coords.add(coord1)
-                    elif coord2 not in cluster.coords:
-                        for coord in cluster.coords:
-                            subdist = calc_distance(mountain_palettes[coord2], mountain_palettes[coord])
-                            if subdist > distance_limit:
-                                break
-                        else:  # If it doesn't break
-                            added_flag = True
-                            cluster.coords.add(coord2)
-        # New cluster
-        if not added_flag:  # Just a single pair...
-            new_cluster = TileCluster(len(clusters))
-            new_cluster.coords.add(coord1)
-            new_cluster.coords.add(coord2)
-            clusters.append(new_cluster)
+    for coord in mountain_palettes.keys():
+        new_cluster = TileCluster(len(clusters))
+        new_cluster.coords.add(coord)
+        clusters.append(new_cluster)
+
+    # Now repeatedly determine which cluster are closest, and combine them
+    while True:
+        cluster1, cluster2, distance = get_closest_clusters(mountain_palettes, clusters)
+        cluster1.coords |= cluster2.coords
+        clusters.remove(cluster2)
+        if distance > 0.5:
+            break
+
     print("--- Clusters ---")
     for cluster in clusters:
         print(cluster.nid, len(cluster.coords), cluster.coords)

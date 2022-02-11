@@ -286,6 +286,17 @@ class AlgorithmXThread(QThread):
              ((south_edge and None in rules['down']) or (not south_edge and self.noneless_rules[coord]['down'])) and
              ((east_edge and None in rules['right']) or (not east_edge and self.noneless_rules[coord]['right'])) and
              ((west_edge and None in rules['left']) or (not west_edge and self.noneless_rules[coord]['left']))]
+        # If in the middle, don't include objects with index 15
+        orig_valid_coords = valid_coords[:]
+        if not north_edge and not south_edge and not east_edge and not west_edge:
+            valid_coords = \
+                [coord for coord in valid_coords if 
+                 None not in self.mountain_data[coord]['up'] and 
+                 None not in self.mountain_data[coord]['down'] and 
+                 None not in self.mountain_data[coord]['left'] and 
+                 None not in self.mountain_data[coord]['right']]
+        if not valid_coords:
+            valid_coords = orig_valid_coords
         return valid_coords
 
     def get_cardinal_terrain(self, pos: tuple) -> tuple:

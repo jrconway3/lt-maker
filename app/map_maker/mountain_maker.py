@@ -1,4 +1,3 @@
-import math
 from collections import Counter
 
 from PyQt5.QtGui import QImage
@@ -6,37 +5,6 @@ from PyQt5.QtGui import QImage
 from app.editor.tile_editor.autotiles import PaletteData
 
 from app.constants import TILEWIDTH, TILEHEIGHT
-
-def bhattacharyya_coefficient(p: dict, q: dict) -> float:
-    domain = p.keys() | q.keys()
-    total = 0
-    p_sum = sum(p.values())
-    q_sum = sum(q.values())
-    for x in domain:
-        if x in p and x in q:  # Only works if the chosen value can be found in both
-            p_prob = p[x] / p_sum
-            q_prob = q[x] / q_sum
-            total += math.sqrt(p_prob * q_prob)
-    return total
-
-def hellinger_distance(p: dict, q: dict) -> float:
-    """
-    Calculates the Hellinger distance of two discrete probability distributions.
-    Distance values range from 0 to 1.
-    """
-    bc = min(bhattacharyya_coefficient(p, q), 1)
-    return math.sqrt(1 - bc)
-
-def simple_distance(p: dict, q: dict) -> float:
-    """
-    Calculates a simple distance between the two discrete probability distributions.
-    Just determines the fraction of elements that are shared between the probability distributions.
-    Distance values range from 0 to 1.
-    """
-    shared = len(p.keys() & q.keys())
-    p_shared = shared / len(p.keys())
-    q_shared = shared / len(q.keys())
-    return 1 - max(p_shared, q_shared)
 
 class QuadPaletteData():
     def __init__(self, im: QImage):
@@ -84,23 +52,6 @@ def similar(p1: QuadPaletteData, p2: MountainQuadPaletteData, must_match=4) -> b
     bottomright_similar = similar_fast(p1.bottomright.palette, p2.bottomright.palette) == 0
     num_match = sum((topleft_similar, topright_similar, bottomleft_similar, bottomright_similar))
     return num_match >= must_match
-
-class TileCluster:
-    def __init__(self, nid):
-        self.nid = nid
-        self.coords = set()
-        self.secondary_rules = {}
-        self.primary_rules = {}
-        self.primary_rules['left'] = Counter()
-        self.primary_rules['right'] = Counter()
-        self.primary_rules['up'] = Counter()
-        self.primary_rules['down'] = Counter()
-
-    def save(self):
-        s_dict = {}
-        s_dict['nid'] = self.nid
-        s_dict['secondary_rules'] = self.secondary_rules
-        s_dict['primary_rules'] = self.primary_rules
 
 def get_mountain_coords(fn) -> set:
     if fn.endswith('main.png'):
@@ -197,72 +148,25 @@ def is_present(palette: QuadPaletteData, palette_templates: dict) -> MountainQua
             return mountain
     return None
 
-def calc_distance(palette1, palette2) -> float:
-    directions = ('left', 'right', 'up', 'down')
-    return max([hellinger_distance(palette1.rules[direction], palette2.rules[direction]) for direction in directions])
-
-def get_closest_clusters(mountain_palettes: dict, clusters: list) -> tuple:
-    min_distance: float = 1
-    min_cluster1: TileCluster, min_cluster2: TileCluster = None, None
-    for cluster1, cluster2 in itertools.combinations(clusters, 2):
-        max_distance: float = 0
-        for coord1 in cluster1.coords:
-            for coord2 in cluster2.coords:
-                dist = calc_distance(mountain_palettes[coord1], mountain_palettes[coord2])
-                if dist > max_distance:
-                    max_distance = dist
-        if max_distance < min_distance:
-            min_distance = max_distance
-            min_cluster1 = cluster1
-            min_cluster2 = cluster2
-    # Rearrange order if necessary
-    if min_cluster1.nid > min_cluster2.nid:
-        min_cluster1, min_cluster2 = min_cluster2, min_cluster1  # swap
-    return min_cluster1, min_cluster2, min_distance
-
-def generate_clusters(mountain_palettes: dict):
-    """
-    Attempts to simplify the ~195 tiles by clustering similar ones together
-    This should speed up the mountain generation in later steps
-    """
-    directions = ('left', 'right', 'up', 'down')
-    # create initial clusters
-    clusters = []
-    for coord in mountain_palettes.keys():
-        new_cluster = TileCluster(len(clusters))
-        new_cluster.coords.add(coord)
-        clusters.append(new_cluster)
-
-    # Now repeatedly determine which cluster are closest, and combine them
-    while True:
-        cluster1, cluster2, distance = get_closest_clusters(mountain_palettes, clusters)
-        cluster1.coords |= cluster2.coords
-        clusters.remove(cluster2)
-        if distance > 0.5:
-            break
-
-    print("--- Clusters ---")
-    for cluster in clusters:
-        print(cluster.nid, len(cluster.coords), cluster.coords)
-    # Now populate clusters with their individual rules
-    for cluster in clusters:
-        for coord in cluster.coords:
-            palette = mountain_palettes[coord]
-            cluster.secondary_rules[coord] = palette.rules
-    # Now connect clusters with one another using the final rules
-    for cluster in clusters:
-        for coord, rules in cluster.secondary_rules.items():
-            for direction in directions:
-                for other_coord, incidence in rules[direction].items():
-                    for other_cluster in clusters:
-                        if other_coord in other_cluster.coords:
-                            cluster.primary_rules[direction][other_cluster.nid] += incidence
-                            break
-    # Should now be connected
-    for cluster in clusters:
-        for direction in directions:
-            print(cluster.nid, direction, cluster.primary_rules[direction])
-    return clusters
+def remove_useless_palettes(mountain_palettes: dict):
+    # Remove useless palettes
+    useless_limit = 8
+    for coord in list(mountain_palettes.keys()):
+        palette = mountain_palettes[coord]
+        # Only bother with the ones that actually have rules
+        if sum(palette.rules['left'].values()) >= useless_limit or \
+                sum(palette.rules['right'].values()) >= useless_limit or \
+                sum(palette.rules['up'].values()) >= useless_limit or \
+                sum(palette.rules['down'].values()) >= useless_limit:
+            pass
+        else:
+            del mountain_palettes[coord]
+    # Now delete connections
+    remaining_coords = mountain_palettes.keys()
+    for palette in mountain_palettes.values():
+        for direction in ('left', 'right', 'up', 'down'):
+            palette.rules[direction] = {k: v for k, v in palette.rules[direction].items() if k in remaining_coords or k is None}
+    return mountain_palettes
 
 if __name__ == '__main__':
     import os, sys, glob
@@ -282,13 +186,10 @@ if __name__ == '__main__':
     mountain_data_dir = glob.glob(home_dir + '/Pictures/Fire Emblem/MapReferences/custom_mountain_data/*.png')
     # Stores rules in the palette data itself
     assign_rules(mountain_palettes, mountain_data_dir)
-    # Generates clusters
-    clusters = generate_clusters(mountain_palettes)
+    mountain_palettes = remove_useless_palettes(mountain_palettes)
 
-    save_data = [c.save() for c in clusters]
-
-    # print("--- Final Rules ---")
-    # final_rules = {coord: mountain_palette.rules for coord, mountain_palette in mountain_palettes.items()}
+    print("--- Final Rules ---")
+    final_rules = {coord: mountain_palette.rules for coord, mountain_palette in mountain_palettes.items()}
     # to_watch = []
     # for coord, rules in sorted(final_rules.items()):
     #     print("---", coord, "---")
@@ -313,4 +214,4 @@ if __name__ == '__main__':
 
     data_loc = 'app/map_maker/mountain_data.p'
     with open(data_loc, 'wb') as fp:
-        pickle.dump(save_data, fp)
+        pickle.dump(final_rules, fp)

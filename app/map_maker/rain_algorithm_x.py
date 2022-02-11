@@ -107,7 +107,8 @@ class RainAlgorithmX:
 
     def solve(self) -> bool:
         counter = 0
-        while counter < 99999:
+        limit = int(1e6)
+        while counter < limit:
             counter += 1
             if self.header.right == self.header:
                 # Solution is found
@@ -116,9 +117,17 @@ class RainAlgorithmX:
             if not output:
                 # No valid solutions at all
                 return False
-        if counter >= 99999:
+        if counter >= limit:
             print("Infinite Loop detected!")
         return True
+
+    def subsolve(self):
+        if self.header.right == self.header:
+            return True
+        output = self.process()
+        if not output:
+            return False
+        return None
 
     def revert(self):
         # No solutions at this level

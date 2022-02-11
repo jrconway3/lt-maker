@@ -60,14 +60,15 @@ class MountainTerrain(Terrain):
         self.organization.clear()
         groupings: list = [] # of sets
         counter: int = 0
-        while positions and counter < 99999:
+        limit: int = int(1e6)
+        while positions and counter < limit:
             pos = positions.pop()
             near_positions: set = flood_fill(tilemap, pos)
             groupings.append(near_positions)
             for near_pos in near_positions:
                 positions.discard(near_pos)
             counter += 1
-        if counter >= 99999:
+        if counter >= limit:
             raise RuntimeError("Unexpected infinite loop in mountain flood_fill")
 
         while groupings:

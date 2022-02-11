@@ -270,21 +270,34 @@ class AlgorithmXThread(QThread):
             return
 
         print("Setup 1 complete", id(self), len(rows), len(columns))
-        d = rain_algorithm_x.RainAlgorithmX(columns, row_names, rows, self.to_process[0], get_random_seed())
+        solver = rain_algorithm_x.RainAlgorithmX(columns, row_names, rows, self.to_process[0], get_random_seed())
         print("Setup 2 complete", id(self))
 
         time.sleep(0.001)
         if self.broke_out:
             return
 
-        output = d.solve()
-        if output:
-            for pos, coord in d.get_solution():
-                self.organization[pos] = coord
-            if not self.broke_out:
-                self.did_complete = True
-        else:
-            print("No valid solution!")
+        # Now solve
+        counter = 0
+        limit = int(1e6)
+        while counter < limit:
+            time.sleep(0)
+            if self.broke_out:
+                return
+            counter += 1
+            output = solver.subsolve()
+            if output is True:
+                for pos, coord in solver.get_solution():
+                    self.organization[pos] = coord
+                if not self.broke_out:
+                    self.did_complete = True
+                return True
+            elif output is False:
+                print("No valid solution!")
+                return False  # No valid solutions
+        if counter >= limit:
+            print("Infinite Loop detected!")
+        return True
 
     def find_valid_coords(self, pos) -> list:
         north, east, south, west = self.get_cardinal_terrain(pos)

@@ -6,6 +6,8 @@ from app.editor.tile_editor.autotiles import PaletteData
 
 from app.constants import TILEWIDTH, TILEHEIGHT
 
+DIRECTIONS = ('left', 'right', 'up', 'down')
+
 class QuadPaletteData():
     def __init__(self, im: QImage):
         topleft_rect = (0, 0, TILEWIDTH//2, TILEHEIGHT//2)
@@ -22,10 +24,8 @@ class MountainQuadPaletteData(QuadPaletteData):
         super().__init__(im)
         self.coord = coord
         self.rules = {}
-        self.rules['left'] = Counter()
-        self.rules['right'] = Counter()
-        self.rules['up'] = Counter()
-        self.rules['down'] = Counter()
+        for direction in DIRECTIONS:
+            self.rules[direction] = Counter()
 
 def similar(p1: QuadPaletteData, p2: MountainQuadPaletteData, must_match=4) -> bool:
 
@@ -164,8 +164,15 @@ def remove_useless_palettes(mountain_palettes: dict):
     # Now delete connections
     remaining_coords = mountain_palettes.keys()
     for palette in mountain_palettes.values():
-        for direction in ('left', 'right', 'up', 'down'):
+        for direction in DIRECTIONS:
             palette.rules[direction] = {k: v for k, v in palette.rules[direction].items() if k in remaining_coords or k is None}
+    return mountain_palettes
+
+def remove_adjacent_palettes(mountain_palettes: dict):
+    # Make it so that no coord can connect to itself
+    for coord, palette in mountain_palettes.items():
+        for direction in DIRECTIONS:
+            palette.rules[direction] = {k: v for k, v in palette.rules[direction].items() if k != coord}
     return mountain_palettes
 
 if __name__ == '__main__':
@@ -186,6 +193,7 @@ if __name__ == '__main__':
     mountain_data_dir = glob.glob(home_dir + '/Pictures/Fire Emblem/MapReferences/custom_mountain_data/*.png')
     # Stores rules in the palette data itself
     assign_rules(mountain_palettes, mountain_data_dir)
+    mountain_palettes = remove_adjacent_palettes(mountain_palettes)
     mountain_palettes = remove_useless_palettes(mountain_palettes)
 
     print("--- Final Rules ---")

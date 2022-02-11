@@ -27,6 +27,17 @@ def hellinger_distance(p: dict, q: dict) -> float:
     bc = min(bhattacharyya_coefficient(p, q), 1)
     return math.sqrt(1 - bc)
 
+def simple_distance(p: dict, q: dict) -> float:
+    """
+    Calculates a simple distance between the two discrete probability distributions.
+    Just determines the fraction of elements that are shared between the probability distributions.
+    Distance values range from 0 to 1.
+    """
+    shared = len(p.keys() & q.keys())
+    p_shared = shared / len(p.keys())
+    q_shared = shared / len(q.keys())
+    return 1 - max(p_shared, q_shared)
+
 class QuadPaletteData():
     def __init__(self, im: QImage):
         topleft_rect = (0, 0, TILEWIDTH//2, TILEHEIGHT//2)
@@ -186,54 +197,50 @@ def is_present(palette: QuadPaletteData, palette_templates: dict) -> MountainQua
             return mountain
     return None
 
+def calc_distance(palette1, palette2) -> float:
+    directions = ('left', 'right', 'up', 'down')
+    return max([hellinger_distance(palette1.rules[direction], palette2.rules[direction]) for direction in directions])
+
+def get_closest_clusters(mountain_palettes: dict, clusters: list) -> tuple:
+    min_distance: float = 1
+    min_cluster1: TileCluster, min_cluster2: TileCluster = None, None
+    for cluster1, cluster2 in itertools.combinations(clusters, 2):
+        max_distance: float = 0
+        for coord1 in cluster1.coords:
+            for coord2 in cluster2.coords:
+                dist = calc_distance(mountain_palettes[coord1], mountain_palettes[coord2])
+                if dist > max_distance:
+                    max_distance = dist
+        if max_distance < min_distance:
+            min_distance = max_distance
+            min_cluster1 = cluster1
+            min_cluster2 = cluster2
+    # Rearrange order if necessary
+    if min_cluster1.nid > min_cluster2.nid:
+        min_cluster1, min_cluster2 = min_cluster2, min_cluster1  # swap
+    return min_cluster1, min_cluster2, min_distance
+
 def generate_clusters(mountain_palettes: dict):
     """
     Attempts to simplify the ~195 tiles by clustering similar ones together
     This should speed up the mountain generation in later steps
     """
     directions = ('left', 'right', 'up', 'down')
-    similar_pairs = []
-    distances = []
-    for coord1, palette1 in mountain_palettes.items():
-        for coord2, palette2 in mountain_palettes.items():
-            # if coord1 == coord2:
-            #     continue
-            dists = [hellinger_distance(palette1.rules[direction], palette2.rules[direction]) for direction in directions]
-            # 0.5 distance
-            # 169 -> 156
-            # 0.6 distance
-            # 169 -> 147
-            # 0.7 distance
-            # 169 -> 136
-            # 0.8 distance
-            # 169 -> 114
-            # 0.9 distance seems to work very well
-            # 169 -> 73 
-            if all(dist < 0.9 for dist in dists):
-                similar_pairs.append((coord1, coord2))
-                distances.append(dists)
-    # Do some debug printing
-    print("--- Print Matches ---")
-    for idx in range(len(similar_pairs)):
-        c1, c2 = similar_pairs[idx]
-        if c1 != c2:
-            dist = distances[idx]
-            print(c1, c2, dist)
-    # Now put into tile clusters
+    # create initial clusters
     clusters = []
-    for c1, c2 in similar_pairs:
-        for cluster in clusters:
-            if c1 in cluster.coords or c2 in cluster.coords:
-                # Add pair to cluster
-                cluster.coords.add(c1)
-                cluster.coords.add(c2)
-                break
-        else:
-            # Create new cluster
-            new_cluster = TileCluster(len(clusters))
-            new_cluster.coords.add(c1)
-            new_cluster.coords.add(c2)
-            clusters.append(new_cluster)
+    for coord in mountain_palettes.keys():
+        new_cluster = TileCluster(len(clusters))
+        new_cluster.coords.add(coord)
+        clusters.append(new_cluster)
+
+    # Now repeatedly determine which cluster are closest, and combine them
+    while True:
+        cluster1, cluster2, distance = get_closest_clusters(mountain_palettes, clusters)
+        cluster1.coords |= cluster2.coords
+        clusters.remove(cluster2)
+        if distance > 0.5:
+            break
+
     print("--- Clusters ---")
     for cluster in clusters:
         print(cluster.nid, len(cluster.coords), cluster.coords)

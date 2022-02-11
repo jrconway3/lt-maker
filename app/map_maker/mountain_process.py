@@ -84,6 +84,14 @@ class NaiveBacktrackingThread(QThread):
              ((east_edge and None in rules['right']) or (not east_edge and self.noneless_rules[coord]['right'])) and
              ((west_edge and None in rules['left']) or (not west_edge and self.noneless_rules[coord]['left']))]
         orig_valid_coords = valid_coords[:]
+        # If in the middle, don't include objects with index 15
+        if not north_edge and not south_edge and not east_edge and not west_edge:
+            valid_coords = \
+                [coord for coord in valid_coords if 
+                 None not in self.mountain_data[coord]['up'] and 
+                 None not in self.mountain_data[coord]['down'] and 
+                 None not in self.mountain_data[coord]['left'] and 
+                 None not in self.mountain_data[coord]['right']]
         north_pos = (pos[0], pos[1] - 1)
         south_pos = (pos[0], pos[1] + 1)
         east_pos = (pos[0] + 1, pos[1])
@@ -134,12 +142,16 @@ class NaiveBacktrackingThread(QThread):
         for valid_coord in valid_coords:
             if west_pos in self.organization:
                 west_coord = self.organization[west_pos]
-                count = self.mountain_data[west_coord]['right'][valid_coord]
-                valid_coord_list += [valid_coord] * count
+                partners = self.mountain_data[west_coord]['right']
+                if valid_coord in partners:
+                    count = partners[valid_coord]
+                    valid_coord_list += [valid_coord] * count
             if north_pos in self.organization:
                 north_coord = self.organization[north_pos]
-                count = self.mountain_data[north_coord]['down'][valid_coord]
-                valid_coord_list += [valid_coord] * count
+                partners = self.mountain_data[north_coord]['down']
+                if valid_coord in partners:
+                    count = partners[valid_coord]
+                    valid_coord_list += [valid_coord] * count
             if south and south == 'Mountain':
                 count = sum(self.noneless_rules[valid_coord]['down'].values())
                 valid_coord_list += [valid_coord] * count

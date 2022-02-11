@@ -1,7 +1,7 @@
 from app.data.database import DB
 
 from app.utilities import utils
-from app.engine import item_system, skill_system
+from app.engine import item_system, skill_system, text_funcs
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
 
@@ -148,6 +148,7 @@ def get_range(unit, item) -> set:
                 max_range = component.maximum_range(unit, item)
                 break
 
+    max_range = max(0, max_range)
     max_range += skill_system.modify_maximum_range(unit, item)
     limit_max = skill_system.limit_maximum_range(unit, item)
     max_range = utils.clamp(max_range, 0, limit_max)
@@ -164,6 +165,8 @@ def get_range_string(unit, item):
         max_range = item_system.maximum_range(None, item)
     if max_range >= 99:
         rng = '%d+' % min_range
+    elif max_range < 0:
+        rng = text_funcs.translate('Varies')
     elif min_range != max_range:
         rng = '%d-%d' % (min_range, max_range)
     else:

@@ -46,16 +46,16 @@ screen_positions = {'OffscreenLeft': -96,
                     'Left': 0,
                     'MidLeft': 24,
                     'CenterLeft': 24,
-                    'CenterRight': 120,
-                    'MidRight': 120,
+                    'CenterRight': WINWIDTH - 120,
+                    'MidRight': WINWIDTH - 120,
                     'LevelUpRight': 140,
-                    'Right': 144,
-                    'FarRight': 168,
-                    'OffscreenRight': 240}
+                    'Right': WINWIDTH - 96,
+                    'FarRight': WINWIDTH - 72,
+                    'OffscreenRight': WINWIDTH}
 
 vertical_screen_positions = {'Top': 0,
-                             'Middle': 40,
-                             'Bottom': 80}
+                             'Middle': (WINHEIGHT - 80) // 2 ,
+                             'Bottom': WINHEIGHT - 80}
 
 class SpeakStyle():
     def __init__(self, nid: NID = None, speaker: NID = None, text_position: str | Tuple[int, int]=None,
@@ -793,6 +793,18 @@ class Event():
 
         elif command.nid == 'interact_unit':
             self.interact_unit(command)
+
+        elif command.nid == 'recruit_generic':
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals)
+            unit = game.get_unit(values[0])
+            new_nid = values[1]
+            name = values[2]
+            if unit:
+                action.do(action.SetPersistent(unit))
+                action.do(action.SetNid(unit, new_nid))
+                action.do(action.SetName(unit, name))
+            else:
+                self.logger.error("Could not find unit with nid %s", unit)
 
         elif command.nid == 'add_group':
             self.add_group(command)
@@ -2431,7 +2443,7 @@ class Event():
             return None
         new_nid = str_utils.get_next_int(level_unit_prefab.nid, game.unit_registry.keys())
         level_unit_prefab.nid = new_nid
-        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit = UnitObject.from_prefab(level_unit_prefab, game.current_mode)
         level_unit_prefab.nid = unit_nid  # Set back to old nid
         new_unit.position = None
         new_unit.dead = False
@@ -2458,7 +2470,7 @@ class Event():
         else:
             ai_nid = 'None'
         level_unit_prefab = UniqueUnit(unit_nid, team, ai_nid, None)
-        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit = UnitObject.from_prefab(level_unit_prefab, game.current_mode)
         new_unit.party = game.current_party
         game.full_register(new_unit)
 
@@ -2502,7 +2514,7 @@ class Event():
         else:
             starting_items = []
         level_unit_prefab = GenericUnit(unit_nid, variant, level, klass, faction, starting_items, team, ai_nid)
-        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit = UnitObject.from_prefab(level_unit_prefab, game.current_mode)
         new_unit.party = game.current_party
         game.full_register(new_unit)
         if assign_unit:
@@ -2553,7 +2565,7 @@ class Event():
 
         level_unit_prefab = GenericUnit(
             unit_nid, unit.variant, level, unit.klass, unit.faction, [item.nid for item in unit.items], unit.team, unit.ai)
-        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit = UnitObject.from_prefab(level_unit_prefab, game.current_mode)
         position = self.check_placement(new_unit, position, placement)
         if not position:
             return None

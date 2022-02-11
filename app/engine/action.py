@@ -450,6 +450,8 @@ class Wait(Action):
         self.unit.current_move = None
         self.unit.sprite.change_state('normal')
         self.update_fow_action.do()
+        if game.cursor and game.cursor.cur_unit == self.unit:
+            game.cursor.cur_unit = None
 
     def reverse(self):
         self.unit.set_action_state(self.action_state)
@@ -516,6 +518,16 @@ class SetPreviousPosition(Action):
     def reverse(self):
         self.unit.previous_position = self.old_previous_position
 
+class SetPersistent(Action):
+    def __init__(self, unit):
+        self.unit = unit
+        self.old_persistent = self.unit.persistent
+
+    def do(self):
+        self.unit.persistent = True
+
+    def reverse(self):
+        self.unit.persistent = self.old_persistent
 
 class Reset(Action):
     def __init__(self, unit):
@@ -1652,6 +1664,32 @@ class SetName(Action):
 
     def reverse(self):
         self.unit.name = self.old_name
+
+class SetNid(Action):
+    """Changes the NID of a UnitObject.
+
+    This is extremely dangerous, and should only be used for
+    converting generic NIDs into unique NIDs. That is why
+    we only allow this operation to be carried out on generics.
+    """
+    def __init__(self, unit, new_nid):
+        self.unit = unit
+        self.new_nid = new_nid
+        self.old_nid = self.unit.nid
+
+    def do(self):
+        if self.unit.generic:
+            if self.unit.nid in game.unit_registry:
+                del game.unit_registry[self.unit.nid]
+            self.unit.nid = self.new_nid
+            game.register_unit(self.unit)
+
+    def reverse(self):
+        if self.unit.generic:
+            if self.unit.nid in game.unit_registry:
+                del game.unit_registry[self.unit.nid]
+            self.unit.nid = self.old_nid
+            game.register_unit(self.unit)
 
 class SetHP(Action):
     def __init__(self, unit, new_hp):

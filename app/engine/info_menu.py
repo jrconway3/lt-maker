@@ -184,11 +184,12 @@ class InfoGraph():
             # right = self.current_bb.aabb[0] >= int(0.75 * WINWIDTH)
             right = False
             pos = (max(0, self.current_bb.aabb[0] - 32), self.current_bb.aabb[1] + 13)
-            self.current_bb.help_box.draw(surf, pos, right)
 
             cursor_pos = (max(0, self.current_bb.aabb[0] - 4), self.current_bb.aabb[1])
             self.cursor.update()
             self.cursor.draw(surf, *cursor_pos)
+
+            self.current_bb.help_box.draw(surf, pos, right)
 
 def build_groove(surf, topleft, width, fill):
     bg = SPRITES.get('groove_back')
@@ -533,6 +534,9 @@ class InfoMenuState(State):
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
+        else:
+            # info menu shouldn't be transparent
+            surf.blit(SPRITES.get('bg_black'), (0, 0))
 
         # Image flashy thing at the top of the InfoMenu
         num_frames = 8
@@ -812,7 +816,8 @@ class InfoMenuState(State):
         height = 16 * 2 + 4
 
         surf = engine.create_surface((WINWIDTH - 96, height), transparent=True)
-
+        if not wexp_to_draw:
+            return surf
         counter = 0
         for y in range(0, 32, 16):
             for x in range(0, 2):

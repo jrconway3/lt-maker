@@ -7,35 +7,6 @@ from app.editor.tile_editor.autotiles import PaletteData
 
 from app.constants import TILEWIDTH, TILEHEIGHT
 
-def kl_divergence(p: dict, q: dict) -> float:
-    """
-    Calculates the Kullbeck-Leibler divergence of two discrete probability distributions.
-    Assumes p and q are dictionaries {k: v} where k is an element in the distribution and 
-    v is the number of times it occurred.
-    """
-    kl_div = 0
-    p_sum = sum(p.values())
-    q_sum = sum(q.values())
-    for value in p.keys():
-        if value in q:  # Only works if the chosen p value can also be found in q
-            p_prob = p[value] / p_sum
-            q_prob = q[value] / q_sum
-            kl_div += p_prob * math.log2(p_prob / q_prob)
-    return kl_div
-
-def jsd_divergence(p: dict, q: dict) -> float:
-    """
-    Calculates the Jensen-Shannon divergence of two discrete probability distributions.
-    Unlike KL divergence, this result is symmetric. Distance values range from 0 to 1.
-    Assumes p and q are dictionaries {k: v} where k is an element in the distribution and 
-    v is the number of times it occurred.
-    """
-    m = {**p, **q}
-    return (kl_divergence(p, m) + kl_divergence(q, m)) / 2
-
-def jsd_distance(p: dict, q: dict) -> float:
-    return math.sqrt(jsd_divergence(p, q))
-
 def bhattacharyya_coefficient(p: dict, q: dict) -> float:
     domain = p.keys() | q.keys()
     total = 0
@@ -47,13 +18,6 @@ def bhattacharyya_coefficient(p: dict, q: dict) -> float:
             q_prob = q[x] / q_sum
             total += math.sqrt(p_prob * q_prob)
     return total
-
-def bhattacharyya_distance(p: dict, q: dict) -> float:
-    """
-    Calculates the Bhattacharyya distance of two discrete probability distributions.
-    Distance values range from 0 to positive infinity.
-    """
-    return -math.log(bhattacharyya_coefficient(p, q))
 
 def hellinger_distance(p: dict, q: dict) -> float:
     """

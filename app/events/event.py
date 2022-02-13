@@ -2986,7 +2986,8 @@ class Event():
             # check for weapon experience gain
             if new_wexp:
                 for weapon_nid, value in new_wexp.items():
-                    action.do(action.AddWexp(unit, weapon_nid, value))
+                    # Execute for silent mode
+                    action.execute(action.AddWexp(unit, weapon_nid, value))
             action.do(action.UpdateRecords('level_gain', (unit.nid, unit.level, unit.klass)))
         elif new_klass:
             game.memory['next_class'] = new_klass

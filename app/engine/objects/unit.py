@@ -641,8 +641,7 @@ class UnitObject(Prefab):
 
     @classmethod
     def restore(cls, s_dict, game):
-        self = cls()
-        self.nid = s_dict['nid']
+        self = cls(s_dict['nid'])
         if s_dict['position']:
             self.position = self.previous_position = tuple(s_dict['position'])
         else:

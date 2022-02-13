@@ -32,7 +32,7 @@ def edge_random(pos1: tuple, pos2: tuple, seed: int = None):
     random.seed(seed + pos1[0] * 1024**3 + pos1[1] * 1024**2 + pos2[0] * 1024 + pos2[1])
     return random.random()
 
-def flood_fill(tilemap, pos: tuple, diagonal: bool = False, match: set = None) -> set:
+def flood_fill(tilemap, pos: tuple, diagonal: bool = False, match: set = None, match_set: set = None) -> set:
     blob_positions = set()
     unexplored_stack = []
     # Get coords like current coord in current_layer
@@ -51,9 +51,13 @@ def flood_fill(tilemap, pos: tuple, diagonal: bool = False, match: set = None) -
                 continue
             if not tilemap.check_bounds(current_pos):
                 continue
-            nid = tilemap.get_terrain(current_pos)
-            if nid not in match:
-                continue
+            if match_set:  # Just check if it's in the set
+                if current_pos not in match_set:
+                    continue
+            else:
+                nid = tilemap.get_terrain(current_pos)
+                if nid not in match:
+                    continue
 
             blob_positions.add(current_pos)
             unexplored_stack.append((current_pos[0] + 1, current_pos[1]))

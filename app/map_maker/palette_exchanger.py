@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     test_palette = 'app/map_maker/test_palette.png'
     main_palette = 'app/map_maker/palettes/westmarch/main.png'
-    change_images = 'app/map_maker/palettes/journey/*.png'
+    change_images = 'app/map_maker/palettes/witchfen/grass.png'
 
     change_images = glob.glob(change_images)
     main_palettes = load_palettes(main_palette)

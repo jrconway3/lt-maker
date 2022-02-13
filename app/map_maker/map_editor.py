@@ -191,14 +191,14 @@ class MapEditor(QMainWindow):
         self.remove_cliff_marker_action = QAction(QIcon(f"{icon_folder}/minus.png"), "Remove Cliff Marker", self, triggered=self.remove_cliff_marker)
         self.remove_cliff_marker_action.setEnabled(False)
 
-        self.new_action = QAction("New Project...", self,
+        self.new_action = QAction("New Map...", self,
                                   shortcut="Ctrl+N", triggered=self.new)
-        self.open_action = QAction("Open Project...", self,
+        self.open_action = QAction("Open Map...", self,
                                    shortcut="Ctrl+O", triggered=self.open)
-        self.save_action = QAction("Save Project", self,
+        self.save_action = QAction("Save Map", self,
                                    shortcut="Ctrl+S", triggered=self.save)
         self.save_as_action = QAction(
-            "Save Project As...", self, shortcut="Ctrl+Shift+S", triggered=self.save_as)
+            "Save Map As...", self, shortcut="Ctrl+Shift+S", triggered=self.save_as)
         self.quit_action = QAction(
             "&Quit", self, shortcut="Ctrl+Q", triggered=self.close)
 
@@ -426,7 +426,7 @@ class MapEditor(QMainWindow):
                 starting_path = os.path.join(self.current_map_save_location, '..')
             else:
                 starting_path = QDir.currentPath()
-            fn, ok = QFileDialog.getOpenFileName(self, "Open Saved Map", starting_path)
+            fn, ok = QFileDialog.getOpenFileName(self, "Open Saved Map", starting_path, "JSON Files (*.json)")
             if fn:
                 self.current_map_save_location = fn
                 self.load()

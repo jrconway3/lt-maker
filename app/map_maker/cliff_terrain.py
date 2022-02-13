@@ -115,8 +115,9 @@ class CliffTerrain(WangCorner2Terrain):
             pos = positions.pop()
             near_positions: set = flood_fill(tilemap, pos, diagonal=True)
             groupings.append(near_positions)
-            for near_pos in near_positions:
-                positions.discard(near_pos)
+            positions -= near_positions
+            # for near_pos in near_positions:
+            #     positions.discard(near_pos)
             counter += 1
         if counter >= 99999:
             raise RuntimeError("Unexpected infinite loop in cliff flood_fill")

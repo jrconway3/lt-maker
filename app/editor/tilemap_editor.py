@@ -396,6 +396,7 @@ class MapEditorView(QGraphicsView):
                 true_coord, tile_sprite = self.right_selection[topleft]
                 coords = [true_coord]
                 tileset_nid = tile_sprite.tileset_nid
+                tileset = RESOURCES.tilesets.get(tileset_nid)
             else:
                 tileset, coords = self.window.get_tileset_coords()
                 tileset_nid = tileset.nid
@@ -413,8 +414,11 @@ class MapEditorView(QGraphicsView):
                         new_coord_x = (x % w) + topleft[0]
                         new_coord_y = (y % h) + topleft[1]
                         if (new_coord_x, new_coord_y) in coords:
-                            current_layer.set_sprite(
-                                (x, y), tileset_nid, (new_coord_x, new_coord_y))
+                            true_pos = (x, y)
+                            coord = (new_coord_x, new_coord_y)
+                            current_layer.set_sprite(true_pos, tileset_nid, coord)
+                            if coord in tileset.terrain_grid:
+                                current_layer.terrain_grid[true_pos] = tileset.terrain_grid[coord]
 
     def mousePressEvent(self, event):
         scene_pos = self.mapToScene(event.pos())

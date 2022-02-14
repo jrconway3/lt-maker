@@ -115,7 +115,7 @@ class StatusOnHit(ItemComponent):
     def ai_priority(self, unit, item, target, move):
         # Do I add a new status to the target
         return ai_status_priority(unit, target, item, move, self.value)
-        
+
 class StatusesOnHit(ItemComponent):
     nid = 'statuses_on_hit'
     desc = "Item gives statuses to target when it hits"
@@ -462,12 +462,13 @@ class EventAfterCombat(ItemComponent):
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         self._did_hit = True
+        self.target_pos = target_pos
 
     def end_combat(self, playback, unit, item, target, mode):
         if self._did_hit and target:
             event_prefab = DB.events.get_from_nid(self.value)
             if event_prefab:
-                game.events.trigger_specific_event(event_prefab.nid, unit=unit, unit2=target, item=item, position=unit.position)
+                game.events.trigger_specific_event(event_prefab.nid, unit=unit, unit2=target, item=item, position=unit.position, region=self.target_pos)
         self._did_hit = False
 
 class EventOnUse(ItemComponent):
@@ -489,7 +490,10 @@ class EventAfterUse(ItemComponent):
 
     expose = Type.Event
 
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
+        self.target_pos = target_pos
+
     def end_combat(self, playback, unit, item, target, mode):
         event_prefab = DB.events.get_from_nid(self.value)
         if event_prefab:
-            game.events.trigger_specific_event(event_prefab.nid, unit=unit, unit2=target, item=item, position=unit.position, region=target_pos)
+            game.events.trigger_specific_event(event_prefab.nid, unit=unit, unit2=target, item=item, position=unit.position, region=self.target_pos)

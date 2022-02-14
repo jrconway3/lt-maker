@@ -76,23 +76,10 @@ class PaintTool(IntEnum):
     Fill = 2
     Erase = 3
 
-class MapEditorView(QGraphicsView):
-    min_scale = 1
-    max_scale = 6
+class MapEditorView(DraggableTileImageView):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.window = parent
-
-        self.scene = QGraphicsScene(self)
-        self.setScene(self.scene)
-        self.setMouseTracking(True)
-
-        self.setMinimumSize(WINWIDTH, WINHEIGHT)
-        self.setStyleSheet("background-color:rgb(128, 128, 128);")
-
-        self.screen_scale = 1
-
         self.tilemap = None
 
         self.current_mouse_position = (0, 0)
@@ -107,18 +94,9 @@ class MapEditorView(QGraphicsView):
 
         self.focus_layer = False
 
-        timer.get_timer().tick_elapsed.connect(self.tick)
-
-    def tick(self):
-        if self.tilemap:
-            self.update_view()
-
     def set_current(self, current):
         self.tilemap = current
         self.update_view()
-
-    def clear_scene(self):
-        self.scene.clear()
 
     def get_focus_layer(self):
         if self.focus_layer:
@@ -130,6 +108,7 @@ class MapEditorView(QGraphicsView):
             pixmap = QPixmap.fromImage(self.get_map_image())
             self.working_image = pixmap
         else:
+            self.clear_scene()
             return
         if self.window.terrain_mode:
             self.draw_terrain()
@@ -500,22 +479,6 @@ class MapEditorView(QGraphicsView):
         elif self.window.current_tool == PaintTool.Erase:
             if event.button() == Qt.LeftButton:
                 self.left_selecting = False
-
-    def zoom_in(self):
-        if self.screen_scale < self.max_scale:
-            self.screen_scale += 1
-            self.scale(2, 2)
-
-    def zoom_out(self):
-        if self.screen_scale > self.min_scale:
-            self.screen_scale -= 1
-            self.scale(0.5, 0.5)
-
-    def wheelEvent(self, event):
-        if event.angleDelta().y() > 0:
-            self.zoom_in()
-        elif event.angleDelta().y() < 0:
-            self.zoom_out()
 
 class MapEditor(QDialog):
     def __init__(self, parent=None, current=None):

@@ -1,12 +1,11 @@
-
 from app.constants import TILEHEIGHT, TILEWIDTH, WINHEIGHT, WINWIDTH
 from app.editor import timer
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (QGraphicsScene, QGraphicsView)
 
 class DraggableTileImageView(QGraphicsView):
-    min_scale = 1
-    max_scale = 12
+    min_scale = 0
+    max_scale = 5
 
     left_clicked = pyqtSignal(int, int)
     left_released = pyqtSignal()
@@ -63,12 +62,12 @@ class DraggableTileImageView(QGraphicsView):
     def zoom_in(self):
         if self.screen_scale < self.max_scale:
             self.screen_scale += 1
-            self.scale(1.25, 1.25)
+            self.scale(2, 2)
 
     def zoom_out(self):
         if self.screen_scale > self.min_scale:
             self.screen_scale -= 1
-            self.scale(0.8, 0.8)
+            self.scale(0.5, 0.5)
 
     def wheelEvent(self, event):
         if event.angleDelta().y() > 0:

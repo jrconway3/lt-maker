@@ -20,6 +20,7 @@ from app.editor.icon_editor.icon_view import IconView
 from app.editor.terrain_painter_menu import TerrainPainterMenu
 from app.editor.base_database_gui import ResourceCollectionModel
 from app.extensions.custom_gui import ResourceListView, Dialog, PropertyBox
+from app.extensions.tiled_view import DraggableTileImageView
 
 from app.editor.settings import MainSettingsController
 from app.utilities import str_utils

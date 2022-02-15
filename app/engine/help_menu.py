@@ -45,9 +45,14 @@ class HelpDialog():
         desc = text_funcs.translate(desc)
         # Hard set num lines if desc is very short
         if '\n' in desc:
-            self.lines = desc.splitlines()
+            lines = desc.splitlines()
+            self.lines = []
+            for line in lines:
+                num = self.find_num_lines(line)
+                line = text_funcs.split(self.font, line, num, WINWIDTH - 20)
+                self.lines.extend(line)
         else:
-            self.lines = text_funcs.split(self.font, desc, self.num_lines, WINWIDTH - 8)
+            self.lines = text_funcs.split(self.font, desc, self.num_lines, WINWIDTH - 20)
 
     def set_transition_in(self):
         self.transition_in = True

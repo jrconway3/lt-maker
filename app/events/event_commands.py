@@ -964,7 +964,7 @@ Be extremely careful with this function. The new NID *must* be unique across eve
 Otherwise extremely undefined behavior can occur.
 """
 
-    keywords = ['NID', 'NID', 'String']
+    keywords = ['Nid', 'Nid', 'String']
 
 class AddGroup(EventCommand):
     nid = 'add_group'

@@ -208,7 +208,6 @@ class UnitObject(Prefab):
             self.calculate_needed_wexp_from_items()
 
         # Handle skills
-        self.skills = []
         global_skills = unit_funcs.get_global_skills(self)
         self.skills += global_skills
         personal_skills = unit_funcs.get_personal_skills(self, prefab)

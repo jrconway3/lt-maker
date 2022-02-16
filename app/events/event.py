@@ -3723,9 +3723,10 @@ class Event():
         unit = self.get_unit(values[0])
         action.do(action.RemovePartner(unit))
 
-    def parse_pos(self, text, is_float=False):
+    def parse_pos(self, text: str, is_float=False):
         position = None
         if ',' in text:
+            text = text.replace(')', '').replace('(', '')
             if is_float:
                 position = tuple(float(_) for _ in text.split(','))
             else:

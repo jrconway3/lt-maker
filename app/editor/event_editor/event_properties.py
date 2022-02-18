@@ -207,6 +207,7 @@ class CodeEditor(QPlainTextEdit):
     clicked = pyqtSignal()
     def mouseReleaseEvent(self, event):
         self.clicked.emit()
+        return super().mouseReleaseEvent(event)
 
     def __init__(self, parent):
         super().__init__(parent)

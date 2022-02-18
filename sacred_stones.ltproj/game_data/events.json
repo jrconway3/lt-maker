@@ -7418,7 +7418,7 @@
                 "level_var",
                 [
                     "high_level",
-                    "min(DB.classes.get(unit.klass).max_level, unit.level + 4)"
+                    "min(DB.classes.get(game.level_vars['ArenaEnemyKlass']).max_level, unit.level + 4)"
                 ]
             ],
             [
@@ -7486,12 +7486,6 @@
                 ]
             ],
             [
-                "comment",
-                [
-                    "#make_generic;;Mercenary;{var:ArenaEnemyLevel};enemy"
-                ]
-            ],
-            [
                 "add_unit",
                 [
                     "{created_unit}",
@@ -7506,23 +7500,12 @@
                     "{created_unit}",
                     "{var:ArenaItem}",
                     "no_banner"
-                ],
-                [
-                    "{created_unit}",
-                    "{var:ArenaItem}",
-                    "FLAG(no_banner)"
                 ]
             ],
             [
                 "comment",
                 [
-                    "#give_item;{created_unit};Iron Sword;FLAG(no_banner)"
-                ]
-            ],
-            [
-                "comment",
-                [
-                    "# Ask question"
+                    "# Now move to Arena"
                 ]
             ],
             [
@@ -7559,7 +7542,27 @@
                     "60",
                     "right",
                     "funds_display",
+                    "",
+                    "center",
                     "expression"
+                ],
+                [
+                    "GoldDisplay",
+                    "[game.get_money()]",
+                    "",
+                    "",
+                    "60",
+                    "right",
+                    "funds_display",
+                    "",
+                    "center",
+                    "FLAG(expression)"
+                ]
+            ],
+            [
+                "comment",
+                [
+                    "# Fade to arena background"
                 ]
             ],
             [
@@ -7591,12 +7594,6 @@
                 ]
             ],
             [
-                "comment",
-                [
-                    "# Take money"
-                ]
-            ],
-            [
                 "sound",
                 [
                     "GoldExchange"
@@ -7607,16 +7604,12 @@
                 [
                     "{eval:-game.level_vars['ArenaWager']}",
                     "no_banner"
-                ],
-                [
-                    "{eval:-game.level_vars['ArenaWager']}",
-                    "FLAG(no_banner)"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Narrator",
+                    "",
                     "Good luck. Don't get yourself killed.",
                     "60,8",
                     "160",
@@ -7639,15 +7632,6 @@
                     "20",
                     "arena",
                     "force_animation"
-                ],
-                [
-                    "{unit}",
-                    "{created_unit}",
-                    "",
-                    "",
-                    "20",
-                    "FLAG(arena)",
-                    "FLAG(force_animation)"
                 ]
             ],
             [
@@ -7659,13 +7643,13 @@
             [
                 "transition",
                 [
-                    "Open"
+                    "open"
                 ]
             ],
             [
                 "speak",
                 [
-                    "Narrator",
+                    "",
                     "So you won, eh? Here's your prize. {eval:2*game.level_vars['ArenaWager']} gold.",
                     "60,8",
                     "160",
@@ -7712,7 +7696,7 @@
             [
                 "speak",
                 [
-                    "Narrator",
+                    "",
                     "What are you wasting my time for?",
                     "60,8",
                     "160",
@@ -7730,7 +7714,7 @@
             [
                 "speak",
                 [
-                    "Narrator",
+                    "",
                     "What! You don't have a weapon! Get out of here!",
                     "60,8",
                     "160",
@@ -7744,18 +7728,18 @@
             [
                 "transition",
                 [
-                    "Close"
+                    "close"
                 ]
-            ],
-            [
-                "change_background",
-                []
             ],
             [
                 "comment",
                 [
                     "# Clean up"
                 ]
+            ],
+            [
+                "change_background",
+                []
             ],
             [
                 "remove_unit",
@@ -7785,7 +7769,7 @@
             [
                 "transition",
                 [
-                    "Open"
+                    "open"
                 ]
             ]
         ],

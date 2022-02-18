@@ -1805,7 +1805,7 @@ class Event():
         colon_idx = text.index(':')
         return text[colon_idx+1:-1]
 
-    def speak(self, speaker, text, text_position, width, dialog_variant,
+    def speak(self, speaker, text, text_position, text_width, dialog_variant,
               nid, speed, flags):
         # special char: this is a unicode single-line break.
         # basically equivalent to {br}
@@ -1832,11 +1832,11 @@ class Event():
             else:
                 position = self.parse_pos(text_position)
         elif speak_style:
-                position = speak_style.text_position
+            position = speak_style.text_position
 
         width = None
-        if width:
-            width = int(width)
+        if text_width:
+            width = int(text_width)
         elif speak_style:
             width = speak_style.width
 
@@ -3273,7 +3273,10 @@ class Event():
         talign = HAlignment.LEFT
         if text_align:
             talign = HAlignment(text_align)
-        table_ui = SimpleMenuUI(data, dtype, title=desc, rows=rows, cols=cols, row_width=row_width, alignment=align, bg=bg, text_align=text_align)
+        table_ui = SimpleMenuUI(
+            data, dtype, title=desc, rows=rows, cols=cols, 
+            row_width=row_width, alignment=align, bg=bg, 
+            text_align=talign)
         self.other_boxes.append((nid, table_ui))
 
     def choice(self, nid: NID, desc: str, choices: str, width: str, orientation: str,

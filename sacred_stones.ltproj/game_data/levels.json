@@ -3606,7 +3606,7 @@
                     4,
                     3
                 ],
-                "starting_traveler": "104",
+                "starting_traveler": null,
                 "generic": true
             },
             {
@@ -3615,12 +3615,7 @@
                 "level": 1,
                 "klass": "Myrmidon",
                 "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Sword",
-                        false
-                    ]
-                ],
+                "starting_items": [],
                 "team": "enemy",
                 "ai": "None",
                 "ai_group": null,
@@ -3632,37 +3627,23 @@
                 "generic": true
             },
             {
-                "nid": "104",
+                "nid": "108",
                 "variant": null,
-                "level": 20,
-                "klass": "Sniper",
+                "level": 15,
+                "klass": "Archer",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Bow",
+                        "Longbow",
                         false
                     ]
                 ],
                 "team": "player",
                 "ai": "None",
                 "ai_group": null,
-                "starting_position": null,
-                "starting_traveler": null,
-                "generic": true
-            },
-            {
-                "nid": "108",
-                "variant": null,
-                "level": 1,
-                "klass": "Archer",
-                "faction": "Soldier",
-                "starting_items": [],
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
                 "starting_position": [
-                    7,
-                    3
+                    1,
+                    14
                 ],
                 "starting_traveler": null,
                 "generic": true
@@ -3671,11 +3652,11 @@
                 "nid": "105",
                 "variant": null,
                 "level": 1,
-                "klass": "Archer",
+                "klass": "Knight",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Bow",
+                        "Javelin",
                         false
                     ]
                 ],
@@ -3683,8 +3664,8 @@
                 "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
-                    6,
-                    10
+                    4,
+                    14
                 ],
                 "starting_traveler": null,
                 "generic": true

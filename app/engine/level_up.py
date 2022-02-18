@@ -190,7 +190,7 @@ class ExpState(State):
                 self.stat_changes = unit_funcs.get_next_level_up(self.unit, self.method)
                 action.do(action.GrowthPointChange(self.unit, old_growth_points, self.unit.growth_points))
                 action.do(action.IncLevel(self.unit))
-                action.do(action.ApplyStatChanges(self.unit, self.stat_changes))
+                action.do(action.ApplyStatChanges(self.unit, self.stat_changes, False))
                 action.do(action.UpdateRecords('level_gain', (self.unit.nid, self.unit.level, self.unit.klass)))
                 self.create_level_up_logo()
                 self.state.clear()

@@ -289,7 +289,8 @@ class AIController():
                     action.do(action.AIGroupPing(unit))
 
     def build_primary(self):
-        if self.behaviour.view_range == -1:  # Guard AI
+        # Guard AI
+        if self.behaviour.view_range == -1 and not self.unit.ai_group_active:
             valid_moves = {self.unit.position}
         else:
             valid_moves = self.get_true_valid_moves()

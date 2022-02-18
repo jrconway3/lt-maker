@@ -398,7 +398,6 @@ class AnimationCombat(BaseCombat, MockCombat):
 
         elif self.state == 'end_phase':
             self._end_phase()
-            self.state_machine.setup_next_state()
             self.state = 'begin_phase'
 
         elif self.state == 'end_combat':
@@ -643,6 +642,8 @@ class AnimationCombat(BaseCombat, MockCombat):
         """
         for act in self.actions:
             action.do(act)
+        # Now nothing else should be using the current state, so we can move the state
+        self.state_machine.setup_next_state()
 
     def _end_phase(self):
         if self.llast_gauge == self.left.get_guard_gauge():
@@ -850,9 +851,9 @@ class AnimationCombat(BaseCombat, MockCombat):
     def pan_back(self):
         next_state = self.state_machine.get_next_state()
         if next_state:
-            if next_state == 'attacker':
+            if next_state.startswith('attacker'):
                 self.focus_right = (self.attacker is self.right)
-            elif next_state == 'defender':
+            elif next_state.startswith('defender'):
                 self.focus_right = (self.defender is self.right)
         else:
             self.focus_exp()
@@ -1059,7 +1060,7 @@ class AnimationCombat(BaseCombat, MockCombat):
             self.handle_wexp(self.defender, self.def_item, self.attacker)
 
         self.handle_mana(all_units)
-        self.handle_exp()
+        self.handle_exp(self)
 
     def clean_up2(self):
         game.state.back()

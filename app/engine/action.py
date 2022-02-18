@@ -1440,16 +1440,17 @@ class GrowthPointChange(Action):
 
 
 class ApplyStatChanges(Action):
-    def __init__(self, unit, stat_changes):
+    def __init__(self, unit, stat_changes, increase_current_stats: bool = True):
         self.unit = unit
         self.stat_changes = stat_changes
+        self.increase_current_stats = increase_current_stats
 
     def do(self):
-        unit_funcs.apply_stat_changes(self.unit, self.stat_changes)
+        unit_funcs.apply_stat_changes(self.unit, self.stat_changes, self.increase_current_stats)
 
     def reverse(self):
         negative_changes = {k: -v for k, v in self.stat_changes.items()}
-        unit_funcs.apply_stat_changes(self.unit, negative_changes)
+        unit_funcs.apply_stat_changes(self.unit, negative_changes, self.increase_current_stats)
 
 
 class ApplyGrowthChanges(Action):

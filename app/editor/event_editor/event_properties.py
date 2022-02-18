@@ -658,7 +658,8 @@ class EventCollection(QWidget):
         model_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(current_index))
         new_index = self.model.duplicate(model_index)
         if new_index:
-            new_proxy_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(new_index))
+            name_index = self.name_filtered_model.mapFromSource(new_index)
+            new_proxy_index = self.level_filtered_model.mapFromSource(name_index)
 
             self.view.setCurrentIndex(new_proxy_index)
             self.set_current_index(new_proxy_index)
@@ -895,7 +896,7 @@ class EventProperties(QWidget):
             current_level = DB.levels.get(self.current.level_nid)
             self.show_map_dialog = ShowMapDialog(current_level, self)
         self.show_map_dialog.setAttribute(Qt.WA_ShowWithoutActivating, True)
-        self.show_map_dialog.setWindowFlags(self.show_map_dialog.windowFlags() | Qt.WindowDoesNotAcceptFocus)
+        # self.show_map_dialog.setWindowFlags(self.show_map_dialog.windowFlags() | Qt.WindowDoesNotAcceptFocus)
         self.show_map_dialog.show()
         self.show_map_dialog.raise_()
         # self.show_map_dialog.activateWindow()

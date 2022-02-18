@@ -6,9 +6,8 @@ from app.tests.mocks.mock_game import get_mock_game
 
 class UnitObjectUnitTests(unittest.TestCase):
     def setUp(self):
-
         from app.data.database import DB
-        DB.load('default.ltproj')
+        DB.load('testing_proj.ltproj')
         from app.engine import equations
         equations.clear()
         self.game = get_mock_game()

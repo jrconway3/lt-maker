@@ -10,3 +10,4 @@ These are guides on various useful applications of events.
     A-Simple-Mercenary-Shop
     Death-Quotes
     Conditional-Personal-Skills
+    Arena

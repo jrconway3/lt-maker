@@ -427,7 +427,7 @@ class SimpleCombat():
             mana_gain = skill_system.mana(self.full_playback, self.defender, self.def_item, self.attacker)
             game.mana_instance.append((self.defender, mana_gain))
 
-    def handle_exp(self):
+    def handle_exp(self, combat_object=None):
         # handle exp
         if self.attacker.team == 'player' and not self.attacker.is_dying:
             exp = self.calculate_exp(self.attacker, self.main_item)
@@ -441,7 +441,7 @@ class SimpleCombat():
                 self.handle_paired_exp(self.attacker)
 
             if (self.alerts and exp > 0) or exp + self.attacker.exp >= 100:
-                game.exp_instance.append((self.attacker, exp, None, 'init'))
+                game.exp_instance.append((self.attacker, exp, combat_object, 'init'))
                 game.state.change('exp')
                 game.ai.end_skip()
             elif not self.alerts and exp > 0:
@@ -455,7 +455,7 @@ class SimpleCombat():
                 self.handle_paired_exp(self.defender)
 
             if (self.alerts and exp > 0) or exp + self.defender.exp >= 100:
-                game.exp_instance.append((self.defender, exp, None, 'init'))
+                game.exp_instance.append((self.defender, exp, combat_object, 'init'))
                 game.state.change('exp')
                 game.ai.end_skip()
             elif not self.alerts and exp > 0:

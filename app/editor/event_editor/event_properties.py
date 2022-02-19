@@ -207,6 +207,7 @@ class CodeEditor(QPlainTextEdit):
     clicked = pyqtSignal()
     def mouseReleaseEvent(self, event):
         self.clicked.emit()
+        return super().mouseReleaseEvent(event)
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -658,7 +659,8 @@ class EventCollection(QWidget):
         model_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(current_index))
         new_index = self.model.duplicate(model_index)
         if new_index:
-            new_proxy_index = self.name_filtered_model.mapToSource(self.level_filtered_model.mapToSource(new_index))
+            name_index = self.name_filtered_model.mapFromSource(new_index)
+            new_proxy_index = self.level_filtered_model.mapFromSource(name_index)
 
             self.view.setCurrentIndex(new_proxy_index)
             self.set_current_index(new_proxy_index)
@@ -835,16 +837,16 @@ class EventProperties(QWidget):
         self.priority_box.setToolTip("Higher Priority happens first")
         self.priority_box.edit.valueChanged.connect(self.priority_changed)
 
-        grid.addWidget(QHLine(), 3, 0, 1, 2)
-        grid.addWidget(self.name_box, 4, 0, 1, 2)
-        grid.addWidget(self.level_nid_box, 5, 0, 1, 2)
+        grid.addWidget(QHLine(), 3, 0, 1, 3)
+        grid.addWidget(self.name_box, 4, 0, 1, 3)
+        grid.addWidget(self.level_nid_box, 5, 0, 1, 3)
         trigger_layout = QHBoxLayout()
         self.trigger_box.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         trigger_layout.addWidget(self.trigger_box)
         trigger_layout.addWidget(self.priority_box, alignment=Qt.AlignRight)
-        grid.addLayout(trigger_layout, 6, 0, 1, 2)
-        grid.addWidget(self.condition_box, 7, 0, 1, 2)
-        grid.addWidget(self.only_once_box, 8, 0, 1, 2, Qt.AlignLeft)
+        grid.addLayout(trigger_layout, 6, 0, 1, 3)
+        grid.addWidget(self.condition_box, 7, 0, 1, 3)
+        grid.addWidget(self.only_once_box, 8, 0, 1, 3, Qt.AlignLeft)
 
         bottom_section = QHBoxLayout()
         main_section.addLayout(bottom_section)
@@ -895,7 +897,7 @@ class EventProperties(QWidget):
             current_level = DB.levels.get(self.current.level_nid)
             self.show_map_dialog = ShowMapDialog(current_level, self)
         self.show_map_dialog.setAttribute(Qt.WA_ShowWithoutActivating, True)
-        self.show_map_dialog.setWindowFlags(self.show_map_dialog.windowFlags() | Qt.WindowDoesNotAcceptFocus)
+        # self.show_map_dialog.setWindowFlags(self.show_map_dialog.windowFlags() | Qt.WindowDoesNotAcceptFocus)
         self.show_map_dialog.show()
         self.show_map_dialog.raise_()
         # self.show_map_dialog.activateWindow()

@@ -21,20 +21,26 @@ Welcome to lt-maker's documentation!
 .. toctree::
    :maxdepth: 4
    :caption: Events:
-   
+
    source/events/index
 
 .. toctree::
    :maxdepth: 4
    :caption: Guides:
-   
+
    source/guides/index
 
 .. toctree::
    :maxdepth: 4
    :caption: appendix:
-   
-   source/appendix/index
+
+   source/appendix/Difficulty-Mode-Options
+   source/appendix/Item-Component-Reference
+   source/appendix/Skill-Component-Reference
+   source/appendix/Special-Variables
+   source/appendix/Tags
+   source/appendix/Trigger-Reference
+   source/appendix/FAQ
 
 Indices and tables
 ==================

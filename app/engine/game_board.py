@@ -161,7 +161,14 @@ class GameBoard(object):
                 return True
         else:
             if DB.constants.value('fog_los'):
-                fog_of_war_radius = game.level_vars.get('_ai_fog_of_war_radius', game.level_vars.get('_fog_of_war_radius', 0))
+                ai_fog_of_war_radius = \
+                    game.level_vars.get('_ai_fog_of_war_radius',
+                                        game.level_vars.get('_fog_of_war_radius', 0))
+                if team == 'other':
+                    fog_of_war_radius = \
+                        game.level_vars.get('_other_fog_of_war_radius', ai_fog_of_war_radius)
+                else:
+                    fog_of_war_radius = ai_fog_of_war_radius
                 valid = line_of_sight.simple_check(pos, team, fog_of_war_radius)
                 if not valid:
                     return False

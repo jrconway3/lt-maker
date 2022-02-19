@@ -9,12 +9,11 @@ from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
 from PyQt5.QtCore import Qt, QRect, QDateTime
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
-from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT, TILEX, TILEY
 from app.resources.resources import RESOURCES
 from app.resources.tiles import LayerGrid
 from app.data.database import DB
 
-from app.editor import timer
 from app.editor.tile_editor import autotiles
 from app.editor.icon_editor.icon_view import IconView
 from app.editor.terrain_painter_menu import TerrainPainterMenu
@@ -31,7 +30,7 @@ import logging
 def get_tilemap_pixmap(tilemap):
     return QPixmap.fromImage(draw_tilemap(tilemap))
 
-def draw_tilemap(tilemap, show_full_map = False, current_layer_index=-1, fade=2, autotile_fps=29):
+def draw_tilemap(tilemap, show_full_map=False, current_layer_index=-1, fade=2, autotile_fps=29):
     image = QImage(tilemap.width * TILEWIDTH,
                    tilemap.height * TILEHEIGHT,
                    QImage.Format_ARGB32)
@@ -57,9 +56,9 @@ def draw_tilemap(tilemap, show_full_map = False, current_layer_index=-1, fade=2,
                 if pix:
                     if current_layer_index > -1:
                         painter.setOpacity(calculate_layer_fade(current_layer_index, index, fade))
-                    painter.drawImage(coord[0] * TILEWIDTH,
-                                      coord[1] * TILEHEIGHT,
-                                      pix.toImage())
+                    painter.drawPixmap(coord[0] * TILEWIDTH,
+                                       coord[1] * TILEHEIGHT,
+                                       pix)
     painter.end()
     return image
 
@@ -78,7 +77,6 @@ class PaintTool(IntEnum):
     Erase = 3
 
 class MapEditorView(DraggableTileImageView):
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.tilemap = None
@@ -725,12 +723,12 @@ class ResizeDialog(Dialog):
         size_layout = QFormLayout()
         self.width_box = QSpinBox()
         self.width_box.setValue(self.current.width)
-        self.width_box.setRange(15, 255)
+        self.width_box.setRange(TILEX, 255)
         self.width_box.valueChanged.connect(self.on_width_changed)
         size_layout.addRow("Width:", self.width_box)
         self.height_box = QSpinBox()
         self.height_box.setValue(self.current.height)
-        self.height_box.setRange(10, 255)
+        self.height_box.setRange(TILEY, 255)
         self.height_box.valueChanged.connect(self.on_height_changed)
         size_layout.addRow("Height:", self.height_box)
         size_section.setLayout(size_layout)

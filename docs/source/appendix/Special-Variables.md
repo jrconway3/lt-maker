@@ -64,6 +64,8 @@ These variables are cleared after winning or losing the current level
 
 `_ai_fog_of_war_radius` **int** The distance that ai units will be able to see in the fog. If not set, defaults to `_fog_of_war_radius`
 
+`_other_fog_of_war_radius` **int** The distance that other team units will be able to see in the fog. If not set, defaults to `_ai_fog_of_war_radius`
+
 `_prep_pick` **bool** Set to True to enable "Pick Units" in the prep screen. You don't normally need to set this manually, since it is set by the `prep` event command.
 
 `_prep_slots` **int** Limits the number of units that can be brought to the level. Used only when you want to limit the number of player units to a number lower than the number of Formation tiles. Defaults to None.

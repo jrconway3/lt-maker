@@ -46,16 +46,16 @@ screen_positions = {'OffscreenLeft': -96,
                     'Left': 0,
                     'MidLeft': 24,
                     'CenterLeft': 24,
-                    'CenterRight': 120,
-                    'MidRight': 120,
+                    'CenterRight': WINWIDTH - 120,
+                    'MidRight': WINWIDTH - 120,
                     'LevelUpRight': 140,
-                    'Right': 144,
-                    'FarRight': 168,
-                    'OffscreenRight': 240}
+                    'Right': WINWIDTH - 96,
+                    'FarRight': WINWIDTH - 72,
+                    'OffscreenRight': WINWIDTH}
 
 vertical_screen_positions = {'Top': 0,
-                             'Middle': 40,
-                             'Bottom': 80}
+                             'Middle': (WINHEIGHT - 80) // 2 ,
+                             'Bottom': WINHEIGHT - 80}
 
 class SpeakStyle():
     def __init__(self, nid: NID = None, speaker: NID = None, text_position: str | Tuple[int, int]=None,
@@ -333,7 +333,7 @@ class Event():
             cond = self._evaluate_evals(cond)
             try:
                 arg_list = evaluate.evaluate(cond, self.unit, self.unit2, self.item, self.position, self.region)
-                arg_list = [str(arg) for arg in arg_list]
+                arg_list = [self._object_to_str(arg) for arg in arg_list]
             except Exception as e:
                 self.logger.error("%s: Could not evaluate {%s}" % (e, cond))
                 return False
@@ -723,7 +723,7 @@ class Event():
                 self.logger.error("Could not evaluate %s (%s)" % (to_eval, e))
                 return
             # Need to update fog of war when we change it
-            if nid in ('_fog_of_war', '_fog_of_war_radius', '_ai_fog_of_war_radius'):
+            if nid in ('_fog_of_war', '_fog_of_war_radius', '_ai_fog_of_war_radius', '_other_fog_of_war_radius'):
                 for unit in game.units:
                     if unit.position:
                         action.do(action.UpdateFogOfWar(unit))
@@ -793,6 +793,18 @@ class Event():
 
         elif command.nid == 'interact_unit':
             self.interact_unit(command)
+
+        elif command.nid == 'recruit_generic':
+            values, flags = event_commands.convert_parse(command, self._evaluate_evals)
+            unit = game.get_unit(values[0])
+            new_nid = values[1]
+            name = values[2]
+            if unit:
+                action.do(action.SetPersistent(unit))
+                action.do(action.SetNid(unit, new_nid))
+                action.do(action.SetName(unit, name))
+            else:
+                self.logger.error("Could not find unit with nid %s", unit)
 
         elif command.nid == 'add_group':
             self.add_group(command)
@@ -1652,6 +1664,14 @@ class Event():
             self.wait_time = engine.get_time() + portrait.travel_time + 66
             self.state = 'waiting'
 
+    def _object_to_str(self, obj) -> str:
+        if hasattr(obj, 'uid'):
+            return str(obj.uid)
+        elif hasattr(obj, 'nid'):
+            return str(obj.nid)
+        else:
+            return str(obj)
+
     def _evaluate_args(self, text) -> str:
         to_evaluate = re.findall(r'\{[1-5]\}', text)
         evaluated = []
@@ -1659,24 +1679,24 @@ class Event():
             try:
                 if to_eval == '{1}':
                     if not isinstance(self.unit, str):
-                        self.logger.error("{1} is not a string. If you wish to access {unit}, use that tag instead. Evaluating to %s" % str(self.unit))
-                    value = str(self.unit)
+                        self.logger.error("{1} is not a string. If you wish to access {unit}, use that tag instead. Evaluating to %s" % self._object_to_str(self.unit))
+                    value = self._object_to_str(self.unit)
                 elif to_eval == '{2}':
                     if not isinstance(self.unit2, str):
-                        self.logger.error("{2} is not a string. If you wish to access {unit2}, use that tag instead. Evaluating to %s" % str(self.unit2))
-                    value = str(self.unit2)
+                        self.logger.error("{2} is not a string. If you wish to access {unit2}, use that tag instead. Evaluating to %s" % self._object_to_str(self.unit2))
+                    value = self._object_to_str(self.unit2)
                 elif to_eval == '{3}':
                     if not isinstance(self.item, str):
-                        self.logger.error("{3} is not a string. Evaluating to %s" % str(self.item))
-                    value = str(self.item)
+                        self.logger.error("{3} is not a string. Evaluating to %s" % self._object_to_str(self.item))
+                    value = self._object_to_str(self.item)
                 elif to_eval == '{4}':
                     if not isinstance(self.position, str):
-                        self.logger.error("{4} is not a string. Evaluating to %s" % str(self.position))
-                    value = str(self.position)
+                        self.logger.error("{4} is not a string. Evaluating to %s" % self._object_to_str(self.position))
+                    value = self._object_to_str(self.position)
                 elif to_eval == '{5}':
                     if not isinstance(self.region, str):
-                        self.logger.error("{5} is not a string. Evaluating to %s" % str(self.region))
-                    value = str(self.region)
+                        self.logger.error("{5} is not a string. Evaluating to %s" % self._object_to_str(self.region))
+                    value = self._object_to_str(self.region)
                 evaluated.append(value)
             except Exception as e:
                 self.logger.error("Could not evaluate %s (%s)" % (to_eval, e))
@@ -1709,7 +1729,7 @@ class Event():
                     resolved_data = getattr(game.get_data(data_nid).get(obj_nid), attr_nid)
                 else:
                     raise ValueError()
-                evaluated.append(resolved_data)
+                evaluated.append(self._object_to_str(resolved_data))
             except:
                 self.logger.error("eval failed, cannot parse %s", to_eval)
                 evaluated.append('??')
@@ -1746,7 +1766,7 @@ class Event():
                 evaluated.append('??')
                 continue
             field_value = unit.get_field(field, fallback)
-            evaluated.append(str(field_value))
+            evaluated.append(self._object_to_str(field_value))
         for idx in range(len(to_evaluate)):
             text = text.replace(to_evaluate[idx], evaluated[idx])
         return text
@@ -1763,7 +1783,7 @@ class Event():
             to_eval = self.trim_eval_tags(to_eval)
             try:
                 val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
-                evaluated.append(str(val))
+                evaluated.append(self._object_to_str(val))
             except Exception as e:
                 self.logger.error("Could not evaluate %s (%s)" % (to_eval[6:-1], e))
                 evaluated.append('??')
@@ -1778,9 +1798,9 @@ class Event():
         for to_eval in to_evaluate:
             key = self.trim_eval_tags(to_eval)
             if key in game.level_vars:
-                val = str(game.level_vars[key])
+                val = self._object_to_str(game.level_vars[key])
             elif key in game.game_vars:
-                val = str(game.game_vars[key])
+                val = self._object_to_str(game.game_vars[key])
             else:
                 self.logger.error("Could not find var {%s} in game.level_vars or game.game_vars" % key)
                 val = '??'
@@ -1793,7 +1813,7 @@ class Event():
         colon_idx = text.index(':')
         return text[colon_idx+1:-1]
 
-    def speak(self, speaker, text, text_position, width, dialog_variant,
+    def speak(self, speaker, text, text_position, text_width, dialog_variant,
               nid, speed, flags):
         # special char: this is a unicode single-line break.
         # basically equivalent to {br}
@@ -1820,11 +1840,11 @@ class Event():
             else:
                 position = self.parse_pos(text_position)
         elif speak_style:
-                position = speak_style.text_position
+            position = speak_style.text_position
 
         width = None
-        if width:
-            width = int(width)
+        if text_width:
+            width = int(text_width)
         elif speak_style:
             width = speak_style.width
 
@@ -2431,7 +2451,7 @@ class Event():
             return None
         new_nid = str_utils.get_next_int(level_unit_prefab.nid, game.unit_registry.keys())
         level_unit_prefab.nid = new_nid
-        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit = UnitObject.from_prefab(level_unit_prefab, game.current_mode)
         level_unit_prefab.nid = unit_nid  # Set back to old nid
         new_unit.position = None
         new_unit.dead = False
@@ -2458,7 +2478,7 @@ class Event():
         else:
             ai_nid = 'None'
         level_unit_prefab = UniqueUnit(unit_nid, team, ai_nid, None)
-        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit = UnitObject.from_prefab(level_unit_prefab, game.current_mode)
         new_unit.party = game.current_party
         game.full_register(new_unit)
 
@@ -2502,7 +2522,7 @@ class Event():
         else:
             starting_items = []
         level_unit_prefab = GenericUnit(unit_nid, variant, level, klass, faction, starting_items, team, ai_nid)
-        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit = UnitObject.from_prefab(level_unit_prefab, game.current_mode)
         new_unit.party = game.current_party
         game.full_register(new_unit)
         if assign_unit:
@@ -2553,7 +2573,7 @@ class Event():
 
         level_unit_prefab = GenericUnit(
             unit_nid, unit.variant, level, unit.klass, unit.faction, [item.nid for item in unit.items], unit.team, unit.ai)
-        new_unit = UnitObject.from_prefab(level_unit_prefab)
+        new_unit = UnitObject.from_prefab(level_unit_prefab, game.current_mode)
         position = self.check_placement(new_unit, position, placement)
         if not position:
             return None
@@ -2974,7 +2994,8 @@ class Event():
             # check for weapon experience gain
             if new_wexp:
                 for weapon_nid, value in new_wexp.items():
-                    action.do(action.AddWexp(unit, weapon_nid, value))
+                    # Execute for silent mode
+                    action.execute(action.AddWexp(unit, weapon_nid, value))
             action.do(action.UpdateRecords('level_gain', (unit.nid, unit.level, unit.klass)))
         elif new_klass:
             game.memory['next_class'] = new_klass
@@ -3242,7 +3263,7 @@ class Event():
                         if isinstance(val, list):
                             return val
                         else:
-                            return [str(val)]
+                            return [self._object_to_str(val)]
                     except:
                         self.logger.error("display_table: failed to eval %s", callback_expr)
                         return [""]
@@ -3260,7 +3281,10 @@ class Event():
         talign = HAlignment.LEFT
         if text_align:
             talign = HAlignment(text_align)
-        table_ui = SimpleMenuUI(data, dtype, title=desc, rows=rows, cols=cols, row_width=row_width, alignment=align, bg=bg, text_align=text_align)
+        table_ui = SimpleMenuUI(
+            data, dtype, title=desc, rows=rows, cols=cols, 
+            row_width=row_width, alignment=align, bg=bg, 
+            text_align=talign)
         self.other_boxes.append((nid, table_ui))
 
     def choice(self, nid: NID, desc: str, choices: str, width: str, orientation: str,
@@ -3290,7 +3314,7 @@ class Event():
                         if isinstance(val, list):
                             return val
                         else:
-                            return [str(val)]
+                            return [self._object_to_str(val)]
                     except:
                         return [""]
                 data = lambda: tryexcept(choices)
@@ -3710,9 +3734,10 @@ class Event():
         unit = self.get_unit(values[0])
         action.do(action.RemovePartner(unit))
 
-    def parse_pos(self, text, is_float=False):
+    def parse_pos(self, text: str, is_float=False):
         position = None
         if ',' in text:
+            text = text.replace(')', '').replace('(', '')
             if is_float:
                 position = tuple(float(_) for _ in text.split(','))
             else:

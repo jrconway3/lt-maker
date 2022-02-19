@@ -68,8 +68,6 @@
                     6
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -92,8 +90,6 @@
                     6
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -128,8 +124,6 @@
                     5
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -269,8 +263,6 @@
                     3
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -293,8 +285,6 @@
                     3
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -317,8 +307,6 @@
                     8
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -341,8 +329,6 @@
                     7
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -365,8 +351,6 @@
                     5
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -389,8 +373,6 @@
                     3
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -410,8 +392,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -431,8 +411,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -452,8 +430,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -468,8 +444,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -489,8 +463,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             }
         ],
@@ -794,8 +766,6 @@
                     3
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -818,8 +788,6 @@
                     12
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -842,8 +810,6 @@
                     14
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -870,8 +836,6 @@
                     11
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -894,8 +858,6 @@
                     9
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -918,8 +880,6 @@
                     9
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -942,8 +902,6 @@
                     9
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             }
         ],
@@ -1301,8 +1259,6 @@
                     2
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -1325,8 +1281,6 @@
                     8
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -1349,8 +1303,6 @@
                     11
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -1377,8 +1329,6 @@
                     9
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -1405,8 +1355,6 @@
                     12
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -1433,8 +1381,6 @@
                     6
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -1461,8 +1407,6 @@
                     2
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -1485,8 +1429,6 @@
                     9
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -1509,8 +1451,6 @@
                     11
                 ],
                 "starting_traveler": null,
-                "name": "Cutthroat",
-                "desc": "A member of Bazba's Bandits, who roam this region.",
                 "generic": true
             },
             {
@@ -1528,8 +1468,6 @@
                     12
                 ],
                 "starting_traveler": null,
-                "name": "Wall",
-                "desc": "",
                 "generic": true
             },
             {
@@ -1547,8 +1485,6 @@
                     9
                 ],
                 "starting_traveler": null,
-                "name": "Wall",
-                "desc": "",
                 "generic": true
             },
             {
@@ -1566,8 +1502,6 @@
                     8
                 ],
                 "starting_traveler": null,
-                "name": "Wall",
-                "desc": "",
                 "generic": true
             },
             {
@@ -1582,8 +1516,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Soldier",
-                "desc": "The army of Grado, the largest nation on the entire continent",
                 "generic": true
             }
         ],
@@ -1897,8 +1829,6 @@
                     4
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "It's a monster.",
                 "generic": true
             },
             {
@@ -1921,8 +1851,6 @@
                     4
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "It's a monster.",
                 "generic": true
             },
             {
@@ -1945,8 +1873,6 @@
                     8
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "It's a monster.",
                 "generic": true
             },
             {
@@ -1969,8 +1895,6 @@
                     9
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -1993,8 +1917,6 @@
                     13
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2017,8 +1939,6 @@
                     12
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2041,8 +1961,6 @@
                     14
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2065,8 +1983,6 @@
                     14
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2090,8 +2006,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2111,8 +2025,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2132,8 +2044,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2153,8 +2063,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2177,8 +2085,6 @@
                     13
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2201,8 +2107,6 @@
                     7
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2225,8 +2129,6 @@
                     10
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2249,8 +2151,6 @@
                     14
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2270,8 +2170,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2291,8 +2189,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2312,8 +2208,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2336,8 +2230,6 @@
                     7
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2360,8 +2252,6 @@
                     8
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "It's a monster.",
                 "generic": true
             },
             {
@@ -2384,8 +2274,6 @@
                     11
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "A grotesque creature created by magic and born in darkness.",
                 "generic": true
             },
             {
@@ -2408,8 +2296,6 @@
                     6
                 ],
                 "starting_traveler": null,
-                "name": "Monster",
-                "desc": "It's a monster.",
                 "generic": true
             },
             {
@@ -2427,8 +2313,6 @@
                     8
                 ],
                 "starting_traveler": null,
-                "name": "Wall",
-                "desc": "",
                 "generic": true
             },
             {
@@ -2820,8 +2704,6 @@
                     10
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -2844,8 +2726,6 @@
                     7
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -2868,8 +2748,6 @@
                     0
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -2892,8 +2770,6 @@
                     3
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -2916,8 +2792,6 @@
                     2
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -2940,8 +2814,6 @@
                     0
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -2964,8 +2836,6 @@
                     4
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -2988,8 +2858,6 @@
                     2
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -3012,8 +2880,6 @@
                     3
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -3036,8 +2902,6 @@
                     8
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -3060,8 +2924,6 @@
                     8
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -3084,8 +2946,6 @@
                     9
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -3108,8 +2968,6 @@
                     7
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -3132,8 +2990,6 @@
                     7
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -3156,8 +3012,6 @@
                     10
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -3177,8 +3031,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Bandit",
-                "desc": "One of the bandits who have laid claim to the Carcino territories.",
                 "generic": true
             },
             {
@@ -3198,8 +3050,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Bandit",
-                "desc": "One of the bandits who have laid claim to the Carcino territories.",
                 "generic": true
             },
             {
@@ -3219,8 +3069,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Bandit",
-                "desc": "One of the bandits who have laid claim to the Carcino territories.",
                 "generic": true
             },
             {
@@ -3240,8 +3088,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Bandit",
-                "desc": "One of the bandits who have laid claim to the Carcino territories.",
                 "generic": true
             },
             {
@@ -3261,8 +3107,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Bandit",
-                "desc": "One of the bandits who have laid claim to the Carcino territories.",
                 "generic": true
             },
             {
@@ -3282,8 +3126,6 @@
                 "ai_group": null,
                 "starting_position": null,
                 "starting_traveler": null,
-                "name": "Bandit",
-                "desc": "One of the bandits who have laid claim to the Carcino territories.",
                 "generic": true
             }
         ],
@@ -3682,7 +3524,7 @@
             {
                 "nid": "Bone",
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "None",
                 "ai_group": null,
                 "starting_position": [
                     2,
@@ -3697,8 +3539,8 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    5,
-                    6
+                    6,
+                    3
                 ],
                 "starting_traveler": null,
                 "generic": false
@@ -3724,21 +3566,19 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "None",
                 "ai_group": null,
                 "starting_position": [
                     5,
                     5
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
                 "nid": "Seth",
                 "team": "other",
-                "ai": "None",
+                "ai": "Pursue",
                 "ai_group": null,
                 "starting_position": [
                     13,
@@ -3766,23 +3606,16 @@
                     4,
                     3
                 ],
-                "starting_traveler": "104",
-                "name": null,
-                "desc": null,
+                "starting_traveler": null,
                 "generic": true
             },
             {
                 "nid": "102",
                 "variant": null,
                 "level": 1,
-                "klass": "Myrmidon",
+                "klass": "Thief",
                 "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Sword",
-                        false
-                    ]
-                ],
+                "starting_items": [],
                 "team": "enemy",
                 "ai": "None",
                 "ai_group": null,
@@ -3791,40 +3624,17 @@
                     4
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
-                "generic": true
-            },
-            {
-                "nid": "104",
-                "variant": null,
-                "level": 20,
-                "klass": "Sniper",
-                "faction": "Soldier",
-                "starting_items": [
-                    [
-                        "Iron Bow",
-                        false
-                    ]
-                ],
-                "team": "player",
-                "ai": "None",
-                "ai_group": null,
-                "starting_position": null,
-                "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
                 "nid": "108",
                 "variant": null,
-                "level": 1,
+                "level": 15,
                 "klass": "Archer",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Bow",
+                        "Longbow",
                         false
                     ]
                 ],
@@ -3832,23 +3642,21 @@
                 "ai": "None",
                 "ai_group": null,
                 "starting_position": [
-                    3,
-                    5
+                    1,
+                    14
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
                 "nid": "105",
                 "variant": null,
                 "level": 1,
-                "klass": "Archer",
+                "klass": "Knight",
                 "faction": "Soldier",
                 "starting_items": [
                     [
-                        "Iron Bow",
+                        "Javelin",
                         false
                     ]
                 ],
@@ -3856,12 +3664,10 @@
                 "ai": "Attack",
                 "ai_group": null,
                 "starting_position": [
-                    6,
-                    10
+                    4,
+                    14
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -3892,8 +3698,6 @@
                     9
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -3928,8 +3732,6 @@
                     7
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -3952,8 +3754,6 @@
                     6
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             },
             {
@@ -3976,8 +3776,6 @@
                     8
                 ],
                 "starting_traveler": null,
-                "name": null,
-                "desc": null,
                 "generic": true
             }
         ],
@@ -4012,7 +3810,7 @@
                 "sub_nid": "Arena",
                 "condition": "not unit.has_attacked",
                 "only_once": false,
-                "interrupt_move": true
+                "interrupt_move": false
             },
             {
                 "nid": "Door1",

@@ -91,8 +91,6 @@ class AIController():
     def move(self):
         if self.goal_position and self.goal_position != self.unit.position:
             path = target_system.get_path(self.unit, self.goal_position)
-            # if self.unit.has_attacked:
-            #     self.unit.wait()
             game.state.change('movement')
             action.do(action.Move(self.unit, self.goal_position, path))
             return True
@@ -291,7 +289,8 @@ class AIController():
                     action.do(action.AIGroupPing(unit))
 
     def build_primary(self):
-        if self.behaviour.view_range == -1:  # Guard AI
+        # Guard AI
+        if self.behaviour.view_range == -1 and not self.unit.ai_group_active:
             valid_moves = {self.unit.position}
         else:
             valid_moves = self.get_true_valid_moves()

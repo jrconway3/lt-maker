@@ -229,7 +229,7 @@ class GameState():
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
         tilemap = TileMapObject.from_prefab(tilemap_prefab)
         self.cursor = LevelCursor(self)
-        self.current_level = LevelObject.from_prefab(level_prefab, tilemap, self.unit_registry)
+        self.current_level = LevelObject.from_prefab(level_prefab, tilemap, self.unit_registry, self.current_mode)
         if with_party:
             self.current_party = with_party
         else:
@@ -352,7 +352,7 @@ class GameState():
         save.set_next_uids(self)
         self.terrain_status_registry = s_dict.get('terrain_status_registry', {})
         self.region_registry = {region['nid']: Region.restore(region) for region in s_dict.get('regions', [])}
-        self.unit_registry = {unit['nid']: UnitObject.restore(unit) for unit in s_dict['units']}
+        self.unit_registry = {unit['nid']: UnitObject.restore(unit, self) for unit in s_dict['units']}
 
         # Handle subitems
         for item in self.item_registry.values():
@@ -462,7 +462,7 @@ class GameState():
         self.region_registry.clear()
 
         # Remove all generics
-        self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if not v.generic}
+        self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if v.persistent}
 
         # Remove any skill that's not on a unit and does not have a parent_skill
         for k, v in list(self.skill_registry.items()):
@@ -663,7 +663,8 @@ class GameState():
     def get_all_units_in_party(self, party=None) -> List[UnitObject]:
         if party is None:
             party = self.current_party
-        return [unit for unit in self.units if unit.team == 'player' and not unit.generic and unit.party == party]
+        party_units =  [unit for unit in self.units if unit.team == 'player' and unit.persistent and unit.party == party]
+        return party_units
 
     def get_units_in_party(self, party=None) -> List[UnitObject]:
         if party is None:

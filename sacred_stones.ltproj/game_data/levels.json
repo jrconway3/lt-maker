@@ -3524,7 +3524,7 @@
             {
                 "nid": "Bone",
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "None",
                 "ai_group": null,
                 "starting_position": [
                     2,
@@ -3566,7 +3566,7 @@
                     ]
                 ],
                 "team": "enemy",
-                "ai": "Attack",
+                "ai": "None",
                 "ai_group": null,
                 "starting_position": [
                     5,
@@ -3578,7 +3578,7 @@
             {
                 "nid": "Seth",
                 "team": "other",
-                "ai": "None",
+                "ai": "Pursue",
                 "ai_group": null,
                 "starting_position": [
                     13,
@@ -3613,7 +3613,7 @@
                 "nid": "102",
                 "variant": null,
                 "level": 1,
-                "klass": "Myrmidon",
+                "klass": "Thief",
                 "faction": "Soldier",
                 "starting_items": [],
                 "team": "enemy",

@@ -6936,6 +6936,13 @@
                 ]
             ],
             [
+                "level_var",
+                [
+                    "_other_fog_of_war_radius",
+                    "5"
+                ]
+            ],
+            [
                 "give_money",
                 [
                     "2000",
@@ -7005,10 +7012,9 @@
                 ]
             ],
             [
-                "change_team",
+                "comment",
                 [
-                    "Seth",
-                    "player"
+                    "#change_team;Seth;player"
                 ]
             ],
             [

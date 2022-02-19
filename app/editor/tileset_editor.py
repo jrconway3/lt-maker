@@ -1,6 +1,5 @@
 from app.constants import TILEHEIGHT, TILEWIDTH
 from app.data.database import DB
-from app.editor import timer
 from app.editor.settings import MainSettingsController
 from app.editor.terrain_painter_menu import TerrainPainterMenu
 from app.editor.tilemap_editor import PaintTool
@@ -17,6 +16,7 @@ class TileSetEditorView(DraggableTileImageView):
         super().__init__(parent)
         self.tileset: TileSet = None
         self.alpha = 128
+        self.draw_gridlines = True
 
     def set_current(self, current: TileSet):
         self.tileset = current
@@ -33,10 +33,10 @@ class TileSetEditorView(DraggableTileImageView):
             self.clear_scene()
             return
         self.draw_terrain()
-        self.draw_gridlines()
+        self.draw_grid()
         self.show_map()
 
-    def draw_gridlines(self):
+    def draw_grid(self):
         if self.working_image:
             painter = QPainter()
             painter.begin(self.working_image)
@@ -67,7 +67,7 @@ class TileSetEditorView(DraggableTileImageView):
         self.scene.addPixmap(self.working_image)
 
 class TileSetEditor(QDialog):
-    def __init__(self, parent=None, current: TileSet=None):
+    def __init__(self, parent=None, current: TileSet = None):
         super().__init__(parent)
         self.window = parent
         self.setWindowTitle("Tileset Editor")

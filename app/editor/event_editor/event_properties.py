@@ -130,22 +130,16 @@ class Highlighter(QSyntaxHighlighter):
             for idx, section in enumerate(sections):
                 start = num_tabs * 4 + len(';'.join(sections[:idx])) + 1
                 if '{' in section and '}' in section:
-                    opening_brace_idx = -1
-                    closing_brace_idx = -1
-                    for char_idx, char in enumerate(section):
+                    brace_mode = 0
+                    for idx, char in enumerate(section):
                         if char == '{':
-                            if opening_brace_idx > 0 and not closing_brace_idx > 0:
-                                continue
-                            elif opening_brace_idx > 0 and closing_brace_idx > 0:
-                                self.setFormat(opening_brace_idx, closing_brace_idx, self.special_text_format)
-                                opening_brace_idx = -1
-                                closing_brace_idx = -1
-                            elif not opening_brace_idx > 0:
-                                opening_brace_idx = start + char_idx
-                        if char == '}' and opening_brace_idx > 0:
-                            closing_brace_idx = start + char_idx - opening_brace_idx
-                    if opening_brace_idx > 0 and closing_brace_idx > 0:
-                        self.setFormat(opening_brace_idx, closing_brace_idx + 1, self.special_text_format)
+                            if brace_mode == 0:
+                                special_start = start + idx
+                            brace_mode += 1
+                        if char == '}':
+                            if brace_mode > 0:
+                                self.setFormat(special_start, start + idx - special_start + 1, self.special_text_format)
+                                brace_mode -= 1
 
             # Handle text format
             if sections[0] in ('s', 'speak') and len(sections) >= 3:
@@ -153,13 +147,18 @@ class Highlighter(QSyntaxHighlighter):
                 self.setFormat(start, len(sections[2]), self.text_format)
                 # Handle special text format
                 special_start = 0
+                brace_mode = 0
                 for idx, char in enumerate(sections[2]):
                     if char == '|':
                         self.setFormat(start + idx, 1, self.special_text_format)
                     elif char == '{':
-                        special_start = start + idx
+                        if brace_mode == 0:
+                            special_start = start + idx
+                        brace_mode += 1
                     elif char == '}':
-                        self.setFormat(special_start, start + idx - special_start + 1, self.special_text_format)
+                        if brace_mode > 0:
+                            self.setFormat(special_start, start + idx - special_start + 1, self.special_text_format)
+                            brace_mode -= 1
 
     def validate_line(self, line) -> list:
         try:

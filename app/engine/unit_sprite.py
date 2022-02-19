@@ -320,7 +320,7 @@ class UnitSprite():
                 self.image_state = 'down'
         elif self.state == 'moving':
             next_position = game.movement.get_next_position(self.unit.nid)
-            if not next_position:
+            if not next_position or not self.unit.position:
                 self.set_transition('normal')
                 return
             self.net_position = (next_position[0] - self.unit.position[0], next_position[1] - self.unit.position[1])

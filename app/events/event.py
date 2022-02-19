@@ -673,7 +673,7 @@ class Event():
                     # we are using a custom camera speed
                     duration = int(values[1])
                     game.camera.do_slow_pan(duration)
-                    game.camera.set_center(*position)
+                game.camera.set_center(*position)
                 game.state.change('move_camera')
                 self.state = 'paused'  # So that the message will leave the update loop
 
@@ -2185,6 +2185,9 @@ class Event():
         elif movement_type == 'fade':
             action.do(action.FadeMove(unit, position))
         elif movement_type == 'normal':
+            if unit.position == position:
+                # Don't bother if identical
+                return
             path = target_system.get_path(unit, position)
             action.do(action.Move(unit, position, path, event=True, follow=follow))
 

@@ -73,9 +73,13 @@ class RawDataValidator(EvalValidator):
             return [(None, key) for key in DB.raw_data.keys()]
         elif level == 1:
             # we already have a raw data NID
-            data_nid = text.split('.')[0]
+            args = text.split('.')
+            data_nid = args[0]
             raw_data_prefab = DB.raw_data.get(data_nid)
-            if raw_data_prefab and raw_data_prefab.dtype in ['list', 'kv']: # get its keys
+            # are we searching, or quering a specific row?
+            if args[1].startswith('[') and raw_data_prefab.dtype == 'list': # searching across column space
+                return [(None, oattr) for oattr in raw_data_prefab.oattrs]
+            elif raw_data_prefab and raw_data_prefab.dtype in ['list', 'kv']: # searching for specific row nid
                 return [(None, key) for key in raw_data_prefab.value.keys()]
         elif level == 2:
             # this is a list type

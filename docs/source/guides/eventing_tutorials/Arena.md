@@ -78,7 +78,7 @@ give_item;{created_unit};{var:ArenaItem};no_banner
 
 Finally, we can ask the player whether they actually want to fight. We set up the menus and display boxes now.
 
-![Screenshot of menus and display boxes](../images/ArenaMenus.png)
+![Screenshot of menus and display boxes](../images/ArenaMenu.png)
 
 ```
 change_background;Arena

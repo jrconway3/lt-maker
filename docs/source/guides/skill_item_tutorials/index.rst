@@ -11,8 +11,6 @@ These are guides on various useful skills and items.
     Conditional-Passives-I
     Auras
 
-    skill/index.rst
-
 .. toctree::
     :maxdepth: 2
     :caption: Advanced

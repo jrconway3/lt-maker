@@ -1756,20 +1756,38 @@ class Event():
                 # {d:data_nid} if str
                 # {d:data_nid.key_nid} if kv dict
                 # {d:data_nid.obj_nid.property_nid} if list/table
+                # {d:data_nid.[p1=x,p2=y,p3=z].property_nid} if list/table with searching
                 if len(args) == 1:
                     resolved_data = game.get_data(data_nid)
                 elif len(args) == 2:
                     key_nid = args[1]
                     resolved_data = game.get_data(data_nid)[key_nid]
                 elif len(args) == 3:
-                    obj_nid = args[1]
                     attr_nid = args[2]
-                    resolved_data = getattr(game.get_data(data_nid).get(obj_nid), attr_nid)
+                    if args[1].startswith('[') and args[1].endswith(']'): # searching
+                        searches = args[1][1:-1].split(',')
+                        search_keys: List[Tuple[str, str]] = []
+                        general_search_keys: List[str] = []
+                        for term in searches:
+                            searchl = term.split('-')
+                            if len(searchl) == 1: # single search term, if any match we're good
+                                general_search_keys.append(searchl[0].strip())
+                            elif len(searchl) == 2: # search key set to value
+                                col, val = searchl
+                                search_keys.append((col.strip(), val.strip()))
+                        for item in game.get_data(data_nid)._list:
+                            if all([hasattr(item, col) and getattr(item, col) == val for col, val in search_keys]) and \
+                                all([any([getattr(item, col) == val for col in dir(item)]) for val in general_search_keys]):
+                                return getattr(item, attr_nid)
+                        raise ValueError("No data matching" + str(search_keys) + " and " + str(general_search_keys))
+                    else:
+                        obj_nid = args[1]
+                        resolved_data = getattr(game.get_data(data_nid).get(obj_nid), attr_nid)
                 else:
-                    raise ValueError()
+                    raise ValueError("Bad data format")
                 evaluated.append(self._object_to_str(resolved_data))
-            except:
-                self.logger.error("eval failed, cannot parse %s", to_eval)
+            except Exception as e:
+                self.logger.error("eval failed, failed to parse %s (%s)", to_eval, repr(e))
                 evaluated.append('??')
         for idx in range(len(to_evaluate)):
             text = text.replace(to_evaluate[idx], evaluated[idx])

@@ -2536,9 +2536,8 @@ class RemoveSkill(Action):
     def _remove(self, true_remove=True):
         self.removed_skills.clear()
         if isinstance(self.skill, str):
-            for skill in self.unit.skills[:]:
+            for skill in self.unit.skills:
                 if skill.nid == self.skill:
-                    self.unit.skills.remove(skill)
                     skill_system.on_remove(self.unit, skill)
                     if true_remove:
                         skill_system.on_true_remove(self.unit, skill)
@@ -2546,6 +2545,7 @@ class RemoveSkill(Action):
                     self.removed_skills.append(skill)
                     if skill.aura and self.unit.position and game.board and game.tilemap:
                         aura_funcs.release_aura(self.unit, skill, game)
+            self.unit.skills = [skill for skill in self.unit.skills if skill.nid != self.skill]
         else:
             if self.skill in self.unit.skills:
                 self.unit.skills.remove(self.skill)

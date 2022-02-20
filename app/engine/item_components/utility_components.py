@@ -232,6 +232,7 @@ class Trade(ItemComponent):
         if self._did_hit and target:
             game.cursor.cur_unit = unit
             game.cursor.set_pos(target.position)
+            game.memory['trade_partner'] = target
             game.state.change('combat_trade')
         self._did_hit = False
 

@@ -3688,6 +3688,10 @@
                     [
                         "Refresh",
                         false
+                    ],
+                    [
+                        "Trade",
+                        false
                     ]
                 ],
                 "team": "player",

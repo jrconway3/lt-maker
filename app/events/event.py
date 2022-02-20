@@ -41,8 +41,6 @@ from app.utilities import str_utils, utils
 from app.utilities.enums import Alignments
 from app.utilities.typing import NID, Point
 
-import pyparsing
-
 screen_positions = {'OffscreenLeft': -96,
                     'FarLeft': -24,
                     'Left': 0,
@@ -1704,8 +1702,9 @@ class Event():
         to_evaluate = re.findall(r'\{.*\}', text)
         evaluated = []
         for to_eval in to_evaluate:
-            parsed = pyparsing.nested_expr('{', '}', ignore_expr=None).search_string(to_eval)
-            evaluated.append(recursive_parse(parsed[0][0].as_list()))
+            parsed = str_utils.nested_expr(to_eval, '{', '}')
+            evaled = recursive_parse(parsed)
+            evaluated.append(evaled)
         for idx in range(len(to_evaluate)):
             text = text.replace(to_evaluate[idx], evaluated[idx])
         return text

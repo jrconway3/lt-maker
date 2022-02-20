@@ -91,10 +91,49 @@ def camel_to_snake(name: str) -> str:
     https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
     """
     name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()    
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()   
+
+def nested_expr(s, opener, closer):
+    # Returns a nested list
+    assert opener != closer
+    assert len(opener) == 1
+    assert len(closer) == 1
+    main_list = []
+    list_stack = [main_list]
+    current_list = main_list
+    for character in s:
+        if character == opener:
+            new_list = []
+            list_stack.append(new_list)
+            current_list.append(new_list)
+            current_list = new_list
+        elif character == closer:
+            list_stack.pop()
+            current_list = list_stack[-1]
+        else:
+            current_list.append(character)
+    return main_list[0] 
 
 if __name__ == '__main__':
     print(camel_to_snake("Direction"))
     print(camel_to_snake("EntityID"))
     print(camel_to_snake("Node1"))
     print(camel_to_snake("OverworldNodeNid"))
+
+    def recursive_parse(parse_list) -> str:
+        copy = [""] * len(parse_list)
+        for idx, nested in enumerate(parse_list):
+            if isinstance(nested, list):
+                recursively_parsed = recursive_parse(nested)
+                copy[idx] = recursively_parsed
+            else:
+                copy[idx] = nested
+        return str('{' + ''.join(copy) + '}')
+
+    test_str = "See, {e:game.get_unit('{e:unit.nid}')}."
+    to_evaluate = re.findall(r'\{.*\}', test_str)
+    for to_eval in to_evaluate:
+        res = nested_expr(to_eval, "{", "}")
+        print(res)
+        parsed = recursive_parse(res)
+        print(parsed)

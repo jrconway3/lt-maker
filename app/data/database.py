@@ -20,7 +20,7 @@ class Database(object):
                        "support_constants", "support_ranks", "affinities", "units", "support_pairs",
                        "ai", "parties", "difficulty_modes",
                        "translations", "lore", "levels", "events", "overworlds", "raw_data")
-    save_as_chunks = ("events")
+    save_as_chunks = ("events", 'items', 'skills', 'units', 'classes')
 
     def __init__(self):
         self.constants = constants.constants
@@ -128,11 +128,11 @@ class Database(object):
                 os.mkdir(save_dir)
                 for idx, subvalue in enumerate(value):
                     if 'nid' in subvalue:
-                        name = subvalue['nid']
+                        name = str(idx).zfill(6) + '_' + subvalue['nid']
                     elif 'name' in subvalue:
-                        name = subvalue['name']
+                        name = str(idx).zfill(6) + '_' + subvalue['name']
                     else:
-                        name = str(idx)
+                        name = str(idx).zfill(6)
                     name = re.sub(r'[\\/*?:"<>|]',"", name)
                     name = name.replace(' ', '_')
                     save_loc = os.path.join(save_dir, name + '.json')

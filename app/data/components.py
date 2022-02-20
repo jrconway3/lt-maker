@@ -43,7 +43,7 @@ class Component():
     value = None
 
     def __init__(self, value=None):
-        if value:
+        if value is not None:
             self.value = value
 
     @property

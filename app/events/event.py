@@ -1686,8 +1686,7 @@ class Event():
         elif re.match(r'\{v:[^{}]*\}', text) or re.match(r'\{var:[^{}]*\}', text):
             return self._evaluate_vars(text)
         else:
-            logging.error("Could not determine eval type for phrase %s", text)
-            return "??"
+            return text
 
     def _evaluate_all(self, text: str) -> str:
         def recursive_parse(parse_list) -> str:

@@ -12,19 +12,19 @@ As a reminder, **Lex Talionis** is developed in **Python** and the conditions se
 * **Step 4: Set the condition**
 	* Step 4.A: **[Lucky Seven]** Set a simple condition
 	* Step 4.B: **[Odd Rhythm]** Set a condition with an expression
-	* Step 4.C: **[Wrath]** Set a condition with an expression using properties
-* **Step 2.B → 4.D: [Quick Burn] Add the dynamic components**
+	* Step 4.C: **[Wrath]** Set a condition with an expression using attributes and methods
+* **Step 2.B → 4.D: [Quick Burn] Add the Dynamic Components**
 * **Step 5: Test the stat alterations in-game**
 
 ## Required editors and components
 * Skills:
 	* Attribute components - Class Skills
 	* Combat components - Avoid, Hit and Crit
-	* **Advanced components - Condition**
-	* **Dynamic components - Avoid and Accuracy**
-* **Objects, Attributes and Properties:**
-	* **game - turncounter**
-	* **unit - get_HP() and get_max_HP()**
+	* **Advanced components** - **Condition**
+	* **Dynamic components** - **Dynamic Avoid** and **Dynamic Accuracy**
+* **Objects, Attributes and Methods:**
+	* **game** - **turncounter**
+	* **unit** - **get_HP()** and **get_max_HP()**
 
 ## Skill descriptions
  - **Lucky Seven** - Hit/Avoid +20 for the first 7 turns.
@@ -37,13 +37,13 @@ As a reminder, **Lex Talionis** is developed in **Python** and the conditions se
 ## Step 2.A: Add the combat components
 
 ## Step 3: Add the Condition component
-There are many conditional and trigger components, for this tutorial we will use the **Condition component** that can be found within the **Advanced Components** menu, represented by the **Gear icon**.
+There are many conditional and trigger components, for this guide we will use the **Condition component** that can be found within the **Advanced Components** menu, represented by the **Gear icon**.
 
-![2_1](./images/Conditional-Passives-I/2_1.png)
+![1](./images/Conditional-Passives-I/1.png)
 
 The **Condition component** requires a statement and will enable the majority of the other effect components if the given statement is **True**.
 
-![2_2](./images/Conditional-Passives-I/2_2.png)
+![2](./images/Conditional-Passives-I/2.png)
 
 Here are some few illustrative examples:
 |Statement|Output|
@@ -70,13 +70,13 @@ We can reference it with the following syntax:
     game.turncount
 
 ### Step 4.A: [Lucky Seven] Set a simple condition
-Simple conditions only take the bare minimum for it to work, two elements and one operator. Some of these conditions may have multiple syntaxes.
+Simple conditions only take the bare minimum for it to work, two elements and one **comparison operator**. Some of these conditions may have multiple syntaxes.
 
 The syntax for **conditions** is:
 
-    {A} <operator> {B}
+    {A} <comparison operator> {B}
 
-Here's the list of all **operators**:
+Here's the list of all **comparison operators**:
 |Operator|Explanation|Notes
 |--|--|--|
 |==|A is equal to B|-
@@ -85,10 +85,10 @@ Here's the list of all **operators**:
 |<|A is smaller than B|Numeric only
 |>=|A is greater or equal to B|Numeric only
 |<=|A is smaller or equal to B|Numeric only
-|is|A is equal to B|Object only
-|is not|A is different from B|Object only
-|in|A exist in B|B must be an array
-|not in|A doesn't exist in B|B must be an array
+|is|A is equal to B|Identity operator, objects only
+|is not|A is different from B|Identity operator, objects only
+|in|A exist in B|Membership operator, B must be an array
+|not in|A doesn't exist in B|Membership operator, B must be an array
 
 Now that we know all the syntaxes, it's time to list all our pieces.
 
@@ -102,18 +102,20 @@ These will converge in the following **condition**:
 
 Our skill should end up like this:
 
-![2_3](./images/Conditional-Passives-I/2_3.png)
+![3](./images/Conditional-Passives-I/3.png)
 
 ### Step 4.B: [Odd Rhythm] Set a condition with an expression
-We'll expand from where we left at the previous side step. The major change will be the **expression** used as a replacement for one of our elements, along a different **operator** that fits our requirements.
+We'll expand from where we left at the previous side step. The major change will be the **expression** used as a replacement for one of our elements, along a different **comparison operator** that fits our requirements.
 
-**Expressions** use operators similar to regular mathematics operators, with some few distinctions.
+**Expressions** require at least one **arithmetic operator** to generate a value, which are very similar to their regular counterparts.
 
 The syntax for **expressions** is:
 
-    {A} <operator> {B}
+		{A} <arithmetic operator> {B}
+		{A} <arithmetic operator> {B} <arithmetic operator> {C}
+    {A} <arithmetic operator> {B} <arithmetic operator> {C} ... <arithmetic operator> {H} ... ∞
 
-Here's the list of all **operators**:
+Here's the list of all **arithmetic operators**:
 |Operator|Explanation|Notes
 |--|--|--|
 |+|Addition
@@ -130,14 +132,14 @@ By definition, and odd number is a number that has a remainder when divided by 2
 
 Our skill should end up like this:
 
-![2_4](./images/Conditional-Passives-I/2_4.png)
+![4](./images/Conditional-Passives-I/4.png)
 
-### Step 4.C: [Wrath] Set a condition with an expression using properties
+### Step 4.C: [Wrath] Set a condition with an expression using attributes and methods
 Again, we will expand from where we left at previous side step. This time, we'll use expressions in both sides of our condition, and they will use two new variables.
 
-For *Wrath*, we'll need to retrieve information regarding the skill holder. To do so, we need to call the **unit** object. This object is used to reference the holder/wielder/user of a **skill** or **item**. It takes the direct unit using it which may or not be the actual target of the **skill** or **item**.
+For *Wrath*, we'll need to retrieve information regarding the skill holder. To do so, we need to call the **unit object**. This object is used to reference the holder/wielder/user of a **skill** or **item**. It takes the direct unit using it which may or not be the actual target of the **skill** or **item**.
 
-For **current HP** and **maximum HP** values, we need to call the respective methods from the **unit** object:
+For **current HP** and **maximum HP** values, we need to call the respective methods from the **unit object**:
 
 	get_HP()
 
@@ -151,18 +153,18 @@ With these in hand, we can finally set our **condition** as:
 
 Our skill should end up like this:
 
-![2_5](./images/Conditional-Passives-I/2_5.png)
+![5](./images/Conditional-Passives-I/5.png)
 
 ## Step 2.B → 4.D: [Quick Burn] Add the Dynamic Components
 At last, we will get into a new type of component that can handle a non-fixed value. Instead of a static number, it can take formulas or other attributes as its value, such as the user level, the number of allies within a given range or even an unrelated different stat. **Dynamic Components** can also carry **condition**, including **expressions**, within them, which allows it to provide two different outputs depending on the result.
 
 Dynamic battle components are represented by the **Crossed Swords icon**. The only exception is the **Dynamic Damage Multiplier component**, found within the **Combat Components**.
 
-![2_6](./images/Conditional-Passives-I/2_6.png)
+![6](./images/Conditional-Passives-I/6.png)
 
 For *Quick Burn*, we will need to use the closest approximation available. These will be **Dynamic Accuracy component** as the **Hit component** replacement and **Dynamic Avoid component** as the **Avoid component** replacement.
 
-![2_7](./images/Conditional-Passives-I/2_7.png)
+![7](./images/Conditional-Passives-I/7.png)
 
 We can then add our formula using the elements from steps 3 and 4.
 
@@ -176,9 +178,9 @@ It would end up as:
 
 	game.turncount <= 15
 
-Since we are using **Dynamic components**, we can chose between using the **Condition component** or adding the condition to the **Dynamic component** itself.
+Since we are using **Dynamic Components**, we can chose between using the **Condition component** or adding the condition to the **Dynamic Component** itself.
 
-In this particular case, it can be a matter of preference but we will add it to the **Dynamic component** to expand our reach of possibilities.
+In this particular case, it can be a matter of preference but we will add it to the **Dynamic Component** to expand our reach of possibilities.
 
 The syntax will be different from what we did so far as it needs the whole If-Else statement to work.
 
@@ -192,10 +194,10 @@ Now we add our values and condition to get:
 
 Our skill should end up like this.
 
-![2_8](./images/Conditional-Passives-I/2_8.png)
+![8](./images/Conditional-Passives-I/8.png)
 
 One important thing to know about **Dynamic Components** is that they won't be displayed in on the **unit information window** when inspected. They are only added once the game calculates the an attack. You need to declare an attack in order to see the stats change. There's no need to execute it however.
 
-![2_9](./images/Conditional-Passives-I/2_9.png)
+![9](./images/Conditional-Passives-I/9.png)
 
 ## Step 5: Test the stat alterations in-game

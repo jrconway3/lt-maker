@@ -1,4 +1,4 @@
-# 3. Auras - Hex, Bond and Focus
+# 5. Auras - Hex, Bond and Focus
 Auras are passive effects that apply to all units of a given type within a radius, targeting either allies or enemies. Once the unit leaves the radius, they no longer get the effects from the aura.
 
 In this guide we will make an an ally based aura, an enemy based aura and a passive that checks how many enemies are within a radius.
@@ -17,11 +17,11 @@ In this guide we will make an an ally based aura, an enemy based aura and a pass
 
 ## Required editors and components
 * Skills:
-	* Attribute components - Class Skills, **Hidden (optional)**
+	* Attribute components - Class Skills, **Hidden [optional]**
 	* Combat components - Hit
 	* Advanced components - Condition
-	* **Status components - Aura, Aura Radius, Aura Target, and Upkeep Damage**
-* Objects, Attributes and Properties:
+	* **Status components** - **Aura**, **Aura Radius**, **Aura Target** and **Upkeep Damage**
+* Objects, Attributes and Methods:
 	* **unit_funcs - check_focus(unit, {integer})**
 
 ## Skill descriptions
@@ -32,24 +32,24 @@ In this guide we will make an an ally based aura, an enemy based aura and a pass
 ## Step 1: Create a Class Skill an an 'Effect Skill'
 This time we will need two different skill entries to create a single skill effect. Only one of them will have the **Class Skill component**.
 
-As usual, we need different **Unique IDs** for both. The naming convention is up to your personal preference. In this tutorial, I will be using *SKILLNAME* for the **Class Skill** and *SKILLNAME_EFFECT* for the *'Effect Skill'*.
+As usual, we need different **Unique IDs** for both. The naming convention is up to your personal preference. In this guide, I will be using *SKILLNAME* for the **Class Skill** and *SKILLNAME_EFFECT* for the *'Effect Skill'*.
 
 We also want our skills to have the same **Display Name** and **Icon**.
 
-![3_1](./images/Auras/3_1.png)
+![1](./images/Auras/1.png)
 
 The **Description** can also be the same, but you may remove the distance from it.
 
-![3_2](./images/Auras/3_2.png)
+![2](./images/Auras/2.png)
 
 ## Step 2.A: Add the an Aura component to the Class Skill
 Auras are composed of three components - **Aura component**, **Aura Range component** and **Aura Target component**. All of them can be found within the **Status Components** menu, represented by the **Sharp Sound Wave icon**.
 
-![3_3](./images/Auras/3_3.png)
+![3](./images/Auras/3.png)
 
 Once you add one of them, the other two will be added as well, and the same applies to removal.
 
-![3_4](./images/Auras/3_4.png)
+![4](./images/Auras/4.png)
 
 |Component Name|Description|Value|
 |--|--|--|
@@ -59,45 +59,45 @@ Once you add one of them, the other two will be added as well, and the same appl
 
 For the **Aura component**, we want to set the other skill we created. We also need to set the **Aura Range component** to the corresponding distance - 1 for *Hex* and 3 for *Bond* and *Focus*. At last, the Aura Target should take *enemy* for *Hex* and *ally* for *Bond*. Focus will be assigned once we get into its dedicated step.
 
-![3_5](./images/Auras/3_5.png)
+![5](./images/Auras/5.png)
 
 The SKILL will be displayed as any other skill in the **unit information window**, meanwhile the effect will be displayed at the status division on every eligible unit.
 
-![3_6](./images/Auras/3_6.png)
+![6](./images/Auras/6.png)
 
 ## Step 3: Add the other components to the 'Effect Skill'
 
 ### Step 3.A: [Hex] Add the Hit component
 The end result should look like this:
 
-![3_7](./images/Auras/3_7.png)
+![7](./images/Auras/7.png)
 
 ### Step 3.B: [Bond] Add the Upkeep Damage component
 
 The **Upkeep Damage component** can also be found within the **Status Component** menu.
 
-![3_8](./images/Auras/3_8.png)
+![8](./images/Auras/8.png)
 
-**Upkeep** is the term used to reefer to for the transition between the enemy phase to the unit phase. You may think of it as a pre-phase moment.
+**Upkeep** is the term used to reefer to for the transition between the one party phase to another. You may think of it as a pre-phase moment.
 
 We can convert this component into a healing effect by assigning a negative value. The end result should look like this:
 
-![3_9](./images/Auras/3_9.png)
+![9](./images/Auras/9.png)
 
 ## Step 2.B → 3.C: [Focus] Add the Condition component to the Class Skill
 Focus will be significantly different from the other two. We can completely remove the **Aura component** if we want to. Its only role in here will be of a in-game range tracker for our skill.
 
 The only requirement to make it into a tracker is to set the **Aura Target component** value to *None*.
 
-![3_10](./images/Auras/3_10.png)
+![10](./images/Auras/10.png)
 
 Ideally, we should also set the **Aura component** value to a '*generic empty skill*' instead of a dedicated *'Effect Skill'*, as it can be reused for any other range tracker.
 
-![3_11](./images/Auras/3_11.png)
+![11](./images/Auras/11.png)
 
 For our condition, we need to take a method within the object **unit_funcs** (*Unit Functions*) that contains some methods that expand on the **unit** object scope and/or interact with other objects outside it.
 
-To check how many enemy units are within the user radius, we need the method **check_focus(unit, {integer})**. This method can take two values, the first has to be **unit** and the second has to be an integer number greater than 0. The {integer} value is set as 3 by default if no value is assigned. Our line should be:
+To check how many enemy units are within the user radius, we need the **check_focus(unit, {integer}) method**. This method can take two values, the first has to be **unit** and the second has to be an integer number greater than 0. The {integer} value is set as 3 by default if no value is assigned. Our line should be:
 
 	unit_funcs.check_focus(unit, 3)
 
@@ -111,18 +111,18 @@ Now we add our conditional operator to get:
 
 The end result should look like this:
 
-![3_12](./images/Auras/3_12.png)
+![12](./images/Auras/12.png)
 
 ## Step 4: Test the stat alterations and effects in-game
 For auras in particular, we need more units to be on our testing map. Set at least one ally and one enemy unit, then move the unit with the aura skill to check if the effects are applied when the ally or enemy is inside the aura radius.
 
-![3_13](./images/Auras/3_13.png)
+![13](./images/Auras/13.png)
 
 The aura radius will also be displayed whenever you hover over any unit that carries an aura, even enemy units.
 
-![3_14](./images/Auras/3_14.png)
+![14](./images/Auras/14.png)
 
 ## Optional Step: Add the Hidden component to the 'Effect Skill'
 By default, every skill added to an unit will be displayed as an inspectable element, either as a class skill or as a status, in the **unit information window**. We can disable that property by adding the **Hidden component**, found within the **Attribute Components** menu.
 
-![3_15](./images/Auras/3_15.png)
+![15](./images/Auras/15.png)

@@ -91,7 +91,7 @@ def camel_to_snake(name: str) -> str:
     https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
     """
     name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()   
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
 
 def nested_expr(s, opener, closer):
     # Returns a nested list
@@ -112,7 +112,7 @@ def nested_expr(s, opener, closer):
             current_list = list_stack[-1]
         else:
             current_list.append(character)
-    return main_list[0] 
+    return main_list[0]
 
 if __name__ == '__main__':
     print(camel_to_snake("Direction"))

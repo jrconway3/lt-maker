@@ -1698,7 +1698,7 @@ class Event():
                 else:
                     copy[idx] = nested
             return str(self._evaluate_phrase('{' + ''.join(copy) + '}'))
-        to_evaluate = re.findall(r'\{.*\}', text)
+        to_evaluate = re.findall(r'\{.*?\}', text)
         evaluated = []
         for to_eval in to_evaluate:
             parsed = str_utils.nested_expr(to_eval, '{', '}')

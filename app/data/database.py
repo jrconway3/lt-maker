@@ -12,6 +12,7 @@ from app.data import (ai, constants, difficulty_modes, equations, factions,
                       overworld_node, parties, raw_data, skills, stats,
                       supports, tags, terrain, translations, units, weapons)
 from app.events import event_prefab
+from app.utilities.str_utils import is_int
 
 
 class Database(object):
@@ -61,11 +62,31 @@ class Database(object):
         self.raw_data = raw_data.RawDataCatalog()
 
     # Disk Interaction Functions
-    def json_save(self, save_loc: str, value: Any):
+    def json_save(self, save_loc: str, value: Any, overwrite=True):
+        # when saving a catalog as individual objects, we shouldn't
+        # overwrite if names happen to match.
+        if not overwrite:
+            while os.path.exists(save_loc): # if a file with this nid already exists...
+                nid = os.path.splitext(save_loc)[0]
+                if is_int(nid[-1]):
+                    next_int = int(nid[-1]) + 1
+                    nid = nid[:-1] + str(next_int)
+                else:
+                    nid = nid + str(1)
+                save_loc = nid + '.json'
         temp_save_loc = save_loc + ".tmp"
         with open(temp_save_loc, 'w') as serialize_file:
             json.dump(value, serialize_file, indent=4)
         os.replace(temp_save_loc, save_loc)
+
+    def jsonsort(self, jsonobj):
+        try:
+            if isinstance(jsonobj, list):
+                if all(['_orderkey' in obj.keys() for obj in jsonobj]):
+                    return sorted(jsonobj, key= lambda obj: obj['_orderkey'])
+            return jsonobj
+        except:
+            return jsonobj
 
     def json_load(self, data_dir: str, key: str) -> Dict | List:
         if os.path.exists(os.path.join(data_dir, key)): # data type is a directory, browse within
@@ -127,17 +148,22 @@ class Database(object):
                     shutil.rmtree(save_dir)
                 os.mkdir(save_dir)
                 for idx, subvalue in enumerate(value):
+                    # ordering
+                    subvalue['_orderkey'] = idx
                     if 'nid' in subvalue:
-                        name = str(idx).zfill(6) + '_' + subvalue['nid']
+                        name = subvalue['nid']
                     elif 'name' in subvalue:
-                        name = str(idx).zfill(6) + '_' + subvalue['name']
+                        if 'level_nid' in subvalue.keys(): # to handle the wonky event nid property
+                            name = subvalue['name'] + subvalue['level_nid'] if subvalue['level_nid'] else 'global'
+                        else:
+                            name = subvalue['name']
                     else:
                         name = str(idx).zfill(6)
                     name = re.sub(r'[\\/*?:"<>|]',"", name)
                     name = name.replace(' ', '_')
                     save_loc = os.path.join(save_dir, name + '.json')
                     logging.info("Serializing %s to %s" % ('%s/%s.json' % (key, name), save_loc))
-                    self.json_save(save_loc, [subvalue])
+                    self.json_save(save_loc, [subvalue], overwrite=False)
 
         end = time.time_ns()/1e6
         logging.info("Total Time Taken for Database: %s ms" % (end - start))
@@ -149,7 +175,8 @@ class Database(object):
 
         save_obj = {}
         for key in self.save_data_types:
-            save_obj[key] = self.json_load(data_dir, key)
+            save_obj[key] = self.jsonsort(self.json_load(data_dir, key))
+
         self.restore(save_obj)
         logging.info("Done deserializing!")
 

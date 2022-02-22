@@ -1,4 +1,8 @@
+import json
+import logging
 import os
+import re
+import shutil
 from app.utilities.data import Prefab
 from app.resources.base_catalog import ManifestCatalog
 
@@ -39,16 +43,44 @@ class PaletteCatalog(ManifestCatalog[Palette]):
     manifest = 'palettes.json'
     title = 'palettes'
 
-    def load(self, loc):
-        true_loc = os.path.join(loc, self.manifest)
-        if not os.path.exists(true_loc):
-            return
-        palette_dict = self.read_manifest(true_loc)
-        for s_dict in palette_dict:
-            new_palette = Palette.restore(s_dict)
-            self.append(new_palette)
-
     def save(self, loc):
         # No need to finagle with full paths
         # Because Palettes don't have any connection to any actual file.
         self.dump(loc)
+
+    def load(self, loc):
+        if not os.path.exists(os.path.join(loc, 'palette_data')): # old palettes.json
+            tilemap_dict = self.read_manifest(os.path.join(loc, self.manifest))
+            for s_dict in tilemap_dict:
+                new_tilemap = Palette.restore(s_dict)
+                self.append(new_tilemap)
+        else:
+            data_fnames = os.listdir(os.path.join(loc, 'palette_data'))
+            save_data = []
+            for fname in data_fnames:
+                save_loc = os.path.join(loc, 'palette_data', fname)
+                logging.info("Deserializing %s from %s" % ('palette data', save_loc))
+                with open(save_loc) as load_file:
+                    for data in json.load(load_file):
+                        save_data.append(data)
+            save_data = sorted(save_data, key=lambda obj: obj[2])
+            for s_dict in save_data:
+                new_tilemap = Palette.restore(s_dict)
+                self.append(new_tilemap)
+
+    def dump(self, loc):
+        saves = [datum.save() for datum in self]
+        save_dir = os.path.join(loc, 'palette_data')
+        if os.path.exists(save_dir):
+            shutil.rmtree(save_dir)
+        os.mkdir(save_dir)
+        for idx, save in enumerate(saves):
+            # ordering
+            save = list(save)
+            save.append(idx)
+            name = save[0]
+            name = re.sub(r'[\\/*?:"<>|]',"", name)
+            name = name.replace(' ', '_')
+            save_loc = os.path.join(save_dir, name + '.json')
+            with open(save_loc, 'w') as serialize_file:
+                json.dump([save], serialize_file, indent=4)

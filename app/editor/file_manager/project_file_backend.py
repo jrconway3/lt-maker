@@ -161,6 +161,10 @@ class ProjectFileBackend():
             fn = QFileDialog.getExistingDirectory(
                 self.parent, "Open Project Directory", starting_path)
             if fn:
+                if not fn.endswith('.ltproj'):
+                    QMessageBox.warning(self.parent, "Incorrect directory type",
+                                        "%s is not an .ltproj." % fn)
+                    return False
                 self.current_proj = fn
                 self.settings.set_current_project(self.current_proj)
                 logging.info("Opening project %s" % self.current_proj)

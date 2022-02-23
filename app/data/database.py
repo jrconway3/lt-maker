@@ -62,18 +62,7 @@ class Database(object):
         self.raw_data = raw_data.RawDataCatalog()
 
     # Disk Interaction Functions
-    def json_save(self, save_loc: str, value: Any, overwrite=True):
-        # when saving a catalog as individual objects, we shouldn't
-        # overwrite if names happen to match.
-        if not overwrite:
-            while os.path.exists(save_loc): # if a file with this nid already exists...
-                nid = os.path.splitext(save_loc)[0]
-                if is_int(nid[-1]):
-                    next_int = int(nid[-1]) + 1
-                    nid = nid[:-1] + str(next_int)
-                else:
-                    nid = nid + str(1)
-                save_loc = nid + '.json'
+    def json_save(self, save_loc: str, value: Any):
         temp_save_loc = save_loc + ".tmp"
         with open(temp_save_loc, 'w') as serialize_file:
             json.dump(value, serialize_file, indent=4)
@@ -83,7 +72,7 @@ class Database(object):
         try:
             if isinstance(jsonobj, list):
                 if all(['_orderkey' in obj.keys() for obj in jsonobj]):
-                    return sorted(jsonobj, key= lambda obj: obj['_orderkey'])
+                    return sorted(jsonobj, key=lambda obj: obj['_orderkey'])
             return jsonobj
         except:
             return jsonobj
@@ -163,7 +152,7 @@ class Database(object):
                     name = name.replace(' ', '_')
                     save_loc = os.path.join(save_dir, name + '.json')
                     logging.info("Serializing %s to %s" % ('%s/%s.json' % (key, name), save_loc))
-                    self.json_save(save_loc, [subvalue], overwrite=False)
+                    self.json_save(save_loc, [subvalue])
 
         end = time.time_ns()/1e6
         logging.info("Total Time Taken for Database: %s ms" % (end - start))

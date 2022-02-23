@@ -284,7 +284,7 @@ class TileMapCatalog(ManifestCatalog[TileMapPrefab]):
                 new_tilemap = TileMapPrefab.restore(s_dict)
                 self.append(new_tilemap)
         else:
-            data_fnames = os.listdir(multi_loc))
+            data_fnames = os.listdir(multi_loc)
             save_data = []
             for fname in data_fnames:
                 save_loc = os.path.join(multi_loc, fname)

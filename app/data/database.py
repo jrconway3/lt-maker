@@ -82,12 +82,20 @@ class Database(object):
             data_fnames = os.listdir(os.path.join(data_dir, key))
             save_data = []
             for fname in data_fnames:
+                if not fname.endswith('.json'): # ignore other files
+                    continue
                 save_loc = os.path.join(data_dir, key, fname)
                 logging.info("Deserializing %s from %s" % (key, save_loc))
                 with open(save_loc) as load_file:
                     for data in json.load(load_file):
+                        data['fname'] = os.path.basename(fname)
                         save_data.append(data)
-            return save_data
+            if '.orderkeys' in data_fnames: # using order key file
+                with open(os.path.join(data_dir, key, '.orderkeys')) as load_file:
+                    orderkeys = json.load(load_file)
+                    return sorted(save_data, key=lambda data: orderkeys.get(data['fname'], 999999))
+            else: # using order keys per object, or no order keys at all
+                return self.jsonsort(save_data)
         else:
             save_loc = os.path.join(data_dir, key + '.json')
             if os.path.exists(save_loc):
@@ -136,9 +144,9 @@ class Database(object):
                 if os.path.exists(save_dir):
                     shutil.rmtree(save_dir)
                 os.mkdir(save_dir)
+                orderkeys: Dict[str, int] = {}
                 for idx, subvalue in enumerate(value):
                     # ordering
-                    subvalue['_orderkey'] = idx
                     if 'nid' in subvalue:
                         name = subvalue['nid']
                     elif 'name' in subvalue:
@@ -150,9 +158,12 @@ class Database(object):
                         name = str(idx).zfill(6)
                     name = re.sub(r'[\\/*?:"<>|]',"", name)
                     name = name.replace(' ', '_')
+                    fname = name + '.json'
+                    orderkeys[fname] = idx
                     save_loc = os.path.join(save_dir, name + '.json')
                     logging.info("Serializing %s to %s" % ('%s/%s.json' % (key, name), save_loc))
                     self.json_save(save_loc, [subvalue])
+                self.json_save(os.path.join(save_dir, '.orderkeys'), orderkeys)
 
         end = time.time_ns()/1e6
         logging.info("Total Time Taken for Database: %s ms" % (end - start))
@@ -164,7 +175,7 @@ class Database(object):
 
         save_obj = {}
         for key in self.save_data_types:
-            save_obj[key] = self.jsonsort(self.json_load(data_dir, key))
+            save_obj[key] = self.json_load(data_dir, key)
 
         self.restore(save_obj)
         logging.info("Done deserializing!")

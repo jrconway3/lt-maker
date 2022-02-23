@@ -3,7 +3,7 @@
 # and will be false if any single component returns false
 false_priority_hooks = ('is_weapon', 'is_spell', 'is_accessory', 'equippable',
                'can_counter', 'can_be_countered', 'can_double',
-               'can_use', 'can_use_in_base', 'locked', 'allow_same_target',
+               'can_use', 'can_use_in_base', 'locked', 'unstealable', 'allow_same_target',
                'ignore_weapon_advantage', 'unrepairable', 'unsplashable', 'targets_items',
                'menu_after_combat', 'transforms', 'no_attack_after_move', 'no_map_hp_display',
                'cannot_dual_strike', 'can_attack_after_combat')

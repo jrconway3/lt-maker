@@ -224,3 +224,14 @@ class Locked(ItemComponent):
 
     def locked(self, unit, item) -> bool:
         return True
+
+    def unstealable(self, unit, item) -> bool:
+        return True
+
+class Unstealable(ItemComponent):
+    nid = 'unstealable'
+    desc = 'Item cannot be stolen'
+    tag = 'uses'
+
+    def unstealable(self, unit, item) -> bool:
+        return True

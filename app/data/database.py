@@ -143,7 +143,7 @@ class Database(object):
                         name = subvalue['nid']
                     elif 'name' in subvalue:
                         if 'level_nid' in subvalue.keys(): # to handle the wonky event nid property
-                            name = subvalue['name'] + subvalue['level_nid'] if subvalue['level_nid'] else 'global'
+                            name = subvalue['name'] + (subvalue['level_nid'] if subvalue['level_nid'] else 'global')
                         else:
                             name = subvalue['name']
                     else:

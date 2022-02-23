@@ -274,16 +274,20 @@ class TileMapCatalog(ManifestCatalog[TileMapPrefab]):
     title = 'tilemaps'
 
     def load(self, loc):
-        if not os.path.exists(os.path.join(loc, 'tilemap_data')): # old tilemap.json
-            tilemap_dict = self.read_manifest(os.path.join(loc, self.manifest))
+        single_loc = os.path.join(loc, self.manifest)
+        multi_loc = os.path.join(loc, 'tilemap_data')
+        if not os.path.exists(multi_loc): # old tilemap.json
+            if not os.path.exists(single_loc):
+                return
+            tilemap_dict = self.read_manifest(single_loc)
             for s_dict in tilemap_dict:
                 new_tilemap = TileMapPrefab.restore(s_dict)
                 self.append(new_tilemap)
         else:
-            data_fnames = os.listdir(os.path.join(loc, 'tilemap_data'))
+            data_fnames = os.listdir(multi_loc))
             save_data = []
             for fname in data_fnames:
-                save_loc = os.path.join(loc, 'tilemap_data', fname)
+                save_loc = os.path.join(multi_loc, fname)
                 logging.info("Deserializing %s from %s" % ('tilemap data', save_loc))
                 with open(save_loc) as load_file:
                     for data in json.load(load_file):
@@ -302,10 +306,10 @@ class TileMapCatalog(ManifestCatalog[TileMapPrefab]):
         for idx, save in enumerate(saves):
             # ordering
             save['_orderkey'] = idx
-            name = save['nid']
-            name = re.sub(r'[\\/*?:"<>|]',"", name)
-            name = name.replace(' ', '_')
-            save_loc = os.path.join(save_dir, name + '.json')
+            nid = save['nid']
+            nid = re.sub(r'[\\/*?:"<>|]',"", nid)
+            nid = nid.replace(' ', '_')
+            save_loc = os.path.join(save_dir, nid + '.json')
             with open(save_loc, 'w') as serialize_file:
                 json.dump([save], serialize_file, indent=4)
 

@@ -54,7 +54,7 @@ class PaletteCatalog(ManifestCatalog[Palette]):
         if not os.path.exists(multi_loc): # use the old method, single location in palettes.json
             if not os.path.exists(single_loc):
                 return
-            palette_dict = self.read_manifest(single_loc))
+            palette_dict = self.read_manifest(single_loc)
             for s_dict in palette_dict:
                 new_palette = Palette.restore(s_dict)
                 self.append(new_palette)

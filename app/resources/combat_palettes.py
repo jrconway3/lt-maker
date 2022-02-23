@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import shutil
+from typing import Dict
 from app.utilities.data import Prefab
 from app.resources.base_catalog import ManifestCatalog
 
@@ -58,16 +59,23 @@ class PaletteCatalog(ManifestCatalog[Palette]):
             for s_dict in palette_dict:
                 new_palette = Palette.restore(s_dict)
                 self.append(new_palette)
-        else:
+        else:   # new distributed saving
             data_fnames = os.listdir(multi_loc)
             save_data = []
             for fname in data_fnames:
+                if not fname.endswith('.json'):
+                    continue
                 save_loc = os.path.join(multi_loc, fname)
                 logging.info("Deserializing %s from %s" % ('palette data', save_loc))
                 with open(save_loc) as load_file:
                     for data in json.load(load_file):
                         save_data.append(data)
-            save_data = sorted(save_data, key=lambda obj: obj[2])
+            if '.orderkeys' in data_fnames: # using order key file
+                with open(os.path.join(multi_loc, '.orderkeys')) as load_file:
+                    orderkeys = json.load(load_file)
+                    save_data = sorted(save_data, key=lambda data: orderkeys.get(data[0], 999999))
+            else:
+                save_data = sorted(save_data, key=lambda obj: obj[2])
             for s_dict in save_data:
                 new_palette = Palette.restore(s_dict)
                 self.append(new_palette)
@@ -78,13 +86,16 @@ class PaletteCatalog(ManifestCatalog[Palette]):
         if os.path.exists(save_dir):
             shutil.rmtree(save_dir)
         os.mkdir(save_dir)
+        orderkeys: Dict[str, int] = {}
         for idx, save in enumerate(saves):
             # ordering
             save = list(save)  # by default a tuple
-            save.append(idx)
             nid = save[0]
+            orderkeys[nid] = idx
             nid = re.sub(r'[\\/*?:"<>|]',"", nid)
             nid = nid.replace(' ', '_')
             save_loc = os.path.join(save_dir, nid + '.json')
             with open(save_loc, 'w') as serialize_file:
                 json.dump([save], serialize_file, indent=4)
+        with open(os.path.join(save_dir, '.orderkeys'), 'w') as orderkey_file:
+            json.dump(orderkeys, orderkey_file, indent=4)

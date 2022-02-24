@@ -107,7 +107,12 @@ class ProjectFileBackend():
                 # autosave doesn't have metadata, autosave doesn't exist, etc.
                 # just copy the previous save
                 pass
-            shutil.copytree(most_recent_path, self.tmp_proj)
+            def copyonly(dirpath, contents):
+                copied_patterns = ['game_data', 'resources', 'metadata.json']
+                return set(contents) - set(
+                    shutil.ignore_patterns(*copied_patterns)(dirpath, contents),
+                    )
+            shutil.copytree(most_recent_path, self.tmp_proj, ignore=copyonly)
         self.save_progress.setLabelText("Saving project to %s" % self.current_proj)
         self.save_progress.setValue(10)
 

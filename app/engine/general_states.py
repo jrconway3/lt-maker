@@ -1575,9 +1575,15 @@ class CombatTargetingState(MapState):
             elif len(adj_allies) > 1 and self.num_targets == 1:
                 i = adj_allies.index(self.attacker_assist)
                 # Hardset attacker
-                self.attacker_assist = adj_allies[(i + 1) % len(adj_allies)]
-                game.ui_view.reset_info()
-                self.display_single_attack()
+                if any(not item_system.cannot_dual_strike(ally, ally.get_weapon()) for ally in adj_allies):
+                    i = 0
+                    while i < 4:
+                        self.attacker_assist = adj_allies[(i + 1) % len(adj_allies)]
+                        if not item_system.cannot_dual_strike(self.attacker_assist, self.attacker_assist.get_weapon()):
+                            break
+                        i += 1
+                    game.ui_view.reset_info()
+                    self.display_single_attack()
 
         elif event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')

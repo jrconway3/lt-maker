@@ -946,9 +946,20 @@ class InfoMenuState(State):
     def create_skill_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)
         skills = [skill for skill in self.unit.skills if not (skill.class_skill or skill_system.hidden(skill, self.unit))][:6]
-        for idx, skill in enumerate(skills):
+        # stacked skills appear multiple times, but should be drawn only once
+        skill_counter = {}
+        unique_skills = list()
+        for skill in skills:
+            if skill.nid not in skill_counter:
+                skill_counter[skill.nid] = 1
+                unique_skills.append(skill)
+            else:
+                skill_counter[skill.nid] += 1
+        for idx, skill in enumerate(unique_skills):
             left_pos = idx * 24
             icons.draw_skill(surf, skill, (left_pos + 8, 4), compact=False)
+            if skill_counter[skill.nid] > 1:
+                FONT['small'].blit(str(skill_counter[skill.nid]), surf, (left_pos + 20 - 4 * len(str(skill_counter[skill.nid])), 6), 'white')
             if skill.data.get('total_charge'):
                 charge = ' %d / %d' % (skill.data['charge'], skill.data['total_charge'])
             else:

@@ -1457,17 +1457,6 @@ class Convoy():
         if item:
             unit = game.get_unit(item.owner_nid)
 
-        self.get_menu().draw(surf)
-        if self.inventory:
-            self.inventory.draw(surf)
-
-        # Draw item owner
-        if unit and self.takes_input:
-            unit_str = "Owner: %s" % unit.name
-        else:
-            unit_str = "Owner: ---"
-        FONT['text'].blit(unit_str, surf, (160, 4))
-
         # Draw item icons
         dist = (self.menu_width - 10)/len(self.order)
         for idx, weapon_nid in enumerate(reversed(self.order)):
@@ -1482,6 +1471,17 @@ class Convoy():
                 topleft = (self.topleft[0] + 3 + int(idx * dist), self.topleft[1] - 14)
                 icons.draw_weapon(surf, weapon_nid, topleft)
                 surf.blit(SPRITES.get('weapon_shine'), topleft)
+
+        self.get_menu().draw(surf)
+        if self.inventory:
+            self.inventory.draw(surf)
+
+        # Draw item owner
+        if unit and self.takes_input:
+            unit_str = "Owner: %s" % unit.name
+        else:
+            unit_str = "Owner: ---"
+        FONT['text'].blit(unit_str, surf, (160, 4))
 
         self.left_arrow.draw(surf)
         self.right_arrow.draw(surf)

@@ -33,17 +33,24 @@ class TurnChangeState(MapState):
         elif game.phase.get_current() == 'player':
             supports.increment_team_end_turn_supports('player')
             game.memory['previous_cursor_position'] = game.cursor.position
-            
-        if game.turncount - 1 <= 0 and DB.constants.value('pairup'):
-            for unit in game.get_all_units():
-                # Apply pair up bonuses to units starting with a traveler
-                if unit.traveler:
-                    skill_system.on_pairup(game.get_unit(unit.traveler), unit)
 
         # Clear all previous states in state machine except me
         game.state.refresh()
         game.state.back()  # Turn Change should only last 1 frame
         return 'repeat'
+        
+    def handle_paired(self):
+        for unit in game.get_all_units():
+            if unit.traveler:
+                print(unit, unit.built_guard)
+                # Increment guard gauge
+                if not unit.built_guard:
+                    action.do(action.IncGauge(unit, -unit.get_gauge_inc()))
+                # Apply pair up bonuses to units starting with a traveler
+                if game.turncount - 1 <= 0:
+                    skill_system.on_pairup(game.get_unit(unit.traveler), unit) 
+            if unit.built_guard: # Switch built_guard to false for all units
+                action.do(action.BuiltGuard(unit))                     
 
     def end(self):
         if DB.constants.value('initiative'):
@@ -81,6 +88,8 @@ class TurnChangeState(MapState):
                         # Give out fatigue statuses if necessary at the beginning of the level
                         action.do(action.ChangeFatigue(unit, 0))
                     game.events.trigger('level_start')
+                if DB.constants.value('pairup'):
+                    self.handle_paired()
             else:
                 game.state.change('ai')
                 game.state.change('status_upkeep')

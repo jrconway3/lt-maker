@@ -156,6 +156,10 @@ class SimpleCombat():
         self.handle_records(self.full_playback, all_units)
 
         self.end_combat()
+        
+        if self.defender:
+            self.defender.strike_partner = None
+            self.defender.built_guard = True
 
         self.handle_death(all_units)
 
@@ -198,9 +202,6 @@ class SimpleCombat():
     def cleanup_combat(self):
         skill_system.cleanup_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         already_pre = [self.attacker]
-        if self.defender:
-            self.defender.strike_partner = None
-            self.defender.built_guard = True
         for idx, defender in enumerate(self.defenders):
             if defender and defender not in already_pre:
                 already_pre.append(defender)

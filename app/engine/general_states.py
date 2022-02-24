@@ -33,6 +33,12 @@ class TurnChangeState(MapState):
         elif game.phase.get_current() == 'player':
             supports.increment_team_end_turn_supports('player')
             game.memory['previous_cursor_position'] = game.cursor.position
+            
+        if game.turncount - 1 <= 0 and DB.constants.value('pairup'):
+            for unit in game.get_all_units():
+                # Apply pair up bonuses to units starting with a traveler
+                if unit.traveler:
+                    action.do(action.PairUp(game.get_unit(unit.traveler), unit))
 
         # Clear all previous states in state machine except me
         game.state.refresh()

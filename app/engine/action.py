@@ -862,7 +862,7 @@ class Separate(Action):
 
         skill_system.on_separate(self.droppee, self.unit)
 
-        if utils.calculate_distance(self.unit.position, self.pos) == 1:
+        if self.unit.position and self.pos and utils.calculate_distance(self.unit.position, self.pos) == 1:
             self.droppee.sprite.set_transition('fake_in')
             self.droppee.sprite.offset = [(self.unit.position[0] - self.pos[0]) * TILEWIDTH,
                                           (self.unit.position[1] - self.pos[1]) * TILEHEIGHT]
@@ -1805,6 +1805,8 @@ class Die(Action):
             else:
                 self.drop = Drop(self.unit, drop_me, self.unit.position)
             self.drop.do()
+            if game.phase.get_current() != drop_me.team:
+                Reset(drop_me).do()
             # TODO Drop Sound
 
         if DB.constants.value('initiative') and self.initiative_action:

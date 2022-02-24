@@ -38,7 +38,7 @@ class TurnChangeState(MapState):
             for unit in game.get_all_units():
                 # Apply pair up bonuses to units starting with a traveler
                 if unit.traveler:
-                    action.do(action.PairUp(game.get_unit(unit.traveler), unit))
+                    skill_system.on_pairup(game.get_unit(unit.traveler), unit)
 
         # Clear all previous states in state machine except me
         game.state.refresh()

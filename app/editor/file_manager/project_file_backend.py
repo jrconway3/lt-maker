@@ -107,7 +107,7 @@ class ProjectFileBackend():
                 # autosave doesn't have metadata, autosave doesn't exist, etc.
                 # just copy the previous save
                 pass
-            shutil.copytree(most_recent_path, self.tmp_proj)
+            shutil.copytree(most_recent_path, self.tmp_proj, ignore=shutil.ignore_patterns('.*'))
         self.save_progress.setLabelText("Saving project to %s" % self.current_proj)
         self.save_progress.setValue(10)
 

@@ -135,7 +135,7 @@ class SimpleCombat():
         if not self.attacker.is_dying:
             self.handle_wexp(self.attacker, self.main_item, self.defender)
 
-        if DB.constants.value('pairup'):
+        if DB.constants.value('pairup') and self.main_item:
             if self.attacker.strike_partner:
                 self.handle_wexp(self.attacker.strike_partner, self.main_item, self.defender)
             if self.attacker.traveler:
@@ -144,7 +144,7 @@ class SimpleCombat():
         if self.defender and self.def_item and not self.defender.is_dying:
             self.handle_wexp(self.defender, self.def_item, self.attacker)
 
-        if DB.constants.value('pairup'):
+        if DB.constants.value('pairup') and self.def_item:
             if self.defender and self.defender.strike_partner:
                 self.handle_wexp(self.defender.strike_partner, self.def_item, self.attacker)
             if self.defender and self.defender.traveler:
@@ -156,6 +156,11 @@ class SimpleCombat():
         self.handle_records(self.full_playback, all_units)
 
         self.end_combat()
+        
+        self.attacker.built_guard = True
+        if self.defender:
+            self.defender.strike_partner = None
+            self.defender.built_guard = True
 
         self.handle_death(all_units)
 
@@ -198,9 +203,6 @@ class SimpleCombat():
     def cleanup_combat(self):
         skill_system.cleanup_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         already_pre = [self.attacker]
-        if self.defender:
-            self.defender.strike_partner = None
-            self.defender.built_guard = True
         for idx, defender in enumerate(self.defenders):
             if defender and defender not in already_pre:
                 already_pre.append(defender)
@@ -437,7 +439,7 @@ class SimpleCombat():
             else:
                 exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))
 
-            if DB.constants.value('pairup'):
+            if DB.constants.value('pairup') and self.main_item:
                 self.handle_paired_exp(self.attacker)
 
             if (self.alerts and exp > 0) or exp + self.attacker.exp >= 100:
@@ -451,7 +453,7 @@ class SimpleCombat():
             exp = self.calculate_exp(self.defender, self.def_item)
             exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))
 
-            if DB.constants.value('pairup'):
+            if DB.constants.value('pairup') and self.def_item:
                 self.handle_paired_exp(self.defender)
 
             if (self.alerts and exp > 0) or exp + self.defender.exp >= 100:

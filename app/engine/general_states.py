@@ -38,6 +38,19 @@ class TurnChangeState(MapState):
         game.state.refresh()
         game.state.back()  # Turn Change should only last 1 frame
         return 'repeat'
+        
+    def handle_paired(self):
+        for unit in game.get_all_units():
+            if unit.traveler:
+                print(unit, unit.built_guard)
+                # Increment guard gauge
+                if not unit.built_guard:
+                    action.do(action.IncGauge(unit, -unit.get_gauge_inc()))
+                # Apply pair up bonuses to units starting with a traveler
+                if game.turncount - 1 <= 0:
+                    skill_system.on_pairup(game.get_unit(unit.traveler), unit) 
+            if unit.built_guard: # Switch built_guard to false for all units
+                action.do(action.BuiltGuard(unit))                     
 
     def end(self):
         if DB.constants.value('initiative'):
@@ -75,6 +88,8 @@ class TurnChangeState(MapState):
                         # Give out fatigue statuses if necessary at the beginning of the level
                         action.do(action.ChangeFatigue(unit, 0))
                     game.events.trigger('level_start')
+                if DB.constants.value('pairup'):
+                    self.handle_paired()
             else:
                 game.state.change('ai')
                 game.state.change('status_upkeep')
@@ -1575,9 +1590,15 @@ class CombatTargetingState(MapState):
             elif len(adj_allies) > 1 and self.num_targets == 1:
                 i = adj_allies.index(self.attacker_assist)
                 # Hardset attacker
-                self.attacker_assist = adj_allies[(i + 1) % len(adj_allies)]
-                game.ui_view.reset_info()
-                self.display_single_attack()
+                if any(not item_system.cannot_dual_strike(ally, ally.get_weapon()) for ally in adj_allies):
+                    i = 0
+                    while i < 4:
+                        self.attacker_assist = adj_allies[(i + 1) % len(adj_allies)]
+                        if not item_system.cannot_dual_strike(self.attacker_assist, self.attacker_assist.get_weapon()):
+                            break
+                        i += 1
+                    game.ui_view.reset_info()
+                    self.display_single_attack()
 
         elif event == 'BACK':
             SOUNDTHREAD.play_sfx('Select 4')

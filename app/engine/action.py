@@ -452,6 +452,9 @@ class Wait(Action):
         self.update_fow_action.do()
         if game.cursor and game.cursor.cur_unit == self.unit:
             game.cursor.cur_unit = None
+        if self.unit.traveler:
+            self.unit.lead_unit = True
+            game.get_unit(self.unit.traveler).lead_unit = False
 
     def reverse(self):
         self.unit.set_action_state(self.action_state)
@@ -862,7 +865,7 @@ class Separate(Action):
 
         skill_system.on_separate(self.droppee, self.unit)
 
-        if self.unit.position and self.pos and utils.calculate_distance(self.unit.position, self.pos) == 1:
+        if self.unit.position and self.pos and utils.calculate_distance(self.unit.position, self.pos) == 1 and not self.unit.is_dying:
             self.droppee.sprite.set_transition('fake_in')
             self.droppee.sprite.offset = [(self.unit.position[0] - self.pos[0]) * TILEWIDTH,
                                           (self.unit.position[1] - self.pos[1]) * TILEHEIGHT]

@@ -42,7 +42,6 @@ class TurnChangeState(MapState):
     def handle_paired(self):
         for unit in game.get_all_units():
             if unit.traveler:
-                print(unit, unit.built_guard)
                 # Increment guard gauge
                 if not unit.built_guard:
                     action.do(action.IncGauge(unit, -unit.get_gauge_inc()))
@@ -537,6 +536,8 @@ class MoveState(MapState):
                     else:
                         cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
                         game.state.change('menu')
+                    if cur_unit.traveler:
+                        game.get_unit(cur_unit.traveler).current_move = cur_unit.current_move
                     game.state.change('movement')
                     action.do(cur_unit.current_move)
             else:

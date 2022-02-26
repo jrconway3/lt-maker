@@ -452,6 +452,9 @@ class Wait(Action):
         self.update_fow_action.do()
         if game.cursor and game.cursor.cur_unit == self.unit:
             game.cursor.cur_unit = None
+        if self.unit.traveler:
+            self.unit.lead_unit = True
+            game.get_unit(self.unit.traveler).lead_unit = False
 
     def reverse(self):
         self.unit.set_action_state(self.action_state)

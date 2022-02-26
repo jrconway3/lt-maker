@@ -536,6 +536,8 @@ class MoveState(MapState):
                     else:
                         cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
                         game.state.change('menu')
+                    if cur_unit.traveler:
+                        game.get_unit(cur_unit.traveler).current_move = cur_unit.current_move
                     game.state.change('movement')
                     action.do(cur_unit.current_move)
             else:

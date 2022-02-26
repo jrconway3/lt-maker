@@ -16,7 +16,7 @@ In the **Raw Data Editor**, you can write all of these down:
 
 ![image](../../uploads/3b5a087f5327389f67f15a6cb49e280e/image.png)
 
-This is just data; it doesn't do anything, but we can access it elsewhere. 
+This is just data; it doesn't do anything, but we can access it elsewhere.
 
 ## Choice Eventing
 
@@ -31,12 +31,12 @@ Let's break this command down.
 1. `choice` - this is a `choice` command. You know what those are, right?
 2. `MercenaryHireChoice` - this is the nid we're going to save our choice in.
 3. `Hire a merc` - this is the flavor text for the choice.
-4. `{eval:','.join([merc.nid + '|' + merc.Name for merc in game.get_data('MercenaryHiringList')])}` - now we're getting somewhere. This is an eval that 
+4. `{eval:','.join([merc.nid + '|' + merc.Name for merc in game.get_data('MercenaryHiringList')])}` - now we're getting somewhere. This is an eval that
    1. Gets all of the data we write in the raw data editor ( `game.get_data('MercenaryHiringList')`)
    2. Iterates through it, and makes a list that looks like this: `['merc1|Sellsword', 'merc2|Traveller']`
       1. Note the bar notation - that means that the first thing ( `merc1, merc2` ) is going to be what's saved in the choice, while the second ( `Sellsword, Traveller`) is what's going to be displayed.
    3. Turns the list into a string ( `','.join()`) that the choice command understands: `merc1|Sellsword,merc2|Traveller`
-5. `vert;top_left` - puts makes the menu vertical and puts in the top-left, since having all choices in the center doesn't look that great, and 
+5. `vert;top_left` - puts makes the menu vertical and puts in the top-left, since having all choices in the center doesn't look that great, and
 6. `FLAG(persist)` - makes sure that we can make multiple choices on this menu, like a true shop.
 
 Let's add a command to make sure we've written it all correctly (remember, press 'B' to end the choice, since otherwise it won't, because it's persistent):
@@ -55,7 +55,7 @@ Looking good. But wait; don't we want to know the price and our current money, t
 We can use tables, in concert with `expression` data types and the data we wrote earlier, to display these things. Be warned: this one's a doozy.
 
 ```
-table;MercDescription;[game.get_data('MercenaryHiringList').get(game.game_vars.get("MercenaryHireChoice_choice_hover")).Description, "Cost: " + game.get_data('MercenaryHiringList').get(game.game_vars.get("MercenaryHireChoice_choice_hover")).Cost];;(2, 1);;bottom_left;menu_bg_parchment (menu_bg_parchment);FLAG(expression)
+table;MercDescription;["{d:MercenaryHiringList.{v:MercenaryHireChoice_choice_hover}.Description}", "Cost: {d:MercenaryHiringList.{v:MercenaryHireChoice_choice_hover}.Cost}"];;(2, 1);;bottom_left;menu_bg_parchment (menu_bg_parchment);FLAG(expression)
 ```
 
 You probably want to copy that into a different text editor to look at while reading this tutorial, since it's _long_.
@@ -66,11 +66,11 @@ Let's break it down:
 2. `MercDescription` - this is the nid of our table. We'll need to use it to delete the table after we're done with it.
 3. And, the star of the show, the expression. Don't be afraid; it's long, but it's simple.
 
-`[game.get_data('MercenaryHiringList').get(game.game_vars.get("MercenaryHireChoice_choice_hover")).Description, "Cost: " + game.get_data('MercenaryHiringList').get(game.game_vars.get("MercenaryHireChoice_choice_hover")).Cost]`
+`["{d:MercenaryHiringList.{v:MercenaryHireChoice_choice_hover}.Description}", "Cost: {d:MercenaryHiringList.{v:MercenaryHireChoice_choice_hover}.Cost}"]`
 
-1. `game.get_data('MercenaryHiringList').get(game.game_vars.get("MercenaryHireChoice_choice_hover")).Description` - We've seen this before, when make the choices. There's only one new part in here: 
-   1. `game.game_vars.get("MercenaryHireChoice_choice_hover")` - We can actually access the currently-hovered choice in the choice with nid `MercenaryHireChoice` by attaching `_choice_hover` to it. Therefore, this resolves to either `merc1`, or `merc2`, depending on what' being hovered at the moment.
-   2. Once you know that, it's simple to see what this code block is doing - it's finding `merc1` (or `merc2`!) in our raw data, and getting their Description and Cost fields - which we wrote earlier.
+1. `"{d:MercenaryHiringList.{v:MercenaryHireChoice_choice_hover}.Description}"` - This is a method of querying raw data. Using the `{d:}` command (which is shorthand for `{data:}`), you can fetch the MercenaryHiringList directly.
+   1. `{v:MercenaryHireChoice_choice_hover}` - We can actually access the currently-hovered choice in the choice with nid `MercenaryHireChoice` by attaching `_choice_hover` to it. Therefore, this resolves to either `merc1`, or `merc2`, depending on what' being hovered at the moment.
+   2. Once you know that, it's simple to see what this code block is doing. It resolves to something like, `MercenaryHiringList.merc1.Description`, which is a way to get the `merc1` row in our raw data, and getting their Description and Cost fields.
    3. Finally, since we're using an `expression` type, this should evaluate into a list, rather than a string. Therefore, we wrap both of them in brackets - `[Description, Cost]`. We add a word, `Cost: ` to the cost section to pretty things up, but it's not necessary.
 2. `(2, 1)` - this indicates the size of the table in `(rows, columns)`. We have two rows - one for each line of text - and one column.
 3. `bottom_left` - puts the table in the bottom left. Don't want the screen to get too busy, right?
@@ -110,13 +110,14 @@ Let's write a confirmation dialogue event, similar to the one in the existing ch
 ```
 choice;Confirmation;You sure?;Yes,No
 if;game.game_vars.get('Confirmation', None) == 'Yes'
-        alert;You hired {eval:game.get_data('MercenaryHiringList').get(game.game_vars.get("MercenaryHireChoice")).Name}.
-    give_money;{eval: -1 * int(game.get_data('MercenaryHiringList').get(game.game_vars.get("MercenaryHireChoice")).Cost)};FLAG(no_banner)
-    make_generic;;{eval:game.get_data('MercenaryHiringList').get(game.game_vars.get("MercenaryHireChoice")).Class};{eval:game.get_unit('Eirika').level};player;;Soldier (Soldier);;Iron Sword (Iron Sword)
+    alert;You hired {d:MercenaryHiringList.{v:MercenaryHireChoice}.Name}.
+    give_money;{eval: -1 * int({d:MercenaryHiringList.{v:MercenaryHireChoice}.Cost})};FLAG(no_banner)
+    make_generic;;{d:MercenaryHiringList.{v:MercenaryHireChoice}.Class};{e:game.get_unit('Eirika').level};player;;Soldier (Soldier);;Iron Sword (Iron Sword)
     add_unit;{created_unit};(3, 4);immediate;closest
+    speak;;{d:MercenaryHiringList.{v:MercenaryHireChoice}.Class}
 end
-```
 
+```
 All of this should be straightforward; display an alert, remove gold via the same expression that we've been using this entire time to read from our raw data; make a generic unit with the klass from that same raw data, and then add the newly `{created_unit}` (the output of `make_generic`) to the map.
 
 Let's add this to the main command:
@@ -138,7 +139,7 @@ Here is the code used in this tutorial:
 **Main code:**
 
 ```
-table;MercDescription;[game.get_data('MercenaryHiringList').get(game.game_vars.get("MercenaryHireChoice_choice_hover")).Description, "Cost:" + game.get_data('MercenaryHiringList').get(game.game_vars.get("MercenaryHireChoice_choice_hover")).Cost];;(2, 1);;bottom_left;menu_bg_parchment (menu_bg_parchment);FLAG(expression)
+table;MercDescription;["{d:MercenaryHiringList.{v:MercenaryHireChoice_choice_hover}.Description}", "Cost: {d:MercenaryHiringList.{v:MercenaryHireChoice_choice_hover}.Cost}"];;(2, 1);;bottom_left;menu_bg_parchment (menu_bg_parchment);FLAG(expression)
 table;GoldDisplay;[game.get_money()];;;60;top_right;funds_display (funds_display);FLAG(expression)
 choice;MercenaryHireChoice;Hire a merc;{eval:','.join([merc.nid + '|' + merc.Name for merc in game.get_data('MercenaryHiringList')])};;vert;top_left;;ConfirmMercHire (0 ConfirmMercHire);FLAG(persist)
 rmtable;MercDescription

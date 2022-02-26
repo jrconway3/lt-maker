@@ -1279,6 +1279,9 @@ class Event():
 
         elif command.nid == 'choice':
             values, flags = event_commands.convert_parse(command, self._evaluate_all)
+            unevaled_values, flags = event_commands.convert_parse(command, None)
+            # we don't want to evaluate the contents immediately
+            values[1] = unevaled_values[1]
             self.choice(*values, flags)
 
         elif command.nid == 'unchoice':
@@ -1312,6 +1315,9 @@ class Event():
 
         elif command.nid == 'table':
             values, flags = event_commands.convert_parse(command, self._evaluate_all)
+            unevaled_values, flags = event_commands.convert_parse(command, None)
+            # we don't want to evaluate the contents immediately
+            values[1] = unevaled_values[1]
             self.display_table(*values, flags)
 
         elif command.nid == 'rmtable':
@@ -3129,7 +3135,7 @@ class Event():
                 ast.parse(contents)
                 def tryexcept(callback_expr):
                     try:
-                        val = eval(callback_expr)
+                        val = eval(self.text_evaluator._evaluate_all(callback_expr))
                         if isinstance(val, list):
                             return val
                         else:
@@ -3141,6 +3147,7 @@ class Event():
             except:
                 self.logger.error('%s is not a valid python expression' % contents)
         else: # list of NIDs
+            contents = self.text_evaluator._evaluate_all(contents)
             data = contents.split(',')
             data = [s.strip() for s in data]
 
@@ -3180,7 +3187,7 @@ class Event():
                 ast.parse(choices)
                 def tryexcept(callback_expr):
                     try:
-                        val = eval(callback_expr)
+                        val = eval(self.text_evaluator._evaluate_all(callback_expr, True))
                         if isinstance(val, list):
                             return val
                         else:
@@ -3191,6 +3198,7 @@ class Event():
             except:
                 self.logger.error('%s is not a valid python expression' % choices)
         else: # list of NIDs
+            choices = self.text_evaluator._evaluate_all(choices)
             data = choices.split(',')
             data = [s.strip() for s in data]
 

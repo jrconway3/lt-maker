@@ -50,7 +50,7 @@ class TextEvaluator():
                 else:
                     copy[idx] = nested
             return str(self._evaluate_phrase('{' + ''.join(copy) + '}'))
-        to_evaluate = re.findall(r'\{.*?\}', text)
+        to_evaluate = str_utils.matched_expr(text, '{', '}')
         evaluated = []
         for to_eval in to_evaluate:
             parsed = str_utils.nested_expr(to_eval, '{', '}')

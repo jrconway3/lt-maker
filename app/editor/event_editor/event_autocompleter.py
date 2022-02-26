@@ -2,6 +2,7 @@ from typing import List, Tuple, Type
 
 from app.editor.settings import MainSettingsController
 from app.events import event_commands, event_validators
+from app.utilities import str_utils
 from app.utilities.typing import NID
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QCompleter
@@ -80,6 +81,8 @@ def detect_type_under_cursor(line: str, cursor_pos: int, arg_under_cursor: str =
 
     if arg_under_cursor:
         # see if we're in the middle of a bracket/eval expression
+        # filter out all paired brackets
+        arg_under_cursor = str_utils.remove_all_matched(arg_under_cursor, '{', '}')
         eval_bracket = arg_under_cursor.rfind('{')
         eval_colon = arg_under_cursor.rfind(':')
         eval_end = arg_under_cursor.rfind('}')

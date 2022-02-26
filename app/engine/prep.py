@@ -724,7 +724,8 @@ class PrepItemsState(State):
                             options.append('Trade')
                         if item_system.can_use(self.unit, current) and \
                                 item_funcs.available(self.unit, current) and \
-                                item_system.can_use_in_base(self.unit, current):
+                                item_system.can_use_in_base(self.unit, current) and \
+                                item_system.simple_target_restrict(self.unit, current):
                             options.append('Use')
                         if convoy_funcs.can_restock(current):
                             options.append('Restock')
@@ -738,7 +739,8 @@ class PrepItemsState(State):
                     if current:
                         if item_system.can_use(self.unit, current) and \
                                 item_funcs.available(self.unit, current) and \
-                                item_system.can_use_in_base(self.unit, current):
+                                item_system.can_use_in_base(self.unit, current) and \
+                                item_system.simple_target_restrict(self.unit, current):
                             self.state = 'convoy_item'
                             topleft = (80, self.menu.get_current_index() * 16)
                             if item_funcs.inventory_full(self.unit, current):

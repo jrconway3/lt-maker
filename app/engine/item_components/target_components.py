@@ -122,6 +122,16 @@ class EvalTargetRestrict(ItemComponent):
             return True
         return False
 
+    def simple_target_restrict(self, unit, item):
+        from app.engine import evaluate
+        try:
+            if evaluate.evaluate(self.value, unit):
+                return True
+        except Exception as e:
+            print("Could not evaluate %s (%s)" % (self.value, e))
+            return True
+        return False
+
 class EmptyTileTargetRestrict(ItemComponent):
     nid = 'empty_tile_target_restrict'
     desc = "Item will only target tiles without units on them"

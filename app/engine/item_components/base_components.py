@@ -95,6 +95,9 @@ class UsableInBase(ItemComponent):
     def can_use_in_base(self, unit, item):
         return True
 
+    def simple_target_restrict(self, unit, item):
+        return True
+
 class Unrepairable(ItemComponent):
     nid = 'unrepairable'
     desc = "Item cannot be repaired"

@@ -1,12 +1,13 @@
 # HOOK CATALOG
 # false priority hooks default to false
 # and will be false if any single component returns false
-false_priority_hooks = ('is_weapon', 'is_spell', 'is_accessory', 'equippable',
-               'can_counter', 'can_be_countered', 'can_double',
-               'can_use', 'can_use_in_base', 'locked', 'unstealable', 'allow_same_target',
-               'ignore_weapon_advantage', 'unrepairable', 'unsplashable', 'targets_items',
-               'menu_after_combat', 'transforms', 'no_attack_after_move', 'no_map_hp_display',
-               'cannot_dual_strike', 'can_attack_after_combat')
+false_priority_hooks = \
+    ('is_weapon', 'is_spell', 'is_accessory', 'equippable',
+     'can_counter', 'can_be_countered', 'can_double',
+     'can_use', 'can_use_in_base', 'locked', 'unstealable', 'allow_same_target',
+     'ignore_weapon_advantage', 'unrepairable', 'unsplashable', 'targets_items',
+     'menu_after_combat', 'transforms', 'no_attack_after_move', 'no_map_hp_display',
+     'cannot_dual_strike', 'can_attack_after_combat', 'simple_target_restrict')
 # All default hooks are exclusive
 formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formula',
            'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula')

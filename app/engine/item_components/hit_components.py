@@ -16,16 +16,22 @@ class PermanentStatChange(ItemComponent):
 
     expose = (Type.Dict, Type.Stat)
 
-    def target_restrict(self, unit, item, def_pos, splash) -> bool:
-        # Ignore's splash
-        defender = game.board.get_unit(def_pos)
-        if not defender:
-            return False
+    def _target_restrict(self, defender):
         klass = DB.classes.get(defender.klass)
         for stat, inc in self.value:
             if inc <= 0 or defender.stats[stat] < klass.max_stats.get(stat, 30):
                 return True
         return False
+
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
+        # Ignore's splash
+        defender = game.board.get_unit(def_pos)
+        if not defender:
+            return False
+        return self._target_restrict(defender)
+        
+    def simple_target_restrict(self, unit, item):
+        return self._target_restrict(unit)
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         stat_changes = {k: v for (k, v) in self.value}

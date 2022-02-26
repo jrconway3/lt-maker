@@ -123,6 +123,14 @@ class ManaCost(ItemComponent):
     def available(self, unit, item) -> bool:
         return unit.get_mana() >= self.value
 
+    def is_broken(self, unit, item) -> bool:
+        return unit.get_mana() < self.value
+
+    def on_broken(self, unit, item) -> bool:
+        if unit.equipped_weapon is item:
+            action.do(action.UnequipItem(unit, item))
+        return False
+
     def start_combat(self, playback, unit, item, target, mode):
         action.do(action.ChangeMana(unit, -self.value))
 

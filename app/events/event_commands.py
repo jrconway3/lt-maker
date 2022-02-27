@@ -377,6 +377,19 @@ If the *no_block* flag is set, portrait bopping will not pause execution of even
 
     keywords = ['Portrait']
     _flags = ["no_block"]
+    
+class MirrorPortrait(EventCommand):
+    nid = "mirror"
+    nickname = "mirror"
+    tag = Tags.PORTRAIT
+
+    desc = \
+        """
+The direction of the portrait is flipped across the Y axis.
+        """
+
+    keywords = ['Portrait']
+    _flags = ["no_block"]
 
 class Expression(EventCommand):
     nid = "expression"

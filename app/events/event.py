@@ -1246,7 +1246,7 @@ class Event():
         elif command.nid == 'remove_map_anim':
             values, flags = event_commands.parse(command, self._evaluate_all)
             nid = values[0]
-            pos = self.parse_pos(values[1])
+            pos = self.parse_pos(values[1], True)
             action.do(action.RemoveMapAnim(nid, pos))
 
         elif command.nid == 'merge_parties':

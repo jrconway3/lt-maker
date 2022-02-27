@@ -3582,7 +3582,11 @@ class Event():
             unit_nid = values[1]
             if unit_nid not in DB.units.keys():
                 self.logger.error('%s: No such unit with nid %s', 'create_overworld_entity', unit_nid)
-            new_entity = OverworldEntityObject.from_unit_prefab(entity_nid, None, unit_nid)
+            if values[2] in DB.teams:
+                team_nid = values[2]
+            else:
+                team_nid = 'player'
+            new_entity = OverworldEntityObject.from_unit_prefab(entity_nid, None, unit_nid, team_nid)
             game.overworld_controller.add_entity(new_entity)
 
     def set_overworld_menu_option_enabled(self, node_nid: NID, option_nid: NID, setting: bool, flags: Dict):

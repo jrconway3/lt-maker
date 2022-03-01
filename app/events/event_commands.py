@@ -2203,7 +2203,7 @@ class CreateOverworldEntity(EventCommand):
             'If the `delete` flag is passed, this command will instead delete the entity with said NID')
 
     keywords = ['Nid']
-    optional_keywords = ['Unit']
+    optional_keywords = ['Unit', 'Team']
     _flags = ['delete']
 
 class DisableOverworldEntity(EventCommand):

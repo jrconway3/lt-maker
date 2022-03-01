@@ -120,6 +120,9 @@ class ManaCost(ItemComponent):
     expose = Type.Int
     value = 1
 
+    def init(self, item):
+        self._did_something = False
+
     def available(self, unit, item) -> bool:
         return unit.get_mana() >= self.value
 
@@ -131,9 +134,17 @@ class ManaCost(ItemComponent):
             action.do(action.UnequipItem(unit, item))
         return False
 
-    def start_combat(self, playback, unit, item, target, mode):
-        action.do(action.ChangeMana(unit, -self.value))
+    def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
+        self._did_something = True
 
+    def on_miss(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
+        self._did_something = True
+
+    def end_combat(self, playback, unit, item, target, mode):
+        if self._did_something:
+            action.do(action.ChangeMana(unit, -self.value))
+        self._did_something = False
+        
     def reverse_use(self, unit, item):
         action.do(action.ChangeMana(unit, self.value))
 

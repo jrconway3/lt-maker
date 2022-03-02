@@ -608,7 +608,7 @@ class Event():
 
         elif command.nid == 'move_portrait':
             self.move_portrait(command)
-            
+
         elif command.nid == 'mirror':
             values, flags = event_commands.convert_parse(command, self._evaluate_all)
             self.mirror(*values, flags)
@@ -1674,7 +1674,7 @@ class Event():
         else:
             self.wait_time = engine.get_time() + portrait.travel_time + 66
             self.state = 'waiting'
-            
+
     def mirror(self, name, flags):
         portrait = self.portraits.get(name)
         if not portrait or name not in self.portraits:
@@ -3247,10 +3247,18 @@ class Event():
         arrows = 'arrows' in flags and orientation == 'horizontal'
         scroll_bar = 'scroll_bar' in flags and orientation == 'vertical'
 
+        event_context = {
+            'unit': self.unit,
+            'unit2': self.unit2,
+            'item': self.item,
+            'position': self.position,
+            'region': self.region
+        }
+
         game.memory['player_choice'] = (nid, header, data, row_width,
                                         orientation, dtype, should_persist,
                                         align, bg, event_nid, size, no_cursor,
-                                        arrows, scroll_bar, talign)
+                                        arrows, scroll_bar, talign, event_context)
         game.state.change('player_choice')
         self.state = 'paused'
 

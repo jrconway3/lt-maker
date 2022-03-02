@@ -3230,6 +3230,7 @@ class Event():
         no_cursor = 'no_cursor' in flags
         arrows = 'arrows' in flags and orientation == 'horizontal'
         scroll_bar = 'scroll_bar' in flags and orientation == 'vertical'
+        backable = 'backable' in flags
 
         event_context = {
             'unit': self.unit,

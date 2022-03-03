@@ -21,7 +21,7 @@ from app.engine.game_menus.menu_components.generic_menu.simple_menu_wrapper impo
 from app.engine.game_state import game
 from app.engine.graphics.dialog.narration_dialogue import NarrationDialogue
 from app.engine.graphics.ui_framework.premade_animations.animation_templates import \
-    translate_anim
+    fade_anim, translate_anim
 from app.engine.graphics.ui_framework.ui_framework import UIComponent
 from app.engine.graphics.ui_framework.ui_framework_animation import \
     InterpolationType
@@ -1531,21 +1531,26 @@ class Event():
             component.name = name
             component.disable()
             x, y = pos
+            component.offset = pos
             if anim_dir:
-                if anim_dir == 'west':
-                    start_x = -component.width
-                    start_y = y
-                elif anim_dir == 'east':
-                    start_x = WINWIDTH
-                    start_y = y
-                elif anim_dir == 'north':
-                    start_x = x
-                    start_y = -component.height
-                elif anim_dir == 'south':
-                    start_x = x
-                    start_y = WINHEIGHT
-                enter_anim = translate_anim((start_x, start_y), (x, y), 750, interp_mode=InterpolationType.CUBIC)
-                exit_anim = translate_anim((x, y), (start_x, start_y), 750, disable_after=True, interp_mode=InterpolationType.CUBIC)
+                if anim_dir == 'fade':
+                    enter_anim = fade_anim(0, 1, 1000)
+                    exit_anim = fade_anim(1, 0, 1000)
+                else:
+                    if anim_dir == 'west':
+                        start_x = -component.width
+                        start_y = y
+                    elif anim_dir == 'east':
+                        start_x = WINWIDTH
+                        start_y = y
+                    elif anim_dir == 'north':
+                        start_x = x
+                        start_y = -component.height
+                    elif anim_dir == 'south':
+                        start_x = x
+                        start_y = WINHEIGHT
+                    enter_anim = translate_anim((start_x, start_y), (x, y), 750, interp_mode=InterpolationType.CUBIC)
+                    exit_anim = translate_anim((x, y), (start_x, start_y), 750, disable_after=True, interp_mode=InterpolationType.CUBIC)
                 component.save_animation(enter_anim, '!enter')
                 component.save_animation(exit_anim, '!exit')
 

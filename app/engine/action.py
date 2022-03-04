@@ -424,17 +424,27 @@ class SetGameVar(Action):
 
 
 class SetLevelVar(Action):
+    fog_nids = ('_fog_of_war', '_fog_of_war_radius', '_ai_fog_of_war_radius', '_other_fog_of_war_radius')
+
     def __init__(self, nid, val):
         self.nid = nid
         self.val = val
         self.old_val = game.level_vars[self.nid]
 
+    def _update_fog_of_war(self):
+        if self.nid in self.fog_nids:
+            for unit in game.units:
+                if unit.position:
+                    UpdateFogOfWar(unit).execute()
+
     def do(self):
         game.level_vars[self.nid] = self.val
+        # Need to update fog of war when we change it
+        self._update_fog_of_war()
 
     def reverse(self):
         game.level_vars[self.nid] = self.old_val
-
+        self._update_fog_of_war()
 
 class Wait(Action):
     def __init__(self, unit):

@@ -698,11 +698,6 @@ class Event():
             except Exception as e:
                 self.logger.error("Could not evaluate %s (%s)" % (to_eval, e))
                 return
-            # Need to update fog of war when we change it
-            if nid in ('_fog_of_war', '_fog_of_war_radius', '_ai_fog_of_war_radius', '_other_fog_of_war_radius'):
-                for unit in game.units:
-                    if unit.position:
-                        action.do(action.UpdateFogOfWar(unit))
 
         elif command.nid == 'inc_level_var':
             values, flags = event_commands.parse(command, self._evaluate_all)
@@ -865,8 +860,6 @@ class Event():
                 return
             if values[1] in DB.teams:
                 action.do(action.ChangeTeam(unit, values[1]))
-                if unit.position:
-                    action.do(action.UpdateFogOfWar(unit))
             else:
                 self.logger.error("Not a valid team: %s" % values[1])
                 return

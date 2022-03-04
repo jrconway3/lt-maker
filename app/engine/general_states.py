@@ -1888,10 +1888,6 @@ class AIState(MapState):
     def update(self):
         super().update()
 
-        # Don't bother if someone is dying!!!
-        if any(unit.is_dying for unit in game.units):
-            return
-
         if (not self.cur_unit or not self.cur_unit.position):
             self.cur_unit = self.get_next_unit()
             # Reset previous position

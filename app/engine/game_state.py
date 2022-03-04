@@ -442,6 +442,7 @@ class GameState():
             self.leave(unit)
         for unit in self.unit_registry.values():
             # Unit cleanup
+            unit.is_dying = False
             if unit.traveler:
                 unit.traveler = None
                 action.execute(action.RemoveSkill(unit, 'Rescue'))

@@ -580,7 +580,7 @@ class Event():
 
         elif command.nid == 'move_portrait':
             self.move_portrait(command)
-            
+
         elif command.nid == 'mirror':
             values, flags = event_commands.convert_parse(command, self._evaluate_all)
             self.mirror(*values, flags)
@@ -1630,7 +1630,7 @@ class Event():
         else:
             self.wait_time = engine.get_time() + portrait.travel_time + 66
             self.state = 'waiting'
-            
+
     def mirror(self, name, flags):
         portrait = self.portraits.get(name)
         if not portrait or name not in self.portraits:
@@ -1748,7 +1748,7 @@ class Event():
 
         autosize = 'fit' in flags
         new_dialog = \
-            dialog.Dialog(text, portrait, bg, position, box_width, speaker=speaker, 
+            dialog.Dialog(text, portrait, bg, position, box_width, speaker=speaker,
                           style_nid=style_nid, autosize=autosize, speed=speed,
                           font_color=fcolor, font_type=ftype, num_lines=lines,
                           draw_cursor=cursor, message_tail=tail)
@@ -1802,7 +1802,7 @@ class Event():
 
     def unhold(self, unhold_nid, flags):
         for box in self.text_boxes:
-            if box.nid == unhold_nid:
+            if box.style_nid == unhold_nid:
                 box.hold = False
 
     def _place_unit(self, unit, position, entry_type):

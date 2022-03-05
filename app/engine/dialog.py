@@ -78,7 +78,7 @@ class Dialog():
         self.background = None
         self.tail = None
 
-        if background and background != 'None':
+        if background and background not in ('None', 'clear'):
             self.background = self.make_background(background)
             if message_tail and message_tail != 'None':
                 self.tail = SPRITES.get(message_tail)

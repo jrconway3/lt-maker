@@ -1778,7 +1778,7 @@ class Event():
             if text_position == 'center':
                 style.text_position = text_position
             else:
-                style.text_position  = self.parse_pos(text_position)
+                style.text_position = self.parse_pos(text_position)
         if width:
             style.width = int(width)
         if text_speed:

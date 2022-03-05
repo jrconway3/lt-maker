@@ -38,7 +38,7 @@ class TurnChangeState(MapState):
         game.state.refresh()
         game.state.back()  # Turn Change should only last 1 frame
         return 'repeat'
-        
+
     def handle_paired(self):
         for unit in game.get_all_units():
             if unit.traveler:
@@ -47,9 +47,9 @@ class TurnChangeState(MapState):
                     action.do(action.IncGauge(unit, -unit.get_gauge_inc()))
                 # Apply pair up bonuses to units starting with a traveler
                 if game.turncount - 1 <= 0:
-                    skill_system.on_pairup(game.get_unit(unit.traveler), unit) 
+                    skill_system.on_pairup(game.get_unit(unit.traveler), unit)
             if unit.built_guard: # Switch built_guard to false for all units
-                action.do(action.BuiltGuard(unit))                     
+                action.do(action.BuiltGuard(unit))
 
     def end(self):
         if DB.constants.value('initiative'):
@@ -193,6 +193,9 @@ class FreeState(MapState):
 
         game.cursor.show()
         game.boundary.show()
+        for unit in game.get_all_units():
+            if skill_system.has_dynamic_range(unit):
+                game.boundary.recalculate_unit(unit)
         phase.fade_in_phase_music()
 
     def take_input(self, event):

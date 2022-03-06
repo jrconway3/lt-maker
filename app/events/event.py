@@ -1381,7 +1381,7 @@ class Event():
             name = values[0]
             unit = self.get_unit(name)
             if unit and unit.portrait_nid:
-                portrait = icons.get_portrait(unit)
+                portrait, _ = icons.get_portrait(unit)
                 portrait = portrait.convert_alpha()
                 portrait = image_mods.make_translucent(portrait, 0.2)
             else:

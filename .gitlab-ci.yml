@@ -77,7 +77,6 @@ build_app:
         - echo "Copying generated files"
         - cp app/engine/item_system.py ./lt_editor/lt_editor/app/engine
         - cp app/engine/skill_system.py ./lt_editor/lt_editor/app/engine
-        - cp metadata.txt ./lt_editor/lt_editor
         - echo "Done!"
     artifacts:
         name: "Built Editor"

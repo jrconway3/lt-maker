@@ -742,7 +742,7 @@ class PrepItemsState(State):
                                 item_system.can_use_in_base(self.unit, current) and \
                                 item_system.simple_target_restrict(self.unit, current):
                             self.state = 'convoy_item'
-                            topleft = (80, self.menu.get_current_index() * 16)
+                            topleft = (80, (self.menu.get_current_index() - self.menu.get_scrolled_index()) * 16 + 36)
                             if item_funcs.inventory_full(self.unit, current):
                                 options = ['Trade', 'Use']
                             else:

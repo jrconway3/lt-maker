@@ -807,7 +807,7 @@ class PrepItemsState(State):
             elif self.state == 'trade_convoy':
                 unit_item = self.menu.get_inventory_current()
                 convoy_item = self.menu.get_convoy_current()
-                if trade.check_trade(unit_item, convoy_item):
+                if trade.check_trade(unit_item, self.unit, convoy_item, None):
                     action.do(action.HasTraded(self.unit))
                     convoy_funcs.trade_items(convoy_item, unit_item, self.unit)
                     self.menu.unlock()
@@ -819,7 +819,7 @@ class PrepItemsState(State):
             elif self.state == 'trade_inventory':
                 convoy_item = self.menu.get_convoy_current()
                 unit_item = self.menu.get_inventory_current()
-                if trade.check_trade(unit_item, convoy_item):
+                if trade.check_trade(unit_item, self.unit, convoy_item, None):
                     action.do(action.HasTraded(self.unit))
                     convoy_funcs.trade_items(convoy_item, unit_item, self.unit)
                     self.menu.unlock()

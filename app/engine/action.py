@@ -2358,17 +2358,20 @@ class RemoveMapAnim(Action):
         self.nid = nid
         self.pos = pos
         self.speed_mult = 1
+        self.did_remove = False
 
     def do(self):
         for anim in game.tilemap.animations[:]:
             if anim.nid == self.nid and anim.xy_pos == self.pos:
                 self.speed_mult = anim.speed_adj
                 game.tilemap.animations.remove(anim)
+                self.did_remove = True
 
     def reverse(self):
-        anim = RESOURCES.animations.get(self.nid)
-        anim = animations.MapAnimation(anim, self.pos, loop=True, speed_adj=self.speed_mult)
-        game.tilemap.animations.append(anim)
+        if self.did_remove:
+            anim = RESOURCES.animations.get(self.nid)
+            anim = animations.MapAnimation(anim, self.pos, loop=True, speed_adj=self.speed_mult)
+            game.tilemap.animations.append(anim)
 
 class ChangeObjective(Action):
     def __init__(self, key, string):

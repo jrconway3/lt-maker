@@ -418,7 +418,7 @@ class Event():
 
     def run_command(self, command: event_commands.EventCommand):
         from app.events.function_catalog import get_catalog
-        
+
         self.logger.info('%s: %s, %s', command.nid, command.parameters, command.chosen_flags)
 
         parameters, flags = event_commands.convert_parse(command, self._evaluate_all)

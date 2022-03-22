@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from app.utilities.data import Data, Prefab
 from app.utilities import str_utils
 
+
 @dataclass
 class Tag(Prefab):
     nid: str = None

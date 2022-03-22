@@ -51,6 +51,6 @@ class NegateTags(SkillComponent):
 class HasTags(SkillComponent):
     nid = 'has_tags'
     desc = 'Skill grants the following tags to the unit'
-    tag = 'attribute'
+    tag = SkillTags.ATTRIBUTE
 
     expose = (Type.List, Type.Tag)

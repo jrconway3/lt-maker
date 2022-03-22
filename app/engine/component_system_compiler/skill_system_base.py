@@ -149,7 +149,7 @@ def condition(skill, unit) -> bool:
     return True
 
 def hidden(skill, unit) -> bool:
-    return skill.hidden or (skill.hidden_if_inactive and not condition(skill, unit))
+    return skill.hidden or skill.is_terrain or (skill.hidden_if_inactive and not condition(skill, unit))
 
 def available(unit, item) -> bool:
     """

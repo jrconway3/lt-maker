@@ -152,8 +152,9 @@ class MovementManager():
     def remove_interrupt_regions(self, unit):
         for region in game.level.regions:
             if region.contains(unit.position) and region.interrupt_move:
-                did_trigger = game.events.trigger(region.sub_nid, unit, position=unit.position, region=region)
-                if did_trigger and region.only_once:
+                if region.region_type == 'event':
+                    did_trigger = game.events.trigger(region.sub_nid, unit, position=unit.position, region=region)
+                if (region.region_type != 'event' or did_trigger) and region.only_once:
                     action.do(action.RemoveRegion(region))
 
     def update_surprise(self):

@@ -22,7 +22,7 @@ from app.engine.graphics.ui_framework.ui_framework_layout import HAlignment
 from app.engine.objects.item import ItemObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.objects.unit import UnitObject
-from app.engine.sound import SOUNDTHREAD
+from app.engine.sound import get_sound_thread
 from app.events import event_commands, regions
 from app.events.event_portrait import EventPortrait
 from app.events.speak_style import SpeakStyle
@@ -55,20 +55,20 @@ def music(self: Event, music, fade_in=400, flags=None):
     if self.do_skip:
         fade_in = 0
     if music == 'None':
-        SOUNDTHREAD.fade_to_pause(fade_out=fade_in)
+        get_sound_thread().fade_to_pause(fade_out=fade_in)
     else:
-        SOUNDTHREAD.fade_in(music, fade_in=fade_in)
+        get_sound_thread().fade_in(music, fade_in=fade_in)
 
 def music_clear(self: Event, fade_out=0, flags=None):
     if self.do_skip:
         fade_out = 0
     if fade_out > 0:
-        SOUNDTHREAD.fade_clear(fade_out)
+        get_sound_thread().fade_clear(fade_out)
     else:
-        SOUNDTHREAD.clear()
+        get_sound_thread().clear()
 
 def sound(self: Event, sound, volume=1.0, flags=None):
-    SOUNDTHREAD.play_sfx(sound, volume=float(volume))
+    get_sound_thread().play_sfx(sound, volume=float(volume))
 
 def change_music(self: Event, phase, music, flags=None):
     if music == 'None':

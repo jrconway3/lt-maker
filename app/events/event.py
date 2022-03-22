@@ -13,7 +13,7 @@ from app.engine import (action, dialog, engine, evaluate,
 from app.engine.game_state import GameState
 from app.engine.objects.overworld import OverworldNodeObject
 from app.engine.objects.unit import UnitObject
-from app.engine.sound import SOUNDTHREAD
+from app.engine.sound import get_sound_thread
 from app.events import event_commands
 from app.events.event_portrait import EventPortrait
 from app.utilities import str_utils, utils
@@ -199,13 +199,13 @@ class Event():
 
     def take_input(self, event):
         if event == 'START' or event == 'BACK':
-            SOUNDTHREAD.play_sfx('Select 4')
+            get_sound_thread().play_sfx('Select 4')
             self.skip(event == 'START')
 
         elif event == 'SELECT' or event == 'RIGHT' or event == 'DOWN':
             if self.state == 'dialog':
                 if not cf.SETTINGS['talk_boop']:
-                    SOUNDTHREAD.play_sfx('Select 1')
+                    get_sound_thread().play_sfx('Select 1')
                 self.hurry_up()
 
         for listener in self.functions_listening_for_input.values():

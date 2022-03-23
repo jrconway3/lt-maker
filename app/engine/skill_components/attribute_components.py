@@ -11,6 +11,16 @@ class HiddenIfInactive(SkillComponent):
     desc = 'Skill will not show up on info menu if condition is not fulfilled'
     tag = SkillTags.ATTRIBUTE
 
+class TerrainSkill(SkillComponent):
+    nid = 'is_terrain'
+    desc = 'Skill is hidden and will not affect fliers'
+    tag = SkillTags.ATTRIBUTE
+
+    ignore_conditional = True
+
+    def condition(self, unit):
+        return not 'Flying' in unit.tags
+
 class ClassSkill(SkillComponent):
     nid = 'class_skill'
     desc = "Skill will show up on first page of info menu"
@@ -51,6 +61,6 @@ class NegateTags(SkillComponent):
 class HasTags(SkillComponent):
     nid = 'has_tags'
     desc = 'Skill grants the following tags to the unit'
-    tag = 'attribute'
+    tag = SkillTags.ATTRIBUTE
 
     expose = (Type.List, Type.Tag)

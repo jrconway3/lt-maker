@@ -99,7 +99,7 @@ class UnitObject(Prefab):
         return None
 
     @classmethod
-    def from_prefab(cls, prefab: UniqueUnit | GenericUnit | UnitPrefab, current_mode: DifficultyModeObject = None):
+    def from_prefab(cls, prefab: UniqueUnit | GenericUnit | UnitPrefab, current_mode: DifficultyModeObject = None, for_equation_test: bool = False):
         self = cls(prefab.nid)
         is_level_unit = not isinstance(prefab, UnitPrefab)
         self.nid = prefab.nid
@@ -200,20 +200,21 @@ class UnitObject(Prefab):
         self.current_guard_gauge = 0
 
         # Handle items
-        items = item_funcs.create_items(self, prefab.starting_items)
-        for item in items:
-            self.add_item(item)
+        if not for_equation_test:
+            items = item_funcs.create_items(self, prefab.starting_items)
+            for item in items:
+                self.add_item(item)
 
-        if self.generic:
-            self.calculate_needed_wexp_from_items()
+            if self.generic:
+                self.calculate_needed_wexp_from_items()
 
-        # Handle skills
-        global_skills = unit_funcs.get_global_skills(self)
-        self.skills += global_skills
-        personal_skills = unit_funcs.get_personal_skills(self, prefab)
-        self.skills += personal_skills
-        class_skills = unit_funcs.get_starting_skills(self)
-        self.skills += class_skills
+            # Handle skills
+            global_skills = unit_funcs.get_global_skills(self)
+            self.skills += global_skills
+            personal_skills = unit_funcs.get_personal_skills(self, prefab)
+            self.skills += personal_skills
+            class_skills = unit_funcs.get_starting_skills(self)
+            self.skills += class_skills
 
         klass = DB.classes.get(self.klass)
         if klass.tier == 0:

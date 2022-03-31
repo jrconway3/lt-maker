@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 
 from app.data import (ai, constants, difficulty_modes, equations, factions,
                       items, klass, levels, lore, mcost, minimap, overworld,
-                      overworld_node, parties, raw_data, skills, stats,
+                      overworld_node, parties, raw_data, skills, stats, varslot,
                       supports, tags, terrain, translations, units, weapons)
 from app.events import event_prefab
 from app.utilities.str_utils import is_int
@@ -17,7 +17,7 @@ from app.utilities.str_utils import is_int
 
 class Database(object):
     save_data_types = ("constants", "stats", "equations", "mcost", "terrain", "weapon_ranks",
-                       "weapons", "factions", "items", "skills", "tags", "classes",
+                       "weapons", "factions", "items", "skills", "tags", "game_var_slots", "classes",
                        "support_constants", "support_ranks", "affinities", "units", "support_pairs",
                        "ai", "parties", "difficulty_modes",
                        "translations", "lore", "levels", "events", "overworlds", "raw_data")
@@ -37,6 +37,7 @@ class Database(object):
         self.items = items.ItemCatalog()
         self.skills = skills.SkillCatalog()
         self.tags = tags.TagCatalog(['Lord', 'Boss', 'Armor', 'Horse', 'Mounted', 'Dragon', 'ZeroMove', 'AutoPromote', 'NoAutoPromote'])
+        self.game_var_slots = varslot.VarSlotCatalog([])
         self.classes = klass.ClassCatalog()
 
         self.support_constants = supports.constants

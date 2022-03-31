@@ -624,8 +624,8 @@ Creates a game variable or changes its value. Game variables are preserved betwe
 The *Nid* is the variable's identifier, and the *Condition* is the value that is given to the variable.
 *Condition* can be a number or a Python expression.
         """
-
-    keywords = ["Nid", "Expression"]
+    keywords = ['Nid', 'Expression']
+    keyword_types = ["GeneralVar", "Expression"]
 
 class IncGameVar(EventCommand):
     nid = 'inc_game_var'
@@ -639,6 +639,7 @@ Increments a game variable by one, or by a Python expression provided using the 
 
     keywords = ["Nid"]
     optional_keywords = ["Expression"]
+    keyword_types = ["GeneralVar", "Expression"]
 
 class LevelVar(EventCommand):
     nid = 'level_var'
@@ -653,6 +654,7 @@ value that is given to the variable. *Expression* can be a number or a Python ex
         """
 
     keywords = ["Nid", "Expression"]
+    keyword_types = ["GeneralVar", "Expression"]
 
 class IncLevelVar(EventCommand):
     nid = 'inc_level_var'
@@ -665,6 +667,7 @@ Increments a level variable by one, or by a Python expression provided using the
 
     keywords = ["Nid"]
     optional_keywords = ["Expression"]
+    keyword_types = ["GeneralVar", "Expression"]
 
 class WinGame(EventCommand):
     nid = 'win_game'
@@ -744,7 +747,7 @@ class LoadUnit(EventCommand):
 
     desc = \
         """
-Loads a unique (non-generic) unit from memory. 
+Loads a unique (non-generic) unit from memory.
 This does not place the unit on the map. If the unit already exists in the game's memory, this command will do nothing.
 
 Optionally, the loaded unit can be assigned to a *Team* and given an *AI* preset. If not specified, defaults of Player team and no AI script are applied.
@@ -1750,7 +1753,7 @@ Optional args:
 
     optional_keywords = ['PickUnitsEnabled', 'Music', 'OtherOptions', 'OtherOptionsEnabled', 'OtherOptionsOnSelect']
     keyword_types = ["Bool", "Music", "StringList", "StringList", "StringList"]
-    
+
 
 class Base(EventCommand):
     nid = 'base'
@@ -1849,7 +1852,7 @@ via hitting the back button, and the event will go on as normal.
 
     keywords = ['Nid', 'Title', 'Choices']
     optional_keywords = ['RowWidth', 'Orientation', 'Alignment', 'BG', 'EventNid', 'EntryType', 'Dimensions', 'TextAlign']
-    keyword_types = ['Nid', 'String', 'String', 'Width', 'Orientation', 'Align', 'Sprite', 'Event', 'TableEntryType', 'Size', 'HAlign']
+    keyword_types = ['GeneralVar', 'String', 'String', 'Width', 'Orientation', 'Align', 'Sprite', 'Event', 'TableEntryType', 'Size', 'HAlign']
     _flags = ['persist', 'expression', 'no_bg', 'no_cursor', 'arrows', 'scroll_bar', 'backable']
 
 class Unchoice(EventCommand):
@@ -2432,7 +2435,7 @@ def parse(command: EventCommand, _eval_evals: Callable[[str], str] = None):
 
 def convert_parse(command: EventCommand, _eval_evals: Callable[[str], str] = None):
     from app.events.event_validators import convert
-    
+
     parameters = command.parameters
     if _eval_evals:
         parameters = {k: _eval_evals(v) if isinstance(v, str) else v for k, v in parameters.items()}

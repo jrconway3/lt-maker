@@ -200,7 +200,7 @@ class UnitObject(Prefab):
         self.current_guard_gauge = 0
 
         # Handle items
-        if not is_level_unit:
+        if is_level_unit:
             items = item_funcs.create_items(self, prefab.starting_items)
             for item in items:
                 self.add_item(item)

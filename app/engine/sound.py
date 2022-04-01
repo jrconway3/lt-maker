@@ -41,6 +41,7 @@ class MusicDict(dict):
                     self[val] = Song(prefab)
                 except pygame.error as e:
                     logging.warning(e)
+                    return None
             else:
                 return None
         return self[val]

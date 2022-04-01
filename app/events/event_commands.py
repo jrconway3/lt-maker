@@ -744,7 +744,7 @@ class LoadUnit(EventCommand):
 
     desc = \
         """
-Loads a unique (non-generic) unit from memory. 
+Loads a unique (non-generic) unit from memory.
 This does not place the unit on the map. If the unit already exists in the game's memory, this command will do nothing.
 
 Optionally, the loaded unit can be assigned to a *Team* and given an *AI* preset. If not specified, defaults of Player team and no AI script are applied.
@@ -1750,7 +1750,7 @@ Optional args:
 
     optional_keywords = ['PickUnitsEnabled', 'Music', 'OtherOptions', 'OtherOptionsEnabled', 'OtherOptionsOnSelect']
     keyword_types = ["Bool", "Music", "StringList", "StringList", "StringList"]
-    
+
 
 class Base(EventCommand):
     nid = 'base'
@@ -1834,7 +1834,8 @@ Optional args:
 * *type_unit* will interpret all options as unit NIDs
 * *type_class* will interpret all options as class NIDs.
 * *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
-* *type_sprite* will interpret the options as sprite NIDs.
+* *type_portrait* will interpret the options as portrait NIDs.
+* *type_chibi* will interpret the options as unit nids, and draw the chibi corresponding.
 
 * The *persist* flag indicates whether or not the choice ends after you make a selection. If *persist* is true, then the choice can only be exited
 via hitting the back button, and the event will go on as normal.
@@ -1890,7 +1891,8 @@ expression would automatically update the gold.
 * *type_unit* will interpret all options as unit NIDs
 * *type_class* will interpret all options as class NIDs.
 * *type_icon* will use the following syntax: `iconsheetnid-iconx-icony-choicetext`, and will display the specific icon16 alongside the choice.
-* *type_sprite* will interpret the options as sprite NIDs.
+* *type_portrait* will interpret the options as portrait NIDs.
+* *type_chibi* will interpret the options as unit nids, and draw the chibi corresponding.
 
 * The *expression* flag indicates that the provided table data should be be continually parsed as a python expression and updated.
 * The *no_bg* flag removes the bg.
@@ -2432,7 +2434,7 @@ def parse(command: EventCommand, _eval_evals: Callable[[str], str] = None):
 
 def convert_parse(command: EventCommand, _eval_evals: Callable[[str], str] = None):
     from app.events.event_validators import convert
-    
+
     parameters = command.parameters
     if _eval_evals:
         parameters = {k: _eval_evals(v) if isinstance(v, str) else v for k, v in parameters.items()}

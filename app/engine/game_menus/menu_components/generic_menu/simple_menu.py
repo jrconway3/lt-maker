@@ -123,7 +123,7 @@ class SimpleIconTable(UIComponent):
     def _update_data_instead(self, data: List):
         for idx, item in enumerate(data):
             col = idx % len(self.column_data)
-            row = math.ceil(idx / self.num_display_columns)
+            row = math.floor(idx / self.num_display_columns)
             new_entry = self.construct_row(item)
             old_entry = self.column_data[col][row]
             old_entry.set_icon(new_entry.icon)

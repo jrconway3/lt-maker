@@ -62,10 +62,7 @@ class RawDataValidator(EvalValidator):
     tags = ['d', 'data']
 
     def validate(self, text, level):
-        try:
-            return text
-        except:
-            return None
+        return text
 
     def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
         text = self.process_arg_text(text)
@@ -95,10 +92,7 @@ class UnitFieldValidator(EvalValidator):
     tags = ['f', 'field']
 
     def validate(self, text, level):
-        try:
-            return text
-        except:
-            return None
+        return text
 
     def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
         text = self.process_arg_text(text)
@@ -119,6 +113,26 @@ class UnitFieldValidator(EvalValidator):
                 if unit_prefab: # get its predefined field keys
                     return [(None, key) for (key, _) in unit_prefab.fields]
         return []
+
+class VarValidator(EvalValidator):
+    desc = "must be a correct reference to an existing game_var or level_var"
+    tags = ['v', 'var']
+
+    def validate(self, text, level):
+        return text
+
+    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+        return [(None, var_name) for var_name in DB.game_var_slots.keys()]
+
+
+class GeneralVar(Validator):
+    desc = "can be any nid"
+
+    def validate(self, text, level):
+        return text
+
+    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+        return [(None, var_name) for var_name in DB.game_var_slots.keys()]
 
 class EventFunction(Validator):
     desc = "must be a valid event function"

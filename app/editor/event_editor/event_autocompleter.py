@@ -119,4 +119,6 @@ def detect_type_under_cursor(line: str, cursor_pos: int, arg_under_cursor: str =
         return (validator, flags)
     except Exception as e:
         print(e)
+        import traceback
+        traceback.print_exc()
         return (event_validators.Validator, [])

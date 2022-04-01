@@ -155,7 +155,11 @@ class SimpleMenuUI():
             self.set_data(new_data)
         elif self._data_type == 'type_unit': # we need to reset data to update sprites
             # elif because while not mutually exclusive, we only ever need one call of "set_data"
-            self.set_data(self._data)
+            if self._get_data:
+                new_data = self._get_data()
+            else:
+                new_data = self._data
+            self.set_data(new_data)
         return True
 
     def draw(self, surf):

@@ -294,7 +294,7 @@ class Event():
                 arg_list = [self._object_to_str(arg) for arg in arg_list]
             except Exception as e:
                 self.logger.error("%s: Could not evaluate {%s}" % (e, command.parameters['Expression']))
-                return False
+                return True
             if not arg_list:
                 if show_warning:
                     self.logger.warning("Arg list is empty for: %s" % (command.parameters['Expression']))
@@ -316,7 +316,7 @@ class Event():
                 curr_idx += 1
                 if curr_idx > len(self.commands):
                     self.logger.error("%s: could not find end command for loop %s" % ('handle_conditional', cond))
-                    return False
+                    return True
                 curr_command = self.commands[curr_idx]
 
             # remove the initial for-loop, as we've templated out all the child fors

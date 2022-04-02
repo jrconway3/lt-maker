@@ -85,7 +85,13 @@ class PromotionChoiceState(State):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 
+        current_idx = self.menu.get_current_index()
         self.menu.handle_mouse()
+        new_idx = self.menu.get_current_index()
+        if current_idx != new_idx:  # Mouse moved
+            self.target_anim_offset = True
+            self.current_desc = self._get_desc()
+
         if 'DOWN' in directions:
             get_sound_thread().play_sfx('Select 6')
             if self.child_menu:
@@ -135,7 +141,7 @@ class PromotionChoiceState(State):
     def _get_desc(self):
         current_klass = self.class_options[self.menu.get_current_index()]
         desc = DB.classes.get(current_klass).desc
-        d = dialog.Dialog(text_funcs.translate(desc))
+        d = dialog.Dialog(desc.replace('\n', '{br}'))
         d.position = (6, 112)
         d.text_width = WINWIDTH - 28
         d.width = d.text_width + 16

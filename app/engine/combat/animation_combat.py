@@ -676,12 +676,13 @@ class AnimationCombat(BaseCombat, MockCombat):
         else:
             defender_battle = None
         battle_music = game.level.music['%s_battle' % self.attacker.team]
+        from_start = DB.constants.value('restart_battle_music')
         if attacker_battle:
-            self.battle_music = get_sound_thread().battle_fade_in(attacker_battle)
+            self.battle_music = get_sound_thread().battle_fade_in(attacker_battle, from_start=from_start)
         elif defender_battle:
-            self.battle_music = get_sound_thread().battle_fade_in(defender_battle)
+            self.battle_music = get_sound_thread().battle_fade_in(defender_battle, from_start=from_start)
         elif battle_music:
-            self.battle_music = get_sound_thread().battle_fade_in(battle_music)
+            self.battle_music = get_sound_thread().battle_fade_in(battle_music, from_start=from_start)
 
     def left_team(self):
         return self.left.team

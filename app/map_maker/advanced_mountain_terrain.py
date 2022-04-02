@@ -21,7 +21,8 @@ class MountainTerrain(Terrain):
         return True
 
     def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
-        new_coords = self.organization[pos]
+        group_coords = self.organization[pos]  # Mountain Group Coord
+        new_coords = random_choice(tuple(group_coords), pos)  # pick one randomly
         new_coords1 = [(new_coords[0]*2, new_coords[1]*2)]
         new_coords2 = [(new_coords[0]*2 + 1, new_coords[1]*2)]
         new_coords3 = [(new_coords[0]*2 + 1, new_coords[1]*2 + 1)]
@@ -33,11 +34,14 @@ class MountainTerrain(Terrain):
         data_loc = 'app/map_maker/mountain_data.p'
         with open(data_loc, 'rb') as fp:
             self.mountain_data = pickle.load(fp)
+        self.mountain_data = {mountain_group.coords: mountain_group for mountain_group in self.mountain_data}
         self.border_dict = {}  # Coord: Index (0-15)
         self.index_dict = {i: set() for i in range(16)}  # Index: Coord 
         self.noneless_rules = {}
 
-        for coord, rules in self.mountain_data.items():
+        for mountain_group in self.mountain_data.values():
+            coord = mountain_group.coords
+            rules = mountain_group.rules
             north_edge = None in rules['up']
             south_edge = None in rules['down']
             east_edge = None in rules['right']
@@ -90,7 +94,7 @@ class MountainTerrain(Terrain):
         self.tilemap = tilemap
 
         # But then, start the thread
-        if len(group) < 20:
+        if len(group) < 12:
             thread = NaiveBacktrackingThread(tilemap, self.mountain_data, self.noneless_rules, group)
         else:
             thread = AlgorithmXThread(tilemap, self.mountain_data, self.noneless_rules, group)
@@ -134,7 +138,8 @@ class MountainTerrain(Terrain):
 
     def mountain_processing(self, thread):
         print("Processing... %s" % id(thread))
-        for pos, coord in thread.organization.items():
+        for pos, group_coords in thread.organization.items():
+            coord = random_choice(tuple(group_coords), pos)  # pick one randomly
             self.tilemap.tile_grid[(pos[0] * 2, pos[1] * 2)] = (coord[0]*2, coord[1]*2)
             self.tilemap.tile_grid[(pos[0] * 2 + 1, pos[1] * 2)] = (coord[0]*2 + 1, coord[1]*2)
             self.tilemap.tile_grid[(pos[0] * 2 + 1, pos[1] * 2 + 1)] = (coord[0]*2 + 1, coord[1]*2 + 1)

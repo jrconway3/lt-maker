@@ -3,7 +3,7 @@ from PyQt5.QtGui import QPixmap, QPainter
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.map_maker.wang_terrain import WangCorner2Terrain
 from app.map_maker.utilities import flood_fill
-from app.map_maker.value_noise import get_noise_map
+from app.map_maker.value_noise import get_grass_noise_map
 
 class GrassTerrain(WangCorner2Terrain):
     terrain_like = ('Plains')
@@ -35,7 +35,7 @@ class GrassTerrain(WangCorner2Terrain):
     def single_process(self, tilemap):
         positions: set = tilemap.get_all_terrain(self.nid)
         self.vertices.clear()
-        noise_map = get_noise_map(tilemap.width, tilemap.height)
+        noise_map = get_grass_noise_map(tilemap.width, tilemap.height)
         self.potential_light_positions = {pos for pos in positions if noise_map.get(*pos) > (1 - self.light_grass_chance)}
 
         # Remove any positions that are adjacent to 2 or more non-grass tiles

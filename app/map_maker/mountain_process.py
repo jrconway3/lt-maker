@@ -78,20 +78,20 @@ class NaiveBacktrackingThread(QThread):
         east_edge = bool(east and east != 'Mountain')
         west_edge = bool(west and west != 'Mountain')
         valid_coords = \
-            [coord for coord, rules in self.mountain_data.items() if
-             ((north_edge and None in rules['up']) or (not north_edge and self.noneless_rules[coord]['up'])) and
-             ((south_edge and None in rules['down']) or (not south_edge and self.noneless_rules[coord]['down'])) and
-             ((east_edge and None in rules['right']) or (not east_edge and self.noneless_rules[coord]['right'])) and
-             ((west_edge and None in rules['left']) or (not west_edge and self.noneless_rules[coord]['left']))]
+            [coord for coord, mountain_group in self.mountain_data.items() if
+             ((north_edge and None in mountain_group.rules['up']) or (not north_edge and self.noneless_rules[coord]['up'])) and
+             ((south_edge and None in mountain_group.rules['down']) or (not south_edge and self.noneless_rules[coord]['down'])) and
+             ((east_edge and None in mountain_group.rules['right']) or (not east_edge and self.noneless_rules[coord]['right'])) and
+             ((west_edge and None in mountain_group.rules['left']) or (not west_edge and self.noneless_rules[coord]['left']))]
         orig_valid_coords = valid_coords[:]
         # If in the middle, don't include objects with index 15
         if not north_edge and not south_edge and not east_edge and not west_edge:
             valid_coords = \
                 [coord for coord in valid_coords if 
-                 None not in self.mountain_data[coord]['up'] and 
-                 None not in self.mountain_data[coord]['down'] and 
-                 None not in self.mountain_data[coord]['left'] and 
-                 None not in self.mountain_data[coord]['right']]
+                 None not in self.mountain_data[coord].rules['up'] and 
+                 None not in self.mountain_data[coord].rules['down'] and 
+                 None not in self.mountain_data[coord].rules['left'] and 
+                 None not in self.mountain_data[coord].rules['right']]
         north_pos = (pos[0], pos[1] - 1)
         south_pos = (pos[0], pos[1] + 1)
         east_pos = (pos[0] + 1, pos[1])
@@ -105,16 +105,16 @@ class NaiveBacktrackingThread(QThread):
             valid_coords = [coord for coord in valid_coords if coord not in self.locked_values[pos]]
         if not north_edge and north_pos in self.organization:
             chosen_coord = self.organization[north_pos]
-            valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord]['down']]
+            valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord].rules['down']]
         if not south_edge and south_pos in self.organization:
             chosen_coord = self.organization[south_pos]
-            valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord]['up']]
+            valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord].rules['up']]
         if not east_edge and east_pos in self.organization:
             chosen_coord = self.organization[east_pos]
-            valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord]['left']]
+            valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord].rules['left']]
         if not west_edge and west_pos in self.organization:
             chosen_coord = self.organization[west_pos]
-            valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord]['right']]
+            valid_coords = [coord for coord in valid_coords if coord in self.mountain_data[chosen_coord].rules['right']]
         # If there's already a position filled to the southwest, check that we can find a reasonable
         # choice for the 
         if southwest_pos in self.organization and south and south == 'Mountain':
@@ -124,7 +124,6 @@ class NaiveBacktrackingThread(QThread):
             # check if any of that coordinate's southward connections match with the rightward coordinates
             # of the southwesst position
             valid_coords = [coord for coord in valid_coords if any(c in valid_right_coords for c in self.noneless_rules[coord]['down'])]
-        # print(sorted(valid_coords))
 
         # print(sorted(valid_coords))
         if not valid_coords and not exact:
@@ -142,13 +141,13 @@ class NaiveBacktrackingThread(QThread):
         for valid_coord in valid_coords:
             if west_pos in self.organization:
                 west_coord = self.organization[west_pos]
-                partners = self.mountain_data[west_coord]['right']
+                partners = self.mountain_data[west_coord].rules['right']
                 if valid_coord in partners:
                     count = partners[valid_coord]
                     valid_coord_list += [valid_coord] * count
             if north_pos in self.organization:
                 north_coord = self.organization[north_pos]
-                partners = self.mountain_data[north_coord]['down']
+                partners = self.mountain_data[north_coord].rules['down']
                 if valid_coord in partners:
                     count = partners[valid_coord]
                     valid_coord_list += [valid_coord] * count
@@ -207,6 +206,10 @@ class AlgorithmXThread(QThread):
         self.process_group()
 
     def process_group(self):
+        if not self.to_process:
+            print("No positions to process!")
+            return
+
         columns = [(pos, True) for pos in self.to_process]
         # valid_coords = [self.find_valid_coords(pos) for pos in self.to_process]
         valid_coords_dict = {pos: self.find_valid_coords(pos) for pos in self.to_process}
@@ -232,7 +235,7 @@ class AlgorithmXThread(QThread):
 
                 # Right
                 if right in valid_coords_dict:
-                    invalid_coords_right = {coord for coord in valid_coords_dict[right] if coord not in self.mountain_data[valid_coord]['right']}
+                    invalid_coords_right = {coord for coord in valid_coords_dict[right] if coord not in self.mountain_data[valid_coord].rules['right']}
                     if invalid_coords_right:
                         identifier = (pos, right, valid_coord, invalid_coords_right)
                         column_names.append(identifier)
@@ -241,7 +244,7 @@ class AlgorithmXThread(QThread):
 
                 # Down
                 if down in valid_coords_dict:
-                    invalid_coords_down = {coord for coord in valid_coords_dict[down] if coord not in self.mountain_data[valid_coord]['down']}
+                    invalid_coords_down = {coord for coord in valid_coords_dict[down] if coord not in self.mountain_data[valid_coord].rules['down']}
                     if invalid_coords_down:
                         identifier = (pos, down, valid_coord, invalid_coords_down)
                         column_names.append(identifier)
@@ -282,6 +285,8 @@ class AlgorithmXThread(QThread):
         limit = int(1e6)
         while counter < limit:
             time.sleep(0)
+            if counter % 10000 == 0:
+                print("Still Processing", id(self), counter)
             if self.broke_out:
                 return
             counter += 1
@@ -306,20 +311,20 @@ class AlgorithmXThread(QThread):
         east_edge = not east
         west_edge = not west
         valid_coords = \
-            [coord for coord, rules in self.mountain_data.items() if
-             ((north_edge and None in rules['up']) or (not north_edge and self.noneless_rules[coord]['up'])) and
-             ((south_edge and None in rules['down']) or (not south_edge and self.noneless_rules[coord]['down'])) and
-             ((east_edge and None in rules['right']) or (not east_edge and self.noneless_rules[coord]['right'])) and
-             ((west_edge and None in rules['left']) or (not west_edge and self.noneless_rules[coord]['left']))]
+            [coord for coord, mountain_group in self.mountain_data.items() if
+             ((north_edge and None in mountain_group.rules['up']) or (not north_edge and self.noneless_rules[coord]['up'])) and
+             ((south_edge and None in mountain_group.rules['down']) or (not south_edge and self.noneless_rules[coord]['down'])) and
+             ((east_edge and None in mountain_group.rules['right']) or (not east_edge and self.noneless_rules[coord]['right'])) and
+             ((west_edge and None in mountain_group.rules['left']) or (not west_edge and self.noneless_rules[coord]['left']))]
         # If in the middle, don't include objects with index 15
         orig_valid_coords = valid_coords[:]
         if not north_edge and not south_edge and not east_edge and not west_edge:
             valid_coords = \
                 [coord for coord in valid_coords if 
-                 None not in self.mountain_data[coord]['up'] and 
-                 None not in self.mountain_data[coord]['down'] and 
-                 None not in self.mountain_data[coord]['left'] and 
-                 None not in self.mountain_data[coord]['right']]
+                 None not in self.mountain_data[coord].rules['up'] and 
+                 None not in self.mountain_data[coord].rules['down'] and 
+                 None not in self.mountain_data[coord].rules['left'] and 
+                 None not in self.mountain_data[coord].rules['right']]
         if not valid_coords:
             valid_coords = orig_valid_coords
         return valid_coords

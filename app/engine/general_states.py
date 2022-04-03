@@ -1842,6 +1842,9 @@ class AIState(MapState):
         self.cur_unit = None
         self.cur_group = None
 
+    def begin(self):
+        phase.fade_in_phase_music()
+
     def get_next_unit(self):
         # Initiative way
         if DB.constants.value('initiative'):

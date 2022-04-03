@@ -684,7 +684,7 @@ class GlobalUnit(Validator):
             nids = [u.nid for u in level.units]
             if text in nids:
                 return text
-        elif text in DB.units.keys():
+        if text in DB.units.keys():
             return text
         elif text in ('{unit}', '{unit1}', '{unit2}'):
             return True

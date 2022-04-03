@@ -657,8 +657,10 @@ class AnimationCombat(BaseCombat, MockCombat):
 
     def finish(self):
         # Fade back music if and only if it was faded in
+        from_start = DB.constants.value('restart_battle_music')
         if self.battle_music:
-            get_sound_thread().battle_fade_back(self.battle_music)
+            # Don't battle fade back when we don't restart battle music
+            get_sound_thread().battle_fade_back(self.battle_music, from_start)
 
     def build_viewbox(self, current_time):
         vb_multiplier = utils.clamp(current_time / self.viewbox_time, 0, 1)

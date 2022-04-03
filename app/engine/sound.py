@@ -421,10 +421,10 @@ class SoundController():
         else:
             return self.fade_in(next_song, fade_in=fade, from_start=from_start)
 
-    def battle_fade_back(self, song):
+    def battle_fade_back(self, song, from_start=True):
         if song.battle:
             self.crossfade()
-        else:
+        elif from_start:
             self.fade_back()
 
     def crossfade(self, fade=400):

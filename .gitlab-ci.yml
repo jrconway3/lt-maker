@@ -106,7 +106,7 @@ release:
         assets:
             links: # IF SOMETHING IS BROKEN, IT'S PROBABLY THESE URLS FAULT
                 - name: 'Lex_Talionis_Maker'
-                  # url: "https://gitlab.com/rainlash/lt-maker/-/jobs/artifacts/master/download?job=build_app"
+                  filepath: /lex_talionis_maker
                   url: "https://gitlab.com/rainlash/lt-maker/-/jobs/artifacts/master/download?job=build_app"
                   link_type: package
                 - name: 'Version Info'

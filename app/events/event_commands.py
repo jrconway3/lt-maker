@@ -2296,7 +2296,7 @@ def restore_command(dat) -> EventCommand:
     elif len(dat) == 3:  # Old method
         nid, values, display_values = dat
     else:
-        logging.error("Couldn't restore event command: NID: %s; Display Values: %s", nid, display_values)
+        logging.error("Couldn't restore event command: Data: %s", dat)
         return None
 
     text = ';'.join([nid] + display_values)
@@ -2306,7 +2306,7 @@ def restore_command(dat) -> EventCommand:
     else:
         return Comment(display_values=[nid + ';' + str.join(';', display_values)])
 
-evaluables = ('Expression', 'String', 'StringList', 'PointList', 'DashList')
+evaluables = ('Expression', 'String', 'StringList', 'PointList', 'DashList', 'Nid')
 
 def determine_command_type(text: str) -> EventCommand:
     text = text.lstrip()

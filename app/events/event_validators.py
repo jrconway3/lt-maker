@@ -804,7 +804,7 @@ class ItemList(Validator):
         return valids
 
 class StatList(Validator):
-    desc = "accepts a comma-delimited list of pairs of stat nids and stat changes. For example, `STR,2,SPD,-3` to increase STR by 2 and decrease SPD by 3."
+    desc = "accepts a comma-delimited list of pairs of stat nids and stat changes. For example, `STR,2,SPD,-3`."
 
     def validate(self, text, level):
         s_l = text.split(',')

@@ -96,7 +96,7 @@ class GameState():
         self.ui_view: ui_view.UIView = None
         self.combat_instance: List[SimpleCombat] = []
         self.exp_instance: List[Tuple[UnitObject, int, promotion.PromotionState, str]] = []
-        self.mana_instance = []
+        self.mana_instance: List[Tuple[UnitObject, int]] = []
         self.ai: ai_controller.AIController = None
         self.overworld_controller: OverworldManager = None
 

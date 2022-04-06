@@ -714,6 +714,16 @@ This can be useful if the player chose Classic Mode,
 as he or she would otherwise only be able to suspend and not save mid-battle.
         """
 
+class ClearTurnwheel(EventCommand):
+    nid = 'clear_turnwheel'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+The turnwheel's history will be cleared. The player will not be able to
+return to any action that occurs before this event.
+        """
+
 class ChangeTilemap(EventCommand):
     nid = 'change_tilemap'
     tag = Tags.TILEMAP
@@ -2296,7 +2306,7 @@ def restore_command(dat) -> EventCommand:
     elif len(dat) == 3:  # Old method
         nid, values, display_values = dat
     else:
-        logging.error("Couldn't restore event command: NID: %s; Display Values: %s", nid, display_values)
+        logging.error("Couldn't restore event command: Data: %s", dat)
         return None
 
     text = ';'.join([nid] + display_values)
@@ -2306,7 +2316,7 @@ def restore_command(dat) -> EventCommand:
     else:
         return Comment(display_values=[nid + ';' + str.join(';', display_values)])
 
-evaluables = ('Expression', 'String', 'StringList', 'PointList', 'DashList')
+evaluables = ('Expression', 'String', 'StringList', 'PointList', 'DashList', 'Nid')
 
 def determine_command_type(text: str) -> EventCommand:
     text = text.lstrip()

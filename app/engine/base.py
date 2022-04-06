@@ -688,16 +688,12 @@ class LoreDisplay():
         if self.lore and lore_nid == self.lore.nid:
             return  # No need to update
 
-        class LoreDialog(dialog.Dialog):
-            num_lines = 8
-            draw_cursor_flag = False
-
         self.lore = DB.lore.get(lore_nid)
         text = self.lore.text.split('\n')
         self.page_num = 0
         self.dialogs.clear()
         for idx, line in enumerate(text):
-            dialog = LoreDialog(text[idx])
+            dialog = dialog.Dialog(text[idx], num_lines=8, draw_cursor=False)
             dialog.position = self.topleft[0], self.topleft[1] + 12
             dialog.text_width = WINWIDTH - 100
             dialog.font = FONT['text']

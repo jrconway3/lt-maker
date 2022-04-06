@@ -29,7 +29,7 @@ get_metadata:
         refs:
             - merge_requests
     only:
-        - master
+        - release
     script:
         - echo $CI_JOB_ID > version.txt
         - echo "Metadata created!"
@@ -47,7 +47,7 @@ build_app:
         refs:
             - merge_requests
     only:
-        - master
+        - release
     before_script:
         - choco install -y python --version=3.7.9
         - "C:\\Python37\\python.exe -m pip install -r requirements_editor.txt"
@@ -95,7 +95,7 @@ release:
         refs:
             - merge_requests
     only:
-        - master
+        - release
     script:
         - echo 'running release'
         - echo 'remember to make sure your url is correct!'
@@ -107,8 +107,8 @@ release:
             links: # IF SOMETHING IS BROKEN, IT'S PROBABLY THESE URLS FAULT
                 - name: 'Lex_Talionis_Maker'
                   filepath: /lex_talionis_maker
-                  url: "https://gitlab.com/rainlash/lt-maker/-/jobs/artifacts/master/download?job=build_app"
+                  url: "https://gitlab.com/rainlash/lt-maker/-/jobs/artifacts/release/download?job=build_app"
                   link_type: package
                 - name: 'Version Info'
                   # url: "https://gitlab.com/rainlash/lt-maker/-/jobs/artifacts/master/download?job=get_metadata"
-                  url: "https://gitlab.com/rainlash/lt-maker/-/jobs/artifacts/master/download?job=get_metadata"
+                  url: "https://gitlab.com/rainlash/lt-maker/-/jobs/artifacts/release/download?job=get_metadata"

@@ -714,6 +714,16 @@ This can be useful if the player chose Classic Mode,
 as he or she would otherwise only be able to suspend and not save mid-battle.
         """
 
+class ClearTurnwheel(EventCommand):
+    nid = 'clear_turnwheel'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+The turnwheel's history will be cleared. The player will not be able to
+return to any action that occurs before this event.
+        """
+
 class ChangeTilemap(EventCommand):
     nid = 'change_tilemap'
     tag = Tags.TILEMAP

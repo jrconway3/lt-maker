@@ -1,6 +1,7 @@
 import logging
 import math
 import os
+import re
 from dataclasses import dataclass
 from app.extensions.markdown2 import Markdown
 
@@ -733,7 +734,7 @@ class EventCollection(QWidget):
         if not level:
             self.level_filtered_model.setFilterFixedString("")
         else:
-            search = "^" + level + "$"
+            search = "^" + re.escape(level) + "$"
             self.level_filtered_model.setFilterRegularExpression(search)
         self.view.selectionModel().selectionChanged.connect(self.on_item_changed)
         # Determine if we should reselect something

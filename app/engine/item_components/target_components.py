@@ -63,6 +63,28 @@ class TargetsAllies(ItemComponent):
                    skill_system.check_ally(unit, other)}
         return {t for t in targets if utils.calculate_distance(unit.position, t) in item_funcs.get_range(unit, item)}
 
+class TargetsSpecificTiles(ItemComponent):
+    nid = 'target_specific_tile'
+    desc = "Item targets tiles specified by the condition. Condition must return a list of positions, or a list of lists of positions. Positions must be within the item's range."
+    tag = ItemTags.TARGET
+    
+    expose = Type.String
+    value = ''
+
+    def ai_targets(self, unit, item) -> set:
+        return set(self.resolve_targets())
+
+    def valid_targets(self, unit, item) -> set:
+        rng = item_funcs.get_range(unit, item)
+        range_restrictions = target_system.find_manhattan_spheres(rng, *unit.position)
+        targetable_positions = self.resolve_targets()
+        return {pos for pos in targetable_positions if pos in range_restrictions}
+
+    def resolve_targets(self):
+        from app.engine import evaluate
+        value_list = evaluate.evaluate(self.value)
+        return utils.flatten_list(value_list)
+
 class EvalSpecialRange(ItemComponent):
     nid = 'eval_special_range'
     desc = "Use this to restrict range to specific tiles around the unit"

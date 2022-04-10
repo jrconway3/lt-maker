@@ -204,6 +204,16 @@ def growth_change(unit, stat_nid) -> int:
                     bonus += d.get(stat_nid, 0)
     return bonus
 
+def unit_sprite_flicker_tint(unit) -> list:
+    flicker = []
+    for skill in unit.skills:
+        for component in skill.components:
+            if component.defines('unit_sprite_flicker_tint'):
+                if component.ignore_conditional or condition(skill, unit):
+                    d = component.unit_sprite_flicker_tint(unit, skill)
+                    flicker.append(d)
+    return flicker
+
 def additional_tags(unit) -> set:
     new_tags = set()
     for skill in unit.skills:

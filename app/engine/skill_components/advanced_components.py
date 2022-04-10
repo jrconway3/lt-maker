@@ -253,21 +253,6 @@ class DeathTether(SkillComponent):
                 if skill.initiator_nid == unit.nid:
                     action.do(action.RemoveSkill(other_unit, skill))
 
-class EmpowerHeal(SkillComponent):
-    nid = 'empower_heal'
-    desc = "Gives +X extra healing"
-    tag = SkillTags.ADVANCED
-
-    expose = Type.String
-
-    def empower_heal(self, unit, target):
-        from app.engine import evaluate
-        try:
-            return int(evaluate.evaluate(self.value, unit, target))
-        except:
-            print("Couldn't evaluate %s conditional" % self.value)
-            return 0
-
 class ItemOverride(SkillComponent):
     nid = 'item_override'
     desc = 'allows overriding of item properties'

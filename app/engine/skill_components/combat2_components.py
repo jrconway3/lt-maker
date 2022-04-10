@@ -261,8 +261,7 @@ class GiveStatusAfterHit(SkillComponent):
     def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
         mark_playbacks = [p for p in playback if p[0] in ('mark_hit', 'mark_crit')]
 
-        if target and any(p[3] == unit or p[1] == p[3].strike_partner \
-                for p in mark_playbacks):  # Unit is overall attacker
+        if target and any(p[1] == unit for p in mark_playbacks):
             actions.append(action.AddSkill(target, self.value, unit))
             actions.append(action.TriggerCharge(unit, self.skill))
 

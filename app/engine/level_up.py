@@ -336,7 +336,7 @@ class ExpState(State):
         if not unit_prefab:
             return
         for level_needed, personal_skill_nid in unit_prefab.learned_skills:
-            if unit.level == level_needed:
+            if unit.get_internal_level() == level_needed:
                 if personal_skill_nid == 'Feat':
                     game.memory['current_unit'] = unit
                     game.state.change('feat_choice')

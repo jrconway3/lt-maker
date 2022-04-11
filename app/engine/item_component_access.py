@@ -13,7 +13,7 @@ def get_item_components():
         # defined here
         import custom_components
     # else:
-    #     custom_component_access.clean()
+        # custom_component_access.clean()
 
     subclasses = ItemComponent.__subclasses__()
     # Sort by tag

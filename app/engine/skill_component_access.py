@@ -11,7 +11,7 @@ def get_skill_components():
         # defined here
         import custom_components
     # else:
-    #     custom_component_access.clean()
+        # custom_component_access.clean()
 
     subclasses = SkillComponent.__subclasses__()
     # Sort by tag

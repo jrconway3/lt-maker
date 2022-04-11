@@ -154,6 +154,10 @@ class Resources():
         logging.warning("Done Resource Cleaning!")
         return True
 
+    def get_custom_components_path(self):
+        return os.path.join(self.main_folder, 'custom_components')
+
+
 RESOURCES = Resources()
 
 # Testing

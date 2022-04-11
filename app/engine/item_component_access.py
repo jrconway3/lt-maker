@@ -7,6 +7,14 @@ def get_item_components():
     # item components defined in item_components folder
     from app.engine import item_components
 
+    from app.engine import custom_component_access
+    if custom_component_access.get_components():
+        # Necessary for get_item_components to find the item component subclasses
+        # defined here
+        import custom_components
+    # else:
+    #     custom_component_access.clean()
+
     subclasses = ItemComponent.__subclasses__()
     # Sort by tag
     subclasses = sorted(subclasses, key=lambda x: list(ItemTags).index(x.tag) if x.tag in list(ItemTags) else 100)

@@ -371,8 +371,6 @@ class AIProperties(QWidget):
 
         self.behaviour_boxes = []
         self.behaviour_list = QListWidget()
-        for i in range(3):
-            self.add_behaviour()
 
         # self.behaviour1 = BehaviourBox(self)
         # self.behaviour1.setTitle("Behaviour 1")
@@ -413,15 +411,15 @@ class AIProperties(QWidget):
     def offense_bias_changed(self, val):
         self.current.offense_bias = float(val)
 
-    def pop_behaviour(self):
+    def pop_behaviour(self, checked=False, set_current=True):
         idx = len(self.behaviour_boxes)
         self.behaviour_list.takeItem(idx - 1)
         self.behaviour_boxes.pop()
 
-        if self.current:
+        if self.current and set_current:
             self.current.pop_behaviour()
 
-    def add_behaviour(self):
+    def add_behaviour(self, checked=False, set_current=True):
         item = QListWidgetItem(self.behaviour_list)
         self.behaviour_list.addItem(item)
 
@@ -434,7 +432,7 @@ class AIProperties(QWidget):
         self.behaviour_list.setItemWidget(item, behaviour_box)
         self.behaviour_boxes.append(behaviour_box)
 
-        if self.current:
+        if self.current and set_current:
             self.current.add_default()
             behaviour_box.set_current(self.current.behaviours[-1])
 
@@ -446,9 +444,9 @@ class AIProperties(QWidget):
         num_behaviours = len(current.behaviours)
         # Remove all after num behaviours
         while len(self.behaviour_boxes) > num_behaviours:
-            self.pop_behaviour()
+            self.pop_behaviour(set_current=False)
         while len(self.behaviour_boxes) < num_behaviours:
-            self.add_behaviour()
+            self.add_behaviour(set_current=False)
         # Now set the rest to this
         for idx, behaviour in enumerate(current.behaviours):
             self.behaviour_boxes[idx].set_current(behaviour)

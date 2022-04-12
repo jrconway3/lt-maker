@@ -135,7 +135,7 @@ def multi_add_portrait(self: Event, portrait1, screen_position1, portrait2, scre
         flags = {'no_block'} if portrait4 else set()
         commands.append(event_commands.AddPortrait({'Portrait': portrait3, 'ScreenPosition': screen_position3}, flags))
     if portrait4:
-        commands.append(event_commands.AddPortrait({'Portrait': portrait3, 'ScreenPosition': screen_position3}, set()))
+        commands.append(event_commands.AddPortrait({'Portrait': portrait4, 'ScreenPosition': screen_position4}, set()))
     for command in reversed(commands):
         # Done backwards to preserve order upon insertion
         self.commands.insert(self.command_idx + 1, command)

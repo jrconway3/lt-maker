@@ -1456,7 +1456,7 @@ def set_growths(self: Event, global_unit, stat_list, flags=None):
 
     self._apply_growth_changes(unit, growth_changes)
 
-def autolevel_to(self: Event, global_unit, level, flags=None):
+def autolevel_to(self: Event, global_unit, level, growth_method=None, flags=None):
     flags = flags or set()
 
     unit = self._get_unit(global_unit)
@@ -1469,7 +1469,7 @@ def autolevel_to(self: Event, global_unit, level, flags=None):
     if diff <= 0:
         return
 
-    action.do(action.AutoLevel(unit, diff))
+    action.do(action.AutoLevel(unit, diff, growth_method))
     if 'hidden' in flags:
         pass
     else:

@@ -118,11 +118,14 @@ def _rd_bexp_levelup(unit, level, klass, stat_changes):
 
     return stat_changes
 
-def auto_level(unit, num_levels, starting_level=1, difficulty_growths=False):
+def auto_level(unit, num_levels, starting_level=1, difficulty_growths=False, growth_method=None):
     """
     Primarily for generics
     """
-    method = get_leveling_method(unit)
+    if growth_method:
+        method = growth_method.capitalize()
+    else:
+        method = get_leveling_method(unit)
     difficulty_growth_bonus = game.mode.get_growth_bonus(unit)
 
     if method == GrowthOption.FIXED:

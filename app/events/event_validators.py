@@ -753,6 +753,9 @@ class HAlign(OptionValidator):
 class VAlign(OptionValidator):
     valid = [align.value for align in VAlignment]
 
+class GrowthMethod(OptionValidator):
+    valid = ["random", "fixed", "dynamic"]
+
 class CombatScript(Validator):
     valid_commands = ['hit1', 'hit2', 'crit1', 'crit2', 'miss1', 'miss2', '--', 'end']
     desc = "specifies the order and type of actions in combat. Valid actions: (`hit1`, `hit2`, `crit1`, `crit2`, `miss1`, `miss2`, `--`, `end`)."

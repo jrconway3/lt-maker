@@ -1795,11 +1795,12 @@ class Shop(EventCommand):
 
     desc = \
         """
-Causes *Unit* to enter a shop that sells *ItemList* items. The optional *ShopFlavor* keyword determines whether the shop appears as a vendor or an armory.
+Causes *Unit* to enter a shop that sells *ItemList* items. The optional *ShopFlavor* keyword determines whether the shop appears as a vendor or an armory. The optional *StockList* keyword determines if an item should have a limited stock. The order will be the same as ItemList. Use -1 for unlimited stock. 
         """
 
     keywords = ["Unit", "ItemList"]
-    optional_keywords = ["ShopFlavor"]
+    optional_keywords = ["ShopFlavor", "StockList"]
+    keyword_types = ["Unit", "ItemList", "ShopFlavor", "PositiveIntegerList"]
 
 class Choice(EventCommand):
     nid = 'choice'

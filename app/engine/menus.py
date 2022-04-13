@@ -690,6 +690,12 @@ class Shop(Choice):
         if self.stock:
             self.options[self.current_index].stock -= 1
 
+    def get_stock(self):
+        if self.stock:
+            return self.options[self.current_index].stock
+        else:
+            return -1
+
     def create_options(self, options, info_descs=None):
         self.options.clear()
         for idx, option in enumerate(options):

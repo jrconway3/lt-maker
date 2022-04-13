@@ -1909,7 +1909,8 @@ def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, flags=
         self.logger.error("Must have a unit visit the shop!")
         return
     unit = new_unit
-    self.game.memory['shop_id'] = self.nid
+    shop_id = self.nid
+    self.game.memory['shop_id'] = shop_id
     self.game.memory['current_unit'] = unit
     item_list = item_list.split(',')
     shop_items = item_funcs.create_items(unit, item_list)
@@ -1922,6 +1923,11 @@ def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, flags=
 
     if stock_list:
         stock_list = utils.intify(stock_list)
+        # Remember which items have already been bought for this shop...
+        for idx, item in enumerate(item_list):
+            item_history = '__shop_%s_%s' % (shop_id, item)
+            if item_history in game.level_vars:
+                stock_list[idx] -= game.level_vars[item_history] 
         self.game.memory['shop_stock'] = stock_list
     else:
         self.game.memory['shop_stock'] = None

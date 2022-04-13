@@ -1539,9 +1539,10 @@ class Convoy():
         return did_move
 
 class Market(Convoy):
-    def __init__(self, owner, options, topleft, disp_value=None):
+    def __init__(self, owner, options, topleft, disp_value=None, show_stock: bool = False):
         self.options = options
         self.disp_value = disp_value
+        self.show_stock = show_stock
         super().__init__(owner, topleft, disp_value=disp_value)
         self.selection_index = 1
         self.menu_index = 0
@@ -1551,7 +1552,11 @@ class Market(Convoy):
         sorted_dict = self.get_sorted_dict()
         self.menus = {}
         for w_type in self.order:
-            new_menu = Shop(self.owner, sorted_dict[w_type], self.topleft, self.disp_value)
+            if self.show_stock:
+                stock = [game.market_items[item.nid] for item in sorted_dict[w_type]]
+            else:
+                stock = None
+            new_menu = Shop(self.owner, sorted_dict[w_type], self.topleft, self.disp_value, stock=stock)
             new_menu.set_limit(7)
             new_menu.set_hard_limit(True)
             new_menu.gem = False
@@ -1581,6 +1586,15 @@ class Market(Convoy):
             value.sort(key=lambda item: bool(item.owner_nid))
 
         return sorted_dict
+
+    def get_stock(self):
+        if self.show_stock:
+            return self.menus[self.order[self.selection_index - 1]].get_stock()
+        return -1
+
+    def decrement_stock(self):
+        if self.show_stock:
+            self.menus[self.order[self.selection_index - 1]].decrement_stock()
 
     def get_current(self):
         return self.menus[self.order[self.selection_index - 1]].get_current()

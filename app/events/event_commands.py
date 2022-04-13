@@ -1555,10 +1555,12 @@ class AddMarketItem(EventCommand):
 
     desc = \
         """
-Adds *Item* to the list of purchaseable goods in the base's market.
+Adds *Item* to the list of purchaseable goods in the base's market. If the optional *Stock* is supplied, adds that amount of stock of the item to the base's market.
         """
 
     keywords = ["Item"]
+    optional_keywords = ["Stock"]
+    keywords_types = ["Item", "PositiveIntegerOrZero"]
 
 class RemoveMarketItem(EventCommand):
     nid = 'remove_market_item'
@@ -1566,10 +1568,21 @@ class RemoveMarketItem(EventCommand):
 
     desc = \
         """
-Removes *Item* from the list of purchaseable goods in the base's market.
+Removes *Item* from the list of purchaseable goods in the base's market. If the optional *Stock* is supplied, removes that amount of stock of the item from the base's market.
         """
 
     keywords = ["Item"]
+    optional_keywords = ["Stock"]
+    keywords_types = ["Item", "PositiveIntegerOrZero"]
+
+class ClearMarketItems(EventCommand):
+    nid = 'clear_market_items'
+    tag = Tags.GAME_VARS
+
+    desc = \
+        """
+Removes all items from the list of purchaseable goods in the base's market.
+        """
 
 class AddRegion(EventCommand):
     nid = 'add_region'

@@ -2055,7 +2055,7 @@ class ShopState(State):
                 item = self.buy_menu.get_current()
                 if item:
                     value = item_funcs.buy_price(self.unit, item)
-                    if game.get_money() - value >= 0:
+                    if game.get_money() - value >= 0 and self.buy_menu.get_stock() > 0:
                         action.do(action.HasTraded(self.unit))
                         get_sound_thread().play_sfx('GoldExchange')
                         action.do(action.GainMoney(game.current_party, -value))
@@ -2077,6 +2077,10 @@ class ShopState(State):
                             self.buy_menu.set_takes_input(False)
 
                         self.update_options()
+                    elif self.buy_menu.get_stock() == 0:
+                        # We don't have any more of this in stock
+                        get_sound_thread().play_sfx('Select 4')
+                        self.current_msg = self.get_dialog('shop_no_stock')
                     else:
                         # You don't have enough money
                         get_sound_thread().play_sfx('Select 4')

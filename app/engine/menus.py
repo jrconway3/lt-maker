@@ -675,17 +675,28 @@ class Inventory(Choice):
 class Shop(Choice):
     default_option = menu_options.ValueItemOption
 
-    def __init__(self, owner, options, topleft=None, disp_value='sell', background='menu_bg_base', info=None):
+    def __init__(self, owner, options, topleft=None, disp_value='sell', background='menu_bg_base', info=None, stock=None):
         self.disp_value = disp_value
+        self.stock = stock
         super().__init__(owner, options, topleft, background, info)
 
     def get_menu_width(self):
-        return 152
+        if self.stock:
+            return 224
+        else:
+            return 152
+
+    def decrement_stock(self):
+        if self.stock:
+            self.options[self.current_index].stock -= 1
 
     def create_options(self, options, info_descs=None):
         self.options.clear()
         for idx, option in enumerate(options):
-            option = self.default_option(idx, option, self.disp_value)
+            if self.stock:
+                option = menu_options.StockValueItemOption(idx, option, self.disp_value, self.stock[idx])
+            else:
+                option = self.default_option(idx, option, self.disp_value)
             option.help_box = option.get_help_box()
             self.options.append(option)
 

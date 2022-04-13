@@ -1903,7 +1903,7 @@ def base(self: Event, background: str, music: str = None, other_options: str = N
     self.game.state.change('base_main')
     self.state = 'paused'
 
-def shop(self: Event, unit, item_list, shop_flavor=None, flags=None):
+def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:
         self.logger.error("Must have a unit visit the shop!")
@@ -1918,6 +1918,13 @@ def shop(self: Event, unit, item_list, shop_flavor=None, flags=None):
         self.game.memory['shop_flavor'] = shop_flavor.lower()
     else:
         self.game.memory['shop_flavor'] = 'armory'
+
+    if stock_list:
+        stock_list = utils.intify(stock_list)
+        self.game.memory['shop_stock'] = stock_list
+    else:
+        self.game.memory['shop_stock'] = None
+        
     self.game.state.change('shop')
     self.state = 'paused'
 

@@ -393,6 +393,25 @@ class RepairValueItemOption(ValueItemOption):
                 value_color = 'blue'
         FONT[main_font].blit_right(value_string, surf, (x + self.width() - 10, y), value_color)
 
+class StockValueItemOption(ValueItemOption):
+    def __init__(self, idx, item, disp_value, stock):
+        super().__init__(idx, item, disp_value)
+        self.stock = stock
+
+    def width(self):
+        return 224
+
+    def draw(self, surf, x, y):
+        super().draw(surf, x, y)
+
+        main_color, uses_color = self.get_color()
+        main_font = self.font
+
+        stock_string = '--'
+        if self.stock >= 0:
+            stock_string = str(stock_string)
+        FONT[main_font].blit_right(stock_string, surf, (x + 140, y), main_color)
+
 class UnitOption(BasicOption):
     def __init__(self, idx, unit):
         self.idx = idx

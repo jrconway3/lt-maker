@@ -2055,7 +2055,7 @@ class ShopState(State):
                 item = self.buy_menu.get_current()
                 if item:
                     value = item_funcs.buy_price(self.unit, item)
-                    if game.get_money() - value >= 0 and self.buy_menu.get_stock() > 0:
+                    if game.get_money() - value >= 0 and self.buy_menu.get_stock() != 0:
                         action.do(action.HasTraded(self.unit))
                         get_sound_thread().play_sfx('GoldExchange')
                         action.do(action.GainMoney(game.current_party, -value))

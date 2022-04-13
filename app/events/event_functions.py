@@ -1909,6 +1909,7 @@ def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, flags=
         self.logger.error("Must have a unit visit the shop!")
         return
     unit = new_unit
+    self.game.memory['shop_id'] = self.nid
     self.game.memory['current_unit'] = unit
     item_list = item_list.split(',')
     shop_items = item_funcs.create_items(unit, item_list)

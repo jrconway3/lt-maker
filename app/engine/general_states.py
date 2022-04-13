@@ -1955,6 +1955,7 @@ class ShopState(State):
     def start(self):
         self.fluid = FluidScroll()
 
+        self.shop_id = game.memory['shop_id']
         self.unit = game.memory['current_unit']
         self.flavor = game.memory['shop_flavor']
         if self.flavor == 'vendor':
@@ -1971,6 +1972,7 @@ class ShopState(State):
             self.leave_message = 'armory_leave'
 
         items = game.memory['shop_items']
+        stock = game.memory.get('stock_list', None)
         my_items = item_funcs.get_all_tradeable_items(self.unit)
         topleft = (44, WINHEIGHT - 16 * 5 - 8 - 4)
         self.sell_menu = menus.Shop(self.unit, my_items, topleft, disp_value='sell')
@@ -1979,7 +1981,7 @@ class ShopState(State):
         self.sell_menu.gem = True
         self.sell_menu.shimmer = 0
         self.sell_menu.set_takes_input(False)
-        self.buy_menu = menus.Shop(self.unit, items, topleft, disp_value='buy')
+        self.buy_menu = menus.Shop(self.unit, items, topleft, disp_value='buy', stock=stock)
         self.buy_menu.set_limit(5)
         self.buy_menu.set_hard_limit(True)
         self.buy_menu.gem = True
@@ -2057,6 +2059,8 @@ class ShopState(State):
                         action.do(action.HasTraded(self.unit))
                         get_sound_thread().play_sfx('GoldExchange')
                         action.do(action.GainMoney(game.current_party, -value))
+                        action.do(action.IncLevelVar('__shop_%s_%s' % (self.shop_id, item.nid), 1))  # Remember that we bought one of this
+                        self.buy_menu.decrease_stock()
                         self.money_counter_disp.start(-value)
                         new_item = item_funcs.create_item(self.unit, item.nid)
                         game.register_item(new_item)

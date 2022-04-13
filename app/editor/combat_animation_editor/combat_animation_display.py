@@ -503,8 +503,8 @@ class CombatAnimProperties(QWidget):
         current_pose_nid = self.pose_box.currentText()
         current_pose = weapon_anim.poses.get(current_pose_nid)
         # Make a copy
-        ser = current_pose.serialize()
-        new_pose = combat_anims.Pose.deserialize(ser)
+        ser = current_pose.save()
+        new_pose = combat_anims.Pose.restore(ser)
         new_pose.nid = new_nid
         weapon_anim.poses.append(new_pose)
         self.pose_box.addItem(new_nid)

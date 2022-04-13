@@ -147,8 +147,8 @@ class CombatEffectProperties(CombatAnimProperties):
         current_pose_nid = self.pose_box.currentText()
         current_pose = self.current.poses.get(current_pose_nid)
         # Make a copy
-        ser = current_pose.serialize()
-        new_pose = combat_anims.Pose.deserialize(ser)
+        ser = current_pose.save()
+        new_pose = combat_anims.Pose.restore(ser)
         new_pose.nid = new_nid
         self.current.poses.append(new_pose)
         self.pose_box.addItem(new_nid)

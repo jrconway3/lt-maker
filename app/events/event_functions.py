@@ -1653,14 +1653,30 @@ def unlock_support_rank(self: Event, unit1, unit2, support_rank, flags=None):
         self.logger.error("Couldn't find prefab for units %s and %s" % (_unit1.nid, _unit2.nid))
         return
 
-def add_market_item(self: Event, item, flags=None):
-    if item in DB.items.keys():
-        self.game.market_items.add(item)
-    else:
+def add_market_item(self: Event, item, stock=None, flags=None):
+    if item not in DB.items.keys():
         self.logger.warning("%s is not a legal item nid", item)
+        return
+    stock = int(stock) if stock else 0
+    if stock:
+        if item in self.game.market_items:
+            self.game.market_items[item] += stock
+        else:
+            self.game.market_items[item] = stock
+    else:
+        self.game.market_items[item] = -1  # Any negative number means infinite
 
-def remove_market_item(self: Event, item, flags=None):
-    self.game.market_items.discard(item)
+def remove_market_item(self: Event, item, stock=None, flags=None):
+    stock = int(stock) if stock else 0
+    if stock and item in self.game.market_items:
+        self.game.market_items[item] -= stock
+        if self.game.market_items[item] <= 0:
+            self.game.market_items.pop(item, None)
+    else:
+        self.game.market_items.pop(item, None)
+
+def clear_market_items(self: Event, flags=None):
+    self.game.market_items.clear()
 
 def add_region(self: Event, nid, position, size, region_type, string=None, flags=None):
     flags = flags or set()

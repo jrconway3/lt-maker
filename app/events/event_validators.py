@@ -188,7 +188,7 @@ class PositiveIntegerList(Validator):
     def validate(self, text, level):
         text = text.split(',')
         for t in text:
-            if not str_utils.is_int(text) or int(text) <= 0:
+            if not str_utils.is_int(t) or int(t) <= 0:
                 return None                
         return text
 

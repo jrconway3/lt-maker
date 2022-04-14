@@ -682,7 +682,7 @@ class Shop(Choice):
 
     def get_menu_width(self):
         if self.stock:
-            return 224
+            return 184
         else:
             return 152
 

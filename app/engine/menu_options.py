@@ -399,7 +399,7 @@ class StockValueItemOption(ValueItemOption):
         self.stock = stock
 
     def width(self):
-        return 224
+        return 184
 
     def draw(self, surf, x, y):
         super().draw(surf, x, y)
@@ -409,8 +409,8 @@ class StockValueItemOption(ValueItemOption):
 
         stock_string = '--'
         if self.stock >= 0:
-            stock_string = str(stock_string)
-        FONT[main_font].blit_right(stock_string, surf, (x + 140, y), main_color)
+            stock_string = str(self.stock)
+        FONT[main_font].blit_right(stock_string, surf, (x + 132, y), main_color)
 
 class UnitOption(BasicOption):
     def __init__(self, idx, unit):

@@ -780,6 +780,8 @@ Several optional keywords can also be provided to further modify the new unit:
 *AI* defines an AI preset to be given to the unit, *Faction* assignes the unit
 to one of the factions for the chapter, the unit can be given an animation variant
 (*AnimationVariant*), and finally the unit can be given an inventory of items (*ItemList*).
+
+
         """
 
     # Nid, class, level, team, ai, faction, anim variant
@@ -806,12 +808,15 @@ The *Level* value, if provided, sets the unit's level.
 The *Position* value indicates the map coordinates that the unit will be placed at.
 *EntryType* defines which placement animation is used.
 Finally, *Placement* defines the behavior that occurs if the chosen map position is already occupied.
+
+The optional flag *copy_stats* will cause the new unit to have exactly the same stats as the original *Unit*, rather than being calculated anew.
         """
 
     # Unit template
     keywords = ["Unit"]
     optional_keywords = ["Nid", "Level", "Position", "EntryType", "Placement"]
     keyword_types = ["Unit", "Nid", "PositiveInteger", "Position", "EntryType", "Placement"]
+    _flags = ["copy_stats"]
 
 class AddUnit(EventCommand):
     nid = 'add_unit'

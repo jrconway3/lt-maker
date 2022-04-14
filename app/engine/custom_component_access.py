@@ -8,7 +8,11 @@ def get_components() -> bool:
 
     global current_custom_path
 
-    module_path = os.path.join(RESOURCES.get_custom_components_path(), '__init__.py')
+    cc_path = RESOURCES.get_custom_components_path()
+    if not cc_path:
+        return False
+
+    module_path = os.path.join(cc_path, '__init__.py')
     if module_path != current_custom_path and os.path.exists(module_path):
         current_custom_path = module_path
         print("Importing Custom Components")

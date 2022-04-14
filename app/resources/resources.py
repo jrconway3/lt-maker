@@ -155,7 +155,9 @@ class Resources():
         return True
 
     def get_custom_components_path(self):
-        return os.path.join(self.main_folder, 'custom_components')
+        if self.main_folder:
+            return os.path.join(self.main_folder, 'custom_components')
+        return None
 
 
 RESOURCES = Resources()

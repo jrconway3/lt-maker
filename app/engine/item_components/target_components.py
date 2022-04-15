@@ -67,7 +67,7 @@ class TargetsSpecificTiles(ItemComponent):
     nid = 'target_specific_tile'
     desc = "Item targets tiles specified by the condition. Condition must return a list of positions, or a list of lists of positions. Positions must be within the item's range."
     tag = ItemTags.TARGET
-    
+
     expose = Type.String
     value = ''
 
@@ -121,9 +121,18 @@ class EvalSpecialRange(ItemComponent):
             return True
         return False
 
-class EvalTargetRestrict(ItemComponent):
-    nid = 'eval_target_restrict'
-    desc = "Use this to restrict what units can be targeted"
+class EvalTargetRestrict2(ItemComponent):
+    nid = 'eval_target_restrict_2'
+    desc = \
+"""
+Restricts which units can be targeted. These properties are accessible in the eval body:
+
+- `unit`: the unit using the item
+- `target`: the target of the item
+- `item`: the item itself
+- `position`: the position of the unit
+- `target_pos`: the position of the target
+"""
     tag = ItemTags.TARGET
 
     expose = Type.String
@@ -133,11 +142,13 @@ class EvalTargetRestrict(ItemComponent):
         from app.engine import evaluate
         try:
             target = game.board.get_unit(def_pos)
-            if target and evaluate.evaluate(self.value, target, position=def_pos):
+            unit_pos = unit.position
+            target_pos = def_pos
+            if target and evaluate.evaluate(self.value, unit=unit, unit2=target, item=item, position=unit_pos, local_args={'unit_pos': unit_pos, 'target_pos': target_pos}):
                 return True
             for s_pos in splash:
                 target = game.board.get_unit(s_pos)
-                if evaluate.evaluate(self.value, target, position=s_pos):
+                if evaluate.evaluate(self.value, unit=unit, unit2=target, item=item, position=unit_pos, local_args={'target_pos': s_pos}):
                     return True
         except Exception as e:
             print("Could not evaluate %s (%s)" % (self.value, e))

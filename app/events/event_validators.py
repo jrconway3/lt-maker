@@ -813,7 +813,7 @@ class ItemList(Validator):
         return None
 
     def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
-        valids = [(item.name, item.nid) for item in DB.items.values()]
+        valids = [(None, item.nid) for item in DB.items.values()]
         return valids
 
 class StatList(Validator):

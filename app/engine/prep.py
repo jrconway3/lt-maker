@@ -953,11 +953,11 @@ class PrepMarketState(State):
         self.bg = game.memory['prep_bg']
         self.unit = game.memory['current_unit']
 
-        self.sell_menu = menus.Market(self.unit, None, (WINWIDTH - 160, 40), disp_value='sell')
+        self.sell_menu = menus.Market(self.unit, None, (WINWIDTH - 164, 40), disp_value='sell')
         market_items = game.market_items.keys()
         market_items = item_funcs.create_items(self.unit, market_items)
         show_stock = any(stock >= 0 for stock in game.market_items.values())
-        self.buy_menu = menus.Market(self.unit, market_items, (WINWIDTH - 160, 40), disp_value='buy', show_stock=show_stock)
+        self.buy_menu = menus.Market(self.unit, market_items, (WINWIDTH - 164, 40), disp_value='buy', show_stock=show_stock)
         self.display_menu = self.buy_menu
         self.sell_menu.set_takes_input(False)
         self.buy_menu.set_takes_input(False)

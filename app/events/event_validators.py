@@ -182,13 +182,13 @@ class PositiveInteger(Validator):
             return int(text)
         return None
 
-class PositiveIntegerList(Validator):
-    desc = "must be a comma-delimited list of positive whole numbers (ie, `5,7,12`)"
+class IntegerList(Validator):
+    desc = "must be a comma-delimited list of integers (ie, `5,7,12`)"
 
     def validate(self, text, level):
         text = text.split(',')
         for t in text:
-            if not str_utils.is_int(t) or int(t) <= 0:
+            if not str_utils.is_int(t):
                 return None                
         return text
 

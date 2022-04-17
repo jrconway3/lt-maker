@@ -1818,7 +1818,7 @@ Causes *Unit* to enter a shop that sells *ItemList* items. The optional *ShopFla
 
     keywords = ["Unit", "ItemList"]
     optional_keywords = ["ShopFlavor", "StockList"]
-    keyword_types = ["Unit", "ItemList", "ShopFlavor", "PositiveIntegerList"]
+    keyword_types = ["Unit", "ItemList", "ShopFlavor", "IntegerList"]
 
 class Choice(EventCommand):
     nid = 'choice'

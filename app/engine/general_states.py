@@ -1972,7 +1972,7 @@ class ShopState(State):
             self.leave_message = 'armory_leave'
 
         items = game.memory['shop_items']
-        stock = game.memory.get('shop_stock', None)
+        self.stock = game.memory.get('shop_stock', None)
         my_items = item_funcs.get_all_tradeable_items(self.unit)
         topleft = (44, WINHEIGHT - 16 * 5 - 8 - 4)
         self.sell_menu = menus.Shop(self.unit, my_items, topleft, disp_value='sell')
@@ -1981,9 +1981,9 @@ class ShopState(State):
         self.sell_menu.gem = True
         self.sell_menu.shimmer = 0
         self.sell_menu.set_takes_input(False)
-        if stock:
-            topleft = (20, topleft[1])
-        self.buy_menu = menus.Shop(self.unit, items, topleft, disp_value='buy', stock=stock)
+        if self.stock:
+            topleft = (36, topleft[1] + 4)
+        self.buy_menu = menus.Shop(self.unit, items, topleft, disp_value='buy', stock=self.stock)
         self.buy_menu.set_limit(5)
         self.buy_menu.set_hard_limit(True)
         self.buy_menu.gem = True
@@ -2061,8 +2061,9 @@ class ShopState(State):
                         action.do(action.HasTraded(self.unit))
                         get_sound_thread().play_sfx('GoldExchange')
                         action.do(action.GainMoney(game.current_party, -value))
-                        action.do(action.IncLevelVar('__shop_%s_%s' % (self.shop_id, item.nid), 1))  # Remember that we bought one of this
-                        self.buy_menu.decrease_stock()
+                        stock_marker = '__shop_%s_%s' % (self.shop_id, item.nid)
+                        action.do(action.SetLevelVar(stock_marker, game.level_vars.get(stock_marker, 0) + 1))  # Remember that we bought one of this
+                        self.buy_menu.decrement_stock()
                         self.money_counter_disp.start(-value)
                         new_item = item_funcs.create_item(self.unit, item.nid)
                         game.register_item(new_item)
@@ -2167,6 +2168,7 @@ class ShopState(State):
 
         FONT['text-blue'].blit_right(str(game.get_money()), surf, (223, 48))
         self.money_counter_disp.draw(surf)
+
         return surf
 
     def draw(self, surf):
@@ -2178,6 +2180,11 @@ class ShopState(State):
             self.sell_menu.draw(surf)
         else:
             self.buy_menu.draw(surf)
+            if self.stock:
+                FONT['text'].blit_center(text_funcs.translate('Item'), surf, (80, 64), color='yellow')
+                FONT['text'].blit_center(text_funcs.translate('Uses'), surf, (128, 64), color='yellow')
+                FONT['text'].blit_center(text_funcs.translate('Stock'), surf, (156, 64), color='yellow')
+                FONT['text'].blit_center(text_funcs.translate('Price'), surf, (186, 64), color='yellow')
         if self.state == 'choice' and self.current_msg.is_done_or_wait():
             self.choice_menu.draw(surf)
 

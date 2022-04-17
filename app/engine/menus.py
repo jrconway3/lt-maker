@@ -682,7 +682,7 @@ class Shop(Choice):
 
     def get_menu_width(self):
         if self.stock:
-            return 184
+            return 168
         else:
             return 152
 
@@ -695,6 +695,11 @@ class Shop(Choice):
             return self.options[self.current_index].stock
         else:
             return -1
+
+    def set_stock(self, stock):
+        self.stock = stock
+        for idx, option in enumerate(self.options):
+            option.stock[idx] = stock
 
     def create_options(self, options, info_descs=None):
         self.options.clear()
@@ -1586,6 +1591,15 @@ class Market(Convoy):
             value.sort(key=lambda item: bool(item.owner_nid))
 
         return sorted_dict
+
+    def update_options(self):
+        if self.inventory:
+            self.inventory.update_options(self.owner.items)
+        sorted_dict = self.get_sorted_dict()
+        for name, menu in self.menus.items():
+            if self.show_stock:
+                menu.stock = [game.market_items[item.nid] for item in sorted_dict[name]]
+            menu.update_options(sorted_dict[name])
 
     def get_stock(self):
         if self.show_stock:

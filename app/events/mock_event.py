@@ -6,6 +6,13 @@ class IfStatementStrategy(Enum):
     ALWAYS_TRUE = 1
     ALWAYS_FALSE = 2
 
+class MockGame():
+    """
+    Mock game object that stores the speak styles, so they work even though the rest of the game isn't present
+    """
+    def __init__(self):
+        self.speak_styles = speak_style.SpeakStyleLibrary()
+
 class MockEvent(Event):
     # These are the only commands that will be processed by this event
     available = {"finish", "wait", "end_skip", "music", "music_clear", "sound", "add_portrait", "multi_add_portrait", "remove_portrat" "multi_remove_portrait", "move_portrait", "mirror_portrait", "bop_portrait", "expression", "speak_style", "speak", "unhold", "transition", "change_background", "table", "remove_table", "draw_overlay_sprite", "remove_overlay_sprite", "location_card", "credits", "ending", "pop_dialog"}
@@ -19,6 +26,7 @@ class MockEvent(Event):
         self.if_statement_strategy = if_statement_strategy
 
         self.background = None
+        self.game = MockGame()
 
         self._generic_setup()
 

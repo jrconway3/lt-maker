@@ -740,8 +740,10 @@ class PrepItemsState(State):
                             options.append('Restock')
                         if not options:
                             options.append('Nothing')
-                        topleft = (96, self.menu.get_current_index() * 16 + 68 - 8 * len(options))
-                        self.sub_menu = menus.Choice(current, options, topleft)
+                        top = self.menu.get_current_index() * 16 + 68 - 8 * len(options)
+                        left = 96
+                        top = min(top, WINHEIGHT - 4 - 16 * len(options))
+                        self.sub_menu = menus.Choice(current, options, (left, top))
                     else:
                         self.menu.move_to_convoy()
                 elif context == 'convoy':

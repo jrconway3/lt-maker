@@ -714,6 +714,8 @@ class Shop(Choice):
         if self.hard_limit:
             for num in range(self.limit - len(options)):
                 option = menu_options.EmptyOption(len(options) + num)
+                if self.stock:
+                    option._width = 168
                 self.options.append(option)
 
 class RepairShop(Shop):
@@ -1091,6 +1093,8 @@ class Table(Simple):
             col += 1
             if self._exists(row, col):
                 pass
+            elif idx >= len(self.options) - 1:
+                break  # Don't move right because we are on the last row
             elif row < self.rows - 1:
                 row += 1
                 col = 0

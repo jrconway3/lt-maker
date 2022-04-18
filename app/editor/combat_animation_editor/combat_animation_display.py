@@ -570,7 +570,7 @@ class CombatAnimProperties(QWidget):
 
     def import_gba(self):
         starting_path = self.settings.get_last_open_path()
-        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select Legacy Script Files", starting_path, "Text Files (*.txt);;All Files (*)")
+        fns, ok = QFileDialog.getOpenFileNames(self.window, "Select GBA Script Files", starting_path, "Text Files (*.txt);;All Files (*)")
         if fns and ok:
             parent_dir = os.path.split(fns[-1])[0]
             self.settings.set_last_open_path(parent_dir)

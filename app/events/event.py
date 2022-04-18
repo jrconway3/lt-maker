@@ -141,6 +141,10 @@ class Event():
         if self.game.movement:
             self.game.movement.update()
 
+        self._update_state()
+        self._update_transition()
+
+    def _update_state(self, dialog_log=True):
         # Can move through its own internal state up to 5 times in a frame
         counter = 0
         while counter < 5:
@@ -166,7 +170,8 @@ class Event():
             elif self.state == 'dialog':
                 if self.text_boxes:
                     if self.text_boxes[-1].is_done():
-                        action.do(action.LogDialog(self.text_boxes[-1]))
+                        if dialog_log:
+                            action.do(action.LogDialog(self.text_boxes[-1]))
                         self.state = 'processing'
                 else:
                     self.state = 'processing'
@@ -191,6 +196,7 @@ class Event():
                     self.should_remain_blocked.clear()
                     self.state = 'processing'
 
+    def _update_transition(self):
         # Handle transition
         if self.transition_state:
             perc = (current_time - self.transition_update) / self.transition_speed

@@ -586,7 +586,7 @@ class PaletteProperties(QWidget):
         effect_anim = RESOURCES.combat_effects.get(effect_nid)
         if not effect_anim:
             return
-        frame, ok = FrameSelector.get_effect(effect_anim, self)
+        frame, ok = FrameSelector.get(effect_anim, effect_anim, self)
         if frame and ok:
             self.current_frame_set = effect_anim
             self.current_frame = frame

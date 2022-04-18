@@ -342,6 +342,17 @@ class Event():
             return True
         return False
 
+    def _get_truth(self, command) -> bool:
+        try:
+            cond = command.parameters['Expression']
+            cond = self._evaluate_all(cond)
+            truth = bool(evaluate.evaluate(cond, self.unit, self.unit2, self.item, self.position, self.region))
+        except Exception as e:
+            self.logger.error("%s: Could not evaluate {%s}" % (e, cond))
+            truth = False
+        self.logger.info("Result: %s" % truth)
+        return truth
+
     def handle_conditional(self, command) -> bool:
         """
         Returns true if the processor should be processing this command
@@ -350,14 +361,7 @@ class Event():
         if command.nid == 'if':
             self.logger.info('%s: %s, %s', command.nid, command.parameters, command.chosen_flags)
             if not self.if_stack or self.if_stack[-1]:
-                try:
-                    cond = command.parameters['Expression']
-                    cond = self._evaluate_all(cond)
-                    truth = bool(evaluate.evaluate(cond, self.unit, self.unit2, self.item, self.position, self.region))
-                except Exception as e:
-                    self.logger.error("%s: Could not evaluate {%s}" % (e, cond))
-                    truth = False
-                self.logger.info("Result: %s" % truth)
+                truth = self._get_truth(command)                
                 self.if_stack.append(truth)
                 self.parse_stack.append(truth)
             else:
@@ -371,16 +375,9 @@ class Event():
                 return False
             # If we haven't encountered a truth yet
             if not self.parse_stack[-1]:
-                try:
-                    cond = command.parameters['Expression']
-                    cond = self._evaluate_all(cond)
-                    truth = bool(evaluate.evaluate(cond, self.unit, self.unit2, self.item, self.position, self.region))
-                except Exception as e:
-                    self.logger.error("Could not evaluate {%s}" % cond)
-                    truth = False
+                truth = self._get_truth(command)
                 self.if_stack[-1] = truth
                 self.parse_stack[-1] = truth
-                self.logger.info("Result: %s" % truth)
             else:
                 self.if_stack[-1] = False
             return False

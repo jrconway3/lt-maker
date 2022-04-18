@@ -47,6 +47,11 @@ class Event():
             from app.engine.game_state import game
             self.game = game
 
+        self._generic_setup()
+
+        self.text_evaluator = TextEvaluator(self.logger, self.game, self.unit, self.unit2, self.item, self.position, self.region)
+
+    def _generic_setup(self):
         self.portraits: Dict[str, EventPortrait] = {}
         self.text_boxes: List[dialog.Dialog] = []
         self.other_boxes: List[Tuple[NID, Any]] = []
@@ -93,8 +98,6 @@ class Event():
         self.should_update: Dict[str, Callable[[bool], bool]] = {}
 
         self.logger = logging.getLogger()
-
-        self.text_evaluator = TextEvaluator(self.logger, self.game, self.unit, self.unit2, self.item, self.position, self.region)
 
     @property
     def unit1(self):

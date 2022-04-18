@@ -1,3 +1,4 @@
+import functools
 import logging
 import math
 import os
@@ -12,6 +13,7 @@ from app.editor.event_editor import event_autocompleter, find_and_replace
 from app.editor.map_view import SimpleMapView
 from app.editor.settings import MainSettingsController
 from app.events import event_commands, event_prefab, event_validators
+from app.events.mock_event import IfStatementStrategy
 from app.extensions.custom_gui import (ComboBox, PropertyBox, PropertyCheckBox,
                                        QHLine, TableView)
 from app.resources.resources import RESOURCES
@@ -854,6 +856,14 @@ class EventProperties(QWidget):
         self.show_commands_button.clicked.connect(self.show_commands)
         bottom_section.addWidget(self.show_commands_button)
 
+        self.test_event_button = QPushButton("Test Event")
+        test_menu = QMenu("Test", self)
+        test_menu.addAction(QAction("with If Statements always True", self, triggered=functools.partial(self.test_event, IfStatementStrategy.ALWAYS_TRUE))
+        test_menu.addAction(QAction("with If Statements always False", self, triggered=functools.partial(self.test_event, IfStatementStrategy.ALWAYS_FALSE)))
+        self.test_event_button.setMenu(test_menu)
+        # self.test_event_button.clicked.connect(self.test_event)
+        bottom_section.addWidget(self.test_event_button)
+
     def setEnabled(self, val):
         super().setEnabled(val)
         # Need to also set these, since they are considered
@@ -913,6 +923,14 @@ class EventProperties(QWidget):
         if self.show_commands_dialog:
             self.show_commands_dialog.done(0)
             self.show_commands_dialog = None
+
+    def test_event(self, strategy):
+        if self.current:
+            commands = self.current.commands
+            cursor_position = 0
+            timer.get_timer().stop()
+            GAME_ACTIONS.test_event(commands, cursor_position, strategy)
+            timer.get_timer().start()
 
     def name_changed(self, text):
         self.current.name = text

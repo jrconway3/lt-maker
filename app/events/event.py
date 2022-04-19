@@ -133,7 +133,6 @@ class Event():
         return self
 
     def update(self):
-        current_time = engine.get_time()
         # update all internal updates, remove the ones that are finished
         self.should_update = {name: to_update for name, to_update in self.should_update.items() if not to_update(self.do_skip)}
 
@@ -145,6 +144,7 @@ class Event():
         self._update_transition()
 
     def _update_state(self, dialog_log=True):
+        current_time = engine.get_time()
         # Can move through its own internal state up to 5 times in a frame
         counter = 0
         while counter < 5:
@@ -197,6 +197,7 @@ class Event():
                     self.state = 'processing'
 
     def _update_transition(self):
+        current_time = engine.get_time()
         # Handle transition
         if self.transition_state:
             perc = (current_time - self.transition_update) / self.transition_speed
@@ -324,7 +325,7 @@ class Event():
                 looped_commands.append(curr_command)
                 curr_idx += 1
                 if curr_idx > len(self.commands):
-                    self.logger.error("%s: could not find end command for loop %s" % ('handle_conditional', cond))
+                    self.logger.error("%s: could not find endf command for loop %s" % ('handle_conditional', cond))
                     return True
                 curr_command = self.commands[curr_idx]
 

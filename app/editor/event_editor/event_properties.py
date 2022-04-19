@@ -10,6 +10,7 @@ from app.data.database import DB
 from app.editor import table_model, timer
 from app.editor.base_database_gui import CollectionModel
 from app.editor.event_editor import event_autocompleter, find_and_replace
+import app.editor.game_actions.game_actions as GAME_ACTIONS
 from app.editor.map_view import SimpleMapView
 from app.editor.settings import MainSettingsController
 from app.events import event_commands, event_prefab, event_validators
@@ -29,7 +30,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QAction, QApplication,
                              QMessageBox, QPlainTextEdit, QPushButton,
                              QSizePolicy, QSpinBox, QSplitter, QStyle,
                              QStyledItemDelegate, QTextEdit, QToolBar,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QMenu)
 
 
 @dataclass
@@ -858,7 +859,7 @@ class EventProperties(QWidget):
 
         self.test_event_button = QPushButton("Test Event")
         test_menu = QMenu("Test", self)
-        test_menu.addAction(QAction("with If Statements always True", self, triggered=functools.partial(self.test_event, IfStatementStrategy.ALWAYS_TRUE))
+        test_menu.addAction(QAction("with If Statements always True", self, triggered=functools.partial(self.test_event, IfStatementStrategy.ALWAYS_TRUE)))
         test_menu.addAction(QAction("with If Statements always False", self, triggered=functools.partial(self.test_event, IfStatementStrategy.ALWAYS_FALSE)))
         self.test_event_button.setMenu(test_menu)
         # self.test_event_button.clicked.connect(self.test_event)

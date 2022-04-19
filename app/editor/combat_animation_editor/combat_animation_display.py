@@ -888,7 +888,7 @@ class CombatAnimProperties(QWidget):
     def get_test_palettes(self, combat_anim):
         palettes = combat_anim.palettes
         if not palettes:
-            print("No palettes!")
+            QMessageBox.critical(self, "No Palettes!", "Cannot find any palettes for this combat animation")
             return
         palette_names = [palette[0] for palette in palettes]
         palette_nids = [palette[1] for palette in palettes]
@@ -928,7 +928,7 @@ class CombatAnimProperties(QWidget):
             if 'Stand' in weapon_anim.poses.keys() and 'Attack' in weapon_anim.poses.keys():
                 pass
             else:
-                print("Missing Stand or Attack pose!")
+                QMessageBox.critical(self, "Missing Pose", "Missing Stand or Attack pose!")
                 return
 
             left_palette_name, left_palette, right_palette_name, right_palette = self.get_test_palettes(self.current)

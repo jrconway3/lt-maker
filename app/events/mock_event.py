@@ -1,6 +1,9 @@
 from enum import Enum
+from typing import List
 
+from app.events import speak_style, event_commands
 from app.events.event import Event
+from app.engine.text_evaluator import TextEvaluator
 
 class IfStatementStrategy(Enum):
     ALWAYS_TRUE = 1
@@ -15,7 +18,15 @@ class MockGame():
 
 class MockEvent(Event):
     # These are the only commands that will be processed by this event
-    available = {"finish", "wait", "end_skip", "music", "music_clear", "sound", "add_portrait", "multi_add_portrait", "remove_portrat" "multi_remove_portrait", "move_portrait", "mirror_portrait", "bop_portrait", "expression", "speak_style", "speak", "unhold", "transition", "change_background", "table", "remove_table", "draw_overlay_sprite", "remove_overlay_sprite", "location_card", "credits", "ending", "pop_dialog"}
+    available = {"finish", "wait", "end_skip", "music", "music_clear", 
+                 "sound", "add_portrait", "multi_add_portrait", 
+                 "remove_portrat" "multi_remove_portrait", 
+                 "move_portrait", "mirror_portrait", "bop_portrait", 
+                 "expression", "speak_style", "speak", "unhold", 
+                 "transition", "change_background", "table", 
+                 "remove_table", "draw_overlay_sprite", 
+                 "remove_overlay_sprite", "location_card", "credits", 
+                 "ending", "pop_dialog"}
 
     loop_commands = {'for', 'endf'}
 
@@ -30,8 +41,9 @@ class MockEvent(Event):
 
         self._generic_setup()
 
+        self.text_evaluator = TextEvaluator(self.logger, None)
+
     def update(self):
-        current_time = engine.get_time()
         # update all internal updates, remove the ones that are finished
         self.should_update = {name: to_update for name, to_update in self.should_update.items() if not to_update(self.do_skip)}
 
@@ -53,7 +65,7 @@ class MockEvent(Event):
                 looped_commands.append(curr_command)
                 curr_idx += 1
                 if curr_idx > len(self.commands):
-                    self.logger.error("%s: could not find end command for loop %s" % ('handle_loop', cond))
+                    self.logger.error("%s: could not find endf command for loop %s" % ('handle_loop'))
                     return True
                 curr_command = self.commands[curr_idx]
 
@@ -77,3 +89,6 @@ class MockEvent(Event):
         # Only certain commands will be processed
         if command.nid in self.available:
             super().run_command(command)
+
+    def _get_unit(self, text):
+        return None

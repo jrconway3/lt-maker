@@ -17,7 +17,7 @@ from app.editor import timer
 from app.utilities import str_utils
 from app.extensions.custom_gui import PropertyBox, ComboBox, Dialog
 from app.editor.combat_animation_editor.frame_selector import FrameSelector
-from app.editor.combat_animation_editor import combat_animation_model
+from app.editor.combat_animation_editor import combat_animation_model, combat_effect_display
 from app.editor.combat_animation_editor.color_editor import ColorEditorWidget
 from app.resources.combat_anims import Frame
 from app.resources.combat_palettes import Palette
@@ -586,6 +586,7 @@ class PaletteProperties(QWidget):
         effect_anim = RESOURCES.combat_effects.get(effect_nid)
         if not effect_anim:
             return
+        combat_effect_display.populate_effect_pixmaps(effect_anim)
         frame, ok = FrameSelector.get(effect_anim, effect_anim, self)
         if frame and ok:
             self.current_frame_set = effect_anim
@@ -626,6 +627,7 @@ class PaletteProperties(QWidget):
         if not effect_anim.frames:
             QMessageBox.critical(self, "Autoselect Error", 'Could not find a good frame. Try using manual "Select".')
             return
+        combat_effect_display.populate_effect_pixmaps(effect_anim)
         frame = effect_anim.frames[0]
         if frame:
             self.current_frame_set = effect_anim

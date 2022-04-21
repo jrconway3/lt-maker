@@ -1584,6 +1584,7 @@ class CombatTargetingState(MapState):
 
         if event == 'AUX':
             adj_allies = target_system.get_adj_allies(self.cur_unit)
+            adj_allies = [u for u in adj_allies if u.get_weapon() and not item_system.cannot_dual_strike(u, u.get_weapon())]
             if not DB.constants.value('pairup'):
                 new_position = self.selection.get_next(game.cursor.position)
                 game.cursor.set_pos(new_position)
@@ -1594,15 +1595,9 @@ class CombatTargetingState(MapState):
             elif len(adj_allies) > 1 and self.num_targets == 1:
                 i = adj_allies.index(self.attacker_assist)
                 # Hardset attacker
-                if any(not item_system.cannot_dual_strike(ally, ally.get_weapon()) for ally in adj_allies):
-                    i = 0
-                    while i < 4:
-                        self.attacker_assist = adj_allies[(i + 1) % len(adj_allies)]
-                        if not item_system.cannot_dual_strike(self.attacker_assist, self.attacker_assist.get_weapon()):
-                            break
-                        i += 1
-                    game.ui_view.reset_info()
-                    self.display_single_attack()
+                self.attacker_assist = adj_allies[(i + 1) % len(adj_allies)]
+                game.ui_view.reset_info()
+                self.display_single_attack()
 
         elif event == 'BACK':
             get_sound_thread().play_sfx('Select 4')

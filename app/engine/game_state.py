@@ -451,6 +451,7 @@ class GameState():
                 unit.traveler = None
                 action.execute(action.RemoveSkill(unit, 'Rescue'))
             unit.set_hp(1000)  # Set to full health
+            unit.set_guard_gauge(0) # Remove all guard gauge
             if DB.constants.value('reset_mana'):
                 unit.set_mana(1000)  # Set to full mana
             unit.position = None

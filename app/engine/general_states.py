@@ -1332,9 +1332,11 @@ class TargetingState(MapState):
                 else:
                     game.memory['trade_partner'] = unit
             else:
-                game.memory['trade_partner'] = unit
+                if unit and unit.traveler and unit == self.cur_unit and self.ability.name == 'Trade':
+                    game.memory['trade_partner'] = game.get_unit(unit.traveler)
+                else:
+                    game.memory['trade_partner'] = unit
             self.ability.do(self.cur_unit)
-
         elif event == 'AUX':
             get_sound_thread().play_sfx('Select 6')
             self.traveler_mode = False
@@ -1408,8 +1410,10 @@ class TargetingState(MapState):
             if self.traveler_mode:
                 if unit.traveler:
                     game.ui_view.draw_trade_preview(game.get_unit(unit.traveler), surf)
-            else:
+            elif unit != self.cur_unit:
                 game.ui_view.draw_trade_preview(unit, surf)
+            else:
+                game.ui_view.draw_trade_preview(game.get_unit(unit.traveler), surf)
         elif self.ability.name == 'Steal':
             unit = game.cursor.get_hover()
             game.ui_view.draw_trade_preview(unit, surf)

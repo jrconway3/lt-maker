@@ -129,7 +129,7 @@ class Resources():
                 logging.warning("Saving %s..." % loose_file_type)
                 time1 = time.time_ns()/1e6
                 target_dir = os.path.join(resource_dir, loose_file_type)
-                if not os.path.exists(target_dir):
+                if not os.path.exists(target_dir) and os.path.exists(os.path.join(self.main_folder, loose_file_type)):
                     shutil.copytree(os.path.join(self.main_folder, loose_file_type), target_dir)
                 time2 = time.time_ns()/1e6 - time1
                 logging.warning("Time Taken: %s ms" % time2)

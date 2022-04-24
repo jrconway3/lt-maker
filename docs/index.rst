@@ -21,7 +21,7 @@ Welcome to lt-maker's documentation!
 
 .. toctree::
    :maxdepth: 4
-   :caption: Getting Started:
+   :caption: Editor Guides:
 
    source/editors/var_slots_editor
 

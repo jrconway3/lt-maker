@@ -13,41 +13,10 @@ Well, now there's a third option. **Project Specific Custom Components**
 
 ### How do?
 
-```
-Make sure you do this section EXACTLY. Importing python modules at runtime is a fickle thing, so precision is important.
-```
-
-In your project's *resources* directory, create a new directory called `custom_components`. Within that directory, create a file called `__init__.py`. 
-
-Place this code into the `__init__.py` file:
-
-```python
-import os
-import importlib
-
-for module_name in os.listdir(os.path.dirname(__file__)):
-    if module_name == '__init__.py' or module_name[-3:] != '.py':
-        continue
-    print("Importing Custom Components in %s..." % module_name)
-    module = importlib.import_module('custom_components.' + module_name[:-3])
-    importlib.reload(module)
-del module_name
-```
-
-Once that's done, you can add the files that contain your custom components to the `custom_components` directory.
-
-So, to confirm, your directory structure now looks like this:
-
-```
-project.ltproj/
-    resources/
-        custom_components/
-            __init__.py
-            my_components1.py
-            my_components2.py
-            my_components_etc_and_so_on.py
-```
+In your project's *resources* directory, there should be a directory called `custom_components`. Within that directory, there'll be two files: `custom_item_components.py` and `custom_skill_components.py`.
 
 These will be loaded at runtime when you start the editor or the engine and load up your project.
 
 So players of your game can use the canonical Lex Talionis engine with your .ltproj project and its bespoke custom components without any friction.
+
+To learn how to write components, you should reference the {doc}`component_tutorials/index` as well as the existing component code within the engine, located in `app/engine/item_components/` and `app/engine/skill_components`

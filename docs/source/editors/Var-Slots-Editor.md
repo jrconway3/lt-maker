@@ -19,14 +19,14 @@ game_var;PuppyInteractedCh7;True
 ## The Var Slots
 The Var Slots editor allows you to predefine all of these names. It's not a very complex editor - it's mostly a glorified list of strings. But it saves time on all of the above, if you're a heavy eventer or your project is large.
 
-![image1](editor_images/var_slot_editor.png)
+![image1](images/var_slot_editor.png)
 
 This is the editor. It consists of a single list with three parts: the predefined variable name, a brief description that you can fill out, and finally, a field that contains the locations of all references to the predefined variable name. By filling out the first two fields, you accomplish two things. You write down for future you the exact name of the variable, and a note on what exactly it's used for.
 
 There is one final feature of this list - all predefined variables in this list can be autocompleted anywhere a game or level variable is referenced or required:
 
-![image2](editor_images/var_slot_editor_autocomplete_1.png)
+![image2](images/var_slot_editor_autocomplete_1.png)
 
-![image3](editor_images/var_slot_editor_autocomplete_2.png)
+![image3](images/var_slot_editor_autocomplete_2.png)
 
 This should dramatically reduce the number of headaches you get from debugging misspellings. Happy devving!

@@ -1,8 +1,6 @@
-# Custom Components
+# Using and Distributing Custom Components
 
-_last updated 2022-04-10_
-
-## Distribution
+_last updated 2022-04-26_
 
 If you've developed your own custom components, those custom components will be necessary to run your game/project. However, up until now your only option to distribute these custom components was:
 
@@ -11,7 +9,7 @@ If you've developed your own custom components, those custom components will be 
 
 Well, now there's a third option. **Project Specific Custom Components**
 
-### How do?
+## Project Specific Custom Components
 
 In your project's *resources* directory, there should be a directory called `custom_components`. Within that directory, there'll be two files: `custom_item_components.py` and `custom_skill_components.py`.
 
@@ -19,4 +17,4 @@ These will be loaded at runtime when you start the editor or the engine and load
 
 So players of your game can use the canonical Lex Talionis engine with your .ltproj project and its bespoke custom components without any friction.
 
-To learn how to write components, you should reference the {doc}`component_tutorials/index` as well as the existing component code within the engine, located in `app/engine/item_components/` and `app/engine/skill_components`
+To learn how to write components, you should reference the other component tutorials in this section, as well as the existing component code within the engine, located in `app/engine/item_components/` and `app/engine/skill_components`

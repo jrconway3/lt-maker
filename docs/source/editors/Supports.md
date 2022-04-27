@@ -1,20 +1,22 @@
 # Supports
 
+The following tutorial examines the tabs found within the Supports editor.
+
 ## Support Setup
 
 1. Make sure that **support** is checked in the Constants editor
 
-![SupportPairEditor](../Images/SupportPairEditor.png)
+![SupportPairEditor](images/SupportPairEditor.png)
 
 2. Assign a support pair to your two units, with at least one support rank
 
-![SupportConstantsEditor](../Images/SupportConstantsEditor.png)
+![SupportConstantsEditor](images/SupportConstantsEditor.png)
 
 3. Make sure that your support constants are set up how you want them.
 
 ## Support Bonuses
 
-![AffinityEditor](../Images/AffinityEditor.png)
+![AffinityEditor](images/AffinityEditor.png)
 
 Each affinity defines it's own set of combat bonuses at each support level. These bonuses are NOT cumulative. Each row is taken individually, so you could easily do things like have negative bonuses for a middle support conversation (before the characters inevitably make up).
 
@@ -32,7 +34,7 @@ This tells the engine you want units to gain support points now. It starts off b
 
 Now, when two units that are capable of supporting each other reach their first support rank, they'll be able to "Support" one another. This action fires the `on_support` event trigger.
 
-![SupportCombatScreenshot](../Images/SupportCombatScreenshot.png)
+![SupportCombatScreenshot](images/SupportCombatScreenshot.png)
 
 Support conversations themselves are very similar to Talk conversations in overall structure. Create an event with the `on_support` trigger. `unit` and `unit2` are the units that are in the support conversation, and `item` is the ID of the support rank.
 

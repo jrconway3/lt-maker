@@ -23,7 +23,8 @@ Welcome to lt-maker's documentation!
    :maxdepth: 4
    :caption: Editor Guides:
 
-   source/editors/var_slots_editor
+   source/editors/Var-Slots-Editor
+   source/editors/Supports
 
 
 .. toctree::

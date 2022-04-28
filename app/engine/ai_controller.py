@@ -662,7 +662,7 @@ class SecondaryAI():
         self.grid = game.board.get_grid(movement_group)
         self.pathfinder = \
             pathfinding.AStar(self.unit.position, None, self.grid,
-                              game.tilemap.width, game.tilemap.height,
+                              game.board.bounds, game.tilemap.height,
                               self.unit.team, skill_system.pass_through(self.unit),
                               DB.constants.value('ai_fog_of_war'))
 

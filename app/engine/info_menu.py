@@ -810,7 +810,8 @@ class InfoMenuState(State):
         class_obj = DB.classes.get(self.unit.klass)
         wexp_to_draw: List[Tuple[str, int]] = []
         for weapon, wexp in self.unit.wexp.items():
-            if wexp > 0 and (class_obj.wexp_gain.get(weapon).usable or skill_system.wexp_usable_skill(self.unit, weapon)):
+            if wexp > 0 and (class_obj.wexp_gain.get(weapon).usable or skill_system.wexp_usable_skill(self.unit, weapon)) \
+            and not skill_system.wexp_unusable_skill(self.unit, weapon):
                 wexp_to_draw.append((weapon, wexp))
         width = (WINWIDTH - 102) // 2
         height = 16 * 2 + 4

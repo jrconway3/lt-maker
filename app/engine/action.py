@@ -478,7 +478,7 @@ class Wait(Action):
     def remove_interrupt_regions(self):
         regions_to_remove = []
         for region in game.level.regions:
-            if region.contains(self.unit.position) and region.interrupt_move:
+            if self.unit.position and region.contains(self.unit.position) and region.interrupt_move:
                 if region.region_type == 'event':
                     did_trigger = game.events.trigger(region.sub_nid, self.unit, position=self.unit.position, region=region)
                 if (region.region_type != 'event' or did_trigger) and region.only_once:

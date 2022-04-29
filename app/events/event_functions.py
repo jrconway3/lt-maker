@@ -516,6 +516,10 @@ def win_game(self: Event, flags=None):
 def lose_game(self: Event, flags=None):
     self.game.level_vars['_lose_game'] = True
 
+def skip_save(self: Event, true_or_false: str, flags=None):
+    state = true_or_false in self.true_vals
+    action.do(action.SetLevelVar('_skip_save', state))
+
 def activate_turnwheel(self: Event, force=None, flags=None):
     if force and force.lower() not in self.true_vals:
         self.turnwheel_flag = 1

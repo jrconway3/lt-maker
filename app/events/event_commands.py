@@ -687,6 +687,18 @@ class LoseGame(EventCommand):
 Ends the current chapter in defeat. The game over screen will be displayed.
         """
 
+class SkipSave(EventCommand):
+    nid = 'skip_save'
+    tag = Tags.LEVEL_VARS
+
+    desc = \
+    """
+Sets whether or not to bring up the save screen after the level ends.
+    """
+
+    keywords = ["TrueOrFalse"]
+    keyword_types = ["Bool"]
+
 class ActivateTurnwheel(EventCommand):
     nid = 'activate_turnwheel'
     tag = Tags.MISCELLANEOUS

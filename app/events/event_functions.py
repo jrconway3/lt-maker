@@ -711,7 +711,7 @@ def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_ty
 
     if 'copy_stats' in flags:
         new_unit.stats = unit.stats[:]
-        
+
     position = self._check_placement(new_unit, position, placement)
     if not position:
         return None
@@ -1231,6 +1231,11 @@ def add_item_to_multiitem(self: Event, global_unit_or_convoy, multi_item, child_
     if not subitem_prefab:
         self.logger.error("Couldn't find item with nid %s" % child_item)
         return
+    if 'no_duplicate' in flags:
+        children = {item.nid for item in item.subitems}
+        if child_item in children:
+            self.logger.info("Item %s already exists on multi-item %s on unit %s" % (child_item, item.nid, unit.nid))
+            return
     # Create subitem
     subitem = ItemObject.from_prefab(subitem_prefab)
     for component in subitem.components:
@@ -1976,11 +1981,11 @@ def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, flags=
         for idx, item in enumerate(item_list):
             item_history = '__shop_%s_%s' % (shop_id, item)
             if item_history in self.game.level_vars:
-                stock_list[idx] -= self.game.level_vars[item_history] 
+                stock_list[idx] -= self.game.level_vars[item_history]
         self.game.memory['shop_stock'] = stock_list
     else:
         self.game.memory['shop_stock'] = None
-        
+
     self.game.state.change('shop')
     self.state = 'paused'
 

@@ -17,7 +17,8 @@ class Heal(ItemComponent):
 
     def _get_heal_amount(self, unit, target):
         empower_heal = skill_system.empower_heal(unit, target)
-        return self.value + empower_heal
+        empower_heal_received = skill_system.empower_heal_received(target, unit)
+        return self.value + empower_heal + empower_heal_received
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
@@ -63,7 +64,8 @@ class MagicHeal(Heal, ItemComponent):
 
     def _get_heal_amount(self, unit, target):
         empower_heal = skill_system.empower_heal(unit, target)
-        return self.value + equations.parser.heal(unit) + empower_heal
+        empower_heal_received = skill_system.empower_heal_received(target, unit)
+        return self.value + equations.parser.heal(unit) + empower_heal + empower_heal_received
 
 class Refresh(ItemComponent):
     nid = 'refresh'

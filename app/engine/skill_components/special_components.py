@@ -57,7 +57,7 @@ class EmpowerHeal(SkillComponent):
     def empower_heal(self, unit, target):
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, target))
+            return int(evaluate.evaluate(self.value, unit, target, unit.position))
         except:
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
@@ -115,4 +115,4 @@ class EventAfterInitiatedCombat(SkillComponent):
 
     def end_combat(self, playback, unit: UnitObject, item, target: UnitObject, mode):
         if mode == 'attack':
-            game.events.trigger_specific_event(self.value, unit, target, item, unit.position)
+            game.events.trigger_specific_event(self.value, unit, target, unit.position, {'item': item, 'mode': mode})

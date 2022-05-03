@@ -165,7 +165,7 @@ class UnlockStaff(ItemComponent):
                     region = reg
                     break
             if region:
-                did_trigger = game.events.trigger(region.sub_nid, unit, position=pos, region=region)
+                did_trigger = game.events.trigger(region.sub_nid, unit, position=pos, local_args={'item': item, 'region': region})
                 if did_trigger and region.only_once:
                     action.do(action.RemoveRegion(region))
         self._did_hit = False
@@ -181,7 +181,7 @@ class CanUnlock(ItemComponent):
     def can_unlock(self, unit, item, region) -> bool:
         from app.engine import evaluate
         try:
-            return bool(evaluate.evaluate(self.value, unit, item, region=region))
+            return bool(evaluate.evaluate(self.value, unit, local_args={'item': item, 'region': region}))
         except:
             print("Could not evaluate %s" % self.value)
         return False
@@ -263,8 +263,6 @@ class AttackAfterCombat(ItemComponent):
 
     def can_attack_after_combat(self, unit, item):
         return True
-
-
 
 class NoAttackAfterMove(ItemComponent):
     nid = 'no_attack_after_move'

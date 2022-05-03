@@ -204,7 +204,7 @@ class Vantage(SkillComponent):
 
 class GuaranteedCrit(SkillComponent):
     nid = 'guaranteed_crit'
-    desc = "Unit will have chance to crit even if crit constant is turned off"
+    desc = "Unit will always crit even if crit constant is turned off"
     tag = SkillTags.COMBAT2
 
     def crit_anyway(self, unit):

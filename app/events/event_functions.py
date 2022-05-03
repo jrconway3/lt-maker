@@ -1770,6 +1770,9 @@ def show_layer(self: Event, layer, layer_transition=None, flags=None):
     if not layer_transition:
         layer_transition = 'fade'
 
+    if self.game.level.tilemap.layers.get(layer).visible:
+        self.logger.warning("Layer %s is already visible!" % layer)
+        return
     action.do(action.ShowLayer(layer, layer_transition))
 
 def hide_layer(self: Event, layer, layer_transition=None, flags=None):
@@ -1779,6 +1782,9 @@ def hide_layer(self: Event, layer, layer_transition=None, flags=None):
     if not layer_transition:
         layer_transition = 'fade'
 
+    if not self.game.level.tilemap.layers.get(layer).visible:
+        self.logger.warning("Layer %s is already hidden!" % layer)
+        return
     action.do(action.HideLayer(layer, layer_transition))
 
 def add_weather(self: Event, weather, position=None, flags=None):

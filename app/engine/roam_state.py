@@ -148,7 +148,7 @@ class FreeRoamState(MapState):
                     self.rationalize()
             elif region:
                 get_sound_thread().play_sfx('Select 2')
-                did_trigger = game.events.trigger(region.sub_nid, self.roam_unit, position=self.roam_unit.position, region=region)
+                did_trigger = game.events.trigger(region.sub_nid, self.roam_unit, position=self.roam_unit.position, local_args={'region': region})
                 if did_trigger:
                     self.rationalize()
                 if did_trigger and region.only_once:
@@ -248,7 +248,7 @@ class FreeRoamState(MapState):
         for region in game.level.regions:
             if region.region_type == 'event' and region.fuzzy_contains(self.roam_unit.position):
                 try:
-                    truth = evaluate.evaluate(region.condition, self.roam_unit, region=region, position=self.roam_unit.position)
+                    truth = evaluate.evaluate(region.condition, self.roam_unit, position=self.roam_unit.position, local_args={'region': region})
                     if truth:
                         return region
                 except Exception as e:

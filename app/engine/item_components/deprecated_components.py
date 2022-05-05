@@ -50,7 +50,8 @@ class EventOnUse(ItemComponent):
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         event_prefab = DB.events.get_from_nid(self.value)
         if event_prefab:
-            game.events.trigger_specific_event(event_prefab.nid, unit=unit, unit2=target, item=item, position=unit.position, region=target_pos)
+            local_args = {'target_pos': target_pos, 'mode': mode, 'attack_info': attack_info, 'item': item}
+            game.events.trigger_specific_event(event_prefab.nid, unit, target, unit.position, local_args)
 
 class EventAfterUse(ItemComponent):
     nid = 'event_after_use'
@@ -67,5 +68,6 @@ class EventAfterUse(ItemComponent):
     def end_combat(self, playback, unit, item, target, mode):
         event_prefab = DB.events.get_from_nid(self.value)
         if event_prefab:
-            game.events.trigger_specific_event(event_prefab.nid, unit=unit, unit2=target, item=item, position=unit.position, region=self._target_pos)
+                local_args = {'target_pos': self.target_pos, 'item': item, 'mode': mode}
+                game.events.trigger_specific_event(event_prefab.nid, unit, target, unit.position, local_args)
         self._target_pos = None

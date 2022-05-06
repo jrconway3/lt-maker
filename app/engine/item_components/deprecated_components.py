@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 from app.data.database import DB
 
@@ -68,6 +67,6 @@ class EventAfterUse(ItemComponent):
     def end_combat(self, playback, unit, item, target, mode):
         event_prefab = DB.events.get_from_nid(self.value)
         if event_prefab:
-                local_args = {'target_pos': self._target_pos, 'item': item, 'mode': mode}
-                game.events.trigger_specific_event(event_prefab.nid, unit, target, unit.position, local_args)
+            local_args = {'target_pos': self._target_pos, 'item': item, 'mode': mode}
+            game.events.trigger_specific_event(event_prefab.nid, unit, target, unit.position, local_args)
         self._target_pos = None

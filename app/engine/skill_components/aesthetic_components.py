@@ -1,8 +1,7 @@
 from app.data.skill_components import SkillComponent, SkillTags
 from app.data.components import Type
 
-from app.engine import equations, action, item_system, item_funcs
-from app.engine.game_state import game
+from app.engine import equations, item_system, item_funcs
 from app.engine.combat import playback as pb
 
 class UnitAnim(SkillComponent):
@@ -39,7 +38,7 @@ class UpkeepAnimation(SkillComponent):
     expose = Type.MapAnimation
 
     def on_upkeep(self, actions, playback, unit):
-        playback.append(pb.CastAnim(self.value, unit))
+        playback.append(pb.CastAnim(self.value))
 
 # Get proc skills working before bothering with this one
 class DisplaySkillIconInCombat(SkillComponent):

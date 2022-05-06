@@ -15,7 +15,7 @@ from app.editor.icon_editor import icon_model
 class IconTab(QWidget):
     side_menu_enabled: bool = False
 
-    def __init__(self, data, title, model, parent=None):
+    def __init__(self, data, title, model, parent=None, initial_icon_nid=None):
         super().__init__(parent)
         self.window = parent
         self._data = data
@@ -46,6 +46,7 @@ class IconTab(QWidget):
             self.icon_sheet_search = QLineEdit()
             self.icon_sheet_search.setPlaceholderText('Filter by Icon Sheet...')
             self.icon_sheet_search.textChanged.connect(self.filter_icon_sheet_list)
+
             left_layout.addWidget(self.icon_sheet_search)
 
             self.icon_sheet_list = QListWidget()
@@ -75,6 +76,11 @@ class IconTab(QWidget):
             self.restore_state(self.widget_state)
         else:
             self.widget_state = {}
+
+        if initial_icon_nid and self.side_menu_enabled:
+            self.model = self.model_type([icon_sheet for icon_sheet in self._data if icon_sheet.nid == initial_icon_nid], self)
+            self.view.setModel(self.model)
+            self.toggle_icon_sort()
 
     def on_icon_sheet_click(self, index):
         item = self.icon_sheet_list.currentItem()
@@ -158,19 +164,19 @@ class IconListView(QListView):
 class Icon16Database(IconTab):
     side_menu_enabled = True
     @classmethod
-    def create(cls, parent=None):
+    def create(cls, parent=None, selected_icon_nid=None):
         data = RESOURCES.icons16
         title = "16x16 Icon"
         collection_model = icon_model.Icon16Model
         deletion_criteria = None
 
-        dialog = cls(data, title, collection_model, parent)
+        dialog = cls(data, title, collection_model, parent, selected_icon_nid)
         return dialog
 
 class Icon32Database(Icon16Database):
     side_menu_enabled = False
     @classmethod
-    def create(cls, parent=None):
+    def create(cls, parent=None, selected_icon_nid=None):
         data = RESOURCES.icons32
         title = "32x32 Icon"
         collection_model = icon_model.Icon32Model
@@ -182,7 +188,7 @@ class Icon32Database(Icon16Database):
 class Icon80Database(Icon16Database):
     side_menu_enabled = False
     @classmethod
-    def create(cls, parent=None):
+    def create(cls, parent=None, selected_icon_nid=None):
         data = RESOURCES.icons80
         title = "80x72 Icon"
         collection_model = icon_model.Icon80Model
@@ -221,7 +227,7 @@ def get_map_icon_editor():
     else:
         return None, False
 
-def get(width):
+def get(width, icon_nid = None):
     if width == 16:
         resource_type = 'icons16'
         database = Icon16Database
@@ -233,7 +239,7 @@ def get(width):
         database = Icon80Database
     else:
         return None, False
-    window = SingleResourceEditor(database, [resource_type])
+    window = SingleResourceEditor(database, [resource_type], selected_icon_nid=icon_nid)
     result = window.exec_()
     if result == QDialog.Accepted:
         selected_icon = window.tab.current

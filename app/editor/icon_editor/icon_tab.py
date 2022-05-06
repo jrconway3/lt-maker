@@ -1,13 +1,16 @@
+from app.editor.settings.main_settings_controller import MainSettingsController
 from app.utilities.typing import NID
 from typing import Callable, List
 from PyQt5.QtWidgets import QWidget, QGridLayout, QListView, QPushButton, \
-    QDialog, QListWidget, QCheckBox
+    QDialog, QListWidget, QCheckBox, QVBoxLayout, QLineEdit
 from PyQt5.QtCore import QSize, Qt
 
 from app.resources.resources import RESOURCES
 from app.editor.data_editor import SingleResourceEditor, MultiResourceEditor
 
 from app.editor.icon_editor import icon_model
+
+
 
 class IconTab(QWidget):
     side_menu_enabled: bool = False
@@ -17,6 +20,7 @@ class IconTab(QWidget):
         self.window = parent
         self._data = data
         self.title = title
+        self.settings = MainSettingsController()
 
         self.setWindowTitle(self.title)
         self.setStyleSheet("font: 10pt;")
@@ -37,11 +41,20 @@ class IconTab(QWidget):
         self.view.setGridSize(QSize(80, 80))
 
         if self.side_menu_enabled:
+            left_layout = QVBoxLayout(self)
+
+            self.icon_sheet_search = QLineEdit()
+            self.icon_sheet_search.setPlaceholderText('Filter by Icon Sheet...')
+            self.icon_sheet_search.textChanged.connect(self.filter_icon_sheet_list)
+            left_layout.addWidget(self.icon_sheet_search)
+
             self.icon_sheet_list = QListWidget()
             for i, icon_sheet in enumerate(data):
                 self.icon_sheet_list.insertItem(i, icon_sheet.nid)
             self.icon_sheet_list.clicked.connect(self.on_icon_sheet_click)
-            self.layout.addWidget(self.icon_sheet_list, 0, 0, 1, 2)
+            left_layout.addWidget(self.icon_sheet_list)
+
+            self.layout.addLayout(left_layout, 0, 0, 1, 2)
             self.layout.addWidget(self.view, 0, 2, 1, 1)
 
             self.icons_sort_order_checkbox = QCheckBox("Sort Icons horizontally?")
@@ -57,12 +70,53 @@ class IconTab(QWidget):
 
         self.display = None
 
+        self.widget_state = self.settings.component_controller.get_property(self._type(), 'icon_tab_state')
+        if self.widget_state:
+            self.restore_state(self.widget_state)
+        else:
+            self.widget_state = {}
+
     def on_icon_sheet_click(self, index):
         item = self.icon_sheet_list.currentItem()
         self.model = self.model_type([icon_sheet for icon_sheet in self._data if icon_sheet.nid == item.text()], self)
         self.view.setModel(self.model)
+        self.toggle_icon_sort()
+
+    def filter_icon_sheet_list(self, text):
+        text = text.lower()
+        if text:
+            self.icon_sheet_list.clear()
+            for i, icon_sheet in enumerate(self._data):
+                if text in icon_sheet.nid.lower():
+                   self.icon_sheet_list.insertItem(i, icon_sheet.nid)
+        else:
+            self.icon_sheet_list.clear()
+            for i, icon_sheet in enumerate(self._data):
+                self.icon_sheet_list.insertItem(i, icon_sheet.nid)
+
+    def accept(self):
+        self.save_state()
+        super().accept()
+
+    def reject(self):
+        self.save_state()
+        super().reject()
+
+    def closeEvent(self, event):
+        self.save_state()
+        super().closeEvent(event)
+
+    def save_state(self):
+        self.settings.component_controller.set_property(self._type(), 'icon_tab_state', self.widget_state)
+
+    def restore_state(self, widget_state:dict):
+        if self.side_menu_enabled:
+            sorted_horizontally = widget_state.get('sort_horizontally', False)
+            self.icons_sort_order_checkbox.setChecked(sorted_horizontally)
+            self.toggle_icon_sort()
 
     def toggle_icon_sort(self):
+        self.widget_state['sort_horizontally'] = self.icons_sort_order_checkbox.isChecked()
         if self.icons_sort_order_checkbox.isChecked():
             self.model.rearrange_data(True)
         else:
@@ -75,6 +129,9 @@ class IconTab(QWidget):
 
     def reset(self):
         pass
+
+    def _type(self):
+        return self.__class__.__name__
 
     @property
     def current(self):

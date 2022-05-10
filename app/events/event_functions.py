@@ -1250,7 +1250,9 @@ def add_item_to_multiitem(self: Event, global_unit_or_convoy, multi_item, child_
         owner_nid = None
     else:
         owner_nid = unit.nid
-    action.do(action.AddItemToMultiItem(owner_nid, item, subitem))
+        action.do(action.AddItemToMultiItem(owner_nid, item, subitem))
+    if 'equip' in flags:
+        action.do(action.EquipItem(unit, subitem))
 
 def remove_item_from_multiitem(self: Event, global_unit_or_convoy, multi_item, child_item, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, multi_item)

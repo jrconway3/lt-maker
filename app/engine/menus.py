@@ -190,11 +190,15 @@ class Simple():
 
     def create_options(self, options, info_descs=None):
         self.options.clear()
-        for idx, option in enumerate(options):
-            option = menu_options.BasicOption(idx, option)
-            if info_descs:
-                option.help_box = help_menu.HelpDialog(info_descs[idx])
-            self.options.append(option)
+        if not options:
+            null_option = menu_options.NullOption(0)
+            self.options.append(null_option)
+        else:
+            for idx, option in enumerate(options):
+                option = menu_options.BasicOption(idx, option)
+                if info_descs:
+                    option.help_box = help_menu.HelpDialog(info_descs[idx])
+                self.options.append(option)
 
     def get_current(self):
         if self.options:
@@ -285,7 +289,7 @@ class Simple():
         if options is not None:
             bare_options = options
         else:
-            bare_options = [option.get() for option in self.options]
+            bare_options = [option.get() for option in self.options if option.get()]
         self.create_options(bare_options)
         self.current_index = utils.clamp(self.current_index, 0, len(self.options) - 1)
 
@@ -382,37 +386,41 @@ class Choice(Simple):
 
     def create_options(self, options, info_descs=None):
         self.options.clear()
-        for idx, option in enumerate(options):
-            if isinstance(option, ItemObject):
-                if self.display_total_uses:
-                    option = menu_options.FullItemOption(idx, option)
-                elif self.is_convoy:
-                    option = menu_options.ConvoyItemOption(idx, option, self.owner)
+        if not options:
+            null_option = menu_options.NullOption(0)
+            self.options.append(null_option)
+        else:
+            for idx, option in enumerate(options):
+                if isinstance(option, ItemObject):
+                    if self.display_total_uses:
+                        option = menu_options.FullItemOption(idx, option)
+                    elif self.is_convoy:
+                        option = menu_options.ConvoyItemOption(idx, option, self.owner)
+                    else:
+                        option = menu_options.ItemOption(idx, option)
+                    option.help_box = option.get_help_box()
+                    self.options.append(option)
+                elif isinstance(option, lore.Lore):
+                    option = menu_options.LoreOption(idx, option)
+                    self.options.append(option)
                 else:
-                    option = menu_options.ItemOption(idx, option)
-                option.help_box = option.get_help_box()
-                self.options.append(option)
-            elif isinstance(option, lore.Lore):
-                option = menu_options.LoreOption(idx, option)
-                self.options.append(option)
-            else:
-                if self.horizontal:
-                    option = menu_options.HorizOption(idx, option)
-                elif option:
-                    option = menu_options.BasicOption(idx, option)
-                else:
-                    option = menu_options.BasicOption(idx, option)
-                    option.display_text = ' ' * 20  # 80 pixels
-                if info_descs:
-                    option.help_box = help_menu.HelpDialog(info_descs[idx])
-                self.options.append(option)
+                    if self.horizontal:
+                        option = menu_options.HorizOption(idx, option)
+                    elif option:
+                        option = menu_options.BasicOption(idx, option)
+                    else:
+                        option = menu_options.BasicOption(idx, option)
+                        option.display_text = ' ' * 20  # 80 pixels
+                    if info_descs:
+                        option.help_box = help_menu.HelpDialog(info_descs[idx])
+                    self.options.append(option)
 
-        if self.hard_limit:
-            for num in range(self.limit - len(options)):
-                option = menu_options.EmptyOption(len(options) + num)
-                if self.is_convoy:
-                    option._width = 112
-                self.options.append(option)
+            if self.hard_limit:
+                for num in range(self.limit - len(options)):
+                    option = menu_options.EmptyOption(len(options) + num)
+                    if self.is_convoy:
+                        option._width = 112
+                    self.options.append(option)
 
     def move_down(self, first_push=True):
         if all(option.ignore for option in self.options):
@@ -977,6 +985,9 @@ class Table(Simple):
 
     def create_options(self, options, info_descs=None):
         self.options.clear()
+        if not options:
+            null_option = menu_options.NullOption(0)
+            self.options.append(null_option)
         for idx, option in enumerate(options):
             if isinstance(option, UnitObject):
                 option = menu_options.UnitOption(idx, option)

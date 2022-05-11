@@ -931,8 +931,6 @@ class SubItemChildState(MapState):
     def begin(self):
         game.cursor.hide()
         options = self._get_options(self.parent_item)
-        if not options:
-            options = ["Nothing"]
         self.menu.update_options(options)
         self.item_desc_panel = ui_view.ItemDescriptionPanel(self.cur_unit, self.menu.get_current())
 

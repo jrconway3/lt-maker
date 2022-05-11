@@ -1272,7 +1272,8 @@ def remove_item_from_multiitem(self: Event, global_unit_or_convoy, multi_item, c
     else:
         owner_nid = unit.nid
     # Unequip subitem if necessary
-    action.do(action.UnequipItem(unit, subitem))
+    if owner_nid:
+        action.do(action.UnequipItem(unit, subitem))
     action.do(action.RemoveItemFromMultiItem(owner_nid, item, subitem))
 
 def give_money(self: Event, money, party=None, flags=None):

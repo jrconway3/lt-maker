@@ -1,15 +1,16 @@
-from app.editor.settings.main_settings_controller import MainSettingsController
-from app.utilities.typing import NID
+import re
 from typing import Callable, List
-from PyQt5.QtWidgets import QWidget, QGridLayout, QListView, QPushButton, \
-    QDialog, QListWidget, QCheckBox, QVBoxLayout, QLineEdit
-from PyQt5.QtCore import QSize, Qt
 
-from app.resources.resources import RESOURCES
-from app.editor.data_editor import SingleResourceEditor, MultiResourceEditor
-
+from app.editor.data_editor import MultiResourceEditor, SingleResourceEditor
 from app.editor.icon_editor import icon_model
-
+from app.editor.settings.main_settings_controller import MainSettingsController
+from app.resources.resources import RESOURCES
+from app.utilities.data import Data
+from app.utilities.typing import NID
+from PyQt5.QtCore import QSize, QSortFilterProxyModel, Qt
+from PyQt5.QtWidgets import (QCheckBox, QDialog, QGridLayout, QLineEdit,
+                             QListView, QListWidget, QPushButton, QVBoxLayout,
+                             QWidget)
 
 
 class IconTab(QWidget):
@@ -32,8 +33,9 @@ class IconTab(QWidget):
         self.view.setMinimumSize(360, 360)
         self.view.setUniformItemSizes(True)
         self.view.setIconSize(QSize(64, 64))
-        self.model_type = model
-        self.model = self.model_type(self._data, self)
+        self.full_model = model(self._data, self)
+        self.model = QSortFilterProxyModel()
+        self.model.setSourceModel(self.full_model)
         self.view.setModel(self.model)
         self.view.setViewMode(QListView.IconMode)
         self.view.setResizeMode(QListView.Adjust)
@@ -66,7 +68,7 @@ class IconTab(QWidget):
             self.layout.addWidget(self.view, 0, 0, 1, 1)
 
         self.button = QPushButton("Add New Icon Sheet...")
-        self.button.clicked.connect(self.model.append)
+        self.button.clicked.connect(self.full_model.append)
         self.layout.addWidget(self.button, 1, 0, 1, 1)
 
         self.display = None
@@ -78,14 +80,12 @@ class IconTab(QWidget):
             self.widget_state = {}
 
         if initial_icon_nid and self.side_menu_enabled:
-            self.model = self.model_type([icon_sheet for icon_sheet in self._data if icon_sheet.nid == initial_icon_nid], self)
-            self.view.setModel(self.model)
+            self.model.setFilterRegularExpression(re.escape(initial_icon_nid))
             self.toggle_icon_sort()
 
     def on_icon_sheet_click(self, index):
         item = self.icon_sheet_list.currentItem()
-        self.model = self.model_type([icon_sheet for icon_sheet in self._data if icon_sheet.nid == item.text()], self)
-        self.view.setModel(self.model)
+        self.model.setFilterRegularExpression(re.escape(item.text()))
         self.toggle_icon_sort()
 
     def filter_icon_sheet_list(self, text):
@@ -124,14 +124,14 @@ class IconTab(QWidget):
     def toggle_icon_sort(self):
         self.widget_state['sort_horizontally'] = self.icons_sort_order_checkbox.isChecked()
         if self.icons_sort_order_checkbox.isChecked():
-            self.model.rearrange_data(True)
+            self.full_model.rearrange_data(True)
         else:
-            self.model.rearrange_data(False)
-        self.model.layoutChanged.emit()
+            self.full_model.rearrange_data(False)
+        self.full_model.layoutChanged.emit()
 
     def update_list(self):
         # self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
-        self.model.layoutChanged.emit()
+        self.full_model.layoutChanged.emit()
 
     def reset(self):
         pass
@@ -144,7 +144,7 @@ class IconTab(QWidget):
         indices = self.view.selectionModel().selectedIndexes()
         if indices:
             index = indices[0]
-            icon = self.model.sub_data[index.row()]
+            icon = self.full_model.sub_data[index.row()]
             if icon.parent_nid:
                 icon.nid = icon.parent_nid
             return icon
@@ -152,7 +152,8 @@ class IconTab(QWidget):
 
 class IconListView(QListView):
     def delete(self, index):
-        self.model().delete(index.row())
+        index = self.model().mapToSource(index)
+        self.model().sourceModel().delete(index.row())
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)
@@ -255,6 +256,7 @@ def get_full_editor():
 # Run "python -m app.editor.icon_editor.icon_tab" from main directory
 if __name__ == '__main__':
     import sys
+
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     RESOURCES.load('default.ltproj')

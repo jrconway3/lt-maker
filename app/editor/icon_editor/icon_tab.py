@@ -132,6 +132,9 @@ class IconTab(QWidget):
     def update_list(self):
         # self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
         self.full_model.layoutChanged.emit()
+        self.icon_sheet_list.clear()
+        for i, icon_sheet in enumerate(self._data):
+            self.icon_sheet_list.insertItem(i, icon_sheet.nid)
 
     def reset(self):
         pass
@@ -144,6 +147,7 @@ class IconTab(QWidget):
         indices = self.view.selectionModel().selectedIndexes()
         if indices:
             index = indices[0]
+            index = self.model.mapToSource(index)
             icon = self.full_model.sub_data[index.row()]
             if icon.parent_nid:
                 icon.nid = icon.parent_nid

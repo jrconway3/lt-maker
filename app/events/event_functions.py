@@ -538,16 +538,6 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
     """
     flags = flags or set()
 
-    reload_map = 'reload' in flags
-    if reload_map and self.game.is_displaying_overworld(): # just go back to the level
-        from app.engine import level_cursor, map_view, movement
-        self.game.cursor = level_cursor.LevelCursor(self.game)
-        self.game.movement = movement.MovementManager()
-        self.game.map_view = map_view.MapView()
-        self.game.boundary = self.prev_game_boundary
-        self.game.board = self.prev_board
-        return
-
     tilemap_nid = tilemap
     tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
     if not tilemap_prefab:
@@ -562,6 +552,24 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
         reload_map_nid = load_tilemap
     else:
         reload_map_nid = tilemap_nid
+
+    reload_map = 'reload' in flags
+    if reload_map and self.game.is_displaying_overworld(): # just go back to the level
+        from app.engine import level_cursor, map_view, movement
+        self.game.cursor = level_cursor.LevelCursor(self.game)
+        self.game.movement = movement.MovementManager()
+        self.game.map_view = map_view.MapView()
+        self.game.boundary = self.prev_game_boundary
+        self.game.board = self.prev_board
+        if reload_map and self.game.level_vars.get('_prev_pos_%s' % reload_map_nid):
+            for unit_nid, pos in self.game.level_vars['_prev_pos_%s' % reload_map_nid].items():
+                # Reload unit's position with position offset
+                final_pos = pos[0] + position_offset[0], pos[1] + position_offset[1]
+                if self.game.tilemap.check_bounds(final_pos):
+                    unit = self.game.get_unit(unit_nid)
+                    act = action.ArriveOnMap(unit, final_pos)
+                    act.execute()
+        return
 
     # Reset cursor position
     self.game.cursor.set_pos((0, 0))

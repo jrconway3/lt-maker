@@ -125,23 +125,18 @@ class InfoGraph():
             closest_box = None
             max_distance = 1e6
             # First try to find a close box by moving in the right direction
+            horiz_penalty, vert_penalty = 1, 1
+            if horiz:
+                vert_penalty = 2
+            else:
+                horiz_penalty = 2
             for bb in boxes:
-                if horiz:
-                    a, b = self.current_bb.aabb[1], self.current_bb.aabb[1] + self.current_bb.aabb[3]
-                    bb_center = (bb.aabb[0] + bb.aabb[2]/2, bb.aabb[1] + bb.aabb[3]/2)
-                    if a < bb_center[1] < b:
-                        distance = (center_point[0] - bb_center[0])**2 + (center_point[1] - bb_center[1])**2
-                        if distance < max_distance:
-                            max_distance = distance
-                            closest_box = bb
-                else:
-                    a, b = self.current_bb.aabb[0], self.current_bb.aabb[0] + self.current_bb.aabb[2]
-                    bb_center = (bb.aabb[0] + bb.aabb[2]/2, bb.aabb[1] + bb.aabb[3]/2)
-                    if a < bb_center[0] < b:
-                        distance = (center_point[0] - bb_center[0])**2 + (center_point[1] - bb_center[1])**2
-                        if distance < max_distance:
-                            max_distance = distance
-                            closest_box = bb
+                curr_topleft = self.current_bb.aabb[:2]
+                other_topleft = bb.aabb[:2]
+                distance = horiz_penalty * (curr_topleft[0] - other_topleft[0])**2 + vert_penalty * (curr_topleft[1] - other_topleft[1])**2
+                if distance < max_distance:
+                    max_distance = distance
+                    closest_box = bb
             # Find the closest box from boxes by comparing center points
             if not closest_box:
                 for bb in boxes:

@@ -51,6 +51,7 @@ class ActionLog():
             if act.__class__.__name__ == 'EquipItem':
                 logging.debug("Not going to reverse or remove the EquipItem action")
             else:
+                act.reverse()
                 self.actions.remove(act)
                 self.action_index -= 1
         self.actions.remove(action)

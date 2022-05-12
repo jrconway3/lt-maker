@@ -42,13 +42,22 @@ class ActionLog():
 
     def hard_remove(self, action):
         """
-        Removes action and all actions that happened after it
+        Reverses and removes action and all actions that happened after it
+        (except Equip action)
         """
         logging.debug("Hard Remove Action %d: %s", self.action_index, action.__class__.__name__)
         idx = self.actions.index(action)
-        diff = len(self.actions) - idx
-        self.action_index -= diff
-        self.actions = self.actions[:idx]
+        for act in reversed(self.actions[idx + 1:]):
+            if act.__class__.__name__ == 'EquipItem':
+                logging.debug("Not going to reverse or remove the EquipItem action")
+            else:
+                self.actions.remove(act)
+                self.action_index -= 1
+        self.actions.remove(action)
+        self.action_index -= 1
+        # diff = len(self.actions) - idx
+        # self.action_index -= diff
+        # self.actions = self.actions[:idx]
         logging.debug("New Action Index: %d", self.action_index)
 
     def run_action_backward(self):
@@ -122,6 +131,7 @@ class ActionLog():
                 self.unique_moves.append(('Extra', last_move[1] + 1, last_action_index))
 
         logging.debug("*** Turnwheel Begin ***")
+        # logging.debug(self.actions)
         logging.debug(self.unique_moves)
 
         self.current_move_index = len(self.unique_moves)

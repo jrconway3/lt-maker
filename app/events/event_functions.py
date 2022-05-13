@@ -2060,7 +2060,7 @@ def choice(self: Event, nid: NID, title: str, choices: str, row_width: str = Non
     else: # list of NIDs
         choices = self.text_evaluator._evaluate_all(choices)
         data = choices.split(',')
-        data = [s.strip() for s in data]
+        data = [s.strip().replace('{comma}', ',') for s in data]
 
     row_width = int(row_width)
 
@@ -2165,7 +2165,7 @@ def table(self: Event, nid: NID, table_data: str, title: str = None,
     else: # list of NIDs
         table_data = self.text_evaluator._evaluate_all(table_data)
         data = table_data.split(',')
-        data = [s.strip() for s in data]
+        data = [s.strip().replace('{comma}', ',') for s in data]
 
     align = Alignments.TOP_LEFT
     if alignment:

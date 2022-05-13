@@ -2701,8 +2701,16 @@ def execute(action):
 
 
 def reverse(action):
-    game.action_log.action_depth += 1
-    action.reverse()
-    game.action_log.action_depth -= 1
+    # The only time this function is called is when
+    # reversing a move or canto move
+    logging.debug("Reverse Action %s", action)
+    # game.action_log.action_depth += 1
+    # action.reverse()
+    # game.action_log.action_depth -= 1
     if game.action_log.record and game.action_log.action_depth <= 0:
+        # Handles reversing the action
         game.action_log.hard_remove(action)
+    else: # Right now, this section will never happen
+        game.action_log.action_depth += 1
+        action.reverse()
+        game.action_log.action_depth -= 1

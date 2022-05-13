@@ -47,15 +47,15 @@ class ActionLog():
         """
         logging.debug("Hard Remove Action %d: %s", self.action_index, action.__class__.__name__)
         idx = self.actions.index(action)
-        for act in reversed(self.actions[idx + 1:]):
+        for act in reversed(self.actions[idx:]):
             if act.__class__.__name__ == 'EquipItem':
                 logging.debug("Not going to reverse or remove the EquipItem action")
             else:
                 act.reverse()
                 self.actions.remove(act)
                 self.action_index -= 1
-        self.actions.remove(action)
-        self.action_index -= 1
+        # self.actions.remove(action)
+        # self.action_index -= 1
         # diff = len(self.actions) - idx
         # self.action_index -= diff
         # self.actions = self.actions[:idx]

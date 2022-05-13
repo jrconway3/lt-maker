@@ -66,11 +66,13 @@ class ObjectiveMenuState(State):
         # Get win and loss conditions
         win_con = game.level.objective['win']
         text_parser = TextEvaluator(logging.getLogger(), game)
-        win_lines = text_parser._evaluate_all(win_con).split(',').replace('{comma}', ',')
+        win_lines = text_parser._evaluate_all(win_con).split(',')
+        win_lines = [w.replace('{comma}', ',') for w in win_lines]
 
         loss_con = game.level.objective['loss']
         text_parser = TextEvaluator(logging.getLogger(), game)
-        loss_lines = text_parser._evaluate_all(loss_con).split(',').replace('{comma}', ',')
+        loss_lines = text_parser._evaluate_all(loss_con).split(',')
+        loss_lines = [line.replace('{comma}', ',') for line in loss_lines]
 
         hold_surf = base_surf.create_base_surf(WINWIDTH - 16, 40 + 16*len(win_lines) + 16 * len(loss_lines))
         shimmer = SPRITES.get('menu_shimmer2')

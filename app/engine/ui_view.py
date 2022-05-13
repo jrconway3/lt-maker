@@ -286,7 +286,7 @@ class UIView():
         font = FONT['text']
         obj = game.level.objective['simple']
         text_parser = TextEvaluator(logging.getLogger(), game)
-        text_lines = text_parser._evaluate_all(obj).split(',')
+        text_lines = text_parser._evaluate_all(obj).split(',').replace('{comma}', ',')
         longest_surf_width = text_funcs.get_max_width(font, text_lines)
         bg_surf = base_surf.create_base_surf(longest_surf_width + 16, 16 * len(text_lines) + 8)
 

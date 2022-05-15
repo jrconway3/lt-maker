@@ -7,11 +7,11 @@ class Defaults():
         return None
 
     @staticmethod
-    def buy_price(unit, item) -> int:
+    def buy_price(unit, item) -> float:
         return None
 
     @staticmethod
-    def sell_price(unit, item) -> int:
+    def sell_price(unit, item) -> float:
         return None
 
     @staticmethod

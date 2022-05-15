@@ -1221,9 +1221,11 @@ class RemoveItemFromMultiitem(EventCommand):
     desc = \
         """
 Removes an item from an existing multi-item in the inventory of *GlobalUnitOrConvoy*.
+If *ChildItem* is not specified, all items will be removed form the existing multi-item in the inventory of *GlobalUnitOrConvoy*.
         """
 
-    keywords = ["GlobalUnitOrConvoy", "MultiItem", "ChildItem"]
+    keywords = ["GlobalUnitOrConvoy", "MultiItem"]
+    optional_keywords = ['ChildItem']
     keyword_types = ["GlobalUnitOrConvoy", "Item", "Item"]
 
 class GiveMoney(EventCommand):

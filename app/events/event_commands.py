@@ -2308,6 +2308,7 @@ class RevealOverworldNode(EventCommand):
             'By default, fades in via animation; use the *immediate* flag to skip this anim.')
 
     keywords = ['OverworldNodeNid']
+    keyword_types = ["OverworldLocation"]
     _flags = ["immediate"]
 
 class RevealOverworldRoad(EventCommand):

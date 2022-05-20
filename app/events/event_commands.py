@@ -1562,6 +1562,8 @@ Sets the base conversation specified by *Nid* to unselectable and greyed-out, bu
         """
 
     keywords = ["Nid"]
+    optional_keywords = ["Ignore"]
+    keyword_types = ["Nid", "Bool"]
 
 class RemoveBaseConvo(EventCommand):
     nid = 'remove_base_convo'

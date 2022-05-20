@@ -517,7 +517,7 @@ def lose_game(self: Event, flags=None):
     self.game.level_vars['_lose_game'] = True
 
 def skip_save(self: Event, true_or_false: str, flags=None):
-    state = true_or_false in self.true_vals
+    state = true_or_false.lower() in self.true_vals
     action.do(action.SetLevelVar('_skip_save', state))
 
 def activate_turnwheel(self: Event, force=None, flags=None):
@@ -1669,9 +1669,13 @@ def remove_lore(self: Event, lore, flags=None):
 def add_base_convo(self: Event, nid, flags=None):
     self.game.base_convos[nid] = False
 
-def ignore_base_convo(self: Event, nid, flags=None):
+def ignore_base_convo(self: Event, nid, ignore=None, flags=None):
     if nid in self.game.base_convos:
-        self.game.base_convos[nid] = True
+        if ignore is not None:
+            ignore = ignore.lower() in self.true_vals
+        else:
+            ignore = True
+        self.game.base_convos[nid] = ignore
 
 def remove_base_convo(self: Event, nid, flags=None):
     if nid in self.game.base_convos:

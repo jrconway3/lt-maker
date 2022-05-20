@@ -139,6 +139,7 @@ class Move(Action):
         self.new_movement_left = self.unit.movement_left
         self.unit.movement_left = self.prev_movement_left
         self.unit.has_moved = self.has_moved
+        self.new_pos = self.unit.position
         self.unit.position = self.old_pos
         game.arrive(self.unit)
 

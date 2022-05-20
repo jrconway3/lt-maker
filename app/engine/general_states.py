@@ -560,10 +560,10 @@ class MovementState(State):
         super().update()
         game.movement.update()
         if len(game.movement) <= 0:
+            game.boundary.frozen = False
             if game.movement.surprised:
                 game.movement.surprised = False
             else:
-                game.boundary.frozen = False
                 game.state.back()
             return 'repeat'
 

@@ -289,7 +289,7 @@ class Simple():
         if options is not None:
             bare_options = options
         else:
-            bare_options = [option.get() for option in self.options if option.get()]
+            bare_options = [option.get() for option in self.options if option.get() is not None]
         self.create_options(bare_options)
         self.current_index = utils.clamp(self.current_index, 0, len(self.options) - 1)
 

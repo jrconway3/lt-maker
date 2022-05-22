@@ -2342,13 +2342,14 @@ def ending(self: Event, portrait, title, text, flags=None):
     self.state = 'dialog'
 
 def pop_dialog(self: Event, flags=None):
-    self.text_boxes.pop()
+    if self.text_boxes:
+        self.text_boxes.pop()
 
 def unlock(self: Event, unit, flags=None):
     # This is a macro that just adds new commands to command list
     find_unlock_command = event_commands.FindUnlock({'Unit': unit})
     spend_unlock_command = event_commands.SpendUnlock({'Unit': unit})
-    # Done backwards to presever order upon insertion
+    # Done backwards to preseve order upon insertion
     self.commands.insert(self.command_idx + 1, spend_unlock_command)
     self.commands.insert(self.command_idx + 1, find_unlock_command)
 

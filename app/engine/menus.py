@@ -1739,9 +1739,12 @@ class ChapterSelect(Main):
 
     def set_color(self, idx, color):
         self.colors[idx] = color
+        self.options[idx].set_bg_color(color)
 
     def set_colors(self, colors):
         self.colors = colors
+        for idx, option in enumerate(self.options):
+            option.set_bg_color(self.colors[idx])
 
     def create_options(self, options):
         self.options.clear()

@@ -86,6 +86,7 @@ class TargetsSpecificTiles(ItemComponent):
             value_list = evaluate.evaluate(self.value)
         except Exception as e:
             logging.error("target_specific_tile component failed to evaluate expression %s with error %s", self.value, e)
+            value_list = []
         return utils.flatten_list(value_list)
 
 class EvalSpecialRange(ItemComponent):

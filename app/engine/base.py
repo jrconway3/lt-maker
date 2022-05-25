@@ -1257,13 +1257,11 @@ class BaseSoundRoomState(State):
 
     def start(self):
         self.fluid = FluidScroll()
-        self.bg = game.memory['base_bg']
+        self.bg = game.memory.get('base_bg')
 
-        self.data = RESOURCES.music
-        self.music_names = self.data.keys()
-        self.music_indexes = [i for i in range(0, len(self.music_names))]
+        self.music_names = list(RESOURCES.music.keys())
 
-        self.menu = menus.Table(None, [str(i) for i in self.music_indexes], (6, 4), (64, 48))
+        self.menu = menus.Table(None, [str(i + 1) for i in range(len(self.music_names))], (6, 4), (64, 48))
 
         game.state.change('transition_in')
         return 'repeat'
@@ -1298,7 +1296,7 @@ class BaseSoundRoomState(State):
                 get_sound_thread().fade_in(base_music)
 
         elif event == 'SELECT':
-            current_music_index = int(self.menu.get_current())
+            current_music_index = int(self.menu.get_current()) - 1
             music = self.music_names[current_music_index]
             get_sound_thread().fade_in(music)
 
@@ -1313,7 +1311,12 @@ class BaseSoundRoomState(State):
         if self.bg:
             self.bg.draw(surf)
         self.menu.draw(surf)
-        current_music_index = int(self.menu.get_current())
+        current_music_index = int(self.menu.get_current()) - 1
         music = self.music_names[current_music_index]
-        menus.draw_sound_room_title(surf, (24, 6), music)
+        self.draw_sound_room_title(surf, (24, 6), music)
+        return surf
+
+    def draw_sound_room_title(surf, topleft, music_name):
+        surf.blit(SPRITES.get('chapter_select_green'), (topleft[0], topleft[1]))
+        FONT['chapter-white'].blit_center(music_name, surf, (topleft[0] + 98, topleft[1] + 8))
         return surf

@@ -91,12 +91,6 @@ def draw_unit_bexp(surf, topleft, unit, new_exp, new_bexp, current_bexp, include
         surf.blit(button_right, (topleft[0] + 42, topleft[1] + 55))
         FONT['text'].blit(str(new_bexp), surf, (topleft[0] + 57, topleft[1] + 52))
 
-
-def draw_sound_room_title(surf, topleft, music_name):
-    surf.blit(SPRITES.get('chapter_select_green'), (topleft[0], topleft[1]))
-    FONT['chapter-white'].blit_center(music_name, surf, (topleft[0] + 98, topleft[1] + 8))
-
-
 class Cursor():
     def __init__(self, sprite=None):
         self.counter = 0

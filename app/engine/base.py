@@ -612,7 +612,8 @@ class BaseCodexChildState(State):
         if game.game_vars['_world_map_in_base']:
             options.append('Map')
         options.append('Records')
-        options.append('Sound Room')
+        if DB.constants.value('sound_room_in_codex'):
+            options.append('Sound Room')
         # TODO Achievements?
         # TODO Tactics?
         unlocked_guide = [lore for lore in unlocked_lore if lore.category == 'Guide']

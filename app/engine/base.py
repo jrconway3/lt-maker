@@ -612,6 +612,7 @@ class BaseCodexChildState(State):
         if game.game_vars['_world_map_in_base']:
             options.append('Map')
         options.append('Records')
+        options.append('Sound Room')
         # TODO Achievements?
         # TODO Tactics?
         unlocked_guide = [lore for lore in unlocked_lore if lore.category == 'Guide']
@@ -654,6 +655,9 @@ class BaseCodexChildState(State):
                 game.state.change('transition_to')
             elif selection == 'Guide':
                 game.memory['next_state'] = 'base_guide'
+                game.state.change('transition_to')
+            elif selection == 'Sound Room':
+                game.memory['next_state'] = 'base_sound_room'
                 game.state.change('transition_to')
 
     def update(self):
@@ -1245,4 +1249,71 @@ class BaseBEXPAllocateState(State):
         self.menu.draw(surf)
         menus.draw_unit_bexp(surf, (6, 72), self.unit, self.new_exp, self.new_bexp, self.current_bexp,
                              include_face=True, include_top=True, shimmer=2)
+        return surf
+
+
+class BaseSoundRoomState(State):
+    name = 'base_sound_room'
+
+    def start(self):
+        self.fluid = FluidScroll()
+        self.bg = game.memory['base_bg']
+
+        self.data = RESOURCES.music
+        self.music_names = self.data.keys()
+        self.music_indexes = [i for i in range(0, len(self.music_names))]
+
+        self.menu = menus.Table(None, [str(i) for i in self.music_indexes], (6, 4), (64, 48))
+
+        game.state.change('transition_in')
+        return 'repeat'
+
+    def begin(self):
+        get_sound_thread().fade_clear()
+        
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+
+        if 'DOWN' in directions:
+            if self.menu.move_down(first_push):
+                get_sound_thread().play_sfx('Select 5')
+        elif 'UP' in directions:
+            if self.menu.move_up(first_push):
+                get_sound_thread().play_sfx('Select 5')
+        elif 'LEFT' in directions:
+            if self.menu.move_left(first_push):
+                get_sound_thread().play_sfx('Select 5')
+        elif 'RIGHT' in directions:
+            if self.menu.move_right(first_push):
+                get_sound_thread().play_sfx('Select 5')
+
+        if event == 'BACK':
+            get_sound_thread().play_sfx('Select 4')
+            game.state.change('transition_pop')
+            base_music = game.game_vars.get('_base_music')
+            if base_music:
+                get_sound_thread().fade_in(base_music)
+
+        elif event == 'SELECT':
+            current_music_index = int(self.menu.get_current())
+            music = self.music_names[current_music_index]
+            get_sound_thread().fade_in(music)
+
+        elif event == 'INFO':
+            get_sound_thread().fade_clear()
+
+    def update(self):
+        if self.menu:
+            self.menu.update()
+
+    def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
+        self.menu.draw(surf)
+        current_music_index = int(self.menu.get_current())
+        music = self.music_names[current_music_index]
+        menus.draw_sound_room_title(surf, (24, 6), music)
         return surf

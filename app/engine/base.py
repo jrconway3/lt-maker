@@ -1,3 +1,5 @@
+import math
+import random
 from typing import List, Tuple
 from app.engine.game_counters import ANIMATION_COUNTERS
 from app.constants import WINWIDTH, WINHEIGHT
@@ -15,7 +17,8 @@ from app.engine.state import State
 from app.engine.state import MapState
 from app.engine.game_state import game
 from app.engine import menus, base_surf, background, text_funcs, \
-    image_mods, gui, icons, prep, record_book, unit_sprite, action
+    image_mods, gui, icons, prep, record_book, unit_sprite, action, \
+    engine
 from app.engine.fluid_scroll import FluidScroll
 import app.engine.config as cf
 
@@ -1262,15 +1265,24 @@ class BaseSoundRoomState(State):
 
         self.music_names = list(RESOURCES.music.keys())
 
-        layout = (6, 7)
-        topleft = (8, 48)
+        layout = (6, 4)
+        topleft = (80, 48)
         self.menu = menus.Table(None, [str(i + 1) for i in range(len(self.music_names))], layout, topleft)
+        self.menu.gem = True
+        self.menu.shimmer = 2
+
+        self.playing = False
+        full_sound_room_volume_sprite = SPRITES.get('sound_room_volume')
+        self.green_volume = engine.subsurface(full_sound_room_volume_sprite, (0, 0, 2, 8))
+        self.yellow_volume = engine.subsurface(full_sound_room_volume_sprite, (2, 0, 2, 8))
+        self.red_volume = engine.subsurface(full_sound_room_volume_sprite, (4, 0, 2, 8))
 
         game.state.change('transition_in')
         return 'repeat'
 
     def begin(self):
         get_sound_thread().fade_clear()
+        self.playing = False
         
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -1307,9 +1319,18 @@ class BaseSoundRoomState(State):
             current_music_index = int(self.menu.get_current()) - 1
             music = self.music_names[current_music_index]
             get_sound_thread().fade_in(music)
+            self.playing = True
+
+        elif event == 'START':
+            get_sound_thread().fade_clear()
+            self.playing = False
 
         elif event == 'INFO':
-            get_sound_thread().fade_clear()
+            rand_idx = random.randrange(0, len(self.music_names))
+            self.menu.move_to(rand_idx)
+            music = self.music_names[rand_idx]
+            get_sound_thread().fade_in(music)
+            self.playing = True
 
     def update(self):
         if self.menu:
@@ -1318,6 +1339,9 @@ class BaseSoundRoomState(State):
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
+        surf.blit(SPRITES.get('sound_player'), (8, 56))
+        if self.playing:
+            self.draw_volume(surf)
         self.menu.draw(surf)
         current_music_index = int(self.menu.get_current()) - 1
         music = self.music_names[current_music_index]
@@ -1328,3 +1352,22 @@ class BaseSoundRoomState(State):
         surf.blit(SPRITES.get('chapter_select_green'), (topleft[0], topleft[1]))
         FONT['chapter-white'].blit_center(music_name, surf, (topleft[0] + 98, topleft[1] + 8))
         return surf
+
+    def draw_volume(self, surf):
+        scale = 1500
+        t = engine.get_time() / scale
+        n = 13
+        t2 = t + (20/scale)
+        left_volume = n * math.sin(n * (t + 1)) + n*0.5 * math.sin(n*2 * (t + 2)) + n*0.25 * math.sin(n*4 * (t + 3))
+        right_volume = n * math.sin(n * (t2 + 1)) + n*0.5 * math.sin(n*2 * (t2 + 2)) + n*0.25 * math.sin(n*4 * (t2 + 3))
+        left_volume = int(abs(left_volume)) + 4
+        right_volume = int(abs(right_volume)) + 4
+        for idx, vol in enumerate([left_volume, right_volume]):
+            for i in range(vol):
+                if i > 22:
+                    sprite = self.red_volume
+                elif i > 12:
+                    sprite = self.yellow_volume
+                else:
+                    sprite = self.green_volume
+                surf.blit(sprite, (9 + i * 2, 60 + idx * 8))

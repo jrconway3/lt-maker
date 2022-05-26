@@ -675,11 +675,6 @@ class TitleExtrasState(TitleLoadState):
         if game.state.prev_state == 'event':
             game.state.change('transition_in')
             return 'repeat'
-        # If we came back from the sound room state, fade in base music
-        if game.state.prev_state == 'base_sound_room':
-            get_sound_thread().clear()
-            if DB.constants.value('music_main'):
-                get_sound_thread().fade_in(DB.constants.value('music_main'), fade_in=50)
 
     def take_input(self, event):
         # Only take input in normal state
@@ -721,7 +716,7 @@ class TitleExtrasState(TitleLoadState):
                 game.memory['next_state'] = 'title_all_saves'
                 game.state.change('transition_to')
             elif selection == 'Sound Room':
-                game.memory['next_state'] = 'base_sound_room'
+                game.memory['next_state'] = 'extras_sound_room'
                 game.memory['base_bg'] = self.bg
                 game.state.change('transition_to')
 

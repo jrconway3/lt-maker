@@ -265,6 +265,8 @@ class UnitSprite():
             self.handle_net_position(self.net_position)
         elif self.state == 'selected':
             self.image_state = 'down'
+        elif self.state == 'normal':
+            self.set_transition('normal')
 
     def handle_net_position(self, pos):
         if abs(pos[0]) >= abs(pos[1]):

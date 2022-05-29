@@ -137,8 +137,7 @@ class UnitSprite():
         if isinstance(anim, str):
             anim = RESOURCES.animations.get(anim)
             if anim:
-                anim = Animation(anim, (0, 0), loop=True)
-                anim.position = (-anim.width//2, -anim.height//2)
+                anim = Animation(anim, (-16, -16), loop=True)
         if anim.nid in self.animations.keys():
             return False
         self.animations[anim.nid] = anim

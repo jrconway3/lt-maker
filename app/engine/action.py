@@ -2466,8 +2466,7 @@ class AddAnimToUnit(Action):
 
     def do(self):
         anim = RESOURCES.animations.get(self.nid)
-        anim = animations.Animation(anim, (0, 0), loop=True, speed_adj=self.speed_mult)
-        anim.position = (-anim.width//2, -anim.height//2)
+        anim = animations.Animation(anim, (-16, -16), loop=True, speed_adj=self.speed_mult)
         anim.set_tint(self.blend)
         self.did_add = self.unit.sprite.add_animation(anim)
 
@@ -2490,8 +2489,7 @@ class RemoveAnimFromUnit(Action):
     def reverse(self):
         if self.did_remove:
             anim = RESOURCES.animations.get(self.nid)
-            anim = animations.MapAnimation(anim, (0, 0), loop=True, speed_adj=self.speed_mult)
-            anim.position = (-anim.width//2, -anim.height//2)
+            anim = animations.MapAnimation(anim, (-16, -16), loop=True, speed_adj=self.speed_mult)
             self.unit.sprite.add_animation(anim)
 
 class ChangeObjective(Action):

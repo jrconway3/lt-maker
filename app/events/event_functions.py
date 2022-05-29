@@ -1879,6 +1879,44 @@ def remove_map_anim(self: Event, map_anim, position, flags=None):
     pos = self._parse_pos(position, True)
     action.do(action.RemoveMapAnim(map_anim, pos))
 
+def add_unit_map_anim(self: Event, map_anim: NID, unit: NID, speed=None, flags=None):
+    flags = flags or set()
+
+    if map_anim not in RESOURCES.animations.keys():
+        self.logger.error("Could not find map animation %s" % map_anim)
+        return
+    unit_nid = unit
+    unit = self._get_unit(unit_nid)
+    if not unit:
+        self.logger.error("Could not find unit %s" % unit_nid)
+        return
+    if speed:
+        speed_mult = float(speed)
+    else:
+        speed_mult = 1
+    if 'permanent' in flags:
+        action.do(action.AddAnimToUnit(map_anim, unit, speed_mult, 'blend' in flags))
+    else:
+        anim = RESOURCES.animations.get(map_anim)
+        pos = unit.position
+        if pos:
+            anim = MapAnimation(anim, pos, speed_adj=speed_mult)
+            anim.set_tint('blend' in flags)
+            self.animations.append(anim)
+
+    if 'no_block' in flags or self.do_skip or 'permanent' in flags:
+        pass
+    else:
+        self.wait_time = engine.get_time() + anim.get_wait()
+        self.state = 'waiting'
+
+def remove_unit_map_anim(self: Event, map_anim, unit, flags=None):
+    unit = self._get_unit(unit)
+    if not unit:
+        self.logger.error("Could not find unit %s" % unit)
+        return
+    action.do(action.RemoveAnimFromUnit(map_anim, unit))
+
 def merge_parties(self: Event, party1, party2, flags=None):
     host, guest = party1, party2
     if host not in DB.parties.keys():

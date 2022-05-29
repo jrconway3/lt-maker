@@ -2456,6 +2456,44 @@ class RemoveMapAnim(Action):
             anim = animations.MapAnimation(anim, self.pos, loop=True, speed_adj=self.speed_mult)
             game.tilemap.animations.append(anim)
 
+class AddAnimToUnit(Action):
+    def __init__(self, nid, unit: UnitObject, speed_mult, blend):
+        self.nid = nid
+        self.unit = unit
+        self.speed_mult = speed_mult
+        self.blend = blend
+        self.did_add = False
+
+    def do(self):
+        anim = RESOURCES.animations.get(self.nid)
+        anim = animations.Animation(anim, (0, 0), loop=True, speed_adj=self.speed_mult)
+        anim.position = (-anim.width//2, -anim.height//2)
+        anim.set_tint(self.blend)
+        self.did_add = self.unit.sprite.add_animation(anim)
+
+    def reverse(self):
+        if self.did_add:
+            self.unit.sprite.remove_animation(self.nid)
+
+class RemoveAnimFromUnit(Action):
+    def __init__(self, nid, unit: UnitObject):
+        self.nid = nid
+        self.unit = unit
+        self.speed_mult = 1
+        self.did_remove = False
+
+    def do(self):
+        if self.nid in self.unit.sprite.animations.keys():
+            self.speed_mult = self.unit.sprite.animations[self.nid].speed_adj
+        self.did_remove = self.unit.sprite.remove_animation(self.nid)
+
+    def reverse(self):
+        if self.did_remove:
+            anim = RESOURCES.animations.get(self.nid)
+            anim = animations.MapAnimation(anim, (0, 0), loop=True, speed_adj=self.speed_mult)
+            anim.position = (-anim.width//2, -anim.height//2)
+            self.unit.sprite.add_animation(anim)
+
 class ChangeObjective(Action):
     def __init__(self, key, string):
         self.key = key

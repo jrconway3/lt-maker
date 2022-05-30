@@ -30,7 +30,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QAction, QApplication,
                              QMessageBox, QPlainTextEdit, QPushButton,
                              QSizePolicy, QSpinBox, QSplitter, QStyle,
                              QStyledItemDelegate, QTextEdit, QToolBar,
-                             QVBoxLayout, QWidget, QMenu)
+                             QVBoxLayout, QWidget, QMenu, QHeaderView)
 
 
 @dataclass
@@ -570,6 +570,8 @@ class EventCollection(QWidget):
         self.view.setModel(self.level_filtered_model)
         # self.view.setModel(self.model)
         self.view.setSortingEnabled(True)
+        self.view.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.view.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
         # sort is stored as (col, dir)
         # see leaveEvent
         sort = self.settings.component_controller.get_sort(self.__class__.__name__)

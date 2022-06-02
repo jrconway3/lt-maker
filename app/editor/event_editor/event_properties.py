@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from app.extensions.markdown2 import Markdown
 
 from app.data.database import DB
+from app.events.regions import RegionType
 from app.editor import table_model, timer
 from app.editor.base_database_gui import CollectionModel
 from app.editor.event_editor import event_autocompleter, find_and_replace
@@ -883,7 +884,7 @@ class EventProperties(QWidget):
         for level in DB.levels:
             if level_nid == 'Global' or level_nid == level.nid:
                 for region in level.regions:
-                    if region.region_type == 'event':
+                    if region.region_type == RegionType.EVENT:
                         all_custom_triggers.add(region.sub_nid)
         all_items += list(all_custom_triggers)
         all_items += [trigger.nid for trigger in event_prefab.all_triggers]

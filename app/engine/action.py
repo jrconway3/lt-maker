@@ -6,6 +6,7 @@ import sys
 
 from app.constants import TILEHEIGHT, TILEWIDTH
 from app.data.database import DB
+from app.events.regions import RegionType
 from app.resources.resources import RESOURCES
 from app.engine import (aura_funcs, banner, equations, item_funcs, item_system,
                         particles, skill_system, static_random, unit_funcs, animations)
@@ -491,9 +492,9 @@ class Wait(Action):
         regions_to_remove = []
         for region in game.level.regions:
             if self.unit.position and region.contains(self.unit.position) and region.interrupt_move:
-                if region.region_type == 'event':
+                if region.region_type == RegionType.EVENT:
                     did_trigger = game.events.trigger(region.sub_nid, self.unit, position=self.unit.position, local_args={'region': region})
-                if (region.region_type != 'event' or did_trigger) and region.only_once:
+                if (region.region_type != RegionType.EVENT or did_trigger) and region.only_once:
                     regions_to_remove.append(RemoveRegion(region))
         return regions_to_remove
 
@@ -2269,10 +2270,10 @@ class AddRegion(Action):
             game.level.regions.append(self.region)
             self.did_add = True
             # Remember to add the status from the unit
-            if self.region.region_type == 'status':
+            if self.region.region_type == RegionType.STATUS:
                 for unit in game.units:
                     if unit.position and self.region.contains(unit.position):
-                        add_skill_action =  game.add_region_status(unit, self.region, False)
+                        add_skill_action = game.add_region_status(unit, self.region, False)
                         if add_skill_action:
                             self.subactions.append(add_skill_action)
 
@@ -2306,7 +2307,7 @@ class RemoveRegion(Action):
         self.subactions.clear()
         if self.region.nid in game.level.regions.keys():
             # Remember to remove the status from the unit
-            if self.region.region_type == 'status':
+            if self.region.region_type == RegionType.STATUS:
                 for unit in game.units:
                     if unit.position and self.region.contains(unit.position):
                         self.subactions.append(RemoveSkill(unit, self.region.sub_nid))

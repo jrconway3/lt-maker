@@ -1765,7 +1765,7 @@ def add_region(self: Event, nid, position, size, region_type, string=None, flags
     size = self._parse_pos(size)
     if not size:
         size = (1, 1)
-    region_type = region_type.value.lower()
+    region_type = region_type.lower()
     sub_region_type = string
 
     new_region = regions.Region(nid)

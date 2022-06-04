@@ -31,6 +31,7 @@ if TYPE_CHECKING:
 from app.constants import VERSION
 from app.data.database import DB
 from app.data.difficulty_modes import GrowthOption, PermadeathOption
+from app.events.regions import RegionType
 from app.engine import config as cf
 from app.engine import state_machine, static_random
 from app.resources.resources import RESOURCES
@@ -594,6 +595,10 @@ class GameState():
     def units(self):
         return list(self.unit_registry.values())
 
+    @property
+    def regions(self):
+        return list(self.region_registry.values())
+
     def register_unit(self, unit):
         logging.debug("Registering unit %s as %s", unit, unit.nid)
         self.unit_registry[unit.nid] = unit
@@ -680,7 +685,7 @@ class GameState():
     def get_all_units_in_party(self, party=None) -> List[UnitObject]:
         if party is None:
             party = self.current_party
-        party_units =  [unit for unit in self.units if unit.team == 'player' and unit.persistent and unit.party == party]
+        party_units = [unit for unit in self.units if unit.team == 'player' and unit.persistent and unit.party == party]
         return party_units
 
     def get_units_in_party(self, party=None) -> List[UnitObject]:
@@ -730,7 +735,7 @@ class GameState():
                         aura_funcs.release_aura(unit, skill, self)
             # Regions
             for region in game.level.regions:
-                if region.region_type == 'status' and region.contains(unit.position):
+                if region.region_type == RegionType.STATUS and region.contains(unit.position):
                     skill_uid = self.get_terrain_status(region.nid)
                     skill_obj = self.get_skill(skill_uid)
                     if skill_obj and skill_obj in unit.skills:
@@ -783,7 +788,7 @@ class GameState():
             # Regions
             if not skill_system.ignore_region_status(unit):
                 for region in game.level.regions:
-                    if region.region_type == 'status' and region.contains(unit.position):
+                    if region.region_type == RegionType.STATUS and region.contains(unit.position):
                         self.add_region_status(unit, region, test)
             # Auras
             aura_funcs.pull_auras(unit, self, test)
@@ -844,7 +849,7 @@ class GameState():
                     action.do(act)
                     return act
 
-    def check_for_region(self, position, region_type, sub_nid=None):
+    def check_for_region(self, position, region_type: RegionType, sub_nid=None):
         if not position:
             return None
         for region in game.level.regions:
@@ -856,7 +861,7 @@ class GameState():
     def get_all_formation_spots(self) -> list:
         legal_spots = set()
         for region in game.level.regions:
-            if region.region_type == 'formation':
+            if region.region_type == RegionType.FORMATION:
                 for x in range(region.size[0]):
                     for y in range(region.size[1]):
                         legal_spots.add((region.position[0] + x, region.position[1] + y))
@@ -887,10 +892,12 @@ class GameState():
     def set_bexp(self, amount):
         self.parties[self.current_party].bexp = amount
 
-    def get_random(self, a: int, b: int):
+    # Random funcs
+    def get_random(self, a: int, b: int) -> int:
         """
-        Canonical method for getting a random number from within an event
+        Canonical method for getting a random integer from within an event
         without screwing up the turnwheel
+        Inclusive between a and b
         """
         from app.engine import action
         old = static_random.get_other_random_state()
@@ -898,6 +905,38 @@ class GameState():
         new = static_random.get_other_random_state()
         action.do(action.RecordOtherRandomState(old, new))
         return result
+
+    def get_random_float(self) -> float:
+        """
+        Canonical method for getting a random float (0, 1]
+        without screwing up the turnwheel
+        """
+        from app.engine import action
+        old = static_random.get_other_random_state()
+        result = static_random.r.other_random.random()
+        new = static_random.get_other_random_state()
+        action.do(action.RecordOtherRandomState(old, new))
+        return result
+
+    def get_random_choice(self, choices):
+        """
+        Canonical method for getting a random choice from an iterable
+        without screwing up the turnwheel
+        """
+        from app.engine import action
+        old = static_random.get_other_random_state()
+        idx = static_random.get_other(0, len(choices) - 1)
+        new = static_random.get_other_random_state()
+        action.do(action.RecordOtherRandomState(old, new))
+        return list(choices)[idx]
+
+    def get_random_weighted_choice(self, choices: List, weights: List[float]):
+        from app.engine import action
+        old = static_random.get_other_random_state()
+        idx = static_random.weighted_choice(weights, static_random.r.other_random)
+        new = static_random.get_other_random_state()
+        action.do(action.RecordOtherRandomState(old, new))
+        return choices[idx]
 
 game = GameState()
 

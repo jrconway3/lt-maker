@@ -7,11 +7,11 @@ class Defaults():
         return None
 
     @staticmethod
-    def buy_price(unit, item) -> int:
+    def buy_price(unit, item) -> float:
         return None
 
     @staticmethod
-    def sell_price(unit, item) -> int:
+    def sell_price(unit, item) -> float:
         return None
 
     @staticmethod
@@ -39,8 +39,8 @@ class Defaults():
         return None
 
     @staticmethod
-    def modify_weapon_triangle(unit, item) -> int:
-        return 1
+    def modify_weapon_triangle(unit, item) -> float:
+        return 1.0
 
     @staticmethod
     def effect_animation(unit, item) -> str:
@@ -106,6 +106,8 @@ def get_all_components(unit, item) -> list:
     from app.engine import skill_system
     override_components = skill_system.item_override(unit, item)
     override_component_nids = [c.nid for c in override_components]
+    if not item:
+        return override_components
     all_components = override_components + [c for c in item.components if c.nid not in override_component_nids]
     return all_components
 
@@ -319,16 +321,17 @@ def on_hit(actions, playback, unit, item, target, target_pos, mode, attack_info,
                 component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode, attack_info)
 
     # Default playback
+    import app.engine.combat.playback as pb
     if target and find_hp(actions, target) <= 0:
-        playback.append(('shake', 2))
-        if not any(brush for brush in playback if brush[0] == 'hit_sound'):
-            playback.append(('hit_sound', 'Final Hit'))
+        playback.append(pb.Shake(2))
+        if not any(brush.nid == 'hit_sound' for brush in playback):
+            playback.append(pb.HitSound('Final Hit'))
     else:
-        playback.append(('shake', 1))
-        if not any(brush[0] == 'hit_sound' for brush in playback):
-            playback.append(('hit_sound', 'Attack Hit ' + str(random.randint(1, 5))))
-    if target and not any(brush for brush in playback if brush[0] in ('unit_tint_add', 'unit_tint_sub')):
-        playback.append(('unit_tint_add', target, (255, 255, 255)))
+        playback.append(pb.Shake(1))
+        if not any(brush.nid == 'hit_sound' for brush in playback):
+            playback.append(pb.HitSound('Attack Hit ' + str(random.randint(1, 5))))
+    if target and not any(brush.nid in ('unit_tint_add', 'unit_tint_sub') for brush in playback):
+        playback.append(pb.UnitTintAdd(target, (255, 255, 255)))
 
 def on_crit(actions, playback, unit, item, target, target_pos, mode, attack_info, first_item):
     all_components = get_all_components(unit, item)
@@ -345,16 +348,17 @@ def on_crit(actions, playback, unit, item, target, target_pos, mode, attack_info
                 component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode, attack_info)
 
     # Default playback
-    playback.append(('shake', 3))
+    import app.engine.combat.playback as pb
+    playback.append(pb.Shake(3))
     if target:
-        playback.append(('crit_vibrate', target))
-        if not any(brush for brush in playback if brush[0] == 'hit_sound'):
+        playback.append(pb.CritVibrate(target))
+        if not any(brush.nid == 'hit_sound' for brush in playback):
             if find_hp(actions, target) <= 0:
-                playback.append(('hit_sound', 'Final Hit'))
+                playback.append(pb.HitSound('Final Hit'))
             else:
-                playback.append(('hit_sound', 'Critical Hit ' + str(random.randint(1, 2))))
-        if not any(brush for brush in playback if brush[0] == 'crit_tint'):
-            playback.append(('crit_tint', target, (255, 255, 255)))
+                playback.append(pb.HitSound('Critical Hit ' + str(random.randint(1, 2))))
+        if not any(brush.nid == 'crit_tint' for brush in playback):
+            playback.append(pb.CritTint(target, (255, 255, 255)))
 
 def on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, attack_info, first_item):
     all_components = get_all_components(unit, item)
@@ -371,16 +375,17 @@ def on_glancing_hit(actions, playback, unit, item, target, target_pos, mode, att
                 component.on_hit(actions, playback, unit, item.parent_item, target, target_pos, mode, attack_info)
 
     # Default playback
+    import app.engine.combat.playback as pb
     if target and find_hp(actions, target) <= 0:
-        playback.append(('shake', 2))
-        if not any(brush for brush in playback if brush[0] == 'hit_sound'):
-            playback.append(('hit_sound', 'Final Hit'))
+        playback.append(pb.Shake(2))
+        if not any(brush.nid == 'hit_sound' for brush in playback):
+            playback.append(pb.HitSound('Final Hit'))
     else:
-        playback.append(('shake', 4))
-        if not any(brush[0] == 'hit_sound' for brush in playback):
-            playback.append(('hit_sound', 'No Damage'))
-    if target and not any(brush for brush in playback if brush[0] in ('unit_tint_add', 'unit_tint_sub')):
-        playback.append(('unit_tint_add', target, (255, 255, 255)))
+        playback.append(pb.Shake(4))
+        if not any(brush.nid == 'hit_sound' for brush in playback):
+            playback.append(pb.HitSound('No Damage'))
+    if target and not any(brush.nid in ('unit_tint_add', 'unit_tint_sub') for brush in playback):
+        playback.append(pb.UnitTintAdd(target, (255, 255, 255)))
 
 def on_miss(actions, playback, unit, item, target, target_pos, mode, attack_info, first_item):
     all_components = get_all_components(unit, item)
@@ -393,8 +398,9 @@ def on_miss(actions, playback, unit, item, target, target_pos, mode, attack_info
                 component.on_miss(actions, playback, unit, item.parent_item, target, target_pos, mode, attack_info)
 
     # Default playback
-    playback.append(('hit_sound', 'Attack Miss 2'))
-    playback.append(('hit_anim', 'MapMiss', target))
+    import app.engine.combat.playback as pb
+    playback.append(pb.HitSound('Attack Miss 2'))
+    playback.append(pb.HitAnim('MapMiss', target))
 
 def item_icon_mod(unit, item, target, sprite):
     all_components = get_all_components(unit, item)

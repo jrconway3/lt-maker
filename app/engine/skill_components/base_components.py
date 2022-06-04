@@ -71,7 +71,7 @@ class ChangeBuyPrice(SkillComponent):
 
     expose = Type.Float
 
-    def modify_buy_price(self, unit):
+    def modify_buy_price(self, unit, item):
         return self.value
 
 class ExpMultiplier(SkillComponent):
@@ -112,6 +112,19 @@ class CanUseWeaponType(SkillComponent):
     expose = Type.WeaponType
 
     def wexp_usable_skill(self, unit, item):
+        try: # get type from item and then compare
+            return item_system.weapon_type(unit, item) == self.value
+        except: # sometimes you just want to see if unit can use item TYPE
+            return item == self.value
+
+class CannotUseWeaponType(SkillComponent):
+    nid = 'wexp_unusable_skill'
+    desc = 'Unit cannot use this weapon type, regardless of class'
+    tag = SkillTags.BASE
+
+    expose = Type.WeaponType
+
+    def wexp_unusable_skill(self, unit, item):
         try: # get type from item and then compare
             return item_system.weapon_type(unit, item) == self.value
         except: # sometimes you just want to see if unit can use item TYPE
@@ -161,8 +174,10 @@ class DecreasingSightRangeBonus(SkillComponent):
         return max(0, self.value - self.skill.data['torch_counter'])
 
     def on_upkeep(self, actions, playback, unit):
-        val = self.skill.data['torch_counter'] - 1
+        val = self.skill.data['torch_counter'] + 1
+        action.do(action.UpdateFogOfWar(unit))
         action.do(action.SetObjData(self.skill, 'torch_counter', val))
+        action.do(action.UpdateFogOfWar(unit))
 
 class IgnoreFatigue(SkillComponent):
     nid = 'ignore_fatigue'

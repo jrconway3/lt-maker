@@ -153,6 +153,10 @@ class UnitObject(Prefab):
             growths = prefab.growths
             self.stats = {stat_nid: bases.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
             self.growths = {stat_nid: growths.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
+            if DB.constants.value('unit_stats_as_bonus'): 
+                klass_obj = DB.classes.get(self.klass)
+                self.stats = {stat_nid: self.stats[stat_nid] + klass_obj.bases.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
+                self.growths = {stat_nid: self.growths[stat_nid] + klass_obj.growths.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
             weapon_gain = prefab.wexp_gain
             self.wexp = {weapon_nid: weapon_gain.get(weapon_nid, DB.weapons.default()).wexp_gain for weapon_nid in DB.weapons.keys()}
 
@@ -258,6 +262,10 @@ class UnitObject(Prefab):
         # -- Equipped Items
         self.equipped_weapon = self.get_weapon()
         self.equipped_accessory = self.get_accessory()
+
+        # Reset these so max hp can be changed by skills and items
+        self.current_hp = self.get_max_hp()
+        self.current_mana = self.get_max_mana()
 
         return self
 
@@ -530,6 +538,9 @@ class UnitObject(Prefab):
                     return running_total
             return running_total
 
+    def wait(self):
+        unit_funcs.wait(self)
+
     @property
     def finished(self):
         return self._finished
@@ -591,6 +602,7 @@ class UnitObject(Prefab):
         self.has_dropped = False
         self.has_taken = False
         self.has_given = False
+        self.has_run_ai = False
 
         self.strike_partner = None
 

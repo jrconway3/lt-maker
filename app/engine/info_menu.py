@@ -64,6 +64,8 @@ class BoundingBox():
 info_states = ('personal_data', 'equipment', 'support_skills', 'notes')
 
 class InfoGraph():
+    draw_all_bbs = False
+    
     def __init__(self):
         self.registry = {state: [] for state in info_states}
         self.registry.update({'growths': []})
@@ -125,23 +127,18 @@ class InfoGraph():
             closest_box = None
             max_distance = 1e6
             # First try to find a close box by moving in the right direction
+            horiz_penalty, vert_penalty = 1, 1
+            if horiz:
+                vert_penalty = 10
+            else:
+                horiz_penalty = 10
             for bb in boxes:
-                if horiz:
-                    a, b = self.current_bb.aabb[1], self.current_bb.aabb[1] + self.current_bb.aabb[3]
-                    bb_center = (bb.aabb[0] + bb.aabb[2]/2, bb.aabb[1] + bb.aabb[3]/2)
-                    if a < bb_center[1] < b:
-                        distance = (center_point[0] - bb_center[0])**2 + (center_point[1] - bb_center[1])**2
-                        if distance < max_distance:
-                            max_distance = distance
-                            closest_box = bb
-                else:
-                    a, b = self.current_bb.aabb[0], self.current_bb.aabb[0] + self.current_bb.aabb[2]
-                    bb_center = (bb.aabb[0] + bb.aabb[2]/2, bb.aabb[1] + bb.aabb[3]/2)
-                    if a < bb_center[0] < b:
-                        distance = (center_point[0] - bb_center[0])**2 + (center_point[1] - bb_center[1])**2
-                        if distance < max_distance:
-                            max_distance = distance
-                            closest_box = bb
+                curr_topleft = self.current_bb.aabb[:2]
+                other_topleft = bb.aabb[:2]
+                distance = horiz_penalty * (curr_topleft[0] - other_topleft[0])**2 + vert_penalty * (curr_topleft[1] - other_topleft[1])**2
+                if distance < max_distance:
+                    max_distance = distance
+                    closest_box = bb
             # Find the closest box from boxes by comparing center points
             if not closest_box:
                 for bb in boxes:
@@ -176,10 +173,11 @@ class InfoGraph():
                 self.current_bb = bb
 
     def draw(self, surf):
-        # for bb in self.registry[self.current_state]:
-        #     s = engine.create_surface((bb.aabb[2], bb.aabb[3]), transparent=True)
-        #     engine.fill(s, (10 * bb.idx, 10 * bb.idx, 0, 128))
-        #     surf.blit(s, (bb.aabb[0], bb.aabb[1]))
+        if self.draw_all_bbs:
+            for bb in self.registry[self.current_state]:
+                s = engine.create_surface((bb.aabb[2], bb.aabb[3]), transparent=True)
+                engine.fill(s, (10 * bb.idx, 10 * bb.idx, 0, 128))
+                surf.blit(s, (bb.aabb[0], bb.aabb[1]))
         if self.current_bb:
             # right = self.current_bb.aabb[0] >= int(0.75 * WINWIDTH)
             right = False
@@ -810,7 +808,8 @@ class InfoMenuState(State):
         class_obj = DB.classes.get(self.unit.klass)
         wexp_to_draw: List[Tuple[str, int]] = []
         for weapon, wexp in self.unit.wexp.items():
-            if wexp > 0 and (class_obj.wexp_gain.get(weapon).usable or skill_system.wexp_usable_skill(self.unit, weapon)):
+            if wexp > 0 and (class_obj.wexp_gain.get(weapon).usable or skill_system.wexp_usable_skill(self.unit, weapon)) \
+            and not skill_system.wexp_unusable_skill(self.unit, weapon):
                 wexp_to_draw.append((weapon, wexp))
         width = (WINWIDTH - 102) // 2
         height = 16 * 2 + 4
@@ -945,7 +944,7 @@ class InfoMenuState(State):
 
     def create_skill_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)
-        skills = [skill for skill in self.unit.skills if not (skill.class_skill or skill_system.hidden(skill, self.unit))][:6]
+        skills = [skill for skill in self.unit.skills if not (skill.class_skill or skill_system.hidden(skill, self.unit))]
         # stacked skills appear multiple times, but should be drawn only once
         skill_counter = {}
         unique_skills = list()
@@ -955,7 +954,7 @@ class InfoMenuState(State):
                 unique_skills.append(skill)
             else:
                 skill_counter[skill.nid] += 1
-        for idx, skill in enumerate(unique_skills):
+        for idx, skill in enumerate(unique_skills[:6]):
             left_pos = idx * 24
             icons.draw_skill(surf, skill, (left_pos + 8, 4), compact=False)
             if skill_counter[skill.nid] > 1:

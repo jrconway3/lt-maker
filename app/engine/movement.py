@@ -50,6 +50,12 @@ class MovementManager():
         else:
             return None
 
+    def check_if_occupied_in_future(self, pos):
+        for unit_nid, movement_data in self.moving_units.items():
+            if movement_data.path and movement_data.path[0] == pos:
+                return game.get_unit(unit_nid)
+        return None
+
     @classmethod
     def get_movement_group(cls, unit_to_move):
         movement_group = skill_system.movement_type(unit_to_move)
@@ -97,9 +103,9 @@ class MovementManager():
         # Check if we run into an enemy
         # Returns True if position is OK
         """
-        for region in game.level.regions:
-            if region.contains(unit.position) and region.interrupt_move:
-                return False
+        interrupted = self.check_region_interrupt(unit)
+        if interrupted:
+            return False
         if data.event:
             return True
         elif skill_system.pass_through(unit):
@@ -124,7 +130,6 @@ class MovementManager():
             if unit.team == 'player':
                 self.surprised = True
                 self.update_surprise()
-
 
         del self.moving_units[unit_nid]
         game.arrive(unit)

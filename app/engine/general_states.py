@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, TILEX
 from app.data.database import DB
+from app.events.regions import RegionType
 from app.engine.objects.item import ItemObject
 
 from app.engine.sprites import SPRITES
@@ -76,11 +77,11 @@ class TurnChangeState(MapState):
                 # EVENTS TRIGGER HERE
                 # Update time regions
                 for region in game.level.regions.values()[:]:
-                    if region.region_type == 'time':
-                        region.sub_nid = int(region.sub_nid) - 1
+                    if region.region_type == RegionType.TIME:
+                        action.do(action.DecrementTimeRegion(region))
                         if region.sub_nid <= 0:
                             action.do(action.RemoveRegion(region))
-                            game.events.trigger('time_region_complete', region=region)
+                            game.events.trigger('time_region_complete', local_args={'region': region, 'position': region.position})
                 game.events.trigger('turn_change')
                 if game.turncount - 1 <= 0:  # Beginning of the level
                     for unit in game.get_all_units_in_party():
@@ -256,6 +257,7 @@ class FreeState(MapState):
             game.state.change('turn_change')
             game.state.change('status_endstep')
             game.state.change('ai')
+            game.ui_view.remove_unit_display()
             return 'repeat'
 
     def end(self):
@@ -298,7 +300,7 @@ class OptionMenuState(MapState):
         if not game.level or not game.level.roam:
             options.append('End')
             info_desc.append('End_desc')
-        ignore.append(False)
+            ignore.append(False)
         unlocked_lore = [lore for lore in DB.lore if lore.nid in game.unlocked_lore and lore.category == 'Guide']
         if unlocked_lore:
             options.insert(2, 'Guide')
@@ -505,8 +507,7 @@ class MoveState(MapState):
             game.state.change('free')
             if cur_unit.has_attacked or cur_unit.has_traded:
                 if not cur_unit.finished:
-                    game.events.trigger('unit_wait', cur_unit, position=cur_unit.position, region=game.get_region_under_pos(cur_unit.position))
-                    action.do(action.Wait(cur_unit))
+                    cur_unit.wait()
             else:
                 cur_unit.sprite.change_state('normal')
 
@@ -517,8 +518,7 @@ class MoveState(MapState):
                     game.state.clear()
                     game.state.change('free')
                     if not cur_unit.finished:
-                        game.events.trigger('unit_wait', cur_unit, position=cur_unit.position, region=game.get_region_under_pos(cur_unit.position))
-                        action.do(action.Wait(cur_unit))
+                        cur_unit.wait()
                 else:
                     # Just move in place
                     cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
@@ -562,10 +562,10 @@ class MovementState(State):
         super().update()
         game.movement.update()
         if len(game.movement) <= 0:
+            game.boundary.frozen = False
             if game.movement.surprised:
                 game.movement.surprised = False
             else:
-                game.boundary.frozen = False
                 game.state.back()
             return 'repeat'
 
@@ -580,8 +580,7 @@ class WaitState(MapState):
         game.state.back()
         for unit in game.units:
             if unit.has_attacked and not unit.finished:
-                game.events.trigger('unit_wait', unit, position=unit.position, region=game.get_region_under_pos(unit.position))
-                action.do(action.Wait(unit))
+                unit.wait()
         return 'repeat'
 
 class CantoWaitState(MapState):
@@ -601,8 +600,7 @@ class CantoWaitState(MapState):
         elif event == 'SELECT':
             game.state.clear()
             game.state.change('free')
-            game.events.trigger('unit_wait', self.cur_unit, position=self.cur_unit.position, region=game.get_region_under_pos(self.cur_unit.position))
-            action.do(action.Wait(self.cur_unit))
+            self.cur_unit.wait()
 
         elif event == 'BACK':
             if self.cur_unit.current_move:
@@ -667,9 +665,9 @@ class MenuState(MapState):
         # Handle region event options
         self.valid_regions = []
         for region in game.level.regions:
-            if region.region_type == 'event' and region.contains(self.cur_unit.position):
+            if region.region_type == RegionType.EVENT and region.contains(self.cur_unit.position):
                 try:
-                    truth = evaluate.evaluate(region.condition, self.cur_unit, region=region)
+                    truth = evaluate.evaluate(region.condition, self.cur_unit, local_args={'region': region})
                     logging.debug("Testing region: %s %s", region.condition, truth)
                     # No duplicates
                     if truth and region.sub_nid not in options:
@@ -747,8 +745,7 @@ class MenuState(MapState):
                 else:
                     game.state.clear()
                     game.state.change('free')
-                    game.events.trigger('unit_wait', self.cur_unit, position=self.cur_unit.position, region=game.get_region_under_pos(self.cur_unit.position))
-                    action.do(action.Wait(self.cur_unit))
+                    self.cur_unit.wait()
             else:
                 # Reverse Swap here
                 if not self.cur_unit.lead_unit and self.cur_unit.traveler:
@@ -767,7 +764,7 @@ class MenuState(MapState):
                     game.cursor.construct_arrows(game.cursor.path[::-1])
 
         elif event == 'INFO':
-            pass
+            info_menu.handle_info()
 
         elif event == 'SELECT':
             get_sound_thread().play_sfx('Select 1')
@@ -792,15 +789,14 @@ class MenuState(MapState):
             elif selection == 'Wait':
                 game.state.clear()
                 game.state.change('free')
-                game.events.trigger('unit_wait', self.cur_unit, position=self.cur_unit.position, region=game.get_region_under_pos(self.cur_unit.position))
-                action.do(action.Wait(self.cur_unit))
+                self.cur_unit.wait()
             # A region event
             elif selection in [region.sub_nid for region in self.valid_regions]:
                 for region in self.valid_regions:
                     if region.sub_nid == selection:
-                        did_trigger = game.events.trigger(selection, self.cur_unit, position=self.cur_unit.position, region=region)
+                        did_trigger = game.events.trigger(selection, self.cur_unit, position=self.cur_unit.position, local_args={'region': region})
                         if not did_trigger: # maybe this uses the more dynamic region trigger
-                            did_trigger = game.events.trigger('on_region_interact', self.cur_unit, position=self.cur_unit.position, region=region)
+                            did_trigger = game.events.trigger('on_region_interact', self.cur_unit, position=self.cur_unit.position, local_args={'region': region})
                         if did_trigger:
                             self.menu = None  # Remove menu for a little (Don't worry, it will come back)
                         if did_trigger and region.only_once:
@@ -930,11 +926,14 @@ class SubItemChildState(MapState):
         parent_menu: menus.Choice = game.memory['parent_menu']
         self.parent_item: ItemObject = game.memory['selected_item']
         options = self._get_options(self.parent_item)
+        if not options:
+            options = ["Nothing"]
         self.menu = menus.Choice(self.parent_item, options, parent_menu)
 
     def begin(self):
         game.cursor.hide()
-        self.menu.update_options(self._get_options(self.parent_item))
+        options = self._get_options(self.parent_item)
+        self.menu.update_options(options)
         self.item_desc_panel = ui_view.ItemDescriptionPanel(self.cur_unit, self.menu.get_current())
 
     def _item_desc_update(self):
@@ -971,6 +970,8 @@ class SubItemChildState(MapState):
         elif event == 'SELECT':
             if self.menu.info_flag:
                 pass
+            elif not self.menu.get_current():
+                get_sound_thread().play_sfx('Error')
             else:
                 get_sound_thread().play_sfx('Select 1')
                 game.memory['parent_menu'] = self.menu
@@ -1586,7 +1587,10 @@ class CombatTargetingState(MapState):
         if mouse_position:
             game.cursor.set_pos(mouse_position)
 
-        if event == 'AUX':
+        if event == 'INFO':
+            info_menu.handle_info()
+
+        elif event == 'AUX':
             adj_allies = target_system.get_adj_allies(self.cur_unit)
             adj_allies = [u for u in adj_allies if u.get_weapon() and not item_system.cannot_dual_strike(u, u.get_weapon())]
             if not DB.constants.value('pairup'):
@@ -1927,8 +1931,7 @@ class AIState(MapState):
             if not change and game.ai.is_done():
                 logging.info("Current AI %s is done with turn.", self.cur_unit.nid)
                 if did_something:  # Don't turn grey if didn't actually do anything
-                    game.events.trigger('unit_wait', self.cur_unit, position=self.cur_unit.position, region=game.get_region_under_pos(self.cur_unit.position))
-                    action.do(action.Wait(self.cur_unit))
+                    self.cur_unit.wait()
                 game.ai.reset()
                 self.cur_unit.has_run_ai = True
                 self.cur_unit = None
@@ -2056,7 +2059,11 @@ class ShopState(State):
                 item = self.buy_menu.get_current()
                 if item:
                     value = item_funcs.buy_price(self.unit, item)
-                    if game.get_money() - value >= 0 and self.buy_menu.get_stock() != 0:
+                    new_item = item_funcs.create_item(self.unit, item.nid)
+                    if game.get_money() - value >= 0 and \
+                            self.buy_menu.get_stock() != 0 and \
+                            (not item_funcs.inventory_full(self.unit, new_item) or
+                             game.game_vars.get('_convoy')):
                         action.do(action.HasTraded(self.unit))
                         get_sound_thread().play_sfx('GoldExchange')
                         action.do(action.GainMoney(game.current_party, -value))
@@ -2064,7 +2071,6 @@ class ShopState(State):
                         action.do(action.SetLevelVar(stock_marker, game.level_vars.get(stock_marker, 0) + 1))  # Remember that we bought one of this
                         self.buy_menu.decrement_stock()
                         self.money_counter_disp.start(-value)
-                        new_item = item_funcs.create_item(self.unit, item.nid)
                         game.register_item(new_item)
                         if not item_funcs.inventory_full(self.unit, new_item):
                             action.do(action.GiveItem(self.unit, new_item))
@@ -2072,21 +2078,20 @@ class ShopState(State):
                         elif game.game_vars.get('_convoy'):
                             action.do(action.PutItemInConvoy(new_item))
                             self.current_msg = self.get_dialog('shop_convoy')
-                        else:
-                            self.current_msg = self.get_dialog('shop_max')
-                            self.state = 'choice'
-                            self.menu = self.choice_menu
-                            self.buy_menu.set_takes_input(False)
 
-                        self.update_options()
+                    # How it could fail
                     elif self.buy_menu.get_stock() == 0:
                         # We don't have any more of this in stock
                         get_sound_thread().play_sfx('Select 4')
                         self.current_msg = self.get_dialog('shop_no_stock')
-                    else:
+                    elif game.get_money() - value < 0:
                         # You don't have enough money
                         get_sound_thread().play_sfx('Select 4')
                         self.current_msg = self.get_dialog('shop_no_money')
+                    else:
+                        # No inventory space
+                        get_sound_thread().play_sfx('Select 4')
+                        self.current_msg = self.get_dialog('shop_max')
 
             elif self.state == 'sell':
                 item = self.sell_menu.get_current()
@@ -2184,6 +2189,8 @@ class ShopState(State):
                 FONT['text'].blit_center(text_funcs.translate('Uses'), surf, (128, 64), color='yellow')
                 FONT['text'].blit_center(text_funcs.translate('Stock'), surf, (156, 64), color='yellow')
                 FONT['text'].blit_center(text_funcs.translate('Price'), surf, (186, 64), color='yellow')
+            if self.buy_menu.info_flag:
+                surf = self.buy_menu.vert_draw_info(surf)
         if self.state == 'choice' and self.current_msg.is_done_or_wait():
             self.choice_menu.draw(surf)
 

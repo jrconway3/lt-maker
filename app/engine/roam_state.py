@@ -1,4 +1,5 @@
 from app.utilities import utils
+from app.events.regions import RegionType
 
 from app.engine.sound import get_sound_thread
 from app.engine.state import MapState
@@ -148,7 +149,7 @@ class FreeRoamState(MapState):
                     self.rationalize()
             elif region:
                 get_sound_thread().play_sfx('Select 2')
-                did_trigger = game.events.trigger(region.sub_nid, self.roam_unit, position=self.roam_unit.position, region=region)
+                did_trigger = game.events.trigger(region.sub_nid, self.roam_unit, position=self.roam_unit.position, local_args={'region': region})
                 if did_trigger:
                     self.rationalize()
                 if did_trigger and region.only_once:
@@ -218,7 +219,7 @@ class FreeRoamState(MapState):
         new_pos = (int(round(self.roam_unit.position[0])), int(round(self.roam_unit.position[1])))
         current_occupant = game.board.get_unit(new_pos)
         if current_occupant:
-            new_pos = target_system.get_nearest_open_tile(current_occupant, new_pos)
+            new_pos = target_system.get_nearest_open_tile(self.roam_unit, new_pos)
         self.roam_unit.position = new_pos
         game.arrive(self.roam_unit)
         self.roam_unit.sprite.change_state('normal')
@@ -246,9 +247,9 @@ class FreeRoamState(MapState):
         Returns first region that is close enough to visit
         """
         for region in game.level.regions:
-            if region.region_type == 'event' and region.fuzzy_contains(self.roam_unit.position):
+            if region.region_type == RegionType.EVENT and region.fuzzy_contains(self.roam_unit.position):
                 try:
-                    truth = evaluate.evaluate(region.condition, self.roam_unit, region=region, position=self.roam_unit.position)
+                    truth = evaluate.evaluate(region.condition, self.roam_unit, position=self.roam_unit.position, local_args={'region': region})
                     if truth:
                         return region
                 except Exception as e:

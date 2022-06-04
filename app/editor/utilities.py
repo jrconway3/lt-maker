@@ -76,8 +76,10 @@ def convert_to_correct_colorkey(pixmap: QtGui.QPixmap) -> QtGui.QPixmap:
 
 def find_palette(image: QtGui.QImage) -> list:
     palette = []
-    for x in range(image.width()):
-        for y in range(image.height()):
+    # Goes row by row, finding the palette in that order
+    assert image.width() > 0 and image.height() > 0
+    for y in range(image.height()):
+        for x in range(image.width()):
             current_color = image.pixel(x, y)
             if current_color not in palette:
                 palette.append(current_color)
@@ -85,11 +87,12 @@ def find_palette(image: QtGui.QImage) -> list:
     true_palette = [(c.red(), c.green(), c.blue()) for c in color_palette]
     return true_palette
 
-def find_palette_from_multiple(images: list):
+def find_palette_from_multiple(images: list) -> list:
     palette = []
     for image in images:
-        for x in range(image.width()):
-            for y in range(image.height()):
+        assert image.width() > 0 and image.height() > 0
+        for y in range(image.height()):
+            for x in range(image.width()):
                 current_color = image.pixel(x, y)
                 if current_color not in palette:
                     palette.append(current_color)
@@ -102,14 +105,17 @@ def get_full_palette(image) -> list:
     Returns list of 3-tuples
     """
     palette = []
-    for x in range(image.width()):
-        for y in range(image.height()):
+    for y in range(image.height()):
+        for x in range(image.width()):
             color = image.pixelColor(x, y)
             palette.append((color.red(), color.green(), color.blue()))
     return palette
 
 def get_color_conversion(palette: Palette) -> dict:
-    return {QtGui.qRgb(*color): QtGui.qRgb(0, coord[0], coord[1]) for coord, color in palette.colors.items()}
+    return {QtGui.qRgb(*color[:3]): QtGui.qRgb(0, *coord) for coord, color in palette.colors.items()}
+
+def get_coord_conversion(palette: Palette) -> dict:
+    return {QtGui.qRgb(0, *coord): QtGui.qRgb(*color[:3]) for coord, color in palette.colors.items()}
 
 def convert_gba(image):
     for i in range(image.colorCount()):
@@ -144,6 +150,11 @@ def get_bbox(image):
     # Returns x, y, width, height rect
     return (min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
 
-
 def qtkey_to_string(qtkey: Qt.Key):
     return QtGui.QKeySequence(qtkey).toString()
+
+def human_readable(convert_dict) -> dict:
+    return {
+        (QtGui.QColor(k).red(), QtGui.QColor(k).green(), QtGui.QColor(k).blue()):
+        (QtGui.QColor(v).red(), QtGui.QColor(v).green(), QtGui.QColor(v).blue())
+        for k, v in convert_dict.items()}

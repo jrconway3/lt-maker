@@ -1207,11 +1207,12 @@ Adds a new item to an existing multi-item in the inventory of *GlobalUnitOrConvo
 
 Flags:
 -`no_duplicate` will not add if the item already exists on the multi-item.
+If the *equip* flag is set, the unit will automatically equip the added item.
         """
 
     keywords = ["GlobalUnitOrConvoy", "MultiItem", "ChildItem"]
     keyword_types = ["GlobalUnitOrConvoy", "Item", "Item"]
-    _flags = ['no_duplicate']
+    _flags = ['no_duplicate', 'equip']
 
 class RemoveItemFromMultiitem(EventCommand):
     nid = 'remove_item_from_multiitem'
@@ -1220,9 +1221,11 @@ class RemoveItemFromMultiitem(EventCommand):
     desc = \
         """
 Removes an item from an existing multi-item in the inventory of *GlobalUnitOrConvoy*.
+If *ChildItem* is not specified, all items will be removed form the existing multi-item in the inventory of *GlobalUnitOrConvoy*.
         """
 
-    keywords = ["GlobalUnitOrConvoy", "MultiItem", "ChildItem"]
+    keywords = ["GlobalUnitOrConvoy", "MultiItem"]
+    optional_keywords = ['ChildItem']
     keyword_types = ["GlobalUnitOrConvoy", "Item", "Item"]
 
 class GiveMoney(EventCommand):
@@ -1447,10 +1450,12 @@ class Promote(EventCommand):
     desc = \
         """
 Promotes *GlobalUnit* into a specified class (*Klass*) or, if no *Klass* is given, the unit promotes as normal using its promotion data.
+If the *silent* flag is given, the unit will promote immediately into the specified class (*Klass*).
         """
 
     keywords = ["GlobalUnit"]
     optional_keywords = ["Klass"]
+    _flags = ["silent"]
 
 class ChangeClass(EventCommand):
     nid = 'change_class'
@@ -1557,6 +1562,8 @@ Sets the base conversation specified by *Nid* to unselectable and greyed-out, bu
         """
 
     keywords = ["Nid"]
+    optional_keywords = ["Ignore"]
+    keyword_types = ["Nid", "Bool"]
 
 class RemoveBaseConvo(EventCommand):
     nid = 'remove_base_convo'
@@ -1775,6 +1782,23 @@ class RemoveMapAnim(EventCommand):
     desc = ('Removes a map animation denoted by the nid *MapAnim* at *Position*. Only removes MapAnims that were created using'
             ' the "permanent" flag')
     keywords = ["MapAnim", "Position"]
+
+class AddUnitMapAnim(EventCommand):
+    nid = 'add_unit_map_anim'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+    desc = ('Plays a map animation denoted by the nid *MapAnim* on *Unit*. Optional args: a speed multiplier'
+            ' which increases the length of time it takes to play the animation (larger is slower)')
+    keywords = ["MapAnim", "Unit"]
+    optional_keywords = ["Speed"]
+    keyword_types = ["MapAnim", "Unit", "Float"]
+    _flags = ["no_block", "permanent", "blend"]
+
+class RemoveUnitMapAnim(EventCommand):
+    nid = 'remove_unit_map_anim'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+    desc = ('Removes a map animation denoted by the nid *MapAnim* from *Unit*. Only removes MapAnims that were created using'
+            ' the "permanent" flag')
+    keywords = ["MapAnim", "Unit"]
 
 class MergeParties(EventCommand):
     nid = 'merge_parties'
@@ -2189,12 +2213,14 @@ class TriggerScriptWithArgs(EventCommand):
 
     desc = \
         """
-Executes the event script specified by *Event*. Can feed up to five arguments of your choice to the new event. These args can be accessed via {1}, {2}, {3}, {4}, and {5}.
+Executes the event script specified by *Event*. Can feed any number of arguments of your choice to the new event, as long as they are strings. You will give each of these arguments a name that you can access in the called event using `{eval:name}`, syntax.
+
+For example, if you called `trigger_script_with_args;MyEvent;Color,Purple,Animal,Dog`, when MyEvent runs you could access the color in that event using `{eval:Color}` which would return 'Purple'. Similarly, you could access the animal using `{eval:Animal}`.
         """
 
     keywords = ["Event"]
-    optional_keywords = ["Arg1", "Arg2", "Arg3", "Arg4", "Arg5"]
-    keyword_types = ["Event", "String", "String", "String", "String", "String"]
+    optional_keywords = ["ArgList"]
+    keyword_types = ["Event", "ArgList"]
 
 class LoopUnits(EventCommand):
     nid = 'loop_units'
@@ -2301,6 +2327,7 @@ class RevealOverworldNode(EventCommand):
             'By default, fades in via animation; use the *immediate* flag to skip this anim.')
 
     keywords = ['OverworldNodeNid']
+    keyword_types = ["OverworldLocation"]
     _flags = ["immediate"]
 
 class RevealOverworldRoad(EventCommand):

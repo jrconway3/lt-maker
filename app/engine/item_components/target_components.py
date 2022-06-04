@@ -82,7 +82,11 @@ class TargetsSpecificTiles(ItemComponent):
 
     def resolve_targets(self):
         from app.engine import evaluate
-        value_list = evaluate.evaluate(self.value)
+        try:
+            value_list = evaluate.evaluate(self.value)
+        except Exception as e:
+            logging.error("target_specific_tile component failed to evaluate expression %s with error %s", self.value, e)
+            value_list = []
         return utils.flatten_list(value_list)
 
 class EvalSpecialRange(ItemComponent):
@@ -144,11 +148,11 @@ Restricts which units can be targeted. These properties are accessible in the ev
             target = game.board.get_unit(def_pos)
             unit_pos = unit.position
             target_pos = def_pos
-            if target and evaluate.evaluate(self.value, unit=unit, unit2=target, item=item, position=unit_pos, local_args={'unit_pos': unit_pos, 'target_pos': target_pos}):
+            if target and evaluate.evaluate(self.value, unit, target, unit_pos, local_args={'target_pos': target_pos, 'item': item}):
                 return True
             for s_pos in splash:
                 target = game.board.get_unit(s_pos)
-                if evaluate.evaluate(self.value, unit=unit, unit2=target, item=item, position=unit_pos, local_args={'target_pos': s_pos}):
+                if evaluate.evaluate(self.value, unit, target, unit_pos, local_args={'target_pos': s_pos, 'item': item}):
                     return True
         except Exception as e:
             print("Could not evaluate %s (%s)" % (self.value, e))
@@ -158,7 +162,7 @@ Restricts which units can be targeted. These properties are accessible in the ev
     def simple_target_restrict(self, unit, item):
         from app.engine import evaluate
         try:
-            if evaluate.evaluate(self.value, unit):
+            if evaluate.evaluate(self.value, unit, local_args={'item': item}):
                 return True
         except Exception as e:
             print("Could not evaluate %s (%s)" % (self.value, e))

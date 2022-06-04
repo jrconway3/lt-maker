@@ -58,9 +58,9 @@ def get_nearest_open_tile(unit, position):
             magn = _abs(x)
             n1 = position[0] + x, position[1] + r - magn
             n2 = position[0] + x, position[1] - r + magn
-            if game.movement.check_traversable(unit, n1) and not game.board.get_unit(n1):
+            if game.movement.check_traversable(unit, n1) and not game.board.get_unit(n1) and not game.movement.check_if_occupied_in_future(n1):
                 return n1
-            elif game.movement.check_traversable(unit, n2) and not game.board.get_unit(n2):
+            elif game.movement.check_traversable(unit, n2) and not game.board.get_unit(n2) and not game.movement.check_if_occupied_in_future(n2):
                 return n2
         r += 1
     return None
@@ -321,6 +321,11 @@ def find_strike_partners(attacker, defender, item):
         attacker_partner = None
     if defender.get_weapon() and item_system.cannot_dual_strike(defender, defender.get_weapon()):
         defender_partner = None
+    if DB.constants.value('player_pairup_only'):
+        if attacker.team != 'player':
+            attacker_partner = None
+        if defender.team != 'player':
+            defender_partner = None
 
     if attacker_partner is defender_partner:
         # If both attacker and defender have the same partner something is weird

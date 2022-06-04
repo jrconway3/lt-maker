@@ -64,6 +64,8 @@ class BoundingBox():
 info_states = ('personal_data', 'equipment', 'support_skills', 'notes')
 
 class InfoGraph():
+    draw_all_bbs = False
+    
     def __init__(self):
         self.registry = {state: [] for state in info_states}
         self.registry.update({'growths': []})
@@ -127,9 +129,9 @@ class InfoGraph():
             # First try to find a close box by moving in the right direction
             horiz_penalty, vert_penalty = 1, 1
             if horiz:
-                vert_penalty = 6
+                vert_penalty = 10
             else:
-                horiz_penalty = 6
+                horiz_penalty = 10
             for bb in boxes:
                 curr_topleft = self.current_bb.aabb[:2]
                 other_topleft = bb.aabb[:2]
@@ -171,10 +173,11 @@ class InfoGraph():
                 self.current_bb = bb
 
     def draw(self, surf):
-        # for bb in self.registry[self.current_state]:
-        #     s = engine.create_surface((bb.aabb[2], bb.aabb[3]), transparent=True)
-        #     engine.fill(s, (10 * bb.idx, 10 * bb.idx, 0, 128))
-        #     surf.blit(s, (bb.aabb[0], bb.aabb[1]))
+        if self.draw_all_bbs:
+            for bb in self.registry[self.current_state]:
+                s = engine.create_surface((bb.aabb[2], bb.aabb[3]), transparent=True)
+                engine.fill(s, (10 * bb.idx, 10 * bb.idx, 0, 128))
+                surf.blit(s, (bb.aabb[0], bb.aabb[1]))
         if self.current_bb:
             # right = self.current_bb.aabb[0] >= int(0.75 * WINWIDTH)
             right = False

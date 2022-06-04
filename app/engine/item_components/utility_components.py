@@ -25,17 +25,17 @@ class Heal(ItemComponent):
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
         defender = game.board.get_unit(def_pos)
-        if defender and defender.get_hp() < equations.parser.hitpoints(defender):
+        if defender and defender.get_hp() < defender.get_max_hp():
             return True
         for s_pos in splash:
             s = game.board.get_unit(s_pos)
-            if s and s.get_hp() < equations.parser.hitpoints(s):
+            if s and s.get_hp() < s.get_max_hp():
                 return True
         return False
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         heal = self._get_heal_amount(unit, target)
-        true_heal = min(heal, equations.parser.hitpoints(target) - target.get_hp())
+        true_heal = min(heal, target.get_max_hp() - target.get_hp())
         actions.append(action.ChangeHP(target, heal))
 
         # For animation
@@ -52,7 +52,7 @@ class Heal(ItemComponent):
 
     def ai_priority(self, unit, item, target, move):
         if skill_system.check_ally(unit, target):
-            max_hp = equations.parser.hitpoints(target)
+            max_hp = target.get_max_hp()
             missing_health = max_hp - target.get_hp()
             help_term = utils.clamp(missing_health / float(max_hp), 0, 1)
             heal = self._get_heal_amount(unit, target)

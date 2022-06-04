@@ -78,10 +78,10 @@ class TurnChangeState(MapState):
                 # Update time regions
                 for region in game.level.regions.values()[:]:
                     if region.region_type == RegionType.TIME:
-                        region.sub_nid = int(region.sub_nid) - 1
+                        action.do(action.DecrementTimeRegion(region))
                         if region.sub_nid <= 0:
                             action.do(action.RemoveRegion(region))
-                            game.events.trigger('time_region_complete', local_args={'region': region})
+                            game.events.trigger('time_region_complete', local_args={'region': region, 'position': region.position})
                 game.events.trigger('turn_change')
                 if game.turncount - 1 <= 0:  # Beginning of the level
                     for unit in game.get_all_units_in_party():
@@ -257,6 +257,7 @@ class FreeState(MapState):
             game.state.change('turn_change')
             game.state.change('status_endstep')
             game.state.change('ai')
+            game.ui_view.remove_unit_display()
             return 'repeat'
 
     def end(self):
@@ -763,7 +764,7 @@ class MenuState(MapState):
                     game.cursor.construct_arrows(game.cursor.path[::-1])
 
         elif event == 'INFO':
-            pass
+            info_menu.handle_info()
 
         elif event == 'SELECT':
             get_sound_thread().play_sfx('Select 1')
@@ -1586,7 +1587,10 @@ class CombatTargetingState(MapState):
         if mouse_position:
             game.cursor.set_pos(mouse_position)
 
-        if event == 'AUX':
+        if event == 'INFO':
+            info_menu.handle_info()
+
+        elif event == 'AUX':
             adj_allies = target_system.get_adj_allies(self.cur_unit)
             adj_allies = [u for u in adj_allies if u.get_weapon() and not item_system.cannot_dual_strike(u, u.get_weapon())]
             if not DB.constants.value('pairup'):

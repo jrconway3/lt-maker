@@ -17,7 +17,7 @@ class PartyObject(Prefab):
             self.convoy = [i for i in self.convoy if i]
         else:
             self.convoy = []
-        self.bexp = bexp
+        self.bexp: int = bexp
 
     @property
     def items(self):

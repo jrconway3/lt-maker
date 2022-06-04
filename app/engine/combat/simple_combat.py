@@ -129,7 +129,8 @@ class SimpleCombat():
         game.events.trigger('combat_end', self.attacker, self.defender, self.attacker.position, {'item': self.main_item})
         self.handle_item_gain(all_units)
 
-        self.handle_supports(all_units)
+        pairs = self.handle_supports(all_units)
+        self.handle_support_pairs(pairs)
 
         # handle wexp & skills
         if not self.attacker.is_dying:
@@ -215,13 +216,13 @@ class SimpleCombat():
         skill_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         item_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         if self.attacker.strike_partner:
-            skill_system.end_combat(self.full_playback, self.attacker.strike_partner, self.main_item, self.defender, 'attack')
-            item_system.end_combat(self.full_playback, self.attacker.strike_partner, self.main_item, self.defender, 'attack')
+            skill_system.end_combat(self.full_playback, self.attacker.strike_partner, self.attacker.strike_partner.get_weapon(), self.defender, 'attack')
+            item_system.end_combat(self.full_playback, self.attacker.strike_partner, self.attacker.strike_partner.get_weapon(), self.defender, 'attack')
             self.attacker.strike_partner = None
         if self.defender:
             if self.defender.strike_partner:
-                skill_system.end_combat(self.full_playback, self.defender.strike_partner, self.main_item, self.attacker, 'defense')
-                item_system.end_combat(self.full_playback, self.defender.strike_partner, self.main_item, self.attacker, 'defense')
+                skill_system.end_combat(self.full_playback, self.defender.strike_partner, self.defender.strike_partner.get_weapon(), self.attacker, 'defense')
+                item_system.end_combat(self.full_playback, self.defender.strike_partner, self.defender.strike_partner.get_weapon(), self.attacker, 'defense')
                 self.defender.strike_partner = None
         already_pre = [self.attacker]
         for idx, defender in enumerate(self.defenders):
@@ -546,18 +547,36 @@ class SimpleCombat():
 
         return total_exp
 
-    def handle_supports(self, all_units):
+    def handle_supports(self, all_units) -> list:
+        """
+        Returns a list of pairs of units that gained support together
+        """
+        pairs = []
         if game.game_vars.get('_supports'):
             # End combat supports
             for unit in all_units:
                 if unit is self.attacker and self.defender and self.defender is not self.attacker:
-                    supports.increment_end_combat_supports(self.attacker, self.defender)
+                    pairs += supports.increment_end_combat_supports(self.attacker, self.defender)
                 else:
-                    supports.increment_end_combat_supports(unit)
+                    pairs += supports.increment_end_combat_supports(unit)
             enemies = all_units.copy()
             enemies.remove(self.attacker)
             for unit in enemies:
-                supports.increment_interact_supports(self.attacker, unit)
+                if supports.increment_interact_supports(self.attacker, unit):
+                    pairs.append((self.attacker, unit))
+
+            if DB.constants.value('pairup'):
+                for unit in all_units:
+                    if unit.traveler:
+                        if supports.increment_pairup_supports(unit, unit.traveler):
+                            pairs.append((unit, unit.traveler))
+                    if unit.strike_partner:
+                        if supports.increment_pairup_supports(unit, unit.strike_partner):
+                            pairs.append((unit, unit.strike_partner))
+        return pairs
+
+    def handle_support_pairs(self, pairs):
+        pass
 
     def handle_records(self, full_playback, all_units):
         miss_marks = self.get_from_full_playback('mark_miss')

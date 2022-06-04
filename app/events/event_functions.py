@@ -778,7 +778,7 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
         return
     unit = new_unit
     if not unit.position:
-        self.logger.error("Unit not on map!")
+        self.logger.error("move_unit: Unit not on map!")
         return
 
     if position:
@@ -825,7 +825,7 @@ def remove_unit(self: Event, unit, remove_type=None, flags=None):
         return
     unit = new_unit
     if not unit.position:
-        self.logger.error("Unit not on map!")
+        self.logger.error("remove_unit: Unit not on map!")
         return
     if not remove_type:
         remove_type = 'fade'

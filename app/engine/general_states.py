@@ -587,6 +587,7 @@ class CantoWaitState(MapState):
     name = 'canto_wait'
 
     def start(self):
+        get_sound_thread().play_sfx('Select 2')
         self.cur_unit = game.cursor.cur_unit
         self.menu = menus.Choice(self.cur_unit, ['Wait'])
 

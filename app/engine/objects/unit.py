@@ -424,7 +424,7 @@ class UnitObject(Prefab):
         if self.equipped_weapon:
             _weapon = self.equipped_weapon
         else:
-            for item in self.items:
+            for item in item_funcs.get_all_items(self):
                 weapon = item_system.is_weapon(self, item)
                 available = item_funcs.available(self, item)
                 equippable = item_system.equippable(self, item)
@@ -438,7 +438,7 @@ class UnitObject(Prefab):
         return _weapon
 
     def get_spell(self):
-        for item in self.items:
+        for item in item_funcs.get_all_items(self):
             if item_system.is_spell(self, item) and item_funcs.available(self, item):
                 return item
         return None
@@ -447,7 +447,7 @@ class UnitObject(Prefab):
         if self.equipped_accessory:
             return self.equipped_accessory
         else:
-            for item in self.items:
+            for item in item_funcs.get_all_items(self):
                 if item_system.is_accessory(self, item) and \
                         item_funcs.available(self, item) and \
                         item_system.equippable(self, item):
@@ -645,7 +645,9 @@ class UnitObject(Prefab):
                   'dead': self.dead,
                   'action_state': self.get_action_state(),
                   'ai_group_active': self.ai_group_active,
-                  '_fields': self._fields
+                  '_fields': self._fields,
+                  'equipped_weapon': self.equipped_weapon.uid if self.equipped_weapon else None,
+                  'equipped_accessory': self.equipped_accessory.uid if self.equipped_accessory else None,
                   }
         return s_dict
 
@@ -705,8 +707,17 @@ class UnitObject(Prefab):
         self.lead_unit = False
         self.built_guard = s_dict.get('built_guard', False)
 
-        self.equipped_weapon = self.get_weapon()
-        self.equipped_accessory = self.get_accessory()
+        equipped_weapon_uid = s_dict.get('equipped_weapon')
+        if equipped_weapon_uid is not None:
+            self.equipped_weapon = game.get_item(equipped_weapon_uid)
+        else:
+            self.equipped_weapon = self.get_weapon()
+
+        equipped_accessory_uid = s_dict.get('equipped_accessory')
+        if equipped_accessory_uid is not None:
+            self.equipped_accessory = game.get_item(equipped_accessory_uid)
+        else:
+            self.equipped_accessory = self.get_accessory()
 
         # -- Other properties
         self.dead = s_dict['dead']

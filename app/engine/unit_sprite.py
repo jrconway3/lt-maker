@@ -138,6 +138,8 @@ class UnitSprite():
             anim = RESOURCES.animations.get(anim)
             if anim:
                 anim = Animation(anim, (-16, -16), loop=loop)
+            else:
+                return
         if anim.nid in self.animations.keys():
             return False
         self.animations[anim.nid] = anim

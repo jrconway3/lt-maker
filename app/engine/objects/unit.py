@@ -334,6 +334,9 @@ class UnitObject(Prefab):
         weapon = self.equipped_weapon
         if weapon:
             bonus += item_system.stat_change(self, weapon, stat_nid)
+        accessory = self.equipped_accessory
+        if accessory:
+            bonus += item_system.stat_change(self, accessory, stat_nid)
         return bonus
 
     def stat_contribution(self, stat_nid: str) -> list:
@@ -341,6 +344,9 @@ class UnitObject(Prefab):
         weapon = self.equipped_weapon
         if weapon:
             contribution.update(item_system.stat_change_contribution(self, weapon, stat_nid))
+        accessory = self.equipped_accessory
+        if accessory:
+            contribution.update(item_system.stat_change_contribution(self, accessory, stat_nid))
         return contribution
 
     def get_stat(self, stat_nid: str) -> int:

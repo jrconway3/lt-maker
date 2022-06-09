@@ -1,0 +1,26 @@
+[
+    {
+        "name": "New Event",
+        "trigger": "level_start",
+        "level_nid": "1",
+        "condition": "True",
+        "commands": [
+            [
+                "level_var",
+                [
+                    "_fog_of_war",
+                    "1"
+                ]
+            ],
+            [
+                "level_var",
+                [
+                    "_fog_of_war_radius",
+                    "5"
+                ]
+            ]
+        ],
+        "only_once": false,
+        "priority": 20
+    }
+]

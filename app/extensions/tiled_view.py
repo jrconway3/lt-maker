@@ -58,6 +58,8 @@ class DraggableTileImageView(QGraphicsView):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.left_released.emit()
+        elif event.button() == Qt.MiddleButton:
+            self.drag_origin = None
 
     def zoom_in(self):
         if self.screen_scale < self.max_scale:

@@ -1,12 +1,16 @@
+# distutils: language=c
+# cython: boundscheck=False, wraparound=False, nonecheck=False, cdivision=True
+# cython: optimize.use_switch=True
+
 # Compile with `python line_of_sight_cython_setup.py build_ext --inplace`
 # Can get cython from `pip install cython`
 # Can get Windows compilation tools from Visual Studio 2019 build tools
 # Follow: https://stackoverflow.com/a/50210015
 
-cdef int get_pos(int x, int y, int grid_height):
+cdef inline int get_pos(int x, int y, int grid_height):
     return x * grid_height + y
 
-cdef bint get_line_(int x1, int y1, int x2, int y2, opacity_map, int grid_height):
+cdef inline bint get_line_(int x1, int y1, int x2, int y2, opacity_map, int grid_height):
     if x1 == x2 and y1 == y2:
         return True
     # SuperCover Line Algorithm http://eugen.dedu.free.fr/projects/bresenham/
@@ -72,5 +76,5 @@ cdef bint get_line_(int x1, int y1, int x2, int y2, opacity_map, int grid_height
     assert x == x2 and y == y2
     return True
 
-def get_line(start, end, opacity_map, grid_height):
+cpdef get_line(tuple start, tuple end, opacity_map, int grid_height):
     return get_line_(start[0], start[1], end[0], end[1], opacity_map, grid_height)

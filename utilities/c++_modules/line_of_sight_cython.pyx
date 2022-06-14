@@ -1,5 +1,5 @@
 # distutils: language=c
-# cython: boundscheck=False, wraparound=False, nonecheck=False, cdivision=True
+# cython: binding=False, boundscheck=False, wraparound=False, nonecheck=False, cdivision=True
 # cython: optimize.use_switch=True
 
 # Compile with `python line_of_sight_cython_setup.py build_ext --inplace`

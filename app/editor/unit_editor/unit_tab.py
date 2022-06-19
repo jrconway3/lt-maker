@@ -10,6 +10,7 @@ from app.editor.unit_editor import unit_model, unit_properties, unit_import
 
 class UnitDatabase(DatabaseTab):
     allow_import_from_lt = True
+    allow_import_from_csv = True
     allow_copy_and_paste = True
 
     @classmethod
@@ -32,6 +33,16 @@ class UnitDatabase(DatabaseTab):
             new_units = unit_import.get_from_xml(parent_dir, fn)
             for unit in new_units:
                 self._data.append(unit)
+            self.update_list()
+
+    def import_csv(self):
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
+        fn, ok = QFileDialog.getOpenFileName(self, "Import units from csv", starting_path, "Units csv (*.csv);;All Files(*)")
+        if ok and fn:
+            parent_dir = os.path.split(fn)[0]
+            settings.set_last_open_path(parent_dir)
+            unit_import.update_db_from_csv(DB, fn)
             self.update_list()
 
     def on_tab_close(self):
@@ -60,7 +71,7 @@ def get(unit_nid=None):
         return selected_unit, True
     else:
         return None, False
-                
+
 # Testing
 # Run "python -m app.editor.unit_editor.unit_tab" from main directory
 if __name__ == '__main__':

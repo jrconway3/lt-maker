@@ -280,7 +280,7 @@ class ProjectFileBackend():
     def dump_csv(self, db: Database):
         starting_path = self.current_proj or QDir.currentPath()
         fn = QFileDialog.getExistingDirectory(
-                self.parent, "Open Project Directory", starting_path)
+                self.parent, "Choose dump location", starting_path)
         if fn:
             csv_direc = fn
             for ttype, tstr in dump_as_csv(db):

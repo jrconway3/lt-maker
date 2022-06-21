@@ -141,6 +141,7 @@ class Collection(QWidget):
 
 class DatabaseTab(QWidget):
     allow_import_from_lt = False
+    allow_import_from_csv = False
     allow_copy_and_paste = False
 
     def __init__(self, data, title, right_frame, deletion_criteria, collection_model, parent,

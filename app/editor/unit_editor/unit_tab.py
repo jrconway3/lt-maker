@@ -44,6 +44,7 @@ class UnitDatabase(DatabaseTab):
             settings.set_last_open_path(parent_dir)
             unit_import.update_db_from_csv(DB, fn)
             self.update_list()
+            self.reset()
 
     def on_tab_close(self):
         # Checking to see if any levels need to be changed

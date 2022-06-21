@@ -55,6 +55,7 @@ class ItemDatabase(DatabaseTab):
             settings.set_last_open_path(parent_dir)
             item_import.update_db_from_csv(DB, fn)
             self.update_list()
+            self.reset()
 
 # Testing
 # Run "python -m app.editor.item_editor.item_tab" from main directory

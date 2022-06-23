@@ -1586,6 +1586,7 @@ def promote(self: Event, global_unit, klass=None, flags=None):
                 if class_skill_nid == 'Feat':
                     self.game.memory['current_unit'] = unit
                     self.game.state.change('feat_choice')
+                    self.state = 'paused'
                 else:
                     if class_skill_nid not in [skill.nid for skill in unit.skills]:
                         act = action.AddSkill(unit, class_skill_nid)
@@ -1642,6 +1643,7 @@ def change_class(self: Event, global_unit, klass=None, flags=None):
                 if class_skill_nid == 'Feat':
                     self.game.memory['current_unit'] = unit
                     self.game.state.change('feat_choice')
+                    self.state = 'paused'
                 else:
                     if class_skill_nid not in [skill.nid for skill in unit.skills]:
                         act = action.AddSkill(unit, class_skill_nid)

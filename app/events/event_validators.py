@@ -879,6 +879,8 @@ class Ability(Validator):
         return valids + svalids
 
 class Item(Validator):
+    desc = "accepts an item's nid or uid."
+    
     def validate(self, text, level):
         if text in DB.items.keys():
             return text

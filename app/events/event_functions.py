@@ -1222,6 +1222,20 @@ def remove_item(self: Event, global_unit_or_convoy, item, flags=None):
             self.game.alerts.append(b)
             self.game.state.change('alert')
             self.state = 'paused'
+            
+def set_item_uses(self: Event, global_unit_or_convoy, item, uses, flags=None):
+    flags = flags or set()
+    global_unit = global_unit_or_convoy
+    
+    unit, item = self._get_item_in_inventory(global_unit, item)
+    if not unit or not item:
+        return   
+    uses = int(uses)
+
+    if 'starting_uses' in item.data:
+        action.do(action.SetObjData(item, 'uses', min(item.data['starting_uses'], max(0, uses))))
+    elif 'starting_c_uses' in item.data:
+        action.do(action.SetObjData(item, 'c_uses', min(item.data['starting_c_uses'], max(0, uses))))
 
 def change_item_name(self: Event, global_unit_or_convoy, item, string, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, item)

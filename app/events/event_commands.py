@@ -1183,6 +1183,17 @@ Also, if the item is removed from the convoy, there will not be a banner.
 
     keywords = ["GlobalUnitOrConvoy", "Item"]
     _flags = ['no_banner']
+    
+class SetItemUses(EventCommand):
+    nid = 'set_item_uses'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+    
+    desc = \
+        """
+Sets the uses of an *Item* to *Uses* in the inventory of *GlobalUnitOrConvoy*.
+        """
+        
+    keywords = ["GlobalUnitOrConvoy", "Item", "Uses"]
 
 class ChangeItemName(EventCommand):
     nid = 'change_item_name'

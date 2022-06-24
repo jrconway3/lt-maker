@@ -1186,7 +1186,7 @@ Also, if the item is removed from the convoy, there will not be a banner.
     
 class SetItemUses(EventCommand):
     nid = 'set_item_uses'
-    tag = Tags.MODIFY_UNIT_PROPERTIES
+    tag = Tags.MODIFY_ITEM_PROPERTIES
     
     desc = \
         """

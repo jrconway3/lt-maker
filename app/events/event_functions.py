@@ -1237,11 +1237,11 @@ def set_item_uses(self: Event, global_unit_or_convoy, item, uses, flags=None):
     uses = int(uses)
 
     if 'starting_uses' in item.data:
-        action.do(action.SetObjData(item, 'uses', min(item.data['starting_uses'], max(0, uses))))
+        action.do(action.SetObjData(item, 'uses', utils.clamp(uses, 0, item.data['starting_uses'])))
     elif 'starting_c_uses' in item.data:
-        action.do(action.SetObjData(item, 'c_uses', min(item.data['starting_c_uses'], max(0, uses))))
+        action.do(action.SetObjData(item, 'c_uses', utils.clamp(uses, 0, item.data['starting_c_uses'])))
     
-    self.logger.error("Item %s does not have uses!" % item.nid)
+    self.logger.error("set_item_uses: Item %s does not have uses!" % item.nid)
 
 def change_item_name(self: Event, global_unit_or_convoy, item, string, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, item)

@@ -1225,23 +1225,28 @@ def remove_item(self: Event, global_unit_or_convoy, item, flags=None):
             self.game.alerts.append(b)
             self.game.state.change('alert')
             self.state = 'paused'
-            
+
 def set_item_uses(self: Event, global_unit_or_convoy, item, uses, flags=None):
     flags = flags or set()
     global_unit = global_unit_or_convoy
-    
+
     unit, item = self._get_item_in_inventory(global_unit, item)
     if not unit or not item:
         self.logger.error("set_item_uses: Either unit or item was invalid, see above")
-        return   
+        return
     uses = int(uses)
+    if 'additive' in flags:
+        if 'starting_uses' in item.data:
+            uses = item.data['uses'] + uses
+        elif 'starting_c_uses' in item.data:
+            uses = item.data['c_uses'] + uses
 
     if 'starting_uses' in item.data:
         action.do(action.SetObjData(item, 'uses', utils.clamp(uses, 0, item.data['starting_uses'])))
     elif 'starting_c_uses' in item.data:
         action.do(action.SetObjData(item, 'c_uses', utils.clamp(uses, 0, item.data['starting_c_uses'])))
-    
-    self.logger.error("set_item_uses: Item %s does not have uses!" % item.nid)
+    else:
+        self.logger.error("set_item_uses: Item %s does not have uses!" % item.nid)
 
 def change_item_name(self: Event, global_unit_or_convoy, item, string, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, item)

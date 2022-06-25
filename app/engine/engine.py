@@ -16,7 +16,7 @@ constants = {'current_time': 0,
              'standalone': True,
              'running': True}
 
-fast_quit = 0
+fast_quit = False
 
 # === engine functions ===
 def init():

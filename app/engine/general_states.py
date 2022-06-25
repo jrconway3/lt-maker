@@ -444,7 +444,7 @@ class OptionChildState(State):
                     game.state.back()
                     suspend()
                 elif self.menu.owner == "Quit Game":
-                    engine.fast_quit = 1
+                    engine.fast_quit = True
                 elif self.menu.owner == 'Save':
                     game.state.back()
                     battle_save()

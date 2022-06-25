@@ -182,42 +182,9 @@ class SimpleOption(ConfigOption):
             width = font.width(text)
             running_width += width
 
-class ScreenSizeOption(SimpleOption):
-    def __init__(self, idx, name, values, icon):
-        super().__init__(idx, name, values, icon)
-        self.counter = 0
-        self.anim = [0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
-        # Adds a fullscreen option if we don't already have it
-        if cf.SETTINGS['fullscreen'] == 0:
-            self.values.append(self.values[-1] + 1)
-
+class ScreenSizeOption(SliderOption):
     def get_value(self):
         return int(cf.SETTINGS[self.name])
-
-    # A slider bar identical to SliderOption
-    def draw(self, surf, x, y, active=False):
-        self.counter = (self.counter + 1) % len(self.anim)
-        surf.blit(self.icon, (x + 16, y))
-        name_font = 'text'
-        FONT[name_font].blit(self.display_name, surf, (x + 32, y))
-        slider_bar = SPRITES.get('health_bar_bg')
-        if not slider_bar:
-            return
-        surf.blit(slider_bar, (x + 112, y + 4))
-        slider_cursor = SPRITES.get('waiting_cursor')
-        if not slider_cursor:
-            return
-        value = cf.SETTINGS[self.name]
-        if value in self.values:
-            slider_fraction = self.values.index(value) / float(len(self.values) - 1)
-        else:
-            slider_fraction = value - self.values[0] / float(self.values[-1] - self.values[0])
-        offset = slider_fraction * (slider_bar.get_width() - 6)
-        if active:
-            slider_bop = self.anim[self.counter] // 2 - 1
-        else:
-            slider_bop = 0
-        surf.blit(slider_cursor, (x + 112 + offset, y + 4 + slider_bop))
 
     def update_screen_size(self):
         n = self.get_value()

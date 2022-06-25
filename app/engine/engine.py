@@ -16,6 +16,8 @@ constants = {'current_time': 0,
              'standalone': True,
              'running': True}
 
+fast_quit = 0
+
 # === engine functions ===
 def init():
     pygame.mixer.pre_init(44100, -16, 2, 128 * 2**cf.SETTINGS['sound_buffer_size'])
@@ -208,6 +210,9 @@ events = []
 def get_events():
     global events
     events.clear()
+    if fast_quit:
+        terminate()
+        return pygame.QUIT
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             terminate()

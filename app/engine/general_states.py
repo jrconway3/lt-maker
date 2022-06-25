@@ -698,8 +698,11 @@ class MenuState(MapState):
             if target_system.get_valid_targets(self.cur_unit, ability) and item_system.available(self.cur_unit, ability):
                 options.insert(start_index, ability_name)
 
-        # Handle combat art options
-        self.combat_arts = skill_system.get_combat_arts(self.cur_unit)
+        # Handle combat art options (only available if you haven't attacked)
+        if not self.cur_unit.has_attacked:
+            self.combat_arts = skill_system.get_combat_arts(self.cur_unit)
+        else:
+            self.combat_arts = []
         if 'Attack' in options:
             start_index = options.index('Attack') + 1
         else:
@@ -1961,12 +1964,12 @@ class ShopState(State):
         self.shop_id = game.memory['shop_id']
         self.unit = game.memory['current_unit']
         self.flavor = game.memory['shop_flavor']
-        if self.flavor == 'vendor':
-            self.portrait = SPRITES.get('vendor_portrait')
-            self.opening_message = 'vendor_opener'
-            self.buy_message = 'vendor_buy'
-            self.back_message = 'vendor_back'
-            self.leave_message = 'vendor_leave'
+        if self.flavor:
+            self.portrait = SPRITES.get('%s_portrait' % self.flavor)
+            self.opening_message = '%s_opener' % self.flavor
+            self.buy_message = '%s_buy' % self.flavor
+            self.back_message = '%s_back' % self.flavor
+            self.leave_message = '%s_leave' % self.flavor
         else:
             self.portrait = SPRITES.get('armory_portrait')
             self.opening_message = 'armory_opener'

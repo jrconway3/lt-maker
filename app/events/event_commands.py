@@ -687,6 +687,15 @@ class LoseGame(EventCommand):
 Ends the current chapter in defeat. The game over screen will be displayed.
         """
 
+class MainMenu(EventCommand):
+    nid = 'main_menu'
+    tag = Tags.LEVEL_VARS
+
+    desc = \
+        """
+Returns the player to the main menu
+        """
+
 class SkipSave(EventCommand):
     nid = 'skip_save'
     tag = Tags.LEVEL_VARS
@@ -1174,6 +1183,22 @@ Also, if the item is removed from the convoy, there will not be a banner.
 
     keywords = ["GlobalUnitOrConvoy", "Item"]
     _flags = ['no_banner']
+
+class SetItemUses(EventCommand):
+    nid = 'set_item_uses'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Sets the uses of an *Item* to *Uses* in the inventory of *GlobalUnitOrConvoy*.
+
+*  the *additive* flag adds the given uses instead
+        """
+
+    keywords = ["GlobalUnitOrConvoy", "Item", "Uses"]
+    keyword_types = ["GlobalUnitOrConvoy", "Item", "Integer"]
+
+    _flags = ["additive"]
 
 class ChangeItemName(EventCommand):
     nid = 'change_item_name'
@@ -2296,7 +2321,8 @@ class OverworldCinematic(EventCommand):
     tag = Tags.OVERWORLD
     desc = 'Sets the background to the overworld, allowing us to create cutscenes set in the overworld'
 
-    optional_keywords = ['OverworldNid']
+    optional_keywords = ['OverworldNID']
+    keyword_types = ['OverworldNID']
 
 class SetOverworldPosition(EventCommand):
     nid = 'set_overworld_position'

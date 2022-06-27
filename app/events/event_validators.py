@@ -203,6 +203,7 @@ class UnitField(Validator):
         for unit in DB.units:
             all_keys.update(set([key for (key, _) in unit.fields]))
         return [(None, key) for key in all_keys]
+
 class GeneralVar(Validator):
     desc = "can be any nid"
 
@@ -584,6 +585,17 @@ class ShopFlavor(Validator):
 class TableEntryType(OptionValidator):
     valid = ['type_skill', 'type_base_item', 'type_game_item', 'type_unit', 'type_class', 'type_icon', 'type_portrait', 'type_chibi']
 
+class Chapter(Validator):
+    desc = "accepts a chapter's nid."
+
+    def validate(self, text, level):
+        if text in DB.levels.keys():
+            return text
+        return None
+
+    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+        valids = [(None, n) for n in DB.levels.keys()]
+        return valids
 
 class Position(Validator):
     desc = "accepts a valid `(x, y)` position. You use a unit's nid to use their position. Alternatively, you can use one of (`{unit}`, `{unit1}`, `{unit2}`, `{position}`)"

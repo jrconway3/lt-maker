@@ -510,6 +510,12 @@ def inc_level_var(self: Event, nid, expression=None, flags=None):
     else:
         action.do(action.SetLevelVar(nid, self.game.level_vars.get(nid, 0) + 1))
 
+def set_next_chapter(self: Event, chapter, flags=None):
+    if chapter not in DB.levels.keys():
+        self.logger.error("set_next_chapter: %s is not a valid chapter nid" % chapter)
+        return
+    action.do(action.SetGameVar("_goto_level", chapter))
+
 def win_game(self: Event, flags=None):
     self.game.level_vars['_win_game'] = True
 

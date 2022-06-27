@@ -2058,6 +2058,11 @@ def prep(self: Event, pick_units_enabled: str = None, music: str = None, other_o
             self.logger.error("prep: too many events in option event list: ", other_options_on_select)
             return
         action.do(action.SetGameVar('_prep_additional_options', options_list))
+    else:
+        action.do(action.SetGameVar('_prep_options_enabled', []))
+        action.do(action.SetGameVar('_prep_options_events', []))
+        action.do(action.SetGameVar('_prep_additional_options', []))
+
     self.game.state.change('prep_main')
     self.state = 'paused'  # So that the message will leave the update loop
 
@@ -2095,6 +2100,11 @@ def base(self: Event, background: str, music: str = None, other_options: str = N
             self.logger.error("base: too many events in option event list: ", other_options_on_select)
             return
         action.do(action.SetGameVar('_base_additional_options', options_list))
+    else:
+        action.do(action.SetGameVar('_base_options_enabled', []))
+        action.do(action.SetGameVar('_base_options_events', []))
+        action.do(action.SetGameVar('_base_additional_options', []))
+
 
     if 'show_map' in flags:
         action.do(action.SetGameVar('_base_transparent', True))

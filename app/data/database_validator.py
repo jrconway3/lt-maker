@@ -4,7 +4,7 @@ import logging
 from app.data.database import Database
 from app.utilities.typing import NID
 import re
-from typing import List, Set
+from typing import Callable, List, Set
 
 @dataclass
 class ValidationError():
@@ -63,35 +63,40 @@ class DatabaseValidatorEngine():
             logging.error("validation failed: %s", error)
         return errors
 
+    def fill_and_trim(self, data_dict: dict, expected_keys: set, real_keys: set, default_value_factory: Callable):
+        missing_keys = expected_keys - real_keys
+        extraneous_keys = real_keys - expected_keys
+        for key in missing_keys:
+            data_dict[key] = default_value_factory()
+        for key in extraneous_keys:
+            del data_dict[key]
+
     def repair_units(self):
         all_weapon_types = set(self.db.weapons.keys())
         all_stats = set(self.db.stats.keys())
         for unit in self.db.units:
             # make sure each unit has an entry for every weapon type, and no extraneous ones
-            uweapons = set(unit.wexp_gain.keys())
-            missing_weapon_types = all_weapon_types - uweapons
-            extraneous_weapon_types = uweapons - all_weapon_types
-            for wtype in missing_weapon_types:
-                unit.wexp_gain[wtype] = WexpGain(False, 0)
-            for wtype in extraneous_weapon_types:
-                del unit.wexp_gain[wtype]
+            self.fill_and_trim(unit.wexp_gain, all_weapon_types, set(unit.wexp_gain.keys()), lambda: WexpGain(False, 0))
             # make sure each unit has an entry for every stat, and no extraneous ones
-            ubstats = set(unit.bases.keys())
-            missing_stats = all_stats - ubstats
-            extraneous_stats = ubstats - all_stats
-            for stype in missing_stats:
-                unit.bases[stype] = 0
-            for stype in extraneous_stats:
-                del unit.bases[stype]
-            ugstats = set(unit.growths.keys())
-            missing_stats = all_stats - ugstats
-            extraneous_stats = ugstats - all_stats
-            for stype in missing_stats:
-                unit.growths[stype] = 0
-            for stype in extraneous_stats:
-                del unit.growths[stype]
+            self.fill_and_trim(unit.bases, all_stats, set(unit.bases.keys()), lambda: 0)
+            self.fill_and_trim(unit.growths, all_stats, set(unit.growths.keys()), lambda: 0)
+
+    def repair_klasses(self):
+        all_weapon_types = set(self.db.weapons.keys())
+        all_stats = set(self.db.stats.keys())
+        for klass in self.db.classes:
+            # make sure each klass has an entry for every weapon type, and no extraneous ones
+            self.fill_and_trim(klass.wexp_gain, all_weapon_types, set(klass.wexp_gain.keys()), lambda: WexpGain(False, 0))
+            # make sure each klass has an entry for every stat in all dicts
+            self.fill_and_trim(klass.bases, all_stats, set(klass.bases.keys()), lambda: 0)
+            self.fill_and_trim(klass.growths, all_stats, set(klass.growths.keys()), lambda: 0)
+            self.fill_and_trim(klass.growth_bonus, all_stats, set(klass.growth_bonus.keys()), lambda: 0)
+            self.fill_and_trim(klass.promotion, all_stats, set(klass.promotion.keys()), lambda: 0)
+            self.fill_and_trim(klass.max_stats, all_stats, set(klass.max_stats.keys()), lambda: 0)
+
 
     def repair(self):
         """Only obvious repairs should be done here.
         """
         self.repair_units()
+        self.repair_klasses()

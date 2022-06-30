@@ -4,7 +4,7 @@ import logging
 from app.data.database import Database
 from app.utilities.typing import NID
 import re
-from typing import Callable, List, Set
+from typing import Callable, Dict, List, Set
 
 @dataclass
 class ValidationError():
@@ -94,9 +94,36 @@ class DatabaseValidatorEngine():
             self.fill_and_trim(klass.promotion, all_stats, set(klass.promotion.keys()), lambda: 0)
             self.fill_and_trim(klass.max_stats, all_stats, set(klass.max_stats.keys()), lambda: 0)
 
+    def repair_levels(self):
+        for level in self.db.levels:
+            all_level_units = set(level.units.keys())
+            travelers: Dict[NID, NID] = {}
+            for unit in level.units:
+                # fix phantom travelers
+                unit_traveler = unit.starting_traveler
+                if unit_traveler and unit_traveler == unit.nid:
+                    logging.error("Unit %s is its own traveler", unit.nid)
+                    unit.starting_traveler = None
+                    continue
+                if unit_traveler and unit_traveler in travelers:
+                    logging.error("Found traveler %s originally on unit %s, found duplicate on unit %s in level %s",
+                                  unit_traveler, travelers[unit_traveler], unit.nid, level.nid)
+                    unit.starting_traveler = None
+                    continue
+                if unit_traveler and unit_traveler not in all_level_units:
+                    logging.error("Found traveler %s on unit %s in level %s that does not exist",
+                                  unit_traveler, unit.nid, level.nid)
+                    unit.starting_traveler = None
+                    continue
+                if unit_traveler and level.units.get(unit_traveler) and level.units.get(unit_traveler).starting_position:
+                    logging.error("Traveler %s on unit %s is already on map", unit_traveler, unit.nid)
+                    unit.starting_traveler = None
+                    continue
+                travelers[unit_traveler] = unit.nid
 
     def repair(self):
         """Only obvious repairs should be done here.
         """
         self.repair_units()
         self.repair_klasses()
+        self.repair_levels()

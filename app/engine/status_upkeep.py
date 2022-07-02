@@ -30,6 +30,23 @@ class StatusUpkeepState(MapState):
 
         self.actions, self.playback = [], []
 
+    def add_traveler(self, unit):
+        if unit.traveler:
+            self.units.append(game.get_unit(unit.traveler))
+
+    def is_traveler(self, cur_unit):
+        if DB.constants.value('initiative'):
+            all_units = [game.initiative.get_current_unit()]
+        else:
+            all_units = [unit for unit in game.units if
+                          unit.position and
+                          unit.team == game.phase.get_current() and
+                          not unit.dead]
+        for u in all_units:
+            if u.traveler == cur_unit.nid:
+                return True
+        return False
+
     def update(self):
         super().update()
 
@@ -62,7 +79,7 @@ class StatusUpkeepState(MapState):
                     self.health_bar = health_bar.MapCombatInfo('splash', self.cur_unit, None, None, None)
                     self.state = 'start'
                     self.last_update = engine.get_time()
-                elif self.actions and self.cur_unit.position:
+                elif self.actions and (self.cur_unit.position or self.is_traveler(self.cur_unit)):
                     for act in self.actions:
                         action.do(act)
                     self.check_death()

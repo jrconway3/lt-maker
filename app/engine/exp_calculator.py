@@ -8,11 +8,11 @@ class ExpCalcType(Enum):
 
 class ExpCalculator():
   @classmethod
-  def classical_curve_calculator(cls, level_diff, exp_offset, exp_curve, exp_magnitude, min_exp):
+  def classical_curve_calculator(cls, level_diff, exp_offset, exp_curve, exp_magnitude):
     adjusted_level_diff = level_diff + exp_offset
     exp_gained = math.exp(adjusted_level_diff * exp_curve)
     total_exp_gained = exp_magnitude * exp_gained
-    return max(min_exp, total_exp_gained)
+    return total_exp_gained
 
   @classmethod
   def gompertz_curve_calculator(cls, level_diff, max_exp, min_exp, slope, zero_exp):

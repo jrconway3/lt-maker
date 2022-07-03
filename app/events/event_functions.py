@@ -516,6 +516,24 @@ def set_next_chapter(self: Event, chapter, flags=None):
         return
     action.do(action.SetGameVar("_goto_level", chapter))
 
+def set_fog_of_war(self: Event, fog_of_war_type, radius, ai_radius=None, other_radius=None, flags=None):
+    fowt = fog_of_war_type.lower()
+    if fowt == 'gba':
+        fowt = 1
+    elif fowt == 'thracia':
+        fowt = 2
+    else:
+        fowt = 0
+    action.do(action.SetLevelVar('_fog_of_war', fowt))
+    radius = int(radius)
+    action.do(action.SetLevelVar('_fog_of_war_radius', radius))
+    if ai_radius is not None:
+        ai_radius = int(ai_radius)
+        action.do(action.SetLevelVar('_ai_fog_of_war_radius', ai_radius))
+    if other_radius is not None:
+        other_radius = int(ai_radius)
+        action.do(action.SetLevelVar('_ai_fog_of_war_radius', other_radius))
+
 def win_game(self: Event, flags=None):
     self.game.level_vars['_win_game'] = True
 

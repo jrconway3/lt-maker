@@ -42,8 +42,7 @@ class LevelExp(ItemComponent):
                 return ExpCalculator.classical_curve_calculator(level_diff,
                                                                 DB.constants.value('exp_offset'),
                                                                 DB.constants.value('exp_curve'),
-                                                                DB.constants.value('exp_magnitude'),
-                                                                DB.constants.value('min_exp'))
+                                                                DB.constants.value('exp_magnitude'))
             elif DB.constants.value('exp_formula') == ExpCalcType.GOMPERTZ.value:
                 return ExpCalculator.gompertz_curve_calculator(level_diff,
                                                                DB.constants.value('gexp_max'),

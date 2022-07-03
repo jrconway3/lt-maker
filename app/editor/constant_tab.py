@@ -85,10 +85,10 @@ class MainExpEquation(QWidget):
     def toggle_exp_frame(self):
         self.standard_exp_frame.hide()
         self.gompertz_exp_frame.hide()
-        if self._data.get('exp_formula').value == ExpCalcType.STANDARD.value:
-            self.standard_exp_frame.show()
-        else:
+        if self._data.get('exp_formula').value == ExpCalcType.GOMPERTZ.value:
             self.gompertz_exp_frame.show()
+        else:
+            self.standard_exp_frame.show()
 
     def update_exp_type(self):
         exp_type = self.exp_calc_type_selector.edit.currentText()
@@ -261,8 +261,7 @@ class DisplayExpResults(QWidget):
             exp_gained = ExpCalculator.classical_curve_calculator(level_diff,
                                                                   self._data.get('exp_offset').value,
                                                                   self._data.get('exp_curve').value,
-                                                                  self._data.get('exp_magnitude').value,
-                                                                  self._data.get('min_exp').value)
+                                                                  self._data.get('exp_magnitude').value)
         elif self._data.get('exp_formula').value == ExpCalcType.GOMPERTZ.value:
             exp_gained = ExpCalculator.gompertz_curve_calculator(level_diff,
                                                                  self._data.get('gexp_max').value,

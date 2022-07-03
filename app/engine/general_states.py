@@ -24,6 +24,22 @@ from app.engine.fluid_scroll import FluidScroll
 
 import logging
 
+class LoadingState(State):
+    name = 'start_level_asset_loading'
+    transparent = False
+
+    def begin(self):
+        self.start_time = engine.get_time()
+        self.duration = 0
+
+    def update(self):
+        if engine.get_time() - self.start_time > self.duration:
+            game.memory['next_state'] = 'turn_change'
+            game.state.change('transition_to')
+
+    def end(self):
+        pass
+
 class TurnChangeState(MapState):
     name = 'turn_change'
 

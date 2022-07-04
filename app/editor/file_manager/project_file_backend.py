@@ -109,6 +109,8 @@ class ProjectFileBackend():
             #     # autosave doesn't have metadata, autosave doesn't exist, etc.
             #     # just copy the previous save
             #     pass
+        else:
+            self.tmp_proj = self.current_proj
         self.save_progress.setLabelText("Saving project to %s" % self.current_proj)
         self.save_progress.setValue(10)
 

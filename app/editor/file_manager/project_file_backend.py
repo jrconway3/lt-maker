@@ -86,15 +86,14 @@ class ProjectFileBackend():
         # Make directory for saving if it doesn't already exist
         if not new and self.settings.get_should_make_backup_save():
             # to make sure we don't accidentally make a bad save
-            # we will copy either the autosave, or the existing save (whichever is more recent)
-            # as a backup
+            # we will save to a new location and then copy to our current location
             self.tmp_proj = self.current_proj + '.lttmp'
-            self.save_progress.setLabelText("Making backup to %s" % self.tmp_proj)
-            self.save_progress.setValue(1)
-            if os.path.exists(self.tmp_proj):
-                shutil.rmtree(self.tmp_proj)
-
-            most_recent_path = self.current_proj
+            try:
+                if os.path.exists(self.tmp_proj):
+                    shutil.rmtree(self.tmp_proj)
+            except:
+                ret = QMessageBox.critical(self.parent, "Save Project", "Cannot delete .lttmp file at %s. This is an artifact of a previous save, please delete this file." % self.tmp_proj)
+                return False
             # check if autosave or current save is more recent
             # try:
             #     autosave_dir = os.path.abspath('autosave.ltproj')
@@ -110,24 +109,23 @@ class ProjectFileBackend():
             #     # autosave doesn't have metadata, autosave doesn't exist, etc.
             #     # just copy the previous save
             #     pass
-            shutil.move(most_recent_path, self.tmp_proj)
         self.save_progress.setLabelText("Saving project to %s" % self.current_proj)
         self.save_progress.setValue(10)
 
         # Actually save project
-        RESOURCES.save(self.current_proj, progress=self.save_progress)
+        RESOURCES.save(self.tmp_proj, progress=self.save_progress)
         self.save_progress.setValue(75)
-        DB.serialize(self.current_proj)
+        DB.serialize(self.tmp_proj)
         self.save_progress.setValue(85)
 
         # Save metadata
-        self.save_metadata(self.current_proj)
+        self.save_metadata(self.tmp_proj)
         self.save_progress.setValue(87)
         if not new and self.settings.get_should_make_backup_save():
             # we have fully saved the current project.
             # first, delete the .json files that don't appear in the new project
-            for old_dir, dirs, files in os.walk(self.tmp_proj):
-                new_dir = old_dir.replace(self.tmp_proj, self.current_proj)
+            for old_dir, dirs, files in os.walk(self.current_proj):
+                new_dir = old_dir.replace(self.current_proj, self.tmp_proj)
                 for f in files:
                     if f.endswith('.json'):
                         old_file = os.path.join(old_dir, f)
@@ -135,8 +133,8 @@ class ProjectFileBackend():
                         if not os.path.exists(new_file):
                             os.remove(old_file)
             # then replace the files in the original backup folder and rename it back
-            for src_dir, dirs, files in os.walk(self.current_proj):
-                dst_dir = src_dir.replace(self.current_proj, self.tmp_proj)
+            for src_dir, dirs, files in os.walk(self.tmp_proj):
+                dst_dir = src_dir.replace(self.tmp_proj, self.current_proj)
                 for f in files:
                     src_file = os.path.join(src_dir, f)
                     dst_file = os.path.join(dst_dir, f)
@@ -146,9 +144,8 @@ class ProjectFileBackend():
                     if os.path.exists(dst_file):
                         os.remove(dst_file)
                     os.rename(dst_file + '.bak', dst_file)
-            if os.path.isdir(self.current_proj):
-                shutil.rmtree(self.current_proj)
-            os.rename(self.tmp_proj, self.current_proj)
+            if os.path.isdir(self.tmp_proj):
+                shutil.rmtree(self.tmp_proj)
         self.save_progress.setValue(100)
 
         return True

@@ -42,7 +42,14 @@ class BaseMainState(State):
             ignore[1] = False
         if game.game_vars.get('_supports') and DB.support_constants.value('base_convos'):
             options.insert(2, 'Supports')
-            ignore.insert(2, False)
+            # make sure we have supports to begin with
+            player_units = game.get_units_in_party()
+            units = [unit for unit in player_units if
+                        any(prefab.unit1 == unit.nid or prefab.unit2 == unit.nid for prefab in DB.support_pairs)]
+            if units:
+                ignore.insert(2, False)
+            else:
+                ignore.insert(2, True)
         if DB.constants.value('bexp'):
             options.insert(2, 'Bonus EXP')
             ignore.insert(2, False)

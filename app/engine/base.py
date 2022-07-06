@@ -425,7 +425,7 @@ class SupportDisplay():
             choices = other_unit_nids[start_index:end_index]
 
             for idx, other_unit_nid in enumerate(choices):
-                if game.get_unit(other_unit_nid):
+                if game.get_unit(other_unit_nid) and game.get_unit(other_unit_nid).party == game.get_unit(self.unit_nid).party:
                     other_unit = game.get_unit(other_unit_nid)
                     if other_unit.dead:
                         map_sprite = other_unit.sprite.create_image('gray')

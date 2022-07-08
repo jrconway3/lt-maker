@@ -20,8 +20,9 @@ class StatusUpkeepState(MapState):
                           unit.position and
                           unit.team == game.phase.get_current() and
                           not unit.dead]
-            for unit in self.units:
-                self.add_traveler(unit)
+            if DB.constants.value('pairup') or DB.constants.value('traveler_time_decrement'):
+                for unit in self.units:
+                    self.add_traveler(unit)
         self.cur_unit = None
 
         self.health_bar = None

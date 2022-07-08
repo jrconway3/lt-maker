@@ -58,6 +58,7 @@ constants = ConstantCatalog([
     Constant('trade', "Can trade items on map", bool, True, 'features'),
     Constant('growth_info', "Can view unit growths in Info Menu", bool, True, 'features'),
     Constant('backpropagate_difficulty_growths', "Apply difficulty bonus growths to past levels", bool, True, 'features'),
+    Constant('traveler_time_decrement', "Timed skills applied to traveler units will decrease.", bool, False, 'features'),
     Constant('line_of_sight', "Force items and abilities to obey line of sight rules", bool, False, 'line_of_sight'),
     Constant('aura_los', "Force auras to obey line of sight rules", bool, False, 'line_of_sight'),
     Constant('fog_los', "Fog of War will also be affected by line of sight", bool, False, 'line_of_sight'),

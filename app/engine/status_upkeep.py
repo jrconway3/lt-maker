@@ -21,7 +21,9 @@ class StatusUpkeepState(MapState):
                           unit.team == game.phase.get_current() and
                           not unit.dead]
             if DB.constants.value('pairup') or DB.constants.value('traveler_time_decrement'):
-                for unit in self.units:
+                carrying_units = [unit for unit in game.units if
+                          unit.position and not unit.dead]
+                for unit in carrying_units:
                     self.add_traveler(unit)
         self.cur_unit = None
 
@@ -39,13 +41,11 @@ class StatusUpkeepState(MapState):
 
     def is_traveler(self, cur_unit):
         if DB.constants.value('initiative'):
-            all_units = [game.initiative.get_current_unit()]
+            carrying_units = [game.initiative.get_current_unit()]
         else:
-            all_units = [unit for unit in game.units if
-                          unit.position and
-                          unit.team == game.phase.get_current() and
-                          not unit.dead]
-        for u in all_units:
+            carrying_units = [unit for unit in game.units if
+                        unit.position and not unit.dead]
+        for u in carrying_units:
             if u.traveler == cur_unit.nid:
                 return True
         return False

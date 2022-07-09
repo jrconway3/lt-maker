@@ -1,5 +1,4 @@
-from app.utilities.typing import NID
-from app.engine.objects.unit import UnitObject
+from app.engine.query_engine import GameQueryEngine
 from app.data.components import Component
 from app.data.database import DB
 from app.engine.game_state import GameState
@@ -10,20 +9,6 @@ from typing import List, Tuple
 from app.utilities import str_utils
 import logging
 
-
-class GameQueryEngine():
-    def __init__(self, logger: logging.Logger, game: GameState, unit: UnitObject=None, unit2: UnitObject=None, position=None) -> None:
-        self.logger = logger
-        self.game = game
-        self.unit = unit
-        self.unit2 = unit2
-
-    def get_skill_by_nid(self, unit: UnitObject, skill_nid: NID):
-        for skill in unit.skills:
-            if skill.nid == skill_nid:
-                return skill
-        return None
-
 class TextEvaluator():
     def __init__(self, logger: logging.Logger, game: GameState, unit=None, unit2=None, position=None, local_args=None) -> None:
         self.logger = logger
@@ -33,7 +18,7 @@ class TextEvaluator():
         self.created_unit = None
         self.position = position
         self.local_args = local_args or {}
-        self.query_engine = GameQueryEngine(logger, game, unit, unit2, position)
+        self.query_engine = GameQueryEngine(logger, game)
         query_funcs = [funcname for funcname in dir(self.query_engine) if not funcname.startswith('_')]
         query_func_dict = {funcname: getattr(self.query_engine, funcname) for funcname in query_funcs}
         self.local_args.update(query_func_dict)

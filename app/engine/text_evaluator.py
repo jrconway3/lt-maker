@@ -227,7 +227,7 @@ class TextEvaluator():
                 val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.position, self.local_args)
                 evaluated.append(self._object_to_str(val))
             except Exception as e:
-                self.logger.error("Could not evaluate %s (%s)" % (to_eval[6:-1], e))
+                self.logger.error("Could not evaluate %s (%s)" % (to_eval, e))
                 evaluated.append('??')
         for idx in range(len(to_evaluate)):
             text = text.replace(to_evaluate[idx], evaluated[idx])

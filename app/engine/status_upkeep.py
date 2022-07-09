@@ -20,11 +20,12 @@ class StatusUpkeepState(MapState):
                           unit.position and
                           unit.team == game.phase.get_current() and
                           not unit.dead]
+            # Handle travelers
             if DB.constants.value('pairup') or DB.constants.value('traveler_time_decrement'):
-                carrying_units = [unit for unit in game.units if
-                          unit.position and not unit.dead]
-                for unit in carrying_units:
-                    self.add_traveler(unit)
+                possible_carrying_units = [unit for unit in game.units if unit.position]
+                for unit in possible_carrying_units:
+                    if unit.traveler and game.get_unit(unit.traveler).team == game.phase.get_current():
+                        self.units.append(game.get_unit(unit.traveler))
         self.cur_unit = None
 
         self.health_bar = None
@@ -35,20 +36,15 @@ class StatusUpkeepState(MapState):
 
         self.actions, self.playback = [], []
 
-    def add_traveler(self, unit):
-        if unit.traveler:
-            self.units.append(game.get_unit(unit.traveler))
-
     def is_traveler(self, cur_unit):
-        if DB.constants.value('initiative'):
-            carrying_units = [game.initiative.get_current_unit()]
-        else:
-            carrying_units = [unit for unit in game.units if
-                        unit.position and not unit.dead]
-        for u in carrying_units:
+        possible_carrying_units = [unit for unit in game.units if unit.position]
+        for u in possible_carrying_units:
             if u.traveler == cur_unit.nid:
-                return True
+                return u
         return False
+
+    def can_process(self, cur_unit) -> bool:
+        return cur_unit.position or self.is_traveler(cur_unit)
 
     def update(self):
         super().update()
@@ -57,7 +53,7 @@ class StatusUpkeepState(MapState):
             self.health_bar.update()
 
         if self.state == 'processing':
-            if (not self.cur_unit or not self.cur_unit.position) and self.units:
+            if (not self.cur_unit or not self.can_process(self.cur_unit)) and self.units:
                 self.cur_unit = self.units.pop()
 
             if self.cur_unit:
@@ -75,14 +71,14 @@ class StatusUpkeepState(MapState):
                         item_system.on_upkeep(self.actions, self.playback, self.cur_unit, item)
                     for item in skill_system.get_extra_abilities(self.cur_unit).values():
                         item_system.on_upkeep(self.actions, self.playback, self.cur_unit, item)
-                if self.playback and self.cur_unit.position:
+                if self.playback and self.cur_unit.position:  # Travelers skip this part
                     game.cursor.set_pos(self.cur_unit.position)
                     game.state.change('move_camera')
                     self.cur_unit.sprite.change_state('selected')
                     self.health_bar = health_bar.MapCombatInfo('splash', self.cur_unit, None, None, None)
                     self.state = 'start'
                     self.last_update = engine.get_time()
-                elif self.actions and (self.cur_unit.position or self.is_traveler(self.cur_unit)):
+                elif self.actions and self.can_process(self.cur_unit):
                     for act in self.actions:
                         action.do(act)
                     self.check_death()

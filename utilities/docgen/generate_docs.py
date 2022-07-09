@@ -46,7 +46,14 @@ if __name__ == '__main__':
       query_doc_entries[func_tag].append(entry)
 
     for tag in sorted(query_doc_entries.keys()):
-      section_header = "## {tag}".format(tag=tag)
-      query_docs.write(section_header+ "\n")
+      section_header = \
+"""
+## {tag}
+<details open>
+  <summary>Show/Hide</summary>
+
+""".format(tag=tag)
+      query_docs.write(section_header + "\n\n")
       for func_entry in sorted(query_doc_entries[tag]):
-        query_docs.write(func_entry+ "\n")
+        query_docs.write(func_entry + "\n")
+      query_docs.write("</details>\n\n")

@@ -3,7 +3,13 @@
 There are a number of useful functions that can be employed in event eval zones to fetch some aspect of the game. This page is exhaustive; it will list every ready-made
 function that can query the game state.
 
+
 ## Map Functions
+<details open>
+  <summary>View functions</summary>
+
+
+
 
 #### Get Allies Within Distance
 
@@ -40,7 +46,15 @@ Return a list containing the closest player units and their distances.
         
   ---------------------
 
+</details>
+
+
 ## Skills
+<details open>
+  <summary>View functions</summary>
+
+
+
 
 #### Get Skill By Nid
 
@@ -57,4 +71,6 @@ Returns a skill object by nid.
             SkillObject | None: Skill, if exists on unit, else None.
         
   ---------------------
+
+</details>
 

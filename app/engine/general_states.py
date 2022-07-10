@@ -1300,14 +1300,64 @@ class SpellChoiceState(WeaponChoiceState):
     name = 'spell_choice'
 
     def get_options(self, unit) -> list:
-        options = target_system.get_all_spells(unit)
-        # Skill straining
-        options = [option for option in options if target_system.get_valid_targets(unit, option)]
+        if game.memory.get('valid_spells'):
+            options = game.memory['valid_spells']
+        else:
+            options = target_system.get_spells(unit)
+            # Skill straining
+            options = [option for option in options if target_system.get_valid_targets_recursive_with_availability_check(unit, option)]
         return options
 
     def disp_attacks(self, unit, item):
         spell_attacks = target_system.get_attacks(unit, item)
         game.highlight.display_possible_spell_attacks(spell_attacks)
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        did_move = self.menu.handle_mouse()
+        if did_move:
+            self._item_desc_update()
+
+        if 'DOWN' in directions:
+            get_sound_thread().play_sfx('Select 6')
+            self.menu.move_down(first_push)
+            self._item_desc_update()
+
+        elif 'UP' in directions:
+            get_sound_thread().play_sfx('Select 6')
+            self.menu.move_up(first_push)
+            self._item_desc_update()
+
+        if event == 'BACK':
+            get_sound_thread().play_sfx('Select 4')
+            game.memory['valid_weapons'] = None
+            game.state.back()
+
+        elif event == 'SELECT':
+            selection = self.menu.get_current()
+            if selection.multi_item:
+                if selection.multi_item_hides_unavailable and self.cur_unit:
+                    game.memory['valid_spells'] = [subitem for subitem in selection.subitems if item_funcs.available(self.cur_unit, subitem) and
+                                                                                                 item_funcs.is_spell_recursive(self.cur_unit, subitem)]
+                else:
+                    game.memory['valid_spells'] = [subitem for subitem in selection.subitems if item_funcs.is_spell_recursive(self.cur_unit, subitem)]
+                game.state.change('spell_choice')
+                return
+
+            if not item_system.available(self.cur_unit, selection):
+                get_sound_thread().play_sfx('Error')
+                return
+            get_sound_thread().play_sfx('Select 1')
+            # If the item is in our inventory, bring it to the top
+            if selection in self.cur_unit.items:
+                action.do(action.BringToTopItem(self.cur_unit, selection))
+            game.memory['item'] = selection
+            game.state.change('combat_targeting')
+
+        elif event == 'INFO':
+            self.menu.toggle_info()
 
 class TargetingState(MapState):
     name = 'targeting'

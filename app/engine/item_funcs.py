@@ -142,6 +142,14 @@ def is_weapon_recursive(unit, item) -> bool:
             return True
     return False
 
+def is_spell_recursive(unit, item) -> bool:
+    if item_system.is_spell(unit, item):
+        return True
+    if item.multi_item:
+        if any([is_spell_recursive(unit, sitem) for sitem in item.subitems]):
+            return True
+    return False
+
 def get_all_items_from_multi_item(unit, item) -> List[ItemObject]:
     all_items = []
     if item.multi_item:

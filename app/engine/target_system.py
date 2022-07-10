@@ -297,6 +297,9 @@ def get_all_weapon_targets(unit) -> set:
     weapons = get_all_weapons(unit)
     return get_all_targets_with_items(unit, weapons)
 
+def get_spells(unit: UnitObject) -> List[ItemObject]:
+    return [item for item in unit.items if item_funcs.is_spell_recursive(unit, item) and item_funcs.available(unit, item)]
+
 def get_all_spells(unit):
     return [item for item in item_funcs.get_all_items(unit) if item_system.is_spell(unit, item) and item_funcs.available(unit, item)]
 

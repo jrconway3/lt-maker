@@ -829,7 +829,7 @@ class MenuState(MapState):
                 game.memory['item'] = item
                 # Handle abilities that are multi-items, you sick fuck
                 if item.multi_item:
-                    if item.multi_item_hides_unavailable and self.cur_unit:
+                    if item.multi_item_hides_unavailable:
                         game.memory['valid_weapons'] = [subitem for subitem in item.subitems if item_funcs.available(self.cur_unit, subitem) and
                                                                                                 item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
                     else:
@@ -1253,7 +1253,7 @@ class WeaponChoiceState(MapState):
         elif event == 'SELECT':
             selection = self.menu.get_current()
             if selection.multi_item:
-                if selection.multi_item_hides_unavailable and self.cur_unit:
+                if selection.multi_item_hides_unavailable:
                     game.memory['valid_weapons'] = [subitem for subitem in selection.subitems if item_funcs.available(self.cur_unit, subitem) and
                                                                                                  item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
                 else:

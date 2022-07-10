@@ -827,6 +827,7 @@ class MenuState(MapState):
                 game.memory['targets'] = targets
                 game.memory['ability'] = selection
                 game.memory['item'] = item
+                # Handle abilities that are multi-items, you sick fuck
                 if item.multi_item:
                     if item.multi_item_hides_unavailable and self.cur_unit:
                         game.memory['valid_weapons'] = [subitem for subitem in item.subitems if item_funcs.available(self.cur_unit, subitem) and
@@ -946,7 +947,7 @@ class SubItemChildState(MapState):
         if parent_item.multi_item_hides_unavailable and unit:
             subitems = [subitem for subitem in parent_item.subitems if item_funcs.available(unit, subitem)]
         else:
-            subitems = parent_item.subitems
+            subitems = parent_item.subitems[:]
         return subitems
 
     def start(self):

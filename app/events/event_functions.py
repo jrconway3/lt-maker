@@ -708,9 +708,7 @@ def make_generic(self: Event, nid, klass, level, team, ai=None, faction=None, an
     self.game.full_register(new_unit)
 
     if assign_unit:
-        self.unit2 = new_unit
         self.created_unit = new_unit
-        self.text_evaluator.unit2 = new_unit
         self.text_evaluator.created_unit = new_unit
 
 def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_type=None, placement=None, flags=None):
@@ -762,9 +760,7 @@ def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_ty
     new_unit.party = self.game.current_party
     self.game.full_register(new_unit)
     if assign_unit:
-        self.unit2 = new_unit
         self.created_unit = new_unit
-        self.text_evaluator.unit2 = new_unit
         self.text_evaluator.created_unit = new_unit
     if DB.constants.value('initiative'):
         action.do(action.InsertInitiative(unit))

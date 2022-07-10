@@ -710,6 +710,9 @@ class MenuState(MapState):
         for ability_name, ability in self.extra_abilities.items():
             if target_system.get_valid_targets(self.cur_unit, ability) and item_system.available(self.cur_unit, ability):
                 options.insert(start_index, ability_name)
+            if ability.multi_item:
+                if target_system.get_all_targets_with_items(self.cur_unit, [subitem for subitem in ability.subitems if item_system.available(self.cur_unit, subitem)]):
+                    options.insert(start_index, ability_name)
 
         # Handle combat art options (only available if you haven't attacked)
         if not self.cur_unit.has_attacked:
@@ -827,7 +830,14 @@ class MenuState(MapState):
                 game.memory['targets'] = targets
                 game.memory['ability'] = selection
                 game.memory['item'] = item
-                game.state.change('combat_targeting')
+                if item.multi_item:
+                    if item.multi_item_hides_unavailable and self.cur_unit:
+                        game.memory['valid_weapons'] = [subitem for subitem in item.subitems if item_funcs.available(self.cur_unit, subitem)]
+                    else:
+                        game.memory['valid_weapons'] = item.subitems
+                    game.state.change('weapon_choice')
+                else:
+                    game.state.change('combat_targeting')
             # A combat art
             elif selection in self.combat_arts:
                 skill = self.combat_arts[selection][0]
@@ -938,7 +948,7 @@ class SubItemChildState(MapState):
         if parent_item.multi_item_hides_unavailable and unit:
             subitems = [subitem for subitem in parent_item.subitems if item_funcs.available(unit, subitem)]
         else:
-            subitems = [subitems for subitems in parent_item.subitems]
+            subitems = parent_item.subitems
         return subitems
 
     def start(self):
@@ -1191,8 +1201,8 @@ class WeaponChoiceState(MapState):
             options = game.memory['valid_weapons']
         else:
             options = target_system.get_all_weapons(unit)
-        # Skill straining
-        options = [option for option in options if target_system.get_valid_targets(unit, option)]
+            # Skill straining
+            options = [option for option in options if target_system.get_valid_targets(unit, option)]
         return options
 
     def disp_attacks(self, unit, item):
@@ -1238,14 +1248,18 @@ class WeaponChoiceState(MapState):
             game.state.back()
 
         elif event == 'SELECT':
-            get_sound_thread().play_sfx('Select 1')
             selection = self.menu.get_current()
+            if not item_system.available(self.cur_unit, selection):
+                get_sound_thread().play_sfx('Error')
+                return
+            get_sound_thread().play_sfx('Select 1')
             # Only bother to equip if it's a weapon
             # We don't equip spells
             if item_system.is_weapon(self.cur_unit, selection):
                 equip_action = action.EquipItem(self.cur_unit, selection)
                 # game.memory['equip_action'] = equip_action
                 action.do(equip_action)
+
 
             # If the item is in our inventory, bring it to the top
             if selection in self.cur_unit.items:

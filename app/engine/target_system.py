@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import FrozenSet, TYPE_CHECKING, Tuple
+from typing import FrozenSet, TYPE_CHECKING, List, Tuple
 from functools import lru_cache
 
 from app.data.database import DB
@@ -274,22 +274,22 @@ def get_valid_targets(unit, item=None) -> set:
 def get_all_weapons(unit) -> list:
     return [item for item in item_funcs.get_all_items(unit) if item_system.is_weapon(unit, item) and item_funcs.available(unit, item)]
 
+def get_all_targets_with_items(unit, items: List[ItemObject]) -> set:
+    targets = set()
+    for item in items:
+        targets |= get_valid_targets(unit, item)
+    return targets
+
 def get_all_weapon_targets(unit) -> set:
     weapons = get_all_weapons(unit)
-    targets = set()
-    for weapon in weapons:
-        targets |= get_valid_targets(unit, weapon)
-    return targets
+    return get_all_targets_with_items(unit, weapons)
 
 def get_all_spells(unit):
     return [item for item in item_funcs.get_all_items(unit) if item_system.is_spell(unit, item) and item_funcs.available(unit, item)]
 
 def get_all_spell_targets(unit) -> set:
     spells = get_all_spells(unit)
-    targets = set()
-    for spell in spells:
-        targets |= get_valid_targets(unit, spell)
-    return targets
+    return get_all_targets_with_items(unit, spells)
 
 def find_strike_partners(attacker, defender, item):
     '''Finds and returns a tuple of strike partners for the specified units

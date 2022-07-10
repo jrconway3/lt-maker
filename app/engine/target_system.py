@@ -271,7 +271,20 @@ def get_valid_targets(unit, item=None) -> set:
         valid_targets = set(line_of_sight.line_of_sight([unit.position], valid_targets, max_item_range))
     return valid_targets
 
-def get_all_weapons(unit) -> list:
+def get_valid_targets_recursive_with_availability_check(unit, item) -> set:
+    if item.multi_item:
+        items = [sitem for sitem in item_funcs.get_all_items_from_multi_item(unit, item) if item_funcs.available(unit, sitem)]
+    else:
+        items = [item] if item_funcs.available(unit, item) else []
+    valid_targets = set()
+    for sitem in items:
+        valid_targets |= get_valid_targets(unit, sitem)
+    return valid_targets
+
+def get_weapons(unit: UnitObject) -> List[ItemObject]:
+    return [item for item in unit.items if item_funcs.is_weapon_recursive(unit, item) and item_funcs.available(unit, item)]
+
+def get_all_weapons(unit: UnitObject) -> List[ItemObject]:
     return [item for item in item_funcs.get_all_items(unit) if item_system.is_weapon(unit, item) and item_funcs.available(unit, item)]
 
 def get_all_targets_with_items(unit, items: List[ItemObject]) -> set:

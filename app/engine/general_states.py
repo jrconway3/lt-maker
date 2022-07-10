@@ -708,11 +708,8 @@ class MenuState(MapState):
         else:
             start_index = len(self.valid_regions)
         for ability_name, ability in self.extra_abilities.items():
-            if target_system.get_valid_targets(self.cur_unit, ability) and item_system.available(self.cur_unit, ability):
+            if target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, ability):
                 options.insert(start_index, ability_name)
-            if ability.multi_item:
-                if target_system.get_all_targets_with_items(self.cur_unit, [subitem for subitem in ability.subitems if item_system.available(self.cur_unit, subitem)]):
-                    options.insert(start_index, ability_name)
 
         # Handle combat art options (only available if you haven't attacked)
         if not self.cur_unit.has_attacked:
@@ -832,9 +829,10 @@ class MenuState(MapState):
                 game.memory['item'] = item
                 if item.multi_item:
                     if item.multi_item_hides_unavailable and self.cur_unit:
-                        game.memory['valid_weapons'] = [subitem for subitem in item.subitems if item_funcs.available(self.cur_unit, subitem)]
+                        game.memory['valid_weapons'] = [subitem for subitem in item.subitems if item_funcs.available(self.cur_unit, subitem) and
+                                                                                                item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
                     else:
-                        game.memory['valid_weapons'] = item.subitems
+                        game.memory['valid_weapons'] = [subitem for subitem in item.subitems if item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
                     game.state.change('weapon_choice')
                 else:
                     game.state.change('combat_targeting')
@@ -1200,20 +1198,24 @@ class WeaponChoiceState(MapState):
         if game.memory.get('valid_weapons'):
             options = game.memory['valid_weapons']
         else:
-            options = target_system.get_all_weapons(unit)
+            options = target_system.get_weapons(unit)
             # Skill straining
-            options = [option for option in options if target_system.get_valid_targets(unit, option)]
+            options = [option for option in options if target_system.get_valid_targets_recursive_with_availability_check(unit, option)]
         return options
 
     def disp_attacks(self, unit, item):
         valid_attacks = target_system.get_attacks(unit, item)
         game.highlight.display_possible_attacks(valid_attacks)
 
+    def start(self):
+        self.cur_unit = game.cursor.cur_unit
+        self.options = self.get_options(self.cur_unit)
+
     def begin(self):
         game.cursor.hide()
         self.cur_unit = game.cursor.cur_unit
         self.cur_unit.sprite.change_state('chosen')
-        options = self.get_options(self.cur_unit)
+        options = self.options
         self.menu = menus.Choice(self.cur_unit, options)
         self.item_desc_panel = ui_view.ItemDescriptionPanel(self.cur_unit, self.menu.get_current())
         self.disp_attacks(self.cur_unit, self.menu.get_current())
@@ -1249,6 +1251,15 @@ class WeaponChoiceState(MapState):
 
         elif event == 'SELECT':
             selection = self.menu.get_current()
+            if selection.multi_item:
+                if selection.multi_item_hides_unavailable and self.cur_unit:
+                    game.memory['valid_weapons'] = [subitem for subitem in selection.subitems if item_funcs.available(self.cur_unit, subitem) and
+                                                                                                 item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
+                else:
+                    game.memory['valid_weapons'] = [subitem for subitem in selection.subitems if item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
+                game.state.change('weapon_choice')
+                return
+
             if not item_system.available(self.cur_unit, selection):
                 get_sound_thread().play_sfx('Error')
                 return

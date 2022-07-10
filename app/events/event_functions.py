@@ -1419,6 +1419,7 @@ def give_wexp(self: Event, global_unit, weapon_type, positive_integer, flags=Non
         action.execute(action.AddWexp(unit, weapon_type, wexp))
     else:
         action.do(action.AddWexp(unit, weapon_type, wexp))
+        self.state = 'paused'
 
 def give_skill(self: Event, global_unit, skill, flags=None):
     flags = flags or set()

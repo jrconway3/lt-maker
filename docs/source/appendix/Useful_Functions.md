@@ -10,7 +10,7 @@ function that can query the game state.
 
 #### Get Item
 
-    get_item(self, unit, item) 
+    get_item(unit, item) 
 		-> 'ItemObject'
 
 Returns a item object by nid.
@@ -27,7 +27,7 @@ Returns a item object by nid.
 
 #### Has Item
 
-    has_item(self, unit, item) 
+    has_item(unit, item) 
 		-> 'bool'
 
 Check if unit has item.
@@ -48,7 +48,7 @@ Check if unit has item.
 
 #### Any Unit In Region
 
-    any_unit_in_region(self, region, nid=None, team=None, tag=None) 
+    any_unit_in_region(region, nid=None, team=None, tag=None) 
 		-> 'List[UnitObject]'
 
 checks if any unit matching the criteria is in the region
@@ -72,7 +72,7 @@ Example usage:
 
 #### Get Allies Within Distance
 
-    get_allies_within_distance(self, position, dist: 'int' = 1) 
+    get_allies_within_distance(position, dist: 'int' = 1) 
 		-> 'List[Tuple[UnitObject, int]]'
 
 Return a list containing all player units within `dist` distance to the specific position.
@@ -90,7 +90,7 @@ Return a list containing all player units within `dist` distance to the specific
 
 #### Get Closest Allies
 
-    get_closest_allies(self, position, num: 'int' = 1) 
+    get_closest_allies(position, num: 'int' = 1) 
 		-> 'List[Tuple[UnitObject, int]]'
 
 Return a list containing the closest player units and their distances.
@@ -108,7 +108,7 @@ Return a list containing the closest player units and their distances.
 
 #### Get Units In Area
 
-    get_units_in_area(self, position_corner_1: 'Tuple[int, int]', position_corner_2: 'Tuple[int, int]') 
+    get_units_in_area(position_corner_1: 'Tuple[int, int]', position_corner_2: 'Tuple[int, int]') 
 		-> 'List[UnitObject]'
 
 Returns a list of units within a rectangular area.
@@ -126,7 +126,7 @@ Returns a list of units within a rectangular area.
 
 #### Get Units In Region
 
-    get_units_in_region(self, region, nid=None, team=None, tag=None) 
+    get_units_in_region(region, nid=None, team=None, tag=None) 
 		-> 'List[UnitObject]'
 
 returns all units matching the criteria in the given region
@@ -154,7 +154,7 @@ Example usage:
 
 #### Get Debuff Count
 
-    get_debuff_count(self, unit) 
+    get_debuff_count(unit) 
 		-> 'int'
 
 Checks how many negative skills the unit has.
@@ -170,7 +170,7 @@ Checks how many negative skills the unit has.
 
 #### Get Skill
 
-    get_skill(self, unit, skill) 
+    get_skill(unit, skill) 
 		-> 'SkillObject'
 
 Returns a skill object by nid.
@@ -187,7 +187,7 @@ Returns a skill object by nid.
 
 #### Has Skill
 
-    has_skill(self, unit, skill) 
+    has_skill(unit, skill) 
 		-> 'bool'
 
 checks if unit has skill
@@ -208,7 +208,7 @@ checks if unit has skill
 
 #### Is Dead
 
-    is_dead(self, unit) 
+    is_dead(unit) 
 		-> 'bool'
 
 checks if unit is dead

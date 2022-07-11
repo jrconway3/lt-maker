@@ -35,7 +35,10 @@ def set_title(text):
     pygame.display.set_caption(text)
 
 def build_display(size):
-    return pygame.display.set_mode(size, pygame.FULLSCREEN if cf.SETTINGS['fullscreen'] else 0)
+    try:
+        return pygame.display.set_mode(size, pygame.FULLSCREEN if cf.SETTINGS['fullscreen'] else 0)
+    except:
+        return pygame.display.set_mode(size)
 
 def push_display(surf, size, new_surf):
     pygame.transform.scale(surf, size, new_surf)

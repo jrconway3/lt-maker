@@ -49,11 +49,7 @@ if __name__ == '__main__':
       section_header = \
 """
 ## {tag}
-<details open>
-  <summary>Show/Hide</summary>
-
 """.format(tag=tag)
       query_docs.write(section_header + "\n\n")
       for func_entry in sorted(query_doc_entries[tag]):
         query_docs.write(func_entry + "\n")
-      query_docs.write("</details>\n\n")

@@ -1,14 +1,18 @@
-from app.engine.objects.item import ItemObject
-from app.utilities import utils
-from typing import List, Tuple
-from app.engine.objects.skill import SkillObject
-from app.utilities.typing import NID
-from app.engine.objects.unit import UnitObject
-from app.engine.game_state import GameState
-
+from __future__ import annotations
 import logging
+from typing import List, Tuple
+
+from app.engine.game_state import GameState
+from app.engine.objects.item import ItemObject
+from app.engine.objects.skill import SkillObject
+from app.engine.objects.unit import UnitObject
+from app.events.regions import Region
+from app.utilities import utils
+from app.utilities.typing import NID
+
 
 class QueryType():
+    UNIT = 'Units'
     SKILL = 'Skills'
     ITEM = 'Items'
     MAP = 'Map Functions'
@@ -24,7 +28,7 @@ class GameQueryEngine():
         self.logger = logger
         self.game = game
 
-    def _resolve_to_nid(self, obj_or_nid):
+    def _resolve_to_nid(self, obj_or_nid) -> NID:
         try:
             return obj_or_nid.uid
         except:
@@ -33,11 +37,15 @@ class GameQueryEngine():
             except:
                 return obj_or_nid
 
-    def _resolve_to_unit(self, unit_or_nid):
+    def _resolve_to_unit(self, unit_or_nid) -> UnitObject:
         nid = self._resolve_to_nid(unit_or_nid)
         return self.game.get_unit(nid)
 
-    def _resolve_pos(self, has_pos_or_is_pos):
+    def _resolve_to_region(self, region_or_nid) -> Region:
+        nid = self._resolve_to_nid(region_or_nid)
+        return self.game.get_region(nid)
+
+    def _resolve_pos(self, has_pos_or_is_pos) -> Tuple[int, int] | None:
         try:
             # possibly a unit?
             has_pos_or_is_pos = self._resolve_to_unit(has_pos_or_is_pos)
@@ -176,3 +184,67 @@ class GameQueryEngine():
         """
         unit = self._resolve_to_unit(unit)
         return len([skill for skill in unit.skills if skill.negative])
+
+    @categorize(QueryType.MAP)
+    def get_units_in_region(self, region, nid=None, team=None, tag=None) -> List[UnitObject]:
+        """returns all units matching the criteria in the given region
+
+Example usage:
+* `unit_in_region('NorthReinforcements', team='player')` will return all player units in the region
+* `unit_in_region('NorthReinforcements', nid='Eirika')` will return Eirika if Eirika is in the region
+* `unit_in_region('NorthReinforcements')` will return all units in the region
+
+        Args:
+            region: region in question
+            nid (optional): used to match for NID
+            team (optional): used to match for team. one of 'player', 'enemy', 'enemy2', 'other'
+            tag (optional): used to match for tag.
+
+        Returns:
+            List[UnitObject]: all units matching the criteria in the region
+        """
+        region = self._resolve_to_region(region)
+        all_units = []
+        for unit in self.game.get_all_units():
+            if nid and nid != unit.nid:
+                continue
+            if team and team != unit.team:
+                continue
+            if tag and tag not in unit.tags:
+                continue
+            if region.contains(unit.position):
+                all_units.append(unit)
+        return all_units
+
+    @categorize(QueryType.MAP)
+    def any_unit_in_region(self, region, nid=None, team=None, tag=None) -> List[UnitObject]:
+        """checks if any unit matching the criteria is in the region
+
+Example usage:
+* `unit_in_region('NorthReinforcements', team='player')` will check if any player unit is in the region
+* `unit_in_region('NorthReinforcements', nid='Eirika')` will check if Eirika is in the region
+* `unit_in_region('NorthReinforcements')` will check if ANY unit is in the region
+
+        Args:
+            region: region in question
+            nid (optional): used to match for NID
+            team (optional): used to match for team. one of 'player', 'enemy', 'enemy2', 'other'
+            tag (optional): used to match for tag.
+
+        Returns:
+            bool: if any unit matching criteria is in the region
+        """
+        return bool(self.get_units_in_region(region, nid, team, tag))
+
+    @categorize(QueryType.UNIT)
+    def is_dead(self, unit) -> bool:
+        """checks if unit is dead
+
+        Args:
+            unit: unit to check
+
+        Returns:
+            bool: if the unit has died
+        """
+        unit = self._resolve_to_unit(unit)
+        return self.game.check_dead(unit)

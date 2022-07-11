@@ -11,7 +11,7 @@ function that can query the game state.
 #### Get Item
 
     get_item(self, unit, item) 
-		-> app.engine.objects.item.ItemObject
+		-> 'ItemObject'
 
 Returns a item object by nid.
 
@@ -28,7 +28,7 @@ Returns a item object by nid.
 #### Has Item
 
     has_item(self, unit, item) 
-		-> bool
+		-> 'bool'
 
 Check if unit has item.
 
@@ -46,10 +46,34 @@ Check if unit has item.
 
 
 
+#### Any Unit In Region
+
+    any_unit_in_region(self, region, nid=None, team=None, tag=None) 
+		-> 'List[UnitObject]'
+
+checks if any unit matching the criteria is in the region
+
+Example usage:
+* `unit_in_region('NorthReinforcements', team='player')` will check if any player unit is in the region
+* `unit_in_region('NorthReinforcements', nid='Eirika')` will check if Eirika is in the region
+* `unit_in_region('NorthReinforcements')` will check if ANY unit is in the region
+
+        Args:
+            region: region in question
+            nid (optional): used to match for NID
+            team (optional): used to match for team. one of 'player', 'enemy', 'enemy2', 'other'
+            tag (optional): used to match for tag.
+
+        Returns:
+            bool: if any unit matching criteria is in the region
+        
+  ---------------------
+
+
 #### Get Allies Within Distance
 
-    get_allies_within_distance(self, position, dist: int = 1) 
-		-> List[Tuple[app.engine.objects.unit.UnitObject, int]]
+    get_allies_within_distance(self, position, dist: 'int' = 1) 
+		-> 'List[Tuple[UnitObject, int]]'
 
 Return a list containing all player units within `dist` distance to the specific position.
 
@@ -66,8 +90,8 @@ Return a list containing all player units within `dist` distance to the specific
 
 #### Get Closest Allies
 
-    get_closest_allies(self, position, num: int = 1) 
-		-> List[Tuple[app.engine.objects.unit.UnitObject, int]]
+    get_closest_allies(self, position, num: 'int' = 1) 
+		-> 'List[Tuple[UnitObject, int]]'
 
 Return a list containing the closest player units and their distances.
 
@@ -84,8 +108,8 @@ Return a list containing the closest player units and their distances.
 
 #### Get Units In Area
 
-    get_units_in_area(self, position_corner_1: Tuple[int, int], position_corner_2: Tuple[int, int]) 
-		-> List[app.engine.objects.unit.UnitObject]
+    get_units_in_area(self, position_corner_1: 'Tuple[int, int]', position_corner_2: 'Tuple[int, int]') 
+		-> 'List[UnitObject]'
 
 Returns a list of units within a rectangular area.
 
@@ -100,6 +124,30 @@ Returns a list of units within a rectangular area.
   ---------------------
 
 
+#### Get Units In Region
+
+    get_units_in_region(self, region, nid=None, team=None, tag=None) 
+		-> 'List[UnitObject]'
+
+returns all units matching the criteria in the given region
+
+Example usage:
+* `unit_in_region('NorthReinforcements', team='player')` will return all player units in the region
+* `unit_in_region('NorthReinforcements', nid='Eirika')` will return Eirika if Eirika is in the region
+* `unit_in_region('NorthReinforcements')` will return all units in the region
+
+        Args:
+            region: region in question
+            nid (optional): used to match for NID
+            team (optional): used to match for team. one of 'player', 'enemy', 'enemy2', 'other'
+            tag (optional): used to match for tag.
+
+        Returns:
+            List[UnitObject]: all units matching the criteria in the region
+        
+  ---------------------
+
+
 ## Skills
 
 
@@ -107,7 +155,7 @@ Returns a list of units within a rectangular area.
 #### Get Debuff Count
 
     get_debuff_count(self, unit) 
-		-> int
+		-> 'int'
 
 Checks how many negative skills the unit has.
 
@@ -123,7 +171,7 @@ Checks how many negative skills the unit has.
 #### Get Skill
 
     get_skill(self, unit, skill) 
-		-> app.engine.objects.skill.SkillObject
+		-> 'SkillObject'
 
 Returns a skill object by nid.
 
@@ -140,7 +188,7 @@ Returns a skill object by nid.
 #### Has Skill
 
     has_skill(self, unit, skill) 
-		-> bool
+		-> 'bool'
 
 checks if unit has skill
 
@@ -150,6 +198,26 @@ checks if unit has skill
 
         Returns:
             bool: True if unit has skill, else false
+        
+  ---------------------
+
+
+## Units
+
+
+
+#### Is Dead
+
+    is_dead(self, unit) 
+		-> 'bool'
+
+checks if unit is dead
+
+        Args:
+            unit: unit to check
+
+        Returns:
+            bool: if the unit has died
         
   ---------------------
 

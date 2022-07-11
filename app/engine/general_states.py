@@ -1332,7 +1332,7 @@ class SpellChoiceState(WeaponChoiceState):
 
         if event == 'BACK':
             get_sound_thread().play_sfx('Select 4')
-            game.memory['valid_weapons'] = None
+            game.memory['valid_spells'] = None
             game.state.back()
 
         elif event == 'SELECT':

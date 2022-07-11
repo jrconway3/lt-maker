@@ -24,7 +24,7 @@ class GameQueryEngine():
         self.logger = logger
         self.game = game
 
-    def _resolve_obj(obj_or_nid):
+    def _resolve_to_nid(self, obj_or_nid):
         try:
             return obj_or_nid.uid
         except:
@@ -32,6 +32,18 @@ class GameQueryEngine():
                 return obj_or_nid.nid
             except:
                 return obj_or_nid
+
+    def _resolve_to_unit(self, unit_or_nid):
+        nid = self._resolve_to_nid(unit_or_nid)
+        return self.game.get_unit(nid)
+
+    def _resolve_pos(self, has_pos_or_is_pos):
+        try:
+            # possibly a unit?
+            has_pos_or_is_pos = self._resolve_to_unit(has_pos_or_is_pos)
+            return has_pos_or_is_pos.position
+        except:
+            return has_pos_or_is_pos
 
     @categorize(QueryType.ITEM)
     def get_item(self, unit, item) -> ItemObject:
@@ -44,8 +56,8 @@ class GameQueryEngine():
         Returns:
             ItemObject | None: Item if exists on unit, otherwise None
         """
-        unit = self.game.get_unit(self._resolve_obj(unit))
-        item = self._resolve_obj(item)
+        unit = self._resolve_to_unit(unit)
+        item = self._resolve_to_nid(item)
         found_items = [it for it in unit.items if it.uid == item or it.nid == item]
         if found_items:
             return found_items[0]
@@ -75,8 +87,8 @@ class GameQueryEngine():
         Returns:
             SkillObject | None: Skill, if exists on unit, else None.
         """
-        unit = self.game.get_unit(self._resolve_obj(unit))
-        skill = self._resolve_obj(skill)
+        unit = self._resolve_to_unit(unit)
+        skill = self._resolve_to_nid(skill)
         for sk in unit.skills:
             if sk.nid == skill:
                 return sk
@@ -97,32 +109,34 @@ class GameQueryEngine():
 
 
     @categorize(QueryType.MAP)
-    def get_closest_allies(self, position: Tuple[int, int], num: int = 1) -> List[Tuple[UnitObject, int]]:
+    def get_closest_allies(self, position, num: int = 1) -> List[Tuple[UnitObject, int]]:
         """Return a list containing the closest player units and their distances.
 
         Args:
-            position (Tuple[int, int]): Position to query.
+            position: position or unit
             num (int, optional): How many allies to search for. Defaults to 1.
 
         Returns:
             List[Tuple[UnitObject, int]]: Returns `num` pairs of `(unit, distance)` to the position.
             Will return fewer if there are fewer player units than `num`.
         """
+        position = self._resolve_pos(position)
         return sorted([(unit, utils.calculate_distance(unit.position, position)) for unit in self.game.get_player_units()],
                       key=lambda pair: pair[1])[:num]
 
     @categorize(QueryType.MAP)
-    def get_allies_within_distance(self, position: Tuple[int, int], dist: int = 1) -> List[Tuple[UnitObject, int]]:
+    def get_allies_within_distance(self, position, dist: int = 1) -> List[Tuple[UnitObject, int]]:
         """Return a list containing all player units within `dist` distance to the specific position.
 
         Args:
-            position (Tuple[int, int]):  Position to query.
+            position: position or unit
             dist (int, optional): How far to search. Defaults to 1.
 
         Returns:
             List[Tuple[UnitObject, int]]: Returns all pairs of `(unit, distance)`
             within the specified `dist`.
         """
+        position = self._resolve_pos(position)
         return [(unit, utils.calculate_distance(unit.position, position)) for unit in self.game.get_player_units() if utils.calculate_distance(unit.position, position) <= dist]
 
     @categorize(QueryType.MAP)
@@ -151,7 +165,7 @@ class GameQueryEngine():
         return target_units
 
     @categorize(QueryType.SKILL)
-    def get_debuff_count(unit) -> int:
+    def get_debuff_count(self, unit) -> int:
         """Checks how many negative skills the unit has.
 
         Args:
@@ -160,4 +174,5 @@ class GameQueryEngine():
         Returns:
             int: Number of unique negative skills on the unit
         """
+        unit = self._resolve_to_unit(unit)
         return len([skill for skill in unit.skills if skill.negative])

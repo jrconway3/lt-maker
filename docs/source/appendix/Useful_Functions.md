@@ -48,13 +48,13 @@ Check if unit has item.
 
 #### Get Allies Within Distance
 
-    get_allies_within_distance(self, position: Tuple[int, int], dist: int = 1) 
+    get_allies_within_distance(self, position, dist: int = 1) 
 		-> List[Tuple[app.engine.objects.unit.UnitObject, int]]
 
 Return a list containing all player units within `dist` distance to the specific position.
 
         Args:
-            position (Tuple[int, int]):  Position to query.
+            position: position or unit
             dist (int, optional): How far to search. Defaults to 1.
 
         Returns:
@@ -66,13 +66,13 @@ Return a list containing all player units within `dist` distance to the specific
 
 #### Get Closest Allies
 
-    get_closest_allies(self, position: Tuple[int, int], num: int = 1) 
+    get_closest_allies(self, position, num: int = 1) 
 		-> List[Tuple[app.engine.objects.unit.UnitObject, int]]
 
 Return a list containing the closest player units and their distances.
 
         Args:
-            position (Tuple[int, int]): Position to query.
+            position: position or unit
             num (int, optional): How many allies to search for. Defaults to 1.
 
         Returns:
@@ -106,7 +106,7 @@ Returns a list of units within a rectangular area.
 
 #### Get Debuff Count
 
-    get_debuff_count(unit) 
+    get_debuff_count(self, unit) 
 		-> int
 
 Checks how many negative skills the unit has.

@@ -477,7 +477,7 @@ def flicker_cursor(self: Event, position, flags=None):
 
 def game_var(self: Event, nid, expression, flags=None):
     try:
-        val = evaluate.evaluate(expression, self.unit, self.unit2, self.position, self.local_args)
+        val = self.text_evaluator.direct_eval(expression)
         action.do(action.SetGameVar(nid, val))
     except Exception as e:
         self.logger.error("game_var: Could not evaluate %s (%s)" % (expression, e))
@@ -485,7 +485,7 @@ def game_var(self: Event, nid, expression, flags=None):
 def inc_game_var(self: Event, nid, expression=None, flags=None):
     if expression:
         try:
-            val = evaluate.evaluate(expression, self.unit, self.unit2, self.position, self.local_args)
+            val = self.text_evaluator.direct_eval(expression)
             action.do(action.SetGameVar(nid, self.game.game_vars.get(nid, 0) + val))
         except Exception as e:
             self.logger.error("inc_game_var: Could not evaluate %s (%s)" % (expression, e))
@@ -494,7 +494,7 @@ def inc_game_var(self: Event, nid, expression=None, flags=None):
 
 def level_var(self: Event, nid, expression, flags=None):
     try:
-        val = evaluate.evaluate(expression, self.unit, self.unit2, self.position, self.local_args)
+        val = self.text_evaluator.direct_eval(expression)
         action.do(action.SetLevelVar(nid, val))
     except Exception as e:
         self.logger.error("level_var: Could not evaluate %s (%s)" % (expression, e))
@@ -503,7 +503,7 @@ def level_var(self: Event, nid, expression, flags=None):
 def inc_level_var(self: Event, nid, expression=None, flags=None):
     if expression:
         try:
-            val = evaluate.evaluate(expression, self.unit, self.unit2, self.position, self.local_args)
+            val = self.text_evaluator.direct_eval(expression)
             action.do(action.SetLevelVar(nid, self.game.level_vars.get(nid, 0) + val))
         except Exception as e:
             self.logger.error("inc_level_var: Could not evaluate %s (%s)" % (expression, e))
@@ -1005,7 +1005,7 @@ def set_unit_field(self: Event, unit, key, value, flags=None):
         self.logger.error("set_unit_field: Couldn't find unit %s" % unit)
         return
     try:
-        value = evaluate.evaluate(value, self.unit, self.unit2, self.position, self.local_args)
+        value = self.text_evaluator.direct_eval(value)
     except:
         self.logger.error("set_unit_field: Could not evaluate {%s}" % value)
         return
@@ -2191,7 +2191,7 @@ def choice(self: Event, nid: NID, title: str, choices: str, row_width: str = Non
             ast.parse(choices)
             def tryexcept(callback_expr):
                 try:
-                    val = evaluate.evaluate(self.text_evaluator._evaluate_all(callback_expr), self.unit, self.unit2, self.position, self.local_args, game=self.game)
+                    val = self.text_evaluator.direct_eval(self.text_evaluator._evaluate_all(callback_expr))
                     if isinstance(val, list):
                         return val
                     else:
@@ -2296,7 +2296,7 @@ def table(self: Event, nid: NID, table_data: str, title: str = None,
             ast.parse(table_data)
             def tryexcept(callback_expr):
                 try:
-                    val = evaluate.evaluate(self.text_evaluator._evaluate_all(callback_expr), self.unit, self.unit2, self.position, self.local_args, game=self.game)
+                    val = self.text_evaluator.direct_eval(self.text_evaluator._evaluate_all(callback_expr))
                     if isinstance(val, list):
                         return val
                     else:
@@ -2589,7 +2589,7 @@ def trigger_script_with_args(self: Event, event: str, arg_list: str = None, flag
 def loop_units(self: Event, expression, event, flags=None):
     unit_list_str = expression
     try:
-        unit_list = evaluate.evaluate(unit_list_str, self.unit, self.unit2, self.position, self.local_args)
+        unit_list = self.text_evaluator.direct_eval(unit_list_str)
     except Exception as e:
         self.logger.error("loop_units: %s: Could not evalute {%s}" % (e, unit_list_str))
         return

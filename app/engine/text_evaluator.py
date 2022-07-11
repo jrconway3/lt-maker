@@ -1,3 +1,4 @@
+from app.engine.query_engine import GameQueryEngine
 from app.data.components import Component
 from app.data.database import DB
 from app.engine.game_state import GameState
@@ -16,6 +17,13 @@ class TextEvaluator():
         self.unit2 = unit2
         self.position = position
         self.local_args = local_args or {}
+        self.query_engine = GameQueryEngine(logger, game)
+        query_funcs = [funcname for funcname in dir(self.query_engine) if not funcname.startswith('_')]
+        query_func_dict = {funcname: getattr(self.query_engine, funcname) for funcname in query_funcs}
+        self.local_args.update(query_func_dict)
+
+    def direct_eval(self, to_eval):
+        return evaluate.evaluate(to_eval, self.unit, self.unit2, self.position, self.local_args)
 
     @property
     def created_unit(self):

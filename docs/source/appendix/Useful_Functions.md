@@ -27,14 +27,22 @@ Returns a item object by nid.
 
 #### Has Item
 
-    has_item(unit, item) 
+    has_item(item, nid=None, team=None, tag=None, party=None) 
 		-> 'bool'
 
-Check if unit has item.
+Check if any unit matching criteria has item.
+
+Example usage:
+
+* `has_item("Iron Sword", team="player")` will check if any player unit is holding an iron sword
+* `has_item("Sacred Stone", party='Eirika')` will check if Eirika's party has the item "Sacred Stone"
 
         Args:
-            unit: unit to check
             item: item to check
+            nid (optional): use to check specific unit nid
+            team (optional): used to match for team. one of 'player', 'enemy', 'enemy2', 'other'
+            tag (optional): used to match for tag.
+            party (optional): used to match for party
 
         Returns:
             bool: True if unit has item, else False

@@ -1,5 +1,7 @@
+import logging
 import random, re
 from typing import Dict
+from app.engine.query_engine import GameQueryEngine
 
 from app.utilities import utils
 from app.data.database import DB
@@ -17,6 +19,9 @@ def evaluate(string: str, unit1=None, unit2=None, position=None,
              local_args: Dict = None, game=None) -> bool:
     if not game:
         from app.engine.game_state import game
+    query_engine = GameQueryEngine(logging.Logger(""), game)
+    query_funcs = [funcname for funcname in dir(query_engine) if not funcname.startswith('_')]
+    query_func_dict = {funcname: getattr(query_engine, funcname) for funcname in query_funcs}
 
     def check_pair(s1: str, s2: str) -> bool:
         """
@@ -51,6 +56,7 @@ def evaluate(string: str, unit1=None, unit2=None, position=None,
         'check_default': check_default,
         'game': game
     })
+    temp_globals.update(query_func_dict)
     if local_args:
         temp_globals.update(local_args)
     return eval(string, temp_globals)

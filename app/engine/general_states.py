@@ -708,7 +708,7 @@ class MenuState(MapState):
         else:
             start_index = len(self.valid_regions)
         for ability_name, ability in self.extra_abilities.items():
-            if target_system.get_valid_targets(self.cur_unit, ability) and item_system.available(self.cur_unit, ability):
+            if target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, ability):
                 options.insert(start_index, ability_name)
 
         # Handle combat art options (only available if you haven't attacked)
@@ -827,7 +827,16 @@ class MenuState(MapState):
                 game.memory['targets'] = targets
                 game.memory['ability'] = selection
                 game.memory['item'] = item
-                game.state.change('combat_targeting')
+                # Handle abilities that are multi-items, you sick fuck
+                if item.multi_item:
+                    if item.multi_item_hides_unavailable:
+                        game.memory['valid_weapons'] = [subitem for subitem in item.subitems if item_funcs.available(self.cur_unit, subitem) and
+                                                                                                item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
+                    else:
+                        game.memory['valid_weapons'] = [subitem for subitem in item.subitems if item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
+                    game.state.change('weapon_choice')
+                else:
+                    game.state.change('combat_targeting')
             # A combat art
             elif selection in self.combat_arts:
                 skill = self.combat_arts[selection][0]
@@ -938,7 +947,7 @@ class SubItemChildState(MapState):
         if parent_item.multi_item_hides_unavailable and unit:
             subitems = [subitem for subitem in parent_item.subitems if item_funcs.available(unit, subitem)]
         else:
-            subitems = [subitems for subitems in parent_item.subitems]
+            subitems = parent_item.subitems[:]
         return subitems
 
     def start(self):
@@ -1190,20 +1199,24 @@ class WeaponChoiceState(MapState):
         if game.memory.get('valid_weapons'):
             options = game.memory['valid_weapons']
         else:
-            options = target_system.get_all_weapons(unit)
-        # Skill straining
-        options = [option for option in options if target_system.get_valid_targets(unit, option)]
+            options = target_system.get_weapons(unit)
+            # Skill straining
+            options = [option for option in options if target_system.get_valid_targets_recursive_with_availability_check(unit, option)]
         return options
 
     def disp_attacks(self, unit, item):
         valid_attacks = target_system.get_attacks(unit, item)
         game.highlight.display_possible_attacks(valid_attacks)
 
+    def start(self):
+        self.cur_unit = game.cursor.cur_unit
+        self.options = self.get_options(self.cur_unit)
+
     def begin(self):
         game.cursor.hide()
         self.cur_unit = game.cursor.cur_unit
         self.cur_unit.sprite.change_state('chosen')
-        options = self.get_options(self.cur_unit)
+        options = self.options
         self.menu = menus.Choice(self.cur_unit, options)
         self.item_desc_panel = ui_view.ItemDescriptionPanel(self.cur_unit, self.menu.get_current())
         self.disp_attacks(self.cur_unit, self.menu.get_current())
@@ -1238,14 +1251,27 @@ class WeaponChoiceState(MapState):
             game.state.back()
 
         elif event == 'SELECT':
-            get_sound_thread().play_sfx('Select 1')
             selection = self.menu.get_current()
+            if selection.multi_item:
+                if selection.multi_item_hides_unavailable:
+                    game.memory['valid_weapons'] = [subitem for subitem in selection.subitems if item_funcs.available(self.cur_unit, subitem) and
+                                                                                                 item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
+                else:
+                    game.memory['valid_weapons'] = [subitem for subitem in selection.subitems if item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
+                game.state.change('weapon_choice')
+                return
+
+            if not item_system.available(self.cur_unit, selection):
+                get_sound_thread().play_sfx('Error')
+                return
+            get_sound_thread().play_sfx('Select 1')
             # Only bother to equip if it's a weapon
             # We don't equip spells
             if item_system.is_weapon(self.cur_unit, selection):
                 equip_action = action.EquipItem(self.cur_unit, selection)
                 # game.memory['equip_action'] = equip_action
                 action.do(equip_action)
+
 
             # If the item is in our inventory, bring it to the top
             if selection in self.cur_unit.items:
@@ -1274,14 +1300,64 @@ class SpellChoiceState(WeaponChoiceState):
     name = 'spell_choice'
 
     def get_options(self, unit) -> list:
-        options = target_system.get_all_spells(unit)
-        # Skill straining
-        options = [option for option in options if target_system.get_valid_targets(unit, option)]
+        if game.memory.get('valid_spells'):
+            options = game.memory['valid_spells']
+        else:
+            options = target_system.get_spells(unit)
+            # Skill straining
+            options = [option for option in options if target_system.get_valid_targets_recursive_with_availability_check(unit, option)]
         return options
 
     def disp_attacks(self, unit, item):
         spell_attacks = target_system.get_attacks(unit, item)
         game.highlight.display_possible_spell_attacks(spell_attacks)
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        did_move = self.menu.handle_mouse()
+        if did_move:
+            self._item_desc_update()
+
+        if 'DOWN' in directions:
+            get_sound_thread().play_sfx('Select 6')
+            self.menu.move_down(first_push)
+            self._item_desc_update()
+
+        elif 'UP' in directions:
+            get_sound_thread().play_sfx('Select 6')
+            self.menu.move_up(first_push)
+            self._item_desc_update()
+
+        if event == 'BACK':
+            get_sound_thread().play_sfx('Select 4')
+            game.memory['valid_spells'] = None
+            game.state.back()
+
+        elif event == 'SELECT':
+            selection = self.menu.get_current()
+            if selection.multi_item:
+                if selection.multi_item_hides_unavailable and self.cur_unit:
+                    game.memory['valid_spells'] = [subitem for subitem in selection.subitems if item_funcs.available(self.cur_unit, subitem) and
+                                                                                                 item_funcs.is_spell_recursive(self.cur_unit, subitem)]
+                else:
+                    game.memory['valid_spells'] = [subitem for subitem in selection.subitems if item_funcs.is_spell_recursive(self.cur_unit, subitem)]
+                game.state.change('spell_choice')
+                return
+
+            if not item_system.available(self.cur_unit, selection):
+                get_sound_thread().play_sfx('Error')
+                return
+            get_sound_thread().play_sfx('Select 1')
+            # If the item is in our inventory, bring it to the top
+            if selection in self.cur_unit.items:
+                action.do(action.BringToTopItem(self.cur_unit, selection))
+            game.memory['item'] = selection
+            game.state.change('combat_targeting')
+
+        elif event == 'INFO':
+            self.menu.toggle_info()
 
 class TargetingState(MapState):
     name = 'targeting'
@@ -1563,7 +1639,6 @@ class CombatTargetingState(MapState):
             defender = game.board.get_unit(targets[0])
             if defender:
                 defender.strike_partner = self.defender_assist
-
         combat = interaction.engage(self.cur_unit, targets, main_item)
         game.combat_instance.append(combat)
         game.state.change('combat')

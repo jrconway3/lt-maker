@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from app.events.event_manager import EventManager
     from app.events import speak_style
     from app.events.regions import Region
-    from app.utilities.typing import NID
+    from app.utilities.typing import NID, UID
 
 from app.constants import VERSION
 from app.data.database import DB
@@ -57,8 +57,8 @@ class GameState():
 
         # global registries
         self.unit_registry: Dict[NID, UnitObject] = {}
-        self.item_registry: Dict[NID, ItemObject] = {}
-        self.skill_registry: Dict[NID, SkillObject] = {}
+        self.item_registry: Dict[UID, ItemObject] = {}
+        self.skill_registry: Dict[UID, SkillObject] = {}
         self.terrain_status_registry: Dict[NID, NID] = {}
         self.region_registry: Dict[NID, Region] = {}
         self.overworld_registry: Dict[NID, OverworldObject] = {}

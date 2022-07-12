@@ -72,17 +72,35 @@ class GameQueryEngine():
         return None
 
     @categorize(QueryType.ITEM)
-    def has_item(self, unit, item) -> bool:
-        """Check if unit has item.
+    def has_item(self, item, nid=None, team=None, tag=None, party=None) -> bool:
+        """Check if any unit matching criteria has item.
+
+Example usage:
+
+* `has_item("Iron Sword", team="player")` will check if any player unit is holding an iron sword
+* `has_item("Sacred Stone", party='Eirika')` will check if Eirika's party has the item "Sacred Stone"
 
         Args:
-            unit: unit to check
             item: item to check
+            nid (optional): use to check specific unit nid
+            team (optional): used to match for team. one of 'player', 'enemy', 'enemy2', 'other'
+            tag (optional): used to match for tag.
+            party (optional): used to match for party
 
         Returns:
             bool: True if unit has item, else False
         """
-        return bool(self.get_item(unit, item))
+        all_units = self.game.get_all_units() if not party else self.game.get_all_units_in_party(party)
+        for unit in all_units:
+            if nid and not nid == unit.nid:
+                continue
+            if team and not team == unit.team:
+                continue
+            if tag and not tag in unit.tags:
+                continue
+            if bool(self.get_item(unit, item)):
+                return True
+        return False
 
     @categorize(QueryType.SKILL)
     def get_skill(self, unit, skill) -> SkillObject:

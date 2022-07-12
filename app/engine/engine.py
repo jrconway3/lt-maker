@@ -37,7 +37,9 @@ def set_title(text):
 def build_display(size):
     try:
         return pygame.display.set_mode(size, pygame.FULLSCREEN if cf.SETTINGS['fullscreen'] else 0)
-    except:
+    except pygame.error as e:
+        logging.exception(e)
+        logging.error("Your screen is probably too small to activate fullscreen with this resolution. Close the engine and editor. Go to your saves/config.ini file and change the screensize variable to 1. Then try again.")
         return pygame.display.set_mode(size)
 
 def push_display(surf, size, new_surf):

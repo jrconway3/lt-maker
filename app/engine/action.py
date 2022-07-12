@@ -385,7 +385,21 @@ class RemoveFromMap(Action):
         if self.unit.position:
             self.unit.previous_position = self.unit.position
 
+class RegisterUnit(Action):
+    def __init__(self, unit):
+        self.unit = unit
 
+    def do(self):
+        game.full_register(self.unit)
+
+    def reverse(self):
+        logging.debug("Unregistering unit %s and it's items and skills", self.unit.nid)
+        for skill in reversed(self.unit.skills):
+            game.unregister_skill(skill)
+        for item in reversed(self.unit.items):
+            game.unregister_item(item)
+        game.unregister_unit(self.unit)
+        
 class IncrementTurn(Action):
     def do(self):
         from app.engine.game_state import game

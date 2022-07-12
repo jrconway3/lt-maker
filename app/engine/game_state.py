@@ -606,6 +606,10 @@ class GameState():
         logging.debug("Registering unit %s as %s", unit, unit.nid)
         self.unit_registry[unit.nid] = unit
 
+    def unregister_unit(self, unit):
+        logging.debug("Unregistering unit %s as %s", unit, unit.nid)
+        del self.unit_registry[unit.nid]
+
     def register_item(self, item):
         logging.debug("Registering item %s as %s", item, item.uid)
         self.item_registry[item.uid] = item
@@ -613,12 +617,26 @@ class GameState():
         for subitem in item.subitems:
             self.register_item(subitem)
 
+    def unregister_item(self, item):
+        logging.debug("Unregistering item %s as %s", item, item.uid)
+        del self.item_registry[item.uid]
+        # For multi-items
+        for subitem in item.subitems:
+            self.unregister_item(subitem)
+
     def register_skill(self, skill):
         logging.debug("Registering skill %s as %s", skill, skill.uid)
         self.skill_registry[skill.uid] = skill
         # For aura skills
         if skill.subskill:
             self.skill_registry[skill.subskill.uid] = skill.subskill
+
+    def unregister_skill(self, skill):
+        logging.debug("Unregistering skill %s as %s", skill, skill.uid)
+        del self.skill_registry[skill.uid]
+        # For aura skills
+        if skill.subskill:
+            del self.skill_registry[skill.subskill.uid]
 
     def register_terrain_status(self, key, skill_uid):
         logging.debug("Registering terrain status %s", skill_uid)

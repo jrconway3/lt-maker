@@ -705,7 +705,8 @@ def make_generic(self: Event, nid, klass, level, team, ai=None, faction=None, an
     level_unit_prefab = GenericUnit(unit_nid, animation_variant, level, klass, faction, starting_items, team, ai)
     new_unit = UnitObject.from_prefab(level_unit_prefab)
     new_unit.party = self.game.current_party
-    self.game.full_register(new_unit)
+    #self.game.full_register(new_unit)
+    action.do(action.RegisterUnit(new_unit))
 
     if assign_unit:
         self.created_unit = new_unit
@@ -758,12 +759,13 @@ def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_ty
         self.logger.error("create_unit: Couldn't get a good position %s %s %s" % (position, entry_type, placement))
         return None
     new_unit.party = self.game.current_party
-    self.game.full_register(new_unit)
+    # self.game.full_register(new_unit)
+    action.do(action.RegisterUnit(new_unit))
     if assign_unit:
         self.created_unit = new_unit
         self.text_evaluator.created_unit = new_unit
     if DB.constants.value('initiative'):
-        action.do(action.InsertInitiative(unit))
+        action.do(action.InsertInitiative(new_unit))
 
     self._place_unit(new_unit, position, entry_type)
 

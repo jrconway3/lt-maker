@@ -1199,9 +1199,9 @@ class WeaponChoiceState(MapState):
         if game.memory.get('valid_weapons'):
             options = game.memory['valid_weapons']
         else:
-            options = target_system.get_weapons(unit)
+            items = target_system.get_weapons(unit)
             # Skill straining
-            options = [option for option in options if target_system.get_valid_targets_recursive_with_availability_check(unit, option)]
+            options = [item for item in items if target_system.get_valid_targets_recursive_with_availability_check(unit, item)]
         return options
 
     def disp_attacks(self, unit, item):
@@ -1254,10 +1254,16 @@ class WeaponChoiceState(MapState):
             selection = self.menu.get_current()
             if selection.multi_item:
                 if selection.multi_item_hides_unavailable:
-                    game.memory['valid_weapons'] = [subitem for subitem in selection.subitems if item_funcs.available(self.cur_unit, subitem) and
-                                                                                                 item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
+                    game.memory['valid_weapons'] = \
+                        [subitem for subitem in selection.subitems if 
+                         item_funcs.available(self.cur_unit, subitem) and
+                         item_funcs.is_weapon_recursive(self.cur_unit, subitem) and
+                         target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                 else:
-                    game.memory['valid_weapons'] = [subitem for subitem in selection.subitems if item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
+                    game.memory['valid_weapons'] = \
+                        [subitem for subitem in selection.subitems if 
+                         item_funcs.is_weapon_recursive(self.cur_unit, subitem) and
+                         target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                 game.state.change('weapon_choice')
                 return
 
@@ -1303,9 +1309,9 @@ class SpellChoiceState(WeaponChoiceState):
         if game.memory.get('valid_spells'):
             options = game.memory['valid_spells']
         else:
-            options = target_system.get_spells(unit)
+            items = target_system.get_spells(unit)
             # Skill straining
-            options = [option for option in options if target_system.get_valid_targets_recursive_with_availability_check(unit, option)]
+            options = [item for item in items if target_system.get_valid_targets_recursive_with_availability_check(unit, item)]
         return options
 
     def disp_attacks(self, unit, item):
@@ -1338,11 +1344,17 @@ class SpellChoiceState(WeaponChoiceState):
         elif event == 'SELECT':
             selection = self.menu.get_current()
             if selection.multi_item:
-                if selection.multi_item_hides_unavailable and self.cur_unit:
-                    game.memory['valid_spells'] = [subitem for subitem in selection.subitems if item_funcs.available(self.cur_unit, subitem) and
-                                                                                                 item_funcs.is_spell_recursive(self.cur_unit, subitem)]
+                if selection.multi_item_hides_unavailable:
+                    game.memory['valid_spells'] = \
+                        [subitem for subitem in selection.subitems if 
+                         item_funcs.available(self.cur_unit, subitem) and
+                         item_funcs.is_spell_recursive(self.cur_unit, subitem) and
+                         target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                 else:
-                    game.memory['valid_spells'] = [subitem for subitem in selection.subitems if item_funcs.is_spell_recursive(self.cur_unit, subitem)]
+                    game.memory['valid_spells'] = \
+                        [subitem for subitem in selection.subitems if 
+                         item_funcs.is_spell_recursive(self.cur_unit, subitem) and
+                         target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                 game.state.change('spell_choice')
                 return
 

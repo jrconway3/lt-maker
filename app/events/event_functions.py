@@ -1443,8 +1443,9 @@ def give_skill(self: Event, global_unit, skill, flags=None):
         self.game.state.change('alert')
         self.state = 'paused'
 
-def remove_skill(self: Event, global_unit, skill, flags=None):
+def remove_skill(self: Event, global_unit, skill, count = '-1', flags=None):
     flags = flags or set()
+    count = int(count)
 
     unit = self._get_unit(global_unit)
     if not unit:
@@ -1456,7 +1457,7 @@ def remove_skill(self: Event, global_unit, skill, flags=None):
         return
     banner_flag = 'no_banner' not in flags
 
-    action.do(action.RemoveSkill(unit, skill_nid))
+    action.do(action.RemoveSkill(unit, skill_nid, count))
     if banner_flag:
         skill = DB.skills.get(skill_nid)
         b = banner.TakeSkill(unit, skill)

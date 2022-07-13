@@ -2720,10 +2720,11 @@ class AddSkill(Action):
 
 
 class RemoveSkill(Action):
-    def __init__(self, unit, skill):
+    def __init__(self, unit, skill, count = -1):
         self.unit = unit
         self.skill = skill  # Skill obj or skill nid str
         self.removed_skills = []
+        self.count = count
         self.old_owner_nid = None
         self.reset_action = ResetUnitVars(self.unit)
 
@@ -2738,11 +2739,16 @@ class RemoveSkill(Action):
 
     def _remove(self, true_remove=True):
         self.removed_skills.clear()
+        to_remove = self.count
         if isinstance(self.skill, str):
+            new_skills = []
             for skill in self.unit.skills:
-                if skill.nid == self.skill:
+                if skill.nid == self.skill and to_remove != 0:
                     self._remove_skill(skill, true_remove)
-            self.unit.skills = [skill for skill in self.unit.skills if skill.nid != self.skill]
+                    to_remove -= 1
+                else:
+                    new_skills.append(skill)
+            self.unit.skills = new_skills
         else:
             if self.skill in self.unit.skills:
                 self.unit.skills.remove(self.skill)

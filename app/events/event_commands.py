@@ -1381,6 +1381,8 @@ class RemoveSkill(EventCommand):
         """
 
     keywords = ["GlobalUnit", "Skill"]
+    optional_keywords = ['Count']
+    keyword_types = ['GlobalUnit', 'Skill', 'Integer']
     _flags = ['no_banner']
 
 class ChangeAI(EventCommand):

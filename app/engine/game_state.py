@@ -53,7 +53,7 @@ class GameState():
         self.game_vars: Counter = None
         self.level_vars: Counter = None
         self.playtime: int = 0
-        self.current_save_slot: save.SaveSlot = None
+        self.current_save_slot: int = None
 
         # global registries
         self.unit_registry: Dict[NID, UnitObject] = {}

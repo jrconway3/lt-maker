@@ -397,6 +397,9 @@ class TitleLoadState(State):
     menu = None
     bg = None
 
+    def get_slots(self):
+        return save.SAVE_SLOTS
+
     def start(self):
         self.fluid = FluidScroll(128)
         self.state = 'transition_in'
@@ -406,7 +409,7 @@ class TitleLoadState(State):
         self.particles = game.memory['title_particles']
 
         save.check_save_slots()
-        self.save_slots = save.SAVE_SLOTS
+        self.save_slots = self.get_slots()
         options, colors = save.get_save_title(self.save_slots)
         self.menu = menus.ChapterSelect(options, colors)
         most_recent = self.save_slots.index(max(self.save_slots, key=lambda x: x.realtime))
@@ -491,6 +494,9 @@ class TitleLoadState(State):
 class TitleRestartState(TitleLoadState):
     name = 'title_restart'
 
+    def get_slots(self):
+        return save.RESTART_SLOTS
+
     def take_input(self, event):
         # Only take input in normal state
         if self.state != 'normal':
@@ -535,13 +541,15 @@ class TitleRestartState(TitleLoadState):
             else:
                 get_sound_thread().play_sfx('Error')
 
-def build_new_game(slot):
+def build_new_game(slot: int):
     # Make sure to keep the current mode
+    assert isinstance(slot, int)
     old_mode = game.current_mode
     game.build_new()
     game.current_mode = old_mode
 
     game.state.clear()
+    game.current_save_slot = slot
     game.state.change('turn_change')
     game.state.process_temp_state()
 

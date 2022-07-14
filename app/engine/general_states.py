@@ -1655,6 +1655,7 @@ class CombatTargetingState(MapState):
         game.combat_instance.append(combat)
         game.state.change('combat')
         game.memory['valid_weapons'] = None
+        game.memory['valid_spells'] = None
 
     def _get_next_target(self):
         allow_same_target = item_system.allow_same_target(self.cur_unit, self.item)

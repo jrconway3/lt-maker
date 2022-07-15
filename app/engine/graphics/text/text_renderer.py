@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple
 from app.engine import engine
 from app.engine.fonts import FONT
 from app.engine.icons import draw_icon_by_alias
+from app.utilities.enums import Alignments
 from app.utilities.typing import NID
 
 tag_match = re.compile('<(.*?)>')
@@ -57,7 +58,7 @@ def rendered_text_width(fonts: List[NID], texts: List[str]) -> int:
             total_width += 16
     return total_width
 
-def render_text(surf: engine.Surface, fonts: List[NID], texts: List[str], colors: List[NID], topleft: Tuple[int, int]) -> engine.Surface:
+def render_text(surf: engine.Surface, fonts: List[NID], texts: List[str], colors: List[NID], topleft: Tuple[int, int], align: Alignments=Alignments.LEFT) -> engine.Surface:
     """An enhanced text render layer wrapper around BmpFont.
     Supports multiple fonts and multiple text sections, as well as
     embedded icons.
@@ -84,9 +85,19 @@ def render_text(surf: engine.Surface, fonts: List[NID], texts: List[str], colors
     text_stack = list(reversed(texts))
     color_stack = list(reversed(colors))
 
+    # for non-left alignments
+    if align == Alignments.CENTER or align == Alignments.RIGHT:
+        width = rendered_text_width(fonts, texts)
+        tx, ty = topleft
+        if align == Alignments.CENTER:
+            tx -= width//2
+        elif align == Alignments.RIGHT:
+            tx -= width
+    else:
+        tx, ty = topleft
+
     base_font = fonts[-1]
     font_history_stack = []
-    tx, ty = topleft
     while(text_stack):
         curr_text = text_stack.pop()
         curr_font = font_stack.pop()

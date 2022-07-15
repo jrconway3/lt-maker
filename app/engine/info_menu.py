@@ -838,7 +838,7 @@ class InfoMenuState(State):
                 build_groove(surf, (offset + 18, 10 + y), width - 24, perc)
                 # Add text
                 pos = (offset + 7 + width//2, 4 + y)
-                render_text(surf, ['text'], [weapon_rank.nid], ['blue'], pos, Alignments.CENTER))
+                render_text(surf, ['text'], [weapon_rank.nid], ['blue'], pos, Alignments.CENTER)
                 self.info_graph.register((96 + pos[0] - width//2 - 8, 24 + pos[1], width, 16), "%s mastery level: %d" % (DB.weapons.get(weapon).name, value), 'support_skills', first=(counter==0))
                 counter += 1
                 if counter >= len(wexp_to_draw):

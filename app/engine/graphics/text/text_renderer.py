@@ -11,6 +11,9 @@ from app.utilities.typing import NID
 
 tag_match = re.compile('<(.*?)>')
 
+def font_height(font: NID):
+    return FONT[font].height
+
 def rendered_text_width(fonts: List[NID], texts: List[str]) -> int:
     """Returns the full rendered width (see render_text) of a text list.
 

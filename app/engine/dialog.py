@@ -206,7 +206,7 @@ class Dialog():
             num_lines = self.num_lines
             if len(block) <= 24:
                 num_lines = 1
-        lines = text_funcs.split(self.font, block, num_lines, WINWIDTH - 16)
+        lines = text_funcs.split(self.font_type, block, num_lines, WINWIDTH - 16)
         return lines
 
     def _next_line(self):
@@ -543,7 +543,9 @@ class Credits():
         self.title = title
         self.text = text
         self.title_font = FONT['credit_title-white']
+        self.title_font_name = 'credit_title-white'
         self.font = FONT['credit-white']
+        self.font_name = 'credit-white'
 
         self.center_flag = center_flag
         self.wait_flag = wait_flag
@@ -562,7 +564,7 @@ class Credits():
         self.parsed_text = []
         for line in self.text:
             x_bound = WINWIDTH - 12 if self.center_flag else WINWIDTH - 88
-            lines = text_funcs.line_wrap(self.font, line, x_bound)
+            lines = text_funcs.line_wrap(self.font_name, line, x_bound)
             for li in lines:
                 if self.center_flag:
                     x_pos = WINWIDTH//2 - self.font.width(li)//2

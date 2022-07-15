@@ -2421,13 +2421,15 @@ def remove_overlay_sprite(self: Event, nid, flags=None):
                 self.wait_time = engine.get_time() + 750
                 self.state = 'waiting'
 
-def alert(self: Event, string, item=None, skill=None, flags=None):
+def alert(self: Event, string, item=None, skill=None, icon=None, flags=None):
     if item and item in DB.items.keys():
         custom_item = DB.items.get(item)
         self.game.alerts.append(banner.CustomIcon(string, custom_item))
     elif skill and skill in DB.skills.keys():
         custom_skill = DB.skills.get(skill)
         self.game.alerts.append(banner.CustomIcon(string, custom_skill))
+    elif icon and any([sheet.get_index(icon) for sheet in RESOURCES.icons16]):
+        self.game.alerts.append(banner.CustomIcon(string, icon))
     else:
         self.game.alerts.append(banner.Custom(string))
     self.game.state.change('alert')

@@ -34,7 +34,7 @@ class IconModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole or role == Qt.EditRole:
             item = self.sub_data[index.row()]
             text = item.nid
             return text
@@ -48,11 +48,15 @@ class IconModel(ResourceCollectionModel):
     def setData(self, index, value, role):
         if not index.isValid():
             return False
+        if role == Qt.EditRole:
+            item: Icon = self.sub_data[index.row()]
+            item.nid = value
+            self._data.get(item.parent_nid).set_alias(item.nid, item.icon_index)
         return True
 
     def flags(self, index):
         if index.isValid():
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
         else:
             return Qt.NoItemFlags
 

@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon
 
 from app.utilities import str_utils
-from app.resources.icons import Icon
+from app.resources.icons import Icon, IconSheet
 from app.resources.map_icons import MapIcon, MapIconCatalog
 from app.resources.resources import RESOURCES
 from app.utilities.data import Data
@@ -108,7 +108,7 @@ class Icon16Model(IconModel):
                     pix = QPixmap(fn)
                     if pix.width() % self.width == 0 and pix.height() % self.height == 0:
                         nid = str_utils.get_next_name(nid, [d.nid for d in self.database])
-                        icon = Icon(nid, fn)
+                        icon = IconSheet(nid, fn)
                         icon.pixmap = pix
                         self._data.append(icon)
                         new_icons = icon_view.icon_slice(icon, self.width, self.height)

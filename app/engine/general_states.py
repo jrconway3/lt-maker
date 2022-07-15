@@ -43,6 +43,9 @@ class TurnChangeState(MapState):
     def handle_paired(self):
         for unit in game.get_all_units():
             if unit.traveler:
+                # One fix
+                unit.lead_unit = True
+                game.get_unit(unit.traveler).lead_unit = False
                 # Increment guard gauge
                 if not unit.built_guard:
                     action.do(action.IncGauge(unit, -unit.get_gauge_inc()))

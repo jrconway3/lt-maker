@@ -523,7 +523,8 @@ class MoveState(MapState):
             game.state.change('free')
             if cur_unit.has_attacked or cur_unit.has_traded:
                 if not cur_unit.finished:
-                    cur_unit.wait()
+                    game.events.trigger('unit_wait', cur_unit, position=cur_unit.position, region=game.get_region_under_pos(cur_unit.position))
+                    action.do(action.Wait(cur_unit))
             else:
                 cur_unit.sprite.change_state('normal')
 
@@ -534,7 +535,8 @@ class MoveState(MapState):
                     game.state.clear()
                     game.state.change('free')
                     if not cur_unit.finished:
-                        cur_unit.wait()
+                        game.events.trigger('unit_wait', cur_unit, position=cur_unit.position, region=game.get_region_under_pos(cur_unit.position))
+                        action.do(action.Wait(cur_unit))
                 else:
                     # Just move in place
                     cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
@@ -565,6 +567,7 @@ class MoveState(MapState):
     def end(self):
         game.cursor.remove_arrows()
         game.highlight.remove_highlights()
+
 
 class MovementState(State):
     # Responsible for moving units that need to be moved
@@ -765,23 +768,29 @@ class MenuState(MapState):
                 else:
                     game.state.clear()
                     game.state.change('free')
-                    self.cur_unit.wait()
+                    game.events.trigger('unit_wait', self.cur_unit, position=self.cur_unit.position, region=game.get_region_under_pos(self.cur_unit.position))
+                    action.do(action.Wait(self.cur_unit))
             else:
                 # Reverse Swap here
+                if self.cur_unit.lead_unit:
+                    logging.info("Lead unit is " + str(self.cur_unit.lead_unit))
+                if self.cur_unit.traveler:
+                    logging.info("Traveler is " + self.cur_unit.traveler)
                 if not self.cur_unit.lead_unit and self.cur_unit.traveler:
-                    self.cur_unit.lead_unit = False
                     u = game.get_unit(self.cur_unit.traveler)
                     act = action.SwapPaired(self.cur_unit, u)
-                    act.execute()
+                    act.do()
                     self.cur_unit = u
                     game.cursor.cur_unit = u
-                else:
-                    if self.cur_unit.current_move:
-                        action.reverse(self.cur_unit.current_move)
-                        self.cur_unit.current_move = None
-                    # game.cursor.set_pos(self.cur_unit.position)
-                    game.state.change('move')
-                    game.cursor.construct_arrows(game.cursor.path[::-1])
+                if self.cur_unit.current_move:
+                    logging.info("Reversing " + self.cur_unit.nid + "'s move")
+                    game.leave(self.cur_unit)
+                    print(game.board.get_unit((2,3)))
+                    print(game.board.get_unit((3,2)))
+                    action.reverse(self.cur_unit.current_move)
+                    self.cur_unit.current_move = None
+                game.state.change('move')
+                game.cursor.construct_arrows(game.cursor.path[::-1])
 
         elif event == 'INFO':
             info_menu.handle_info()

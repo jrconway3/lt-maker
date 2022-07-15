@@ -399,7 +399,7 @@ class RegisterUnit(Action):
         for item in reversed(self.unit.items):
             game.unregister_item(item)
         game.unregister_unit(self.unit)
-        
+
 class IncrementTurn(Action):
     def do(self):
         from app.engine.game_state import game

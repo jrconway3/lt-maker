@@ -1,4 +1,5 @@
 import re
+from app.engine.graphics.text.text_renderer import render_text, rendered_text_width
 
 from app.utilities import utils
 from app.constants import WINWIDTH, WINHEIGHT
@@ -380,9 +381,8 @@ class Dialog():
             line_chunks, current_color = self.chunkify(line, current_color)
             for chunk in line_chunks:
                 text, color = chunk
-                font = FONT[self.font_type]
-                width = font.width(text)
-                font.blit(text, text_surf, (x_pos, y_pos), color)
+                width = rendered_text_width([self.font_type], [text])
+                render_text(text_surf, [self.font_type], [text], [color], (x_pos, y_pos))
                 x_pos += width
 
         display_lines = self.text_lines[-self.num_lines:]
@@ -397,9 +397,8 @@ class Dialog():
             line_chunks, current_color = self.chunkify(line, current_color)
             for chunk in line_chunks:
                 text, color = chunk
-                font = FONT[self.font_type]
-                width = font.width(text)
-                font.blit(text, text_surf, (x_pos, y_set), color)
+                width = rendered_text_width([self.font_type], [text])
+                render_text(text_surf, [self.font_type], [text], [color], (x_pos, y_set))
                 x_pos += width
 
             end_x_pos = self.position[0] + 8 + x_pos

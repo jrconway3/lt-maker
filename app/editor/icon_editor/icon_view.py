@@ -50,7 +50,10 @@ def icon_slice(resource: IconSheet, base_width: int, base_height: int, vertical:
     sheet = resource.pixmap
     width, height = sheet.width(), sheet.height()
     if width == base_width and height == base_height:
-        return [resource]
+        new_nid = resource.get_alias((0, 0))
+        new_image = Icon(new_nid, (0, 0), resource.nid)
+        new_image.pixmap = resource.pixmap
+        return [new_image]
     sub_images = []
     if vertical:
         for x in range(width//base_width):

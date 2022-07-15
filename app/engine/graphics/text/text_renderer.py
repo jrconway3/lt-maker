@@ -18,16 +18,16 @@ def rendered_text_width(fonts: List[NID], texts: List[str]) -> int:
         texts (List[str]): List of strings to write with corresponding fonts.
 
     Returns:
-        int: _description_
+        int: Width of string if it were rendered
     """
     if not fonts:
         return
     if not texts:
         return
-    font_stack = fonts[:]
-    font_stack.reverse()
-    text_stack = texts[:]
-    text_stack.reverse()
+    if len(fonts) < len(texts):
+        fonts += [fonts[-1] for i in range(len(texts) - len(fonts))]
+    font_stack = list(reversed(fonts))
+    text_stack = list(reversed(texts))
 
     base_font = fonts[-1]
     font_history_stack = []
@@ -35,9 +35,6 @@ def rendered_text_width(fonts: List[NID], texts: List[str]) -> int:
     while(text_stack):
         curr_text = text_stack.pop()
         curr_font = font_stack.pop()
-        # don't pop if this is the last font
-        if not font_stack:
-            font_stack.append(curr_font)
         # process text for tags and push them onto stack for later processing
         any_tags = tag_match.search(curr_text)
         if any_tags:
@@ -79,12 +76,13 @@ def render_text(surf: engine.Surface, fonts: List[NID], texts: List[str], colors
         return
     if not colors:
         colors = [None]
-    font_stack = fonts[:]
-    font_stack.reverse()
-    text_stack = texts[:]
-    text_stack.reverse()
-    color_stack = colors[:]
-    color_stack.reverse()
+    if len(fonts) < len(texts):
+        fonts += [fonts[-1] for i in range(len(texts) - len(fonts))]
+    if len(colors) < len(texts):
+        colors += [colors[-1] for i in range(len(texts) - len(colors))]
+    font_stack = list(reversed(fonts))
+    text_stack = list(reversed(texts))
+    color_stack = list(reversed(colors))
 
     base_font = fonts[-1]
     font_history_stack = []
@@ -93,11 +91,6 @@ def render_text(surf: engine.Surface, fonts: List[NID], texts: List[str], colors
         curr_text = text_stack.pop()
         curr_font = font_stack.pop()
         curr_color = color_stack.pop() if color_stack else None
-        # don't pop if this is the last font
-        if not font_stack:
-            font_stack.append(curr_font)
-        if not color_stack:
-            color_stack.append(curr_color)
         # process text for tags and push them onto stack for later processing
         any_tags = tag_match.search(curr_text)
         if any_tags:

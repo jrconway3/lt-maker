@@ -158,7 +158,7 @@ class Dialog():
                     split_lines = self.get_lines_from_block(current_line, 1)
                 else:
                     split_lines = self.get_lines_from_block(current_line)
-                width = max(width, max(self.font.width(s) for s in split_lines))
+                width = max(width, max(rendered_text_width([self.font_type], [s]) for s in split_lines))
                 if len(split_lines) == 1:
                     waiting_cursor = True
                 current_line = ''
@@ -174,7 +174,7 @@ class Dialog():
                 split_lines = self.get_lines_from_block(current_line)
             else:
                 split_lines = self.get_lines_from_block(current_line, 1)
-            width = max(width, max(self.font.width(s) for s in split_lines))
+            width = max(width, max(rendered_text_width([self.font_type], [s]) for s in split_lines))
             if len(split_lines) == 1:
                 waiting_cursor = True
         if waiting_cursor:

@@ -43,6 +43,9 @@ class TurnChangeState(MapState):
     def handle_paired(self):
         for unit in game.get_all_units():
             if unit.traveler:
+                # One fix
+                unit.lead_unit = True
+                game.get_unit(unit.traveler).lead_unit = False
                 # Increment guard gauge
                 if not unit.built_guard:
                     action.do(action.IncGauge(unit, -unit.get_gauge_inc()))
@@ -563,6 +566,7 @@ class MoveState(MapState):
         game.cursor.remove_arrows()
         game.highlight.remove_highlights()
 
+
 class MovementState(State):
     # Responsible for moving units that need to be moved
     name = 'movement'
@@ -765,20 +769,23 @@ class MenuState(MapState):
                     self.cur_unit.wait()
             else:
                 # Reverse Swap here
+                if self.cur_unit.lead_unit:
+                    logging.info("Lead unit is " + str(self.cur_unit.lead_unit))
+                if self.cur_unit.traveler:
+                    logging.info("Traveler is " + self.cur_unit.traveler)
                 if not self.cur_unit.lead_unit and self.cur_unit.traveler:
-                    self.cur_unit.lead_unit = False
                     u = game.get_unit(self.cur_unit.traveler)
                     act = action.SwapPaired(self.cur_unit, u)
-                    act.execute()
+                    act.do()
                     self.cur_unit = u
                     game.cursor.cur_unit = u
-                else:
-                    if self.cur_unit.current_move:
-                        action.reverse(self.cur_unit.current_move)
-                        self.cur_unit.current_move = None
-                    # game.cursor.set_pos(self.cur_unit.position)
-                    game.state.change('move')
-                    game.cursor.construct_arrows(game.cursor.path[::-1])
+                if self.cur_unit.current_move:
+                    logging.info("Reversing " + self.cur_unit.nid + "'s move")
+                    game.leave(self.cur_unit)
+                    action.reverse(self.cur_unit.current_move)
+                    self.cur_unit.current_move = None
+                game.state.change('move')
+                game.cursor.construct_arrows(game.cursor.path[::-1])
 
         elif event == 'INFO':
             info_menu.handle_info()
@@ -1255,13 +1262,13 @@ class WeaponChoiceState(MapState):
             if selection.multi_item:
                 if selection.multi_item_hides_unavailable:
                     game.memory['valid_weapons'] = \
-                        [subitem for subitem in selection.subitems if 
+                        [subitem for subitem in selection.subitems if
                          item_funcs.available(self.cur_unit, subitem) and
                          item_funcs.is_weapon_recursive(self.cur_unit, subitem) and
                          target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                 else:
                     game.memory['valid_weapons'] = \
-                        [subitem for subitem in selection.subitems if 
+                        [subitem for subitem in selection.subitems if
                          item_funcs.is_weapon_recursive(self.cur_unit, subitem) and
                          target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                 game.state.change('weapon_choice')
@@ -1346,13 +1353,13 @@ class SpellChoiceState(WeaponChoiceState):
             if selection.multi_item:
                 if selection.multi_item_hides_unavailable:
                     game.memory['valid_spells'] = \
-                        [subitem for subitem in selection.subitems if 
+                        [subitem for subitem in selection.subitems if
                          item_funcs.available(self.cur_unit, subitem) and
                          item_funcs.is_spell_recursive(self.cur_unit, subitem) and
                          target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                 else:
                     game.memory['valid_spells'] = \
-                        [subitem for subitem in selection.subitems if 
+                        [subitem for subitem in selection.subitems if
                          item_funcs.is_spell_recursive(self.cur_unit, subitem) and
                          target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                 game.state.change('spell_choice')

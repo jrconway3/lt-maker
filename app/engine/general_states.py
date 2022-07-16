@@ -766,8 +766,7 @@ class MenuState(MapState):
                 else:
                     game.state.clear()
                     game.state.change('free')
-                    game.events.trigger('unit_wait', self.cur_unit, position=self.cur_unit.position, region=game.get_region_under_pos(self.cur_unit.position))
-                    action.do(action.Wait(self.cur_unit))
+                    self.cur_unit.wait()
             else:
                 # Reverse Swap here
                 if self.cur_unit.lead_unit:

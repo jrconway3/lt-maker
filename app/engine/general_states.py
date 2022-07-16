@@ -523,8 +523,7 @@ class MoveState(MapState):
             game.state.change('free')
             if cur_unit.has_attacked or cur_unit.has_traded:
                 if not cur_unit.finished:
-                    game.events.trigger('unit_wait', cur_unit, position=cur_unit.position, region=game.get_region_under_pos(cur_unit.position))
-                    action.do(action.Wait(cur_unit))
+                    cur_unit.wait()
             else:
                 cur_unit.sprite.change_state('normal')
 
@@ -535,8 +534,7 @@ class MoveState(MapState):
                     game.state.clear()
                     game.state.change('free')
                     if not cur_unit.finished:
-                        game.events.trigger('unit_wait', cur_unit, position=cur_unit.position, region=game.get_region_under_pos(cur_unit.position))
-                        action.do(action.Wait(cur_unit))
+                        cur_unit.wait()
                 else:
                     # Just move in place
                     cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
@@ -785,8 +783,6 @@ class MenuState(MapState):
                 if self.cur_unit.current_move:
                     logging.info("Reversing " + self.cur_unit.nid + "'s move")
                     game.leave(self.cur_unit)
-                    print(game.board.get_unit((2,3)))
-                    print(game.board.get_unit((3,2)))
                     action.reverse(self.cur_unit.current_move)
                     self.cur_unit.current_move = None
                 game.state.change('move')

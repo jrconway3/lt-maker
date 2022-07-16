@@ -69,6 +69,7 @@ constants = ConstantCatalog([
     Constant('auto_promote', "Units will promote automatically upon reaching max level", bool, False, 'leveling'),
     Constant('promote_level_reset', "Promotion resets level back to 1", bool, True, 'leveling'),
     Constant('class_change_level_reset', "Class Change resets level back to 1", bool, False, 'leveling'),
+    Constant('negative_growths', "Negative growth rates will reduce stats", bool, True, 'leveling'),
     Constant('class_change_same_tier', "Class Change only between classes of the same tier", bool, False, 'leveling'),
     Constant('generic_feats', "Generic units will be given random feats when appropriate", bool, False, 'leveling'),
     Constant('min_damage', "Min damage dealt by an attack", int, 0),

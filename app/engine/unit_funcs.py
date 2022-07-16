@@ -134,7 +134,9 @@ def auto_level(unit, num_levels, starting_level=1, difficulty_growths=False, gro
                 growth_sum = difficulty_growth_bonus.get(growth_nid, 0) * num_levels
             else:
                 growth_sum = (growth_value + unit.growth_bonus(growth_nid) + difficulty_growth_bonus.get(growth_nid, 0)) * num_levels
-            if growth_value < 0 and DB.constants.value('negative_growths'):
+            if not DB.constants.value('negative_growths'):
+                growth_value = max(growth_value, 0)
+            if growth_value < 0:
                 unit.stats[growth_nid] += (growth_sum - unit.growth_points[growth_nid]) // 100
                 unit.growth_points[growth_nid] = -(growth_sum - unit.growth_points[growth_nid]) % 100
             else:

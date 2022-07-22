@@ -31,7 +31,7 @@ class SkillOption(menu_options.BasicOption):
         self.skill = skill
 
     def width(self):
-        return FONT[self.color].width(self.skill.name) + 24
+        return FONT[self.get_color()].width(self.skill.name) + 24
 
     def height(self):
         return 16

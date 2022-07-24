@@ -391,6 +391,20 @@ class Tag(Validator):
         valids = [(None, tag.nid) for tag in self._db.tags.values()]
         return valids
 
+class TagList(Validator):
+    desc = "must be a comma-delimited list of tags (ie, `Armor,Dragon,Boss`)"
+
+    def validate(self, text, level):
+        tex = text.split(',')
+        for t in tex:
+            if t not in self._db.tags.keys():
+                return None                
+        return text
+
+    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+        valids = [(None, tag.nid) for tag in self._db.tags.values()]
+        return valids
+
 class TextPosition(Validator):
     valid_positions = ['center']
 
@@ -920,6 +934,20 @@ class ItemList(Validator):
 
     def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
         valids = [(None, item.nid) for item in self._db.items.values()]
+        return valids
+
+class ItemComponent(Validator):
+    desc = "accepts an item component."
+
+    def validate(self, text, level):
+        from app.engine import item_component_access as ICA
+        if text in ICA.get_components().keys():
+            return text
+        return None
+
+    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+        from app.engine import item_component_access as ICA
+        valids = [(None, component.nid) for component in ICA.get_components()]
         return valids
 
 class StatList(Validator):

@@ -367,7 +367,7 @@ class PrimaryAI():
                    (not DB.constants.value('ai_fog_of_war') or game.board.in_vision(pos, self.unit.team)):
                     filtered_targets.add(pos)
                     break
-            
+
         return list(filtered_targets)
 
     def get_all_valid_targets(self):
@@ -727,7 +727,7 @@ class SecondaryAI():
                 self.widen_flag = True
                 self.view_range = -4
                 self.available_targets = [t for t in self.all_targets if t not in self.available_targets]
-            else:
+            else:  # No targets possible
                 return True, None
         return False, None
 

@@ -1289,6 +1289,29 @@ If *ChildItem* is not specified, all items will be removed form the existing mul
     optional_keywords = ['ChildItem']
     keyword_types = ["GlobalUnitOrConvoy", "Item", "Item"]
 
+class AddItemComponent(EventCommand):
+    nid = 'add_item_component'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Adds an *ItemComponent* with optional value of *Expression* to *Item* in the inventory of *GlobalUnitOrConvoy*.
+        """
+
+    keywords = ["GlobalUnitOrConvoy", "Item", "ItemComponent"]
+    optional_keywords = ["Expression"]
+
+class RemoveItemComponent(EventCommand):
+    nid = 'remove_item_component'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Removes *ItemComponent* from *Item* in the inventory of *GlobalUnitOrConvoy*.
+        """
+
+    keywords = ["GlobalUnitOrConvoy", "Item", "ItemComponent"]
+
 class GiveMoney(EventCommand):
     nid = 'give_money'
     tag = Tags.GAME_VARS
@@ -1366,9 +1389,12 @@ class GiveSkill(EventCommand):
     desc = \
         """
 *GlobalUnit* gains *Skill*. If the *no_banner* flag is set, the player will not be informed of this.
-        """
-
+Optional *Initiator* global unit can be given to give the skill an initiator.
+         """
+ 
     keywords = ["GlobalUnit", "Skill"]
+    optional_keywords = ["Initiator"]
+    keyword_types = ["GlobalUnit", "Skill", "GlobalUnit"]
     _flags = ['no_banner']
 
 class RemoveSkill(EventCommand):

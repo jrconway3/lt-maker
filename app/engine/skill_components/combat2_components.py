@@ -26,7 +26,7 @@ class IgnoreDamage(SkillComponent):
         # Remove any acts that reduce my HP!
         did_something = False
         for act in reversed(actions):
-            if isinstance(act, action.ChangeHP) and act.num < 0:
+            if isinstance(act, action.ChangeHP) and act.num < 0 and act.unit == unit:
                 actions.remove(act)
                 did_something = True
 
@@ -272,6 +272,20 @@ class GiveStatusAfterAttack(SkillComponent):
 
     def end_combat(self, playback, unit, item, target, mode):
         mark_playbacks = [p for p in playback if p.nid in ('mark_miss', 'mark_hit', 'mark_crit')]
+        if target and any(p.attacker is unit and (p.main_attacker is unit or p.attacker is p.main_attacker.strike_partner) \
+                for p in mark_playbacks):  # Unit is overall attacker
+            action.do(action.AddSkill(target, self.value, unit))
+            action.do(action.TriggerCharge(unit, self.skill))
+
+class GiveStatusAfterCombatOnHit(SkillComponent):
+    nid = 'give_status_after_combat_on_hit'
+    desc = "Gives a status to target after combat assuming you hit the target"
+    tag = SkillTags.COMBAT2
+
+    expose = Type.Skill
+
+    def end_combat(self, playback, unit, item, target, mode):
+        mark_playbacks = [p for p in playback if p.nid in ('mark_hit', 'mark_crit')]
         if target and any(p.attacker is unit and (p.main_attacker is unit or p.attacker is p.main_attacker.strike_partner) \
                 for p in mark_playbacks):  # Unit is overall attacker
             action.do(action.AddSkill(target, self.value, unit))

@@ -350,7 +350,7 @@ def increment_end_combat_supports(combatant, target=None) -> list:
 
 def increment_supports(combatant, partner, constant: str) -> bool:
     """
-    Returns whether the combatant and partner are successful in increment their support
+    Returns whether the combatant and partner are successful in incrementing their support
     """
     if not game.game_vars.get('_supports'):
         return False

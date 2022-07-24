@@ -469,7 +469,7 @@ def compute_damage(unit, target, item, def_item, mode, attack_info, crit=False, 
 def compute_assist_damage(unit, target, item, def_item, mode, attack_info, crit=False):
     return compute_damage(unit, target, item, def_item, mode, attack_info, crit, assist=True)
 
-def compute_true_speed(unit, target, item, def_item, mode, attack_info) -> bool:
+def compute_true_speed(unit, target, item, def_item, mode, attack_info) -> int:
     speed = attack_speed(unit, item)
 
     # Handles things like effective damage

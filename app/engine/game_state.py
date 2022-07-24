@@ -1,5 +1,4 @@
 from __future__ import annotations
-from app.data import raw_data
 
 import random
 import time
@@ -10,7 +9,7 @@ if TYPE_CHECKING:
     from app.engine import (ai_controller, death,
         game_board, highlight, map_view, movement, phase,
         promotion, ui_view, banner, boundary, camera, cursor,
-        initiative, records, save, supports, turnwheel, unit_sprite)
+        initiative, records, supports, turnwheel, unit_sprite)
     from app.engine.combat.simple_combat import SimpleCombat
     from app.engine.overworld.overworld_movement_manager import \
         OverworldMovementManager
@@ -600,7 +599,7 @@ class GameState():
 
     @property
     def regions(self):
-        return list(self.region_registry.values())
+        return list(self.level.regions.values())
 
     def register_unit(self, unit):
         logging.debug("Registering unit %s as %s", unit, unit.nid)
@@ -685,12 +684,12 @@ class GameState():
         return skill_uid
 
     def get_region(self, region_nid):
-        region = self.region_registry.get(region_nid)
+        region = self.level.regions.get(region_nid)
         return region
 
     def get_region_under_pos(self, pos: Tuple[int, int]) -> Region:
         if pos:
-            for region in self.region_registry.values():
+            for region in self.level.regions.values():
                 if region.contains(pos):
                     return region
 
@@ -934,7 +933,7 @@ class GameState():
         """
         from app.engine import action
         old = static_random.get_other_random_state()
-        result = static_random.r.other_random.random()
+        result = static_random.get_random_float()
         new = static_random.get_other_random_state()
         action.do(action.RecordOtherRandomState(old, new))
         return result

@@ -81,6 +81,8 @@ def add_portrait(self: Event, portrait, screen_position, slide=None, expression_
 
     name = portrait
     unit = self._get_unit(name)
+    if unit:
+        name = unit.nid
     if unit and unit.portrait_nid:
         portrait = RESOURCES.portraits.get(unit.portrait_nid)
     elif name in DB.units.keys():
@@ -144,6 +146,9 @@ def remove_portrait(self: Event, portrait, flags=None):
     flags = flags or set()
 
     name = portrait
+    unit = self._get_unit(name)
+    if unit:
+        name = unit.nid
     if name not in self.portraits:
         return False
 
@@ -178,6 +183,9 @@ def move_portrait(self: Event, portrait, screen_position, flags=None):
     flags = flags or set()
 
     name = portrait
+    unit = self._get_unit(name)
+    if unit:
+        name = unit.nid
     portrait = self.portraits.get(name)
     if not portrait:
         return False
@@ -199,6 +207,9 @@ def mirror_portrait(self: Event, portrait, flags=None):
     flags = flags or set()
 
     name = portrait
+    unit = self._get_unit(name)
+    if unit:
+        name = unit.nid
     portrait = self.portraits.get(name)
     if not portrait:
         return False
@@ -219,7 +230,11 @@ def mirror_portrait(self: Event, portrait, flags=None):
 def bop_portrait(self: Event, portrait, flags=None):
     flags = flags or set()
 
-    _portrait = self.portraits.get(portrait)
+    name = portrait
+    unit = self._get_unit(name)
+    if unit:
+        name = unit.nid
+    _portrait = self.portraits.get(name)
     if not _portrait:
         return False
     _portrait.bop()
@@ -230,7 +245,11 @@ def bop_portrait(self: Event, portrait, flags=None):
         self.state = 'waiting'
 
 def expression(self: Event, portrait, expression_list, flags=None):
-    _portrait = self.portraits.get(portrait)
+    name = portrait
+    unit = self._get_unit(name)
+    if unit:
+        name = unit.nid
+    _portrait = self.portraits.get(name)
     if not _portrait:
         return False
     expression_list = expression_list.split(',')
@@ -292,6 +311,9 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
 
     if not speaker and speak_style:
         speaker = speak_style.speaker
+    unit = self._get_unit(speaker)
+    if unit:
+        speaker = unit.nid
     portrait = self.portraits.get(speaker)
 
     if text_position:
@@ -1350,6 +1372,40 @@ def remove_item_from_multiitem(self: Event, global_unit_or_convoy, multi_item, c
             action.do(action.UnequipItem(unit, subitem))
         action.do(action.RemoveItemFromMultiItem(owner_nid, item, subitem))
 
+def add_item_component(self: Event, global_unit_or_convoy, item, item_component, expression=None, flags=None):
+    flags = flags or set()
+    global_unit = global_unit_or_convoy
+    component_nid = item_component
+
+    unit, item = self._get_item_in_inventory(global_unit, item)
+    if not unit or not item:
+        self.logger.error("add_item_component: Either unit or item was invalid, see above")
+        return
+
+    if expression is not None:
+        try:
+            component_value = self.text_evaluator.direct_eval(expression)
+        except Exception as e:
+            self.logger.error("add_item_component: %s: Could not evalute {%s}" % (e, expression))
+            return
+    else:
+        component_value = None
+
+    action.do(action.AddItemComponent(item, component_nid, component_value))
+
+
+def remove_item_component(self: Event, global_unit_or_convoy, item, item_component, flags=None):
+    flags = flags or set()
+    global_unit = global_unit_or_convoy
+    component_nid = item_component
+
+    unit, item = self._get_item_in_inventory(global_unit, item)
+    if not unit or not item:
+        self.logger.error("remove_item_component: Either unit or item was invalid, see above")
+        return
+
+    action.do(action.RemoveItemComponent(item, component_nid))
+
 def give_money(self: Event, money, party=None, flags=None):
     flags = flags or set()
 
@@ -1423,7 +1479,7 @@ def give_wexp(self: Event, global_unit, weapon_type, positive_integer, flags=Non
         action.do(action.AddWexp(unit, weapon_type, wexp))
         self.state = 'paused'
 
-def give_skill(self: Event, global_unit, skill, flags=None):
+def give_skill(self: Event, global_unit, skill, initiator=None, flags=None):
     flags = flags or set()
 
     unit = self._get_unit(global_unit)
@@ -1434,8 +1490,13 @@ def give_skill(self: Event, global_unit, skill, flags=None):
     if skill_nid not in DB.skills.keys():
         self.logger.error("give_skill: Couldn't find skill with nid %s" % skill)
         return
+    if initiator is not None:
+        initiator = self._get_unit(initiator)
+        if not initiator:
+            self.logger.error("Couldn't find unit with nid %s" % initiator)
+            return
     banner_flag = 'no_banner' not in flags
-    action.do(action.AddSkill(unit, skill_nid))
+    action.do(action.AddSkill(unit, skill_nid, initiator))
     if banner_flag:
         skill = DB.skills.get(skill_nid)
         b = banner.GiveSkill(unit, skill)
@@ -1443,7 +1504,7 @@ def give_skill(self: Event, global_unit, skill, flags=None):
         self.game.state.change('alert')
         self.state = 'paused'
 
-def remove_skill(self: Event, global_unit, skill, count = '-1', flags=None):
+def remove_skill(self: Event, global_unit, skill, count='-1', flags=None):
     flags = flags or set()
     count = int(count)
 
@@ -1945,6 +2006,7 @@ def map_anim(self: Event, map_anim, float_position, speed=None, flags=None):
         self.logger.error("map_anim: Could not find map animation %s" % map_anim)
         return
     pos = self._parse_pos(float_position, True)
+    assert(pos is not None)
     if speed:
         speed_mult = float(speed)
     else:
@@ -2036,6 +2098,8 @@ def arrange_formation(self: Event, flags=None):
     unstuck_units = [unit for unit in unstuck_units if 'Blacklist' not in unit.tags]
     if DB.constants.value('fatigue') and self.game.game_vars.get('_fatigue') == 1:
         unstuck_units = [unit for unit in unstuck_units if unit.get_fatigue() < unit.get_max_fatigue()]
+    # Place required units first
+    unstuck_units = list(sorted(unstuck_units, key=lambda u: 'Required' in u.tags, reverse=True))
     num_slots = self.game.level_vars.get('_prep_slots')
     all_formation_spots = self.game.get_open_formation_spots()
     if num_slots is None:

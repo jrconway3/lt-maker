@@ -4,7 +4,7 @@ import math
 
 from app.constants import TILEWIDTH, TILEHEIGHT, COLORKEY
 from app.data.palettes import gray_colors, enemy_colors, other_colors, enemy2_colors, black_colors, \
-    player_dark_colors, enemy_dark_colors, gray_dark_colors
+    player_dark_colors, enemy_dark_colors, other_dark_colors, gray_dark_colors
 
 from app.resources.resources import RESOURCES
 from app.data.database import DB
@@ -55,7 +55,10 @@ class MapSprite():
         elif self.team == 'enemy2':
             conversion_dict = enemy2_colors
         elif self.team == 'other':
-            conversion_dict = other_colors
+            if DB.constants.value('dark_sprites'):
+                conversion_dict = other_dark_colors
+            else:
+                conversion_dict = other_colors
         elif self.team == 'black':
             conversion_dict = black_colors
 
@@ -593,18 +596,23 @@ class UnitSprite():
                 return True
         return False
 
-    def draw_hp(self, surf, cull_rect):
+    def draw_hp(self, surf, cull_rect, event=False):
         current_time = engine.get_time()
         left, top = self.get_topleft(cull_rect)
 
-        if self.check_draw_hp():
+        if not event and self.check_draw_hp():
             self.health_bar.draw(surf, left, top)
 
-        if 'Boss' in self.unit.tags and self.transition_state == 'normal' and not self.unit.is_dying and \
+        if self.transition_state == 'normal' and not self.unit.is_dying and \
                 self.image_state in ('gray', 'passive') and int((current_time%450) // 150) in (1, 2):
-            boss_icon = SPRITES.get('boss_icon')
-            surf.blit(boss_icon, (left - 8, top - 8))
-
+            icon = None
+            if 'Boss' in self.unit.tags:
+                icon = SPRITES.get('boss_icon')
+            elif 'Elite' in self.unit.tags:
+                icon = SPRITES.get('elite_icon')
+            if icon:
+                surf.blit(icon, (left - 8, top - 8))
+        
         if self.unit.traveler and self.transition_state == 'normal' and \
                 not self.unit.is_dying and not DB.constants.value('pairup'):
             if game.get_unit(self.unit.traveler).team == 'player':

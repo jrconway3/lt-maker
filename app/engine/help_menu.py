@@ -122,7 +122,8 @@ class HelpDialog():
             num_characters = 1000
         for idx, line in enumerate(self.lines):
             if num_characters > 0:
-                render_text(help_surf, [self.font], [line[:num_characters]], [], (8, font_height(self.font) * idx + 8 + (16 if self.name else 0)))
+                text_pos = (8, font_height(self.font) * idx + 8 + (16 if self.name else 0))
+                render_text(help_surf, [self.font], [line[:num_characters]], [], text_pos)
                 num_characters -= len(line)
 
         if right:

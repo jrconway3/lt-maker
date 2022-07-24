@@ -1456,7 +1456,7 @@ class RemoveItemComponent(Action):
             logging.warning("remove_item_component: component with nid %s not found for item %s", self.component_nid, self.item)
 
     def reverse(self):
-        if self.did_remove:
+        if self._did_remove:
             self.item.components.append(self.component)
             self.item.__dict__[self.component_nid] = self.component
             # Assign parent to component

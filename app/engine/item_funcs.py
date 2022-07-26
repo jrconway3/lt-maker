@@ -1,17 +1,17 @@
+from __future__ import annotations
+import logging
 import math
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from app.data.database import DB
-from app.engine.objects.unit import UnitObject
-
-from app.utilities import utils
 from app.engine import item_system, skill_system, text_funcs
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
+from app.utilities import utils
 
-import logging
-
-from app.utilities.typing import NID
+if TYPE_CHECKING:
+    from app.engine.objects.unit import UnitObject
+    from app.utilities.typing import NID
 
 def is_magic(unit, item, distance=0) -> bool:
     if item.magic or (item.magic_at_range and distance > 1):

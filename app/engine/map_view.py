@@ -88,9 +88,7 @@ class MapView():
             map_image = game.tilemap.get_full_image(cull_rect)
             surf = engine.copy_surface(base_image)
             surf = surf.convert_alpha()
-            map_surf = engine.copy_surface(map_image)
-            map_surf = map_surf.convert_alpha()
-            surf.blit(map_surf, (0, 0))
+            surf.blit(map_image, (0, 0))
         else:
             map_image = game.tilemap.get_full_image(cull_rect)
             surf = engine.copy_surface(map_image)

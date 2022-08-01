@@ -11,6 +11,7 @@ class LevelPrefab(Prefab):
         self.nid = nid
         self.name = name
         self.tilemap = None  # Tilemap Nid
+        self.bg_tilemap = None # bg tilemap nid
         self.party = None  # Party Prefab Nid
         self.music = OrderedDict()
         music_keys = ['player_phase', 'enemy_phase', 'other_phase', 'enemy2_phase',

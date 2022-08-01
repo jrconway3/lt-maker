@@ -417,7 +417,10 @@ class PrepManageState(State):
         units = game.get_units_in_party()
         self.units = sorted(units, key=lambda unit: bool(unit.position), reverse=True)
         self.menu = menus.Table(None, self.units, (4, 3), (6, 0))
-        self.menu.set_mode('unit')
+        if self.name.startswith('base'):
+            self.menu.set_mode('unit')
+        else:
+            self.menu.set_mode('position')  # Gray out undeployed units in prep
 
         # Display
         self.quick_disp = self.create_quick_disp()

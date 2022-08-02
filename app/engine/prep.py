@@ -74,9 +74,7 @@ class PrepMainState(MapState):
         self.fade_out = False
         self.last_update = 0
 
-        # game.state.change('transition_in')
-        # return 'repeat'
-        # game.events.trigger('prep_start')
+        game.events.trigger('on_prep_start')
 
     def create_background(self):
         img = SPRITES.get('focus_fade').convert_alpha()

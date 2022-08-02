@@ -132,6 +132,14 @@ def hash_to_color(h: int) -> tuple:
 def color_to_hex(c: tuple) -> str:
     return '#%02x%02x%02x' % (c[0], c[1], c[2])
 
+def hex_to_color(s: str) -> tuple:
+    s = s.lstrip('#').lstrip('0x')
+    assert(len(s) == 6)
+    r = int(s[:2], 16)
+    g = int(s[2:4], 16)
+    b = int(s[4:], 16)
+    return (r, g, b)
+
 def hsv2rgb(h: float, s: float, v: float) -> tuple:
     return tuple(round(i * 255) for i in colorsys.hsv_to_rgb(h, s, v))
 

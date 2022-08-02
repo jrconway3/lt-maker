@@ -671,7 +671,7 @@ def change_bg_tilemap(self: Event, tilemap=None, flags=None):
         return
 
     tilemap = TileMapObject.from_prefab(tilemap_prefab)
-    self.game.level.bg_tilemap = tilemap
+    action.do(action.ChangeBGTileMap(tilemap))
 
 def set_game_board_bounds(self: Event, min_x, min_y, max_x, max_y, flags=None):
     min_x = int(min_x)

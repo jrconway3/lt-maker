@@ -2506,6 +2506,16 @@ class HideLayer(Action):
         game.board.reset_grid(game.level.tilemap)
         game.boundary.reset()
 
+class ChangeBGTileMap(Action):
+    def __init__(self, new_tilemap):
+        self.new_tilemap = new_tilemap
+        self.old_tilemap = game.bg_tilemap
+
+    def do(self):
+        game.level.bg_tilemap = self.new_tilemap
+
+    def reverse(self):
+        game.level.bg_tilemap = self.old_tilemap
 
 class AddWeather(Action):
     def __init__(self, weather_nid, position):

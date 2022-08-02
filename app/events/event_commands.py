@@ -812,7 +812,7 @@ class ChangeBgTilemap(EventCommand):
     nid = 'change_bg_tilemap'
     tags = Tags.TILEMAP
 
-    desc = "Changes the bg tilemap for this level. Call without arguments to remove the bg tilemap."
+    desc = "Changes the bg tilemap for this level. Call without arguments to remove the bg tilemap. Can be turnwheeled, unlike `change_tilemap`."
 
     optional_keywords = ['Tilemap']
     keyword_types = ['Tilemap']

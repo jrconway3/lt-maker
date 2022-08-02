@@ -151,6 +151,18 @@ class Defaults():
     def defense_speed_formula(unit) -> str:
         return 'DEFENSE_SPEED'
 
+    @staticmethod
+    def alternate_critical_multiplier_formula(unit) -> str:
+        return 'CRIT_MULT'
+
+    @staticmethod
+    def alternate_critical_addition_formula(unit) -> str:
+        return 'CRIT_ADD'
+
+    @staticmethod
+    def alternate_thracia_critical_multiplier_formula(unit) -> str:
+        return 'THRACIA_CRIT'
+
 def condition(skill, unit) -> bool:
     for component in skill.components:
         if component.defines('condition'):

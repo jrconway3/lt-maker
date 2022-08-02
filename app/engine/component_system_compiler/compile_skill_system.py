@@ -2,7 +2,7 @@
 # All default hooks are exclusive
 formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formula',
            'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula',
-           'alternate_critical_multiplier_formula', 'alternate_critical_addition_formula', 'alternate_thracia_critical_multiplier_formula')
+           'critical_multiplier_formula', 'critical_addition_formula', 'thracia_critical_multiplier_formula')
 default_behaviours = (
     'pass_through', 'vantage', 'ignore_terrain', 'crit_anyway',
     'ignore_region_status', 'no_double', 'def_double', 'alternate_splash',

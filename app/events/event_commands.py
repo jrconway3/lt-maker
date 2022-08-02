@@ -808,6 +808,15 @@ they cannot turn time back past the point when this command was executed.
     keyword_types = ["Tilemap", "PositionOffset", "Tilemap"]
     _flags = ["reload"]  # Should place units in previously recorded positions
 
+class ChangeBgTilemap(EventCommand):
+    nid = 'change_bg_tilemap'
+    tags = Tags.TILEMAP
+
+    desc = "Changes the bg tilemap for this level. Call without arguments to remove the bg tilemap. Can be turnwheeled, unlike `change_tilemap`."
+
+    optional_keywords = ['Tilemap']
+    keyword_types = ['Tilemap']
+
 class SetGameBoardBounds(EventCommand):
     nid = 'set_game_board_bounds'
     tag = Tags.TILEMAP
@@ -1107,16 +1116,16 @@ Sets the unit's state as having already traded this turn. The unit can still att
         """
 
     keywords = ['Unit']
-    
+
 class HasFinished(EventCommand):
     nid = 'has_finished'
     tag = Tags.MODIFY_UNIT_PROPERTIES
-    
+
     desc = \
         """
 Sets the unit's state as already having completed all of its actions this turn. The unit will be grayed out.
         """
-    
+
     keywords = ['Unit']
 
 class RecruitGeneric(EventCommand):
@@ -1216,7 +1225,7 @@ The *droppable* flag determines whether the item is set as a "droppable" item (g
 
     keywords = ["GlobalUnitOrConvoy", "Item"]
     _flags = ['no_banner', 'no_choice', 'droppable']
-    
+
 class EquipItem(EventCommand):
     nid = 'equip_item'
     tag = Tags.MODIFY_UNIT_PROPERTIES
@@ -1227,7 +1236,7 @@ Forces *GlobalUnit* to equip *Item*.
 The event will produce no effect if the item does not exist in the unit's inventory yet.
 It will also produce no effect if the item cannot be equipped by that unit.
         """
-        
+
     keywords = ["GlobalUnit", "Item"]
 
 class RemoveItem(EventCommand):
@@ -1418,7 +1427,7 @@ class GiveSkill(EventCommand):
 *GlobalUnit* gains *Skill*. If the *no_banner* flag is set, the player will not be informed of this.
 Optional *Initiator* global unit can be given to give the skill an initiator.
          """
- 
+
     keywords = ["GlobalUnit", "Skill"]
     optional_keywords = ["Initiator"]
     keyword_types = ["GlobalUnit", "Skill", "GlobalUnit"]

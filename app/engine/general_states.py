@@ -1435,9 +1435,12 @@ class CombatArtChoiceState(MapState):
             return
 
     def begin(self):
+
         game.cursor.hide()
         self.cur_unit = game.cursor.cur_unit
         self.cur_unit.sprite.change_state('chosen')
+        skill_system.deactivate_all_combat_arts(self.cur_unit)
+        
         options = [ability_name for ability_name in self.combat_arts]
         info_desc = [self.combat_arts[ability_name][0].desc for ability_name in self.combat_arts]
         self.menu = menus.Choice(self.cur_unit, options, info=info_desc)

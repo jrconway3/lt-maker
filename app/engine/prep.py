@@ -418,7 +418,7 @@ class PrepManageState(State):
         if self.name.startswith('base'):
             self.menu.set_mode('unit')
         else:
-            self.menu.set_mode('position')  # Gray out undeployed units in prep
+            self.menu.set_mode('prep_manage')  # Gray out undeployed units in prep
 
         # Display
         self.quick_disp = self.create_quick_disp()

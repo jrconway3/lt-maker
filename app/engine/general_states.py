@@ -731,7 +731,7 @@ class MenuState(MapState):
         else:
             start_index = len(self.valid_regions)
         if self.combat_arts:
-            if DB.constants.value('combat_art_choice'): 
+            if DB.constants.value('combat_art_category'): 
                 options.insert(start_index, 'Combat Arts')
                 info_descs.insert(start_index, 'Combat Arts_desc')
             else:

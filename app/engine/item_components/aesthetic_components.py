@@ -5,6 +5,8 @@ from app.data.components import Type
 from app.engine.combat import playback as pb
 from app.engine import engine, image_mods
 
+import logging
+
 class MapHitAddBlend(ItemComponent):
     nid = 'map_hit_add_blend'
     desc = "Changes the color that appears on the unit when hit -- Use to make brighter"
@@ -109,8 +111,8 @@ class Warning(ItemComponent):
     desc = "A yellow exclamation mark appears above the wielder's head. Often used for killing weapons."
     tag = ItemTags.AESTHETIC
 
-    def warning(self, unit, item, target) -> bool:
-        return True
+    def target_icon(self, target, item, unit) -> str:
+        return 'warning'
 
 class EvalWarning(ItemComponent):
     nid = 'eval_warning'
@@ -120,14 +122,15 @@ class EvalWarning(ItemComponent):
     expose = Type.String
     value = 'True'
 
-    def danger(self, unit, item, target) -> bool:
+    def target_icon(self, target, item, unit) -> bool:
         from app.engine import evaluate
         try:
             val = evaluate.evaluate(self.value, unit, target, unit.position, {'item': item})
-            return bool(val)
+            if bool(val):
+                return 'danger'
         except Exception as e:
-            print("Could not evaluate %s (%s)" % (self.value, e))
-            return False
+            logging.error("Could not evaluate %s (%s)" % (self.value, e))
+        return None
 
 class ItemIconFlash(ItemComponent):
     nid = 'item_icon_flash'

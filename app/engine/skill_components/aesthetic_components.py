@@ -65,15 +65,15 @@ class StealIcon(SkillComponent):
     desc = "Displays icon above units with stealable items"
     tag = SkillTags.AESTHETIC
 
-    def steal_icon(self, unit, target) -> bool:
+    def target_icon(self, unit, target) -> str:
         # Unit has item that can be stolen
         attack = equations.parser.steal_atk(unit)
         defense = equations.parser.steal_def(target)
         if attack >= defense:
             for def_item in target.items:
                 if self._item_restrict(unit, target, def_item):
-                    return True
-        return False
+                    return 'steal'
+        return None
 
     def _item_restrict(self, unit, defender, def_item) -> bool:
         if item_system.unstealable(defender, def_item):

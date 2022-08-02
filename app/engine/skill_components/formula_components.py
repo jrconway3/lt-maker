@@ -111,3 +111,14 @@ class AlternateCriticalAdditionFormula(SkillComponent):
     def critical_addition_formula(self, unit):
         return self.value
 
+class AlternateThraciaCriticalMultiplierFormula(SkillComponent):
+    nid = 'alternate_thracia_critical_addition_formula'
+    desc = 'Change how much damage a critical does in comparison to base damage'
+    tag = SkillTags.FORMULA
+
+    expose = Type.Equation
+    value = 'THRACIA_CRIT'
+
+    def thracia_critical_multiplier_formula(self, unit):
+        return self.value
+

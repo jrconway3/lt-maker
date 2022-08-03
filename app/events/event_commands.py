@@ -919,10 +919,11 @@ Places *Unit* on the map. The unit must be in the chapter's data or otherwise ha
 The optional keywords define how the unit is placed. *Position* indicates the map coordinates that the unit will be placed at.
 *EntryType* defines which placement animation is used. *Placement* defines the behavior that occurs if the chosen map position is already occupied.
 If no placement information is provided, the unit will attempt to be placed at its starting location from the chapter data (if any).
+*AnimationType* defines from which direction the unit enters, if using the *fade* entrytype.
         """
 
     keywords = ["Unit"]
-    optional_keywords = ["Position", "EntryType", "Placement"]
+    optional_keywords = ["Position", "EntryType", "Placement", "AnimationType"]
 
 class MoveUnit(EventCommand):
     nid = 'move_unit'
@@ -953,10 +954,12 @@ class RemoveUnit(EventCommand):
     desc = \
         """
 Removes *Unit* from the map. The optional *RemoveType* keyword specifies the method of removal.
+If the `fade` RemoveType is chosen, the unit will use `AnimationType` to determine which direction
+(if any) to fade into.
         """
 
     keywords = ["Unit"]
-    optional_keywords = ["RemoveType"]
+    optional_keywords = ["RemoveType", 'AnimationType']
 
 class KillUnit(EventCommand):
     nid = 'kill_unit'

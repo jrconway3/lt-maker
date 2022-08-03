@@ -803,7 +803,7 @@ def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_ty
 
     self._place_unit(new_unit, position, entry_type)
 
-def add_unit(self: Event, unit, position=None, entry_type=None, placement=None, flags=None):
+def add_unit(self: Event, unit, position=None, entry_type=None, placement=None, animation_type=None, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:
         self.logger.error("add_unit: Couldn't find unit %s" % unit)
@@ -826,13 +826,19 @@ def add_unit(self: Event, unit, position=None, entry_type=None, placement=None, 
         entry_type = 'fade'
     if not placement:
         placement = 'giveup'
+
+    if not animation_type or animation_type == 'fade':
+        fade_direction = None
+    else:
+        fade_direction = animation_type
+
     position = self._check_placement(unit, position, placement)
     if not position:
         self.logger.error("add_unit: Couldn't get a good position %s %s %s" % (position, entry_type, placement))
         return None
     if DB.constants.value('initiative'):
         action.do(action.InsertInitiative(unit))
-    self._place_unit(unit, position, entry_type)
+    self._place_unit(unit, position, entry_type, fade_direction)
 
 def move_unit(self: Event, unit, position=None, movement_type=None, placement=None, flags=None):
     flags = flags or set()
@@ -883,7 +889,7 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
         self.state = 'paused'
         self.game.state.change('movement')
 
-def remove_unit(self: Event, unit, remove_type=None, flags=None):
+def remove_unit(self: Event, unit, remove_type=None, animation_type=None, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:
         self.logger.error("remove_unit: Couldn't find unit %s" % unit)
@@ -894,6 +900,10 @@ def remove_unit(self: Event, unit, remove_type=None, flags=None):
         return
     if not remove_type:
         remove_type = 'fade'
+    if not animation_type or animation_type == 'fade':
+        fade_direction = None
+    else:
+        fade_direction = animation_type
     if DB.constants.value('initiative'):
         action.do(action.RemoveInitiative(unit))
     if self.do_skip:
@@ -903,7 +913,7 @@ def remove_unit(self: Event, unit, remove_type=None, flags=None):
     elif remove_type == 'swoosh':
         action.do(action.SwooshOut(unit))
     elif remove_type == 'fade':
-        action.do(action.FadeOut(unit))
+        action.do(action.FadeOut(unit, fade_direction))
     else:  # immediate
         action.do(action.LeaveMap(unit))
 

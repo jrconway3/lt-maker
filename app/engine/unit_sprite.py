@@ -546,6 +546,8 @@ class UnitSprite():
             markers.append('talk')
         elif (cur_unit.nid, self.unit.nid) in game.talk_options:
             markers.append('talk')
+        if game.level.roam and game.state.current() == 'free_roam' and game.state.state[-1].can_visit():
+            markers.append('interact')
         if cur_unit.team == 'player':
             for item in item_funcs.get_all_items(self.unit):
                 markers += item_system.target_icon(cur_unit, item, self.unit)

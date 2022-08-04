@@ -3,6 +3,7 @@ import hashlib
 import math
 from collections import Counter
 from operator import add, sub
+from typing import Tuple
 
 
 def frames_to_ms(num_frames: int) -> int:
@@ -220,6 +221,9 @@ def flatten_list(initial_list) -> list:
         else:
             final_list.append(item)
     return final_list
+
+def rationalize(p: Tuple[float, float]) -> Tuple[int, int]:
+    return (int(round(p[0])), int(round(p[1])))
 
 # Testing
 if __name__ == '__main__':

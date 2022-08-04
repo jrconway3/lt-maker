@@ -272,6 +272,8 @@ class FreeRoamState(MapState):
         """
         Returns first region that is close enough to visit
         """
+        if not self.roam_unit:
+            return None
         region = game.get_region_under_pos(utils.rationalize(self.roam_unit.position))
         if region and region.region_type == RegionType.EVENT:
             try:

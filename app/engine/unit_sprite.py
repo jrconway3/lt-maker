@@ -426,7 +426,7 @@ class UnitSprite():
                 left += (1 if self.vibrate_counter % 2 else -1)
 
         # Handle transitions
-        if self.transition_state in ('fade_out', 'warp_out', 'swoosh_out', 'fade_move', 'warp_move', 'swoosh_move'):
+        if self.transition_state in ('fade_out', 'warp_out', 'swoosh_out', 'fade_move', 'warp_move', 'swoosh_move') or self.state in ('fake_transition_out'):
             progress = utils.clamp((self.transition_time - self.transition_counter) / self.transition_time, 0, 1)
             # Distort Vertically
             if self.transition_state in ('swoosh_out', 'swoosh_move'):
@@ -437,7 +437,7 @@ class UnitSprite():
                 top -= extra_height
             image = image_mods.make_translucent(image.convert_alpha(), progress)
 
-        elif self.transition_state in ('fade_in', 'warp_in', 'swoosh_in'):
+        elif self.transition_state in ('fade_in', 'warp_in', 'swoosh_in') or self.state in ('fake_transition_in'):
             progress = utils.clamp((self.transition_time - self.transition_counter) / self.transition_time, 0, 1)
             progress = 1 - progress
             if self.transition_state == 'swoosh_in':
@@ -587,7 +587,7 @@ class UnitSprite():
                 icon = SPRITES.get('elite_icon')
             if icon:
                 surf.blit(icon, (left - 8, top - 8))
-        
+
         if self.unit.traveler and self.transition_state == 'normal' and \
                 not self.unit.is_dying and not DB.constants.value('pairup'):
             if game.get_unit(self.unit.traveler).team == 'player':

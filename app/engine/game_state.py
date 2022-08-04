@@ -1,4 +1,5 @@
 from __future__ import annotations
+from functools import lru_cache
 
 import random
 import time
@@ -214,6 +215,9 @@ class GameState():
 
         # Build registries
         self.map_sprite_registry = {}
+
+        # caches
+        self.get_region_under_pos.cache_clear()
 
     def start_level(self, level_nid, with_party=None):
         """
@@ -694,6 +698,7 @@ class GameState():
         region = self.region_registry.get(region_nid)
         return region
 
+    @lru_cache(128)
     def get_region_under_pos(self, pos: Tuple[int, int]) -> Region:
         if pos:
             for region in self.level.regions.values():

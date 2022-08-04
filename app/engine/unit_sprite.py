@@ -549,9 +549,8 @@ class UnitSprite():
         if cur_unit.team == 'player':
             for item in item_funcs.get_all_items(self.unit):
                 markers += item_system.target_icon(cur_unit, item, self.unit)
-            markers += skill_system.target_icon(cur_unit, self.unit):
-
-        markers = [SPRITES.get('marker_%s') for marker in markers if marker]
+            markers += skill_system.target_icon(cur_unit, self.unit)
+        markers = [SPRITES.get('marker_%s' % marker) for marker in markers if marker]
         markers = [_ for _ in markers if _]  # Only include non-None
         if markers:
             icon_frame = (engine.get_time() // 500) % len(markers)

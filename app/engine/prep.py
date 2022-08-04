@@ -519,9 +519,9 @@ class OptimizeAllChoiceState(State):
         self.menu.set_horizontal(True)
 
         width = sum(option.width() + 8 for option in self.menu.options) + 16
-        owidth = FONT['text'].width('Optimize All?')
+        owidth = FONT['text'].width('Optimize All?') + 8
         self.bg_surf = base_surf.create_base_surf(max(width, owidth), 40)
-        FONT['text'].blit('Optimize All?', self.bg_surf, (self.bg_surf.get_width()//2 - owidth//2, 4))
+        FONT['text'].blit('Optimize All?', self.bg_surf, (self.bg_surf.get_width()//2 - owidth//2 + 4, 4))
 
     def take_input(self, event):
         self.menu.handle_mouse()
@@ -543,14 +543,14 @@ class OptimizeAllChoiceState(State):
                 convoy_funcs.optimize_all()
             else:
                 get_sound_thread().play_sfx('Select 4')
-                game.state.back()
+            game.state.back()
 
     def update(self):
         self.menu.update()
 
     def draw(self, surf):
         if self.bg_surf:
-            surf.blit(self.bg_surf, (WINWIDTH//2 - self.bg_surf.width()//2, WINHEIGHT//2 - 28))
+            surf.blit(self.bg_surf, (WINWIDTH//2 - self.bg_surf.get_width()//2, WINHEIGHT//2 - 28))
         surf = self.menu.draw(surf)
         return surf
 

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, \
-    QLabel, QSizePolicy, QSpinBox
+    QLabel, QSizePolicy, QSpinBox, QLineEdit
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QColor
 

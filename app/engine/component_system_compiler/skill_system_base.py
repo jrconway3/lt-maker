@@ -260,7 +260,7 @@ def can_unlock(unit, region) -> bool:
 
 def target_icon(cur_unit, displaying_unit) -> list:
     markers = []
-    for skill in cur_unit.skils:
+    for skill in cur_unit.skills:
         for component in skill.components:
             if component.defines('target_icon'):
                 if component.ignore_conditional or condition(skill, cur_unit):

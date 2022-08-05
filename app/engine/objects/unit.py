@@ -228,10 +228,9 @@ class UnitObject(Prefab):
 
         # Difficulty mode stat bonuses
         if current_mode:
-            if klass.tier >= 2:
-                num_levels = int(num_levels * current_mode.promoted_autolevels_fraction)
-            
             mode = DB.difficulty_modes.get(current_mode.nid)
+            if klass.tier >= 2:
+                num_levels = int(num_levels * mode.promoted_autolevels_fraction)
             stat_bonus = mode.get_base_bonus(self)
             bonus = {nid: 0 for nid in DB.stats.keys()}
             for nid in DB.stats.keys():

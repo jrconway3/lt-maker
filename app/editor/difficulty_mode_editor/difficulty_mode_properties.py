@@ -96,7 +96,7 @@ class DifficultyModeProperties(QWidget):
         main_section.addWidget(self.enemy_stat_widget)
         main_section.addWidget(self.boss_stat_widget)
         main_section.addLayout(autolevel_section)
-        main_section.addLayout(self.promoted_autolevels_fraction_box)
+        main_section.addWidget(self.promoted_autolevels_fraction_box)
         self.setLayout(main_section)
 
     def nid_changed(self, text):

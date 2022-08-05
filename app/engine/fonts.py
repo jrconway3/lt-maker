@@ -12,7 +12,7 @@ class FontType():
 NORMAL_FONT_COLORS = ['white', 'blue', 'green', 'red', 'grey', 'yellow', 'brown']
 
 text = FontType('text', 'white')
-text.colors['white'] = ((248, 248, 248, 255), (160, 136, 216, 255), (56, 48, 40, 255))
+text.colors['white'] = ((248, 248, 248, 255), (160, 136, 216, 255), (40, 32, 24, 255))
 text.colors['blue'] = ((192, 248, 248, 255), (80, 112, 248, 255), (24, 24, 88, 255))
 text.colors['green'] = ((72, 232, 32, 255), (112, 160, 72, 255), (24, 88, 24, 255))
 text.colors['red'] = ((224, 96, 80, 255), (160, 88, 72, 255), (88, 24, 24, 255))
@@ -22,6 +22,7 @@ text.colors['brown'] = ((248, 248, 248, 255), (144, 112, 88, 255), (80, 40, 0, 2
 
 narrow = FontType('narrow', 'white')
 narrow.colors = text.colors
+
 
 small = FontType('small', 'white')
 small.colors = text.colors
@@ -34,7 +35,7 @@ info.colors['white'] = ((248, 248, 248, 255), (184, 176, 176, 255))
 convo = FontType('convo', 'black')
 convo.colors['black'] = ((40, 40, 40, 255), (184, 184, 184, 255))
 convo.colors['red'] = ((160, 0, 0, 255), (248, 200, 168, 255))
-convo.colors['white'] = ((248, 248, 248, 255), (112, 104, 96, 255))
+convo.colors['white'] = ((248, 248, 248, 255), (136, 144, 144, 255))
 convo.colors['orange'] = ((255, 128, 0, 255), (255, 204, 153, 255))
 convo.colors['yellow'] = ((248, 240, 136, 255), (168, 168, 72, 255))
 convo.colors['green'] = ((112, 160, 72, 255), (197, 223, 176, 255))
@@ -42,6 +43,9 @@ convo.colors['blue'] = ((80, 112, 248, 255), (204, 229, 255, 255))
 convo.colors['indigo'] = ((75, 0, 130, 255), (204, 204, 255, 255))
 convo.colors['violet'] = ((127, 0, 255, 255), (229, 204, 255, 255))
 convo.colors['pink'] = ((255, 102, 178, 255), (255, 204, 229, 255))
+
+nconvo = FontType('nconvo', 'black')
+nconvo.colors = convo.colors
 
 chapter = FontType('chapter', 'yellow')
 chapter.colors['yellow'] = ((248, 248, 248, 255), (232, 240, 96, 255), (168, 176, 128, 255),
@@ -60,7 +64,7 @@ chapter.colors['green'] = ((232, 232, 232, 255), (144, 224, 160, 255), (128, 208
                            (104, 184, 120, 255), (112, 160, 104, 255), (56, 112, 64, 255),
                            (16, 8, 8, 255))
 
-font_types = [text, narrow, small, info, convo, chapter]
+font_types = [text, narrow, small, info, nconvo, convo, chapter]
 
 # Load in default, uncolored fonts
 FONT: Dict[NID, bmpfont.BmpFont] = {}

@@ -808,6 +808,15 @@ they cannot turn time back past the point when this command was executed.
     keyword_types = ["Tilemap", "PositionOffset", "Tilemap"]
     _flags = ["reload"]  # Should place units in previously recorded positions
 
+class ChangeBgTilemap(EventCommand):
+    nid = 'change_bg_tilemap'
+    tags = Tags.TILEMAP
+
+    desc = "Changes the bg tilemap for this level. Call without arguments to remove the bg tilemap. Can be turnwheeled, unlike `change_tilemap`."
+
+    optional_keywords = ['Tilemap']
+    keyword_types = ['Tilemap']
+
 class SetGameBoardBounds(EventCommand):
     nid = 'set_game_board_bounds'
     tag = Tags.TILEMAP
@@ -910,10 +919,11 @@ Places *Unit* on the map. The unit must be in the chapter's data or otherwise ha
 The optional keywords define how the unit is placed. *Position* indicates the map coordinates that the unit will be placed at.
 *EntryType* defines which placement animation is used. *Placement* defines the behavior that occurs if the chosen map position is already occupied.
 If no placement information is provided, the unit will attempt to be placed at its starting location from the chapter data (if any).
+*AnimationType* defines from which direction the unit enters, if using the *fade* entrytype.
         """
 
     keywords = ["Unit"]
-    optional_keywords = ["Position", "EntryType", "Placement"]
+    optional_keywords = ["Position", "EntryType", "Placement", "AnimationType"]
 
 class MoveUnit(EventCommand):
     nid = 'move_unit'
@@ -944,10 +954,12 @@ class RemoveUnit(EventCommand):
     desc = \
         """
 Removes *Unit* from the map. The optional *RemoveType* keyword specifies the method of removal.
+If the `fade` RemoveType is chosen, the unit will use `AnimationType` to determine which direction
+(if any) to fade into.
         """
 
     keywords = ["Unit"]
-    optional_keywords = ["RemoveType"]
+    optional_keywords = ["RemoveType", 'AnimationType']
 
 class KillUnit(EventCommand):
     nid = 'kill_unit'
@@ -1108,6 +1120,17 @@ Sets the unit's state as having already traded this turn. The unit can still att
 
     keywords = ['Unit']
 
+class HasFinished(EventCommand):
+    nid = 'has_finished'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets the unit's state as already having completed all of its actions this turn. The unit will be grayed out.
+        """
+
+    keywords = ['Unit']
+
 class RecruitGeneric(EventCommand):
     nid = 'recruit_generic'
     tag = Tags.MODIFY_UNIT_PROPERTIES
@@ -1206,6 +1229,19 @@ The *droppable* flag determines whether the item is set as a "droppable" item (g
     keywords = ["GlobalUnitOrConvoy", "Item"]
     _flags = ['no_banner', 'no_choice', 'droppable']
 
+class EquipItem(EventCommand):
+    nid = 'equip_item'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+    desc = \
+        """
+Forces *GlobalUnit* to equip *Item*.
+
+The event will produce no effect if the item does not exist in the unit's inventory yet.
+It will also produce no effect if the item cannot be equipped by that unit.
+        """
+
+    keywords = ["GlobalUnit", "Item"]
+
 class RemoveItem(EventCommand):
     nid = 'remove_item'
     tag = Tags.MODIFY_UNIT_PROPERTIES
@@ -1289,6 +1325,30 @@ If *ChildItem* is not specified, all items will be removed form the existing mul
     optional_keywords = ['ChildItem']
     keyword_types = ["GlobalUnitOrConvoy", "Item", "Item"]
 
+class AddItemComponent(EventCommand):
+    nid = 'add_item_component'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Adds an *ItemComponent* with optional value of *Expression* to *Item* in the inventory of *GlobalUnitOrConvoy*.
+Can be used to modify a specific item within your game, such as for forging.
+        """
+
+    keywords = ["GlobalUnitOrConvoy", "Item", "ItemComponent"]
+    optional_keywords = ["Expression"]
+
+class RemoveItemComponent(EventCommand):
+    nid = 'remove_item_component'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Removes *ItemComponent* from *Item* in the inventory of *GlobalUnitOrConvoy*.
+        """
+
+    keywords = ["GlobalUnitOrConvoy", "Item", "ItemComponent"]
+
 class GiveMoney(EventCommand):
     nid = 'give_money'
     tag = Tags.GAME_VARS
@@ -1335,6 +1395,8 @@ Gives *Experience* to *GlobalUnit*.
     keywords = ["GlobalUnit", "Experience"]
     keyword_types = ["GlobalUnit", "PositiveInteger"]
 
+    _flags = ['silent']
+
 class SetExp(EventCommand):
     nid = 'set_exp'
     tag = Tags.MODIFY_UNIT_PROPERTIES
@@ -1366,9 +1428,12 @@ class GiveSkill(EventCommand):
     desc = \
         """
 *GlobalUnit* gains *Skill*. If the *no_banner* flag is set, the player will not be informed of this.
-        """
+Optional *Initiator* global unit can be given to give the skill an initiator.
+         """
 
     keywords = ["GlobalUnit", "Skill"]
+    optional_keywords = ["Initiator"]
+    keyword_types = ["GlobalUnit", "Skill", "GlobalUnit"]
     _flags = ['no_banner']
 
 class RemoveSkill(EventCommand):
@@ -1381,6 +1446,8 @@ class RemoveSkill(EventCommand):
         """
 
     keywords = ["GlobalUnit", "Skill"]
+    optional_keywords = ['Count']
+    keyword_types = ['GlobalUnit', 'Skill', 'Integer']
     _flags = ['no_banner']
 
 class ChangeAI(EventCommand):
@@ -1709,7 +1776,7 @@ The optional *String* keyword can be used to specify the sub-region type.
 When set, the *only_once* flag prevents multiples of the same region from being created. The *interrupt_move* flag halts a unit's movement once they move into the region.
         """
 
-    keywords = ["Nid", "Position", "Size", "RegionType"]
+    keywords = ["Region", "Position", "Size", "RegionType"]
     optional_keywords = ["String"]
     _flags = ["only_once", "interrupt_move"]
 
@@ -1719,10 +1786,10 @@ class RegionCondition(EventCommand):
 
     desc = \
         """
-Modifies the trigger *Expression* for the event-type region specified by *Nid*.
+Modifies the trigger *Expression* for the event-type region specified by *Region*.
         """
 
-    keywords = ["Nid", "Expression"]
+    keywords = ["Region", "Expression"]
 
 class RemoveRegion(EventCommand):
     nid = 'remove_region'
@@ -1730,10 +1797,10 @@ class RemoveRegion(EventCommand):
 
     desc = \
         """
-Removes the region specified by *Nid*.
+Removes the region specified by *Region*.
         """
 
-    keywords = ["Nid"]
+    keywords = ["Region"]
 
 class ShowLayer(EventCommand):
     nid = 'show_layer'
@@ -2145,11 +2212,11 @@ class Alert(EventCommand):
         """
 Displays the text given in *String* in an alert box. This is used for events such as "The switch was pulled!".
 
-Optionally, takes in an item icon from *Item* to display, or a skill icon from *Skill* to display.
+Optionally, takes in an item icon from *Item* to display, a skill icon from *Skill* to display, or a named icon *Icon*.
         """
 
     keywords = ["String"]
-    optional_keywords = ["Item", "Skill"]
+    optional_keywords = ["Item", "Skill", "Icon"]
 
 class VictoryScreen(EventCommand):
     nid = 'victory_screen'

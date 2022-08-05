@@ -979,7 +979,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         combat_surf.blit(right_bar, (right_pos_x, right_pos_y))
 
         # Guard gauge counter
-        if DB.constants.value('pairup'):
+        if DB.constants.value('pairup') and not DB.constants.value('attack_stance_only'):
             left_color = utils.get_team_color(self.left.team)
             right_color = utils.get_team_color(self.right.team)
             right_gauge = None

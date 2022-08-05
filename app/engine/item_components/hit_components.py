@@ -259,6 +259,17 @@ class Swap(ItemComponent):
             actions.append(action.Swap(unit, target))
             playback.append(pb.SwapHit(unit, item, target))
 
+class SwapOnEndCombat(ItemComponent):
+    nid = 'swap'
+    desc = "Item swaps user with target after initiated combat"
+    tag = ItemTags.SPECIAL
+
+    def end_combat(self, playback, unit, item, target, mode):
+        if not skill_system.ignore_forced_movement(unit) and \
+                not skill_system.ignore_forced_movement(target) and \
+                mode == 'attack':
+            action.do(action.Swap(unit, target))
+
 class Pivot(ItemComponent):
     nid = 'pivot'
     desc = "User moves to other side of target on hit."
@@ -497,3 +508,15 @@ class EventAfterCombatOnHit(ItemComponent):
                 game.events.trigger_specific_event(event_prefab.nid, unit, target, unit.position, local_args)
         self._did_hit = False
 
+class EventAfterCombatEvenMiss(ItemComponent):
+    nid = 'event_after_combat_even_miss'
+    desc = "The selected event plays at the end of combat."
+    tag = ItemTags.SPECIAL
+
+    expose = Type.Event
+
+    def end_combat(self, playback, unit, item, target, mode):
+        event_prefab = DB.events.get_from_nid(self.value)
+        if event_prefab:
+            local_args = {'item': item, 'mode': mode}
+            game.events.trigger_specific_event(event_prefab.nid, unit, target, unit.position, local_args)

@@ -285,16 +285,21 @@ class SwooshIn(ArriveOnMap):
 
 
 class FadeIn(ArriveOnMap):
+    def __init__(self, unit, pos, fade_direction=None):
+        self.unit = unit
+        self.fade_direction = fade_direction
+        self.place_on_map = PlaceOnMap(unit, pos)
+
     def do(self):
         self.place_on_map.do()
-        if game.tilemap.on_border(self.unit.position):
-            if self.unit.position[0] == 0:
+        if game.tilemap.on_border(self.unit.position) or self.fade_direction:
+            if self.unit.position[0] == 0 or self.fade_direction == 'west':
                 self.unit.sprite.offset = [-TILEWIDTH, 0]
-            elif self.unit.position[0] == game.tilemap.width - 1:
+            elif self.unit.position[0] == game.tilemap.width - 1 or self.fade_direction == 'east':
                 self.unit.sprite.offset = [TILEWIDTH, 0]
-            elif self.unit.position[1] == 0:
+            elif self.unit.position[1] == 0 or self.fade_direction == 'north':
                 self.unit.sprite.offset = [0, -TILEHEIGHT]
-            elif self.unit.position[1] == game.tilemap.height - 1:
+            elif self.unit.position[1] == game.tilemap.height - 1 or self.fade_direction == 'south':
                 self.unit.sprite.offset = [0, TILEHEIGHT]
             self.unit.sprite.set_transition('fake_in')
         else:
@@ -352,16 +357,21 @@ class SwooshOut(LeaveMap):
 
 
 class FadeOut(LeaveMap):
+    def __init__(self, unit, fade_direction=None):
+        self.unit = unit
+        self.fade_direction = fade_direction
+        self.remove_from_map = RemoveFromMap(self.unit)
+
     def do(self):
         game.leave(self.unit)
-        if game.tilemap.on_border(self.unit.position):
-            if self.unit.position[0] == 0:
+        if game.tilemap.on_border(self.unit.position) or self.fade_direction:
+            if self.unit.position[0] == 0 or self.fade_direction == 'west':
                 self.unit.sprite.offset = [-2, 0]
-            elif self.unit.position[0] == game.tilemap.width - 1:
+            elif self.unit.position[0] == game.tilemap.width - 1 or self.fade_direction == 'east':
                 self.unit.sprite.offset = [2, 0]
-            elif self.unit.position[1] == 0:
+            elif self.unit.position[1] == 0 or self.fade_direction == 'north':
                 self.unit.sprite.offset = [0, -2]
-            elif self.unit.position[1] == game.tilemap.height - 1:
+            elif self.unit.position[1] == game.tilemap.height - 1 or self.fade_direction == 'south':
                 self.unit.sprite.offset = [0, 2]
             self.unit.sprite.set_transition('fake_out')
         else:
@@ -385,6 +395,20 @@ class RemoveFromMap(Action):
         if self.unit.position:
             self.unit.previous_position = self.unit.position
 
+class RegisterUnit(Action):
+    def __init__(self, unit):
+        self.unit = unit
+
+    def do(self):
+        game.full_register(self.unit)
+
+    def reverse(self):
+        logging.debug("Unregistering unit %s and it's items and skills", self.unit.nid)
+        for skill in reversed(self.unit.skills):
+            game.unregister_skill(skill)
+        for item in reversed(self.unit.items):
+            game.unregister_item(item)
+        game.unregister_unit(self.unit)
 
 class IncrementTurn(Action):
     def do(self):
@@ -782,6 +806,9 @@ class PairUp(Action):
         game.leave(self.unit)
         self.unit.position = None
 
+        self.unit.lead_unit = False
+        self.target.lead_unit = True
+
         logging.info(self.unit.nid + " was at " + str(self.old_pos) + " but paired up with " + self.target.nid + " at " + str(self.target.position))
 
         self.target.set_guard_gauge(self.unit_gauge + self.target_gauge)
@@ -810,6 +837,9 @@ class PairUp(Action):
         game.arrive(self.unit)
         self.target.traveler = None
         skill_system.on_separate(self.unit, self.target)
+
+        self.unit.lead_unit = False
+        self.target.lead_unit = False
 
         logging.info("The pair up between " + self.unit.nid + " and " + self.target.nid + " was reversed")
 
@@ -892,6 +922,9 @@ class Separate(Action):
         self.droppee.set_guard_gauge(self.old_gauge//2)
         self.unit.set_guard_gauge(self.old_gauge//2)
 
+        self.unit.lead_unit = False
+        self.droppee.lead_unit = False
+
         skill_system.on_separate(self.droppee, self.unit)
 
         if self.unit.position and self.pos and utils.calculate_distance(self.unit.position, self.pos) == 1 and not self.unit.is_dying:
@@ -920,6 +953,9 @@ class Separate(Action):
         game.leave(self.droppee)
         self.droppee.position = None
         self.unit.has_dropped = False
+
+        self.unit.lead_unit = True
+        self.droppee.lead_unit = False
 
         skill_system.on_pairup(self.droppee, self.unit)
 
@@ -1385,6 +1421,58 @@ class RemoveItemFromMultiItem(Action):
         if unit and unit.position and game.tilemap and game.boundary:
             game.boundary.recalculate_unit(unit)
 
+class AddItemComponent(Action):
+    def __init__(self, item, component_nid, component_value):
+        self.item = item
+        self.component_nid = component_nid
+        self.component_value = component_value
+        self.component = None
+        self._did_add = False
+
+    def do(self):
+        import app.engine.item_component_access as ICA
+        self._did_add = False
+        self.component = ICA.restore_component((self.component_nid, self.component_value))
+        if not self.component:
+            logging.error("AddItemComponent: Couldn't find item component with nid %s", self.component_nid)
+            return
+        self.item.components.append(self.component)
+        self.item.__dict__[self.component_nid] = self.component
+        # Assign parent to component
+        self.component.item = self.item
+        self._did_add = True
+
+    def reverse(self):
+        if self._did_add:
+            self.item.components.remove_key(self.component_nid)
+            del self.item.__dict__[self.component_nid]
+            self._did_add = False
+
+class RemoveItemComponent(Action):
+    def __init__(self, item, component_nid):
+        self.item = item
+        self.component_nid = component_nid
+        self.component = None
+        self._did_remove = False
+
+    def do(self):
+        self._did_remove = False
+        if self.component_nid in self.item.components.keys():
+            self.component = self.item.components.get(self.component_nid)
+            self.item.components.remove_key(self.component_nid)
+            del self.item.__dict__[self.component_nid]
+            self._did_remove = True
+        else:
+            logging.warning("remove_item_component: component with nid %s not found for item %s", self.component_nid, self.item)
+
+    def reverse(self):
+        if self._did_remove:
+            self.item.components.append(self.component)
+            self.item.__dict__[self.component_nid] = self.component
+            # Assign parent to component
+            self.component.item = self.item
+            self._did_remove = False
+
 class SetObjData(Action):
     def __init__(self, obj, keyword, value):
         self.obj = obj
@@ -1746,6 +1834,7 @@ class ChangeHP(Action):
         self.old_hp = self.unit.get_hp()
 
     def do(self):
+        self.old_hp = self.unit.get_hp()
         self.unit.set_hp(self.old_hp + self.num)
 
     def reverse(self):
@@ -1912,6 +2001,11 @@ class Die(Action):
         self.unit.is_dying = False
 
     def reverse(self):
+        # Remember who was resurrected briefly
+        if '_resurrect' not in game.memory:
+            game.memory['_resurrect'] = set()
+        game.memory['_resurrect'].add(self.unit.nid)
+
         self.unit.dead = False
         self.unit.sprite.set_transition('normal')
         self.unit.sprite.change_state('normal')
@@ -2265,8 +2359,9 @@ class AddRegion(Action):
     def do(self):
         self.subactions.clear()
         if self.region.nid in game.level.regions:
-            pass
+            logging.warning("AddRegion Action: Region with nid %s already in level", self.region.nid)
         else:
+            game.get_region_under_pos.cache_clear()
             game.level.regions.append(self.region)
             self.did_add = True
             # Remember to add the status from the unit
@@ -2281,6 +2376,7 @@ class AddRegion(Action):
         if self.did_add:
             for act in self.subactions:
                 act.reverse()
+            game.get_region_under_pos.cache_clear()
             game.level.regions.delete(self.region)
 
 
@@ -2296,7 +2392,6 @@ class ChangeRegionCondition(Action):
     def reverse(self):
         self.region.condition = self.old_condition
 
-
 class DecrementTimeRegion(Action):
     def __init__(self, region):
         self.region = region
@@ -2306,7 +2401,6 @@ class DecrementTimeRegion(Action):
 
     def reverse(self):
         self.region.sub_nid = int(self.region.sub_nid) + 1
-
 
 class RemoveRegion(Action):
     def __init__(self, region):
@@ -2326,11 +2420,15 @@ class RemoveRegion(Action):
             for act in self.subactions:
                 act.do()
 
+            game.get_region_under_pos.cache_clear()
             game.level.regions.delete(self.region)
             self.did_remove = True
+        else:
+            logging.error("RemoveRegion Action: Could not find region with nid %s", self.region.nid)
 
     def reverse(self):
         if self.did_remove:
+            game.get_region_under_pos.cache_clear()
             game.level.regions.append(self.region)
 
             for act in self.subactions:
@@ -2422,6 +2520,16 @@ class HideLayer(Action):
         game.board.reset_grid(game.level.tilemap)
         game.boundary.reset()
 
+class ChangeBGTileMap(Action):
+    def __init__(self, new_tilemap):
+        self.new_tilemap = new_tilemap
+        self.old_tilemap = game.bg_tilemap
+
+    def do(self):
+        game.level.bg_tilemap = self.new_tilemap
+
+    def reverse(self):
+        game.level.bg_tilemap = self.old_tilemap
 
 class AddWeather(Action):
     def __init__(self, weather_nid, position):
@@ -2479,12 +2587,14 @@ class RemoveMapAnim(Action):
         self.nid = nid
         self.pos = pos
         self.speed_mult = 1
+        self.blend = False
         self.did_remove = False
 
     def do(self):
         for anim in game.tilemap.animations[:]:
             if anim.nid == self.nid and anim.xy_pos == self.pos:
                 self.speed_mult = anim.speed_adj
+                self.blend = anim.tint
                 game.tilemap.animations.remove(anim)
                 self.did_remove = True
 
@@ -2492,6 +2602,7 @@ class RemoveMapAnim(Action):
         if self.did_remove:
             anim = RESOURCES.animations.get(self.nid)
             anim = animations.MapAnimation(anim, self.pos, loop=True, speed_adj=self.speed_mult)
+            anim.set_tint(self.blend)
             game.tilemap.animations.append(anim)
 
 class AddAnimToUnit(Action):
@@ -2675,6 +2786,13 @@ class AddSkill(Action):
             for skill in self.unit.skills:
                 if skill.nid == self.skill_obj.nid:
                     self.subactions.append(RemoveSkill(self.unit, skill))
+        # if it's a stackable skill but it's at max, refresh the oldest stack
+        elif self.skill_obj.stack and item_funcs.num_stacks(self.unit, self.skill_obj.nid) >= self.skill_obj.stack.value:
+            logging.info("Skill %s at max stacks" % self.skill_obj.nid)
+            for skill in self.unit.skills:
+                if skill.nid == self.skill_obj.nid:
+                    self.subactions.append(RemoveSkill(self.unit, skill))
+                    break
         for action in self.subactions:
             action.execute()
         self.skill_obj.owner_nid = self.unit.nid
@@ -2706,10 +2824,11 @@ class AddSkill(Action):
 
 
 class RemoveSkill(Action):
-    def __init__(self, unit, skill):
+    def __init__(self, unit, skill, count = -1):
         self.unit = unit
         self.skill = skill  # Skill obj or skill nid str
         self.removed_skills = []
+        self.count = count
         self.old_owner_nid = None
         self.reset_action = ResetUnitVars(self.unit)
 
@@ -2724,11 +2843,16 @@ class RemoveSkill(Action):
 
     def _remove(self, true_remove=True):
         self.removed_skills.clear()
+        to_remove = self.count
         if isinstance(self.skill, str):
+            new_skills = []
             for skill in self.unit.skills:
-                if skill.nid == self.skill:
+                if skill.nid == self.skill and to_remove != 0:
                     self._remove_skill(skill, true_remove)
-            self.unit.skills = [skill for skill in self.unit.skills if skill.nid != self.skill]
+                    to_remove -= 1
+                else:
+                    new_skills.append(skill)
+            self.unit.skills = new_skills
         else:
             if self.skill in self.unit.skills:
                 self.unit.skills.remove(self.skill)

@@ -10,11 +10,16 @@ def get_weapon_rank_bonus(unit, item):
         return None
     rank_bonus = DB.weapons.get(weapon_type).rank_bonus
     wexp = unit.wexp[weapon_type]
+    best_combat_bonus = None
+    highest_requirement = -1
     for combat_bonus in rank_bonus:
-        if combat_bonus.weapon_rank == 'All' or \
-                DB.weapon_ranks.get(combat_bonus.weapon_rank).requirement >= wexp:
+        if combat_bonus.weapon_rank == 'All':
             return combat_bonus
-    return None
+        req = DB.weapon_ranks.get(combat_bonus.weapon_rank).requirement
+        if wexp >= req and req > highest_requirement:
+            highest_requirement = req
+            best_combat_bonus = combat_bonus
+    return best_combat_bonus
 
 def get_support_rank_bonus(unit, target=None):
     from app.engine import target_system
@@ -450,11 +455,21 @@ def compute_damage(unit, target, item, def_item, mode, attack_info, crit=False, 
     might = int(max(DB.constants.value('min_damage'), might))
 
     if crit or skill_system.crit_anyway(unit):
-        might *= equations.parser.crit_mult(unit)
-        if equations.parser.crit_add(unit):
-            might += equations.parser.crit_add(unit)
-        if equations.parser.get('THRACIA_CRIT', unit):
-            might += total_might * equations.parser.thracia_crit(unit)
+        # Multiply Damage
+        equation = skill_system.critical_multiplier_formula(unit)
+        crit_mult = equations.parser.get(equation, unit)
+        might *= crit_mult
+
+        # Add damage
+        equation = skill_system.critical_addition_formula(unit)
+        crit_add = equations.parser.get(equation, unit)
+        might += crit_add
+
+        # Thracia Crit
+        equation = skill_system.thracia_critical_multiplier_formula(unit)
+        thracia_crit = equations.parser.get(equation, unit)
+        if thracia_crit:
+            might += total_might * thracia_crit
 
     might *= skill_system.damage_multiplier(unit, item, target, mode, attack_info, might)
     might *= skill_system.resist_multiplier(target, item, unit, mode, attack_info, might)
@@ -464,7 +479,7 @@ def compute_damage(unit, target, item, def_item, mode, attack_info, crit=False, 
 def compute_assist_damage(unit, target, item, def_item, mode, attack_info, crit=False):
     return compute_damage(unit, target, item, def_item, mode, attack_info, crit, assist=True)
 
-def compute_true_speed(unit, target, item, def_item, mode, attack_info) -> bool:
+def compute_true_speed(unit, target, item, def_item, mode, attack_info) -> int:
     speed = attack_speed(unit, item)
 
     # Handles things like effective damage

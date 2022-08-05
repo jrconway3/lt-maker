@@ -64,25 +64,55 @@ class GameQueryEngine():
         Returns:
             ItemObject | None: Item if exists on unit, otherwise None
         """
-        unit = self._resolve_to_unit(unit)
         item = self._resolve_to_nid(item)
-        found_items = [it for it in unit.items if it.uid == item or it.nid == item]
+        if unit == 'convoy':
+            found_items = [it for it in self.game.get_convoy_inventory() if it.uid == item or it.nid == item]
+        else:
+            unit = self._resolve_to_unit(unit)
+            found_items = [it for it in unit.items if it.uid == item or it.nid == item]
         if found_items:
             return found_items[0]
         return None
 
     @categorize(QueryType.ITEM)
-    def has_item(self, unit, item) -> bool:
-        """Check if unit has item.
+    def has_item(self, item, nid=None, team=None, tag=None, party=None) -> bool:
+        """Check if any unit matching criteria has item.
+
+Example usage:
+
+* `has_item("Iron Sword", team="player")` will check if any player unit is holding an iron sword
+* `has_item("Sacred Stone", party='Eirika')` will check if Eirika's party has the item "Sacred Stone"
 
         Args:
-            unit: unit to check
             item: item to check
+            nid (optional): use to check specific unit nid
+            team (optional): used to match for team. one of 'player', 'enemy', 'enemy2', 'other'
+            tag (optional): used to match for tag.
+            party (optional): used to match for party
 
         Returns:
             bool: True if unit has item, else False
         """
-        return bool(self.get_item(unit, item))
+        all_units = self.game.get_all_units() if not party else self.game.get_all_units_in_party(party)
+        convoy = None
+        item = self._resolve_to_nid(item)
+        if not nid or nid == 'convoy':
+            if nid == 'convoy' or team == 'player':
+                convoy = self.game.get_convoy_inventory()
+            elif party:
+                convoy = self.game.get_convoy_inventory(self.game.get_party(party))
+        if convoy and any([citem.nid == item or citem.uid == item.uid for citem in convoy]):
+            return True
+        for unit in all_units:
+            if nid and not nid == unit.nid:
+                continue
+            if team and not team == unit.team:
+                continue
+            if tag and not tag in unit.tags:
+                continue
+            if bool(self.get_item(unit, item)):
+                return True
+        return False
 
     @categorize(QueryType.SKILL)
     def get_skill(self, unit, skill) -> SkillObject:
@@ -190,9 +220,9 @@ class GameQueryEngine():
         """returns all units matching the criteria in the given region
 
 Example usage:
-* `unit_in_region('NorthReinforcements', team='player')` will return all player units in the region
-* `unit_in_region('NorthReinforcements', nid='Eirika')` will return Eirika if Eirika is in the region
-* `unit_in_region('NorthReinforcements')` will return all units in the region
+* `get_units_in_region('NorthReinforcements', team='player')` will return all player units in the region
+* `get_units_in_region('NorthReinforcements', nid='Eirika')` will return Eirika if Eirika is in the region
+* `get_units_in_region('NorthReinforcements')` will return all units in the region
 
         Args:
             region: region in question
@@ -221,9 +251,9 @@ Example usage:
         """checks if any unit matching the criteria is in the region
 
 Example usage:
-* `unit_in_region('NorthReinforcements', team='player')` will check if any player unit is in the region
-* `unit_in_region('NorthReinforcements', nid='Eirika')` will check if Eirika is in the region
-* `unit_in_region('NorthReinforcements')` will check if ANY unit is in the region
+* `any_unit_in_region('NorthReinforcements', team='player')` will check if any player unit is in the region
+* `any_unit_in_region('NorthReinforcements', nid='Eirika')` will check if Eirika is in the region
+* `any_unit_in_region('NorthReinforcements')` will check if ANY unit is in the region
 
         Args:
             region: region in question

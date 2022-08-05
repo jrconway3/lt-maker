@@ -6,6 +6,7 @@ import re
 from typing import TYPE_CHECKING, Dict, List, Tuple, Type
 
 from app.data.database import Database
+from app.editor.event_editor.event_inspector import EventInspectorEngine
 from app.engine.graphics.ui_framework.ui_framework_layout import (HAlignment,
                                                                   VAlignment)
 from app.events import event_commands
@@ -131,7 +132,10 @@ class VarValidator(EvalValidator):
         return text
 
     def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
-        return [(None, var_name) for var_name in self._db.game_var_slots.keys()]
+        slots = [(None, var_name) for var_name in self._db.game_var_slots.keys()]
+        vars_in_level = EventInspectorEngine(self._db.events).find_all_variables_in_level(level)
+        slots += [(None, var_name) for var_name in vars_in_level]
+        return slots
 
 class SkillAttrValidator(EvalValidator):
     desc = "expression to evaluate skill field"
@@ -215,7 +219,10 @@ class GeneralVar(Validator):
         return text
 
     def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
-        return [(None, var_name) for var_name in self._db.game_var_slots.keys()]
+        slots = [(None, var_name) for var_name in self._db.game_var_slots.keys()]
+        vars_in_level = EventInspectorEngine(self._db.events).find_all_variables_in_level(level)
+        slots += [(None, var_name) for var_name in vars_in_level]
+        return slots
 
 class EventFunction(Validator):
     desc = "must be a valid event function"
@@ -386,6 +393,20 @@ class Tag(Validator):
         if text in self._db.tags.keys():
             return text
         return None
+
+    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+        valids = [(None, tag.nid) for tag in self._db.tags.values()]
+        return valids
+
+class TagList(Validator):
+    desc = "must be a comma-delimited list of tags (ie, `Armor,Dragon,Boss`)"
+
+    def validate(self, text, level):
+        tex = text.split(',')
+        for t in tex:
+            if t not in self._db.tags.keys():
+                return None
+        return text
 
     def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
         valids = [(None, tag.nid) for tag in self._db.tags.values()]
@@ -835,6 +856,18 @@ class GlobalUnitOrConvoy(Validator):
         valids.append((None, "convoy"))
         return valids
 
+class Region(Validator):
+    desc = "accepts a region nid."
+
+    def validate(self, text, level):
+        return text
+
+    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+        valids = []
+        level_obj = self._db.levels.get(level)
+        if level_obj:
+            valids = [(None, region.nid) for region in level_obj.regions]
+        return valids
 class AnimationType(OptionValidator):
     valid = ['north', 'east', 'west', 'south', 'fade']
 class CardinalDirection(OptionValidator):
@@ -922,6 +955,20 @@ class ItemList(Validator):
         valids = [(None, item.nid) for item in self._db.items.values()]
         return valids
 
+class ItemComponent(Validator):
+    desc = "accepts an item component."
+
+    def validate(self, text, level):
+        from app.engine import item_component_access as ICA
+        if text in ICA.get_components().keys():
+            return text
+        return None
+
+    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+        from app.engine import item_component_access as ICA
+        valids = [(None, component.nid) for component in ICA.get_item_components()]
+        return valids
+
 class StatList(Validator):
     desc = "accepts a comma-delimited list of pairs of stat nids and stat changes. For example, `STR,2,SPD,-3`."
 
@@ -960,6 +1007,19 @@ class Skill(Validator):
     def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
         svalids = [(skill.name, skill.nid) for skill in self._db.skills.values()]
         return svalids
+
+class Icon(Validator):
+    def get_all_icons(self):
+        all_icons = set()
+        for sheet in self._resources.icons16:
+            all_icons |= set(sheet._subicon_dict.keys())
+        return all_icons
+
+    def validate(self, text, level):
+        return text in self.get_all_icons()
+
+    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+        return [(None, alias) for alias in self.get_all_icons()]
 
 class Party(Validator):
     desc = "accepts the nid of an existing Party"

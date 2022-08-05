@@ -15,7 +15,7 @@ from app.extensions.widget_list import WidgetList
 from app.resources.resources import RESOURCES
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QIcon
-from PyQt5.QtWidgets import (QComboBox, QDoubleSpinBox, QHBoxLayout,
+from PyQt5.QtWidgets import (QDoubleSpinBox, QHBoxLayout,
                              QItemDelegate, QLabel, QLineEdit, QListWidgetItem,
                              QSpinBox, QToolButton, QWidget)
 
@@ -90,7 +90,7 @@ class IntItemComponent(BoolItemComponent):
 
     def set_format(self):
         self.editor.setMaximumWidth(60)
-        self.editor.setRange(-1000, 1000)
+        self.editor.setRange(-1000, 10000)
 
 class HitItemComponent(IntItemComponent):
     def set_format(self):
@@ -137,7 +137,7 @@ class DropDownItemComponent(BoolItemComponent):
         super().__init__(data, parent)
 
     def create_editor(self, hbox):
-        self.editor = QComboBox(self)
+        self.editor = ComboBox(self)
         self.editor.setMaximumWidth(320)
         self.editor.addItems(self.options)
         if not self._data.value:
@@ -416,6 +416,7 @@ class UnitDelegate(QItemDelegate):
     data = DB.units
     name = "Unit"
     is_float = False
+    is_string = False
 
     def createEditor(self, parent, option, index):
         if index.column() == 0:
@@ -424,7 +425,9 @@ class UnitDelegate(QItemDelegate):
                 editor.addItem(obj.nid)
             return editor
         elif index.column() == 1:  # Integer value column
-            if self.is_float:
+            if self.is_string:
+                editor = QLineEdit(parent)
+            elif self.is_float:
                 editor = QDoubleSpinBox(parent)
                 editor.setRange(0, 10)
             else:
@@ -492,10 +495,17 @@ class DictItemComponent(BoolItemComponent):
 
     def modify_delegate(self):
         self.delegate.is_float = False
+        self.delegate.is_string = False
 
 class FloatDictItemComponent(DictItemComponent):
     def modify_delegate(self):
         self.delegate.is_float = True
+        self.delegate.is_string = False
+
+class StringDictItemComponent(DictItemComponent):
+    def modify_delegate(self):
+        self.delegate.is_float = False
+        self.delegate.is_string = True
 
 def get_display_widget(component, parent):
     if not component.expose:
@@ -573,6 +583,8 @@ def get_display_widget(component, parent):
             c = DictItemComponent(component, parent, delegate)
         elif component.expose[0] == Type.FloatDict:
             c = FloatDictItemComponent(component, parent, delegate)
+        elif component.expose[0] == Type.StringDict:
+            c = StringDictItemComponent(component, parent, delegate)
         elif component.expose[0] == Type.MultipleChoice:
             c = DropDownItemComponent(component, parent, component.expose[1])
 

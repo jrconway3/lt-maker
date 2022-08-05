@@ -10,7 +10,7 @@ function that can query the game state.
 
 #### Get Item
 
-    get_item(self, unit, item) 
+    get_item(unit, item) 
 		-> 'ItemObject'
 
 Returns a item object by nid.
@@ -27,14 +27,22 @@ Returns a item object by nid.
 
 #### Has Item
 
-    has_item(self, unit, item) 
+    has_item(item, nid=None, team=None, tag=None, party=None) 
 		-> 'bool'
 
-Check if unit has item.
+Check if any unit matching criteria has item.
+
+Example usage:
+
+* `has_item("Iron Sword", team="player")` will check if any player unit is holding an iron sword
+* `has_item("Sacred Stone", party='Eirika')` will check if Eirika's party has the item "Sacred Stone"
 
         Args:
-            unit: unit to check
             item: item to check
+            nid (optional): use to check specific unit nid
+            team (optional): used to match for team. one of 'player', 'enemy', 'enemy2', 'other'
+            tag (optional): used to match for tag.
+            party (optional): used to match for party
 
         Returns:
             bool: True if unit has item, else False
@@ -48,15 +56,15 @@ Check if unit has item.
 
 #### Any Unit In Region
 
-    any_unit_in_region(self, region, nid=None, team=None, tag=None) 
+    any_unit_in_region(region, nid=None, team=None, tag=None) 
 		-> 'List[UnitObject]'
 
 checks if any unit matching the criteria is in the region
 
 Example usage:
-* `unit_in_region('NorthReinforcements', team='player')` will check if any player unit is in the region
-* `unit_in_region('NorthReinforcements', nid='Eirika')` will check if Eirika is in the region
-* `unit_in_region('NorthReinforcements')` will check if ANY unit is in the region
+* `any_unit_in_region('NorthReinforcements', team='player')` will check if any player unit is in the region
+* `any_unit_in_region('NorthReinforcements', nid='Eirika')` will check if Eirika is in the region
+* `any_unit_in_region('NorthReinforcements')` will check if ANY unit is in the region
 
         Args:
             region: region in question
@@ -72,7 +80,7 @@ Example usage:
 
 #### Get Allies Within Distance
 
-    get_allies_within_distance(self, position, dist: 'int' = 1) 
+    get_allies_within_distance(position, dist: 'int' = 1) 
 		-> 'List[Tuple[UnitObject, int]]'
 
 Return a list containing all player units within `dist` distance to the specific position.
@@ -90,7 +98,7 @@ Return a list containing all player units within `dist` distance to the specific
 
 #### Get Closest Allies
 
-    get_closest_allies(self, position, num: 'int' = 1) 
+    get_closest_allies(position, num: 'int' = 1) 
 		-> 'List[Tuple[UnitObject, int]]'
 
 Return a list containing the closest player units and their distances.
@@ -108,7 +116,7 @@ Return a list containing the closest player units and their distances.
 
 #### Get Units In Area
 
-    get_units_in_area(self, position_corner_1: 'Tuple[int, int]', position_corner_2: 'Tuple[int, int]') 
+    get_units_in_area(position_corner_1: 'Tuple[int, int]', position_corner_2: 'Tuple[int, int]') 
 		-> 'List[UnitObject]'
 
 Returns a list of units within a rectangular area.
@@ -126,15 +134,15 @@ Returns a list of units within a rectangular area.
 
 #### Get Units In Region
 
-    get_units_in_region(self, region, nid=None, team=None, tag=None) 
+    get_units_in_region(region, nid=None, team=None, tag=None) 
 		-> 'List[UnitObject]'
 
 returns all units matching the criteria in the given region
 
 Example usage:
-* `unit_in_region('NorthReinforcements', team='player')` will return all player units in the region
-* `unit_in_region('NorthReinforcements', nid='Eirika')` will return Eirika if Eirika is in the region
-* `unit_in_region('NorthReinforcements')` will return all units in the region
+* `get_units_in_region('NorthReinforcements', team='player')` will return all player units in the region
+* `get_units_in_region('NorthReinforcements', nid='Eirika')` will return Eirika if Eirika is in the region
+* `get_units_in_region('NorthReinforcements')` will return all units in the region
 
         Args:
             region: region in question
@@ -154,7 +162,7 @@ Example usage:
 
 #### Get Debuff Count
 
-    get_debuff_count(self, unit) 
+    get_debuff_count(unit) 
 		-> 'int'
 
 Checks how many negative skills the unit has.
@@ -170,7 +178,7 @@ Checks how many negative skills the unit has.
 
 #### Get Skill
 
-    get_skill(self, unit, skill) 
+    get_skill(unit, skill) 
 		-> 'SkillObject'
 
 Returns a skill object by nid.
@@ -187,7 +195,7 @@ Returns a skill object by nid.
 
 #### Has Skill
 
-    has_skill(self, unit, skill) 
+    has_skill(unit, skill) 
 		-> 'bool'
 
 checks if unit has skill
@@ -208,7 +216,7 @@ checks if unit has skill
 
 #### Is Dead
 
-    is_dead(self, unit) 
+    is_dead(unit) 
 		-> 'bool'
 
 checks if unit is dead

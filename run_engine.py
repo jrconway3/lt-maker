@@ -26,7 +26,11 @@ def test_play(name: str = 'testing_proj'):
     DB.load(name + '.ltproj')
     title = DB.constants.value('title')
     driver.start(title, from_editor=True)
-    game = game_state.start_level('DEBUG')
+    if 'DEBUG' in DB.levels:
+        game = game_state.start_level('DEBUG')
+    else:
+        first_level_nid = DB.levels[0].nid
+        game = game_state.start_level(first_level_nid)
     driver.run(game)
 
 def inform_error():

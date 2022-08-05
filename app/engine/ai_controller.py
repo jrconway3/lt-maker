@@ -105,7 +105,7 @@ class AIController():
             if not item_funcs.available(self.unit, self.goal_item):
                 return False
             if self.goal_item in item_funcs.get_all_items(self.unit):
-                self.unit.equip(self.goal_item)
+                action.do(action.EquipItem(self.unit, self.goal_item))
             # Highlights
             if item_system.is_weapon(self.unit, self.goal_item):
                 game.highlight.remove_highlights()
@@ -192,10 +192,14 @@ class AIController():
             return False
 
     def get_true_valid_moves(self) -> set:
-        valid_moves = target_system.get_valid_moves(self.unit)
-        other_unit_positions = {unit.position for unit in game.units if unit.position and unit is not self.unit}
-        valid_moves -= other_unit_positions
-        return valid_moves
+        # Guard AI
+        if self.behaviour.view_range == -1 and not self.unit.ai_group_active:
+            return {self.unit.position}
+        else:
+            valid_moves = target_system.get_valid_moves(self.unit)
+            other_unit_positions = {unit.position for unit in game.units if unit.position and unit is not self.unit}
+            valid_moves -= other_unit_positions
+            return valid_moves
 
     def think(self):
         time = engine.get_time()
@@ -291,12 +295,7 @@ class AIController():
                     action.do(action.AIGroupPing(unit))
 
     def build_primary(self):
-        # Guard AI
-        if self.behaviour.view_range == -1 and not self.unit.ai_group_active:
-            valid_moves = {self.unit.position}
-        else:
-            valid_moves = self.get_true_valid_moves()
-
+        valid_moves = self.get_true_valid_moves()
         return PrimaryAI(self.unit, valid_moves, self.behaviour)
 
     def build_secondary(self):
@@ -368,7 +367,7 @@ class PrimaryAI():
                    (not DB.constants.value('ai_fog_of_war') or game.board.in_vision(pos, self.unit.team)):
                     filtered_targets.add(pos)
                     break
-            
+
         return list(filtered_targets)
 
     def get_all_valid_targets(self):
@@ -728,7 +727,7 @@ class SecondaryAI():
                 self.widen_flag = True
                 self.view_range = -4
                 self.available_targets = [t for t in self.all_targets if t not in self.available_targets]
-            else:
+            else:  # No targets possible
                 return True, None
         return False, None
 

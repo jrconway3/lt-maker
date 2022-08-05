@@ -1,5 +1,5 @@
 from __future__ import annotations
-from app.data import raw_data
+from functools import lru_cache
 
 import random
 import time
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from app.engine import (ai_controller, death,
         game_board, highlight, map_view, movement, phase,
         promotion, ui_view, banner, boundary, camera, cursor,
-        initiative, records, save, supports, turnwheel, unit_sprite)
+        initiative, records, supports, turnwheel, unit_sprite)
     from app.engine.combat.simple_combat import SimpleCombat
     from app.engine.overworld.overworld_movement_manager import \
         OverworldMovementManager
@@ -53,7 +53,7 @@ class GameState():
         self.game_vars: Counter = None
         self.level_vars: Counter = None
         self.playtime: int = 0
-        self.current_save_slot: save.SaveSlot = None
+        self.current_save_slot: int = None
 
         # global registries
         self.unit_registry: Dict[NID, UnitObject] = {}
@@ -216,6 +216,9 @@ class GameState():
         # Build registries
         self.map_sprite_registry = {}
 
+        # caches
+        self.get_region_under_pos.cache_clear()
+
     def start_level(self, level_nid, with_party=None):
         """
         Done at the beginning of a new level to start the level up
@@ -234,8 +237,9 @@ class GameState():
         tilemap_nid = level_prefab.tilemap
         tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
         tilemap = TileMapObject.from_prefab(tilemap_prefab)
+        bg_tilemap = TileMapObject.from_prefab(RESOURCES.tilemaps.get(level_prefab.bg_tilemap)) if level_prefab.bg_tilemap else None
         self.cursor = LevelCursor(self)
-        self.current_level = LevelObject.from_prefab(level_prefab, tilemap, self.unit_registry, self.current_mode)
+        self.current_level = LevelObject.from_prefab(level_prefab, tilemap, bg_tilemap, self.unit_registry, self.current_mode)
         if with_party:
             self.current_party = with_party
         else:
@@ -559,6 +563,12 @@ class GameState():
             return None
 
     @property
+    def bg_tilemap(self):
+        if self.current_level and self.current_level.bg_tilemap:
+            return self.current_level.bg_tilemap
+        return None
+
+    @property
     def mode(self):
         return DB.difficulty_modes.get(self.current_mode.nid)
 
@@ -600,11 +610,15 @@ class GameState():
 
     @property
     def regions(self):
-        return list(self.region_registry.values())
+        return list(self.level.regions.values())
 
     def register_unit(self, unit):
         logging.debug("Registering unit %s as %s", unit, unit.nid)
         self.unit_registry[unit.nid] = unit
+
+    def unregister_unit(self, unit):
+        logging.debug("Unregistering unit %s as %s", unit, unit.nid)
+        del self.unit_registry[unit.nid]
 
     def register_item(self, item):
         logging.debug("Registering item %s as %s", item, item.uid)
@@ -613,12 +627,26 @@ class GameState():
         for subitem in item.subitems:
             self.register_item(subitem)
 
+    def unregister_item(self, item):
+        logging.debug("Unregistering item %s as %s", item, item.uid)
+        del self.item_registry[item.uid]
+        # For multi-items
+        for subitem in item.subitems:
+            self.unregister_item(subitem)
+
     def register_skill(self, skill):
         logging.debug("Registering skill %s as %s", skill, skill.uid)
         self.skill_registry[skill.uid] = skill
         # For aura skills
         if skill.subskill:
             self.skill_registry[skill.subskill.uid] = skill.subskill
+
+    def unregister_skill(self, skill):
+        logging.debug("Unregistering skill %s as %s", skill, skill.uid)
+        del self.skill_registry[skill.uid]
+        # For aura skills
+        if skill.subskill:
+            del self.skill_registry[skill.subskill.uid]
 
     def register_terrain_status(self, key, skill_uid):
         logging.debug("Registering terrain status %s", skill_uid)
@@ -670,9 +698,10 @@ class GameState():
         region = self.region_registry.get(region_nid)
         return region
 
+    @lru_cache(128)
     def get_region_under_pos(self, pos: Tuple[int, int]) -> Region:
         if pos:
-            for region in self.region_registry.values():
+            for region in self.level.regions.values():
                 if region.contains(pos):
                     return region
 
@@ -916,7 +945,7 @@ class GameState():
         """
         from app.engine import action
         old = static_random.get_other_random_state()
-        result = static_random.r.other_random.random()
+        result = static_random.get_random_float()
         new = static_random.get_other_random_state()
         action.do(action.RecordOtherRandomState(old, new))
         return result

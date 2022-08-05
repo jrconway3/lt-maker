@@ -43,6 +43,9 @@ class TurnChangeState(MapState):
     def handle_paired(self):
         for unit in game.get_all_units():
             if unit.traveler:
+                # One fix
+                unit.lead_unit = True
+                game.get_unit(unit.traveler).lead_unit = False
                 # Increment guard gauge
                 if not unit.built_guard:
                     action.do(action.IncGauge(unit, -unit.get_gauge_inc()))
@@ -81,7 +84,7 @@ class TurnChangeState(MapState):
                         action.do(action.DecrementTimeRegion(region))
                         if region.sub_nid <= 0:
                             action.do(action.RemoveRegion(region))
-                            game.events.trigger('time_region_complete', local_args={'region': region, 'position': region.position})
+                            game.events.trigger('time_region_complete', position=region.position, local_args={'region': region})
                 game.events.trigger('turn_change')
                 if game.turncount - 1 <= 0:  # Beginning of the level
                     for unit in game.get_all_units_in_party():
@@ -563,6 +566,7 @@ class MoveState(MapState):
         game.cursor.remove_arrows()
         game.highlight.remove_highlights()
 
+
 class MovementState(State):
     # Responsible for moving units that need to be moved
     name = 'movement'
@@ -667,6 +671,7 @@ class MenuState(MapState):
         game.cursor.set_pos(self.cur_unit.position)
 
         options = []
+        info_descs = []
 
         # Handle primary ability options (attack, spell, talk)
         self.target_dict = OrderedDict()
@@ -675,6 +680,7 @@ class MenuState(MapState):
             self.target_dict[ability.name] = ability
             if t:
                 options.append(ability.name)
+                info_descs.append(ability.name + '_desc')
 
         # Handle region event options
         self.valid_regions = []
@@ -686,6 +692,7 @@ class MenuState(MapState):
                     # No duplicates
                     if truth and region.sub_nid not in options:
                         options.append(region.sub_nid)
+                        info_descs.append(None) # Could add actual descriptions later, somehow
                         self.valid_regions.append(region)
                 except:
                     logging.error("Region condition {%s} could not be evaluated" % region.condition)
@@ -696,8 +703,10 @@ class MenuState(MapState):
             self.target_dict[ability.name] = ability
             if t:
                 options.append(ability.name)
+                info_descs.append(ability.name + '_desc') # Could add actual descriptions later
 
         options.append("Wait")
+        info_descs.append("Wait_desc")
 
         # Handle extra ability options
         self.extra_abilities = skill_system.get_extra_abilities(self.cur_unit)
@@ -710,6 +719,7 @@ class MenuState(MapState):
         for ability_name, ability in self.extra_abilities.items():
             if target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, ability):
                 options.insert(start_index, ability_name)
+                info_descs.insert(start_index, ability)
 
         # Handle combat art options (only available if you haven't attacked)
         if not self.cur_unit.has_attacked:
@@ -720,12 +730,18 @@ class MenuState(MapState):
             start_index = options.index('Attack') + 1
         else:
             start_index = len(self.valid_regions)
-        for ability_name in self.combat_arts:
-            options.insert(start_index, ability_name)
+        if self.combat_arts:
+            if DB.constants.value('combat_art_category'): 
+                options.insert(start_index, 'Combat Arts')
+                info_descs.insert(start_index, 'Combat Arts_desc')
+            else:
+                for ability_name in self.combat_arts:
+                    options.insert(start_index, ability_name)
+                    info_descs.insert(start_index, self.combat_arts[ability_name][0].desc)
 
         # Draw highlights
         for ability in ABILITIES:
-            if ability.name in options:
+            if ability in options or ability.name in options:
                 # Only draw one set of highlights
                 if ability.highlights(self.cur_unit):
                     break
@@ -734,8 +750,7 @@ class MenuState(MapState):
             moves = target_system.get_valid_moves(self.cur_unit)
             game.highlight.display_moves(moves)
         game.highlight.display_aura_highlights(self.cur_unit)
-
-        self.menu = menus.Choice(self.cur_unit, options)
+        self.menu = menus.Choice(self.cur_unit, options, info = info_descs)
         self.menu.set_limit(8)
         self.menu.set_color(['green' if option not in self.normal_options else None for option in options])
 
@@ -753,35 +768,47 @@ class MenuState(MapState):
 
         # Back, put unit back to where he/she started
         if event == 'BACK':
-            get_sound_thread().play_sfx('Select 4')
-            if self.cur_unit.has_traded:
-                if skill_system.has_canto(self.cur_unit, self.cur_unit):
-                    game.cursor.set_pos(self.cur_unit.position)
-                    game.state.change('move')
-                    game.cursor.place_arrows()
-                else:
-                    game.state.clear()
-                    game.state.change('free')
-                    self.cur_unit.wait()
+            if self.menu.info_flag:
+                get_sound_thread().play_sfx('Info Out')
+                self.menu.info_flag = False
             else:
-                # Reverse Swap here
-                if not self.cur_unit.lead_unit and self.cur_unit.traveler:
-                    self.cur_unit.lead_unit = False
-                    u = game.get_unit(self.cur_unit.traveler)
-                    act = action.SwapPaired(self.cur_unit, u)
-                    act.execute()
-                    self.cur_unit = u
-                    game.cursor.cur_unit = u
+                get_sound_thread().play_sfx('Select 4')
+                if self.cur_unit.has_traded:
+                    if skill_system.has_canto(self.cur_unit, self.cur_unit):
+                        game.cursor.set_pos(self.cur_unit.position)
+                        game.state.change('move')
+                        game.cursor.place_arrows()
+                    else:
+                        game.state.clear()
+                        game.state.change('free')
+                        self.cur_unit.wait()
                 else:
+                    # Reverse Swap here
+                    if self.cur_unit.lead_unit:
+                        logging.info("Lead unit is " + str(self.cur_unit.lead_unit))
+                    if self.cur_unit.traveler:
+                        logging.info("Traveler is " + self.cur_unit.traveler)
+                    if not self.cur_unit.lead_unit and self.cur_unit.traveler:
+                        u = game.get_unit(self.cur_unit.traveler)
+                        act = action.SwapPaired(self.cur_unit, u)
+                        act.do()
+                        self.cur_unit = u
+                        game.cursor.cur_unit = u
                     if self.cur_unit.current_move:
+                        logging.info("Reversing " + self.cur_unit.nid + "'s move")
+                        game.leave(self.cur_unit)
                         action.reverse(self.cur_unit.current_move)
                         self.cur_unit.current_move = None
-                    # game.cursor.set_pos(self.cur_unit.position)
                     game.state.change('move')
                     game.cursor.construct_arrows(game.cursor.path[::-1])
 
         elif event == 'INFO':
-            info_menu.handle_info()
+            if self.menu.info_flag:
+                get_sound_thread().play_sfx('Info Out')
+                self.menu.info_flag = False
+            else:
+                get_sound_thread().play_sfx('Info In')
+                self.menu.info_flag = True
 
         elif event == 'SELECT':
             get_sound_thread().play_sfx('Select 1')
@@ -829,12 +856,22 @@ class MenuState(MapState):
                 game.memory['item'] = item
                 # Handle abilities that are multi-items, you sick fuck
                 if item.multi_item:
-                    if item.multi_item_hides_unavailable:
-                        game.memory['valid_weapons'] = [subitem for subitem in item.subitems if item_funcs.available(self.cur_unit, subitem) and
-                                                                                                item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
-                    else:
-                        game.memory['valid_weapons'] = [subitem for subitem in item.subitems if item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
-                    game.state.change('weapon_choice')
+                    all_weapons = [subitem for subitem in item.subitems if item_funcs.is_weapon_recursive(self.cur_unit, subitem) and
+                                        target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
+                    if all_weapons:
+                        if item.multi_item_hides_unavailable:
+                            game.memory['valid_weapons'] = [subitem for subitem in all_weapons if item_funcs.available(self.cur_unit, subitem)]
+                        else:
+                            game.memory['valid_weapons'] = all_weapons
+                        game.state.change('weapon_choice')
+                    else: # multi item of spells?
+                        all_spells = [subitem for subitem in item.subitems if item_funcs.is_spell_recursive(self.cur_unit, subitem) and
+                                        target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
+                        if item.multi_item_hides_unavailable:
+                            game.memory['valid_spells'] = [subitem for subitem in all_spells if item_funcs.available(self.cur_unit, subitem)]
+                        else:
+                            game.memory['valid_spells'] = all_spells
+                        game.state.change('spell_choice')
                 else:
                     game.state.change('combat_targeting')
             # A combat art
@@ -844,6 +881,9 @@ class MenuState(MapState):
                 game.memory['valid_weapons'] = self.combat_arts[selection][1]
                 skill_system.activate_combat_art(self.cur_unit, skill)
                 game.state.change('weapon_choice')
+            elif selection == 'Combat Arts':
+                game.memory['combat_arts'] = self.combat_arts
+                game.state.change('combat_art_choice')
             else:  # Selection is one of the other abilities
                 game.memory['ability'] = self.target_dict[selection]
                 game.state.change('targeting')
@@ -877,6 +917,7 @@ class ItemState(MapState):
         self.cur_unit = game.cursor.cur_unit
         options = self._get_options()
         self.menu = menus.Choice(self.cur_unit, options)
+        self.menu.set_limit(8)
 
     def begin(self):
         game.cursor.hide()
@@ -958,6 +999,7 @@ class SubItemChildState(MapState):
         if not options:
             options = ["Nothing"]
         self.menu = menus.Choice(self.parent_item, options, parent_menu)
+        self.menu.set_limit(8)
 
     def begin(self):
         game.cursor.hide()
@@ -1064,6 +1106,7 @@ class ItemChildState(MapState):
                 options.append('Nothing')
 
         self.menu = menus.Choice(item, options, self.parent_menu)
+        self.menu.set_limit(8)
         self.menu.gem = False
 
     def take_input(self, event):
@@ -1136,6 +1179,7 @@ class ItemDiscardState(MapState):
         self.menu = menus.Choice(self.cur_unit, options)
         ignore = [bool(item_system.locked(self.cur_unit, item)) for item in options]
         self.menu.set_ignore(ignore)
+        self.menu.set_limit(8)
 
         if game.game_vars.get('_convoy'):
             self.pennant = banner.Pennant('Choose item to send to storage')
@@ -1199,9 +1243,9 @@ class WeaponChoiceState(MapState):
         if game.memory.get('valid_weapons'):
             options = game.memory['valid_weapons']
         else:
-            options = target_system.get_weapons(unit)
+            items = target_system.get_weapons(unit)
             # Skill straining
-            options = [option for option in options if target_system.get_valid_targets_recursive_with_availability_check(unit, option)]
+            options = [item for item in items if target_system.get_valid_targets_recursive_with_availability_check(unit, item)]
         return options
 
     def disp_attacks(self, unit, item):
@@ -1254,10 +1298,16 @@ class WeaponChoiceState(MapState):
             selection = self.menu.get_current()
             if selection.multi_item:
                 if selection.multi_item_hides_unavailable:
-                    game.memory['valid_weapons'] = [subitem for subitem in selection.subitems if item_funcs.available(self.cur_unit, subitem) and
-                                                                                                 item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
+                    game.memory['valid_weapons'] = \
+                        [subitem for subitem in selection.subitems if
+                         item_funcs.available(self.cur_unit, subitem) and
+                         item_funcs.is_weapon_recursive(self.cur_unit, subitem) and
+                         target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                 else:
-                    game.memory['valid_weapons'] = [subitem for subitem in selection.subitems if item_funcs.is_weapon_recursive(self.cur_unit, subitem)]
+                    game.memory['valid_weapons'] = \
+                        [subitem for subitem in selection.subitems if
+                         item_funcs.is_weapon_recursive(self.cur_unit, subitem) and
+                         target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                 game.state.change('weapon_choice')
                 return
 
@@ -1281,6 +1331,10 @@ class WeaponChoiceState(MapState):
             game.state.change('combat_targeting')
 
         elif event == 'INFO':
+            if self.menu.info_flag:
+                get_sound_thread().play_sfx('Info Out')
+            else:
+                get_sound_thread().play_sfx('Info In')
             self.menu.toggle_info()
 
     def update(self):
@@ -1303,9 +1357,9 @@ class SpellChoiceState(WeaponChoiceState):
         if game.memory.get('valid_spells'):
             options = game.memory['valid_spells']
         else:
-            options = target_system.get_spells(unit)
+            items = target_system.get_spells(unit)
             # Skill straining
-            options = [option for option in options if target_system.get_valid_targets_recursive_with_availability_check(unit, option)]
+            options = [item for item in items if target_system.get_valid_targets_recursive_with_availability_check(unit, item)]
         return options
 
     def disp_attacks(self, unit, item):
@@ -1338,11 +1392,17 @@ class SpellChoiceState(WeaponChoiceState):
         elif event == 'SELECT':
             selection = self.menu.get_current()
             if selection.multi_item:
-                if selection.multi_item_hides_unavailable and self.cur_unit:
-                    game.memory['valid_spells'] = [subitem for subitem in selection.subitems if item_funcs.available(self.cur_unit, subitem) and
-                                                                                                 item_funcs.is_spell_recursive(self.cur_unit, subitem)]
+                if selection.multi_item_hides_unavailable:
+                    game.memory['valid_spells'] = \
+                        [subitem for subitem in selection.subitems if
+                         item_funcs.available(self.cur_unit, subitem) and
+                         item_funcs.is_spell_recursive(self.cur_unit, subitem) and
+                         target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                 else:
-                    game.memory['valid_spells'] = [subitem for subitem in selection.subitems if item_funcs.is_spell_recursive(self.cur_unit, subitem)]
+                    game.memory['valid_spells'] = \
+                        [subitem for subitem in selection.subitems if
+                         item_funcs.is_spell_recursive(self.cur_unit, subitem) and
+                         target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                 game.state.change('spell_choice')
                 return
 
@@ -1357,7 +1417,81 @@ class SpellChoiceState(WeaponChoiceState):
             game.state.change('combat_targeting')
 
         elif event == 'INFO':
+            if self.menu.info_flag:
+                get_sound_thread().play_sfx('Info Out')
+            else:
+                get_sound_thread().play_sfx('Info In')
             self.menu.toggle_info()
+
+class CombatArtChoiceState(MapState):
+    name = 'combat_art_choice'
+
+    def start(self):
+        if game.memory.get('combat_arts'):
+            self.combat_arts = game.memory['combat_arts']
+        else:
+            logging.error('No available combat arts!')
+            game.state.back()
+            return
+
+    def begin(self):
+
+        game.cursor.hide()
+        self.cur_unit = game.cursor.cur_unit
+        self.cur_unit.sprite.change_state('chosen')
+        skill_system.deactivate_all_combat_arts(self.cur_unit)
+        
+        options = [ability_name for ability_name in self.combat_arts]
+        info_desc = [self.combat_arts[ability_name][0].desc for ability_name in self.combat_arts]
+        self.menu = menus.Choice(self.cur_unit, options, info=info_desc)
+        self.menu.set_limit(8)
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        did_move = self.menu.handle_mouse()
+        if did_move:
+            self._item_desc_update()
+
+        if 'DOWN' in directions:
+            get_sound_thread().play_sfx('Select 6')
+            self.menu.move_down(first_push)
+
+        elif 'UP' in directions:
+            get_sound_thread().play_sfx('Select 6')
+            self.menu.move_up(first_push)
+
+        if event == 'BACK':
+            get_sound_thread().play_sfx('Select 4')
+            game.memory['combat_arts'] = None
+            game.state.back()
+
+        elif event == 'SELECT':
+            selection = self.menu.get_current()
+            get_sound_thread().play_sfx('Select 1')
+
+            skill = self.combat_arts[selection][0]
+            game.memory['ability'] = 'Combat Art'
+            game.memory['valid_weapons'] = self.combat_arts[selection][1]
+            skill_system.activate_combat_art(self.cur_unit, skill)
+            game.state.change('weapon_choice')
+
+        elif event == 'INFO':
+            if self.menu.info_flag:
+                get_sound_thread().play_sfx('Info Out')
+            else:
+                get_sound_thread().play_sfx('Info In')
+            self.menu.toggle_info()
+
+    def update(self):
+        super().update()
+        self.menu.update()
+
+    def draw(self, surf):
+        surf = super().draw(surf)
+        surf = self.menu.draw(surf)
+        return surf
 
 class TargetingState(MapState):
     name = 'targeting'
@@ -1643,6 +1777,7 @@ class CombatTargetingState(MapState):
         game.combat_instance.append(combat)
         game.state.change('combat')
         game.memory['valid_weapons'] = None
+        game.memory['valid_spells'] = None
 
     def _get_next_target(self):
         allow_same_target = item_system.allow_same_target(self.cur_unit, self.item)
@@ -1747,7 +1882,8 @@ class CombatTargetingState(MapState):
         target_unit = game.board.get_unit(game.cursor.position)
         if self.cur_unit and target_unit:
             if item_system.targets_items(self.cur_unit, self.item):
-                game.ui_view.draw_trade_preview(target_unit, surf)
+                ignore = [not item_system.item_restrict(self.cur_unit, self.item, target_unit, item) for item in target_unit.items]
+                game.ui_view.draw_trade_preview(target_unit, surf, ignore)
             elif item_system.is_weapon(self.cur_unit, self.item):
                 game.ui_view.draw_attack_info(surf, self.cur_unit, self.item, target_unit, self.attacker_assist, self.defender_assist)
             else:

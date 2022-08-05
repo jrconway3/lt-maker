@@ -18,7 +18,7 @@ def document_function(func: Callable) -> str:
   try:
     func_doc = func.__doc__
     func_signature = str(inspect.signature(func))
-    func_signature = func_signature.replace('->', '\n\t\t->')
+    func_signature = func_signature.replace('->', '\n\t\t->').replace('self, ', '')
     func_name = func.__name__
     readable_func_name = snake_to_readable(func_name)
     return FUNC_TEMPLATE.format(readable_func_name=readable_func_name, func_name=func_name, func_signature=str(func_signature), func_doc=func_doc)

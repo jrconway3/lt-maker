@@ -4,7 +4,7 @@ from app.data.components import Type
 from app.data.skill_components import SkillComponent, SkillTags
 
 @lru_cache(1)
-def get_cached_skill_components():
+def get_cached_skill_components(proj_dir: str):
     from app.engine import skill_components
 
     from app.engine import custom_component_access
@@ -21,7 +21,8 @@ def get_cached_skill_components():
     return Data(subclasses)
 
 def get_skill_components():
-    return get_cached_skill_components()
+    from app.data.database import DB
+    return get_cached_skill_components(DB.current_proj_dir)
 
 def get_skill_tags():
     return list(SkillTags)
@@ -43,7 +44,7 @@ def restore_component(dat):
                 # Need to make a copy
                 # so we don't keep the reference around
                 copy = base_class(value.copy())
-            elif base_class.expose[0] in (Type.Dict, Type.FloatDict):
+            elif base_class.expose[0] in (Type.Dict, Type.FloatDict, Type.StringDict):
                 val = [v.copy() for v in value]
                 copy = base_class(val)
         else:

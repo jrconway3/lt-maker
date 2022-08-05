@@ -1,4 +1,5 @@
 import re
+from app.engine.graphics.text.text_renderer import render_text, rendered_text_width
 
 from app.utilities import utils
 from app.constants import WINWIDTH, WINHEIGHT
@@ -157,7 +158,7 @@ class Dialog():
                     split_lines = self.get_lines_from_block(current_line, 1)
                 else:
                     split_lines = self.get_lines_from_block(current_line)
-                width = max(width, max(self.font.width(s) for s in split_lines))
+                width = max(width, max(rendered_text_width([self.font_type], [s]) for s in split_lines))
                 if len(split_lines) == 1:
                     waiting_cursor = True
                 current_line = ''
@@ -173,7 +174,7 @@ class Dialog():
                 split_lines = self.get_lines_from_block(current_line)
             else:
                 split_lines = self.get_lines_from_block(current_line, 1)
-            width = max(width, max(self.font.width(s) for s in split_lines))
+            width = max(width, max(rendered_text_width([self.font_type], [s]) for s in split_lines))
             if len(split_lines) == 1:
                 waiting_cursor = True
         if waiting_cursor:
@@ -205,7 +206,7 @@ class Dialog():
             num_lines = self.num_lines
             if len(block) <= 24:
                 num_lines = 1
-        lines = text_funcs.split(self.font, block, num_lines, WINWIDTH - 16)
+        lines = text_funcs.split(self.font_type, block, num_lines, WINWIDTH - 16)
         return lines
 
     def _next_line(self):
@@ -380,9 +381,8 @@ class Dialog():
             line_chunks, current_color = self.chunkify(line, current_color)
             for chunk in line_chunks:
                 text, color = chunk
-                font = FONT[self.font_type]
-                width = font.width(text)
-                font.blit(text, text_surf, (x_pos, y_pos), color)
+                width = rendered_text_width([self.font_type], [text])
+                render_text(text_surf, [self.font_type], [text], [color], (x_pos, y_pos))
                 x_pos += width
 
         display_lines = self.text_lines[-self.num_lines:]
@@ -397,9 +397,8 @@ class Dialog():
             line_chunks, current_color = self.chunkify(line, current_color)
             for chunk in line_chunks:
                 text, color = chunk
-                font = FONT[self.font_type]
-                width = font.width(text)
-                font.blit(text, text_surf, (x_pos, y_set), color)
+                width = rendered_text_width([self.font_type], [text])
+                render_text(text_surf, [self.font_type], [text], [color], (x_pos, y_set))
                 x_pos += width
 
             end_x_pos = self.position[0] + 8 + x_pos
@@ -544,7 +543,9 @@ class Credits():
         self.title = title
         self.text = text
         self.title_font = FONT['credit_title-white']
+        self.title_font_name = 'credit_title-white'
         self.font = FONT['credit-white']
+        self.font_name = 'credit-white'
 
         self.center_flag = center_flag
         self.wait_flag = wait_flag
@@ -563,7 +564,7 @@ class Credits():
         self.parsed_text = []
         for line in self.text:
             x_bound = WINWIDTH - 12 if self.center_flag else WINWIDTH - 88
-            lines = text_funcs.line_wrap(self.font, line, x_bound)
+            lines = text_funcs.line_wrap(self.font_name, line, x_bound)
             for li in lines:
                 if self.center_flag:
                     x_pos = WINWIDTH//2 - self.font.width(li)//2

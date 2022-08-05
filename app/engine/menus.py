@@ -14,6 +14,7 @@ from app.engine.gui import ScrollBar
 from app.engine.base_surf import create_base_surf
 from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
+from app.engine.objects.skill import SkillObject
 from app.engine.game_state import game
 
 def draw_unit_top(surf, topleft, unit):
@@ -412,7 +413,11 @@ class Choice(Simple):
                         option = menu_options.BasicOption(idx, option)
                         option.display_text = ' ' * 20  # 80 pixels
                     if info_descs:
-                        option.help_box = help_menu.HelpDialog(info_descs[idx])
+                        desc = info_descs[idx]
+                        if isinstance(desc, ItemObject): # Uses special item description for items
+                            option.help_box = help_menu.ItemHelpDialog(desc)
+                        elif desc:
+                            option.help_box = help_menu.HelpDialog(desc)
                     self.options.append(option)
 
             if self.hard_limit:
@@ -471,6 +476,18 @@ class Choice(Simple):
             self._bg_surf = None  # Unstore bg
         return did_move
 
+    def get_menu_width(self):
+        if self.horizontal:
+            return sum(option.width() + 8 for option in self.options) + 16
+        else:
+            return super().get_menu_width()
+
+    def get_menu_height(self):
+        if self.horizontal:
+            return 24
+        else:
+            return super().get_menu_height()
+
     def show_face(self):
         return self.is_convoy or self.disp_value == 'sell'
 
@@ -484,7 +501,7 @@ class Choice(Simple):
             return self._bg_surf
 
         if self.horizontal:
-            width = sum(option.width() + 8 for option in self.options) + 16
+            width = self.get_menu_width()
             if self._bg_surf and self._bg_surf.get_width() == width:
                 pass
             else:
@@ -1144,7 +1161,7 @@ class Table(Simple):
         max_width = max(option.width() - option.width()%8 for option in self.options)
         total_width = max_width * self.columns
         total_width = total_width - total_width%8
-        if self.mode in ('unit',):
+        if self.mode in ('unit', 'prep_manage'):
             total_width += 32
         return total_width
 
@@ -1206,7 +1223,7 @@ class Table(Simple):
             for idx, choice in enumerate(choices):
                 top = topleft[1] + 4 + (idx // self.columns * height)
                 left = topleft[0] + (idx % self.columns * width)
-                if self.mode in ('unit',):
+                if self.mode in ('unit', 'prep_manage'):
                     left += 16
 
                 if idx + (self.scroll * self.columns) == self.current_index and self.takes_input and self.draw_cursor:
@@ -1238,7 +1255,7 @@ class Table(Simple):
         for idx, choice in enumerate(choices):
             top = topleft[1] + 4 + (idx // self.columns * height)
             left = topleft[0] + (idx % self.columns * width)
-            if self.mode in ('unit',):
+            if self.mode in ('unit', 'prep_manage'):
                 left += 16
             rect = (left, top, width, height)
             rects.append(rect)
@@ -1664,8 +1681,12 @@ class Market(Convoy):
             self.menu_index = self.selection_index - 1
             self.right_arrow.pulse()
 
-    def toggle_info(self):
-        self.menus[self.order[self.selection_index - 1]].toggle_info()
+    # def toggle_info(self):
+    #     self.menus[self.order[self.selection_index - 1]].toggle_info()
+
+    def draw_info(self, surf):
+        self.menus[self.order[self.selection_index - 1]].vert_draw_info(surf)
+        return surf
 
     def set_takes_input(self, val):
         self.takes_input = val

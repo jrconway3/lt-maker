@@ -1964,11 +1964,11 @@ def remove_market_item(self: Event, item, stock=None, flags=None):
 def clear_market_items(self: Event, flags=None):
     self.game.market_items.clear()
 
-def add_region(self: Event, nid, position, size, region_type, string=None, flags=None):
+def add_region(self: Event, region, position, size, region_type, string=None, flags=None):
     flags = flags or set()
 
-    if nid in self.game.level.regions.keys():
-        self.logger.error("add_region: Region nid %s already present!" % nid)
+    if region in self.game.level.regions.keys():
+        self.logger.error("add_region: Region nid %s already present!" % region)
         return
     position = self._parse_pos(position)
     size = self._parse_pos(size)
@@ -1977,7 +1977,7 @@ def add_region(self: Event, nid, position, size, region_type, string=None, flags
     region_type = region_type.lower()
     sub_region_type = string
 
-    new_region = regions.Region(nid)
+    new_region = regions.Region(region)
     new_region.region_type = regions.RegionType(region_type)
     new_region.position = position
     new_region.size = size
@@ -1991,19 +1991,19 @@ def add_region(self: Event, nid, position, size, region_type, string=None, flags
     self.game.register_region(new_region)
     action.do(action.AddRegion(new_region))
 
-def region_condition(self: Event, nid, expression, flags=None):
-    if nid in self.game.level.regions.keys():
-        region = self.game.level.regions.get(nid)
+def region_condition(self: Event, region, expression, flags=None):
+    if region in self.game.level.regions.keys():
+        region = self.game.level.regions.get(region)
         action.do(action.ChangeRegionCondition(region, expression))
     else:
-        self.logger.error("region_condition: Couldn't find Region %s" % nid)
+        self.logger.error("region_condition: Couldn't find Region %s" % region)
 
-def remove_region(self: Event, nid, flags=None):
-    if nid in self.game.level.regions.keys():
-        region = self.game.level.regions.get(nid)
+def remove_region(self: Event, region, flags=None):
+    if region in self.game.level.regions.keys():
+        region = self.game.level.regions.get(region)
         action.do(action.RemoveRegion(region))
     else:
-        self.logger.error("remove_region: Couldn't find Region %s" % nid)
+        self.logger.error("remove_region: Couldn't find Region %s" % region)
 
 def show_layer(self: Event, layer, layer_transition=None, flags=None):
     if layer not in self.game.level.tilemap.layers.keys():

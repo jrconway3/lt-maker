@@ -856,6 +856,18 @@ class GlobalUnitOrConvoy(Validator):
         valids.append((None, "convoy"))
         return valids
 
+class Region(Validator):
+    desc = "accepts a region nid."
+
+    def validate(self, text, level):
+        return text
+
+    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+        valids = []
+        level_obj = self._db.levels.get(level)
+        if level_obj:
+            valids = [(None, region.nid) for region in level_obj.regions]
+        return valids
 class AnimationType(OptionValidator):
     valid = ['north', 'east', 'west', 'south', 'fade']
 class CardinalDirection(OptionValidator):

@@ -2361,6 +2361,7 @@ class AddRegion(Action):
         if self.region.nid in game.level.regions:
             logging.warning("AddRegion Action: Region with nid %s already in level", self.region.nid)
         else:
+            game.get_region_under_pos.cache_clear()
             game.level.regions.append(self.region)
             self.did_add = True
             # Remember to add the status from the unit
@@ -2375,6 +2376,7 @@ class AddRegion(Action):
         if self.did_add:
             for act in self.subactions:
                 act.reverse()
+            game.get_region_under_pos.cache_clear()
             game.level.regions.delete(self.region)
 
 
@@ -2418,6 +2420,7 @@ class RemoveRegion(Action):
             for act in self.subactions:
                 act.do()
 
+            game.get_region_under_pos.cache_clear()
             game.level.regions.delete(self.region)
             self.did_remove = True
         else:
@@ -2425,6 +2428,7 @@ class RemoveRegion(Action):
 
     def reverse(self):
         if self.did_remove:
+            game.get_region_under_pos.cache_clear()
             game.level.regions.append(self.region)
 
             for act in self.subactions:

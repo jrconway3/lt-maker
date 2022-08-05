@@ -1776,7 +1776,7 @@ The optional *String* keyword can be used to specify the sub-region type.
 When set, the *only_once* flag prevents multiples of the same region from being created. The *interrupt_move* flag halts a unit's movement once they move into the region.
         """
 
-    keywords = ["Nid", "Position", "Size", "RegionType"]
+    keywords = ["Region", "Position", "Size", "RegionType"]
     optional_keywords = ["String"]
     _flags = ["only_once", "interrupt_move"]
 
@@ -1786,10 +1786,10 @@ class RegionCondition(EventCommand):
 
     desc = \
         """
-Modifies the trigger *Expression* for the event-type region specified by *Nid*.
+Modifies the trigger *Expression* for the event-type region specified by *Region*.
         """
 
-    keywords = ["Nid", "Expression"]
+    keywords = ["Region", "Expression"]
 
 class RemoveRegion(EventCommand):
     nid = 'remove_region'
@@ -1797,10 +1797,10 @@ class RemoveRegion(EventCommand):
 
     desc = \
         """
-Removes the region specified by *Nid*.
+Removes the region specified by *Region*.
         """
 
-    keywords = ["Nid"]
+    keywords = ["Region"]
 
 class ShowLayer(EventCommand):
     nid = 'show_layer'

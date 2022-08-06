@@ -1272,6 +1272,18 @@ Sets the uses of an *Item* to *Uses* in the inventory of *GlobalUnitOrConvoy*.
 
     _flags = ["additive"]
 
+class SetItemData(EventCommand):
+    nid = 'set_item_data'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Finds the *Item* in the inventory of *GlobalUnitOrConvoy*.
+Then, it sets the data field *Nid* of the *Item* to *Expression*.
+        """
+
+    keywords = ["GlobalUnitOrConvoy", "Item", "Nid", "Expression"]
+
 class ChangeItemName(EventCommand):
     nid = 'change_item_name'
     tag = Tags.MODIFY_ITEM_PROPERTIES

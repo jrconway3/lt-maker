@@ -1348,6 +1348,23 @@ def set_item_uses(self: Event, global_unit_or_convoy, item, uses, flags=None):
     else:
         self.logger.error("set_item_uses: Item %s does not have uses!" % item.nid)
 
+def set_item_data(self: Event, global_unit_or_convoy, item, nid, expression, flags=None):
+    flags = flags or set()
+    global_unit = global_unit_or_convoy
+
+    unit, item = self._get_item_in_inventory(global_unit, item)
+    if not unit or not item:
+        self.logger.error("set_item_data: Either unit or item was invalid, see above")
+        return
+
+    try:
+        data_value = self.text_evaluator.direct_eval(expression)
+    except Exception as e:
+        self.logger.error("set_item_data: %s: Could not evaluate {%s}" % (e, expression))
+        return
+
+    action.do(action.SetObjData(item, nid, data_value))
+
 def change_item_name(self: Event, global_unit_or_convoy, item, string, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, item)
     if not unit or not item:

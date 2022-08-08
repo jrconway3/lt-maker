@@ -41,8 +41,7 @@ def _fixed_levelup(unit, get_growth_rate=growth_rate) -> dict:
 
     return stat_changes
 
-def _random_levelup(unit) -> dict:
-    level = unit.get_internal_level()
+def _random_levelup(unit, level) -> dict:
     rng = static_random.get_levelup(unit.nid, level)
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
 
@@ -61,9 +60,8 @@ def _random_levelup(unit) -> dict:
         stat_changes[nid] += counter
     return stat_changes
 
-def _dynamic_levelup(unit) -> dict:
+def _dynamic_levelup(unit, level) -> dict:
     variance = 10
-    level = unit.get_internal_level()
     rng = static_random.get_levelup(unit.nid, level)
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
 
@@ -102,12 +100,11 @@ def _dynamic_levelup(unit) -> dict:
 
     return stat_changes
 
-def _rd_bexp_levelup(unit):
+def _rd_bexp_levelup(unit, level):
     """
     Negative growth rates are ignored
     """
     num_choices = 3
-    level = unit.get_internal_level()
     rng = static_random.get_levelup(unit.nid, level)
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
 
@@ -141,14 +138,15 @@ def get_next_level_up(unit, custom_method=None) -> dict:
     method = get_leveling_method(unit, custom_method)
 
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
+    level = unit.get_internal_level()
     if method == 'BEXP':
-        stat_changes = _rd_bexp_levelup(unit)
+        stat_changes = _rd_bexp_levelup(unit, level)
     elif method == GrowthOption.FIXED:
         stat_changes = _fixed_levelup(unit)
     elif method == GrowthOption.RANDOM:
-        stat_changes = _random_levelup(unit)
+        stat_changes = _random_levelup(unit, level)
     elif method == GrowthOption.DYNAMIC:
-        stat_changes = _dynamic_levelup(unit)
+        stat_changes = _dynamic_levelup(unit, level)
 
     klass = DB.classes.get(unit.klass)
     for nid in DB.stats.keys():
@@ -160,12 +158,34 @@ def auto_level(unit, num_levels: int, custom_method=None):
     Primarily for generics
     """
     total_stat_changes = {nid: 0 for nid in DB.stats.keys()}
+    
     if num_levels > 0:
         for _ in range(num_levels):
             stat_changes = get_next_levelup(unit, custom_method)
             # Add to total
             for nid in total_stat_changes.keys():
                 total_stat_changes[nid] += stat_changes[nid]
+
+    elif num_levels < 0:
+        starting_level = unit.get_internal_level()
+        ending_level = starting_level + num_levels
+        method = get_leveling_method(unit, custom_method)
+        for level in reversed(range(ending_level, starting_level)):
+            if method == 'BEXP':
+                stat_changes = _rd_bexp_levelup(unit, level)
+            elif method == GrowthOption.FIXED:
+                stat_changes = _fixed_levelup(unit)
+            elif method == GrowthOption.RANDOM:
+                stat_changes = _random_levelup(unit, level)
+            elif method == GrowthOption.DYNAMIC:
+                stat_changes = _dynamic_levelup(unit, level)
+            # Add reversed stat changes to total
+            for nid in total_stat_changes.keys():
+                total_stat_changes[nid] -= stat_changes[nid]
+
+        klass = DB.classes.get(unit.klass)
+        for nid in DB.stats.keys():
+            total_stat_changes[nid] = utils.clamp(total_stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid, 30) - unit.stats[nid])
     
     for nid in total_stat_changes.keys():
         unit.stats[nid] += total_stat_changes[nid]

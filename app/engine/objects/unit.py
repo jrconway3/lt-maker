@@ -244,7 +244,7 @@ class UnitObject(Prefab):
             elif DB.constants.value('backpropagate_difficulty_growths'):
                 difficulty_growth_bonus = mode.get_growth_bonus(self)
                 if difficulty_growth_bonus:
-                    unit_funcs.auto_level(self, num_levels, difficulty_growths=True)
+                    unit_funcs.auto_level(self, num_levels, only_difficulty_growths=True)
 
             difficulty_autolevels = mode.get_difficulty_autolevels(self)
             if self.team.startswith('enemy'):
@@ -252,7 +252,7 @@ class UnitObject(Prefab):
                 difficulty_autolevels += current_mode.enemy_autolevels
                 difficulty_autolevels += current_mode.enemy_truelevels
             if difficulty_autolevels > 0:
-                unit_funcs.auto_level(self, difficulty_autolevels, num_levels + 1)
+                unit_funcs.auto_level(self, difficulty_autolevels)
             if self.team.startswith('enemy'):
                 difficulty_truelevels = current_mode.enemy_truelevels
                 self.level += difficulty_truelevels

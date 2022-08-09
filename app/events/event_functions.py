@@ -1757,9 +1757,15 @@ def set_mode_autolevels(self: Event, level, flags=None):
 
     autolevel = int(level)
     if 'hidden' in flags:
-        self.game.current_mode.enemy_autolevels = autolevel
+        if 'boss' in flags:
+            self.game.current_mode.boss_autolevels = autolevel
+        else:
+            self.game.current_mode.enemy_autolevels = autolevel
     else:
-        self.game.current_mode.enemy_truelevels = autolevel
+        if 'boss' in flags:
+            self.game.current_mode.boss_truelevels = autolevel
+        else:
+            self.game.current_mode.enemy_truelevels = autolevel
 
 def promote(self: Event, global_unit, klass=None, flags=None):
     flags = flags or set()

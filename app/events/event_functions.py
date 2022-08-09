@@ -1523,12 +1523,21 @@ def give_exp(self: Event, global_unit, experience, flags=None):
     if not unit:
         self.logger.error("give_exp: Couldn't find unit with nid %s" % global_unit)
         return
-    exp = utils.clamp(int(experience), 0, 100)
+    exp = utils.clamp(int(experience), -100, 100)
     if 'silent' in flags:
         old_exp = unit.exp
-        action.do(action.GainExp(unit, exp))
         if old_exp + exp >= 100:
-            autolevel_to(self, global_unit, unit.level + 1)
+            if unit.level < DB.classes.get(unit.klass).max_level:
+                action.do(action.GainExp(unit, exp))
+                autolevel_to(self, global_unit, unit.level + 1)
+            else:
+                action.do(action.SetExp(unit, 99))
+        elif old_exp + exp < 0:
+            if unit.level > 1:
+                action.do(action.SetExp(unit, 100 + old_exp - exp))
+                autolevel_to(self, global_unit, unit.level - 1)
+            else:
+                action.do(action.SetExp(unit, 0))
     else:
         self.game.exp_instance.append((unit, exp, None, 'init'))
         self.game.state.change('exp')

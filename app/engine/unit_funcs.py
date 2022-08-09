@@ -27,18 +27,24 @@ def difficulty_growth_rate(unit, nid) -> int:
     difficulty_growth_bonus = game.mode.get_growth_bonus(unit)
     return difficulty_growth_bonus.get(nid, 0)
 
-def _fixed_levelup(unit, get_growth_rate=growth_rate) -> dict:
+def _fixed_levelup(unit, level, get_growth_rate=growth_rate) -> dict:
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
 
     for nid in DB.stats.keys():
         growth = get_growth_rate(unit, nid)
         if growth > 0:
-            stat_changes[nid] = (unit.growth_points[nid] + growth) // 100
-            unit.growth_points[nid] = (unit.growth_points[nid] + growth) % 100
+            stat_changes[nid] += growth // 100
+            growth %= 100
+            growth_inc = (50 + growth * level) % 100
+            if growth_inc < growth:
+                stat_changes[nid] += 1
         elif growth < 0 and DB.constants.value('negative_growths'):
-            stat_changes[nid] = (-unit.growth_points[nid] + growth) // 100
-            unit.growth_points[nid] = (unit.growth_points[nid] - growth) % 100
-
+            stat_changes[nid] += growth // 100
+            growth = -(abs(growth) % 100)
+            growth_inc = (50 + growth * level) % 100
+            if growth_inc > 100 - growth or growth_inc == 0:
+                stat_changes[nid] -= 1
+            
     return stat_changes
 
 def _random_levelup(unit, level) -> dict:
@@ -141,7 +147,7 @@ def get_next_level_up(unit, level, custom_method=None) -> dict:
     if method == 'Bexp':
         stat_changes = _rd_bexp_levelup(unit, level)
     elif method == GrowthOption.FIXED:
-        stat_changes = _fixed_levelup(unit)
+        stat_changes = _fixed_levelup(unit, level)
     elif method == GrowthOption.RANDOM:
         stat_changes = _random_levelup(unit, level)
     elif method == GrowthOption.DYNAMIC:

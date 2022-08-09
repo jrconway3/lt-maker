@@ -147,7 +147,7 @@ def get_next_level_up(unit, level, custom_method=None) -> dict:
     elif method == GrowthOption.DYNAMIC:
         stat_changes = _dynamic_levelup(unit, level)
     else:
-        logging.error("Could not find autolevel method matching %s", method)
+        logging.error("Could not find level_up method matching %s", method)
 
     klass = DB.classes.get(unit.klass)
     for nid in DB.stats.keys():
@@ -172,25 +172,15 @@ def auto_level(unit, num_levels: int, custom_method=None):
     elif num_levels < 0:
         starting_level = unit.get_internal_level()
         ending_level = starting_level + num_levels
-        method = get_leveling_method(unit, custom_method)
         for level in reversed(range(ending_level, starting_level)):
-            if method == 'Bexp':
-                stat_changes = _rd_bexp_levelup(unit, level)
-            elif method == GrowthOption.FIXED:
-                stat_changes = _fixed_levelup(unit)
-            elif method == GrowthOption.RANDOM:
-                stat_changes = _random_levelup(unit, level)
-            elif method == GrowthOption.DYNAMIC:
-                stat_changes = _dynamic_levelup(unit, level)
-            else:
-                logging.error("Could not find autolevel method matching %s", method)
-            # Add reversed stat changes to total
+            stat_changes = get_next_level_up(unit, level, custom_method)
+            # Add reversed stat_changes to total
             for nid in total_stat_changes.keys():
                 total_stat_changes[nid] -= stat_changes[nid]
 
-        klass = DB.classes.get(unit.klass)
-        for nid in DB.stats.keys():
-            total_stat_changes[nid] = utils.clamp(total_stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid, 30) - unit.stats[nid])
+    klass = DB.classes.get(unit.klass)
+    for nid in DB.stats.keys():
+        total_stat_changes[nid] = utils.clamp(total_stat_changes[nid], -unit.stats[nid], klass.max_stats.get(nid, 30) - unit.stats[nid])
     
     for nid in total_stat_changes.keys():
         unit.stats[nid] += total_stat_changes[nid]

@@ -1558,14 +1558,14 @@ class AutolevelTo(EventCommand):
 
     desc = \
         """
-Levels *GlobalUnit* up to *Level*. If *Level* is less than the unit's current level, this does nothing.
+Levels *GlobalUnit* up to *Level*.
 If *GrowthMethod* is not specified, the unit will use whatever they would normally use for the player's selected difficulty setting.
 If the *hidden* flag is set, the unit still gains the effects of the indicated level-ups, but its actual level is not incremented. In other words, the unit gets more powerful but remains at the same level.
         """
 
     keywords = ["GlobalUnit", "Level"]
     optional_keywords = ["GrowthMethod"]
-    keyword_types = ["GlobalUnit", "PositiveInteger", "GrowthMethod"]
+    keyword_types = ["GlobalUnit", "Integer", "GrowthMethod"]
     # Whether to actually change the unit's level
     _flags = ["hidden"]
 

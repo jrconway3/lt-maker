@@ -1724,8 +1724,8 @@ def autolevel_to(self: Event, global_unit, level, growth_method=None, flags=None
         return
     final_level = int(level)
     current_level = unit.level
-    diff = max(0, final_level - current_level)
-    if diff <= 0:
+    diff = final_level - current_level
+    if diff == 0:
         self.logger.warning("autolevel_to: Unit %s is already that level!" % global_unit)
         return
 
@@ -1733,7 +1733,7 @@ def autolevel_to(self: Event, global_unit, level, growth_method=None, flags=None
     if 'hidden' in flags:
         pass
     else:
-        action.do(action.SetLevel(unit, final_level))
+        action.do(action.SetLevel(unit, max(1, final_level)))
     if not unit.generic and DB.units.get(unit.nid):
         unit_prefab = DB.units.get(unit.nid)
         personal_skills = unit_funcs.get_personal_skills(unit, unit_prefab)

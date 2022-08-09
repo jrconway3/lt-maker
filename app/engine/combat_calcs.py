@@ -252,8 +252,8 @@ def defense(atk_unit, def_unit, item, item_to_avoid=None):
         res += float(bonus.resist)
     res = int(res)
 
-    if item_to_avoid:
-        res += item_system.modify_resist(atk_unit, item_to_avoid)
+    if item:
+        res += item_system.modify_resist(def_unit, item)
     res += skill_system.modify_resist(def_unit, item_to_avoid)
     return res
 

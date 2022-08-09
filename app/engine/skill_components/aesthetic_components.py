@@ -20,6 +20,9 @@ class UnitAnim(SkillComponent):
     def on_remove(self, unit, skill):
         unit.sprite.remove_animation(self.value)
 
+    def should_draw_anim(self, unit, skill):
+        return self.value
+
 class UnitFlickeringTint(SkillComponent):
     nid = 'unit_flickering_tint'
     desc = "Displays a flickering tint on the unit"

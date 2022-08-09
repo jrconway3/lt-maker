@@ -1405,7 +1405,7 @@ Gives *Experience* to *GlobalUnit*.
         """
 
     keywords = ["GlobalUnit", "Experience"]
-    keyword_types = ["GlobalUnit", "PositiveInteger"]
+    keyword_types = ["GlobalUnit", "Integer"]
 
     _flags = ['silent']
 

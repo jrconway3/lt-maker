@@ -223,7 +223,8 @@ class ExpState(State):
             # Extra time to account for pause at end
             if current_time - self.start_time >= self.total_time_for_exp + 333:
                 old_growth_points = self.unit.growth_points.copy()
-                self.stat_changes = unit_funcs.get_next_level_down(self.unit, self.unit.get_internal_level(), self.method)
+                stat_changes = unit_funcs.get_next_level_up(self.unit, self.unit.get_internal_level() - 1, self.method)
+                self.stat_changes = {nid: -value for nid, value in stat_changes.items()}  # Make negative
                 action.do(action.GrowthPointChange(self.unit, old_growth_points, self.unit.growth_points))
                 action.do(action.SetLevel(self.unit, self.unit.level - 1))
                 action.do(action.ApplyStatChanges(self.unit, self.stat_changes, False))

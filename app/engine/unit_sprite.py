@@ -504,7 +504,7 @@ class UnitSprite():
 
         # Draw animations
 
-        valid_anims: set = skill_system.should_draw_anim(unit)
+        valid_anims: list = skill_system.should_draw_anim(self.unit)
         self.animations = {k: v for (k, v) in self.animations.items() if not v.update()}
         for animation in self.animations.values():
             if not animation.contingent or animation.nid in valid_anims:

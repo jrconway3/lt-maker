@@ -231,14 +231,7 @@ class MapEditorView(DraggableTileImageView):
                     return tile_sprite
         return None
 
-    def get_terrain(self, pos):
-        for layer in reversed(self.tilemap.layers):
-            if layer.visible:
-                if pos in layer.terrain_grid:
-                    return layer.terrain_grid[pos]
-        return None
-
-    def find_coords(self, terrain=False):
+    def find_coords(self):
         self.right_selection.clear()
         left = min(self.right_selecting[0], self.current_mouse_position[0])
         width = max(self.right_selecting[0], self.current_mouse_position[0]) - left + 1
@@ -247,23 +240,14 @@ class MapEditorView(DraggableTileImageView):
         for x in range(width):
             for y in range(height):
                 i, j = x + left, y + top
-                if terrain:
-                    self.right_selection[(x, y)] = ((i, j), self.get_terrain((i, j)))
-                else:
-                    self.right_selection[(x, y)] = ((i, j), self.get_tile_sprite((i, j)))
+                self.right_selection[(x, y)] = ((i, j), self.get_tile_sprite((i, j)))
 
     def paint_terrain(self, tile_pos):
         current_layer = self.get_current_layer()
         if current_layer.visible:
-            if self.right_selection:
-                for coord, (true_coord, terrain_nid) in self.right_selection.items():
-                    true_pos = tile_pos[0] + coord[0], tile_pos[1] + coord[1]
-                    if self.tilemap.check_bounds(true_pos) and terrain_nid:
-                        current_layer.terrain_grid[tile_pos] = terrain_nid
-            else:
-                if self.tilemap.check_bounds(tile_pos):
-                    current_nid = self.window.terrain_painter_menu.get_current_nid()
-                    current_layer.terrain_grid[tile_pos] = current_nid
+            if self.tilemap.check_bounds(tile_pos):
+                current_nid = self.window.terrain_painter_menu.get_current_nid()
+                current_layer.terrain_grid[tile_pos] = current_nid
 
     def paint_tile(self, tile_pos):
         current_layer = self.get_current_layer()
@@ -443,7 +427,7 @@ class MapEditorView(DraggableTileImageView):
                 current_nid = self.tilemap.get_terrain(tile_pos)
                 if current_nid:
                     self.window.terrain_painter_menu.set_current_nid(current_nid)
-            if self.window.current_tool == PaintTool.Brush:
+            elif self.window.current_tool == PaintTool.Brush:
                 self.right_selecting = tile_pos
                 self.right_selection.clear()
                 self.window.void_tileset_selection()
@@ -469,7 +453,7 @@ class MapEditorView(DraggableTileImageView):
                 else:
                     self.erase_tile(tile_pos)
         elif self.right_selecting:
-            self.find_coords(self.window.terrain_mode)
+            self.find_coords()
         elif event.buttons() & Qt.MiddleButton:
             offset = self.old_middle_pos - event.pos()
             self.old_middle_pos = event.pos()
@@ -490,7 +474,7 @@ class MapEditorView(DraggableTileImageView):
                 self.left_selecting = False
             elif event.button() == Qt.RightButton:
                 if self.right_selecting:
-                    self.find_coords(self.window.terrain_mode)
+                    self.find_coords()
                     self.right_selecting = False
         elif self.window.current_tool == PaintTool.Erase:
             if event.button() == Qt.LeftButton:
@@ -599,7 +583,7 @@ class MapEditor(QDialog):
         self.terrain_action.setCheckable(True)
 
         self.export_as_png_action = QAction(QIcon(f"{icon_folder}/export_as_png.png"), "E&xport Current Image as PNG", self, shortcut="X", triggered=self.export_as_png)
-        self.save_action = QAction(QIcon(f"{icon_folder}/save.png", "Save", self, shortcut="Ctrl+S", triggered=self.save_current)
+        self.save_action = QAction(QIcon(f"{icon_folder}/save.png"), "Save", self, shortcut="Ctrl+S", triggered=self.save_current)
 
         self.show_autotiles_action = QAction(QIcon(f"{icon_folder}/wave.png"), "Show Autotiles", self, triggered=self.autotile_toggle)
         self.show_autotiles_action.setCheckable(True)
@@ -691,7 +675,7 @@ class MapEditor(QDialog):
 
     def save_current(self):
         if self.current and DB.current_proj_dir:
-            RESOURCES.save(DB.current_proj_dir, specific='tilemaps')
+            RESOURCES.save(DB.current_proj_dir, specific=['tilemaps'])
             QMessageBox.information(self, "Save Complete", "Successfully saved tilemaps!")
 
     def update_view(self):

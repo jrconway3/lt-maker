@@ -67,6 +67,9 @@ def _random_levelup(unit, level) -> dict:
     return stat_changes
 
 def _dynamic_levelup(unit, level) -> dict:
+    """
+    Does not support leveling down 100% because it keeps state
+    """
     variance = 10
     rng = static_random.get_levelup(unit.nid, level)
     stat_changes = {nid: 0 for nid in DB.stats.keys()}
@@ -109,6 +112,7 @@ def _dynamic_levelup(unit, level) -> dict:
 def _rd_bexp_levelup(unit, level):
     """
     Negative growth rates are ignored
+    Leveling down will not work when any stat is capped
     """
     num_choices = 3
     rng = static_random.get_levelup(unit.nid, level)
@@ -196,8 +200,9 @@ def auto_level(unit, num_levels: int, custom_method=None):
 def difficulty_auto_level(unit, num_levels: int):
     total_stat_changes = {nid: 0 for nid in DB.stats.keys()}
     if num_levels > 0:
-        for _ in range(num_levels):
-            stat_changes = _fixed_levelup(unit, difficulty_growth_rate)
+        level = unit.get_internal_level()
+        for i in range(num_levels):
+            stat_changes = _fixed_levelup(unit, level + i, difficulty_growth_rate)
             # Add to total
             for nid in total_stat_changes.keys():
                 total_stat_changes[nid] += stat_changes[nid]

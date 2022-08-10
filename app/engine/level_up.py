@@ -163,7 +163,6 @@ class ExpState(State):
                 else:
                     get_sound_thread().stop_sfx('Experience Gain')
 
-
             if current_time - self.start_time >= self.total_time_for_exp + 500:
                 get_sound_thread().stop_sfx('Experience Gain')  # Just in case
                 self.state.clear()
@@ -328,7 +327,7 @@ class ExpState(State):
         if not self.state:
             return surf
 
-        if self.state.get_state() in ('init', 'exp_wait', 'exp_leave', 'exp0', 'exp100', 'prepare_promote'):
+        if self.state.get_state() in ('init', 'exp_wait', 'exp_leave', 'exp0', 'exp100', 'exp-100', 'prepare_promote'):
             if self.mana_bar:
                 self.mana_bar.draw(surf)
             if self.exp_bar:

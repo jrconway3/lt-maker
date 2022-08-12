@@ -637,8 +637,9 @@ class CantoWaitState(MapState):
             surf = self.menu.draw(surf)
         return surf
 
-class MoveCameraState(MapState):
+class MoveCameraState(State):
     name = 'move_camera'
+    transparent = True
 
     def update(self):
         super().update()

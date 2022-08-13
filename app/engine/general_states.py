@@ -1988,6 +1988,9 @@ class CombatState(MapState):
     name = 'combat'
     fuzz_background = image_mods.make_translucent(SPRITES.get('bg_black'), 0.75)
 
+    is_animation_combat = False
+    combat = None
+
     def start(self):
         game.cursor.hide()
         self.skip = False
@@ -2032,7 +2035,8 @@ class CombatState(MapState):
                 surf = super().draw(surf)
         else:
             surf = super().draw(surf)
-        self.combat.draw(surf)
+        if self.combat:
+            self.combat.draw(surf)
         return surf
 
 class DyingState(MapState):

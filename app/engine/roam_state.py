@@ -25,10 +25,20 @@ class FreeRoamState(MapState):
 
         # AI manager
         self.ai_handler = roam_ai.FreeRoamAIHandler()
+        self.compose_target_list(game.get_all_units())
+
+    def compose_target_list(self, units):
+        targets = set()
+        for unit in units:
+            if unit.get_roam_ai() and DB.ai.get(unit.get_roam_ai()).roam_ai:
+                targets.add(roam_ai.FreeRoamUnit(unit, roam_ai.FreeRoamAIController(unit)))
+                if game.board.rationalize_pos(unit.position) == unit.position:
+                    game.leave(unit)
+        self.ai_handler.targets = targets
 
     def begin(self):
         game.cursor.hide()
-        self.ai_handler.reload()
+        self.compose_target_list(game.get_all_units())
 
         if game.level.roam and game.level.roam_unit:
             roam_unit_nid = game.level.roam_unit
@@ -288,7 +298,8 @@ class FreeRoamState(MapState):
         units = []
         for unit in game.units:
             if unit.position and unit is not self.roam_unit and self.roam_unit and \
-                    utils.calculate_distance(self.roam_unit.position, unit.position) < 1:
+                    utils.calculate_distance(self.roam_unit.position, unit.position) < 1 and \
+                    (self.roam_unit.nid, unit.nid) in game.talk_options:
                 units.append(unit)
         units = list(sorted(units, key=lambda unit: utils.calculate_distance(self.roam_unit.position, unit.position)))
         if units:

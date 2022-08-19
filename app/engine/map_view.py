@@ -27,10 +27,13 @@ class MapView():
         # Update all units
         update_units = [unit for unit in game.units if (unit.position or unit.sprite.fake_position)]
         for unit in update_units:
-            if unit.position:
-                norm_dist_from_center = max(1.0 - magnitude(tuple_sub(unit.position, cull_rect_center_in_tiles)) / ((TILEX + TILEY) / 2), 0)
+            if game.level and game.level.roam:
+                if unit.position:
+                    norm_dist_from_center = max(1.0 - magnitude(tuple_sub(unit.position, cull_rect_center_in_tiles)) / ((TILEX + TILEY) / 2), 0)
+                else:
+                    norm_dist_from_center = 0.0
             else:
-                norm_dist_from_center = 0.0
+                norm_dist_from_center = 1.0
             unit.sprite.update()
             unit.sound.update(volume=norm_dist_from_center)
 

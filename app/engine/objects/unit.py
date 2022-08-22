@@ -320,8 +320,6 @@ class UnitObject(Prefab):
         return equations.parser.get_gauge_inc(self)
 
     def get_field(self, key: str, default:str = None) -> str:
-        if not getattr(self, '_fields'):
-            return default
         if key in self._fields:
             return self._fields[key]
         my_klass = DB.classes.get(self.klass, None)

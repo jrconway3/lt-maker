@@ -66,7 +66,7 @@ class BaseMainState(State):
         # initialize custom options and events
         events = [None for option in options]
         additional_options = game.game_vars.get('_base_additional_options')
-        additional_ignore = game.game_vars.get('_base_options_enabled')
+        additional_ignore = game.game_vars.get('_base_options_disabled')
         additional_events = game.game_vars.get('_base_options_events')
 
         options = options + additional_options if additional_options else options

@@ -1,11 +1,12 @@
 import dataclasses
 from dataclasses import dataclass
-from typing import ClassVar, Dict, Tuple
+from typing import Any, ClassVar, Dict, Tuple
 
 from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
 from app.events.regions import Region
 from app.utilities.typing import NID
+
 
 @dataclass()
 class EventTrigger():
@@ -17,6 +18,25 @@ class EventTrigger():
     some_other_var_name: the description of the other var.
   """
   nid: ClassVar[NID]
+
+  def to_args(self):
+    return self.__dict__.copy()
+
+@dataclass()
+class GenericTrigger(EventTrigger):
+  """A generic trigger containing common fields. Use to trigger
+  anonymous events.
+  """
+  unit1: UnitObject = None
+  unit2: UnitObject = None
+  position: Tuple[int, int] = None
+  local_args: Dict[str, Any] = None
+
+  def to_args(self):
+    self_dict = self.__dict__.copy()
+    del self_dict['local_args']
+    self_dict.update(self.local_args)
+    return self_dict
 
 @dataclass(init=True)
 class LevelStart(EventTrigger):
@@ -109,6 +129,7 @@ class UnitDeath(EventTrigger):
   """
   nid: ClassVar[NID] = 'unit_death'
   unit1: UnitObject
+  unit2: UnitObject
   position: Tuple[int, int]
 
 @dataclass(init=True)
@@ -327,21 +348,41 @@ class RoamingInterrupt(EventTrigger):
   position: Tuple[int, int]
   region: Region
 
-ALL_TRIGGERS = EventTrigger.__subclasses__()
+@dataclass(init=True)
+class RegionTrigger(EventTrigger):
+  """
+  Special trigger. This trigger has a custom nid, and will be created whenever you make an interactable
+  event region.
 
-_TRIGGER_NAME_MAP = {trigger.nid: trigger for trigger in ALL_TRIGGERS}
+    nid: the nid of the region
+    unit1: The unit triggering the region
+    position: The position of the unit triggering the region
+    region: the name of the region that was triggered
+    item (Optional): the item used to trigger this region (used with unlock staves and keys)
+  """
+  nid: NID
+  unit1: UnitObject
+  position: Tuple[int, int]
+  region: Region
+  item: ItemObject = None
 
-def get_trigger(trigger_nid: str):
-  return _TRIGGER_NAME_MAP[trigger_nid]
+ALL_TRIGGERS = [tclass for tclass in EventTrigger.__subclasses__() if hasattr(tclass, 'nid')]
+
+# _TRIGGER_NAME_MAP = {trigger.nid: trigger for trigger in ALL_TRIGGERS if hasattr(trigger, 'nid')}
+
+# def get_trigger(trigger_nid: str):
+#   return _TRIGGER_NAME_MAP[trigger_nid]
 
 def assert_triggers_are_documented():
-  for trigger in ALL_TRIGGERS:
+  documented_triggers = ALL_TRIGGERS.copy()
+  documented_triggers.append(RegionTrigger)
+  for trigger in documented_triggers:
     doc = trigger.__doc__
     if doc.startswith(trigger.__name__ + "("):
-      raise NotImplementedError("EventTrigger %s does not have documentation in triggers.py" % trigger.nid)
+      raise NotImplementedError("EventTrigger %s does not have documentation in triggers.py" % trigger.__name__)
     for field in dataclasses.fields(trigger):
       name = field.name
       if name not in doc:
-        raise NotImplementedError("Doc for field %s missing from docstring for EventTrigger %s" % (name, trigger.nid))
+        raise NotImplementedError("Doc for field %s missing from docstring for EventTrigger %s" % (name, trigger.__name__))
 
 assert_triggers_are_documented()

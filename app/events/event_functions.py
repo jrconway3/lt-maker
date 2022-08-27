@@ -23,7 +23,7 @@ from app.engine.objects.item import ItemObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.objects.unit import UnitObject
 from app.engine.sound import get_sound_thread
-from app.events import event_commands, regions
+from app.events import event_commands, regions, triggers
 from app.events.event_portrait import EventPortrait
 from app.events.speak_style import SpeakStyle
 from app.events.screen_positions import parse_screen_position
@@ -937,7 +937,7 @@ def kill_unit(self: Event, unit, flags=None):
     else:
         self.game.death.should_die(unit)
         self.game.state.change('dying')
-    self.game.events.trigger('unit_death', unit, position=unit.position)
+    self.game.events.trigger(triggers.UnitDeath(unit, None, unit.position))
     skill_system.on_death(unit)
     self.state = 'paused'
 

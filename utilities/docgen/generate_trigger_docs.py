@@ -1,4 +1,4 @@
-from app.events.triggers import ALL_TRIGGERS, EventTrigger
+from app.events.triggers import ALL_TRIGGERS, EventTrigger, RegionTrigger
 
 TRIGGER_TEMPLATE = \
 '''> `{trigger_nid}`: {trigger_desc}
@@ -18,7 +18,7 @@ def _document_trigger(trigger: EventTrigger) -> str:
     lines = docstr.split('\n')
     desclines = [line.strip().replace('\n', '') for line in lines if not ':' in line]
     arglines = [line.strip().replace('\n', '') for line in lines if ':' in line]
-    desc_str = TRIGGER_TEMPLATE.format(trigger_nid=trigger.nid, trigger_desc=' '.join(desclines))
+    desc_str = TRIGGER_TEMPLATE.format(trigger_nid=trigger.nid if hasattr(trigger, 'nid') else trigger.__name__, trigger_desc=' '.join(desclines))
     any_property = False
     for argline in arglines:
       any_property = True
@@ -39,7 +39,9 @@ def generate_trigger_docs():
   query_base = open('utilities/docgen/trigger_reference_base.txt', 'r')
   full_doc_str += query_base.read() + "\n"
 
-  for trigger in ALL_TRIGGERS:
+  documented_triggers = ALL_TRIGGERS.copy()
+  documented_triggers.append(RegionTrigger)
+  for trigger in documented_triggers:
     trigger_docstr = _document_trigger(trigger)
     full_doc_str += trigger_docstr + '\n'
 

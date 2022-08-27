@@ -49,8 +49,8 @@ class EventPrefab(Prefab):
 class EventCatalog(Data[EventPrefab]):
     datatype = EventPrefab
 
-    def get(self, trigger, level_nid):
-        return [event for event in self._list if event.trigger == trigger and
+    def get(self, trigger_nid, level_nid):
+        return [event for event in self._list if event.trigger == trigger_nid and
                 (not event.level_nid or event.level_nid == level_nid)]
 
     def get_by_level(self, level_nid: str) -> List[EventPrefab]:

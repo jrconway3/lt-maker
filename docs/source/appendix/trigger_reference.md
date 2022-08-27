@@ -140,3 +140,11 @@ Anywhere `unit1` is a supported field, you can also use `unit`. Anywhere `unit2`
 > - **region**:  The region that was triggered.
 
 ---------------------
+> `RegionTrigger`:  Special trigger. This trigger has a custom nid, and will be created whenever you make an interactable event region.  
+> - **nid**:  the nid of the region
+> - **unit1**:  The unit triggering the region
+> - **position**:  The position of the unit triggering the region
+> - **region**:  the name of the region that was triggered
+> - **item (Optional)**:  the item used to trigger this region (used with unlock staves and keys)
+
+---------------------

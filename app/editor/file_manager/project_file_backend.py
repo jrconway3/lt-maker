@@ -9,8 +9,7 @@ from time import time_ns
 from app.constants import VERSION
 from app.data.database import DB, Database
 from app.editor import timer
-from app.editor.lib.csv.csv_data_exporter import dump_as_csv
-from app.editor.lib.csv.text_data_exporter import dump_script
+from app.editor.lib.csv import text_data_exporter, csv_data_exporter
 from app.editor.new_game_dialog import NewGameDialog
 from app.editor.settings import MainSettingsController
 from app.resources.resources import RESOURCES
@@ -302,7 +301,7 @@ class ProjectFileBackend():
                 self.parent, "Choose dump location", starting_path)
         if fn:
             csv_direc = fn
-            for ttype, tstr in dump_as_csv(db):
+            for ttype, tstr in csv_data_exporter.dump_as_csv(db):
                 with open(os.path.join(csv_direc, ttype + '.csv'), 'w') as f:
                     f.write(tstr)
         else:
@@ -321,11 +320,11 @@ class ProjectFileBackend():
                 os.mkdir(script_direc)
             if single_block:
                 with open(os.path.join(script_direc, "script.txt"), 'w') as f:
-                    for level_nid, event_dict in dump_script(db.events, db.levels).items():
+                    for level_nid, event_dict in text_data_exporter.dump_script(db.events, db.levels).items():
                         for event_nid, event_script in event_dict.items():
                             f.write(event_script + "\n")
             else:
-                for level_nid, event_dict in dump_script(db.events, db.levels).items():
+                for level_nid, event_dict in text_data_exporter.dump_script(db.events, db.levels).items():
                     level_direc = os.path.join(script_direc, level_nid)
                     if not os.path.exists(level_direc):
                         os.mkdir(level_direc)

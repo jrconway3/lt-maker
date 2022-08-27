@@ -1,5 +1,4 @@
 from app.engine.objects.item import ItemObject
-from app.engine import action
 
 class Defaults():
     @staticmethod
@@ -379,7 +378,7 @@ def get_extra_abilities(unit):
     return abilities
 
 def get_combat_arts(unit):
-    from app.engine import item_funcs, target_system
+    from app.engine import item_funcs, target_system, action
     combat_arts = {}
     for skill in unit.skills:
         if not condition(skill, unit):

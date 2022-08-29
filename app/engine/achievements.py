@@ -1,0 +1,110 @@
+
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
+import logging
+logger = logging.getLogger(__name__)
+
+class Achievement():
+    def __init__(self, nid: str, name:str, desc: str, complete: bool):
+        self.nid = nid
+        self.name = name
+        self.desc = desc
+        self.complete = complete
+
+    def set_complete(self, complete: bool):
+        self.complete = complete
+
+    def get_complete(self) -> bool:
+        return bool(self.complete)
+
+    def save(self):
+        ser_dict = {}
+        for attr in self.__dict__.items():
+            name, value = attr
+            ser_dict[name] = value
+        return (self.__class__.__name__, ser_dict)
+
+    @classmethod
+    def restore(cls, ser_dict):
+        self = cls.__new__(cls)
+        for name, value in ser_dict.items():
+            setattr(self, name, value)
+        return self
+
+class AchievementManager():
+    def __init__(self) -> None:
+        self.achievements = [] # A list of Achievement() classes
+        self.location = 'saves/achievements.p'
+        self.load_achievements()
+
+    def get_data(self) -> list:
+        save_data = []
+        for a in self.achievements:
+            save_data.append(a.save())
+        return save_data
+
+    def achievement_defined(self, nid: str):
+        for a in self.achievements:
+            if a.nid == nid:
+                return True
+        return False
+
+    def get_achievement(self, nid: str):
+        for a in self.achievements:
+            if a.nid == nid:
+                return a
+        return None
+
+    def add_achievement(self, nid: str, name:str, desc: str, complete=0):
+        if not self.achievement_defined(nid):
+            self.achievements.append(Achievement(nid, name, desc, complete))
+        else:
+            a = self.get_achievement(nid)
+            a.name = name
+            a.desc = desc
+            logging.info("Attempted to define already existing achievement with nid %s", nid)
+        self.save_achievements()
+
+    def remove_achievement(self, nid: str):
+        for a in self.achievements:
+            if a.nid == nid:
+                self.achievements.remove(a)
+                self.save_achievements()
+                return
+
+    def check_achievement(self, nid: str) -> bool:
+        for a in self.achievements:
+            if a.nid == nid and a.get_complete():
+                return True
+        return False
+
+    def complete_achievement(self, nid: str, complete: bool):
+        for a in self.achievements:
+            if a.nid == nid:
+                a.set_complete(complete)
+                self.save_achievements()
+                return
+
+    def save_achievements(self):
+        logging.info("Saving achievements to %s", self.location)
+        data = self.get_data()
+        with open(self.location, 'wb') as fp:
+            try:
+                pickle.dump(data, fp)
+            except TypeError as e:
+                # There's a surface somewhere in the dictionary of things to save...
+                print(data)
+                print(e)
+
+    def load_achievements(self):
+        logging.info("Loading achievements from %s", self.location)
+        try:
+            with open(self.location, 'rb') as fp:
+                s_dict = pickle.load(fp)
+            for data in s_dict:
+                self.achievements.append(Achievement.restore(data[1]))
+        except FileNotFoundError:
+            logging.info("No achievements file found")

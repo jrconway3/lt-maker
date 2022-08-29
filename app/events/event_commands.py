@@ -24,6 +24,7 @@ class Tags(Enum):
     UNIT_GROUPS = 'Unit Groups'
     MISCELLANEOUS = 'Miscellaneous'
     OVERWORLD = 'Overworld'
+    ACHIEVEMENT = 'Achievement'
     HIDDEN = 'Hidden'
 
 UNIVERSAL_FLAGS = ['no_warn']
@@ -2523,6 +2524,23 @@ class SetOverworldMenuOptionVisible(EventCommand):
 
     keywords = ['OverworldNodeNID', 'OverworldNodeMenuOption', 'Setting']
     keyword_types = ['OverworldNodeNID', 'OverworldNodeMenuOption', 'Bool']
+
+class CreateAchievement(EventCommand):
+    nid = 'create_achievement'
+    tag = Tags.ACHIEVEMENT
+    desc = ('Creates a new achievement. Set completed to 1 to automatically complete the achievement when it is first unlocked. Will not re-add an already existing achievement nid, but will update its name and description.')
+
+    keywords = ['Nid', 'Name', 'Description']
+    optional_keywords = ['Completed']
+    keyword_types = ['Nid', 'String', 'String', 'Bool']
+
+class CompleteAchievement(EventCommand):
+    nid = 'complete_achievement'
+    tag = Tags.ACHIEVEMENT
+    desc = ('True marks the achievement as complete. False marks it as incomplete. No effect if achievement doesn\'t exist.\n\nYou can check an achievement\'s completion status with game.achievements.check_achievement(\'nid\')')
+
+    keywords = ['Nid', 'Completed']
+    keyword_types = ['Nid', 'Bool']
 
 def get_commands():
     return EventCommand.__subclasses__()

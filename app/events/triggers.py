@@ -1,9 +1,12 @@
+from __future__ import annotations
 import dataclasses
 from dataclasses import dataclass
-from typing import Any, ClassVar, Dict, Tuple
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, Tuple
 
-from app.engine.objects.item import ItemObject
-from app.engine.objects.unit import UnitObject
+if TYPE_CHECKING:
+  from app.engine.objects.item import ItemObject
+  from app.engine.objects.unit import UnitObject
+
 from app.events.regions import Region
 from app.utilities.typing import NID
 

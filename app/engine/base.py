@@ -921,6 +921,7 @@ class BaseRecordsState(State):
                               not option.ignore]
         self.mvp = record_book.MVPDisplay()
         self.unit_menus = [record_book.UnitStats(option.get()[0]) for option in self.mvp.options if not option.ignore]
+        self.achievement_menu = record_book.AchievementDisplay()
 
         self.state = 'records'
         self.current_menu = self.record_menu
@@ -955,7 +956,7 @@ class BaseRecordsState(State):
 
         elif event == 'BACK':
             get_sound_thread().play_sfx('Select 4')
-            if self.state in ('records', 'mvp'):
+            if self.state in ('records', 'mvp', 'achievements'):
                 game.state.change('transition_pop')
             else:
                 self.prev_menu = self.current_menu
@@ -1012,8 +1013,8 @@ class BaseRecordsState(State):
         self.current_offset_x = -WINWIDTH
         self.prev_offset_x = 1
         if self.state == 'records':
-            self.state = 'mvp'
-            self.current_menu = self.mvp
+            self.state = 'achievements'
+            self.current_menu = self.achievement_menu
         elif self.state == 'mvp':
             self.state = 'records'
             self.current_menu = self.record_menu
@@ -1023,6 +1024,9 @@ class BaseRecordsState(State):
         elif self.state == 'unit':
             self.mvp.move_up(True)
             self.current_menu = self.unit_menus[self.mvp.get_current_index()]
+        elif self.state == 'achievements':
+            self.state = 'mvp'
+            self.current_menu = self.mvp
 
     def move_right(self):
         get_sound_thread().play_sfx('Status_Page_Change')
@@ -1033,14 +1037,17 @@ class BaseRecordsState(State):
             self.state = 'mvp'
             self.current_menu = self.mvp
         elif self.state == 'mvp':
-            self.state = 'records'
-            self.current_menu = self.record_menu
+            self.state = 'achievements'
+            self.current_menu = self.achievement_menu
         elif self.state == 'chapter':
             self.record_menu.move_down(True)
             self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
         elif self.state == 'unit':
             self.mvp.move_down(True)
             self.current_menu = self.unit_menus[self.mvp.get_current_index()]
+        elif self.state == 'achievements':
+            self.state = 'records'
+            self.current_menu = self.record_menu
 
     def update(self):
         if self.current_menu:

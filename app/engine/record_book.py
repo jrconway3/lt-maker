@@ -147,7 +147,7 @@ class RecordsDisplay(menus.Choice):
         bg = base_surf.create_base_surf(self.get_menu_width(), 24, 'menu_bg_white')
         bg = image_mods.make_translucent(bg, 0.25)
         FONT['text-yellow'].blit(text_funcs.translate('Total Turns'), bg, (4, 4))
-        
+
         FONT['text-blue'].blit_right(total_turns, bg, (92, 4))
         FONT['text-yellow'].blit(text_funcs.translate('Overall MVP'), bg, (100, 4))
         unit = DB.units.get(overall_mvp)
@@ -229,6 +229,35 @@ class MVPDisplay(RecordsDisplay):
         FONT['text-yellow'].blit(text_funcs.translate('unit_record_header'), surf, (offset[0] + 12, offset[1] + 32))
         return surf
 
+class AchievementDisplay(RecordsDisplay):
+    """
+    Name
+    Description
+    """
+    def create_top_banner(self):
+        bg = base_surf.create_base_surf(self.get_menu_width(), 24, 'menu_bg_white')
+        bg = image_mods.make_translucent(bg, 0.25)
+        FONT['text-yellow'].blit(text_funcs.translate('Unlocked: '), bg, (4, 4))
+
+        FONT['text-yellow'].blit_right(str(len([a for a in game.achievements if a.get_complete()])) + ' / ' + str(len(game.achievements)), bg, (92, 4))
+        return bg
+
+    def draw(self, surf, offset=None):
+        if not offset:
+            offset = (0, 0)
+        super().vert_draw(surf, offset)
+        surf.blit(self.top_banner, (offset[0] + WINWIDTH//2 - self.top_banner.get_width()//2, offset[1] + 4))
+        h = offset[1]
+        for a in game.achievements:
+            if a.get_complete():
+                color = 'text-green'
+            else:
+                color = 'text-red'
+            FONT[color].blit(a.name, surf, (offset[0] + 12, h + 32))
+            FONT[color].blit(a.desc, surf, (offset[0] + 12, h + 48))
+            h = h + 32
+
+
 class ChapterStats(RecordsDisplay):
     """
     For a given level, display each unit in mvp order
@@ -265,5 +294,5 @@ class ChapterStats(RecordsDisplay):
             offset = (0, 0)
         surf.blit(self.top_banner, (offset[0] + WINWIDTH//2 - self.top_banner.get_width()//2, offset[1] + 4))
         super().vert_draw(surf, offset)
-        FONT['text-yellow'].blit(text_funcs.translate('unit_record_header'), surf, (offset[0] + 12, offset[1] + 32))        
+        FONT['text-yellow'].blit(text_funcs.translate('unit_record_header'), surf, (offset[0] + 12, offset[1] + 32))
         return surf

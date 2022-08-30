@@ -40,6 +40,15 @@ class AchievementManager():
         self.location = 'saves/achievements.p'
         self.load_achievements()
 
+    def __contains__(self, achievement) -> None:
+        return achievement in self.achievements
+
+    def __iter__(self):
+        return iter(self.achievements)
+
+    def __len__(self):
+        return len(self.achievements)
+
     def get_data(self) -> list:
         save_data = []
         for a in self.achievements:

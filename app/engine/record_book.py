@@ -4,6 +4,7 @@ from app.data.database import DB
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import menus, menu_options, gui, base_surf, image_mods, text_funcs
+from app.engine.graphics.text.text_renderer import rendered_text_width
 
 from app.engine.game_state import game
 
@@ -242,20 +243,32 @@ class AchievementDisplay(RecordsDisplay):
         FONT['text-yellow'].blit_right(str(len([a for a in game.achievements if a.get_complete()])) + ' / ' + str(len(game.achievements)), bg, (92, 4))
         return bg
 
+    # Maybe make this not a child of Records Display. Implement scroll bar and hide mouse
+
     def draw(self, surf, offset=None):
         if not offset:
             offset = (0, 0)
         super().vert_draw(surf, offset)
         surf.blit(self.top_banner, (offset[0] + WINWIDTH//2 - self.top_banner.get_width()//2, offset[1] + 4))
         h = offset[1]
+        left_start = 12
+        line_vert = 32
         for a in game.achievements:
+            title_color = 'text-yellow'
             if a.get_complete():
+                status = "Complete"
                 color = 'text-green'
+                desc_color = 'text-white'
             else:
+                status = "Locked"
                 color = 'text-red'
-            FONT[color].blit(a.name, surf, (offset[0] + 12, h + 32))
-            FONT[color].blit(a.desc, surf, (offset[0] + 12, h + 48))
-            h = h + 32
+                desc_color = 'text-grey'
+            FONT[title_color].blit(a.name, surf, (offset[0] + left_start, h + line_vert))
+            FONT[color].blit("- " + status, surf, (offset[0] + left_start + 16 + rendered_text_width([title_color], [a.name]), h + line_vert))
+            FONT[desc_color].blit(a.desc, surf, (offset[0] + left_start + 1, h + 45))
+            h = h + line_vert
+            if h > 90:
+                break
 
 
 class ChapterStats(RecordsDisplay):

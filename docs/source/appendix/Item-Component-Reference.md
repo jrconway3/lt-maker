@@ -15,6 +15,8 @@ The item components in this dictionary are broken down by icon going from left t
 | **Unrepairable** | An item with the repair component cannot repair an item with this component. |
 | **Value** | The value that the item can be bought and sold for in shops. |
 | **Accessory** | The item is considered an accessory and takes up an accessory slot in a unit's inventory. Make sure to increase the number of accessory slots to more than zero and have a total number of inventory + accessory slots less than six. |
+| **Item Prefab** | The item inherits all the components of the selected item. |
+| **Item Tags** | The item gains all of the associated tags. Note: the tags are associated to the item instead of any unit.
 
 ## Targeting:
 
@@ -24,6 +26,7 @@ The item components in this dictionary are broken down by icon going from left t
 | **Targets Units** | Any unit within range, regardless of team, can be targeted. |
 | **Targets Enemies** | Can only target enemy units. |
 | **Targets Allies** | Can only target allied units, including green units (assuming a player is using the item). |
+| **EvalSpecialRange** | Takes a condition accepting `x`, `y` that will limit what positions relative to the unit can be targeted within range. For example, the condition `x == 0 or y == 0` will lock the range to a "cross" shape, allowing the unit to shoot directly vertically or horizontally.
 | **Eval Target Restrict** | This component takes a string that will be evaluated in python. If the string evaluates to false for a targeted unit they cannot be targeted by this weapon. See an upcoming guide for options when creating these strings. |
 | **Empty Tile Target Restrict** | Used in conjunction with Targets Anything to restrict the target to empty tiles. |
 | **Minimum Range** | A fixed integer that sets the minimum range of an item. Zero means that it can target the user. Unneeded for usable items. Don't go into the negatives. |
@@ -135,14 +138,14 @@ The item components in this dictionary are broken down by icon going from left t
 | **Draw Back Target Restrict** | Works the same as draw back but will not allow the item to be selected if the action cannot be performed. |
 | **Steal** | On hit the user may steal any non-equipped item from the target. |
 | **GBASteal** | On hit the user may steal non-weapon and non-spell item from the target. |
-| **Event On Hit** | The selected event plays before a hit, if the unit will hit with this item. |
+| **Event On Hit** | The selected event plays before a hit, if the unit will hit with this item. The event is triggered with args (`unit1`=attacking unit, `unit2`=target, `item`=item, `position`=attacking unit's position, `region`=targeted position) |
 | **Event After Combat** | The selected event plays at the end of combat so long as an attack in combat hit. |
 
 ## Alternate Formulas
 
 Each of the alternate formulas here replace the specified stat with a selected equation from the equations editor. Most are self explanatory.
 
-Resist - Resist refers to both defense and resistance. Increasing a unit's resist will decrease the damage they take, regardless of magic/physical damage. Magic items essentially use this component, by swapping the enemy's normal DEFENSE equation for the alternate resist formula of MAGIC_DEFENSE. 
+Resist - Resist refers to both defense and resistance. Increasing a unit's resist will decrease the damage they take, regardless of magic/physical damage. Magic items essentially use this component, by swapping the enemy's normal DEFENSE equation for the alternate resist formula of MAGIC_DEFENSE.
 
 Attack vs Defense Speed - Lex Talionis can calculate speed when being attacked differently than speed when attacking. These two components are part of this distinction.
 

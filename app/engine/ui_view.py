@@ -1,3 +1,5 @@
+import logging
+from app.engine.text_evaluator import TextEvaluator
 import app.engine.config as cf
 from app.constants import TILEX, TILEY, WINHEIGHT, WINWIDTH
 from app.data.database import DB
@@ -11,6 +13,7 @@ from app.engine.game_state import game
 from app.engine.sprites import SPRITES
 from app.utilities import utils
 
+from typing import List
 
 class UIView():
     legal_states = ('free', 'prep_formation', 'prep_formation_select')
@@ -40,6 +43,7 @@ class UIView():
         self.current_tile_pos = None
 
         self.remove_unit_info = True
+        self.prev_unit_info_top = False
         self.obj_top = False
 
     def remove_unit_display(self):
@@ -119,10 +123,17 @@ class UIView():
         if self.unit_info_disp:
             # If in top and not in right
             if not DB.constants.value('initiative') or not game.initiative.draw_me:
-                if game.cursor.position[1] < TILEY // 2 + game.camera.get_y() and \
+                if self.remove_unit_info:
+                    if self.prev_unit_info_top:
+                        surf.blit(self.unit_info_disp, (-self.unit_info_offset, 0))
+                    else:
+                        surf.blit(self.unit_info_disp, (-self.unit_info_offset, WINHEIGHT - self.unit_info_disp.get_height()))
+                elif game.cursor.position[1] < TILEY // 2 + game.camera.get_y() and \
                         not (game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1):
+                    self.prev_unit_info_top = False
                     surf.blit(self.unit_info_disp, (-self.unit_info_offset, WINHEIGHT - self.unit_info_disp.get_height()))
                 else:
+                    self.prev_unit_info_top = True
                     surf.blit(self.unit_info_disp, (-self.unit_info_offset, 0))
             else:
                 pass
@@ -266,11 +277,14 @@ class UIView():
             tile_def, tile_avoid = 0, 0
             if terrain.status:
                 status_prefab = DB.skills.get(terrain.status)
-                for component in status_prefab.components:
-                    if component.defines('tile_def'):
-                        tile_def += component.tile_def()
-                    if component.defines('tile_avoid'):
-                        tile_avoid += component.tile_avoid()
+                if status_prefab:
+                    for component in status_prefab.components:
+                        if component.defines('tile_def'):
+                            tile_def += component.tile_def()
+                        if component.defines('tile_avoid'):
+                            tile_avoid += component.tile_avoid()
+                else:
+                    logging.error("Could not find status %s for terrain %s", terrain.status, terrain.nid)
             FONT['small'].blit_right(str(tile_def), bg_surf, (bg_surf.get_width() - 4, 17))
             FONT['small'].blit_right(str(tile_avoid), bg_surf, (bg_surf.get_width() - 4, 25))
 
@@ -283,7 +297,9 @@ class UIView():
     def create_obj_info(self):
         font = FONT['text']
         obj = game.level.objective['simple']
-        text_lines = evaluate.eval_string(obj).split(',')
+        text_parser = TextEvaluator(logging.getLogger(), game)
+        text_lines = text_parser._evaluate_all(obj).split(',')
+        text_lines = [line.replace('{comma}', ',') for line in text_lines]
         longest_surf_width = text_funcs.get_max_width(font, text_lines)
         bg_surf = base_surf.create_base_surf(longest_surf_width + 16, 16 * len(text_lines) + 8)
 
@@ -714,8 +730,9 @@ class UIView():
         return surf
 
     @staticmethod
-    def draw_trade_preview(unit, surf):
+    def draw_trade_preview(unit, surf, ignore: List[bool] = None):
         items = unit.items
+        ignore = ignore or [False for _ in items]
         # Build window
         window = SPRITES.get('trade_window')
         width, height = window.get_width(), window.get_height()
@@ -735,6 +752,7 @@ class UIView():
 
         for idx, item in enumerate(items):
             item_option = menu_options.ItemOption(idx, item)
+            item_option.ignore = ignore[idx]
             item_option.draw(bg_surf, 5, 27 + idx * 16 - 2)
         if not items:
             FONT['text-grey'].blit('Nothing', bg_surf, (25, 27 - 2))
@@ -819,7 +837,7 @@ class ItemDescriptionPanel():
                 desc = self.item.desc
             else:
                 desc = "Cannot wield."
-            lines = text_funcs.line_wrap(FONT['text'], desc, width - 8)
+            lines = text_funcs.line_wrap('text', desc, width - 8)
             for idx, line in enumerate(lines):
                 FONT['text'].blit(line, bg_surf, (4 + 2, 8 + idx * 16))
 
@@ -838,7 +856,7 @@ class ItemDescriptionPanel():
             cursor_left = True
             topleft = (8, WINHEIGHT - 8 - self.surf.get_height())
 
-        portrait = icons.get_portrait(self.unit)
+        portrait, _ = icons.get_portrait(self.unit)
         if portrait:
             if cursor_left:
                 portrait = engine.flip_horiz(portrait)

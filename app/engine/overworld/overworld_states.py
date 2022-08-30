@@ -5,7 +5,7 @@ from app.data.database import DB
 from app.engine import engine, menus
 from app.engine.fluid_scroll import FluidScroll
 from app.engine.game_state import game
-from app.engine.input_manager import INPUT
+from app.engine.input_manager import get_input_manager
 from app.engine.objects.overworld import (OverworldNodeObject,
                                           OverworldNodeProperty, OverworldEntityTypes)
 from app.engine.overworld.overworld_actions import OverworldMove
@@ -13,7 +13,7 @@ from app.engine.overworld.overworld_manager import OverworldManager
 from app.engine.overworld.overworld_map_view import OverworldMapView
 from app.engine.overworld.overworld_movement_manager import \
     OverworldMovementManager
-from app.engine.sound import SOUNDTHREAD
+from app.engine.sound import get_sound_thread
 from app.engine.state import MapState, State
 from app.utilities.typing import NID
 
@@ -46,8 +46,9 @@ class OverworldFreeState(MapState):
 
         # assign the next level
         if game.overworld_controller.next_level:
-            next_level_node_nid = game.overworld_controller.node_by_level(game.overworld_controller.next_level).nid
-            game.overworld_controller.set_node_property(next_level_node_nid, OverworldNodeProperty.IS_NEXT_LEVEL, True)
+            next_level_node = game.overworld_controller.node_by_level(game.overworld_controller.next_level)
+            if next_level_node:
+                game.overworld_controller.set_node_property(next_level_node.nid, OverworldNodeProperty.IS_NEXT_LEVEL, True)
 
     def start(self):
         OverworldFreeState.set_up_overworld_game_state()
@@ -56,7 +57,10 @@ class OverworldFreeState(MapState):
         # the free state requires that the main party is initialized.
         if not game.overworld_controller.selected_party_node():
             # if it's not, add it to the current level's node and forcibly enable it
-            current_level = game.memory['_prev_level_nid']
+            try:
+                current_level = DB.levels[DB.levels.index(game.overworld_controller.next_level) - 1].nid
+            except:
+                current_level = DB.levels.values()[0].nid
             current_level_node = game.overworld_controller.node_by_level(current_level)
             if not current_level_node:
                 current_level_node = list(game.overworld_controller.nodes.values())[0]
@@ -78,7 +82,7 @@ class OverworldFreeState(MapState):
         game.cursor.show()
 
     def take_input(self, event):
-        game.cursor.set_speed_state(INPUT.is_pressed('BACK'))
+        game.cursor.set_speed_state(get_input_manager().is_pressed('BACK'))
         game.cursor.take_input()
 
         if event == 'BACK': # flick our cursor back to our party
@@ -92,14 +96,14 @@ class OverworldFreeState(MapState):
                 entity = game.overworld_controller.entity_at(selected_node.position)
                 if entity and entity.team == 'player' and entity.dtype == OverworldEntityTypes.PARTY: # there's a party underneath us, select it and launch the party menu
                     game.overworld_controller.select_entity(entity)
-                    SOUNDTHREAD.play_sfx('Select 5')
+                    get_sound_thread().play_sfx('Select 5')
                     game.state.change('overworld_party_option_menu')
                     return
                 else:   # we selected a node without a party
                     party_node = game.overworld_controller.selected_party_node()
                     if game.overworld_controller.any_path(party_node, selected_node):  # if there is a path from our party to this node
                         # if there is an event that will take place upon reaching this node, or this is the next level, stop short and trigger event start
-                        if game.events.should_trigger('on_overworld_node_select', unit=game.overworld_controller.selected_entity, region=selected_node.nid, level_nid=game.overworld_controller.next_level) or selected_node.prefab.level == game.overworld_controller.next_level:
+                        if game.events.should_trigger('on_overworld_node_select', local_args={'entity_nid': game.overworld_controller.selected_entity, 'node_nid': selected_node.nid}, level_nid=game.overworld_controller.next_level) or selected_node.prefab.level == game.overworld_controller.next_level:
                             movement = OverworldMove(game.overworld_controller.selected_entity, selected_node, game.overworld_controller, event=True, remove_last=True)
                             if selected_node.prefab.level == game.overworld_controller.next_level:
                                 game.state.change('overworld_next_level')
@@ -114,7 +118,7 @@ class OverworldFreeState(MapState):
                         game.state.change('overworld_movement')
                         movement.queue(game.movement)
             else:   # clicked on empty space, trigger the general menu
-                SOUNDTHREAD.play_sfx('Select 5')
+                get_sound_thread().play_sfx('Select 5')
                 game.state.change('overworld_game_option_menu')
 
     def update(self):
@@ -184,7 +188,7 @@ class OverworldNodeTransition(State):
 
     def start(self):
         logging.debug("Trigger node arrival event")
-        if not game.events.trigger('on_overworld_node_select', unit=game.overworld_controller.selected_entity.nid, region=game.game_vars['_target_node_nid'], level_nid=game.overworld_controller.next_level):
+        if not game.events.trigger('on_overworld_node_select', local_args={'entity_nid': game.overworld_controller.selected_entity.nid, 'node_nid': game.game_vars['_target_node_nid']}, level_nid=game.overworld_controller.next_level):
             # no events, then just queue the move
             movement = OverworldMove(game.overworld_controller.selected_entity.nid,
                                     game.game_vars['_target_node_nid'],
@@ -275,18 +279,18 @@ class OverworldGameOptionMenuState(State):
 
         self.menu.handle_mouse()
         if 'DOWN' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
+            get_sound_thread().play_sfx('Select 6')
             self.menu.move_down(first_push)
         elif 'UP' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
+            get_sound_thread().play_sfx('Select 6')
             self.menu.move_up(first_push)
 
         if event == 'BACK':
-            SOUNDTHREAD.play_sfx('Select 4')
+            get_sound_thread().play_sfx('Select 4')
             game.state.back()
 
         elif event == 'SELECT':
-            SOUNDTHREAD.play_sfx('Select 1')
+            get_sound_thread().play_sfx('Select 1')
             selection = self.menu.get_current()
             if selection == 'Save':
                 self.make_save()
@@ -335,18 +339,18 @@ class OverworldPartyOptionMenu(State):
         self.events = [None for option in options]
         current_node = game.overworld_controller.selected_party_node()
         all_options = current_node.menu_options
-        
+
         additional_option_names = [option.option_name for option in all_options if game.overworld_controller.menu_option_visible(current_node.nid, option.nid)]
         additional_ignore = [not game.overworld_controller.menu_option_enabled(current_node.nid, option.nid) for option in all_options if game.overworld_controller.menu_option_visible(current_node.nid, option.nid)]
         additional_events = [option.event for option in all_options if game.overworld_controller.menu_option_visible(current_node.nid, option.nid)]
         additional_info = [None for option in all_options if game.overworld_controller.menu_option_visible(current_node.nid, option.nid)]
-        
+
         options += additional_option_names
         ignore += additional_ignore
         self.events += additional_events
         #Options seem to need info_descs, no idea what to do with those. They're just None for now to prevent crashes
         info_desc += additional_info
-        
+
         self.menu = menus.Choice(None, options, info=info_desc)
         self.menu.set_ignore(ignore)
 
@@ -356,18 +360,18 @@ class OverworldPartyOptionMenu(State):
 
         self.menu.handle_mouse()
         if 'DOWN' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
+            get_sound_thread().play_sfx('Select 6')
             self.menu.move_down(first_push)
         elif 'UP' in directions:
-            SOUNDTHREAD.play_sfx('Select 6')
+            get_sound_thread().play_sfx('Select 6')
             self.menu.move_up(first_push)
 
         if event == 'BACK':
-            SOUNDTHREAD.play_sfx('Select 4')
+            get_sound_thread().play_sfx('Select 4')
             game.state.back()
 
         elif event == 'SELECT':
-            SOUNDTHREAD.play_sfx('Select 1')
+            get_sound_thread().play_sfx('Select 1')
             selection = self.menu.get_current()
             if selection == 'Base Camp':
                 game.memory['next_state'] = 'base_main'

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import FrozenSet, TYPE_CHECKING
+from typing import FrozenSet, TYPE_CHECKING, List, Tuple
 from functools import lru_cache
 
 from app.data.database import DB
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 # Consider making these sections faster
-def get_shell(valid_moves: set, potential_range: set, width: int, height: int, manhattan_restriction: set = None) -> set:
+def get_shell(valid_moves: set, potential_range: set, bounds: Tuple[int, int, int, int], manhattan_restriction: set = None) -> set:
     valid_attacks = set()
     if manhattan_restriction:
         for valid_move in valid_moves:
@@ -22,7 +22,7 @@ def get_shell(valid_moves: set, potential_range: set, width: int, height: int, m
     else:
         for valid_move in valid_moves:
             valid_attacks |= find_manhattan_spheres(potential_range, valid_move[0], valid_move[1])
-    return {pos for pos in valid_attacks if 0 <= pos[0] < width and 0 <= pos[1] < height}
+    return {pos for pos in valid_attacks if bounds[0] <= pos[0] <= bounds[2] and bounds[1] <= pos[1] <= bounds[3]}
 
 def restricted_manhattan_spheres(rng: set, x: int, y: int, manhattan_restriction: set) -> set:
     sphere = cached_base_manhattan_spheres(frozenset(rng))
@@ -58,9 +58,9 @@ def get_nearest_open_tile(unit, position):
             magn = _abs(x)
             n1 = position[0] + x, position[1] + r - magn
             n2 = position[0] + x, position[1] - r + magn
-            if game.movement.check_traversable(unit, n1) and not game.board.get_unit(n1):
+            if game.movement.check_weakly_traversable(unit, n1) and not game.board.get_unit(n1) and not game.movement.check_if_occupied_in_future(n1):
                 return n1
-            elif game.movement.check_traversable(unit, n2) and not game.board.get_unit(n2):
+            elif game.movement.check_weakly_traversable(unit, n2) and not game.board.get_unit(n2) and not game.movement.check_if_occupied_in_future(n2):
                 return n2
         r += 1
     return None
@@ -77,7 +77,7 @@ def distance_to_closest_enemy(unit, pos=None):
 def get_adjacent_positions(pos):
     x, y = pos
     adjs = ((x, y - 1), (x - 1, y), (x + 1, y), (x, y + 1))
-    return [a for a in adjs if 0 <= a[0] < game.tilemap.width and 0 <= a[1] < game.tilemap.height]
+    return [a for a in adjs if game.board.check_bounds(a)]
 
 def get_adj_units(unit) -> list:
     adj_positions = get_adjacent_positions(unit.position)
@@ -110,7 +110,7 @@ def get_attacks(unit: UnitObject, item: ItemObject = None, force=False) -> set:
         attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
     else:
         manhattan_restriction = item_system.range_restrict(unit, item)
-        attacks = get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height, manhattan_restriction)
+        attacks = get_shell({unit.position}, item_range, game.board.bounds, manhattan_restriction)
 
     return attacks
 
@@ -128,9 +128,9 @@ def _get_possible_attacks(unit, valid_moves, items):
         else:
             manhattan_restriction = item_system.range_restrict(unit, item)
             if no_attack_after_move:
-                attacks |= get_shell({unit.position}, item_range, game.tilemap.width, game.tilemap.height, manhattan_restriction)
+                attacks |= get_shell({unit.position}, item_range, game.board.bounds, manhattan_restriction)
             else:
-                attacks |= get_shell(valid_moves, item_range, game.tilemap.width, game.tilemap.height, manhattan_restriction)
+                attacks |= get_shell(valid_moves, item_range, game.board.bounds, manhattan_restriction)
 
     if DB.constants.value('line_of_sight'):
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))
@@ -166,10 +166,11 @@ def get_valid_moves(unit, force=False) -> set:
     from app.engine.movement import MovementManager
     mtype = MovementManager.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
-    width, height = game.tilemap.width, game.tilemap.height
+    bounds = game.board.bounds
+    height = game.board.height
     pass_through = skill_system.pass_through(unit)
     ai_fog_of_war = DB.constants.value('ai_fog_of_war')
-    pathfinder = pathfinding.Djikstra(unit.position, grid, width, height, unit.team, pass_through, ai_fog_of_war)
+    pathfinder = pathfinding.Djikstra(game.board.rationalize_pos(unit.position), grid, bounds, height, unit.team, pass_through, ai_fog_of_war)
     movement_left = equations.parser.movement(unit) if force else unit.movement_left
 
     valid_moves = pathfinder.process(game.board, movement_left)
@@ -178,15 +179,19 @@ def get_valid_moves(unit, force=False) -> set:
     valid_moves |= witch_warp
     return valid_moves
 
-def get_path(unit, position, ally_block=False, use_limit=False) -> list:
+def get_path(unit, position, ally_block=False, use_limit=False, free_movement=False) -> list:
     from app.engine.movement import MovementManager
     mtype = MovementManager.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
+    start_pos = unit.position
+    if free_movement:
+        start_pos = game.board.rationalize_pos(start_pos)
 
-    width, height = game.tilemap.width, game.tilemap.height
+    bounds = game.board.bounds
+    height = game.board.height
     pass_through = skill_system.pass_through(unit)
     ai_fog_of_war = DB.constants.value('ai_fog_of_war')
-    pathfinder = pathfinding.AStar(unit.position, position, grid, width, height, unit.team, pass_through, ai_fog_of_war)
+    pathfinder = pathfinding.AStar(start_pos, position, grid, bounds, height, unit.team, pass_through, ai_fog_of_war, free_movement)
 
     limit = unit.movement_left if use_limit else None
     path = pathfinder.process(game.board, ally_block=ally_block, limit=limit)
@@ -240,7 +245,6 @@ def get_valid_targets(unit, item=None) -> set:
     if ((item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit))
          and unit.has_moved_any_distance):
         return set()
-
     # Check sequence item targeting
     if item.sequence_item:
         all_targets = set()
@@ -270,25 +274,41 @@ def get_valid_targets(unit, item=None) -> set:
         valid_targets = set(line_of_sight.line_of_sight([unit.position], valid_targets, max_item_range))
     return valid_targets
 
-def get_all_weapons(unit) -> list:
+def get_valid_targets_recursive_with_availability_check(unit, item) -> set:
+    if item.multi_item:
+        items = [sitem for sitem in item_funcs.get_all_items_from_multi_item(unit, item) if item_funcs.available(unit, sitem)]
+    else:
+        items = [item] if item_funcs.available(unit, item) else []
+    valid_targets = set()
+    for sitem in items:
+        valid_targets |= get_valid_targets(unit, sitem)
+    return valid_targets
+
+def get_weapons(unit: UnitObject) -> List[ItemObject]:
+    return [item for item in unit.items if item_funcs.is_weapon_recursive(unit, item) and item_funcs.available(unit, item)]
+
+def get_all_weapons(unit: UnitObject) -> List[ItemObject]:
     return [item for item in item_funcs.get_all_items(unit) if item_system.is_weapon(unit, item) and item_funcs.available(unit, item)]
+
+def get_all_targets_with_items(unit, items: List[ItemObject]) -> set:
+    targets = set()
+    for item in items:
+        targets |= get_valid_targets(unit, item)
+    return targets
 
 def get_all_weapon_targets(unit) -> set:
     weapons = get_all_weapons(unit)
-    targets = set()
-    for weapon in weapons:
-        targets |= get_valid_targets(unit, weapon)
-    return targets
+    return get_all_targets_with_items(unit, weapons)
+
+def get_spells(unit: UnitObject) -> List[ItemObject]:
+    return [item for item in unit.items if item_funcs.is_spell_recursive(unit, item) and item_funcs.available(unit, item)]
 
 def get_all_spells(unit):
     return [item for item in item_funcs.get_all_items(unit) if item_system.is_spell(unit, item) and item_funcs.available(unit, item)]
 
 def get_all_spell_targets(unit) -> set:
     spells = get_all_spells(unit)
-    targets = set()
-    for spell in spells:
-        targets |= get_valid_targets(unit, spell)
-    return targets
+    return get_all_targets_with_items(unit, spells)
 
 def find_strike_partners(attacker, defender, item):
     '''Finds and returns a tuple of strike partners for the specified units
@@ -315,11 +335,16 @@ def find_strike_partners(attacker, defender, item):
     defender_adj_allies = [ally for ally in defender_adj_allies if ally.get_weapon() and not item_system.cannot_dual_strike(ally, ally.get_weapon())]
     attacker_partner = strike_partner_formula(attacker_adj_allies, attacker, defender, 'attack', (0, 0))
     defender_partner = strike_partner_formula(defender_adj_allies, defender, attacker, 'defense', (0, 0))
-    
+
     if item_system.cannot_dual_strike(attacker, item):
         attacker_partner = None
     if defender.get_weapon() and item_system.cannot_dual_strike(defender, defender.get_weapon()):
         defender_partner = None
+    if DB.constants.value('player_pairup_only'):
+        if attacker.team != 'player':
+            attacker_partner = None
+        if defender.team != 'player':
+            defender_partner = None
 
     if attacker_partner is defender_partner:
         # If both attacker and defender have the same partner something is weird

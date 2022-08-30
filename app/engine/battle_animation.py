@@ -1,10 +1,10 @@
-from app.constants import WINWIDTH, COLORKEY
+from app.constants import WINWIDTH, WINHEIGHT, COLORKEY
 from app.utilities import utils
 from app.resources.resources import RESOURCES
 from app.data.database import DB
 
 from app.engine.sprites import SPRITES
-from app.engine.sound import SOUNDTHREAD
+from app.engine.sound import get_sound_thread
 from app.engine import engine, image_mods, item_system, item_funcs, skill_system
 
 from app.resources.combat_anims import CombatAnimation, WeaponAnimation, EffectAnimation
@@ -64,6 +64,7 @@ class BattleAnimation():
             self.load_full_image()
 
         self._transform = anim_prefab.nid in ('Transform', 'Revert')
+        self._refresh = anim_prefab.nid.endswith('Refresh')
 
         # Apply palette to frames
         if image_directory:
@@ -187,6 +188,9 @@ class BattleAnimation():
         if self.has_pose('Attack'):
             self.start_anim('Attack')
 
+    def is_refresh(self) -> bool:
+        return self._refresh
+
     def get_stand(self):
         if self.at_range:
             self.current_pose = 'RangedStand'
@@ -240,11 +244,12 @@ class BattleAnimation():
         self.num_frames = 0
 
     def can_proceed(self):
-        return self.loop or self.state == 'wait'
+        return self.loop or self.state == 'wait' or self.done()
 
     def done(self) -> bool:
         return self.state == 'inert' or (self.state == 'run' and self.current_pose in self.idle_poses) or \
-            (self.is_transform() and self.state == 'run' and self.script_idx >= len(self.script) - 1)
+            (self.is_transform() and self.state == 'run' and self.script_idx >= len(self.script) - 1) or \
+            (self.is_refresh() and self.state == 'run' and self.script_idx >= len(self.script) - 1)
 
     def dodge(self):
         if self.at_range:
@@ -355,7 +360,7 @@ class BattleAnimation():
                     # Check whether we should loop or end
                     if self.current_pose in self.idle_poses:
                         self.script_idx = 0  # Loop
-                    elif self.is_transform():
+                    elif self.is_transform() or self.is_refresh():
                         self.script_idx = len(self.script) - 1  # Just stay on last frame
                     else:
                         self.end_current_pose()
@@ -373,7 +378,7 @@ class BattleAnimation():
                     opacity = 255
                     self.flash_color = [(248, 248, 248)]
                     self.flash_counter = 100
-                    SOUNDTHREAD.play_sfx('CombatDeath')
+                    get_sound_thread().play_sfx('CombatDeath')
                 self.opacity = opacity
             else:
                 self.state = 'inert'
@@ -439,7 +444,7 @@ class BattleAnimation():
             self.frame_count = 0
             self.num_frames = self.get_num_frames(values[0])
             self.current_frame = self.get_frame(values[1])
-            self.under_frame = self.get_frame(values[1])
+            self.under_frame = self.get_frame(values[2])
             self.over_frame = None
             self.processing = False
         elif command.nid == 'wait':
@@ -449,9 +454,9 @@ class BattleAnimation():
             self.processing = False  # No more processing -- need to wait at least a frame
 
         elif command.nid == 'sound':
-            SOUNDTHREAD.play_sfx(values[0])
+            get_sound_thread().play_sfx(values[0])
         elif command.nid == 'stop_sound':
-            SOUNDTHREAD.stop_sfx(values[0])
+            get_sound_thread().stop_sfx(values[0])
 
         elif command.nid == 'start_hit':
             self.owner.shake()
@@ -726,7 +731,7 @@ class BattleAnimation():
         image = self.image_directory[frame.nid].copy()
         if not self.right:
             image = engine.flip_horiz(image)
-        offset = frame.offset
+        offset = frame.offset[0] + (WINWIDTH - 240)//2, frame.offset[1] + (WINHEIGHT - 160)
         # Handle offset (placement of the object on the screen)
         if self.lr_offset:
             offset = offset[0] + self.lr_offset.pop(), offset[1] + y_offset
@@ -859,7 +864,7 @@ def get_battle_anim(unit, item, distance=1, klass=None, default_variant=False, a
             weapon_anim_nid = weapon_type
         if magic and weapon_anim_nid not in res.weapon_anims.keys():
             weapon_anim_nid = 'MagicGeneric'
-    
+
     weapon_anim = res.weapon_anims.get(weapon_anim_nid)
     if not weapon_anim and weapon_anim_nid.startswith('Ranged'):
         weapon_anim = res.weapon_anims.get(weapon_anim_nid[6:])

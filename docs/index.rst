@@ -18,6 +18,15 @@ Welcome to lt-maker's documentation!
 
    source/getting_started/index
 
+
+.. toctree::
+   :maxdepth: 4
+   :caption: Editor Guides:
+
+   source/editors/Var-Slots-Editor
+   source/editors/Supports
+
+
 .. toctree::
    :maxdepth: 4
    :caption: Events:
@@ -34,9 +43,11 @@ Welcome to lt-maker's documentation!
    :maxdepth: 4
    :caption: appendix:
 
+   source/appendix/Useful_Functions
    source/appendix/Difficulty-Mode-Options
    source/appendix/Item-Component-Reference
    source/appendix/Skill-Component-Reference
+   source/appendix/Constants-Dictionary
    source/appendix/Special-Variables
    source/appendix/Tags
    source/appendix/Trigger-Reference

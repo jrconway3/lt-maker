@@ -3,6 +3,7 @@ from typing import Dict
 
 from app.data.weapons import WexpGain
 from app.utilities.data import Data, Prefab
+from app.utilities.typing import NID
 
 
 @dataclass
@@ -16,13 +17,13 @@ class UnitPrefab(Prefab):
     klass: str = None
 
     tags: list = None
-    bases: dict = None
-    growths: dict = None
+    bases: Dict[NID, int] = field(default_factory=dict)
+    growths: Dict[NID, int] = field(default_factory=dict)
     starting_items: list = field(default_factory=list)  # of tuples (ItemPrefab, droppable)
 
     learned_skills: list = None
     unit_notes: list = field(default_factory=list)
-    wexp_gain: dict = field(default_factory=dict)
+    wexp_gain: Dict[NID, WexpGain] = field(default_factory=dict)
 
     alternate_classes: list = field(default_factory=list)
 
@@ -58,6 +59,8 @@ class UnitPrefab(Prefab):
             return value.copy()  # So we don't make a copy
         elif name == 'learned_skills':
             return [val.copy() for val in value]  # So we don't make a copy
+        elif name == 'unit_notes':
+            return [val.copy() for val in value]
         elif name == 'wexp_gain':
             return {k: v.save() for (k, v) in self.wexp_gain.items()}
         else:

@@ -91,7 +91,7 @@ class SimpleIconTable(UIComponent):
                 nid = datum[1]
             row = IconRow(text, text=text, icon=icon, data=nid, text_align=self.text_align)
         else:
-            row =  IconRow(datum, text=datum, data=datum)
+            row = IconRow(datum, text=datum, data=datum)
         row.overflow = (15, 0, 15, 0)
         return row
 
@@ -120,8 +120,22 @@ class SimpleIconTable(UIComponent):
         if self.header:
             self.header.set_text(self._title)
 
+    def _update_data_instead(self, data: List):
+        self._data = data
+        for idx, item in enumerate(data):
+            col = idx % len(self.column_data)
+            row = math.floor(idx / self.num_display_columns)
+            new_entry = self.construct_row(item)
+            old_entry = self.column_data[col][row]
+            old_entry.set_icon(new_entry.icon)
+            old_entry.set_text(new_entry.text.text)
+        self._reset('_update_data_instead')
+
     def set_data(self, data: List):
         if data == self._data:
+            return
+        if len(data) == len(self._data):
+            self._update_data_instead(data)
             return
         self._data = data
         num_columns = self.calculate_num_cols(self.num_rows, self.num_display_columns, len(data), self.orientation)
@@ -210,31 +224,42 @@ class ChoiceTable(SimpleIconTable):
 
         # UIF X GUI crossover pog
         # we have to adjust for the uif internal overflow
-        header_height = 0
+        self.header_height = 0
         if self.header:
-            header_height = self.header.height
-        lscroll_topleft = tuple_add((-8, header_height + (self.height - header_height)/2 - 5), self.overflow[::2])
-        rscroll_topleft = tuple_add((self.width, header_height + (self.height - header_height)/2 - 5), self.overflow[::2])
+            self.header_height = self.header.height
+        lscroll_topleft = tuple_add((-8, self.header_height + (self.height - self.header_height)/2 - 5), self.overflow[::2])
+        rscroll_topleft = tuple_add((self.width, self.header_height + (self.height - self.header_height)/2 - 5), self.overflow[::2])
         self.lscroll_arrow = ScrollArrow('left', lscroll_topleft)
         self.rscroll_arrow = ScrollArrow('right', rscroll_topleft)
 
         self.scroll_bar = ScrollBar()
-        self.scroll_bar_topright = tuple_add((self.width + 4, header_height-4), self.overflow[::2])
+        self.scroll_bar_topright = tuple_add((self.width + 4, self.header_height-4), self.overflow[::2])
 
-    def should_redraw(self) -> bool:
-        return True
+        self.cursor_loc: Tuple[int, int] = None
+
+        # caching
+        self._highlight_surf = None
+        self._highlight_surf_width = 0
+        self._highlight_surf_loc = (-1, -1)
 
     def update_cursor_and_highlight(self):
         x, y = self.selected_index
-        cy = (y - self.column_components[x].scrolled_index) * self.column_components[x].row_height + 3
+        cy = min(max(0, (y - self.column_components[x].scrolled_index)), (self.num_rows - 1) if self.num_rows > 0 else 99) * self.column_components[x].row_height + 3
+        cursor_y = cy + self.header_height - 8
+        cursor_x = x * self.column_components[0].width - 4
         self.cursor_offset_index = (self.cursor_offset_index + 1) % len(self.cursor_offsets)
         if self.cursor_mode == 1:
             cx = -15 + self.cursor_offsets[self.cursor_offset_index]
         else:
             cx = -11
-        self.column_components[x].add_surf(self.cursor_sprite, (cx, cy), 1)
-        highlight_surf = create_highlight_surf(self.column_components[x].width)
-        self.column_components[x].add_surf(highlight_surf, (0, cy + 3), -1)
+        self.cursor_loc = (cursor_x + cx, cursor_y)
+        if not self._highlight_surf or self._highlight_surf_width != self.column_components[x].width:
+            self._highlight_surf = create_highlight_surf(self.column_components[x].width)
+            self._highlight_surf_width = self.column_components[x].width
+        if self.selected_index != self._highlight_surf_loc:
+            self.column_components[self._highlight_surf_loc[0]].manual_surfaces.clear()
+            self._highlight_surf_loc = self.selected_index
+            self.column_components[x].add_surf(self._highlight_surf, (0, cy + 3), -1)
 
     def move_down(self):
         if self.any_children_animating():
@@ -289,11 +314,10 @@ class ChoiceTable(SimpleIconTable):
 
     def to_surf(self, no_cull=False, should_not_cull_on_redraw=True) -> engine.Surface:
         if self.cursor_mode != 0:
-            for hl in self.column_components:
-                if hl.manual_surfaces:
-                    hl.manual_surfaces.clear()
             self.update_cursor_and_highlight()
         surf = super().to_surf(no_cull, should_not_cull_on_redraw)
+        if self.cursor_loc:
+            surf.blit(self.cursor_sprite, tuple_add(self.cursor_loc, self.overflow[:2]))
         if self.arrow_mode != 0:
             # draw scroll bars
             self.lscroll_arrow.draw(surf)

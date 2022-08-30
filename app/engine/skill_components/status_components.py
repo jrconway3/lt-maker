@@ -1,15 +1,16 @@
 import random
 
-from app.data.skill_components import SkillComponent
+from app.data.skill_components import SkillComponent, SkillTags
 from app.data.components import Type
 
 from app.engine import equations, action, static_random
 from app.engine.game_state import game
+from app.engine.combat import playback as pb
 
 class Aura(SkillComponent):
     nid = 'aura'
     desc = "Skill has an aura that gives off child skill"
-    tag = 'status'
+    tag = SkillTags.STATUS
     paired_with = ('aura_range', 'aura_target')
 
     expose = Type.Skill
@@ -17,7 +18,7 @@ class Aura(SkillComponent):
 class AuraRange(SkillComponent):
     nid = 'aura_range'
     desc = "Set range of skill's aura"
-    tag = 'status'
+    tag = SkillTags.STATUS
     paired_with = ('aura', 'aura_target')
 
     expose = Type.Int
@@ -26,16 +27,25 @@ class AuraRange(SkillComponent):
 class AuraTarget(SkillComponent):
     nid = 'aura_target'
     desc = "Set target of skill's aura (set to 'ally', 'enemy', or 'unit')"
-    tag = 'status'
+    tag = SkillTags.STATUS
     paired_with = ('aura', 'aura_range')
 
     expose = Type.String
     value = 'unit'
 
+class AuraShow(SkillComponent):
+    nid = 'show_aura'
+    desc = 'Aura will always show on the map'
+    tag = SkillTags.STATUS
+    paired_with = ('aura', 'aura_range', 'aura_target')
+
+    expose = Type.Color3
+    value = (128, 0, 0)
+
 class PairUpBonus(SkillComponent):
     nid = 'pairup_bonus'
     desc = "Grants a child skill to lead units while in guard stance."
-    tag = 'status'
+    tag = SkillTags.STATUS
 
     expose = Type.Skill
 
@@ -49,7 +59,7 @@ class PairUpBonus(SkillComponent):
 class Regeneration(SkillComponent):
     nid = 'regeneration'
     desc = "Unit restores %% of HP at beginning of turn"
-    tag = "status"
+    tag = SkillTags.STATUS
 
     expose = Type.Float
     value = 0.2
@@ -57,22 +67,33 @@ class Regeneration(SkillComponent):
     def on_upkeep(self, actions, playback, unit):
         max_hp = equations.parser.hitpoints(unit)
         if unit.get_hp() < max_hp:
-            hp_change = max_hp * self.value
+            hp_change = int(max_hp * self.value)
             actions.append(action.ChangeHP(unit, hp_change))
             # Playback
-            playback.append(('hit_sound', 'MapHeal'))
+            playback.append(pb.HitSound('MapHeal'))
+            playback.append(pb.DamageNumbers(unit, -hp_change))
             if hp_change >= 30:
                 name = 'MapBigHealTrans'
             elif hp_change >= 15:
                 name = 'MapMediumHealTrans'
             else:
                 name = 'MapSmallHealTrans'
-            playback.append(('cast_anim', name, unit))
+            playback.append(pb.CastAnim(name))
+
+class ManaRegeneration(SkillComponent):
+    nid = 'mana_regeneration'
+    desc = "Unit restores X mana at beginning of turn"
+    tag = SkillTags.STATUS
+
+    expose = Type.Int
+
+    def on_upkeep(self, actions, playback, unit):
+        actions.append(action.ChangeMana(unit, self.value))
 
 class UpkeepDamage(SkillComponent):
     nid = 'upkeep_damage'
     desc = "Unit takes damage at upkeep"
-    tag = "status"
+    tag = SkillTags.STATUS
 
     expose = Type.Int
     value = 5
@@ -80,19 +101,19 @@ class UpkeepDamage(SkillComponent):
     def _playback_processing(self, playback, unit, hp_change):
         # Playback
         if hp_change < 0:
-            playback.append(('hit_sound', 'Attack Hit ' + str(random.randint(1, 5))))
-            playback.append(('unit_tint_add', unit, (255, 255, 255)))
-            playback.append(('damage_numbers', unit, self.value))
+            playback.append(pb.HitSound('Attack Hit ' + str(random.randint(1, 5))))
+            playback.append(pb.UnitTintAdd(unit, (255, 255, 255)))
+            playback.append(pb.DamageNumbers(unit, self.value))
         elif hp_change > 0:
-            playback.append(('hit_sound', 'MapHeal'))
+            playback.append(pb.HitSound('MapHeal'))
             if hp_change >= 30:
                 name = 'MapBigHealTrans'
             elif hp_change >= 15:
                 name = 'MapMediumHealTrans'
             else:
                 name = 'MapSmallHealTrans'
-            playback.append(('cast_anim', name, unit))
-            playback.append(('damage_numbers', unit, self.value))
+            playback.append(pb.CastAnim(name))
+            playback.append(pb.DamageNumbers(unit, self.value))
 
     def on_upkeep(self, actions, playback, unit):
         hp_change = -self.value
@@ -103,7 +124,7 @@ class UpkeepDamage(SkillComponent):
 class EndstepDamage(UpkeepDamage, SkillComponent):
     nid = 'endstep_damage'
     desc = "Unit takes damage at endstep"
-    tag = "status"
+    tag = SkillTags.STATUS
 
     expose = Type.Int
     value = 5
@@ -120,7 +141,7 @@ class EndstepDamage(UpkeepDamage, SkillComponent):
 class GBAPoison(SkillComponent):
     nid = 'gba_poison'
     desc = "Unit takes random amount of damage up to num"
-    tag = "status"
+    tag = SkillTags.STATUS
 
     expose = Type.Int
     value = 5
@@ -135,7 +156,7 @@ class GBAPoison(SkillComponent):
 class ResistStatus(SkillComponent):
     nid = 'resist_status'
     desc = "Unit is only affected by statuses for a turn"
-    tag = "status"
+    tag = SkillTags.STATUS
 
     def on_add(self, unit, skill):
         for skill in unit.skills:
@@ -149,7 +170,7 @@ class ResistStatus(SkillComponent):
 class ImmuneStatus(SkillComponent):
     nid = 'immune_status'
     desc = "Unit is not affected by negative statuses"
-    tag = 'status'
+    tag = SkillTags.STATUS
 
     def on_add(self, unit, skill):
         for skill in unit.skills:
@@ -163,7 +184,7 @@ class ImmuneStatus(SkillComponent):
 class ReflectStatus(SkillComponent):
     nid = 'reflect_status'
     desc = "Unit reflects statuses back to initiator"
-    tag = 'status'
+    tag = SkillTags.STATUS
 
     def on_gain_skill(self, unit, other_skill):
         if other_skill.initiator_nid:

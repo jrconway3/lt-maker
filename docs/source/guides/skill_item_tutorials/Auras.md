@@ -1,7 +1,7 @@
 # 5. Auras - Hex, Bond and Focus
 Auras are passive effects that apply to all units of a given type within a radius, targeting either allies or enemies. Once the unit leaves the radius, they no longer get the effects from the aura.
 
-In this guide we will make an an ally based aura, an enemy based aura and a passive that checks how many enemies are within a radius.
+In this guide we will make an an ally based aura, an enemy based aura, and a passive that checks how many enemies are within a radius.
 
 **INDEX**
 * **Required editors and components**
@@ -25,7 +25,7 @@ In this guide we will make an an ally based aura, an enemy based aura and a pass
 	* **unit_funcs - check_focus(unit, {integer})**
 
 ## Skill descriptions
- - **Hex** - Adjacent enemies have have -15 Hit.
+ - **Hex** - Adjacent enemies have -15 Hit.
  - **Bond** - At the start of your phase, restore 10 HP of all allies within 3 spaces.
  - **Focus** - Critical +10 while no ally is within 3 spaces.
 
@@ -42,7 +42,7 @@ The **Description** can also be the same, but you may remove the distance from i
 
 ![2](./images/Auras/2.png)
 
-## Step 2.A: Add the an Aura component to the Class Skill
+## Step 2.A: Add the Aura component to the Class Skill
 Auras are composed of three components - **Aura component**, **Aura Range component** and **Aura Target component**. All of them can be found within the **Status Components** menu, represented by the **Sharp Sound Wave icon**.
 
 ![3](./images/Auras/3.png)
@@ -57,11 +57,11 @@ Once you add one of them, the other two will be added as well, and the same appl
 |**Aura Range**|Defines the radius of the aura, in a rhombus shape.|Integer
 |**Aura Target**|Defines if the aura will target allies or enemies.|Object - **ally**, **enemy** or **unit** (both ally and enemy)
 
-For the **Aura component**, we want to set the other skill we created. We also need to set the **Aura Range component** to the corresponding distance - 1 for *Hex* and 3 for *Bond* and *Focus*. At last, the Aura Target should take *enemy* for *Hex* and *ally* for *Bond*. Focus will be assigned once we get into its dedicated step.
+For the **Aura component**, we want to set it to the ID of the other skill we created. We also need to set the **Aura Range component** to the corresponding distance - 1 for *Hex* and 3 for *Bond* and *Focus*. At last, the Aura Target should take *enemy* for *Hex* and *ally* for *Bond*. Focus will be assigned once we get into its dedicated step.
 
 ![5](./images/Auras/5.png)
 
-The SKILL will be displayed as any other skill in the **unit information window**, meanwhile the effect will be displayed at the status division on every eligible unit.
+The SKILL will be displayed as any other skill in the **unit information window**, meanwhile the effect will be displayed in the status section for every unit that is affected.
 
 ![6](./images/Auras/6.png)
 
@@ -78,14 +78,14 @@ The **Upkeep Damage component** can also be found within the **Status Component*
 
 ![8](./images/Auras/8.png)
 
-**Upkeep** is the term used to reefer to for the transition between the one party phase to another. You may think of it as a pre-phase moment.
+**Upkeep** is the term used to refer to the beginning of the phase. For instance, a player unit's upkeep is the beginning of the player phase, and an enemy unit's upkeep is the beginning of the enemy phase.
 
 We can convert this component into a healing effect by assigning a negative value. The end result should look like this:
 
 ![9](./images/Auras/9.png)
 
 ## Step 2.B → 3.C: [Focus] Add the Condition component to the Class Skill
-Focus will be significantly different from the other two. We can completely remove the **Aura component** if we want to. Its only role in here will be of a in-game range tracker for our skill.
+Focus will be significantly different from the other two. We don't actually need the **Aura component** for this skill, since this skill does not affect other units. Its only role here will be aesthetic, to show the range of the at which focus is gained.
 
 The only requirement to make it into a tracker is to set the **Aura Target component** value to *None*.
 
@@ -95,9 +95,9 @@ Ideally, we should also set the **Aura component** value to a '*generic empty sk
 
 ![11](./images/Auras/11.png)
 
-For our condition, we need to take a method within the object **unit_funcs** (*Unit Functions*) that contains some methods that expand on the **unit** object scope and/or interact with other objects outside it.
+For our condition, we need to use a method that comes with the **Lex Talionis** engine. The file **unit_funcs** (*Unit Functions*) contains some methods that expand on the **unit** object scope and/or interact with other objects outside it.
 
-To check how many enemy units are within the user radius, we need the **check_focus(unit, {integer}) method**. This method can take two values, the first has to be **unit** and the second has to be an integer number greater than 0. The {integer} value is set as 3 by default if no value is assigned. Our line should be:
+To check how many enemy units are within the user radius, we can use the method **unit_funcs.check_focus(unit, {integer})**. This method can take two values, the first is a **unit** and the second should be an integer number greater than 0. The {integer} value is set to 3 by default if no value is assigned. Our line should be:
 
 	unit_funcs.check_focus(unit, 3)
 
@@ -105,7 +105,7 @@ To check how many enemy units are within the user radius, we need the **check_fo
 
 	unit_funcs.check_focus(unit)
 
-Now we add our conditional operator to get:
+Now we add our conditional operator to check whether there are exactly 0 ally units within a range of 3:
 
 	unit_funcs.check_focus(unit, 3) == 0
 

@@ -83,8 +83,13 @@ class SingleDatabaseEditor(QDialog):
         if self.main_editor:
             state_manager = self.main_editor.app_state_manager
             current_level_nid = state_manager.state.selected_level
-            state_manager.change_and_broadcast(
-                'selected_level', current_level_nid)
+            # Sometimes the current level nid stored here
+            # does not exist as a valid level
+            # Reason currently unknown...
+            # Check that it does before broadcasting
+            if current_level_nid in DB.levels.keys():
+                state_manager.change_and_broadcast(
+                    'selected_level', current_level_nid)
 
     def apply(self):
         self.save()
@@ -178,7 +183,7 @@ class MultiDatabaseEditor(SingleDatabaseEditor):
         super().closeEvent(event)
 
 class SingleResourceEditor(QDialog):
-    def __init__(self, tab, resource_types=None, parent=None):
+    def __init__(self, tab, resource_types=None, parent=None, *args, **kwargs):
         super().__init__(parent)
         self.window = parent
         self.resource_types = resource_types
@@ -195,7 +200,7 @@ class SingleResourceEditor(QDialog):
         self.buttonbox.rejected.connect(self.reject)
         self.buttonbox.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
 
-        self.tab = tab.create(self)
+        self.tab = tab.create(self, *args, **kwargs)
         self.grid.addWidget(self.tab, 0, 0, 1, 2)
 
         self.setWindowTitle(self.tab.windowTitle())

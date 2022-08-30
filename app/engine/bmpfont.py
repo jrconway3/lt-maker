@@ -3,7 +3,6 @@ import re
 from typing import Dict, Tuple
 from functools import lru_cache
 
-from pygame import Surface
 from app.engine import engine
 
 @dataclass
@@ -64,7 +63,7 @@ class BmpFont():
             string = string.lower()
         # string = string.replace('_', ' ')
         return string
-    
+
     @lru_cache()
     def _get_char_from_surf(self, c: str, color: str = None) -> Tuple[engine.Surface, int]:
         if not color:
@@ -78,7 +77,7 @@ class BmpFont():
         base_surf = self.surfaces[color]
         char_surf = engine.subsurface(base_surf, (cx, cy, self._width, self.height))
         return (char_surf, cwidth)
-        
+
     @lru_cache()
     def _get_stacked_char_from_surf(self, c: str, color: str = None) -> Tuple[engine.Surface, engine.Surface, int]:
         if not color:
@@ -93,8 +92,8 @@ class BmpFont():
         high_surf = engine.subsurface(base_surf, (cx, cy, self._width, self.height))
         lowsurf = engine.subsurface(base_surf, (cx, cy + self.height, self._width, self.height))
         return (high_surf, lowsurf, cwidth)
-            
-    def blit(self, string, surf, pos=(0, 0), color: str = None, no_process = False):
+
+    def blit(self, string, surf, pos=(0, 0), color: str = None, no_process=False):
         if not color:
             color = self.default_color
 
@@ -156,11 +155,11 @@ class BmpFont():
         else:
             normal_render(x, y, string, color)
 
-    def blit_right(self, string, surf, pos, color = None):
+    def blit_right(self, string, surf, pos, color=None):
         width = self.width(string)
         self.blit(string, surf, (pos[0] - width, pos[1]), color)
 
-    def blit_center(self, string, surf, pos, color = None):
+    def blit_center(self, string, surf, pos, color=None):
         width = self.width(string)
         self.blit(string, surf, (pos[0] - width//2, pos[1]), color)
 
@@ -190,9 +189,9 @@ class BmpFont():
             try:
                 char_width = self.chartable[c].char_width
             except KeyError as e:
-                print(e)
-                print("%s is not chartable" % c)
-                print("string: ", string)
+                # print(e)
+                # print("%s is not chartable" % c)
+                # print("string: ", string)
                 char_width = 8
             length += char_width
         length += 1

@@ -3,8 +3,8 @@ from app.constants import WINWIDTH, WINHEIGHT
 from app.engine import config as cf
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
-from app.engine.sound import SOUNDTHREAD
-from app.engine.input_manager import INPUT
+from app.engine.sound import get_sound_thread
+from app.engine.input_manager import get_input_manager
 from app.engine.state import State
 from app.engine import engine, background, banner, menus, settings_menu, base_surf, text_funcs
 from app.engine.game_state import game
@@ -22,7 +22,8 @@ controls = {'key_SELECT': engine.subsurface(SPRITES.get('buttons'), (0, 66, 14, 
 control_order = ('key_SELECT', 'key_BACK', 'key_INFO', 'key_AUX', 'key_LEFT', 'key_RIGHT', 'key_UP', 'key_DOWN', 'key_START')
 
 config = [('animation', ['Always', 'Your Turn', 'Combat Only', 'Never'], 0),
-          ('screen_size', [1, 2, 3, 4, 5], 18),
+          ('screen_size', [1, 2, 3, 4, 5, 6], 18),
+          ('display_fps', bool, 2),
           ('battle_bg', bool, 17),
           ('unit_speed', list(reversed(range(15, 180, 15))), 1),
           ('text_speed', cf.text_speed_options, 2),
@@ -36,6 +37,8 @@ config = [('animation', ['Always', 'Your Turn', 'Combat Only', 'Never'], 0),
           ('music_volume', [x/10.0 for x in range(0, 11, 1)], 15),
           ('sound_volume', [x/10.0 for x in range(0, 11, 1)], 16),
           ('talk_boop', bool, 16),
+          ('show_bounds', bool, 7),
+          ('grid_opacity', [int(255 * x / 10.0) for x in range(11)], 7),
           ('autoend_turn', bool, 14),
           ('confirm_end', bool, 14),
           ('display_hints', bool, 3)]
@@ -75,7 +78,7 @@ class SettingsMenuState(State):
             return self.controls_menu
 
     def handle_mouse(self):
-        mouse_position = INPUT.get_mouse_position()
+        mouse_position = get_input_manager().get_mouse_position()
         if mouse_position:
             mouse_x, mouse_y = mouse_position
             top_left_rect = (4, 4, self.header_width, 24)
@@ -110,20 +113,20 @@ class SettingsMenuState(State):
 
         if self.state == 'get_input':
             if event == 'BACK':
-                SOUNDTHREAD.play_sfx('Select 4')
+                get_sound_thread().play_sfx('Select 4')
                 self.state = 'controls'
-                INPUT.set_change_keymap(False)
+                get_input_manager().set_change_keymap(False)
             elif event == 'NEW':
-                SOUNDTHREAD.play_sfx('Select 1')
+                get_sound_thread().play_sfx('Select 1')
                 self.state = 'controls'
                 selection = self.current_menu.get_current()
-                cf.SETTINGS[selection] = INPUT.unavailable_button
-                INPUT.set_change_keymap(False)
-                INPUT.update_key_map()
+                cf.SETTINGS[selection] = get_input_manager().unavailable_button
+                get_input_manager().set_change_keymap(False)
+                get_input_manager().update_key_map()
             elif event:
-                SOUNDTHREAD.play_sfx('Select 4')
+                get_sound_thread().play_sfx('Select 4')
                 self.state = 'controls'
-                INPUT.set_change_keymap(False)
+                get_input_manager().set_change_keymap(False)
                 text = 'Invalid Choice!'
                 game.alerts.append(banner.Custom(text))
                 game.state.change('alert')
@@ -131,7 +134,7 @@ class SettingsMenuState(State):
         elif self.state in ('top_menu_left', 'top_menu_right'):
             self.handle_mouse()
             if event == 'DOWN' or event == 'SELECT':
-                SOUNDTHREAD.play_sfx('Select 6')
+                get_sound_thread().play_sfx('Select 6')
                 if self.state == 'top_menu_left':
                     self.state = 'config'
                 else:
@@ -139,11 +142,11 @@ class SettingsMenuState(State):
                 self.current_menu.takes_input = True
             elif event == 'LEFT':
                 if self.state == 'top_menu_right':
-                    SOUNDTHREAD.play_sfx('Select 6')
+                    get_sound_thread().play_sfx('Select 6')
                     self.state = 'top_menu_left'
             elif event == 'RIGHT':
                 if self.state == 'top_menu_left':
-                    SOUNDTHREAD.play_sfx('Select 6')
+                    get_sound_thread().play_sfx('Select 6')
                     self.state = 'top_menu_right'
             elif event == 'BACK':
                 self.back()
@@ -151,10 +154,10 @@ class SettingsMenuState(State):
         else:
             self.handle_mouse()
             if 'DOWN' in directions:
-                SOUNDTHREAD.play_sfx('Select 6')
+                get_sound_thread().play_sfx('Select 6')
                 self.current_menu.move_down(first_push)
             elif 'UP' in directions:
-                SOUNDTHREAD.play_sfx('Select 6')
+                get_sound_thread().play_sfx('Select 6')
                 if self.current_menu.get_current_index() <= 0:
                     self.current_menu.takes_input = False
                     if self.state == 'config':
@@ -164,12 +167,12 @@ class SettingsMenuState(State):
                 else:
                     self.current_menu.move_up(first_push)
             elif 'LEFT' in directions:
-                SOUNDTHREAD.play_sfx('Select 6')
+                get_sound_thread().play_sfx('Select 6')
                 self.current_menu.move_left()
                 if self.current_menu.get_current_option().name in ('music_volume', 'sound_volume'):
                     self.update_sound()
             elif 'RIGHT' in directions:
-                SOUNDTHREAD.play_sfx('Select 6')
+                get_sound_thread().play_sfx('Select 6')
                 self.current_menu.move_right()
                 if self.current_menu.get_current_option().name in ('music_volume', 'sound_volume'):
                     self.update_sound()
@@ -179,17 +182,17 @@ class SettingsMenuState(State):
 
             elif event == 'SELECT':
                 if self.state == 'controls':
-                    SOUNDTHREAD.play_sfx('Select 1')
+                    get_sound_thread().play_sfx('Select 1')
                     self.state = 'get_input'
-                    INPUT.set_change_keymap(True)
+                    get_input_manager().set_change_keymap(True)
                 elif self.state == 'config':
-                    SOUNDTHREAD.play_sfx('Select 6')
+                    get_sound_thread().play_sfx('Select 6')
                     self.current_menu.move_next()
                     if self.current_menu.get_current_option().name in ('music_volume', 'sound_volume'):
                         self.update_sound()
 
     def back(self):
-        SOUNDTHREAD.play_sfx('Select 4')
+        get_sound_thread().play_sfx('Select 4')
         cf.save_settings()
         self.update_sound()
         # if game.cursor is not None:
@@ -197,8 +200,8 @@ class SettingsMenuState(State):
         game.state.change('transition_pop')
 
     def update_sound(self):
-        SOUNDTHREAD.set_music_volume(cf.SETTINGS['music_volume'])
-        SOUNDTHREAD.set_sfx_volume(cf.SETTINGS['sound_volume'])
+        get_sound_thread().set_music_volume(cf.SETTINGS['music_volume'])
+        get_sound_thread().set_sfx_volume(cf.SETTINGS['sound_volume'])
 
     def update(self):
         self.current_menu.update()
@@ -256,4 +259,4 @@ class SettingsMenuState(State):
 
     def finish(self):
         # Just to make sure!
-        INPUT.set_change_keymap(False)
+        get_input_manager().set_change_keymap(False)

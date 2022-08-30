@@ -1,7 +1,10 @@
+from app.resources.resources import Resources
+from app.data.database import Database
 from typing import List, Tuple, Type
 
 from app.editor.settings import MainSettingsController
 from app.events import event_commands, event_validators
+from app.utilities import str_utils
 from app.utilities.typing import NID
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QCompleter
@@ -45,10 +48,11 @@ class Completer(QCompleter):
                 self.popup().hide()
         return False
 
-def generate_wordlist_from_validator_type(validator: Type[event_validators.Validator], level: NID = None, arg: str = None) -> List[str]:
+def generate_wordlist_from_validator_type(validator: Type[event_validators.Validator], level: NID = None, arg: str = None,
+                                          db: Database = None, resources: Resources = None) -> List[str]:
     if not validator:
         return []
-    valid_entries = validator().valid_entries(level, arg)
+    valid_entries = validator(db, resources).valid_entries(level, arg)
     autofill_dict = []
     for entry in valid_entries:
         if entry[0] is None:
@@ -70,7 +74,7 @@ def generate_flags_wordlist(flags: List[str] = []) -> List[str]:
     return flaglist
 
 def detect_command_under_cursor(line: str) -> event_commands.EventCommand:
-    return event_commands.parse_text(line)
+    return event_commands.determine_command_type(line)
 
 def detect_type_under_cursor(line: str, cursor_pos: int, arg_under_cursor: str = None) -> Tuple[event_validators.Validator, List[str]]:
     # turn off typechecking for comments
@@ -80,6 +84,8 @@ def detect_type_under_cursor(line: str, cursor_pos: int, arg_under_cursor: str =
 
     if arg_under_cursor:
         # see if we're in the middle of a bracket/eval expression
+        # filter out all paired brackets
+        arg_under_cursor = str_utils.remove_all_matched(arg_under_cursor, '{', '}')
         eval_bracket = arg_under_cursor.rfind('{')
         eval_colon = arg_under_cursor.rfind(':')
         eval_end = arg_under_cursor.rfind('}')
@@ -94,17 +100,21 @@ def detect_type_under_cursor(line: str, cursor_pos: int, arg_under_cursor: str =
     if arg_idx == -1:
         return (event_validators.EventFunction, [])
     try:
-        command = event_commands.parse_text(line)
+        command = detect_command_under_cursor(line)
         validator_name = None
+        if arg_under_cursor and '=' in arg_under_cursor:
+            arg_name = arg_under_cursor.split('=')[0]
+            if command.get_index_from_keyword(arg_name) != 0:
+                arg_idx = command.get_index_from_keyword(arg_name)
         if command:
             if arg_idx >= len(command.keywords):
                 # no longer required keywords, now add optionals and flags
                 flags = command.flags
                 i = arg_idx - len(command.keywords)
                 if i < len(command.optional_keywords):
-                    validator_name = command.optional_keywords[i]
+                    validator_name = command.get_keyword_types()[arg_idx]
             else:
-                validator_name = command.keywords[arg_idx]
+                validator_name = command.get_keyword_types()[arg_idx]
         if validator_name:
             validator = event_validators.get(validator_name)
         else:
@@ -112,4 +122,6 @@ def detect_type_under_cursor(line: str, cursor_pos: int, arg_under_cursor: str =
         return (validator, flags)
     except Exception as e:
         print(e)
+        import traceback
+        traceback.print_exc()
         return (event_validators.Validator, [])

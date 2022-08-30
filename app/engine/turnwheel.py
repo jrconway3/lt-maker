@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from app.constants import WINWIDTH, WINHEIGHT
 
-from app.engine.sound import SOUNDTHREAD
+from app.engine.sound import get_sound_thread
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
-from app.engine.input_manager import INPUT
+from app.engine.input_manager import get_input_manager
 
 from app.engine.game_state import game
 import app.engine.action as Action
@@ -42,13 +42,23 @@ class ActionLog():
 
     def hard_remove(self, action):
         """
-        Removes action and all actions that happened after it
+        Reverses and removes action and all actions that happened after it
+        (except Equip action)
         """
         logging.debug("Hard Remove Action %d: %s", self.action_index, action.__class__.__name__)
         idx = self.actions.index(action)
-        diff = len(self.actions) - idx
-        self.action_index -= diff
-        self.actions = self.actions[:idx]
+        for act in reversed(self.actions[idx:]):
+            if act.__class__.__name__ == 'EquipItem':
+                logging.debug("Not going to reverse or remove the EquipItem action")
+            else:
+                act.reverse()
+                self.actions.remove(act)
+                self.action_index -= 1
+        # self.actions.remove(action)
+        # self.action_index -= 1
+        # diff = len(self.actions) - idx
+        # self.action_index -= diff
+        # self.actions = self.actions[:idx]
         logging.debug("New Action Index: %d", self.action_index)
 
     def run_action_backward(self):
@@ -122,6 +132,7 @@ class ActionLog():
                 self.unique_moves.append(('Extra', last_move[1] + 1, last_action_index))
 
         logging.debug("*** Turnwheel Begin ***")
+        # logging.debug(self.actions)
         logging.debug(self.unique_moves)
 
         self.current_move_index = len(self.unique_moves)
@@ -419,9 +430,12 @@ class TurnwheelDisplay():
 
 class TurnwheelState(MapState):
     def begin(self):
+        # Remember who gets resurrected
+        game.level_vars['_resurrect'] = set()
         # Whether the player MUST move the turnwheel back
         self.force = game.memory.get('force_turnwheel', False)
         game.memory['force_turnwheel'] = False
+        game.game_vars['turnwheel_starting_turn'] = game.turncount
 
         self.mouse_indicator = gui.MouseIndicator()
         # Kill off any units who are currently dying
@@ -449,7 +463,7 @@ class TurnwheelState(MapState):
         self.last_direction = 'FORWARD'
 
     def move_forward(self):
-        SOUNDTHREAD.play_sfx('Select 1')
+        get_sound_thread().play_sfx('Select 1')
         old_message = None
         if self.last_direction == 'BACKWARD':
             game.action_log.current_unit = None
@@ -462,7 +476,7 @@ class TurnwheelState(MapState):
         self.last_direction = 'FORWARD'
 
     def move_back(self):
-        SOUNDTHREAD.play_sfx('Select 2')
+        get_sound_thread().play_sfx('Select 2')
         old_message = None
         if self.last_direction == 'FORWARD':
             game.action_log.current_unit = None
@@ -501,16 +515,16 @@ class TurnwheelState(MapState):
             elif not self.force and not game.action_log.locked:
                 self.back_out()
             else:
-                SOUNDTHREAD.play_sfx('Error')
+                get_sound_thread().play_sfx('Error')
 
         elif event == 'BACK':
             if not self.force:
                 self.back_out()
             else:
-                SOUNDTHREAD.play_sfx('Error')
+                get_sound_thread().play_sfx('Error')
 
     def check_mouse_position(self) -> bool:
-        mouse_position = INPUT.get_mouse_position()
+        mouse_position = get_input_manager().get_mouse_position()
         if mouse_position:
             mouse_x, mouse_y = mouse_position
             if mouse_x <= 16:

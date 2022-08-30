@@ -1,5 +1,5 @@
-# 1. Direct Passives - Hit +20, Magic +2 and Gamble
-Despite the name, skills are actually effects, which covers everything from statuses (buffs/debuffs) to skills and additional actions. They can be applied into units or terrain, and be triggered by other skills, items or events. In this guide series we will focus on class skills as these can be less intuitive to make.
+# 1. Direct Passives - Hit +20, MAG +2 and Gamble
+Despite the name, skills are actually effects, which covers everything from statuses (buffs/debuffs) to skills and additional actions. They can be applied into units or terrain, and be triggered by other skills, items, or events. In this tutorial series we will focus on class skills as these can be less intuitive to make.
 
 All of the elements used will be listed at the start of each guide, with the new items written in **bold**. Each step will be fully described at the first time, all following occurrences (on any of the guides) will be listed as the step name instead, with an addendum if needed.
 
@@ -36,31 +36,31 @@ Open the **Skill Editor** in the **Edit Menu** and create a new **Skill**.
 
 ![1](./images/Direct-Passives/1.png)
 
-Our new skill has to own a completely unit name for the **Unique ID** field. This will be how the engine will identify which skill is being used or called. By default, the engine will auto fill the **Display Name** with the **Unique ID** value, but you may change it at will. I'll be changing my skill name to be in lower case.
+Our new skill has to have a completely unique name for the **Unique ID** field. This will be how the engine will identify which skill is being used or called. By default, the engine will auto fill the **Display Name** with the **Unique ID** value, but you may change it at will. I'll be changing my skill name to be in lower case.
 
 We can also give our skill a **Description** and an **Icon**, these are important for in-game inspection.
 
 ![2](./images/Direct-Passives/2.png)
 
-For our skill to do anything, we need to assign **Components**. You can do it by clicking on the icons bellow the description box, which will open a menu with multiple options to pick from.
+For our skill to do anything, we need to assign **Components**. You can do it by clicking on the icons below the description box, which will open a menu with multiple options to pick from.
 
 ### Step 1.1: Create a Class Skill
 To make our skill into a proper class skill, we need to give it the **Class Skill** component. The option can be found within the **Attribute Components** menu, represented by the **Star icon**.
 
 ![3](./images/Direct-Passives/3.png)
 
-Skills that have the **Class Skill component** will stay active for the whole chapter and will also have an inspectable icon under the character stats. It is recommended to use this component on all personal and class skills.
+Skills that have the **Class Skill component** will show an inspectable icon under the character's stats. It is recommended to use this component on all personal and class skills.
 
 ![4](./images/Direct-Passives/4.png)
 
-All the added **components** will be displayed individually within the component box. Skills can have as many components as you see fit but only one unique of each. You can have two different **Attribute Components** but only one **Class Skill component**. They can also be reordered by dragging them up and down the box.
+All the added **components** will be displayed individually within the component box. Skills can have as many components as you see fit but only one of each. They can also be reordered by dragging them up and down the box.
 
 You can get some additional information on any given component by hovering over them, both in menu and once they are added. It's a great feature to know if you want to swim on your own.
 
 ![5](./images/Direct-Passives/5.png)
 
 ## Step 2: Assign the Skill
-Before we get our skill to do anything, we need to know how to assign our skill to an unit for testing purposes. There are a couple of options available but for this guide we will stick to the **Class** and **Unit** options. You may chose which one of these methods to use.
+Before we get our skill to do anything, we need to know how to assign our skill to a unit for testing purposes. There are a couple of options available but for this tutorial we will stick to the **Class** and **Unit** options. You may choose which one of these methods to use.
 
 We will be using Eirika as our target unit for the following steps.
 
@@ -69,7 +69,7 @@ Open the **Units Editor** in the **Edit Menu** and select the unit that will get
 
 ![6](./images/Direct-Passives/6.png)
 
-Click on the **+** button on the **Personal Skill** division to give it a new skill, then select the desired skill. Keep the **Level** parameter at 1 for testing purposes.
+Click on the **+** button on the **Personal Skill** division to give your unit a new skill, then select the desired skill. Keep the **Level** parameter at 1 for testing purposes.
 
 ![7](./images/Direct-Passives/7.png)
 
@@ -83,7 +83,7 @@ Click on the **+** button on the **Class Skill** division to give it a new skill
 ![9](./images/Direct-Passives/9.png)
 
 ### Step 2.2: Inspect the skill in-game
-Select the desired level for testing. This level must contain at least one unit that had the skill assigned by whichever option you chose.
+Select the desired chapter for testing. This chapter must contain at least one unit that had the skill assigned by the chosen method.
 
 ![10](./images/Direct-Passives/10.png)
 
@@ -123,7 +123,7 @@ The end result should look like this:
 
 ![18](./images/Direct-Passives/18.png)
 
-In-game, the **Hit stat** value is always displayed as its total sum. To check if it is working properly, enabled and disabled the skill comparing the stat changes for both scenarios.
+In-game, the **Hit stat** value is always displayed as its total sum. To check if it is working properly, you can enable and disable the skill comparing the stat changes for both scenarios.
 
 ### Step 3.B: [Magic +2] Add a Stat Change component
 For *Magic +2*, we will need the **Stat Change component**.

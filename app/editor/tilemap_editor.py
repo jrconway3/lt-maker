@@ -1,5 +1,6 @@
 import os
 import functools
+import math
 from enum import IntEnum
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
@@ -9,17 +10,17 @@ from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
 from PyQt5.QtCore import Qt, QRect, QDateTime
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
-from app.constants import TILEWIDTH, TILEHEIGHT, TILEX, TILEY, WINWIDTH, WINHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT, TILEX, TILEY
 from app.resources.resources import RESOURCES
 from app.resources.tiles import LayerGrid
 from app.data.database import DB
 
-from app.editor import timer
 from app.editor.tile_editor import autotiles
 from app.editor.icon_editor.icon_view import IconView
 from app.editor.terrain_painter_menu import TerrainPainterMenu
 from app.editor.base_database_gui import ResourceCollectionModel
 from app.extensions.custom_gui import ResourceListView, Dialog, PropertyBox
+from app.extensions.tiled_view import DraggableTileImageView
 
 from app.editor.settings import MainSettingsController
 from app.utilities import str_utils
@@ -30,7 +31,7 @@ import logging
 def get_tilemap_pixmap(tilemap):
     return QPixmap.fromImage(draw_tilemap(tilemap))
 
-def draw_tilemap(tilemap, show_full_map = False, current_layer_index=-1, fade=2, autotile_fps=29):
+def draw_tilemap(tilemap, show_full_map=False, current_layer_index=-1, fade=2, autotile_fps=29):
     image = QImage(tilemap.width * TILEWIDTH,
                    tilemap.height * TILEHEIGHT,
                    QImage.Format_ARGB32)
@@ -56,9 +57,9 @@ def draw_tilemap(tilemap, show_full_map = False, current_layer_index=-1, fade=2,
                 if pix:
                     if current_layer_index > -1:
                         painter.setOpacity(calculate_layer_fade(current_layer_index, index, fade))
-                    painter.drawImage(coord[0] * TILEWIDTH,
-                                      coord[1] * TILEHEIGHT,
-                                      pix.toImage())
+                    painter.drawPixmap(coord[0] * TILEWIDTH,
+                                       coord[1] * TILEHEIGHT,
+                                       pix)
     painter.end()
     return image
 
@@ -76,23 +77,9 @@ class PaintTool(IntEnum):
     Fill = 2
     Erase = 3
 
-class MapEditorView(QGraphicsView):
-    min_scale = 1
-    max_scale = 6
-
+class MapEditorView(DraggableTileImageView):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.window = parent
-
-        self.scene = QGraphicsScene(self)
-        self.setScene(self.scene)
-        self.setMouseTracking(True)
-
-        self.setMinimumSize(WINWIDTH, WINHEIGHT)
-        self.setStyleSheet("background-color:rgb(128, 128, 128);")
-
-        self.screen_scale = 1
-
         self.tilemap = None
 
         self.current_mouse_position = (0, 0)
@@ -107,18 +94,9 @@ class MapEditorView(QGraphicsView):
 
         self.focus_layer = False
 
-        timer.get_timer().tick_elapsed.connect(self.tick)
-
-    def tick(self):
-        if self.tilemap:
-            self.update_view()
-
     def set_current(self, current):
         self.tilemap = current
         self.update_view()
-
-    def clear_scene(self):
-        self.scene.clear()
 
     def get_focus_layer(self):
         if self.focus_layer:
@@ -130,6 +108,7 @@ class MapEditorView(QGraphicsView):
             pixmap = QPixmap.fromImage(self.get_map_image())
             self.working_image = pixmap
         else:
+            self.clear_scene()
             return
         if self.window.terrain_mode:
             self.draw_terrain()
@@ -292,6 +271,8 @@ class MapEditorView(QGraphicsView):
                         true_pos = tile_pos[0] + rel_coord[0], tile_pos[1] + rel_coord[1]
                         if self.tilemap.check_bounds(true_pos):
                             current_layer.set_sprite(true_pos, tileset.nid, coord)
+                            if coord in tileset.terrain_grid:
+                                current_layer.terrain_grid[true_pos] = tileset.terrain_grid[coord]
 
     def erase_terrain(self, tile_pos):
         current_layer = self.get_current_layer()
@@ -345,7 +326,8 @@ class MapEditorView(QGraphicsView):
                 current_layer.terrain_grid[coord] = current_nid
 
     def flood_fill_tile(self, tile_pos):
-        if not self.tilemap.check_bounds(tile_pos):
+        tileset, coords = self.window.get_tileset_coords()
+        if not self.tilemap.check_bounds(tile_pos) or not coords or not tileset:
             return
 
         current_layer = self.get_current_layer()
@@ -394,8 +376,8 @@ class MapEditorView(QGraphicsView):
                 true_coord, tile_sprite = self.right_selection[topleft]
                 coords = [true_coord]
                 tileset_nid = tile_sprite.tileset_nid
+                tileset = RESOURCES.tilesets.get(tileset_nid)
             else:
-                tileset, coords = self.window.get_tileset_coords()
                 tileset_nid = tileset.nid
 
             if not coords:
@@ -411,8 +393,11 @@ class MapEditorView(QGraphicsView):
                         new_coord_x = (x % w) + topleft[0]
                         new_coord_y = (y % h) + topleft[1]
                         if (new_coord_x, new_coord_y) in coords:
-                            current_layer.set_sprite(
-                                (x, y), tileset_nid, (new_coord_x, new_coord_y))
+                            true_pos = (x, y)
+                            coord = (new_coord_x, new_coord_y)
+                            current_layer.set_sprite(true_pos, tileset_nid, coord)
+                            if coord in tileset.terrain_grid:
+                                current_layer.terrain_grid[true_pos] = tileset.terrain_grid[coord]
 
     def mousePressEvent(self, event):
         scene_pos = self.mapToScene(event.pos())
@@ -494,22 +479,6 @@ class MapEditorView(QGraphicsView):
         elif self.window.current_tool == PaintTool.Erase:
             if event.button() == Qt.LeftButton:
                 self.left_selecting = False
-
-    def zoom_in(self):
-        if self.screen_scale < self.max_scale:
-            self.screen_scale += 1
-            self.scale(2, 2)
-
-    def zoom_out(self):
-        if self.screen_scale > self.min_scale:
-            self.screen_scale -= 1
-            self.scale(0.5, 0.5)
-
-    def wheelEvent(self, event):
-        if event.angleDelta().y() > 0:
-            self.zoom_in()
-        elif event.angleDelta().y() < 0:
-            self.zoom_out()
 
 class MapEditor(QDialog):
     def __init__(self, parent=None, current=None):
@@ -614,6 +583,7 @@ class MapEditor(QDialog):
         self.terrain_action.setCheckable(True)
 
         self.export_as_png_action = QAction(QIcon(f"{icon_folder}/export_as_png.png"), "E&xport Current Image as PNG", self, shortcut="X", triggered=self.export_as_png)
+        self.save_action = QAction(QIcon(f"{icon_folder}/save.png"), "Save", self, shortcut="Ctrl+S", triggered=self.save_current)
 
         self.show_autotiles_action = QAction(QIcon(f"{icon_folder}/wave.png"), "Show Autotiles", self, triggered=self.autotile_toggle)
         self.show_autotiles_action.setCheckable(True)
@@ -654,6 +624,7 @@ class MapEditor(QDialog):
         self.toolbar.addAction(self.erase_action)
         self.toolbar.addAction(self.resize_action)
         self.toolbar.addAction(self.terrain_action)
+        self.toolbar.addAction(self.save_action)
         self.toolbar.addAction(self.export_as_png_action)
         self.toolbar.addAction(self.show_gridlines_action)
         self.toolbar.addAction(self.show_autotiles_action)
@@ -701,6 +672,11 @@ class MapEditor(QDialog):
                 image.save(fn)
                 parent_dir = os.path.split(fn)[0]
                 self.settings.set_last_open_path(parent_dir)
+
+    def save_current(self):
+        if self.current and DB.current_proj_dir:
+            RESOURCES.save(DB.current_proj_dir, specific=['tilemaps'])
+            QMessageBox.information(self, "Save Complete", "Successfully saved tilemaps!")
 
     def update_view(self):
         self.view.update_view()
@@ -755,12 +731,12 @@ class ResizeDialog(Dialog):
         size_layout = QFormLayout()
         self.width_box = QSpinBox()
         self.width_box.setValue(self.current.width)
-        self.width_box.setRange(TILEX, 255)
+        self.width_box.setRange(math.ceil(TILEX), 65536)
         self.width_box.valueChanged.connect(self.on_width_changed)
         size_layout.addRow("Width:", self.width_box)
         self.height_box = QSpinBox()
         self.height_box.setValue(self.current.height)
-        self.height_box.setRange(TILEY, 255)
+        self.height_box.setRange(math.ceil(TILEY), 65536)
         self.height_box.valueChanged.connect(self.on_height_changed)
         size_layout.addRow("Height:", self.height_box)
         size_section.setLayout(size_layout)
@@ -1020,11 +996,12 @@ class LayerMenu(QWidget):
 
     def duplicate(self):
         current_index = self.view.currentIndex()
-        self.view.duplicate(current_index)
+        if current_index and current_index.row() >= 0:
+            self.view.duplicate(current_index)
 
     def delete(self):
         current_index = self.view.currentIndex()
-        if self.deletion_func(self.model, current_index):
+        if current_index and current_index.row() >= 0 and self.deletion_func(self.model, current_index):
             self.view.delete(current_index)
 
 class TileSetMenu(QWidget):

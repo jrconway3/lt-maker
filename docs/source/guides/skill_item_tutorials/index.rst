@@ -10,8 +10,10 @@ These are guides on various useful skills and items.
     Direct-Passives
     Conditional-Passives-I
     Conditional-Passives-II
+    Conditional-Passives-III
     Tile-Passives
     Auras
+    Skill-Swap
 
     skill/index.rst
 

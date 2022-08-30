@@ -1,4 +1,4 @@
-# 3. Conditional Passives II - Tomefaire, Axe Breaker and Wyrmbane
+# 3. Conditional Passives III - Tomefaire, Axe Breaker and Wyrmbane
 This guide is a follow up on **Conditional Passives I - Lucky Seven, Odd Rhythm, Wrath and Quick Burn**, and will cover other common elements used for conditions.
 
 By the end of it, you should be able to create the majority of the iconic passive skills in any Fire Emblem game.
@@ -43,7 +43,7 @@ I will also cover an option for *Anima*, *Dark* and *Light* but it's highly reco
 
 The **Weapon Types Editor** can be found within the **Edit Menu**.
 
-![1](./images/Conditional-Passives-II/1.png)
+![1](./images/Conditional-Passives-III/1.png)
 
 ### Step 1.A: Create a new Weapon Type
 
@@ -51,7 +51,7 @@ We can now create a new Weapon Type. For this guide, we will create Dragonstone 
 
 It should look like this:
 
-![2](./images/Conditional-Passives-II/2.png)
+![2](./images/Conditional-Passives-III/2.png)
 
 There's also the option to create a Manakate class instead but that isn't the best option to replicate the effects. If that's how you want to do it, check the guide that covers the *Dance* ability.
 
@@ -59,28 +59,28 @@ There's also the option to create a Manakate class instead but that isn't the be
 
 For this guide, we'll be changing *Light* **Unique ID** to *Tome* and remove all of the advantages and disadvantages. You can do it by right clicking on them.
 
-![3](./images/Conditional-Passives-II/3.png)
+![3](./images/Conditional-Passives-III/3.png)
 
 Next, we got to delete *Anima* and *Dark*, also by right clicking on them, and set *Tome* as their replacement.
 
-![4](./images/Conditional-Passives-II/4.png)
+![4](./images/Conditional-Passives-III/4.png)
 
 It should look like this:
 
-![5](./images/Conditional-Passives-II/5.png)
+![5](./images/Conditional-Passives-III/5.png)
 
 ## Step 2: Create a Class Skill
 
 ## Step 3: Add the Combat Components
 For *Wyrmbane* and *Tomefaire*, we will need the **Damage component**, found within the **Combat Components** menu.
 
-![6](./images/Conditional-Passives-II/6.png)
+![6](./images/Conditional-Passives-III/6.png)
 
 The **Damage component** will increase the **atk** stat by the set amount, which can be checked in the **unit information window**.
 
 We also have the option to use the **Damage Multiplier component** for *Wyrmbane*, also within the **Combat Components** menu.
 
-![7](./images/Conditional-Passives-II/7.png)
+![7](./images/Conditional-Passives-III/7.png)
 
 Unlike the direct counterpart, it will only manifest itself when an attack is calculated.
 
@@ -192,13 +192,13 @@ In practice, this should be enough, but this might lead to some bugs if the skil
 
 The end result should look like this:
 
-![8](./images/Conditional-Passives-II/8.png)
+![8](./images/Conditional-Passives-III/8.png)
 
 ### Step 4.B: [Axe Breaker] Add and set the Combat Condition component
 
 The **Condition component** can only interact with the user and global objects, along their respective methods and attributes. To access other units, we need to use the **Combat Condition component** instead, which can be found within the **Advanced Components** menu.
 
-![9](./images/Conditional-Passives-II/9.png)
+![9](./images/Conditional-Passives-III/9.png)
 
 Whenever we need to reference an unit that is selected by an action, we need to use the **target object**. The **target object** is an instance of an **unit object** and will have all the same attributes and methods. You can just replace the referenced object in your syntax.
 
@@ -212,7 +212,7 @@ By replacing the **unit object** and our **Weapon Type** to 'Axe', we will get t
 
 The end result should look like this:
 
-![10](./images/Conditional-Passives-II/10.png)
+![10](./images/Conditional-Passives-III/10.png)
 
 ### Step 4.C: [Wyrmbane] Add and set the Combat Condition and the Condition component
 
@@ -234,7 +234,7 @@ Next, we need to add our weapon restriction. It's the same as the -faire type sk
 
 The end result should look like this:
 
-![11](./images/Conditional-Passives-II/11.png)
+![11](./images/Conditional-Passives-III/11.png)
 
 You can see that the **Damage Multiplier component** is present, but it shouldn't be present in the final skill. The only reason it is kept is because the skill can be tested and tuned with either of the options.
 

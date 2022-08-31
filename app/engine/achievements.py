@@ -8,11 +8,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Achievement():
-    def __init__(self, nid: str, name:str, desc: str, complete: bool):
+    def __init__(self, nid: str, name:str, desc: str, complete: bool, hidden=False):
         self.nid = nid
         self.name = name
         self.desc = desc
         self.complete = complete
+        self.hidden = hidden
 
     def set_complete(self, complete: bool):
         self.complete = complete
@@ -71,10 +72,16 @@ class AchievementManager():
         if not self.achievement_defined(nid):
             self.achievements.append(Achievement(nid, name, desc, complete))
         else:
-            a = self.get_achievement(nid)
+            logging.info("Attempted to define already existing achievement with nid %s", nid)
+        self.save_achievements()
+
+    def update_achievement(self, nid, name, desc):
+        a = self.get_achievement(nid)
+        if a:
             a.name = name
             a.desc = desc
-            logging.info("Attempted to define already existing achievement with nid %s", nid)
+        else:
+            logging.info("Attempted to update non-existant achievement with nid %s", nid)
         self.save_achievements()
 
     def remove_achievement(self, nid: str):

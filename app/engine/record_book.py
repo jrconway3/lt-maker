@@ -240,7 +240,7 @@ class AchievementDisplay(RecordsDisplay):
         bg = image_mods.make_translucent(bg, 0.25)
         FONT['text-yellow'].blit(text_funcs.translate('Unlocked: '), bg, (4, 4))
 
-        FONT['text-yellow'].blit_right(str(len([a for a in game.achievements if a.get_complete()])) + ' / ' + str(len(game.achievements)), bg, (92, 4))
+        FONT['text-yellow'].blit_right(str(len([a for a in game.achievements if a.get_complete() and not a.hidden])) + ' / ' + str(len([a for a in game.achievements if not a.hidden])), bg, (92, 4))
         return bg
 
     # Maybe make this not a child of Records Display. Implement scroll bar and hide mouse

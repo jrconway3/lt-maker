@@ -2832,9 +2832,10 @@ def separate(self: Event, unit, flags=None):
     unit = new_unit
     action.do(action.RemovePartner(unit))
 
-def create_achievement(self: Event, nid: str, name: str, description:str, completed='', flags=None):
+def create_achievement(self: Event, nid: str, name: str, description:str, completed='', hidden='', flags=None):
     completed = completed.lower() in self.true_vals
-    self.game.achievements.add_achievement(nid, name, description, completed)
+    hidden = hidden.lower() in self.true_vals
+    self.game.achievements.add_achievement(nid, name, description, completed, hidden)
 
 def complete_achievement(self: Event, nid: str, completed: str, flags=None):
     completed = completed.lower() in self.true_vals

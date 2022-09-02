@@ -102,7 +102,7 @@ class TextEvaluator():
                         search_keys: List[Tuple[str, str]] = []
                         general_search_keys: List[str] = []
                         for term in searches:
-                            searchl = term.split('-')
+                            searchl = term.split('=')
                             if len(searchl) == 1: # single search term, if any match we're good
                                 general_search_keys.append(searchl[0].strip())
                             elif len(searchl) == 2: # search key set to value

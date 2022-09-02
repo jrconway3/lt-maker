@@ -1,3 +1,5 @@
+<small>`Originally written by Hillgarm. Last Updated 2022-09-01`</small>
+
 # [System] Skill Swap
 Lex Talionis Event Editor offers enough power to build custom systems. They can be quite complex, and this is the case with skill swap.
 

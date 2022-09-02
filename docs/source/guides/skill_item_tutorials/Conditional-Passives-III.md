@@ -1,3 +1,5 @@
+<small>`Originally written by Hillgarm. Last Updated 2022-09-01`</small>
+
 # 3. Conditional Passives III - Tomefaire, Axe Breaker and Wyrmbane
 This guide is a follow up on **Conditional Passives I - Lucky Seven, Odd Rhythm, Wrath and Quick Burn**, and will cover other common elements used for conditions.
 

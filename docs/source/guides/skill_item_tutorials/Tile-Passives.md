@@ -1,3 +1,5 @@
+<small>`Originally written by Hillgarm. Last Updated 2022-09-01`</small>
+
 # 4. Tile Oriented Passives - Outdoor Fighter and Indoor Fighter
 In this guide we will be building what might be the most exquisite, and fairly limited, kind of skill. Despite that, the principles behind it can be used to create a pletora of interesting skills if properly explored and implemented.
 

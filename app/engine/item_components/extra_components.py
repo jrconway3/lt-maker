@@ -62,7 +62,7 @@ class EffectiveTag(ItemComponent):
                 might = item_system.damage(unit, item)
                 if might is None:
                     return 0
-                return (item.data.get('effective_multiplier') - 1) * might
+                return int((item.data.get('effective_multiplier') - 1) * might)
             return item.data.get('effective', 0)
         return 0
 

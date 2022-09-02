@@ -34,3 +34,35 @@ class DBNamesDelegate(QItemDelegate):
                 if self.editor:
                     self.editor.setValue(self.editor.completer().currentCompletion())
         return super().eventFilter(obj, event)
+
+class UnitFieldDelegate(DBNamesDelegate):
+    key_column = 0
+    value_column = 1
+
+    def createEditor(self, parent, option, index):
+        if index.column() == self.key_column:
+            # get all fields on all units and classes
+            all_relevant_strings = set()
+            for unit in DB.units:
+                all_relevant_strings.update(set([key for (key, _) in unit.fields]))
+            for klass in DB.classes:
+                all_relevant_strings.update(set([key for (key, _) in klass.fields]))
+            editor = ComboBox(parent)
+            editor.addItems(all_relevant_strings)
+            editor.setEditable(True)
+            self.editor = editor
+            return editor
+        else:
+            all_relevant_strings = []
+            all_relevant_strings += DB.units.keys()
+            all_relevant_strings += DB.skills.keys()
+            all_relevant_strings += DB.items.keys()
+            all_relevant_strings += DB.classes.keys()
+            all_relevant_strings += DB.tags.keys()
+            all_relevant_strings += DB.game_var_slots.keys()
+            all_relevant_strings = list(set(all_relevant_strings))
+            editor = ComboBox(parent)
+            editor.addItems(all_relevant_strings)
+            editor.setEditable(True)
+            self.editor = editor
+            return editor

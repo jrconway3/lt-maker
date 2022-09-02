@@ -120,7 +120,10 @@ class UnitFieldValidator(EvalValidator):
         text = self.process_arg_text(text)
         level = text.count('.')
         if level == 0: # we want to select a specific unit
-            return [(None, key) for key in self._db.units.keys()] + [(None, '_unit'), (None, '_unit2')]
+            all_keys = set()
+            all_keys.update(set(self._db.units.keys()))
+            all_keys.update(set(self._db.classes.keys()))
+            return [(None, key) for key in all_keys] + [(None, '_unit'), (None, '_unit2')]
         elif level == 1:
             # we already have unit nid
             unit_nid = text.split('.')[0]
@@ -129,11 +132,17 @@ class UnitFieldValidator(EvalValidator):
                 all_keys = set()
                 for unit in self._db.units:
                     all_keys.update(set([key for (key, _) in unit.fields]))
+                for klass in self._db.classes:
+                    all_keys.update(set([key for (key, _) in klass.fields]))
                 return [(None, key) for key in all_keys]
             else:
                 unit_prefab = self._db.units.get(unit_nid)
                 if unit_prefab: # get its predefined field keys
                     return [(None, key) for (key, _) in unit_prefab.fields]
+                else: # maybe try klass?
+                    klass_prefab = self._db.classes.get(unit_nid)
+                    if klass_prefab:
+                        return [(None, key) for (key, _) in klass_prefab.fields]
         return []
 
 class VarValidator(EvalValidator):

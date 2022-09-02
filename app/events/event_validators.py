@@ -83,16 +83,28 @@ class RawDataValidator(EvalValidator):
             # we already have a raw data NID
             args = text.split('.')
             data_nid = args[0]
-            raw_data_prefab = self._db.raw_data.get(data_nid)
+            raw_data_prefab = self._db.raw_data.get_prefab(data_nid)
+            if not raw_data_prefab:
+                return []
             # are we searching, or quering a specific row?
             if args[1].startswith('[') and raw_data_prefab.dtype == 'list': # searching across column space
+                if args[1].endswith(']'): # finished searching
+                    return []
+                search_term = args[1].split(',')[-1].replace('[', '')
+                if '=' in search_term: # we're matching in column space
+                    search_col = search_term.split('=')[0]
+                    if search_col not in raw_data_prefab.oattrs:
+                        return []
+                    return [(None, getattr(row, search_col)) for row in raw_data_prefab.value.values()]
                 return [(None, oattr) for oattr in raw_data_prefab.oattrs]
             elif raw_data_prefab and raw_data_prefab.dtype in ['list', 'kv']: # searching for specific row nid
                 return [(None, key) for key in raw_data_prefab.value.keys()]
         elif level == 2:
             # this is a list type
             data_nid = text.split('.')[0]
-            raw_data_prefab = self._db.raw_data.get(data_nid)
+            raw_data_prefab = self._db.raw_data.get_prefab(data_nid)
+            if not raw_data_prefab:
+                return []
             if raw_data_prefab and raw_data_prefab.dtype == 'list': # get its columns
                 return [(None, oattr) for oattr in raw_data_prefab.oattrs]
         return []

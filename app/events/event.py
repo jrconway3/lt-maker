@@ -15,7 +15,7 @@ from app.engine.game_state import GameState
 from app.engine.objects.overworld import OverworldNodeObject
 from app.engine.objects.unit import UnitObject
 from app.engine.sound import get_sound_thread
-from app.events import event_commands
+from app.events import event_commands, triggers
 from app.events.event_portrait import EventPortrait
 from app.utilities import str_utils, utils
 from app.utilities.typing import NID
@@ -26,7 +26,7 @@ class Event():
     skippable = {"speak", "wait", "bop_portrait",
                  "sound", "location_card", "credits", "ending"}
 
-    def __init__(self, nid, commands, unit=None, unit2=None, position=None, local_args: Dict = None, game: GameState = None):
+    def __init__(self, nid, commands, trigger: triggers.EventTrigger, game: GameState = None):
         self._transition_speed = 250
         self._transition_color = (0, 0, 0)
 
@@ -36,11 +36,12 @@ class Event():
 
         self.background = None
 
-        self.unit = unit
-        self.unit2 = unit2
+        event_args = trigger.to_args()
+        self.unit = event_args.get('unit1', None)
+        self.unit2 = event_args.get('unit2', None)
         self.created_unit = None
-        self.position = position
-        self.local_args = local_args or {}
+        self.position = event_args.get('position', None)
+        self.local_args = event_args or {}
         if game:
             self.game = game
         else:
@@ -178,6 +179,10 @@ class Event():
             elif self.state == 'paused':
                 self.state = 'processing'
 
+            elif self.state == 'almost_complete':
+                if len(self.game.movement) <= 0:
+                    self.state = 'complete'
+
             elif self.state == 'complete':
                 break
 
@@ -267,7 +272,7 @@ class Event():
         return surf
 
     def end(self):
-        self.state = 'complete'
+        self.state = 'almost_complete'
 
     def process(self):
         while self.command_idx < len(self.commands) and self.state == 'processing':

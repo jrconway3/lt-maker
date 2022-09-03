@@ -23,7 +23,7 @@ from app.engine.objects.item import ItemObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.objects.unit import UnitObject
 from app.engine.sound import get_sound_thread
-from app.events import event_commands, regions
+from app.events import event_commands, regions, triggers
 from app.events.event_portrait import EventPortrait
 from app.events.speak_style import SpeakStyle
 from app.events.screen_positions import parse_screen_position
@@ -937,7 +937,7 @@ def kill_unit(self: Event, unit, flags=None):
     else:
         self.game.death.should_die(unit)
         self.game.state.change('dying')
-    self.game.events.trigger('unit_death', unit, position=unit.position)
+    self.game.events.trigger(triggers.UnitDeath(unit, None, unit.position))
     skill_system.on_death(unit)
     self.state = 'paused'
 
@@ -1348,6 +1348,23 @@ def set_item_uses(self: Event, global_unit_or_convoy, item, uses, flags=None):
     else:
         self.logger.error("set_item_uses: Item %s does not have uses!" % item.nid)
 
+def set_item_data(self: Event, global_unit_or_convoy, item, nid, expression, flags=None):
+    flags = flags or set()
+    global_unit = global_unit_or_convoy
+
+    unit, item = self._get_item_in_inventory(global_unit, item)
+    if not unit or not item:
+        self.logger.error("set_item_data: Either unit or item was invalid, see above")
+        return
+
+    try:
+        data_value = self.text_evaluator.direct_eval(expression)
+    except Exception as e:
+        self.logger.error("set_item_data: %s: Could not evaluate {%s}" % (e, expression))
+        return
+
+    action.do(action.SetObjData(item, nid, data_value))
+
 def change_item_name(self: Event, global_unit_or_convoy, item, string, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, item)
     if not unit or not item:
@@ -1385,12 +1402,11 @@ def add_item_to_multiitem(self: Event, global_unit_or_convoy, multi_item, child_
         component.item = item
     item_system.init(subitem)
     self.game.register_item(subitem)
-    if global_unit_or_convoy.lower() == 'convoy':
-        owner_nid = None
-    else:
+    owner_nid = None
+    if unit:
         owner_nid = unit.nid
-        action.do(action.AddItemToMultiItem(owner_nid, item, subitem))
-    if 'equip' in flags:
+    action.do(action.AddItemToMultiItem(owner_nid, item, subitem))
+    if 'equip' in flags and owner_nid:
         action.do(action.EquipItem(unit, subitem))
 
 def remove_item_from_multiitem(self: Event, global_unit_or_convoy, multi_item, child_item=None, flags=None):
@@ -1506,12 +1522,23 @@ def give_exp(self: Event, global_unit, experience, flags=None):
     if not unit:
         self.logger.error("give_exp: Couldn't find unit with nid %s" % global_unit)
         return
-    exp = utils.clamp(int(experience), 0, 100)
+    exp = utils.clamp(int(experience), -100, 100)
     if 'silent' in flags:
         old_exp = unit.exp
-        action.do(action.GainExp(unit, exp))
         if old_exp + exp >= 100:
-            autolevel_to(self, global_unit, unit.level + 1)
+            if unit.level < DB.classes.get(unit.klass).max_level:
+                action.do(action.GainExp(unit, exp))
+                autolevel_to(self, global_unit, unit.level + 1)
+            else:
+                action.do(action.SetExp(unit, 99))
+        elif old_exp + exp < 0:
+            if unit.level > 1:
+                action.do(action.SetExp(unit, 100 + old_exp - exp))
+                autolevel_to(self, global_unit, unit.level - 1)
+            else:
+                action.do(action.SetExp(unit, 0))
+        else:
+            action.do(action.SetExp(unit, old_exp + exp))
     else:
         self.game.exp_instance.append((unit, exp, None, 'init'))
         self.game.state.change('exp')
@@ -1707,8 +1734,8 @@ def autolevel_to(self: Event, global_unit, level, growth_method=None, flags=None
         return
     final_level = int(level)
     current_level = unit.level
-    diff = max(0, final_level - current_level)
-    if diff <= 0:
+    diff = final_level - current_level
+    if diff == 0:
         self.logger.warning("autolevel_to: Unit %s is already that level!" % global_unit)
         return
 
@@ -1716,7 +1743,7 @@ def autolevel_to(self: Event, global_unit, level, growth_method=None, flags=None
     if 'hidden' in flags:
         pass
     else:
-        action.do(action.SetLevel(unit, final_level))
+        action.do(action.SetLevel(unit, max(1, final_level)))
     if not unit.generic and DB.units.get(unit.nid):
         unit_prefab = DB.units.get(unit.nid)
         personal_skills = unit_funcs.get_personal_skills(unit, unit_prefab)
@@ -1731,9 +1758,15 @@ def set_mode_autolevels(self: Event, level, flags=None):
 
     autolevel = int(level)
     if 'hidden' in flags:
-        self.game.current_mode.enemy_autolevels = autolevel
+        if 'boss' in flags:
+            self.game.current_mode.boss_autolevels = autolevel
+        else:
+            self.game.current_mode.enemy_autolevels = autolevel
     else:
-        self.game.current_mode.enemy_truelevels = autolevel
+        if 'boss' in flags:
+            self.game.current_mode.boss_truelevels = autolevel
+        else:
+            self.game.current_mode.enemy_truelevels = autolevel
 
 def promote(self: Event, global_unit, klass=None, flags=None):
     flags = flags or set()
@@ -2232,7 +2265,7 @@ def base(self: Event, background: str, music: str = None, other_options: str = N
             for idx, is_enabled in enumerate(enabled_strs):
                 if is_enabled in self.true_vals:
                     options_enabled[idx] = True
-            action.do(action.SetGameVar('_base_options_enabled', options_enabled))
+            action.do(action.SetGameVar('_base_options_disabled', [not enabled for enabled in options_enabled]))
         else:
             self.logger.error("base: too many bools in option enabled list: ", other_options_enabled)
             return
@@ -2247,7 +2280,7 @@ def base(self: Event, background: str, music: str = None, other_options: str = N
             return
         action.do(action.SetGameVar('_base_additional_options', options_list))
     else:
-        action.do(action.SetGameVar('_base_options_enabled', []))
+        action.do(action.SetGameVar('_base_options_disabled', []))
         action.do(action.SetGameVar('_base_options_events', []))
         action.do(action.SetGameVar('_base_additional_options', []))
 

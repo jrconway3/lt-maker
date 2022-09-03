@@ -1272,6 +1272,18 @@ Sets the uses of an *Item* to *Uses* in the inventory of *GlobalUnitOrConvoy*.
 
     _flags = ["additive"]
 
+class SetItemData(EventCommand):
+    nid = 'set_item_data'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Finds the *Item* in the inventory of *GlobalUnitOrConvoy*.
+Then, it sets the data field *Nid* of the *Item* to *Expression*.
+        """
+
+    keywords = ["GlobalUnitOrConvoy", "Item", "Nid", "Expression"]
+
 class ChangeItemName(EventCommand):
     nid = 'change_item_name'
     tag = Tags.MODIFY_ITEM_PROPERTIES
@@ -1393,7 +1405,7 @@ Gives *Experience* to *GlobalUnit*.
         """
 
     keywords = ["GlobalUnit", "Experience"]
-    keyword_types = ["GlobalUnit", "PositiveInteger"]
+    keyword_types = ["GlobalUnit", "Integer"]
 
     _flags = ['silent']
 
@@ -1546,14 +1558,14 @@ class AutolevelTo(EventCommand):
 
     desc = \
         """
-Levels *GlobalUnit* up to *Level*. If *Level* is less than the unit's current level, this does nothing.
+Levels *GlobalUnit* up to *Level*.
 If *GrowthMethod* is not specified, the unit will use whatever they would normally use for the player's selected difficulty setting.
 If the *hidden* flag is set, the unit still gains the effects of the indicated level-ups, but its actual level is not incremented. In other words, the unit gets more powerful but remains at the same level.
         """
 
     keywords = ["GlobalUnit", "Level"]
     optional_keywords = ["GrowthMethod"]
-    keyword_types = ["GlobalUnit", "PositiveInteger", "GrowthMethod"]
+    keyword_types = ["GlobalUnit", "Integer", "GrowthMethod"]
     # Whether to actually change the unit's level
     _flags = ["hidden"]
 
@@ -1563,13 +1575,13 @@ class SetModeAutolevels(EventCommand):
 
     desc = \
         """
-Changes the number of additional levels that enemy units gain from the difficulty mode setting. This can be used to grant a higher number of bonus levels to enemies later in the game to maintain a resonable difficulty curve. *Level* specifies the number of levels to be granted. If the *hidden* flag is set, enemy units will still gain the effects of the indicated level-ups, but their actual level is not incremented. In other words, the units get more powerful but remains at the same level.
+Changes the number of additional levels that enemy units gain from the difficulty mode setting. This can be used to grant a higher number of bonus levels to enemies later in the game to maintain a resonable difficulty curve. *Level* specifies the number of levels to be granted. If the *hidden* flag is set, enemy units will still gain the effects of the indicated level-ups, but their actual level is not incremented. In other words, the units get more powerful but remains at the same level. If the *boss* flag is included, this will only affect units with the "Boss" tag.
         """
 
     keywords = ["Level"]
     keyword_types = ["Integer"]
     # Whether to actually change the unit's level
-    _flags = ["hidden"]
+    _flags = ["hidden", "boss"]
 
 class Promote(EventCommand):
     nid = 'promote'
@@ -2565,7 +2577,7 @@ def parse_text_to_command(text: str, strict: bool = False) -> Tuple[EventCommand
         # we do NOT want to use this with evals, hence the '{' and '}' stoppage
         if '(' in arg and ')' in arg and '{' not in arg and '}' not in arg and \
                 ('FLAG' in arg or (cmd_keyword and cmd_keyword not in evaluables and 'list' not in cmd_keyword.lower())):
-            return arg[arg.find("(") + 1 : arg.find(")")]
+            return arg[arg.find("(") + 1 : arg.rfind(")")]
         return arg
 
     def _parse_command(command: EventCommand, arguments: List[str]) -> Tuple:

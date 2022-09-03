@@ -25,7 +25,11 @@ class Defaults():
 
     @staticmethod
     def can_trade(unit1, unit2) -> bool:
-        return unit2.position and unit1.team == unit2.team and check_ally(unit1, unit2)
+        return unit1.team == unit2.team and check_ally(unit1, unit2) and not no_trade(unit1) and not no_trade(unit2)
+        
+    @staticmethod
+    def no_trade(unit) -> bool:
+        return False
 
     @staticmethod
     def num_items_offset(unit) -> int:
@@ -74,6 +78,10 @@ class Defaults():
     @staticmethod
     def change_ai(unit) -> str:
         return unit.ai
+
+    @staticmethod
+    def change_roam_ai(unit) -> str:
+        return unit.roam_ai
 
     @staticmethod
     def has_canto(unit1, unit2) -> bool:
@@ -232,6 +240,16 @@ def unit_sprite_flicker_tint(unit) -> list:
                     flicker.append(d)
     return flicker
 
+def should_draw_anim(unit) -> list:
+    avail = []
+    for skill in unit.skills:
+        for component in skill.components:
+            if component.defines('should_draw_anim'):
+                if component.ignore_conditional or condition(skill, unit):
+                    d = component.should_draw_anim(unit, skill)
+                    avail.append(d)
+    return avail
+
 def additional_tags(unit) -> set:
     new_tags = set()
     for skill in unit.skills:
@@ -364,7 +382,7 @@ def get_extra_abilities(unit):
     return abilities
 
 def get_combat_arts(unit):
-    from app.engine import item_funcs, target_system
+    from app.engine import item_funcs, target_system, action
     combat_arts = {}
     for skill in unit.skills:
         if not condition(skill, unit):
@@ -394,7 +412,12 @@ def get_combat_arts(unit):
                 elif combat_art_modify_max_range:
                     max_range = max(item_funcs.get_range(unit, weapon))
                     weapon._force_max_range = max(0, max_range + combat_art_modify_max_range)
+                # activate_combat_art(unit, skill)
+                act = action.AddSkill(unit, skill.combat_art.value)
+                act.do()
                 targets = target_system.get_valid_targets(unit, weapon)
+                act.reverse()
+                # deactivate_combat_art(unit, skill)
                 weapon._force_max_range = None
                 if targets:
                     good_weapons.append(weapon)
@@ -409,11 +432,14 @@ def activate_combat_art(unit, skill):
         if component.defines('on_activation'):
             component.on_activation(unit)
 
+def deactivate_combat_art(unit, skill):
+    for component in skill.components:
+        if component.defines('on_deactivation'):
+            component.on_deactivation(unit)
+
 def deactivate_all_combat_arts(unit):
     for skill in unit.skills:
-        for component in skill.components:
-            if component.defines('on_deactivation'):
-                component.on_deactivation(unit)
+        deactivate_combat_art(unit, skill)
 
 def on_pairup(unit, leader):
     for skill in unit.skills:

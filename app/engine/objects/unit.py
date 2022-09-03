@@ -29,6 +29,7 @@ class UnitObject(Prefab):
     persistent: bool = True
     ai: str = None
     ai_group: str = None
+    roam_ai: str = None
     faction: NID = None
     team: str = "player"
     portrait_nid: NID = None
@@ -107,6 +108,7 @@ class UnitObject(Prefab):
             self.generic = False
             self.persistent = True
             self.ai = None
+            self.roam_ai = None
             self.ai_group = None
             self.faction = None
             self.team = 'player'
@@ -114,6 +116,7 @@ class UnitObject(Prefab):
             self.generic = prefab.generic
             self.persistent = not prefab.generic
             self.ai = prefab.ai
+            self.roam_ai = prefab.roam_ai
             self.ai_group = prefab.ai_group
             self.faction = prefab.faction
             self.team = prefab.team
@@ -153,7 +156,7 @@ class UnitObject(Prefab):
             growths = prefab.growths
             self.stats = {stat_nid: bases.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
             self.growths = {stat_nid: growths.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
-            if DB.constants.value('unit_stats_as_bonus'): 
+            if DB.constants.value('unit_stats_as_bonus'):
                 klass_obj = DB.classes.get(self.klass)
                 self.stats = {stat_nid: self.stats[stat_nid] + klass_obj.bases.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
                 self.growths = {stat_nid: self.growths[stat_nid] + klass_obj.growths.get(stat_nid, 0) for stat_nid in DB.stats.keys()}
@@ -239,23 +242,29 @@ class UnitObject(Prefab):
                 unit_funcs.apply_stat_changes(self, bonus)
 
             if self.generic:
-                unit_funcs.auto_level(self, num_levels)
+                unit_funcs.auto_level(self, 1, num_levels)
             # Existing units would have leveled up different with bonus growths
             elif DB.constants.value('backpropagate_difficulty_growths'):
                 difficulty_growth_bonus = mode.get_growth_bonus(self)
                 if difficulty_growth_bonus:
-                    unit_funcs.auto_level(self, num_levels, difficulty_growths=True)
+                    unit_funcs.difficulty_auto_level(self, 1, num_levels)
 
             difficulty_autolevels = mode.get_difficulty_autolevels(self)
+            # Handle the ones that you can change in events
             if self.team.startswith('enemy'):
-                # Handle the ones that you can change in events
                 difficulty_autolevels += current_mode.enemy_autolevels
                 difficulty_autolevels += current_mode.enemy_truelevels
+            if 'Boss' in self.tags:
+                difficulty_autolevels += current_mode.boss_autolevels
+                difficulty_autolevels += current_mode.boss_truelevels
+
             if difficulty_autolevels > 0:
-                unit_funcs.auto_level(self, difficulty_autolevels, num_levels + 1)
+                unit_funcs.auto_level(self, 1, difficulty_autolevels)
+
             if self.team.startswith('enemy'):
-                difficulty_truelevels = current_mode.enemy_truelevels
-                self.level += difficulty_truelevels
+                self.level += current_mode.enemy_truelevels
+            if 'Boss' in self.tags:
+                self.level += current_mode.boss_truelevels
 
         # equip items and skill after initialization
         for skill in self.skills:
@@ -311,8 +320,6 @@ class UnitObject(Prefab):
         return equations.parser.get_gauge_inc(self)
 
     def get_field(self, key: str, default:str = None) -> str:
-        if not getattr(self, '_fields'):
-            return default
         if key in self._fields:
             return self._fields[key]
         my_klass = DB.classes.get(self.klass, None)
@@ -408,6 +415,9 @@ class UnitObject(Prefab):
     def get_ai(self):
         return skill_system.change_ai(self)
 
+    def get_roam_ai(self):
+        return skill_system.change_roam_ai(self)
+
     @property
     def accessories(self):
         return [item for item in self.items if item_system.is_accessory(self, item)]
@@ -426,6 +436,12 @@ class UnitObject(Prefab):
 
     def can_unlock(self, region) -> bool:
         return unit_funcs.can_unlock(self, region)
+
+    def get_skill(self, nid: NID):
+        skills = [skill for skill in self.skills if skill.nid == nid or skill.uid == nid]
+        if skills:
+            return skills[0]
+        return None
 
     def get_weapon(self):
         _weapon = None
@@ -630,6 +646,7 @@ class UnitObject(Prefab):
                   'generic': self.generic,
                   'persistent': self.persistent,
                   'ai': self.ai,
+                  'roam_ai': self.roam_ai,
                   'ai_group': self.ai_group,
                   'items': [item.uid for item in self.items],
                   'name': self.name,
@@ -676,6 +693,7 @@ class UnitObject(Prefab):
         self.persistent = s_dict.get('persistent', not s_dict.get('generic'))
 
         self.ai = s_dict['ai']
+        self.roam_ai = s_dict.get('roam_ai', None)
         self.ai_group = s_dict.get('ai_group', None)
 
         self.items = [game.get_item(item_uid) for item_uid in s_dict['items']]

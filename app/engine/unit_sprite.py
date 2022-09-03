@@ -136,11 +136,11 @@ class UnitSprite():
             return int(round(self.fake_position[0])), int(round(self.fake_position[1]))
         return None
 
-    def add_animation(self, anim, loop=True):
+    def add_animation(self, anim, loop=True, contingent=False):
         if isinstance(anim, str):
             anim = RESOURCES.animations.get(anim)
             if anim:
-                anim = Animation(anim, (-16, -16), loop=loop)
+                anim = Animation(anim, (-16, -16), loop=loop, contingent=contingent)
             else:
                 return
         if anim.nid in self.animations.keys():
@@ -503,9 +503,12 @@ class UnitSprite():
             surf.blit(image, topleft)
 
         # Draw animations
+
+        valid_anims: list = skill_system.should_draw_anim(self.unit)
         self.animations = {k: v for (k, v) in self.animations.items() if not v.update()}
         for animation in self.animations.values():
-            animation.draw(surf, (left, anim_top))
+            if not animation.contingent or animation.nid in valid_anims:
+                animation.draw(surf, (left, anim_top))
 
         # Draw personal particles
         self.particles = [ps for ps in self.particles if not ps.remove_me_flag]
@@ -546,7 +549,10 @@ class UnitSprite():
             markers.append('talk')
         elif (cur_unit.nid, self.unit.nid) in game.talk_options:
             markers.append('talk')
-        if game.level.roam and game.state.current() == 'free_roam' and game.state.state[-1].can_visit():
+        if (game.level.roam and game.state.current() == 'free_roam' and
+            game.state.state[-1].can_visit() and
+            game.state.state[-1].roam_unit and
+            game.state.state[-1].roam_unit.nid == self.unit.nid):
             markers.append('interact')
         if cur_unit.team == 'player':
             for item in item_funcs.get_all_items(self.unit):

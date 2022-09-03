@@ -1,30 +1,28 @@
-from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, TILEX, TILEY
-from app.resources.resources import RESOURCES
-from app.data.database import DB
+import logging
 
-from app.engine.sprites import SPRITES
-from app.engine.fonts import FONT
-
-from app.utilities import utils
 import app.engine.config as cf
-
-from app.engine.combat.solver import CombatPhaseSolver
-
-from app.engine.sound import get_sound_thread
-from app.engine import engine, combat_calcs, gui, action, battle_animation, \
-    item_system, skill_system, icons, item_funcs, background, image_mods
-from app.engine.health_bar import CombatHealthBar
-from app.engine.game_state import game
+from app.constants import (TILEHEIGHT, TILEWIDTH, TILEX, TILEY, WINHEIGHT,
+                           WINWIDTH)
+from app.data.database import DB
+from app.engine import (action, background, battle_animation, combat_calcs,
+                        engine, gui, icons, image_mods, item_funcs,
+                        item_system, skill_system)
 from app.engine.combat import playback as pb
-
+from app.engine.combat.base_combat import BaseCombat
+from app.engine.combat.map_combat import MapCombat
+from app.engine.combat.mock_combat import MockCombat
+from app.engine.combat.solver import CombatPhaseSolver
+from app.engine.fonts import FONT
+from app.engine.game_state import game
+from app.engine.health_bar import CombatHealthBar
 from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
+from app.engine.sound import get_sound_thread
+from app.engine.sprites import SPRITES
+from app.events import triggers
+from app.resources.resources import RESOURCES
+from app.utilities import utils
 
-from app.engine.combat.map_combat import MapCombat
-from app.engine.combat.base_combat import BaseCombat
-from app.engine.combat.mock_combat import MockCombat
-
-import logging
 
 class AnimationCombat(BaseCombat, MockCombat):
     alerts: bool = True
@@ -705,6 +703,18 @@ class AnimationCombat(BaseCombat, MockCombat):
             a_crit = 0
         a_stats = a_hit, a_mt, a_crit
 
+        if self.attacker.strike_partner:
+            attacker = self.attacker.strike_partner
+            ap_hit = combat_calcs.compute_hit(attacker, self.defender, attacker.get_weapon(), self.def_item, 'attack', self.state_machine.get_attack_info())
+            ap_mt = combat_calcs.compute_damage(attacker, self.defender, attacker.get_weapon(), self.def_item, 'attack', self.state_machine.get_attack_info(), assist=True)
+            if DB.constants.value('crit'):
+                ap_crit = combat_calcs.compute_crit(attacker, self.defender, attacker.get_weapon(), self.def_item, 'attack', self.state_machine.get_attack_info())
+            else:
+                ap_crit = 0
+            ap_stats = ap_hit, ap_mt, ap_crit
+        else:
+            ap_stats = 0, 0, 0
+
         if self.def_item and combat_calcs.can_counterattack(self.attacker, self.main_item, self.defender, self.def_item):
             d_hit = combat_calcs.compute_hit(self.defender, self.attacker, self.def_item, self.main_item, 'defense', self.state_machine.get_defense_info())
             d_mt = combat_calcs.compute_damage(self.defender, self.attacker, self.def_item, self.main_item, 'defense', self.state_machine.get_defense_info())
@@ -713,15 +723,38 @@ class AnimationCombat(BaseCombat, MockCombat):
             else:
                 d_crit = 0
             d_stats = d_hit, d_mt, d_crit
+
+            if self.defender.strike_partner:
+                defender = self.defender.strike_partner
+                dp_hit = combat_calcs.compute_hit(defender, self.attacker, defender.get_weapon(), self.main_item, 'defense', self.state_machine.get_defense_info())
+                dp_mt = combat_calcs.compute_damage(defender, self.attacker, defender.get_weapon(), self.main_item, 'defense', self.state_machine.get_defense_info(), assist=True)
+                if DB.constants.value('crit'):
+                    dp_crit = combat_calcs.compute_crit(defender, self.attacker, defender.get_weapon(), self.main_item, 'defense', self.state_machine.get_defense_info())
+                else:
+                    dp_crit = 0
+                dp_stats = dp_hit, dp_mt, dp_crit
+            else:
+                dp_stats = 0, 0, 0
         else:
             d_stats = None
+            dp_stats = None
+
+        if self.get_from_playback('attacker_partner_phase'):
+            ta_stats = ap_stats
+        else:
+            ta_stats = a_stats
+
+        if self.get_from_playback('defender_partner_phase'):
+            td_stats = dp_stats
+        else:
+            td_stats = d_stats
 
         if self.attacker is self.right:
-            self.left_stats = d_stats
-            self.right_stats = a_stats
+            self.left_stats = td_stats
+            self.right_stats = ta_stats
         else:
-            self.left_stats = a_stats
-            self.right_stats = d_stats
+            self.left_stats = ta_stats
+            self.right_stats = td_stats
 
     def set_up_pre_proc_animation(self, mark_type):
         marks = self.get_from_full_playback(mark_type)
@@ -1080,7 +1113,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         self.turnwheel_death_messages(all_units)
 
         self.handle_state_stack()
-        game.events.trigger('combat_end', self.attacker, self.defender, self.attacker.position, {'item': self.main_item})
+        game.events.trigger(triggers.CombatEnd(self.attacker, self.defender, self.attacker.position, self.main_item))
         self.handle_item_gain(all_units)
 
         pairs = self.handle_supports(all_units)

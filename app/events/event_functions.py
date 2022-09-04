@@ -1768,14 +1768,19 @@ def set_mode_autolevels(self: Event, level, flags=None):
         else:
             self.game.current_mode.enemy_truelevels = autolevel
 
-def promote(self: Event, global_unit, klass=None, flags=None):
+def promote(self: Event, global_unit, klass_list=None, flags=None):
     flags = flags or set()
     unit = self._get_unit(global_unit)
     if not unit:
         self.logger.error("promote: Couldn't find unit %s" % global_unit)
         return
-    if klass:
-        new_klass = klass
+    if klass_list:
+        s_klass = klass_list.split(',')
+        if len(s_klass) == 1:
+            new_klass = s_klass[0]
+        else:
+            self.game.memory['promo_options'] = s_klass
+            new_klass = None
     else:
         klass = DB.classes.get(unit.klass)
         if len(klass.turns_into) == 0:
@@ -1788,7 +1793,14 @@ def promote(self: Event, global_unit, klass=None, flags=None):
 
     self.game.memory['current_unit'] = unit
     silent = 'silent' in flags
-    if silent and new_klass:
+    if silent and self.game.memory.get('promo_options', False):
+        self.logger.error("promote: silent flag set with multiple klass options!")
+        return
+    elif self.game.memory.get('promo_options', False):
+        self.game.state.change('promotion_choice')
+        self.game.state.change('transition_out')
+        self.state = 'paused'
+    elif silent and new_klass:
         swap_class = action.Promote(unit, new_klass)
         action.do(swap_class)
         #check for new class skill

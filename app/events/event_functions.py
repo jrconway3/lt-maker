@@ -2538,6 +2538,7 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
         if anim_dir == 'fade':
             enter_anim = fade_anim(0, 1, 1000)
             exit_anim = fade_anim(1, 0, 1000)
+            component.margin = (x, y, 0, 0)
         else:
             if anim_dir == 'west':
                 start_x = -component.width
@@ -2555,7 +2556,8 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
             exit_anim = translate_anim((x, y), (start_x, start_y), 750, disable_after=True, interp_mode=InterpolationType.CUBIC)
         component.save_animation(enter_anim, '!enter')
         component.save_animation(exit_anim, '!exit')
-
+    else:
+        component.margin = (x, y, 0, 0)
     self.overlay_ui.add_child(component)
     if self.do_skip:
         component.enable()

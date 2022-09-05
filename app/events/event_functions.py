@@ -1793,10 +1793,9 @@ def promote(self: Event, global_unit, klass_list=None, flags=None):
 
     self.game.memory['current_unit'] = unit
     silent = 'silent' in flags
-    if silent and self.game.memory.get('promo_options', False):
-        self.logger.error("promote: silent flag set with multiple klass options!")
-        return
-    elif self.game.memory.get('promo_options', False):
+    if self.game.memory.get('promo_options', False):
+        if silent:
+            self.logger.warning("promote: silent flag set with multiple klass options. Silent will be ignored.")
         self.game.state.change('promotion_choice')
         self.game.state.change('transition_out')
         self.state = 'paused'

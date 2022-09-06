@@ -2115,12 +2115,17 @@ def map_anim(self: Event, map_anim, float_position, speed=None, flags=None):
         speed_mult = float(speed)
     else:
         speed_mult = 1
+    mode = engine.BlendMode.NONE
+    if 'blend' in flags:
+        mode = engine.BlendMode.BLEND_RGB_ADD
+    elif 'multiply' in flags:
+        mode = engine.BlendMode.BLEND_RGB_MULT
     if 'permanent' in flags:
-        action.do(action.AddMapAnim(map_anim, pos, speed_mult, 'blend' in flags))
+        action.do(action.AddMapAnim(map_anim, pos, speed_mult, mode, 'overlay' in flags))
     else:
         anim = RESOURCES.animations.get(map_anim)
         anim = MapAnimation(anim, pos, speed_adj=speed_mult)
-        anim.set_tint('blend' in flags)
+        anim.set_tint(mode)
         self.animations.append(anim)
 
     if 'no_block' in flags or self.do_skip or 'permanent' in flags:

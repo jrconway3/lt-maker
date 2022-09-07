@@ -714,6 +714,9 @@ class GameState():
     def get_enemy_units(self) -> List[UnitObject]:
         return [unit for unit in self.get_all_units() if unit.team.startswith('enemy')]
 
+    def get_enemy1_units(self) -> List[UnitObject]:
+        return [unit for unit in self.get_all_units() if unit.team == 'enemy']
+
     def get_enemy2_units(self) -> List[UnitObject]:
         return [unit for unit in self.get_all_units() if unit.team == 'enemy2']
 

@@ -20,6 +20,7 @@ class ObjectiveMenuState(State):
         self.bg = background.create_background('settings_background')
         self.surfaces = self.get_surfaces()
         self.fluid = FluidScroll()
+        self.menu.set_mode('objective_menu')
 
         game.state.change('transition_in')
         return 'repeat'
@@ -35,8 +36,11 @@ class ObjectiveMenuState(State):
         surfaces.append((name_back_surf, (24, 2)))
 
         # Background
-        back_surf = base_surf.create_base_surf(WINWIDTH - 8, 24, 'menu_bg_white')
-        surfaces.append((back_surf, (4, 34)))
+        def bg_surf(x, y, pos, menu_bg=None):
+            back_surf = base_surf.create_base_surf(WINWIDTH - x, y, menu_bg)
+            surfaces.append((back_surf, pos))
+
+        bg_surf(8, 24, (4, 34), 'menu_bg_white')
 
         # Get words
         golden_words_surf = SPRITES.get('golden_words')
@@ -52,18 +56,18 @@ class ObjectiveMenuState(State):
         surfaces.append((playtime_surf, (2*WINWIDTH//3 + 6, 39)))
         # Get G
         g_surf = engine.subsurface(golden_words_surf, (40, 47, 9, 12))
-        surfaces.append((g_surf, (2*WINWIDTH//3 - 8 - 1, 40)))
+        surfaces.append((g_surf, (2*WINWIDTH//3 - 9, 40)))
+
+        def top_surf(a, pos, game_get=None):
+            count_size = FONT['text-blue'].width(str(game_get)) + 1, FONT['text-blue'].height
+            count_surf = engine.create_surface(count_size, transparent=True)
+            FONT['text-blue'].blit(str(game_get), count_surf, (0, 0))
+            surfaces.append((count_surf, (a*WINWIDTH//3 - pos[0] - count_surf.get_width(), pos[1])))
         # TurnCountSurf
-        turn_count_size = FONT['text-blue'].width(str(game.turncount)) + 1, FONT['text-blue'].height
-        turn_count_surf = engine.create_surface(turn_count_size, transparent=True)
-        FONT['text-blue'].blit(str(game.turncount), turn_count_surf, (0, 0))
-        surfaces.append((turn_count_surf, (WINWIDTH//3 - 16 - turn_count_surf.get_width(), 38)))
+        top_surf(1, (16, 38), game.turncount)
+
         # MoneySurf
-        money = str(game.get_money())
-        money_size = FONT['text-blue'].width(money) + 1, FONT['text-blue'].height
-        money_surf = engine.create_surface(money_size, transparent=True)
-        FONT['text-blue'].blit(money, money_surf, (0, 0))
-        surfaces.append((money_surf, (2*WINWIDTH//3 - 12 - money_surf.get_width(), 38)))
+        top_surf(2, (12, 38), game.get_money())
 
         # Get win and loss conditions
         win_con = game.level.objective['win']
@@ -77,117 +81,77 @@ class ObjectiveMenuState(State):
         loss_lines = [line.replace('{comma}', ',') for line in loss_lines]
 
         self.topleft = (4, 60)
-        self.menu = menus.ObjMenu(None, win_lines+loss_lines, (6, 1), self.topleft)
-
-        """hold_surf = base_surf.create_base_surf(WINWIDTH - 16, 40 + 16*len(win_lines) + 16 * len(loss_lines))
-        shimmer = SPRITES.get('menu_shimmer2')
-        hold_surf.blit(shimmer, (hold_surf.get_width() - 1 - shimmer.get_width(), hold_surf.get_height() - shimmer.get_height() - 5))
-
-        # Win cons
-        hold_surf.blit(SPRITES.get('lowlight'), (2, 12))
-
-        FONT['text-yellow'].blit(text_funcs.translate('Win Conditions'), hold_surf, (4, 4))
-
-        for idx, win_con in enumerate(win_lines):
-            FONT['text'].blit(win_con, hold_surf, (8, 20 + 16*idx))
-
-        hold_surf.blit(SPRITES.get('lowlight'), (2, 28 + 16*len(win_lines)))
-
-        FONT['text-yellow'].blit(text_funcs.translate('Loss Conditions'), hold_surf, (4, 20 + 16*len(win_lines)))
-
-        for idx, loss_con in enumerate(loss_lines):
-            FONT['text'].blit(loss_con, hold_surf, (8, 36 + 16*len(win_lines) + idx*16))
-
-        surfaces.append((hold_surf, (8, 34 + back_surf.get_height() + 2)))"""
+        self.menu = menus.Table(None, win_lines+loss_lines, (6, 1), self.topleft)
 
         seed = str(game.game_vars['_random_seed'])
         seed_surf = engine.create_surface((28, 16), transparent=True)
         FONT['text-numbers'].blit_center(seed, seed_surf, (14, 0))
         surfaces.append((seed_surf, (WINWIDTH - 28, 4)))
 
+        # Functions for Unit Count per Party
+        def bg_units_surf(pos, menu_bg=None, shimmer=None):
+            bgsurf = base_surf.create_base_surf(WINWIDTH - 192, 24, menu_bg)
+            shimmer = SPRITES.get(shimmer)
+            bgsurf.blit(shimmer, (bgsurf.get_width() - 1 - shimmer.get_width(), bgsurf.get_height() - shimmer.get_height() - 5))
+            surfaces.append((bgsurf, (pos)))
+        def party_golden_words_surf(x, y, w, h, pos, winw=False):
+            party_surf = engine.subsurface(golden_words_surf, (x, y, w, h))
+            if winw == True:
+                surfaces.append((party_surf, (WINWIDTH - pos[0], pos[1])))
+            else:
+                surfaces.append((party_surf, (pos[0], pos[1])))
+        def unit_count_surf(pos, get_units=None):
+            count_size = FONT['text-blue'].width(str(len(get_units))) + 6, FONT['text-blue'].height
+            countsurf = engine.create_surface(count_size, transparent=True)
+            if len(get_units) > 0:
+                FONT['text-blue'].blit(str(len(get_units)), countsurf, (5, 0))
+            else:
+                FONT['text-blue'].blit("--", countsurf, (0, 0))
+            surfaces.append((countsurf, (WINWIDTH - pos[0] - countsurf.get_width(), pos[1])))
+
         # PlayerUnits
-        playerbg_surf = base_surf.create_base_surf(WINWIDTH - 192, 24)
-        shimmerp = SPRITES.get('menu_shimmer1')
-        playerbg_surf.blit(shimmerp, (playerbg_surf.get_width() - 1 - shimmerp.get_width(), playerbg_surf.get_height() - shimmerp.get_height() - 5))
-        surfaces.append((playerbg_surf, (132, 60)))
-        player_surf = engine.subsurface(golden_words_surf, (56, 12, 40, 8))
-        surfaces.append((player_surf, (WINWIDTH - 104, 57)))
-        p_count_size = FONT['text-blue'].width(str(len(game.get_player_units()))) + 1, FONT['text-blue'].height
-        p_count_surf = engine.create_surface(p_count_size, transparent=True)
-        FONT['text-blue'].blit(str(len(game.get_player_units())), p_count_surf, (0, 0))
-        surfaces.append((p_count_surf, (WINWIDTH - 75 - p_count_surf.get_width(), 62)))
+        bg_units_surf((132, 60),"menu_bg_base","menu_shimmer1")
+        party_golden_words_surf(56, 12, 40, 8, (104, 57), True)
+        unit_count_surf((75, 62), game.get_player_units())
 
         # OtherUnits
-        otherbg_surf = base_surf.create_base_surf(WINWIDTH - 192, 24, 'menu_bg_green')
-        shimmero = SPRITES.get('menu_shimmer_green')
-        otherbg_surf.blit(shimmero, (otherbg_surf.get_width() - 1 - shimmero.get_width(), otherbg_surf.get_height() - shimmero.get_height() - 5))
-        surfaces.append((otherbg_surf, (132, 80)))
-        other_surf = engine.subsurface(golden_words_surf, (56, 36, 40, 8))
-        surfaces.append((other_surf, (WINWIDTH - 104, 77)))
-        o_count_size = FONT['text-blue'].width(str(len(game.get_other_units()))) + 6, FONT['text-blue'].height
-        o_count_surf = engine.create_surface(o_count_size, transparent=True)
-        if len(game.get_other_units()) > 0:
-            FONT['text-blue'].blit(str(len(game.get_other_units())), o_count_surf, (5, 0))
-        else:
-            FONT['text-blue'].blit("--", o_count_surf, (0, 0))
-        surfaces.append((o_count_surf, (WINWIDTH - 75 - o_count_surf.get_width(), 82)))
+        bg_units_surf((132, 80),"menu_bg_green","menu_shimmer_green")
+        party_golden_words_surf(56, 36, 40, 8, (104, 77), True)
+        unit_count_surf((75, 82), game.get_other_units())
 
         # EnemyUnits
-        enemyu = len(game.get_enemy_units())
-        enemy2u = len(game.get_enemy2_units())
-        redunits = enemyu - enemy2u
-
-        enemybg_surf = base_surf.create_base_surf(WINWIDTH - 192, 24, 'menu_bg_red')
-        shimmere = SPRITES.get('menu_shimmer_red')
-        enemybg_surf.blit(shimmere, (enemybg_surf.get_width() - 1 - shimmere.get_width(), enemybg_surf.get_height() - shimmere.get_height() - 5))
-        surfaces.append((enemybg_surf, (188, 60)))
-        enemy_surf = engine.subsurface(golden_words_surf, (56, 20, 40, 8))
-        surfaces.append((enemy_surf, (WINWIDTH - 48, 57)))
-        e_count_size = FONT['text-blue'].width(str(redunits)) + 6, FONT['text-blue'].height
-        e_count_surf = engine.create_surface(e_count_size, transparent=True)
-        if redunits > 0:
-            FONT['text-blue'].blit(str(redunits), e_count_surf, (5, 0))
-        else:
-            FONT['text-blue'].blit("--", e_count_surf, (0, 0))
-        surfaces.append((e_count_surf, (WINWIDTH - 16 - e_count_surf.get_width(), 62)))
+        bg_units_surf((188, 60),"menu_bg_red","menu_shimmer_red")
+        party_golden_words_surf(56, 20, 40, 8, (48, 57), True)
+        unit_count_surf((16, 62), game.get_enemy1_units())
 
         # Enemy2Units
-        enemy2bg_surf = base_surf.create_base_surf(WINWIDTH - 192, 24, 'menu_bg_purple')
-        shimmere2 = SPRITES.get('menu_shimmer_purple')
-        enemy2bg_surf.blit(shimmere2, (enemy2bg_surf.get_width() - 1 - shimmere2.get_width(), enemy2bg_surf.get_height() - shimmere2.get_height() - 5))
-        surfaces.append((enemy2bg_surf, (188, 80)))
-        e2_count_size = FONT['text-blue'].width(str(len(game.get_enemy2_units()))) + 6, FONT['text-blue'].height
-        e2_count_surf = engine.create_surface(e2_count_size, transparent=True)
-        if len(game.get_enemy2_units()) > 0:
-            FONT['text-blue'].blit(str(len(game.get_enemy2_units())), e2_count_surf, (5, 0))
-        else:
-            FONT['text-blue'].blit("--", e2_count_surf, (0, 0))
-        surfaces.append((e2_count_surf, (WINWIDTH - 16 - e2_count_surf.get_width(), 82)))
+        bg_units_surf((188, 80),"menu_bg_purple","menu_shimmer_purple")
+        unit_count_surf((16, 82), game.get_enemy2_units())
 
-        # Unit info bg
-        back_surf = base_surf.create_base_surf(WINWIDTH - 136, 62, 'menu_bg_white')
-        surfaces.append((back_surf, (132, 100)))
+        # Party Leader info bg
+        bg_surf(136, 62, (132, 100), 'menu_bg_white')
 
         # ChibiPortraitSurf
         chibi = engine.create_surface((96, WINHEIGHT + 24), transparent=True)
         icons.draw_chibi(chibi, game.get_unit(game.get_party().leader_nid).portrait_nid, (7, 8))
         surfaces.append((chibi, (WINWIDTH - 44, 111)))
 
-        # UnitStatSurf
-        Name_size = FONT['text-white'].width(str(game.get_unit(game.get_party().leader_nid).name)) + 1, FONT['text-white'].height
-        Name_surf = engine.create_surface(Name_size, transparent=True)
-        FONT['text-white'].blit(str(game.get_unit(game.get_party().leader_nid).name), Name_surf, (0, 0))
-        surfaces.append((Name_surf, (WINWIDTH - 42 - Name_surf.get_width(), 104)))
+        # PartyLeaderSurf stats function
+        def party_leader_surf(pos, font=None, game_get=None):
+            size = FONT[font].width(str(game_get)) + 1, FONT[font].height
+            surf = engine.create_surface(size, transparent=True)
+            FONT[font].blit(str(game_get), surf, (0, 0))
+            surfaces.append((surf, (WINWIDTH - pos[0] - surf.get_width(), pos[1])))
 
-        LV_surf = engine.subsurface(golden_words_surf, (0, 48, 16, 24))
-        surfaces.append((LV_surf, (140, 122)))
-        level_size = FONT['text-blue'].width(str(game.get_unit(game.get_party().leader_nid).level)) + 1, FONT['text-blue'].height
-        level_surf = engine.create_surface(level_size, transparent=True)
-        FONT['text-blue'].blit(str(game.get_unit(game.get_party().leader_nid).level), level_surf, (0, 0))
-        surfaces.append((level_surf, (WINWIDTH - 42 - level_surf.get_width(), 120)))
+        # Party Leader Name surf
+        party_leader_surf((42, 104), 'text-white', game.get_unit(game.get_party().leader_nid).name)
 
-        HP_surf = engine.subsurface(golden_words_surf, (16, 48, 20, 24))
-        surfaces.append((HP_surf, (140, 136)))
+        #Party Leader Level Surf
+        party_golden_words_surf(0, 48, 16, 24, (140, 122))
+        party_leader_surf((42, 120), 'text-blue', game.get_unit(game.get_party().leader_nid).level)
+
+        #Party Leader HP Surf
+        party_golden_words_surf(16, 48, 20, 24, (140, 136))
         HitPoints_size = FONT['text-blue'].width(str(game.get_unit(game.get_party().leader_nid).get_hp())) + 20, FONT['text-blue'].height
         HitPoints_surf = engine.create_surface(HitPoints_size, transparent=True)
         FONT['text-blue'].blit(str(game.get_unit(game.get_party().leader_nid).get_max_hp()) + '/' + str(game.get_unit(game.get_party().leader_nid).get_hp()), HitPoints_surf, (0, 0))
@@ -203,8 +167,8 @@ class ObjectiveMenuState(State):
             self.menu.move_down(first_push)
             get_sound_thread().play_sfx('Select 6')
         elif 'UP' in directions:
-            get_sound_thread().play_sfx('Select 6')
             self.menu.move_up(first_push)
+            get_sound_thread().play_sfx('Select 6')
         if event == 'BACK':
             get_sound_thread().play_sfx('Select 4')
             game.state.back()

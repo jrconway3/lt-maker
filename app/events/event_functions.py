@@ -2631,7 +2631,7 @@ def location_card(self: Event, string, flags=None):
 def credits(self: Event, role, credits, flags=None):
     flags = flags or set()
 
-    title = role
+    title = role or ''
     credits = credits.split(',') if 'no_split' not in flags else [credits]
     wait = 'wait' in flags
     center = 'center' in flags

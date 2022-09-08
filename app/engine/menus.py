@@ -1237,7 +1237,6 @@ class Table(Simple):
                 top = topleft[1] + 4 + (idx // self.columns * height)
                 left = topleft[0] + (idx % self.columns * width)
                 if self.mode == 'objective_menu':
-                #
                     win_con = game.level.objective['win']
                     win_count = str(win_con).count(',')
                     if idx + (self.scroll * self.columns) < self.takes_input:
@@ -1256,7 +1255,6 @@ class Table(Simple):
                             surf.blit(SPRITES.get('lowlight'), (topleft[0] + 2, topleft[1] + 12 + (win_count - self.scroll + 2) * 16))
                             FONT['text-yellow'].blit("Loss Conditions", surf, (topleft[0] + 4, topleft[1] + 4 + (win_count - self.scroll + 2) * 16))
                     choice.draw(surf, left, top)
-                #
                 else:
                     if self.mode in ('unit', 'prep_manage'):
                         left += 16

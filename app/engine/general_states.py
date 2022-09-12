@@ -555,7 +555,10 @@ class MoveState(MapState):
                 else:
                     witch_warp = set(skill_system.witch_warp(cur_unit))
                     if cur_unit.has_attacked or cur_unit.has_traded:
-                        cur_unit.current_move = action.CantoMove(cur_unit, game.cursor.position)
+                        if game.cursor.position in witch_warp:
+                            cur_unit.current_move = action.Warp(cur_unit, game.cursor.position)
+                        else:
+                            cur_unit.current_move = action.CantoMove(cur_unit, game.cursor.position)
                         game.state.change('canto_wait')
                     elif game.cursor.position in witch_warp:
                         cur_unit.current_move = action.Warp(cur_unit, game.cursor.position)

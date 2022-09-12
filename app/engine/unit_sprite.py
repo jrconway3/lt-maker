@@ -170,8 +170,8 @@ class UnitSprite():
             anim_trans.sprite = image_mods.make_translucent(anim_trans.sprite, .33)
             self.animations[nid] = anim_trans
             anim_blend = Animation(anim, (-7, -24), reverse=reverse)
-            anim_blend.set_tint(True)
-            self.animations[nid] = anim_blend
+            anim_blend.set_tint(engine.BlendMode.BLEND_RGB_ADD)
+            self.animations[nid + '_blend'] = anim_blend
 
     def add_warp_flowers(self, reverse=False):
         ps = particles.ParticleSystem('warp_flower', particles.WarpFlower, -1, (-1, -1, -1, -1), (-1, -1))

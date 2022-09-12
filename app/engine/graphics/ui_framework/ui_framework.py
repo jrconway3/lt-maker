@@ -664,6 +664,7 @@ class UIComponent():
 
     def to_surf(self, no_cull=False, should_not_cull_on_redraw=True) -> engine.Surface:
         if not self.enabled:
+            print("self is not enabled", self.name)
             self._should_redraw = False
             return engine.create_surface(self.size, True)
         if self.is_root:
@@ -691,6 +692,8 @@ class UIComponent():
             # position and then draw all children recursively according to our layout
             child_surfs = []
             for child in self.children: # draw first to allow the child to update itself
+                if self._logging:
+                    print("Adding child %s" % child.name)
                 child_surfs.append(child.to_surf())
             child_positions = self.layout_handler.generate_child_positions(should_not_cull_on_redraw)
             for idx, child in enumerate(self.children):

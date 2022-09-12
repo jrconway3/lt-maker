@@ -120,7 +120,6 @@ class UnitObject(Prefab):
             self.ai_group = prefab.ai_group
             self.faction = prefab.faction
             self.team = prefab.team
-
         self.portrait_nid = prefab.portrait_nid if not self.generic else None
         self.affinity = prefab.affinity if not self.generic else None
         self.notes = [(n[0], n[1]) for n in prefab.unit_notes] if not self.generic else []

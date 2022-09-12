@@ -2597,8 +2597,10 @@ def remove_overlay_sprite(self: Event, nid, flags=None):
     component = self.overlay_ui.get_child(nid)
     if component:
         if self.do_skip:
+            self.overlay_ui._should_redraw = True
             component.disable()
         else:
+            self.overlay_ui._should_redraw = True
             component.exit()
             if component.is_animating() and 'no_block' not in flags:
                 self.wait_time = engine.get_time() + 750

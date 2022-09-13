@@ -584,12 +584,8 @@ class Event():
             self.logger.warning("Could not find level unit prefab for unit with nid: %s", unit_nid)
             return None
         new_nid = str_utils.get_next_int(level_unit_prefab.nid, self.game.unit_registry.keys())
-        level_unit_prefab.nid = new_nid
-        was_generic = level_unit_prefab.generic
-        level_unit_prefab.generic = True
         new_unit = UnitObject.from_prefab(level_unit_prefab, self.game.current_mode)
-        level_unit_prefab.nid = unit_nid  # Set back to old nid
-        level_unit_prefab.nid = was_generic  # Set back to old genericity
+        new_unit.nid = new_nid
         new_unit.position = None
         new_unit.dead = False
         new_unit.party = self.game.current_party

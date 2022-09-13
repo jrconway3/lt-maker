@@ -68,9 +68,9 @@ class AchievementManager():
                 return a
         return None
 
-    def add_achievement(self, nid: str, name:str, desc: str, complete=0):
+    def add_achievement(self, nid: str, name:str, desc: str, complete=False, hidden=False):
         if not self.achievement_defined(nid):
-            self.achievements.append(Achievement(nid, name, desc, complete))
+            self.achievements.append(Achievement(nid, name, desc, complete, hidden))
         else:
             logging.info("Attempted to define already existing achievement with nid %s", nid)
         self.save_achievements()
@@ -90,6 +90,7 @@ class AchievementManager():
                 self.achievements.remove(a)
                 self.save_achievements()
                 return
+        logging.info("Attempted to remove non-existant achievement with nid %s", nid)
 
     def check_achievement(self, nid: str) -> bool:
         for a in self.achievements:
@@ -103,6 +104,7 @@ class AchievementManager():
                 a.set_complete(complete)
                 self.save_achievements()
                 return
+        logging.info("Attempted to complete non-existant achievement with nid %s", nid)
 
     def save_achievements(self):
         logging.info("Saving achievements to %s", self.location)

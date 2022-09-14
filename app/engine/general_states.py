@@ -335,6 +335,14 @@ class OptionMenuState(MapState):
         self.menu = menus.Choice(None, options, info=info_desc)
         self.menu.set_ignore(ignore)
 
+    def begin(self):
+        if game.memory.get('next_state') in ('objective_menu', 'settings_menu', 'base_guide', 'unit_menu'):
+            game.state.change('transition_in')
+            game.memory['next_state'] = None
+            return 'repeat'
+        else:
+            game.memory['next_state'] = None
+
     def take_input(self, event):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()

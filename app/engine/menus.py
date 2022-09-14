@@ -1061,7 +1061,7 @@ class Table(Simple):
         idx = old_index
         while True:
             if self.mode in 'objective_menu':
-                row += 6
+                row += 5
             else:
                 row += 1
             if self._exists(row, col):
@@ -1072,8 +1072,8 @@ class Table(Simple):
             else:
                 break
             idx = self._idx_coords(row, col)
-            if row > self.scroll + self.rows - 6 and self.mode in 'objective_menu':
-                self.scroll += 6
+            if row > self.scroll + self.rows - 5 and self.mode in 'objective_menu':
+                self.scroll += 5
             elif row > self.scroll + self.rows - 2:
                 self.scroll += 1
             elif row != 0:
@@ -1095,7 +1095,7 @@ class Table(Simple):
         idx = old_index
         while True:
             if self.mode in 'objective_menu':
-                row -= 6
+                row -= 5
             else:
                 row -= 1
             if self._exists(row, col):
@@ -1107,8 +1107,8 @@ class Table(Simple):
             else:
                 break
             idx = self._idx_coords(row, col)
-            if row < self.scroll + 5 and self.mode in 'objective_menu':
-                self.scroll -= 6
+            if row < self.scroll + 4 and self.mode in 'objective_menu':
+                self.scroll -= 5
             elif row < self.scroll + 1:
                 self.scroll -= 1
             elif row != self._get_bottom(col):

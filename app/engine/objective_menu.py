@@ -171,7 +171,8 @@ class ObjectiveMenuState(State):
             get_sound_thread().play_sfx('Select 6')
         if event == 'BACK':
             get_sound_thread().play_sfx('Select 4')
-            game.state.back()
+            # game.state.back()
+            game.state.change('transition_pop')
 
     def update(self):
         if self.menu:

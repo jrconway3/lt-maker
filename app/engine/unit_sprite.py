@@ -340,8 +340,8 @@ class UnitSprite():
             last_update = game.movement.get_last_update(self.unit.nid)
             current_time = engine.get_time()
             dt = current_time - last_update
-            self.offset[0] = int(TILEWIDTH * dt / self.speed * self.net_position[0])
-            self.offset[1] = int(TILEHEIGHT * dt / self.speed * self.net_position[1])
+            self.offset[0] = int(TILEWIDTH * dt / max(self.speed, 1) * self.net_position[0])
+            self.offset[1] = int(TILEHEIGHT * dt / max(self.speed, 1) * self.net_position[1])
             self.handle_net_position(self.net_position)
         elif self.state == 'fake_transition_in':
             if self.offset[0] > 0:

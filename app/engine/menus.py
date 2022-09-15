@@ -1088,7 +1088,7 @@ class Table(Simple):
         row, col = self._true_coords(old_index)
         idx = old_index
         while True:
-            if self.mode in 'objective_menu':
+            if self.mode and self.mode in 'objective_menu':
                 row -= 5
             else:
                 row -= 1

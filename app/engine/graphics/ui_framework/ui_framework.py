@@ -664,7 +664,6 @@ class UIComponent():
 
     def to_surf(self, no_cull=False, should_not_cull_on_redraw=True) -> engine.Surface:
         if not self.enabled:
-            print("self is not enabled", self.name)
             self._should_redraw = False
             return engine.create_surface(self.size, True)
         if self.is_root:

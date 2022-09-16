@@ -2865,6 +2865,10 @@ def create_achievement(self: Event, nid: str, name: str, description:str, comple
     hidden = hidden.lower() in self.true_vals
     self.game.achievements.add_achievement(nid, name, description, completed, hidden)
 
+def update_achievement(self: Event, nid: str, name: str, description:str, hidden='', flags=None):
+    hidden = hidden.lower() in self.true_vals
+    self.game.achievements.update_achievement(nid, name, description)
+
 def complete_achievement(self: Event, nid: str, completed: str, flags=None):
     completed = completed.lower() in self.true_vals
     self.game.achievements.complete_achievement(nid, completed)

@@ -2555,7 +2555,8 @@ class UpdateAchievement(EventCommand):
     desc = ('Updates the name and description of achievement with the given nid. Does nothing if there is no achievement with that nid.')
 
     keywords = ['Nid', 'Name', 'Description']
-    keyword_types = ['Nid', 'String', 'String']
+    optional_keywords = ['Hidden']
+    keyword_types = ['Nid', 'String', 'String', 'Bool']
 
 class CompleteAchievement(EventCommand):
     nid = 'complete_achievement'

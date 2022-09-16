@@ -9,12 +9,13 @@ from app.utilities import utils
 
 
 class MovementData():
-    def __init__(self, path, event, follow, muted=False):
+    def __init__(self, path, event, follow, muted=False, speed=cf.SETTINGS['unit_speed']):
         self.path = path
         self.last_update = 0
         self.event = event
         self.follow = follow
         self.muted = muted
+        self.speed = speed
 
 class MovementManager():
     def __init__(self):
@@ -23,12 +24,13 @@ class MovementManager():
 
         self.surprised = False
 
-    def add(self, unit, path, event=False, follow=True):
-        self.moving_units[unit.nid] = MovementData(path, event, follow)
+    def add(self, unit, path, event=False, follow=True, speed=cf.SETTINGS['unit_speed']):
+        self.moving_units[unit.nid] = MovementData(path, event, follow, speed=speed)
 
-    def begin_move(self, unit, path, event=False, follow=True):
+    def begin_move(self, unit, path, event=False, follow=True, speed=cf.SETTINGS['unit_speed']):
         logging.info("Unit %s begin move: %s", unit.nid, path)
-        self.add(unit, path, event, follow)
+        self.add(unit, path, event, follow, speed=speed)
+        unit.sprite.set_speed(int(speed))
         unit.sprite.change_state('moving')
         game.leave(unit)
         unit.sound.play()
@@ -162,7 +164,7 @@ class MovementManager():
         current_time = engine.get_time()
         for unit_nid in list(self.moving_units.keys()):
             data = self.moving_units[unit_nid]
-            if current_time - data.last_update > cf.SETTINGS['unit_speed']:
+            if current_time - data.last_update > int(data.speed):
                 data.last_update = current_time
                 unit = game.get_unit(unit_nid)
                 if not unit:
@@ -178,8 +180,9 @@ class MovementManager():
                     new_position = data.path.pop()
                     if unit.position != new_position:
                         if self.check_position(unit, data, new_position):
-                            pass
+                            logging.debug("%s moved to %s", unit, new_position)
                         else:  # Can only happen when not in an event
+                            logging.debug("%s done moving", unit)
                             self.done_moving(unit_nid, data, unit, surprise=True)
                             if unit.team == 'player':
                                 self.update_surprise()

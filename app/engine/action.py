@@ -1,12 +1,16 @@
 from __future__ import annotations
+from app.utilities.typing import NID
 
 import functools
 import logging
 import sys
+import app.engine.config as cf
+from typing import Tuple
 
 from app.constants import TILEHEIGHT, TILEWIDTH
 from app.data.database import DB
 from app.events.regions import RegionType
+from app.events import triggers
 from app.resources.resources import RESOURCES
 from app.engine import (aura_funcs, banner, equations, item_funcs, item_system,
                         particles, skill_system, static_random, unit_funcs, animations)
@@ -14,6 +18,7 @@ from app.engine.game_state import game
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
 from app.engine.objects.unit import UnitObject
+from app.engine import engine
 from app.events.regions import Region
 from app.utilities import utils
 
@@ -108,7 +113,7 @@ class Move(Action):
     A basic, user-directed move
     """
 
-    def __init__(self, unit, new_pos, path=None, event=False, follow=True):
+    def __init__(self, unit, new_pos, path=None, event=False, follow=True, speed=cf.SETTINGS['unit_speed']):
         self.unit = unit
         self.old_pos = self.unit.position
         self.new_pos = new_pos
@@ -120,12 +125,13 @@ class Move(Action):
         self.has_moved = self.unit.has_moved
         self.event = event
         self.follow = follow
+        self.speed = speed
 
     def do(self):
         if self.path is None:
             self.path = game.cursor.path[:]
         game.boundary.frozen = True
-        game.movement.begin_move(self.unit, self.path, self.event, self.follow)
+        game.movement.begin_move(self.unit, self.path, self.event, self.follow, speed=self.speed)
 
     def execute(self):
         game.leave(self.unit)
@@ -517,7 +523,7 @@ class Wait(Action):
         for region in game.level.regions:
             if self.unit.position and region.contains(self.unit.position) and region.interrupt_move:
                 if region.region_type == RegionType.EVENT:
-                    did_trigger = game.events.trigger(region.sub_nid, self.unit, position=self.unit.position, local_args={'region': region})
+                    did_trigger = game.events.trigger(triggers.RegionTrigger(region.sub_nid, self.unit, self.unit.position, region))
                 if (region.region_type != RegionType.EVENT or did_trigger) and region.only_once:
                     regions_to_remove.append(RemoveRegion(region))
         return regions_to_remove
@@ -2564,23 +2570,33 @@ class RemoveWeather(Action):
             game.tilemap.weather.append(new_ps)
 
 class AddMapAnim(Action):
-    def __init__(self, nid, pos, speed_mult, blend):
-        self.nid = nid
-        self.pos = pos
-        self.speed_mult = speed_mult
-        self.blend = blend
+    def __init__(self, nid: NID, pos: Tuple[int, int], speed_mult: float, blend_mode: engine.BlendMode, upper_layer: bool=False):
+        self.nid: NID = nid
+        self.pos: Tuple[int, int] = pos
+        self.speed_mult: float = speed_mult
+        self.blend_mode: engine.BlendMode = blend_mode
+        self.is_upper_layer: bool = upper_layer
 
     def do(self):
         anim = RESOURCES.animations.get(self.nid)
         anim = animations.MapAnimation(anim, self.pos, loop=True, speed_adj=self.speed_mult)
-        anim.set_tint(self.blend)
-        game.tilemap.animations.append(anim)
+        anim.set_tint(self.blend_mode)
+        if self.is_upper_layer:
+            game.tilemap.high_animations.append(anim)
+        else:
+            game.tilemap.animations.append(anim)
 
     def reverse(self):
-        for anim in game.tilemap.animations[:]:
-            if anim.nid == self.nid and anim.xy_pos == self.pos:
-                game.tilemap.animations.remove(anim)
-                break
+        if self.is_upper_layer:
+            for anim in game.tilemap.high_animations[:]:
+                if anim.nid == self.nid and anim.xy_pos == self.pos:
+                    game.tilemap.high_animations.remove(anim)
+                    break
+        else:
+            for anim in game.tilemap.animations[:]:
+                if anim.nid == self.nid and anim.xy_pos == self.pos:
+                    game.tilemap.animations.remove(anim)
+                    break
 
 class RemoveMapAnim(Action):
     def __init__(self, nid, pos):

@@ -457,7 +457,7 @@ A style only applies to `speak` commands inside this event.
 
     keywords = ['Style']
     optional_keywords = ['Speaker', 'TextPosition', 'Width', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail']
-    keyword_types = ['Nid', 'Speaker', 'TextPosition', 'Width', 'Float', 'FontColor', 'FontType', 'DialogBox', 'PositiveInteger', 'Bool', 'MessageTail']
+    keyword_types = ['Nid', 'Speaker', 'TextPosition', 'Width', 'Float', 'FontColor', 'Font', 'DialogVariant', 'PositiveInteger', 'Bool', 'MessageTail']
     _flags = ['low_priority', 'hold', 'no_popup', 'fit']
 
 class Speak(EventCommand):
@@ -495,7 +495,7 @@ Extra flags:
 
     keywords = ['Speaker', 'Text']
     optional_keywords = ['TextPosition', 'Width', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail']
-    keyword_types = ['Speaker', 'Text', 'TextPosition', 'Width', 'Nid', 'Float', 'FontColor', 'FontType', 'DialogBox', 'PositiveInteger', 'Bool', 'MessageTail']
+    keyword_types = ['Speaker', 'Text', 'TextPosition', 'Width', 'Nid', 'Float', 'FontColor', 'Font', 'DialogVariant', 'PositiveInteger', 'Bool', 'MessageTail']
     _flags = ['low_priority', 'hold', 'no_popup', 'fit', 'no_block']
 
 class Unhold(EventCommand):
@@ -938,13 +938,14 @@ Causes *Unit* to move to a new position on the map.
 The optional keywords define how the movement occurs.
 *Position* indicates the target map coordinates. *MovementType* selects the method of movement.
 *Placement* defines the behavior that occurs if the chosen map position is already occupied.
+*Speed* defines the speed of the moving unit. 120 is the default. Lower numbers are faster and higher slower.
 
 The *no_block* optional flag causes the event script to continue to execute while the unit is moving.
 The *no_follow* flag prevents the camera from tracking the unit as it moves.
         """
 
     keywords = ["Unit"]
-    optional_keywords = ["Position", "MovementType", "Placement"]
+    optional_keywords = ["Position", "MovementType", "Placement", "Speed"]
     _flags = ['no_block', 'no_follow']
 
 class RemoveUnit(EventCommand):
@@ -1239,9 +1240,13 @@ Forces *GlobalUnit* to equip *Item*.
 
 The event will produce no effect if the item does not exist in the unit's inventory yet.
 It will also produce no effect if the item cannot be equipped by that unit.
+If the item chosen is a multi-item, the top-most valid option will be equipped.
+If the *recursive* flag is set, the event will first attempt to equip items directly
+in the unit's inventory, and then if no matching item is found, check the sub-items of multi-items.
         """
 
     keywords = ["GlobalUnit", "Item"]
+    _flags = ['recursive']
 
 class RemoveItem(EventCommand):
     nid = 'remove_item'
@@ -1590,12 +1595,12 @@ class Promote(EventCommand):
 
     desc = \
         """
-Promotes *GlobalUnit* into a specified class (*Klass*) or, if no *Klass* is given, the unit promotes as normal using its promotion data.
+Promotes *GlobalUnit* into a specified class (*Klass*) or, if no *Klass* is given, the unit promotes as normal using its promotion data. If more than one *Klass* is given (comma-delimited), the player will receive a promotion choice menu.
 If the *silent* flag is given, the unit will promote immediately into the specified class (*Klass*).
         """
 
     keywords = ["GlobalUnit"]
-    optional_keywords = ["Klass"]
+    optional_keywords = ["KlassList"]
     _flags = ["silent"]
 
 class ChangeClass(EventCommand):
@@ -1910,12 +1915,22 @@ Stores a given position as the event's home position. It can later be referenced
 class MapAnim(EventCommand):
     nid = 'map_anim'
     tag = Tags.TILEMAP
-    desc = ('Plays a map animation denoted by the nid *MapAnim* at *Position*. Optional args: a speed multiplier'
-            ' which increases the length of time it takes to play the animation (larger is slower)')
+    desc = \
+'''Plays a map animation denoted by the nid *MapAnim* at *Position*. Optional args: a speed multiplier
+which increases the length of time it takes to play the animation (larger is slower).
+
+Flags:
+* *no_block* - whether to wait until the animation finishes to continue
+* *permanent* - whether the effect persists
+* *blend* - additive blending
+* *multiply* - multiplicative blending
+* *overlay* - whether the animation will be played above units or below units
+'''
+
     keywords = ["MapAnim", "FloatPosition"]
     optional_keywords = ["Speed"]
     keyword_types = ["MapAnim", "FloatPosition", "Float"]
-    _flags = ["no_block", "permanent", "blend"]
+    _flags = ["no_block", "permanent", "blend", "multiply", "overlay"]
 
 class RemoveMapAnim(EventCommand):
     nid = 'remove_map_anim'

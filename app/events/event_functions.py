@@ -23,7 +23,7 @@ from app.engine.objects.item import ItemObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.objects.unit import UnitObject
 from app.engine.sound import get_sound_thread
-from app.events import event_commands, regions
+from app.events import event_commands, regions, triggers
 from app.events.event_portrait import EventPortrait
 from app.events.speak_style import SpeakStyle
 from app.events.screen_positions import parse_screen_position
@@ -840,7 +840,7 @@ def add_unit(self: Event, unit, position=None, entry_type=None, placement=None, 
         action.do(action.InsertInitiative(unit))
     self._place_unit(unit, position, entry_type, fade_direction)
 
-def move_unit(self: Event, unit, position=None, movement_type=None, placement=None, flags=None):
+def move_unit(self: Event, unit, position=None, movement_type=None, placement=None, speed=None, flags=None):
     flags = flags or set()
 
     new_unit = self._get_unit(unit)
@@ -881,7 +881,10 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
         action.do(action.FadeMove(unit, position))
     elif movement_type == 'normal':
         path = target_system.get_path(unit, position)
-        action.do(action.Move(unit, position, path, event=True, follow=follow))
+        if speed:
+            action.do(action.Move(unit, position, path, event=True, follow=follow, speed=speed))
+        else:
+            action.do(action.Move(unit, position, path, event=True, follow=follow))
 
     if 'no_block' in flags or self.do_skip:
         pass
@@ -937,7 +940,7 @@ def kill_unit(self: Event, unit, flags=None):
     else:
         self.game.death.should_die(unit)
         self.game.state.change('dying')
-    self.game.events.trigger('unit_death', unit, position=unit.position)
+    self.game.events.trigger(triggers.UnitDeath(unit, None, unit.position))
     skill_system.on_death(unit)
     self.state = 'paused'
 
@@ -1284,23 +1287,30 @@ def give_item(self: Event, global_unit_or_convoy, item, flags=None):
 
 def equip_item(self: Event, global_unit, item, flags=None):
     flags = flags or set()
+    recursive_flag = 'recursive' in flags
     item_input = item
     unit = self._get_unit(global_unit)
     if not unit:
         self.logger.error("equip_item: Couldn't find unit with nid %s" % global_unit)
         return
-    unit, item = self._get_item_in_inventory(global_unit, item)
+    unit, item = self._get_item_in_inventory(global_unit, item, recursive=recursive_flag)
     if not unit or not item:
-        self.logger.error("equip_item: Either unit %s or item %s was invalid, see above" % (global_unit, item_input))
+        self.logger.error("equip_item: Item %s was invalid, see above" % item_input)
         return
-
-    if not item_system.equippable(unit, item):
-        self.logger.error("equip_item: %s is not an item that can be equipped" % item.nid)
-        return
-    if not item_system.available(unit, item):
-        self.logger.error("equip_item: %s is unable to equip %s" % (unit.nid, item.nid))
-        return
-
+    if item.multi_item:
+        for subitem in item.subitems:
+            if item_system.equippable(unit, subitem) and item_system.available(unit, subitem):
+                equip_action = action.EquipItem(unit, subitem)
+                action.do(equip_action)
+                return
+        self.logger.error("equip_item: No valid subitem to equip in %s" % item.nid)
+    else:
+        if not item_system.equippable(unit, item):
+            self.logger.error("equip_item: %s is not an item that can be equipped" % item.nid)
+            return
+        if not item_system.available(unit, item):
+            self.logger.error("equip_item: %s is unable to equip %s" % (unit.nid, item.nid))
+            return
     equip_action = action.EquipItem(unit, item)
     action.do(equip_action)
 
@@ -1768,14 +1778,19 @@ def set_mode_autolevels(self: Event, level, flags=None):
         else:
             self.game.current_mode.enemy_truelevels = autolevel
 
-def promote(self: Event, global_unit, klass=None, flags=None):
+def promote(self: Event, global_unit, klass_list=None, flags=None):
     flags = flags or set()
     unit = self._get_unit(global_unit)
     if not unit:
         self.logger.error("promote: Couldn't find unit %s" % global_unit)
         return
-    if klass:
-        new_klass = klass
+    if klass_list:
+        s_klass = klass_list.split(',')
+        if len(s_klass) == 1:
+            new_klass = s_klass[0]
+        else:
+            self.game.memory['promo_options'] = s_klass
+            new_klass = None
     else:
         klass = DB.classes.get(unit.klass)
         if len(klass.turns_into) == 0:
@@ -1788,7 +1803,13 @@ def promote(self: Event, global_unit, klass=None, flags=None):
 
     self.game.memory['current_unit'] = unit
     silent = 'silent' in flags
-    if silent and new_klass:
+    if self.game.memory.get('promo_options', False):
+        if silent:
+            self.logger.warning("promote: silent flag set with multiple klass options. Silent will be ignored.")
+        self.game.state.change('promotion_choice')
+        self.game.state.change('transition_out')
+        self.state = 'paused'
+    elif silent and new_klass:
         swap_class = action.Promote(unit, new_klass)
         action.do(swap_class)
         #check for new class skill
@@ -2104,12 +2125,17 @@ def map_anim(self: Event, map_anim, float_position, speed=None, flags=None):
         speed_mult = float(speed)
     else:
         speed_mult = 1
+    mode = engine.BlendMode.NONE
+    if 'blend' in flags:
+        mode = engine.BlendMode.BLEND_RGB_ADD
+    elif 'multiply' in flags:
+        mode = engine.BlendMode.BLEND_RGB_MULT
     if 'permanent' in flags:
-        action.do(action.AddMapAnim(map_anim, pos, speed_mult, 'blend' in flags))
+        action.do(action.AddMapAnim(map_anim, pos, speed_mult, mode, 'overlay' in flags))
     else:
         anim = RESOURCES.animations.get(map_anim)
         anim = MapAnimation(anim, pos, speed_adj=speed_mult)
-        anim.set_tint('blend' in flags)
+        anim.set_tint(mode)
         self.animations.append(anim)
 
     if 'no_block' in flags or self.do_skip or 'permanent' in flags:
@@ -2265,7 +2291,7 @@ def base(self: Event, background: str, music: str = None, other_options: str = N
             for idx, is_enabled in enumerate(enabled_strs):
                 if is_enabled in self.true_vals:
                     options_enabled[idx] = True
-            action.do(action.SetGameVar('_base_options_enabled', options_enabled))
+            action.do(action.SetGameVar('_base_options_disabled', [not enabled for enabled in options_enabled]))
         else:
             self.logger.error("base: too many bools in option enabled list: ", other_options_enabled)
             return
@@ -2280,7 +2306,7 @@ def base(self: Event, background: str, music: str = None, other_options: str = N
             return
         action.do(action.SetGameVar('_base_additional_options', options_list))
     else:
-        action.do(action.SetGameVar('_base_options_enabled', []))
+        action.do(action.SetGameVar('_base_options_disabled', []))
         action.do(action.SetGameVar('_base_options_events', []))
         action.do(action.SetGameVar('_base_additional_options', []))
 
@@ -2538,6 +2564,7 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
         if anim_dir == 'fade':
             enter_anim = fade_anim(0, 1, 1000)
             exit_anim = fade_anim(1, 0, 1000)
+            component.margin = (x, y, 0, 0)
         else:
             if anim_dir == 'west':
                 start_x = -component.width
@@ -2555,7 +2582,8 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
             exit_anim = translate_anim((x, y), (start_x, start_y), 750, disable_after=True, interp_mode=InterpolationType.CUBIC)
         component.save_animation(enter_anim, '!enter')
         component.save_animation(exit_anim, '!exit')
-
+    else:
+        component.margin = (x, y, 0, 0)
     self.overlay_ui.add_child(component)
     if self.do_skip:
         component.enable()
@@ -2611,7 +2639,7 @@ def location_card(self: Event, string, flags=None):
 def credits(self: Event, role, credits, flags=None):
     flags = flags or set()
 
-    title = role
+    title = role or ''
     credits = credits.split(',') if 'no_split' not in flags else [credits]
     wait = 'wait' in flags
     center = 'center' in flags

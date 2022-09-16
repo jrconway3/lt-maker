@@ -50,6 +50,37 @@ class RecordOption(menu_options.BasicOption):
         else:
             main_font.blit_right(unit_name, surf, (x + 196, y))
 
+class AchievementRecordOption(RecordOption):
+    def __init__(self, idx, text):
+        self.idx = idx
+        self.name, self.desc, self.complete = text
+        self.help_box = None
+        self.font = 'text'
+        self.color = None
+        self.ignore = False
+
+    def get(self):
+        return self.name, self.desc, self.complete
+
+    def height(self):
+        return 32
+
+    def draw(self, surf, x, y):
+        x_offset = 3
+        y_offset = -16
+        title_color = 'text-yellow'
+        if self.complete:
+            status = "Complete"
+            color = 'text-green'
+            desc_color = 'text-white'
+        else:
+            status = "Locked"
+            color = 'text-red'
+            desc_color = 'text-grey'
+        FONT[title_color].blit(self.name, surf, (x + x_offset, y + y_offset))
+        FONT[color].blit("- " + status, surf, (x + x_offset + 16 + rendered_text_width([title_color], [self.name]), y + y_offset))
+        FONT[desc_color].blit(self.desc, surf, (x + 1 + x_offset, y + 13 + y_offset))
+
 class UnitRecordOption(RecordOption):
     def __init__(self, idx, text):
         self.idx = idx
@@ -232,43 +263,37 @@ class MVPDisplay(RecordsDisplay):
 
 class AchievementDisplay(RecordsDisplay):
     """
-    Name
+    Name - Status
     Description
     """
+    option_type = AchievementRecordOption
+
+    def __init__(self):
+        super().__init__()
+        self.set_limit(4)
+        self.draw_cursor = 0
+
+    def get_options(self):
+        names = [a.name for a in game.achievements if not a.get_hidden()]
+        descs = [a.desc for a in game.achievements if not a.get_hidden()]
+        complete = [a.get_complete() for a in game.achievements if not a.get_hidden()]
+
+        return [(u, k, d) for (u, k, d) in zip(names, descs, complete)]
+
     def create_top_banner(self):
         bg = base_surf.create_base_surf(self.get_menu_width(), 24, 'menu_bg_white')
         bg = image_mods.make_translucent(bg, 0.25)
         FONT['text-yellow'].blit(text_funcs.translate('Unlocked: '), bg, (4, 4))
 
-        FONT['text-yellow'].blit_right(str(len([a for a in game.achievements if a.get_complete() and not a.hidden])) + ' / ' + str(len([a for a in game.achievements if not a.hidden])), bg, (92, 4))
+        FONT['text-yellow'].blit_right(str(len([a for a in game.achievements if a.get_complete() and not a.get_hidden()])) + ' / ' + str(len([a for a in game.achievements if not a.get_hidden()])), bg, (92, 4))
         return bg
-
-    # Maybe make this not a child of Records Display. Implement scroll bar and hide mouse
 
     def draw(self, surf, offset=None):
         if not offset:
             offset = (0, 0)
         super().vert_draw(surf, offset)
         surf.blit(self.top_banner, (offset[0] + WINWIDTH//2 - self.top_banner.get_width()//2, offset[1] + 4))
-        h = offset[1]
-        left_start = 12
-        line_vert = 32
-        for a in game.achievements:
-            title_color = 'text-yellow'
-            if a.get_complete():
-                status = "Complete"
-                color = 'text-green'
-                desc_color = 'text-white'
-            else:
-                status = "Locked"
-                color = 'text-red'
-                desc_color = 'text-grey'
-            FONT[title_color].blit(a.name, surf, (offset[0] + left_start, h + line_vert))
-            FONT[color].blit("- " + status, surf, (offset[0] + left_start + 16 + rendered_text_width([title_color], [a.name]), h + line_vert))
-            FONT[desc_color].blit(a.desc, surf, (offset[0] + left_start + 1, h + 45))
-            h = h + line_vert
-            if h > 90:
-                break
+        return surf
 
 
 class ChapterStats(RecordsDisplay):

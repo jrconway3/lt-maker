@@ -5,6 +5,7 @@ except ImportError:
     import pickle
 
 import logging
+from app.engine import save
 logger = logging.getLogger(__name__)
 
 class Achievement():
@@ -20,6 +21,9 @@ class Achievement():
 
     def get_complete(self) -> bool:
         return bool(self.complete)
+
+    def get_hidden(self) -> bool:
+        return bool(self.hidden)
 
     def save(self):
         ser_dict = {}
@@ -38,7 +42,7 @@ class Achievement():
 class AchievementManager():
     def __init__(self) -> None:
         self.achievements = [] # A list of Achievement() classes
-        self.location = 'saves/achievements.p'
+        self.location = 'saves/' + save.GAME_NID() + '-achievements.p'
         self.load_achievements()
 
     def __contains__(self, achievement) -> None:

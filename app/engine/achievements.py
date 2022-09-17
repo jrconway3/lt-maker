@@ -5,8 +5,6 @@ except ImportError:
     import pickle
 
 import logging
-from app.engine import save
-logger = logging.getLogger(__name__)
 
 class Achievement():
     def __init__(self, nid: str, name:str, desc: str, complete: bool, hidden=False):
@@ -40,9 +38,9 @@ class Achievement():
         return self
 
 class AchievementManager():
-    def __init__(self) -> None:
+    def __init__(self, game_id) -> None:
         self.achievements = [] # A list of Achievement() classes
-        self.location = 'saves/' + save.GAME_NID() + '-achievements.p'
+        self.location = 'saves/' + game_id + '-achievements.p'
         self.load_achievements()
 
     def __contains__(self, achievement) -> None:
@@ -130,3 +128,7 @@ class AchievementManager():
                 self.achievements.append(Achievement.restore(data[1]))
         except FileNotFoundError:
             logging.info("No achievements file found")
+
+    def clear_achievements(self):
+        with open(self.location, 'wb') as fp:
+            pickle.dump(None, fp)

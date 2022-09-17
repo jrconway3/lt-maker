@@ -178,7 +178,7 @@ class GameState():
         self.dialog_log = DialogLog()
         self.already_triggered_events = []
         from app.engine.achievements import AchievementManager
-        self.achievements = AchievementManager()
+        self.achievements = AchievementManager(str(DB.constants.value('game_nid')))
         self.sweep()
         self.generic()
 

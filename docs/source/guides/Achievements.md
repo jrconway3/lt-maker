@@ -47,7 +47,7 @@ The details of the achievement have been updated.
 I'd like to remember if the player has completed the game. I can't keep that data tied to a particular save file, so the achievement system is perfect here.
 
 ```
-if;any(['CompleteGame' == a.nid for a in game.achievements])
+if;has_achievement("CompleteGame")
     speak;Eirika;I've won before
 else
     speak;Eirika;I haven't won yet.

@@ -2561,7 +2561,7 @@ class UpdateAchievement(EventCommand):
 class CompleteAchievement(EventCommand):
     nid = 'complete_achievement'
     tag = Tags.ACHIEVEMENT
-    desc = ('True marks the achievement as complete. False marks it as incomplete. No effect if achievement doesn\'t exist.\n\nYou can check an achievement\'s completion status with game.achievements.check_achievement(\'nid\')')
+    desc = ('True marks the achievement as complete. False marks it as incomplete. No effect if achievement doesn\'t exist.\n\nYou can check an achievement\'s completion status with game.achievements.check_achievement("nid")')
 
     keywords = ['Nid', 'Completed']
     keyword_types = ['Nid', 'Bool']

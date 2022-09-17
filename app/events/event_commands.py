@@ -494,7 +494,7 @@ Extra flags:
 
     keywords = ['Speaker', 'Text']
     optional_keywords = ['TextPosition', 'Width', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail']
-    keyword_types = ['Speaker', 'Text', 'TextPosition', 'Width', 'Nid', 'Float', 'FontColor', 'Font', 'DialogVariant', 'PositiveInteger', 'Bool', 'MessageTail']
+    keyword_types = ['Speaker', 'Text', 'TextPosition', 'Width', 'DialogVariant', 'Float', 'FontColor', 'Font', 'DialogVariant', 'PositiveInteger', 'Bool', 'MessageTail']
     _flags = ['low_priority', 'hold', 'no_popup', 'fit', 'no_block']
 
 class Unhold(EventCommand):

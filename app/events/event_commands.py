@@ -2546,8 +2546,8 @@ class CreateAchievement(EventCommand):
     desc = ('Creates a new achievement. Set completed to 1 to automatically complete the achievement when it is first unlocked. Set hidden to 1 to prevent from appearing in records. Does nothing if nid already present.')
 
     keywords = ['Nid', 'Name', 'Description']
-    optional_keywords = ['Completed', 'Hidden']
-    keyword_types = ['Nid', 'String', 'String', 'Bool', 'Bool']
+    _flags = ['completed', 'hidden']
+    keyword_types = ['Achievement', 'String', 'String']
 
 class UpdateAchievement(EventCommand):
     nid = 'update_achievement'
@@ -2555,8 +2555,8 @@ class UpdateAchievement(EventCommand):
     desc = ('Updates the name and description of achievement with the given nid. Does nothing if there is no achievement with that nid.')
 
     keywords = ['Nid', 'Name', 'Description']
-    optional_keywords = ['Hidden']
-    keyword_types = ['Nid', 'String', 'String', 'Bool']
+    _flags = ['hidden']
+    keyword_types = ['Achievement', 'String', 'String']
 
 class CompleteAchievement(EventCommand):
     nid = 'complete_achievement'

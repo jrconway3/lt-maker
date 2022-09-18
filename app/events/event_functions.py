@@ -2564,7 +2564,7 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
         if anim_dir == 'fade':
             enter_anim = fade_anim(0, 1, 1000)
             exit_anim = fade_anim(1, 0, 1000)
-            component.margin = (x, y, 0, 0)
+            component.margin = (x, 0, y, 0)
         else:
             if anim_dir == 'west':
                 start_x = -component.width

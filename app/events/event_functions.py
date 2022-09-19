@@ -517,8 +517,10 @@ def screen_shake(self: Event, time, shake_mode=None, flags=None):
     if not shake_offset:
         logging.error("shake mode %s not recognized by screen shake command. Recognized modes are ('default', 'combat').", shake_mode)
         return
-        
+    
     game.camera.set_shake(shake_offset, duration)
+    if self.background:
+        self.background.set_shake(shake_offset, duration)
     if 'no_block' in flags:
         pass
     else:
@@ -527,6 +529,8 @@ def screen_shake(self: Event, time, shake_mode=None, flags=None):
 
 def screen_shake_end(self: Event, flags=None):
     game.camera.reset_shake()
+    if self.background:
+        self.background.reset_shake()
 
 def game_var(self: Event, nid, expression, flags=None):
     try:

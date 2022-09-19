@@ -666,7 +666,7 @@ class FogOfWarType(OptionValidator):
     valid = ['clear', 'gba', 'thracia']
 
 class ShakeType(OptionValidator):
-    valid = ['default', 'combat']
+    valid = ['default', 'combat', 'kill', 'random', 'celeste']
 
 class Position(Validator):
     desc = "accepts a valid `(x, y)` position. You use a unit's nid to use their position. Alternatively, you can use one of (`{unit}`, `{unit1}`, `{unit2}`, `{position}`)"

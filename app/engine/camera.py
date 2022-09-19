@@ -191,11 +191,12 @@ class Camera():
     def set_shake(self, shake: List[Tuple[int, int]], duration: int = 0):
         """
         shake - A List of camera offset tuples that will be looped over each frame to create the screen shake effect
-        duration - How long the effect should last (in milliseconds).
+        duration - How long the effect should last (in milliseconds). If 0 or negative, effect is permanent until reset_shake is called
         """
         self.shake = shake
         self.shake_idx = 0
-        self.shake_end_at = engine.get_time() + duration
+        if duration > 0:
+            self.shake_end_at = engine.get_time() + duration
 
     def reset_shake(self):
         self.shake = self.no_shake
@@ -235,5 +236,5 @@ class Camera():
         # Update screenshake
         self.shake_idx += 1
         self.shake_idx %= len(self.shake)
-        if engine.get_time() > self.shake_end_at:
+        if self.shake_end_at and engine.get_time() > self.shake_end_at:
             self.reset_shake()

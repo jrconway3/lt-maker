@@ -225,6 +225,9 @@ class UnitObject(Prefab):
             self.skills += personal_skills
             class_skills = unit_funcs.get_starting_skills(self)
             self.skills += class_skills
+            if self.generic:
+                generic_skills = item_funcs.create_skills(self, prefab.starting_skills)
+                self.skills += generic_skills
 
         klass = DB.classes.get(self.klass)
         if klass.tier == 0:

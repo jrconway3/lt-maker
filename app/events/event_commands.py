@@ -613,6 +613,29 @@ Causes the cursor to briefly blink on and off at the indicated *Position*.
     keywords = ["Position"]
     _flags = ["immediate"]
 
+class ScreenShake(EventCommand):
+    nid = 'screen_shake'
+    tag = Tags.CURSOR_CAMERA
+
+    desc = \
+        """
+Causes the map to shake rapidly, imitating an earthquake, powerful strike, or other effect. Several different screen shake variations are available. Set *Duration* to 0 to make screen shake effect to last indefinitely.
+        """
+
+    keywords = ["Duration"]
+    optional_keywords = ["ShakeType"]
+    keyword_types = ["Time", "ShakeType"]
+    _flags = ["no_block"]
+
+class ScreenShakeEnd(EventCommand):
+    nid = 'screen_shake_end'
+    tag = Tags.CURSOR_CMAERA
+
+    desc = \
+    """
+Ends any extant screen shake command if there is one present
+    """
+
 class GameVar(EventCommand):
     nid = 'game_var'
     nickname = 'gvar'

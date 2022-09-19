@@ -497,6 +497,30 @@ def flicker_cursor(self: Event, position, flags=None):
     self.commands.insert(self.command_idx + 1, disp_cursor_command1)
     self.commands.insert(self.command_idx + 1, move_cursor_command)
 
+def screen_shake(self: Event, time, shake_mode=None, flags=None):
+    flags = flags or set()
+    shake_mode = shake_mode or 'default'
+    duration = int(time)
+
+    shake_offset = None
+    if shake_mode == 'default':
+        shake_offset = [(0, -2), (0, -2), (0, 0), (0, 0)]
+    elif shake_mode == 'combat':
+        shake_offset = [(3, 0), (0, 3)]
+    if not shake_offset:
+        logging.error("shake mode %s not recognized by screen shake command. Recognized modes are ('default', 'combat').", shake_mode)
+        return
+
+    game.camera.set_shake(shake_offset, duration)
+    if 'no_block' in flags:
+        pass
+    else:
+        self.wait_time = engine.get_time() + duration
+        self.state = 'waiting'
+
+def screen_shake_end(self: Event, flags=None):
+    game.camera.reset_shake()
+
 def game_var(self: Event, nid, expression, flags=None):
     try:
         val = self.text_evaluator.direct_eval(expression)

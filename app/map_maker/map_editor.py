@@ -58,6 +58,7 @@ class CliffMarkerWidget(QWidget):
 
     def reset(self):
         self.window.add_cliff_marker_action.setChecked(False)
+        self.toggle_remove_button()
 
     def add_new_marker(self, pos):
         self.reset()

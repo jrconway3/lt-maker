@@ -52,6 +52,7 @@ class CliffMarkerWidget(QWidget):
     def set_current(self, current):
         self.tilemap = current
         self.main_box.edit.clear()
+        print('readding', self.tilemap.cliff_markers)
         for cliff_marker in self.tilemap.cliff_markers:
             self.main_box.edit.addItem("%d, %d" % cliff_marker)
         self.reset()
@@ -444,7 +445,7 @@ class MapEditor(QMainWindow):
                 s_dict = json.load(load_file)
                 self.current = MapPrefab.restore(s_dict)
             self.current.reset_all()
-            self.view.set_current(self.current)
+            self.set_current(self.current)
 
     def closeEvent(self, event):
         if self.maybe_save():

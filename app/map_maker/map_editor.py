@@ -52,7 +52,6 @@ class CliffMarkerWidget(QWidget):
     def set_current(self, current):
         self.tilemap = current
         self.main_box.edit.clear()
-        print('readding', self.tilemap.cliff_markers)
         for cliff_marker in self.tilemap.cliff_markers:
             self.main_box.edit.addItem("%d, %d" % cliff_marker)
         self.reset()

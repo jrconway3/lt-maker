@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from app.constants import WINWIDTH, WINHEIGHT
 from app.resources.resources import RESOURCES
 from app.engine import engine, image_mods
@@ -106,8 +108,8 @@ class PanoramaBackground():
         return False
 
     def _draw(self, surf, image):
-        x = WINWIDTH//2 - image.get_width()//2 + self.shake_offset[0]
-        y = WINHEIGHT//2 - image.get_height()//2 + self.shake_offset[1]
+        x = WINWIDTH//2 - image.get_width()//2 + self.shake_offset[self.shake_idx][0]
+        y = WINHEIGHT//2 - image.get_height()//2 + self.shake_offset[self.shake_idx][1]
         surf.blit(image, (x, y))
 
     def draw(self, surf):

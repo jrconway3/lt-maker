@@ -4,7 +4,7 @@ from app.utilities.algorithms.interpolation import tcubic_easing
 import math
 from typing import TYPE_CHECKING, Callable, Tuple, List
 
-from app.constants import TILEX, TILEY
+from app.constants import TILEX, TILEY, TILEWIDTH, TILEHEIGHT
 from app.engine import engine
 from app.utilities import utils
 
@@ -153,13 +153,16 @@ class Camera():
         self.set_center(mid_x, mid_y)
 
     def get_x(self):
-        return self.current_x + self.shake[self.shake_idx][0]
+        return self.current_x
 
     def get_y(self):
-        return self.current_y + self.shake[self.shake_idx][1]
+        return self.current_y
 
     def get_xy(self):
         return self.get_x(), self.get_y()
+
+    def get_shake(self):
+        return self.shake[self.shake_idx]
 
     def at_rest(self):
         return self.current_x == self.target_x and self.current_y == self.target_y

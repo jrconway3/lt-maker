@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 import ast
 from typing import TYPE_CHECKING
 
@@ -497,28 +498,28 @@ def flicker_cursor(self: Event, position, flags=None):
     self.commands.insert(self.command_idx + 1, disp_cursor_command1)
     self.commands.insert(self.command_idx + 1, move_cursor_command)
 
-def screen_shake(self: Event, time, shake_mode=None, flags=None):
+def screen_shake(self: Event, duration, shake_type=None, flags=None):
     flags = flags or set()
-    shake_mode = shake_mode or 'default'
-    duration = int(time)
+    shake_type = shake_type or 'default'
+    duration = int(duration)
 
     shake_offset = None
-    if shake_mode == 'default':
+    if shake_type == 'default':
         shake_offset = [(0, -2), (0, -2), (0, 0), (0, 0)]
-    elif shake_mode == 'combat':
+    elif shake_type == 'combat':
         shake_offset = [(-3, -3), (0, 0), (3, 3), (0, 0)]
-    elif shake_mode == 'kill':
+    elif shake_type == 'kill':
         shake_offset = [(3, 3), (0, 0), (0, 0), (3, 3), (-3, -3), (3, 3), (-3, -3), (0, 0)]
-    elif shake_mode == 'random':
+    elif shake_type == 'random':
         shake_offset = [(random.randint(-4, 4), random.randint(-4, 4)) for _ in range(16)]
-    elif shake_mode == 'celeste':
-        shake_offset = [(random.randchoice([-1, 1]), random.randchoice([-1, 1])) for _ in range(16)]
+    elif shake_type == 'celeste':
+        shake_offset = [(random.choice([-1, 1]), random.choice([-1, 1])) for _ in range(16)]
 
     if not shake_offset:
-        logging.error("shake mode %s not recognized by screen shake command. Recognized modes are ('default', 'combat').", shake_mode)
+        self.logger.error("shake mode %s not recognized by screen shake command. Recognized modes are ('default', 'combat').", shake_type)
         return
     
-    game.camera.set_shake(shake_offset, duration)
+    self.game.camera.set_shake(shake_offset, duration)
     if self.background:
         self.background.set_shake(shake_offset, duration)
     if 'no_block' in flags:
@@ -528,7 +529,7 @@ def screen_shake(self: Event, time, shake_mode=None, flags=None):
         self.state = 'waiting'
 
 def screen_shake_end(self: Event, flags=None):
-    game.camera.reset_shake()
+    self.game.camera.reset_shake()
     if self.background:
         self.background.reset_shake()
 

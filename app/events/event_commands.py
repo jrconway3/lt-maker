@@ -619,7 +619,9 @@ class ScreenShake(EventCommand):
 
     desc = \
         """
-Causes the map to shake rapidly, imitating an earthquake, powerful strike, or other effect. Several different screen shake variations are available. Set *Duration* to 0 to make screen shake effect to last indefinitely.
+Causes the map to shake rapidly, imitating an earthquake, powerful strike, or other effect.
+Several different screen shake variations are available.
+Set *Duration* to 0 to make screen shake effect last indefinitely.
         """
 
     keywords = ["Duration"]
@@ -629,12 +631,12 @@ Causes the map to shake rapidly, imitating an earthquake, powerful strike, or ot
 
 class ScreenShakeEnd(EventCommand):
     nid = 'screen_shake_end'
-    tag = Tags.CURSOR_CMAERA
+    tag = Tags.CURSOR_CAMERA
 
     desc = \
-    """
+        """
 Ends any extant screen shake command if there is one present
-    """
+        """
 
 class GameVar(EventCommand):
     nid = 'game_var'

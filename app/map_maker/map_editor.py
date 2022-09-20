@@ -444,7 +444,7 @@ class MapEditor(QMainWindow):
                 s_dict = json.load(load_file)
                 self.current = MapPrefab.restore(s_dict)
             self.current.reset_all()
-            self.view.set_current(self.current)
+            self.set_current(self.current)
 
     def closeEvent(self, event):
         if self.maybe_save():

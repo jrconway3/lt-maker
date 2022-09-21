@@ -535,7 +535,10 @@ class UnitObject(Prefab):
             skill_system.on_add_item(self, item)
 
     def remove_item(self, item):
-        if item is self.equipped_weapon or item is self.equipped_accessory:
+        if self.equipped_weapon is item or \
+                self.equipped_accessory is item or \
+                item.multi_item and self.equipped_weapon in item_funcs.get_all_items_from_multi_item(self, item) or \
+                item.multi_item and self.equipped_accessory in item_funcs.get_all_items_from_multi_item(self, item):
             self.unequip(item)
         self.items.remove(item)
         item.change_owner(None)

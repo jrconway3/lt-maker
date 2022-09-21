@@ -102,7 +102,7 @@ class UnitObject(Prefab):
         return None
 
     @classmethod
-    def from_prefab(cls, prefab: UniqueUnit | GenericUnit | UnitPrefab, current_mode: DifficultyModeObject = None, new_nid = None):
+    def from_prefab(cls, prefab: UniqueUnit | GenericUnit | UnitPrefab, current_mode: DifficultyModeObject = None, new_nid=None):
         new_nid = new_nid or prefab.nid
         self = cls(new_nid)
         is_level_unit = not isinstance(prefab, UnitPrefab)

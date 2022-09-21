@@ -773,7 +773,7 @@ def make_generic(self: Event, nid, klass, level, team, ai=None, faction=None, an
     else:
         starting_items = []
     level_unit_prefab = GenericUnit(unit_nid, animation_variant, level, klass, faction, starting_items, [], team, ai)
-    new_unit = UnitObject.from_prefab(level_unit_prefab)
+    new_unit = UnitObject.from_prefab(level_unit_prefab, self.game.current_mode)
     new_unit.party = self.game.current_party
     #self.game.full_register(new_unit)
     action.do(action.RegisterUnit(new_unit))

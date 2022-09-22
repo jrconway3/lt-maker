@@ -2032,6 +2032,8 @@ class Resurrect(Action):
 
     def do(self):
         self.unit.dead = False
+        self.unit.sprite.set_transition('normal')
+        self.unit.sprite.change_state('normal')
 
     def reverse(self):
         self.unit.dead = self.old_dead

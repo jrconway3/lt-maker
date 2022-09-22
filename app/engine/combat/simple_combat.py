@@ -112,8 +112,9 @@ class SimpleCombat():
         all_units = self._all_units()
 
         for unit in all_units:
-            unit.sprite.change_state('normal')
-            unit.sprite.reset()
+            if unit.get_hp() > 0:
+                unit.sprite.change_state('normal')
+                unit.sprite.reset()
 
         self.cleanup_combat()
 

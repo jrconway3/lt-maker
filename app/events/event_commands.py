@@ -536,9 +536,14 @@ class Transition(EventCommand):
 If a scene is currently displayed, it is faded out to a black screen.
 The next use of this function will fade the scene back into view.
 The optional *Speed* and *Color3* keywords control the speed and color of the transition.
+
+Extra flags:
+
+1. *no_block*: The event script will continue to execute while the screen is fading in or out
         """
 
     optional_keywords = ['Direction', 'Speed', 'Color3']
+    _flags = ['no_block']
 
 class ChangeBackground(EventCommand):
     # Also does remove background

@@ -442,6 +442,18 @@ def change_background(self: Event, panorama=None, flags=None):
     else:
         self.portraits.clear()
 
+def pause_background(self: Event, pause_at=None, flags=None):
+    if not self.background:
+        self.logger.warning("No current background to pause!")
+        return
+    self.background.pause(pause_at)
+
+def unpause_background(self: Event, flags=None):
+    if not self.background:
+        self.logger.warning("No current background to unpause")
+        return 
+    self.background.unpause()
+
 def disp_cursor(self: Event, show_cursor, flags=None):
     if show_cursor.lower() in self.true_vals:
         self.game.cursor.show()

@@ -409,6 +409,7 @@ def unhold(self: Event, nid, flags=None):
             box.hold = False
 
 def transition(self: Event, direction=None, speed=None, color3=None, flags=None):
+    flags = flags or set()
     current_time = engine.get_time()
     if direction:
         self.transition_state = direction.lower()
@@ -421,8 +422,11 @@ def transition(self: Event, direction=None, speed=None, color3=None, flags=None)
 
     if not self.do_skip:
         self.transition_update = current_time
-        self.wait_time = current_time + int(self.transition_speed * 1.33)
-        self.state = 'waiting'
+        if 'no_block' in flags:
+            pass
+        else:
+            self.wait_time = current_time + int(self.transition_speed * 1.33)
+            self.state = 'waiting'
 
 def change_background(self: Event, panorama=None, flags=None):
     flags = flags or set()

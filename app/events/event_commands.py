@@ -561,6 +561,26 @@ Displayed portraits are also removed unless the *keep_portraits* flag is set.
     optional_keywords = ['Panorama']
     _flags = ["keep_portraits"]
 
+class PauseBackground(EventCommand):
+    nid = "pause_background"
+    tag = Tags.BG_FG
+
+    desc = \
+        """
+Pauses the current background if it has multiple frames. Optional *WholeNumber* parameter lets you control exactly which frame to pause on.
+        """
+
+    optional_keywords = ['WholeNumber']
+
+class UnpauseBackground(EventCommand):
+    nid = "unpause_background"
+    tag = Tags.BG_FG
+
+    desc = \
+        """
+Unpauses the current background.
+        """
+
 class DispCursor(EventCommand):
     nid = "disp_cursor"
     tag = Tags.CURSOR_CAMERA

@@ -9,8 +9,21 @@ from app.data.database import DB
 from app.extensions.custom_gui import PropertyBox, ComboBox
 
 class NidLineEdit(QLineEdit):
+  """For strict limiting on NID forms. Alphanumerics and underscore only.
+  """
   def __init__(self, *args, **kwargs) -> None:
     super().__init__(*args, **kwargs)
-    reg_ex = QRegExp(r"[^\(\)]*")
+    reg_ex = QRegExp(r"[A-Za-z0-9_]*")
+    input_validator = QRegExpValidator(reg_ex, self)
+    self.setValidator(input_validator)
+
+class NoParentheticalLineEdit(QLineEdit):
+  """Less limiting. Allows periods and spaces, but no parentheses.
+
+  Also doesn't allow semicolons.
+  """
+  def __init__(self, *args, **kwargs) -> None:
+    super().__init__(*args, **kwargs)
+    reg_ex = QRegExp(r"[^\(\);]*")
     input_validator = QRegExpValidator(reg_ex, self)
     self.setValidator(input_validator)

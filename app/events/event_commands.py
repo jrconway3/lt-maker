@@ -567,10 +567,11 @@ class PauseBackground(EventCommand):
 
     desc = \
         """
-Pauses the current background if it has multiple frames. Optional *WholeNumber* parameter lets you control exactly which frame to pause on.
+Pauses the current background if it has multiple frames. Optional *PauseAt* parameter lets you control exactly which frame to pause on.
         """
 
-    optional_keywords = ['WholeNumber']
+    optional_keywords = ['PauseAt']
+    keyword_types = ['WholeNumber']
 
 class UnpauseBackground(EventCommand):
     nid = "unpause_background"

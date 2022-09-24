@@ -175,13 +175,13 @@ class PhaseChangeState(MapState):
 
     def draw(self, surf):
         surf = super().draw(surf)
-        if not self.is_roam:
+        if not self.is_roam():
             surf = game.phase.draw(surf)
         return surf
 
     def end(self):
         logging.info("Phase Change End")
-        if self.is_roam:
+        if self.is_roam():
             return
         phase.fade_in_phase_music()
 

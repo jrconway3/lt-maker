@@ -288,7 +288,7 @@ class BaseConvosChildState(State):
                 get_sound_thread().play_sfx('Select 1')
                 # Auto-ignore
                 game.base_convos[selection] = True
-                game.events.trigger(triggers.OnBaseConvo(selection))
+                game.events.trigger(triggers.OnBaseConvo(selection, selection))
 
     def update(self):
         if self.menu:
@@ -356,10 +356,10 @@ class SupportDisplay():
             bonus = prefab.requirements[self.rank_idx]
             rank = bonus.support_rank
             if rank in pair.unlocked_ranks:
-                game.events.trigger(triggers.OnSupport(game.get_unit(self.unit_nid), game.get_unit(other_unit_nid), rank))
+                game.events.trigger(triggers.OnSupport(game.get_unit(self.unit_nid), game.get_unit(other_unit_nid), None, rank, True))
                 return True
             elif pair.can_support() and rank in pair.locked_ranks:
-                game.events.trigger(triggers.OnSupport(game.get_unit(self.unit_nid), game.get_unit(other_unit_nid), rank))
+                game.events.trigger(triggers.OnSupport(game.get_unit(self.unit_nid), game.get_unit(other_unit_nid), None, rank, False))
                 action.do(action.UnlockSupportRank(pair.nid, rank))
                 return True
         return False
@@ -890,10 +890,14 @@ class BaseLibraryState(State):
             # Go to previous category
             cidx = self.categories.index(lore.category)
             new_category = self.categories[(cidx + 1) % len(self.categories)]
-            idx = self.options.index(new_category)
-            option = self.options[idx + 1]
-
-            self.display.update_entry(option.nid)
+            if new_category in self.options:
+                idx = self.options.index(new_category)
+                if len(self.option) > idx + 1:
+                    get_sound_thread().play_sfx('Info')
+                    option = self.options[idx + 1]
+                    self.display.update_entry(option.nid)
+            else:
+                pass  # Doesn't do anything if that category is not present
 
         elif event == 'INFO':
             lore = self.menu.get_current()

@@ -932,7 +932,7 @@ class RegionType(OptionValidator):
     valid = ['normal', 'event', 'status', 'formation', 'time']
 
 class Weather(OptionValidator):
-    valid = ["rain", "sand", "snow", "fire", "light", "dark", "smoke", "night", "event_tile"]
+    valid = ["rain", "sand", "snow", "fire", "light", "dark", "smoke", "night", "sunset", "event_tile"]
 
 class Align(OptionValidator):
     valid = [align.value for align in Alignments]

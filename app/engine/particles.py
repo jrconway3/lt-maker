@@ -44,7 +44,7 @@ class ParticleSystem():
             self.update()
 
     def draw(self, surf, offset_x=0, offset_y=0):
-        if self.blend == SPRITES.get('particle_bg_night') or SPRITES.get('particle_bg_sunset'):
+        if self.blend == SPRITES.get('particle_bg_night') or self.blend == SPRITES.get('particle_bg_sunset'):
             engine.blit(surf, self.blend, (0, 0), None, engine.BLEND_RGB_MULT)
         elif self.blend:
             engine.blit(surf, self.blend, (0, 0), None, engine.BLEND_RGB_ADD)

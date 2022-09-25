@@ -1484,7 +1484,6 @@ class CombatArtChoiceState(MapState):
             return
 
     def begin(self):
-
         game.cursor.hide()
         self.cur_unit = game.cursor.cur_unit
         self.cur_unit.sprite.change_state('chosen')
@@ -1499,9 +1498,7 @@ class CombatArtChoiceState(MapState):
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 
-        did_move = self.menu.handle_mouse()
-        if did_move:
-            self._item_desc_update()
+        self.menu.handle_mouse()
 
         if 'DOWN' in directions:
             get_sound_thread().play_sfx('Select 6')

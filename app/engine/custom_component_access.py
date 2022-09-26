@@ -1,7 +1,5 @@
 import logging
 import traceback
-from PyQt5.QtWidgets import QMessageBox
-
 
 current_custom_path = None
 def get_components() -> bool:
@@ -31,11 +29,6 @@ def get_components() -> bool:
         except:
             import_failure_msg = traceback.format_exc()
             logging.error("Failed to import custom components: %s" % (import_failure_msg))
-            error_msg = QMessageBox()
-            error_msg.setIcon(QMessageBox.Critical)
-            error_msg.setText("Failed to import custom components. \n\n" + import_failure_msg)
-            error_msg.setWindowTitle("Components Fatal Error")
-            error_msg.exec_()
 
     return os.path.exists(module_path)
 

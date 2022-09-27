@@ -1323,6 +1323,7 @@ class WeaponChoiceState(MapState):
         self.cur_unit.sprite.change_state('chosen')
         options = self.options
         self.menu = menus.Choice(self.cur_unit, options)
+        self.menu.set_limit(8)
         self.item_desc_panel = ui_view.ItemDescriptionPanel(self.cur_unit, self.menu.get_current())
         self.disp_attacks(self.cur_unit, self.menu.get_current())
 
@@ -1382,7 +1383,6 @@ class WeaponChoiceState(MapState):
                 equip_action = action.EquipItem(self.cur_unit, selection)
                 # game.memory['equip_action'] = equip_action
                 action.do(equip_action)
-
 
             # If the item is in our inventory, bring it to the top
             if selection in self.cur_unit.items:

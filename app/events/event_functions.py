@@ -1397,18 +1397,22 @@ def move_item(self: Event, giver, receiver, item=None, flags=None):
             self.logger.error("move_item: Either unit or item was invalid, see above")
             return
     else:
-        unit = self.game.get_unit(giver)
         item = None
-        if not unit:
-            self.logger.error("Could not find unit %s", giver)
-            return
-        if unit.inventory:
-            item = unit.inventory[-1]
+        if giver.lower() == 'convoy':
+            unit = self.game.get_party()
+        else:
+            unit = self.game.get_unit(giver)
+            if not unit:
+                self.logger.error("Could not find unit %s", giver)
+                return
+
+        if unit.items:
+            item = unit.items[-1]
         else:
             self.logger.warning("Unit %s has no items", giver)
             return
 
-    if global_unit.lower() == 'convoy':
+    if giver.lower() == 'convoy':
         if receiver.lower() == 'convoy':
             self.logger.warning("No change, since moving from current convoy to current convoy")
         else:
@@ -1422,7 +1426,8 @@ def move_item(self: Event, giver, receiver, item=None, flags=None):
                 self.logger.warning("No space in unit %s's inventory", receiver)
                 return
     else:
-        if receiver.lower() = 'convoy':
+        if receiver.lower() == 'convoy':
+            action.do(action.RemoveItem(unit, item))
             action.do(action.PutItemInConvoy(item))
         else:
             other_unit = self.game.get_unit(receiver)
@@ -1445,6 +1450,7 @@ def move_item_between_convoys(self: Event, item, party1, party2, flags=None):
         self.logger.error("Could not find party with nid %s", party2)
         return
 
+    item_id = item
     item_list = giver.items
     inids = [item.nid for item in item_list]
     iuids = [item.uid for item in item_list]

@@ -451,7 +451,7 @@ def pause_background(self: Event, pause_at=None, flags=None):
 def unpause_background(self: Event, flags=None):
     if not self.background:
         self.logger.warning("No current background to unpause")
-        return 
+        return
     self.background.unpause()
 
 def disp_cursor(self: Event, show_cursor, flags=None):
@@ -498,7 +498,7 @@ def center_cursor(self: Event, position, speed=None, flags=None):
             # we are using a custom camera speed
             duration = int(speed)
             self.game.camera.do_slow_pan(duration)
-            self.game.camera.set_center(*position)
+        self.game.camera.set_center(*position)
         self.game.state.change('move_camera')
         self.state = 'paused'  # So that the message will leave the update loop
 
@@ -534,7 +534,7 @@ def screen_shake(self: Event, duration, shake_type=None, flags=None):
     if not shake_offset:
         self.logger.error("shake mode %s not recognized by screen shake command. Recognized modes are ('default', 'combat').", shake_type)
         return
-    
+
     self.game.camera.set_shake(shake_offset, duration)
     if self.background:
         self.background.set_shake(shake_offset, duration)

@@ -1306,7 +1306,7 @@ def give_item(self: Event, global_unit_or_convoy, item, flags=None):
         self.logger.error("give_item: Couldn't find item with nid %s" % item_id)
         return
     banner_flag = 'no_banner' not in flags
-    item.droppable = 'droppable' in flags
+    action.do(action.SetDroppable(item, 'droppable' in flags))
 
     if unit:
         if item_funcs.inventory_full(unit, item):

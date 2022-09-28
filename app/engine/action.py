@@ -1221,6 +1221,17 @@ class MakeItemDroppable(Action):
             item.droppable = self.is_droppable[idx]
         self.item.droppable = self.was_droppable
 
+class SetDroppable(Action):
+    def __init__(self, item, value):
+        self.item = item
+        self.was_droppable = item.droppable
+        self.value = value
+
+    def do(self):
+        self.item.droppable = self.value
+
+    def reverse(self):
+        self.item.droppable = self.was_droppable
 
 class StoreItem(Action):
     def __init__(self, unit, item):

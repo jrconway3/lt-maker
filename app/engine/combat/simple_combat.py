@@ -5,7 +5,7 @@ from app.engine.combat.solver import CombatPhaseSolver
 from app.engine.game_state import game
 from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
-from app.events import triggers
+from app.events import triggers, event_commands
 from app.utilities import utils
 
 
@@ -340,11 +340,11 @@ class SimpleCombat():
                     if item.droppable:
                         action.do(action.RemoveItem(unit, item))
                         event_nid = 'DropItem%d' % counter
-                        command = 'give_item;{unit};{e:item_uid}'
                         if self.alerts:
-                            pass
+                            flags = None
                         else:
-                            command += ';no_banner'
+                            flags = {'no_banner'}
+                        command = event_commands.GiveItem({'GlobalUnitOrConvoy': '{unit}', 'Item': str(item.uid)}, flags)
                         trigger = triggers.GenericTrigger(self.attacker, unit, self.attacker.position, {'item_uid': item.uid})
                         game.events._add_event(event_nid, [command], trigger)
                         counter += 1
@@ -354,11 +354,11 @@ class SimpleCombat():
                 if item.droppable:
                     action.do(action.RemoveItem(self.attacker, item))
                     event_nid = 'DropItem%d' % counter
-                    command = 'give_item;{unit};{e:item_uid}'
                     if self.alerts:
-                        pass
+                        flags = None
                     else:
-                        command += ';no_banner'
+                        flags = {'no_banner'}
+                    command = event_commands.GiveItem({'GlobalUnitOrConvoy': '{unit}', 'Item': str(item.uid)}, flags)
                     trigger = triggers.GenericTrigger(self.defender, self.attacker, self.defender.position, {'item_uid': item.uid})
                     game.events._add_event(event_nid, [command], trigger)
                     counter += 1

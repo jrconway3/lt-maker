@@ -41,8 +41,8 @@ class EventModel(TableModel):
         return None
 
     def create_new(self, level_nid=None):
-        other_names = [d.name for d in self._data if d.level_nid is None]
-        name = str_utils.get_next_name("New Event", other_names, '-')
+        other_names = [d.name for d in self._data if d.level_nid == level_nid]
+        name = str_utils.get_next_name("New Event", other_names)
         new_event = EventPrefab(name)
         new_event.level_nid = level_nid
         DB.events.append(new_event)

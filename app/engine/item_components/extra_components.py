@@ -35,7 +35,6 @@ class EffectiveTag(ItemComponent):
     nid = 'effective_tag'
     desc = "Item will be considered effective if the targeted enemy has any of the tags listed in this component."
     # requires = ['damage']
-    paired_with = ('effective_multiplier',)
     tag = ItemTags.EXTRA
 
     expose = (Type.List, Type.Tag)

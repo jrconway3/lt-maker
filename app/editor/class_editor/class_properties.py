@@ -364,7 +364,9 @@ class ClassProperties(QWidget):
             self.averages_dialog.set_current(current)
 
         self.class_skill_widget.set_current(current.learned_skills)
-        self.wexp_gain_widget.set_current(current.wexp_gain)
+        default_weapons = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}
+        default_weapons.update(current.wexp_gain)
+        self.wexp_gain_widget.set_current(default_weapons)
         self.field_widget.set_current(current.fields)
 
         self.icon_edit.set_current(current.icon_nid, current.icon_index)

@@ -197,12 +197,8 @@ class ObjectiveMenuState(State):
             surf.blit(surface, pos)
 
         # Map Sprite
-        if game.level.roam == True:
-            mapsprite = game.get_unit(game.level.roam_unit).sprite.create_image('passive')
-            surf.blit(mapsprite, (124, 82))
-        else:
-            mapsprite = game.get_unit(game.get_party().leader_nid).sprite.create_image('passive')
-            surf.blit(mapsprite, (124, 82))
+        mapsprite = unit.sprite.create_image('passive')
+        surf.blit(mapsprite, (124, 82))
 
         # Playtime
         time = datetime.timedelta(milliseconds=game.playtime)

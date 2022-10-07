@@ -197,6 +197,11 @@ class ObjectiveMenuState(State):
             surf.blit(surface, pos)
 
         # Map Sprite
+        # Determine party leader
+        if game.level.roam:
+            unit = game.get_unit(game.level.roam_unit)
+        else:
+            unit = game.get_unit(game.get_party().leader_nid)
         mapsprite = unit.sprite.create_image('passive')
         surf.blit(mapsprite, (124, 82))
 

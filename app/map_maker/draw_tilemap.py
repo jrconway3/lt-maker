@@ -30,7 +30,7 @@ def draw_tilemap(tilemap: MapPrefab, autotile_fps=29) -> QImage:
         terrain = DB_terrain.get(terrain_nid)
         
         # Only process the ones that need to be updated
-        if pos in tilemap.terrain_grid_to_update or terrain.has_autotiles:
+        if pos in tilemap.terrain_grid_to_update or terrain.has_autotiles():
             if terrain_nid not in processed_nids:
                 terrain.single_process(tilemap)
                 processed_nids.add(terrain_nid)

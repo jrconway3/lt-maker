@@ -53,31 +53,26 @@ class Terrain(Prefab):
             value = super().restore_attr(name, value)
         return value
 
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
-        new_coords1 = [(self.display_tile_coord[0]*2, self.display_tile_coord[1]*2)]
-        new_coords2 = [(self.display_tile_coord[0]*2 + 1, self.display_tile_coord[1]*2)]
-        new_coords3 = [(self.display_tile_coord[0]*2 + 1, self.display_tile_coord[1]*2 + 1)]
-        new_coords4 = [(self.display_tile_coord[0]*2, self.display_tile_coord[1]*2 + 1)]
-        return new_coords1, new_coords2, new_coords3, new_coords4
+    def determine_sprite(self, tilemap, pos: tuple) -> QPixmap:
+        tile_coord = self.display_tile_coord
 
-    def single_process(self, tilemap):
-        pass
-
-    def get_pixmap(self, tile_coord: tuple, ms: float = 0, autotile_fps: float = 29) -> QPixmap:
         if autotile_fps and self.has_autotiles() and tile_coord in self.autotiles:
             column = self.autotiles[tile_coord]
             autotile_wait = autotile_fps * 16.66
             num = int(ms / autotile_wait) % AUTOTILE_FRAMES
             pix = self.autotile_pixmap.copy(
-                column * TILEWIDTH//2, 
-                num * TILEHEIGHT//2, 
-                TILEWIDTH//2, TILEHEIGHT//2)
+                column * TILEWIDTH, 
+                num * TILEHEIGHT, 
+                TILEWIDTH, TILEHEIGHT)
         else:
             pix = self.tileset_pixmap.copy(
-                tile_coord[0] * TILEWIDTH//2,
-                tile_coord[1] * TILEHEIGHT//2,
-                TILEWIDTH//2, TILEHEIGHT//2)
+                tile_coord[0] * TILEWIDTH,
+                tile_coord[1] * TILEHEIGHT,
+                TILEWIDTH, TILEHEIGHT)
         return pix
+
+    def single_process(self, tilemap):
+        pass
 
 class TerrainCatalog(Data[Terrain]):
     datatype = Terrain

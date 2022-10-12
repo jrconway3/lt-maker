@@ -53,6 +53,18 @@ class Terrain(Prefab):
             value = super().restore_attr(name, value)
         return value
 
+    def get_pixmap8(self, coord1, coord2, coord3, coord4) -> QPixmap:
+        base_pixmap = QPixmap((TILEWIDTH, TILEHEIGHT))
+        topleft = self.tileset_pixmap.copy(coord1[0] * TILEWIDTH//2, coord1[1] * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2)
+        topright = self.tileset_pixmap.copy(coord2[0] * TILEWIDTH//2, coord2[1] * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2)
+        bottomright = self.tileset_pixmap.copy(coord3[0] * TILEWIDTH//2, coord3[1] * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2)
+        bottomleft = self.tileset_pixmap.copy(coord4[0] * TILEWIDTH//2, coord4[1] * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2)
+        base_pixmap.paste(topleft, (0, 0))
+        base_pixmap.paste(topright, (TILEWIDTH//2, 0))
+        base_pixmap.paste(bottomleft, (0, TILEHEIGHT//2))
+        base_pixmap.paste(bottomright, (TILEWIDTH//2, TILEHEIGHT//2))
+        return base_pixmap
+
     def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
         coord = self.display_tile_coord
         return self.get_pixmap(coord, ms, autotile_fps)

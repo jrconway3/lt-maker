@@ -3,6 +3,8 @@ from PyQt5.QtGui import QPixmap, QPainter
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.map_maker.terrain import Terrain
 from app.map_maker.wang_terrain import WangCorner2Terrain
+from app.map_maker.utilities import random_choice
+
 
 class GrassTerrain(Terrain):
     terrain_like = ('Grass', 'Light Grass')
@@ -14,42 +16,40 @@ class GrassTerrain(Terrain):
             main_pix = QPixmap(16, 16)
             painter = QPainter()
             painter.begin(main_pix)
-            painter.drawPixmap(0, 0, self.tileset_pixmap.copy(0, 0, TILEWIDTH//2, TILEHEIGHT//2))
-            painter.drawPixmap(0, TILEHEIGHT//2, self.tileset_pixmap.copy(0, 1 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
-            painter.drawPixmap(TILEWIDTH//2, 0, self.tileset_pixmap.copy(0, 2 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
-            painter.drawPixmap(TILEWIDTH//2, TILEHEIGHT//2, self.tileset_pixmap.copy(0, 3 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
+            painter.drawPixmap(0, 0, self.tileset_pixmap.copy(0, 0, TILEWIDTH, TILEHEIGHT))
             painter.end()
             self.display_pixmap = main_pix
         return self.display_pixmap
-            
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
-        new_coords1 = [(0, k) for k in range(self.limit)]
-        new_coords2 = [(0, k) for k in range(self.limit)]
-        new_coords3 = [(0, k) for k in range(self.limit)]
-        new_coords4 = [(0, k) for k in range(self.limit)]
+
+    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+        new_coord1 = random_choice([(0, k) for k in range(self.limit)], pos)
+        new_coord2 = random_choice([(0, k) for k in range(self.limit)], pos, offset=1)
+        new_coord3 = random_choice([(0, k) for k in range(self.limit)], pos, offset=2)
+        new_coord4 = random_choice([(0, k) for k in range(self.limit)], pos, offset=3)
 
         # Handle cliffs
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
         northeast, southeast, southwest, northwest = tilemap.get_diagonal_terrain(pos)
         if north and north == 'Cliff' and east and east == 'Cliff' and not (northeast and northeast == 'Cliff'):
-            new_coords2 = [self.cliff_data[1]]
+            new_coord2 = self.cliff_data[1]
         elif north and north == 'Cliff' and west and west == 'Cliff' and not (northwest and northwest == 'Cliff'):
-            new_coords1 = [self.cliff_data[3]]
+            new_coord1 = self.cliff_data[3]
         elif south and south == 'Cliff' and east and east == 'Cliff' and not (southeast and southeast == 'Cliff'):
-            new_coords3 = [self.cliff_data[0]]
+            new_coord3 = self.cliff_data[0]
         elif south and south == 'Cliff' and west and west == 'Cliff' and not (southwest and southwest == 'Cliff'):
-            new_coords4 = [self.cliff_data[2]]
+            new_coord4 = self.cliff_data[2]
         # Handle seacliffs
         elif north and north == 'Sea' and east and east == 'Sea' and northeast and northeast == 'Sea':
-            new_coords2 = [self.cliff_data[1]]
+            new_coord2 = self.cliff_data[1]
         elif north and north == 'Sea' and west and west == 'Sea' and northwest and northwest == 'Sea':
-            new_coords1 = [self.cliff_data[3]]
+            new_coord1 = self.cliff_data[3]
         elif south and south == 'Sea' and east and east == 'Sea' and southeast and southeast == 'Sea':
-            new_coords3 = [self.cliff_data[0]]
+            new_coord3 = self.cliff_data[0]
         elif south and south == 'Sea' and west and west == 'Sea' and southwest and southwest == 'Sea':
-            new_coords4 = [self.cliff_data[2]]
+            new_coord4 = self.cliff_data[2]
 
-        return new_coords1, new_coords2, new_coords3, new_coords4
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        return pix
 
 class LightGrassTerrain(WangCorner2Terrain):
     terrain_like = ('Light Grass', )
@@ -125,32 +125,34 @@ class LightGrassTerrain(WangCorner2Terrain):
             8 * left_edge
         return index1, index2, index3, index4
             
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
+    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
         index1, index2, index3, index4 = self._determine_index(tilemap, pos)
-        new_coords1 = [(index1, k) for k in range(self.limits[index1])]
-        new_coords2 = [(index2, k) for k in range(self.limits[index2])]
-        new_coords3 = [(index3, k) for k in range(self.limits[index3])]
-        new_coords4 = [(index4, k) for k in range(self.limits[index4])]
+
+        new_coord1 = random_choice([(index1, k) for k in range(self.limits[index1])], pos)
+        new_coord2 = random_choice([(index2, k) for k in range(self.limits[index2])], pos, offset=1)
+        new_coord3 = random_choice([(index3, k) for k in range(self.limits[index3])], pos, offset=2)
+        new_coord4 = random_choice([(index4, k) for k in range(self.limits[index4])], pos, offset=3)
 
         # Handle cliffs
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
         northeast, southeast, southwest, northwest = tilemap.get_diagonal_terrain(pos)
         if north and north == 'Cliff' and east and east == 'Cliff' and not (northeast and northeast == 'Cliff'):
-            new_coords2 = [self.cliff_data[1]]
+            new_coords2 = self.cliff_data[1]
         elif north and north == 'Cliff' and west and west == 'Cliff' and not (northwest and northwest == 'Cliff'):
-            new_coords1 = [self.cliff_data[3]]
+            new_coords1 = self.cliff_data[3]
         elif south and south == 'Cliff' and east and east == 'Cliff' and not (southeast and southeast == 'Cliff'):
-            new_coords3 = [self.cliff_data[0]]
+            new_coords3 = self.cliff_data[0]
         elif south and south == 'Cliff' and west and west == 'Cliff' and not (southwest and southwest == 'Cliff'):
-            new_coords4 = [self.cliff_data[2]]
+            new_coords4 = self.cliff_data[2]
         # Handle seacliffs
         elif north and north == 'Sea' and east and east == 'Sea' and northeast and northeast == 'Sea':
-            new_coords2 = [self.cliff_data[1]]
+            new_coords2 = self.cliff_data[1]
         elif north and north == 'Sea' and west and west == 'Sea' and northwest and northwest == 'Sea':
-            new_coords1 = [self.cliff_data[3]]
+            new_coords1 = self.cliff_data[3]
         elif south and south == 'Sea' and east and east == 'Sea' and southeast and southeast == 'Sea':
-            new_coords3 = [self.cliff_data[0]]
+            new_coords3 = self.cliff_data[0]
         elif south and south == 'Sea' and west and west == 'Sea' and southwest and southwest == 'Sea':
-            new_coords4 = [self.cliff_data[2]]
+            new_coords4 = self.cliff_data[2]
 
-        return new_coords1, new_coords2, new_coords3, new_coords4
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        return pix

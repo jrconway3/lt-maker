@@ -20,30 +20,29 @@ def draw_tilemap(tilemap: MapPrefab, autotile_fps=29) -> QImage:
     painter.begin(image)
     ms = QDateTime.currentMSecsSinceEpoch()
 
-    # Only process the ones that need to be updated
+    # Process terrain
     processed_nids = set()
-    for pos in sorted(tilemap.terrain_grid_to_update):
+    for pos in sorted(tilemap.terrain_grid):
+        # Determine what terrain is in this position
         terrain_nid = tilemap.get_terrain(pos)
         if not terrain_nid:
             continue
         terrain = DB_terrain.get(terrain_nid)
-        if terrain_nid not in processed_nids:
-            terrain.single_process(tilemap)
-            processed_nids.add(terrain_nid)
-        determine_sprite(pos, terrain, tilemap)
+        
+        # Only process the ones that need to be updated
+        if pos in tilemap.terrain_grid_to_update or terrain.has_autotiles:
+            if terrain_nid not in processed_nids:
+                terrain.single_process(tilemap)
+                processed_nids.add(terrain_nid)
+            sprite = terrain.determine_sprite(tilemap, pos, ms, autotile_fps)
+            terrain.tile_grid[pos] = sprite
 
     # Draw the tile grid
-    for pos, tile_coord in tilemap.tile_grid.items():
-        terrain_pos = (pos[0]//2, pos[1]//2)
-        terrain_nid = tilemap.get_terrain(terrain_pos)
-        if not terrain_nid:
-            continue
-        terrain = DB_terrain.get(terrain_nid)
-        pix = terrain.get_pixmap(tile_coord, ms, autotile_fps)
-        assert pix.width() == TILEWIDTH//2, pix.width()
-        assert pix.height() == TILEHEIGHT//2, pix.height()
-        painter.drawPixmap(pos[0] * TILEWIDTH//2,
-                           pos[1] * TILEHEIGHT//2,
+    for pos, pix in tilemap.tile_grid.items():
+        assert pix.width() == TILEWIDTH, pix.width()
+        assert pix.height() == TILEHEIGHT, pix.height()
+        painter.drawPixmap(pos[0] * TILEWIDTH,
+                           pos[1] * TILEHEIGHT,
                            pix)
     painter.end()
 
@@ -51,27 +50,3 @@ def draw_tilemap(tilemap: MapPrefab, autotile_fps=29) -> QImage:
     tilemap.terrain_grid_to_update.clear()
 
     return image
-
-def determine_sprite(pos: tuple, terrain, tilemap) -> tuple:
-    """
-    pos is in terrain space (16x16)
-    """
-    def _push_to_tilemap(pos: tuple, new_coords: tuple):
-        """
-        pos is in tile space (8x8)
-        """
-        # if tilemap.tile_grid.get(pos) in new_coords:
-        #     pass
-        # else:
-        #     new_coord = random.choice(new_coords)
-        #     tilemap.tile_grid[pos] = new_coord
-        new_coord = random_choice(new_coords, pos)
-        tilemap.tile_grid[pos] = new_coord
-
-    new_coords1, new_coords2, new_coords3, new_coords4 = \
-        terrain.determine_sprite_coords(tilemap, pos)
-
-    _push_to_tilemap((pos[0] * 2, pos[1] * 2), new_coords1)
-    _push_to_tilemap((pos[0] * 2 + 1, pos[1] * 2), new_coords2)
-    _push_to_tilemap((pos[0] * 2 + 1, pos[1] * 2 + 1), new_coords3)
-    _push_to_tilemap((pos[0] * 2, pos[1] * 2 + 1), new_coords4)

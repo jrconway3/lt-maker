@@ -53,9 +53,11 @@ class Terrain(Prefab):
             value = super().restore_attr(name, value)
         return value
 
-    def determine_sprite(self, tilemap, pos: tuple) -> QPixmap:
-        tile_coord = self.display_tile_coord
+    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+        coord = self.display_tile_coord
+        return self.get_pixmap(coord, ms, autotile_fps)
 
+    def get_pixmap(self, tile_coord: tuple, ms: float, autotile_fps: float) -> QPixmap:
         if autotile_fps and self.has_autotiles() and tile_coord in self.autotiles:
             column = self.autotiles[tile_coord]
             autotile_wait = autotile_fps * 16.66

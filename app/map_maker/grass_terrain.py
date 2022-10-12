@@ -22,10 +22,10 @@ class GrassTerrain(Terrain):
         return self.display_pixmap
 
     def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
-        new_coord1 = random_choice([(0, k) for k in range(self.limit)], pos)
-        new_coord2 = random_choice([(0, k) for k in range(self.limit)], pos, offset=1)
-        new_coord3 = random_choice([(0, k) for k in range(self.limit)], pos, offset=2)
-        new_coord4 = random_choice([(0, k) for k in range(self.limit)], pos, offset=3)
+        new_coord1 = random_choice([(0, k) for k in range(self.limits[0])], pos)
+        new_coord2 = random_choice([(0, k) for k in range(self.limits[0])], pos, offset=1)
+        new_coord3 = random_choice([(0, k) for k in range(self.limits[0])], pos, offset=2)
+        new_coord4 = random_choice([(0, k) for k in range(self.limits[0])], pos, offset=3)
 
         # Handle cliffs
         north, east, south, west = tilemap.get_cardinal_terrain(pos)

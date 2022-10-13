@@ -208,7 +208,7 @@ class WangEdge2Terrain16(WangEdge2Terrain):
         index = 1 * north_edge + 2 * east_edge + 4 * south_edge + 8 * west_edge
         return index
 
-    def determine_sprite_coords(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
         index = self._determine_index(tilemap, pos)
         coord = random_choice([(index, k) for k in range(self.limits[index])], pos)
         return self.get_pixmap(tilemap, pos, ms, autotile_fps)

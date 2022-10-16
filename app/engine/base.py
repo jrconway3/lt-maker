@@ -667,7 +667,7 @@ class BaseCodexChildState(State):
         options.append('Records')
         if DB.constants.value('sound_room_in_codex'):
             options.append('Sound Room')
-        # TODO Achievements?
+        options.append('Achievements')
         # TODO Tactics?
         unlocked_guide = [lore for lore in unlocked_lore if lore.category == 'Guide']
         if unlocked_guide:
@@ -712,6 +712,9 @@ class BaseCodexChildState(State):
                 game.state.change('transition_to')
             elif selection == 'Sound Room':
                 game.memory['next_state'] = 'base_sound_room'
+                game.state.change('transition_to')
+            elif selection == 'Achievements':
+                game.memory['next_state'] = 'base_achievement'
                 game.state.change('transition_to')
 
     def update(self):
@@ -1004,7 +1007,7 @@ class BaseRecordsState(State):
 
         elif event == 'BACK':
             get_sound_thread().play_sfx('Select 4')
-            if self.state in ('records', 'mvp', 'achievements'):
+            if self.state in ('records', 'mvp'):
                 game.state.change('transition_pop')
             else:
                 self.prev_menu = self.current_menu
@@ -1061,8 +1064,8 @@ class BaseRecordsState(State):
         self.current_offset_x = -WINWIDTH
         self.prev_offset_x = 1
         if self.state == 'records':
-            self.state = 'achievements'
-            self.current_menu = self.achievement_menu
+            self.state = 'mvp'
+            self.current_menu = self.mvp
         elif self.state == 'mvp':
             self.state = 'records'
             self.current_menu = self.record_menu
@@ -1072,9 +1075,6 @@ class BaseRecordsState(State):
         elif self.state == 'unit':
             self.mvp.move_up(True)
             self.current_menu = self.unit_menus[self.mvp.get_current_index()]
-        elif self.state == 'achievements':
-            self.state = 'mvp'
-            self.current_menu = self.mvp
 
     def move_right(self):
         get_sound_thread().play_sfx('Status_Page_Change')
@@ -1085,17 +1085,14 @@ class BaseRecordsState(State):
             self.state = 'mvp'
             self.current_menu = self.mvp
         elif self.state == 'mvp':
-            self.state = 'achievements'
-            self.current_menu = self.achievement_menu
+            self.state = 'records'
+            self.current_menu = self.record_menu
         elif self.state == 'chapter':
             self.record_menu.move_down(True)
             self.current_menu = self.chapter_menus[self.record_menu.get_current_index()]
         elif self.state == 'unit':
             self.mvp.move_down(True)
             self.current_menu = self.unit_menus[self.mvp.get_current_index()]
-        elif self.state == 'achievements':
-            self.state = 'records'
-            self.current_menu = self.record_menu
 
     def update(self):
         if self.current_menu:
@@ -1319,6 +1316,8 @@ class BaseBEXPAllocateState(State):
                              include_face=True, include_top=True, shimmer=2)
         return surf
 
+class BaseAchievementState(State):
+    name = 'base_achievement'
 
 class BaseSoundRoomState(State):
     name = 'base_sound_room'

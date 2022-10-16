@@ -124,8 +124,9 @@ class AchievementManager():
         try:
             with open(self.location, 'rb') as fp:
                 s_dict = pickle.load(fp)
-            for data in s_dict:
-                self.achievements.append(Achievement.restore(data[1]))
+            if s_dict:
+                for data in s_dict:
+                    self.achievements.append(Achievement.restore(data[1]))
         except FileNotFoundError:
             logging.info("No achievements file found")
 

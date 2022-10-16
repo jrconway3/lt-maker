@@ -2872,3 +2872,6 @@ def update_achievement(self: Event, achievement: str, name: str, description:str
 def complete_achievement(self: Event, nid: str, completed: str, flags=None):
     completed = completed.lower() in self.true_vals
     self.game.achievements.complete_achievement(nid, completed)
+
+def clear_achievements(self: Event, flags=None):
+    self.game.achievements.clear_achievements()

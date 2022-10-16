@@ -2545,7 +2545,7 @@ class CreateAchievement(EventCommand):
     tag = Tags.ACHIEVEMENT
     desc = ('Creates a new achievement. Set completed to 1 to automatically complete the achievement when it is first unlocked. Set hidden to 1 to prevent from appearing in records. Does nothing if nid already present.')
 
-    keywords = ['Nid', 'Name', 'Description']
+    keywords = ['Achievement', 'Name', 'Description']
     _flags = ['completed', 'hidden']
     keyword_types = ['Achievement', 'String', 'String']
 
@@ -2554,7 +2554,7 @@ class UpdateAchievement(EventCommand):
     tag = Tags.ACHIEVEMENT
     desc = ('Updates the name and description of achievement with the given nid. Does nothing if there is no achievement with that nid.')
 
-    keywords = ['Nid', 'Name', 'Description']
+    keywords = ['Achievement', 'Name', 'Description']
     _flags = ['hidden']
     keyword_types = ['Achievement', 'String', 'String']
 
@@ -2565,6 +2565,12 @@ class CompleteAchievement(EventCommand):
 
     keywords = ['Nid', 'Completed']
     keyword_types = ['Nid', 'Bool']
+
+class ClearAchievements(EventCommand):
+    nid = 'clear_achievements'
+    tag = Tags.ACHIEVEMENT
+    desc = ('Remove all achievements from the player')
+
 
 def get_commands():
     return EventCommand.__subclasses__()

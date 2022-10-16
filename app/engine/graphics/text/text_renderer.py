@@ -61,6 +61,39 @@ def rendered_text_width(fonts: List[NID], texts: List[str]) -> int:
             total_width += 16
     return total_width
 
+def fix_tags(text_block: List[str]) -> List[str]:
+    """Fixes unclosed tags.
+
+    Example: ["You must push the <red>RED", "button</> or else you will die!"]
+          -> ["You must push the <red>RED</>", "<red>button</> or else you will die!"]
+
+    Args:
+        text_block (List[str]): a chunk block of text that may have faulty tags
+
+    Returns:
+        List[str]: that same text block with tags properly closed
+    """
+    tag_stack = []
+    fixed_text = []
+    if not text_block:
+        text_block = []
+    for line in text_block:
+        tags_in_line = re.findall(tag_match, line)
+        newline = line
+        for tag in reversed(tag_stack):
+            newline = "<%s>%s" % (tag, newline)
+        for tag in tags_in_line:
+            if '/' in tag: # closing, pop off the stack
+                if tag_stack:
+                    tag_stack.pop()
+            else:
+                tag_stack.append(tag)
+
+        for tag in tag_stack:
+            newline = "%s</>" % newline
+        fixed_text.append(newline)
+    return fixed_text
+
 def render_text(surf: engine.Surface, fonts: List[NID], texts: List[str], colors: List[NID], topleft: Tuple[int, int], align: Alignments=Alignments.LEFT) -> engine.Surface:
     """An enhanced text render layer wrapper around BmpFont.
     Supports multiple fonts and multiple text sections, as well as

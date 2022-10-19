@@ -29,9 +29,9 @@ if __name__ == '__main__':
     if lockfile.tryLock(100):
         # For High DPI displays
         os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+        
         ap = QApplication(sys.argv)
-        # Also for High DPI displays
-        ap.setAttribute(Qt.AA_EnableHighDpiScaling)
         ap.setWindowIcon(QIcon('favicon.ico'))
         from app import dark_theme
         settings = MainSettingsController()

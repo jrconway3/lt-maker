@@ -807,6 +807,17 @@ class SecondaryAI():
                 terms += new_terms
             else:
                 return 0
+        elif self.behaviour.action == 'Support' and enemy:
+            ally = enemy
+            # Try to help others since we already checked ourself in Primary AI
+            if ally is self.unit:  
+                return 0
+            else:
+                max_hp = ally.get_max_hp()
+                missing_health = max_hp - ally.get_hp()
+                help_term = utils.clamp(missing_health / float(max_hp), 0, 1)
+                terms.append((help_term, 100))
+
         elif self.behaviour.action == "Steal" and enemy:
             return 0  # TODO: For now, Steal just won't work with secondary AI
         else:

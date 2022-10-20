@@ -745,6 +745,8 @@ class SecondaryAI():
 
         if self.behaviour.target == 'Event':
             adj_good_enough = False
+        elif self.behaviour.target == 'Position' and not game.board.get_unit(goal_pos):
+            adj_good_enough = False  # Don't move adjacent if it's not necessary
         else:
             adj_good_enough = True
 

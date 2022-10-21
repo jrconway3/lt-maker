@@ -5,7 +5,7 @@ from app.engine import (base_surf, bmpfont, engine, icons, item_funcs,
                         item_system, text_funcs)
 from app.engine.fonts import FONT
 from app.engine.game_state import game
-from app.engine.graphics.text.text_renderer import (font_height, render_text,
+from app.engine.graphics.text.text_renderer import (fix_tags, font_height, render_text,
                                                     rendered_text_width)
 from app.engine.sprites import SPRITES
 from app.utilities import utils
@@ -58,6 +58,7 @@ class HelpDialog():
                 self.lines.extend(line)
         else:
             self.lines = text_funcs.split(self.font, desc, self.num_lines, WINWIDTH - 20)
+        self.lines = fix_tags(self.lines)
 
     def set_transition_in(self):
         self.transition_in = True
@@ -155,7 +156,7 @@ class StatDialog(HelpDialog):
         self.desc = text_funcs.translate(desc)
         self.bonuses = bonuses
 
-        self.lines = text_funcs.line_wrap(self.font, self.desc, 148)
+        self.lines = fix_tags(text_funcs.line_wrap(self.font, self.desc, 148))
         self.size_y = font_height(self.font) * (len(self.lines) + len(self.bonuses)) + 16
 
         self.help_surf = base_surf.create_base_surf(160, self.size_y, 'help_bg_base')
@@ -261,6 +262,7 @@ class ItemHelpDialog(HelpDialog):
                 self.lines.extend(line)
         else:
             self.lines = text_funcs.line_wrap(self.font, desc, width)
+        self.lines = fix_tags(self.lines)
 
     def draw(self, surf, pos, right=False):
         time = engine.get_time()

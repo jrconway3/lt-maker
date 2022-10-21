@@ -1,3 +1,4 @@
+from app.engine.graphics.text.text_renderer import fix_tags, render_text
 import logging
 from app.engine.text_evaluator import TextEvaluator
 import app.engine.config as cf
@@ -838,8 +839,9 @@ class ItemDescriptionPanel():
             else:
                 desc = "Cannot wield."
             lines = text_funcs.line_wrap('text', desc, width - 8)
+            lines = fix_tags(lines)
             for idx, line in enumerate(lines):
-                FONT['text'].blit(line, bg_surf, (4 + 2, 8 + idx * 16))
+                render_text(bg_surf, ['text'], [line], [None], (4 + 2, 8 + idx * 16))
 
         return bg_surf
 

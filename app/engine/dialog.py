@@ -1,5 +1,6 @@
 import re
-from app.engine.graphics.text.text_renderer import fix_tags, render_text, rendered_text_width
+from typing import List
+from app.engine.graphics.text.text_renderer import MATCH_CAPTURE_TAG_RE, fix_tags, render_text, rendered_text_width
 
 from app.utilities import utils
 from app.constants import WINWIDTH, WINHEIGHT
@@ -11,6 +12,8 @@ from app.engine import text_funcs, engine, image_mods
 from app.engine import config as cf
 
 from app.engine.game_state import game
+
+MATCH_DIALOG_COMMAND_RE = re.compile('(\{[^\{]*?\})')
 
 class Dialog():
     solo_flag = False
@@ -111,20 +114,22 @@ class Dialog():
             self.no_wait = True
         elif not text.endswith('{w}'):
             text += '{w}'
-        command = None
-        processed_text = []
-        for character in text:
-            if character == '{' and command is None:
-                command = '{'
-            elif character == '}' and command is not None:
-                command += '}'
-                processed_text.append(command)
-                command = None
-            elif command is not None:
-                command += character
-            else:
-                processed_text.append(character)
-        processed_text = [';' if char == '{semicolon}' else char for char in processed_text]
+        text = text.replace('{semicolon}', ';')
+        processed_text: List[str] = []
+        # obligatory regex explanation: turns "A line.{w} With some <red>text</>."
+        # into ["A line.", "{w}", " With some ", "<red>", "text", "</>", "."]
+        # and then decomposes the non-command/tag elements into individual chars.
+        text_split_by_commands: List[str] = re.split(MATCH_DIALOG_COMMAND_RE, text)
+        text_split_by_commands_and_tags: List[str] = []
+        for block in text_split_by_commands:
+            text_split_by_commands_and_tags += re.split(MATCH_CAPTURE_TAG_RE, block)
+        for block in text_split_by_commands_and_tags:
+            if block.startswith('<') and block.endswith('>'): # tag (e.g. "<red>")
+                processed_text.append(block)
+            elif block.startswith('{') and block.endswith('}'): # command (e.g. "{br}")
+                processed_text.append(block)
+            else: # normal char str (e.g. "hello")
+                processed_text += list(block)
         return processed_text
 
     def determine_desired_center(self, portrait):

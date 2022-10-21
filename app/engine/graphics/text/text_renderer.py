@@ -9,7 +9,8 @@ from app.engine.icons import draw_icon_by_alias
 from app.utilities.enums import Alignments
 from app.utilities.typing import NID
 
-tag_match = re.compile('<(.*?)>')
+MATCH_TAG_RE = re.compile('<(.*?)>')
+MATCH_CAPTURE_TAG_RE = re.compile('(<[^<]*?>)')
 
 def font_height(font: NID):
     return FONT[font].height
@@ -40,7 +41,7 @@ def rendered_text_width(fonts: List[NID], texts: List[str]) -> int:
         curr_text = text_stack.pop()
         curr_font = font_stack.pop()
         # process text for tags and push them onto stack for later processing
-        any_tags = tag_match.search(curr_text)
+        any_tags = MATCH_TAG_RE.search(curr_text)
         if any_tags:
             tag_start, tag_end = any_tags.span()
             tag_font = any_tags.group().strip("<>")
@@ -78,7 +79,7 @@ def fix_tags(text_block: List[str]) -> List[str]:
     if not text_block:
         text_block = []
     for line in text_block:
-        tags_in_line = re.findall(tag_match, line)
+        tags_in_line = re.findall(MATCH_TAG_RE, line)
         newline = line
         for tag in reversed(tag_stack):
             newline = "<%s>%s" % (tag, newline)
@@ -139,7 +140,7 @@ def render_text(surf: engine.Surface, fonts: List[NID], texts: List[str], colors
         curr_font = font_stack.pop()
         curr_color = color_stack.pop() if color_stack else None
         # process text for tags and push them onto stack for later processing
-        any_tags = tag_match.search(curr_text)
+        any_tags = MATCH_TAG_RE.search(curr_text)
         if any_tags:
             tag_start, tag_end = any_tags.span()
             tag_font = any_tags.group().strip("<>")

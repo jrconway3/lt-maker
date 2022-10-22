@@ -839,6 +839,7 @@ class ItemDescriptionPanel():
             else:
                 desc = "Cannot wield."
 
+            desc = desc.replace('{br}', '\n')
             lines = text_funcs.line_wrap('text', desc, width - 8)
             new_lines = []
             for line in lines:

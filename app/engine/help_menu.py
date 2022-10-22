@@ -23,6 +23,10 @@ class HelpDialog():
         self.transition_in = False
         self.transition_out = 0
 
+        if not desc:
+            desc = ''
+        desc = text_funcs.translate(desc)
+
         self.num_lines = self.find_num_lines(desc)
         self.build_lines(desc)
 
@@ -38,6 +42,15 @@ class HelpDialog():
         self.help_surf = base_surf.create_base_surf(self.width, self.height, 'help_bg_base')
         self.h_surf = engine.create_surface((self.width, self.height + 3), transparent=True)
 
+        from app.engine import dialog
+        desc = desc.replace('\n', '{br}')
+        self.dlg = dialog.Dialog(desc, num_lines=8, draw_cursor=False, speed=0.5)
+        self.dlg.position = (0, (16 if self.name else 0))
+        self.dlg.text_width = greater_line_len
+        self.dlg.font = FONT[self.font]
+        self.dlg.font_type = self.font
+        self.dlg.font_color = 'black'
+
     def get_width(self):
         return self.help_surf.get_width()
 
@@ -45,9 +58,6 @@ class HelpDialog():
         return self.help_surf.get_height()
 
     def build_lines(self, desc):
-        if not desc:
-            desc = ''
-        desc = text_funcs.translate(desc)
         # Hard set num lines if desc is very short
         if '\n' in desc:
             lines = desc.splitlines()
@@ -117,15 +127,8 @@ class HelpDialog():
         if self.name:
             render_text(help_surf, [self.font], [self.name], [], (8, 8))
 
-        if cf.SETTINGS['text_speed'] > 0:
-            num_characters = int(2 * (time - self.start_time) / float(cf.SETTINGS['text_speed']))
-        else:
-            num_characters = 1000
-        for idx, line in enumerate(self.lines):
-            if num_characters > 0:
-                text_pos = (8, font_height(self.font) * idx + 8 + (16 if self.name else 0))
-                render_text(help_surf, [self.font], [line[:num_characters]], [], text_pos)
-                num_characters -= len(line)
+        self.dlg.update()
+        self.dlg.draw(help_surf)
 
         if right:
             surf = self.final_draw(surf, (pos[0] - help_surf.get_width(), pos[1]), time, help_surf)
@@ -136,8 +139,8 @@ class HelpDialog():
 
     def find_num_lines(self, desc: str) -> int:
         '''Returns the number of lines in the description'''
-        desc = text_funcs.translate(desc)
         # Split on \n, then go through each element in the list and break it into further strings if too long
+        desc = desc.replace('{br}', '\n')
         lines = desc.split("\n")
         total_lines = len(lines)
         for line in lines:
@@ -248,6 +251,19 @@ class ItemHelpDialog(HelpDialog):
         self.help_surf = base_surf.create_base_surf(160, size_y, 'help_bg_base')
         self.h_surf = engine.create_surface((160, size_y + 3), transparent=True)
 
+        if self.item.desc:
+            from app.engine import dialog
+            desc = self.item.desc.replace('\n', '{br}')
+            self.dlg = dialog.Dialog(desc, num_lines=8, draw_cursor=False, speed=0.5)
+            y_height = 32 if self.num_present > 3 else 16
+            self.dlg.position = (0, y_height)
+            self.dlg.text_width = 160 - 16
+            self.dlg.font = FONT[self.font]
+            self.dlg.font_type = self.font
+            self.dlg.font_color = 'black'
+        else:
+            self.dlg = None
+
     def build_lines(self, desc, width):
         if not desc:
             desc = ''
@@ -290,16 +306,9 @@ class ItemHelpDialog(HelpDialog):
                 val_pos = val_positions.pop()
                 render_text(help_surf, [self.text_font], [str(v)], ['blue'], val_pos, Alignments.RIGHT)
 
-        if cf.SETTINGS['text_speed'] > 0:
-            num_characters = int(2 * (time - self.start_time) / float(cf.SETTINGS['text_speed']))
-        else:
-            num_characters = 1000
-
-        y_height = 32 if self.num_present > 3 else 16
-        for idx, line in enumerate(self.lines):
-            if num_characters > 0:
-                render_text(help_surf, [self.font], [line[:num_characters]], [], (8, font_height(self.font) * idx + 6 + y_height))
-                num_characters -= len(line)
+        if self.dlg:
+            self.dlg.update()
+            self.dlg.draw(help_surf)
 
         if right:
             surf = self.final_draw(surf, (pos[0] - help_surf.get_width(), pos[1]), time, help_surf)

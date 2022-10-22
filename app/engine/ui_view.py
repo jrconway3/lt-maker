@@ -1,4 +1,4 @@
-from app.engine.graphics.text.text_renderer import fix_tags, render_text
+from app.engine.graphics.text.text_renderer import fix_tags, render_text, rendered_text_width
 import logging
 from app.engine.text_evaluator import TextEvaluator
 import app.engine.config as cf
@@ -296,13 +296,12 @@ class UIView():
         return bg_surf
 
     def create_obj_info(self):
-        font = FONT['text']
         obj = game.level.objective['simple']
         text_parser = TextEvaluator(logging.getLogger(), game)
         text_lines = text_parser._evaluate_all(obj).split(',')
         text_lines = [line.replace('{comma}', ',') for line in text_lines]
         text_lines = fix_tags(text_lines)
-        longest_surf_width = text_funcs.get_max_width(font, text_lines)
+        longest_surf_width = text_funcs.get_max_width('text', text_lines)
         bg_surf = base_surf.create_base_surf(longest_surf_width + 16, 16 * len(text_lines) + 8)
 
         if len(text_lines) == 1:
@@ -317,7 +316,7 @@ class UIView():
         surf = image_mods.make_translucent(surf, .1)
 
         for idx, line in enumerate(text_lines):
-            pos = (surf.get_width()//2 - font.width(line)//2, 16 * idx + 6)
+            pos = (surf.get_width()//2 - rendered_text_width(['text'], [line])//2, 16 * idx + 6)
             render_text(surf, ['text'], [line], [None], pos)
 
         return surf
@@ -839,8 +838,12 @@ class ItemDescriptionPanel():
                 desc = self.item.desc
             else:
                 desc = "Cannot wield."
+
             lines = text_funcs.line_wrap('text', desc, width - 8)
-            lines = fix_tags(lines)
+            new_lines = []
+            for line in lines:
+                new_lines += line.split('\n')
+            lines = fix_tags(new_lines)
             for idx, line in enumerate(lines):
                 render_text(bg_surf, ['text'], [line], [None], (4 + 2, 8 + idx * 16))
 

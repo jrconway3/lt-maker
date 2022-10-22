@@ -95,6 +95,24 @@ def fix_tags(text_block: List[str]) -> List[str]:
         fixed_text.append(newline)
     return fixed_text
 
+def remove_tags(text_block: List[str]) -> List[str]:
+    """removes all tags.
+
+    Example: ["You must push the <red>RED", "button</> or else you will die!"]
+          -> ["You must push the RED", "button or else you will die!"]
+
+    Args:
+        text_block (List[str]): a chunk block of text that may have tags
+
+    Returns:
+        List[str]: that same text block with all tags removed
+    """
+    new_text_block = []
+    for line in text_block:
+        new_line = re.sub(MATCH_TAG_RE, '', line)
+        new_text_block.append(new_line)
+    return new_text_block
+
 def render_text(surf: engine.Surface, fonts: List[NID], texts: List[str], colors: List[NID], topleft: Tuple[int, int], align: Alignments=Alignments.LEFT) -> engine.Surface:
     """An enhanced text render layer wrapper around BmpFont.
     Supports multiple fonts and multiple text sections, as well as

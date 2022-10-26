@@ -62,7 +62,7 @@ def line_wrap(font_name, string: str, width: int, pad=False) -> List[str]:
     assert width > 0
     chunks = line_chunk(string)
     chunks.reverse()
-    space_length = rendered_text_width([font_name], [' ']) - 1  # Account for weird kerning
+    space_length = rendered_text_width([font_name], [' '])
 
     lines = []
     while chunks:

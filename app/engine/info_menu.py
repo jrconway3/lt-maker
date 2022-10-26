@@ -717,7 +717,7 @@ class InfoMenuState(State):
             contribution = self.unit.stat_contribution(stat_nid)
             contribution['Base Value'] = base_value
             desc_text = curr_stat.desc
-            help_box = help_menu.StatDialog(desc_text if desc_text else '%s_desc' % stat_nid, contribution)
+            help_box = help_menu.StatDialog(desc_text or ('%s_desc' % stat_nid), contribution)
             self.info_graph.register((96 + 8, 16 * idx + 24, 64, 16), help_box, state, first=(idx == 0))
 
         for idx, stat_nid in enumerate(right_stats):
@@ -733,7 +733,7 @@ class InfoMenuState(State):
             contribution = self.unit.stat_contribution(stat_nid)
             contribution['Base Value'] = base_value
             desc_text = curr_stat.desc
-            help_box = help_menu.StatDialog(desc_text if desc_text else '%s_desc' % stat_nid, contribution)
+            help_box = help_menu.StatDialog(desc_text or ('%s_desc' % stat_nid), contribution)
             self.info_graph.register((96 + 72, 16 * idx + 24, 64, 16), help_box, state)
 
         other_stats = ['TRV', 'AID', 'RAT']

@@ -31,11 +31,13 @@ class LoadingState(State):
     name = 'start_level_asset_loading'
     transparent = False
 
+    # For A E S T H E T I C S
+    duration = 1000  # How long to wait after we load in everything to actually move to the turn_change state
+
     def start(self):
         logging.debug("Loading state...")
-        self.start_time = None
+        self.completed_time = None
         # magic number, adjust at will
-        self.duration = 1000
         self.loading_threads: List[threading.Thread] = []
 
         # unload used assets
@@ -55,13 +57,12 @@ class LoadingState(State):
             loading_music_thread = threading.Thread(target=get_sound_thread().load_songs, args=[level_songs])
             loading_music_thread.start()
             self.loading_threads.append(loading_music_thread)
-            self.loaded_music = True
 
     def update(self):
-        if not any([thread.is_alive() for thread in self.loading_threads]) and not self.start_time:
-            self.start_time = engine.get_time()
-        if self.start_time:
-            if(engine.get_time() - self.start_time > self.duration):
+        if not self.completed_time and not any([thread.is_alive() for thread in self.loading_threads]):
+            self.completed_time = engine.get_time()
+        if self.completed_time:
+            if engine.get_time() - self.completed_time > self.duration:
                 logging.debug("All loading threads complete for level %s" % self.level_nid)
                 game.state.change('turn_change')
 

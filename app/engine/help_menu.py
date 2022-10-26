@@ -156,14 +156,26 @@ class StatDialog(HelpDialog):
         self.transition_in = False
         self.transition_out = 0
 
-        self.desc = text_funcs.translate(desc)
+        desc = text_funcs.translate(desc)
         self.bonuses = bonuses
 
-        self.lines = fix_tags(text_funcs.line_wrap(self.font, self.desc, 148))
+        self.lines = fix_tags(text_funcs.line_wrap(self.font, desc, 148))
         self.size_y = font_height(self.font) * (len(self.lines) + len(self.bonuses)) + 16
 
         self.help_surf = base_surf.create_base_surf(160, self.size_y, 'help_bg_base')
         self.h_surf = engine.create_surface((160, self.size_y + 3), transparent=True)
+
+        self.create_dialog(desc)
+
+    def create_dialog(self, desc):
+        from app.engine import dialog
+        desc = desc.replace('\n', '{br}')
+        self.dlg = dialog.Dialog(desc, num_lines=8, draw_cursor=False, speed=0.5)
+        self.dlg.position = (0, 0)
+        self.dlg.text_width = 148
+        self.dlg.font = FONT[self.font]
+        self.dlg.font_type = self.font
+        self.dlg.font_color = 'black'
 
     def draw(self, surf, pos, right=False):
         time = engine.get_time()
@@ -171,6 +183,7 @@ class StatDialog(HelpDialog):
             self.start_time = time - 16
             self.transition_in = True
             self.transition_out = 0
+            self.create_dialog(self.dlg.plain_text)
         self.last_time = time
 
         help_surf = engine.copy_surface(self.help_surf)
@@ -181,14 +194,14 @@ class StatDialog(HelpDialog):
 
         for idx, line in enumerate(self.lines):
             if num_characters > 0:
-                render_text(help_surf, [self.font], [line[:num_characters]], [], (8, font_height(self.font) * idx + 6))
+                # render_text(help_surf, [self.font], [line[:num_characters]], [], (8, font_height(self.font) * idx + 6))
                 num_characters -= len(line)
 
         y_height = len(self.lines) * 16
         bonuses = sorted(self.bonuses.items(), key=lambda x: x[0] != 'Base Value')
         for idx, (bonus, val) in enumerate(bonuses):
             if num_characters > 0:
-                top = font_height(self.font) * idx + 6 + y_height
+                top = font_height(self.font) * idx + 8 + y_height
                 if idx == 0:
                     render_text(help_surf, [self.text_font], [str(val)], [], (8, top))
                 elif val > 0:
@@ -199,6 +212,10 @@ class StatDialog(HelpDialog):
                     render_text(help_surf, [self.font], [str(val)], [], (8, top))
                 render_text(help_surf, [self.font], [bonus[:num_characters]], [], (32, top))
                 num_characters -= len(bonus)
+
+        if self.dlg:
+            self.dlg.update()
+            self.dlg.draw(help_surf)
 
         if right:
             surf = self.final_draw(surf, (pos[0] - help_surf.get_width(), pos[1]), time, help_surf)

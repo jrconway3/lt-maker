@@ -243,7 +243,8 @@ class Dialog():
             # Remove any commands from line
             current_line = re.sub(r'\{[^}]*\}', '', current_line)
             next_word = self._get_next_word(self.text_index)
-            if self.font.width(current_line + ' ' + next_word) > self.text_width:
+            next_width = rendered_text_width([self.font_type], [current_line + ' ' + next_word])
+            if next_width > self.text_width:
                 self._next_line()
             else:
                 self._add_letter(' ')
@@ -261,7 +262,10 @@ class Dialog():
             if letter == ' ':
                 break
             elif len(letter) > 1:  # Command
-                break
+                if letter.startswith('{'):
+                    break
+                elif letter.startswith('<'):
+                    continue
             else:
                 word += letter
         return word
@@ -458,7 +462,7 @@ class LocationCard():
         return [text]
 
     def determine_size(self):
-        self.width = max(self.font.width(line) for line in self.text_lines) + 16
+        self.width = max(rendered_text_width([self.font.nid], [line]) for line in self.text_lines) + 16
         self.height = len(self.text_lines) * self.font.height + 8
 
     def make_background(self, background):
@@ -532,7 +536,7 @@ class Credits():
             lines = text_funcs.line_wrap(self.font_name, line, x_bound)
             for li in lines:
                 if self.center_flag:
-                    x_pos = WINWIDTH//2 - self.font.width(li)//2
+                    x_pos = WINWIDTH//2 - rendered_text_width([self.font.nid], [li])//2
                 else:
                     x_pos = 88
                 y_pos = self.font.height * index + self.title_font.height
@@ -616,7 +620,7 @@ class Ending():
         self.bg.blit(self.background, (0, 0))
         self.bg.blit(self.portrait, (136, 57))
 
-        title_pos_x = 68 - self.font.width(self.title)//2
+        title_pos_x = 68 - rendered_text_width([self.font.nid], [self.title])//2
         self.font.blit(self.title, self.bg, (title_pos_x, 24))
 
         # Stats

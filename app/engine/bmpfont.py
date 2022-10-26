@@ -149,5 +149,4 @@ class BmpFont():
                 # print("string: ", string)
                 char_width = 8
             length += char_width
-        length += 1
         return length

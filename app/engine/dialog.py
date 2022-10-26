@@ -168,7 +168,7 @@ class Dialog():
                 preceded_by_wait = False
             elif command in ('{w}', '{wait}'):
                 preceded_by_wait = True
-            elif command.startswith('{') or command.startswith('<'):
+            elif command.startswith('{'):
                 pass
             else:
                 current_line += command
@@ -243,7 +243,8 @@ class Dialog():
             # Remove any commands from line
             current_line = re.sub(r'\{[^}]*\}', '', current_line)
             next_word = self._get_next_word(self.text_index)
-            if rendered_text_width([self.font_type], [current_line + ' ' + next_word]) > self.text_width:
+            next_width = rendered_text_width([self.font_type], [current_line + ' ' + next_word])
+            if next_width > self.text_width:
                 self._next_line()
             else:
                 self._add_letter(' ')
@@ -261,7 +262,10 @@ class Dialog():
             if letter == ' ':
                 break
             elif len(letter) > 1:  # Command
-                break
+                if letter.startswith('{'):
+                    break
+                elif letter.startswith('<'):
+                    continue
             else:
                 word += letter
         return word

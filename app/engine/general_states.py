@@ -43,6 +43,8 @@ class LoadingState(State):
         # unload used assets
         # unload music
         get_sound_thread().reset()
+        get_sound_thread().set_music_volume(cf.SETTINGS['music_volume'])
+        get_sound_thread().set_sfx_volume(cf.SETTINGS['sound_volume'])
 
         # load music used in the level
         self.level_nid = game.level_nid

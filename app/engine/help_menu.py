@@ -274,7 +274,7 @@ class ItemHelpDialog(HelpDialog):
             self.dlg = dialog.Dialog(desc, num_lines=8, draw_cursor=False, speed=0.5)
             y_height = 32 if self.num_present > 3 else 16
             self.dlg.position = (0, y_height)
-            self.dlg.text_width = 160 - 16
+            self.dlg.text_width = 148
             self.dlg.font = FONT[self.font]
             self.dlg.font_type = self.font
             self.dlg.font_color = 'black'

@@ -894,8 +894,13 @@ class MenuState(MapState):
                 get_sound_thread().play_sfx('Info Out')
                 self.menu.info_flag = False
             else:
-                get_sound_thread().play_sfx('Info In')
-                self.menu.info_flag = True
+                selection = self.menu.get_current()
+                # Show info menu for the basic stuff
+                if selection in ('Attack', 'Spells', 'Item', 'Wait'):
+                    info_menu.handle_info()
+                else:  # Show description for everything else.
+                    get_sound_thread().play_sfx('Info In')
+                    self.menu.info_flag = True
 
         elif event == 'SELECT':
             get_sound_thread().play_sfx('Select 1')

@@ -74,7 +74,7 @@ class BmpFont():
         else:
             c_info = self.chartable[c]
             cx, cy, cwidth = c_info.x, c_info.y, c_info.char_width
-        base_surf = self.surfaces[color]
+        base_surf = self.surfaces.get(color, self.surfaces['default'])
         char_surf = engine.subsurface(base_surf, (cx, cy, self._width, self.height))
         return (char_surf, cwidth)
 
@@ -88,7 +88,7 @@ class BmpFont():
         else:
             c_info = self.chartable[c]
             cx, cy, cwidth = c_info.x, c_info.y, c_info.char_width
-        base_surf = self.surfaces[color]
+        base_surf = self.surfaces.get(color, self.surfaces['default'])
         high_surf = engine.subsurface(base_surf, (cx, cy, self._width, self.height))
         lowsurf = engine.subsurface(base_surf, (cx, cy + self.height, self._width, self.height))
         return (high_surf, lowsurf, cwidth)

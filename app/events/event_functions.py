@@ -2989,7 +2989,7 @@ def separate(self: Event, unit, flags=None):
     unit = new_unit
     action.do(action.RemovePartner(unit))
 
-def create_achievement(self: Event, achievement: str, name: str, description:str, completed='', hidden='', flags=None):
+def create_achievement(self: Event, achievement: str, name: str, description:str, flags=None):
     flags = flags or set()
 
     completed = 'completed' in flags
@@ -3014,40 +3014,41 @@ def complete_achievement(self: Event, nid: str, completed: str, banner: str, fla
 
     remove_overlay_sprite(self, 'achievement_notification_' + nid)
 
+    def draw_achievement(self: Event, position, achievement):
+        # Nested for unit test/event command reasons
+        name = 'achievement_notification_' + achievement.nid
+        sprite_nid = 'achievement_notification'
+        font = "text-green"
+        if text_funcs.get_max_width(font, [achievement.name]) < 60:
+            sprite_nid += "_short"
+            position = (position[0] + 64, position[1])
+        x, y = position
+
+        sprite = SPRITES.get(sprite_nid)
+        component = UIComponent.from_existing_surf(sprite)
+        component.name = name
+        component.disable()
+
+        start_x = x
+        start_y = -component.height
+        enter_anim = translate_anim((start_x, start_y), (x, y), 750, interp_mode=InterpolationType.CUBIC)
+        exit_anim = translate_anim((x, y), (start_x, start_y), 750, disable_after=True, interp_mode=InterpolationType.CUBIC)
+        component.save_animation(enter_anim, '!enter')
+        component.save_animation(exit_anim, '!exit')
+
+        achievement_name = PlainTextLine("name", component, achievement.name, font)
+        achievement_name.props.h_alignment = HAlignment.CENTER
+        achievement_name.props.v_alignment = VAlignment.CENTER
+        component.add_child(achievement_name)
+
+        get_sound_thread().play_sfx("Item", volume=0.5)
+
+        self.overlay_ui.add_child(component)
+        if self.do_skip:
+            component.enable()
+            return
+        else:
+            component.enter()
+
 def clear_achievements(self: Event, flags=None):
     self.game.achievements.clear_achievements()
-
-def draw_achievement(self: Event, position, achievement):
-    name = 'achievement_notification_' + achievement.nid
-    sprite_nid = 'achievement_notification'
-    font = "text-green"
-    if text_funcs.get_max_width(font, [achievement.name]) < 60:
-        sprite_nid += "_short"
-        position = (position[0] + 64, position[1])
-    x, y = position
-
-    sprite = SPRITES.get(sprite_nid)
-    component = UIComponent.from_existing_surf(sprite)
-    component.name = name
-    component.disable()
-
-    start_x = x
-    start_y = -component.height
-    enter_anim = translate_anim((start_x, start_y), (x, y), 750, interp_mode=InterpolationType.CUBIC)
-    exit_anim = translate_anim((x, y), (start_x, start_y), 750, disable_after=True, interp_mode=InterpolationType.CUBIC)
-    component.save_animation(enter_anim, '!enter')
-    component.save_animation(exit_anim, '!exit')
-
-    achievement_name = PlainTextLine("name", component, achievement.name, font)
-    achievement_name.props.h_alignment = HAlignment.CENTER
-    achievement_name.props.v_alignment = VAlignment.CENTER
-    component.add_child(achievement_name)
-
-    get_sound_thread().play_sfx("Item", volume=0.5)
-
-    self.overlay_ui.add_child(component)
-    if self.do_skip:
-        component.enable()
-        return
-    else:
-        component.enter()

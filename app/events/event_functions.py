@@ -2996,7 +2996,7 @@ def create_achievement(self: Event, achievement: str, name: str, description:str
     hidden = 'hidden' in flags
     self.game.achievements.add_achievement(achievement, name, description, completed, hidden)
 
-def update_achievement(self: Event, achievement: str, name: str, description:str, hidden='', flags=None):
+def update_achievement(self: Event, achievement: str, name: str, description:str, flags=None):
     flags = flags or set()
 
     hidden = 'hidden' in flags

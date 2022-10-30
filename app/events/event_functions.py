@@ -8,7 +8,7 @@ from app.constants import WINHEIGHT, WINWIDTH
 from app.data.database import DB
 from app.data.level_units import GenericUnit, UniqueUnit
 from app.engine import (action, background, banner, dialog, engine, evaluate,
-                        icons, image_mods, item_funcs, item_system,
+                        icons, image_mods, item_funcs, item_system, text_funcs,
                         skill_system, target_system, unit_funcs)
 from app.engine.animations import MapAnimation
 from app.engine.combat import interaction
@@ -17,9 +17,10 @@ from app.engine.game_menus.menu_components.generic_menu.simple_menu_wrapper impo
 from app.engine.graphics.ui_framework.premade_animations.animation_templates import \
     fade_anim, translate_anim
 from app.engine.graphics.ui_framework.ui_framework import UIComponent
+from app.engine.graphics.ui_framework.premade_components.plain_text_component import PlainTextLine
 from app.engine.graphics.ui_framework.ui_framework_animation import \
     InterpolationType
-from app.engine.graphics.ui_framework.ui_framework_layout import HAlignment
+from app.engine.graphics.ui_framework.ui_framework_layout import HAlignment, VAlignment
 from app.engine.objects.item import ItemObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.objects.unit import UnitObject
@@ -3001,9 +3002,52 @@ def update_achievement(self: Event, achievement: str, name: str, description:str
     hidden = 'hidden' in flags
     self.game.achievements.update_achievement(achievement, name, description, hidden)
 
-def complete_achievement(self: Event, nid: str, completed: str, flags=None):
+def complete_achievement(self: Event, nid: str, completed: str, banner: str, flags=None):
     completed = completed.lower() in self.true_vals
-    self.game.achievements.complete_achievement(nid, completed)
+    banner = banner.lower() in self.true_vals
+
+    for a in self.game.achievements:
+        if a.nid == nid and banner and not a.get_hidden():
+            draw_achievement(self, (WINWIDTH - 129, 0), a)
+
+    self.game.achievements.complete_achievement(nid, completed, banner)
+
+    remove_overlay_sprite(self, 'achievement_notification_' + nid)
 
 def clear_achievements(self: Event, flags=None):
     self.game.achievements.clear_achievements()
+
+def draw_achievement(self: Event, position, achievement):
+    name = 'achievement_notification_' + achievement.nid
+    sprite_nid = 'achievement_notification'
+    font = "text-green"
+    if text_funcs.get_max_width(font, [achievement.name]) < 60:
+        sprite_nid += "_short"
+        position = (position[0] + 64, position[1])
+    x, y = position
+
+    sprite = SPRITES.get(sprite_nid)
+    component = UIComponent.from_existing_surf(sprite)
+    component.name = name
+    component.disable()
+
+    start_x = x
+    start_y = -component.height
+    enter_anim = translate_anim((start_x, start_y), (x, y), 750, interp_mode=InterpolationType.CUBIC)
+    exit_anim = translate_anim((x, y), (start_x, start_y), 750, disable_after=True, interp_mode=InterpolationType.CUBIC)
+    component.save_animation(enter_anim, '!enter')
+    component.save_animation(exit_anim, '!exit')
+
+    achievement_name = PlainTextLine("name", component, achievement.name, font)
+    achievement_name.props.h_alignment = HAlignment.CENTER
+    achievement_name.props.v_alignment = VAlignment.CENTER
+    component.add_child(achievement_name)
+
+    get_sound_thread().play_sfx("Item", volume=0.5)
+
+    self.overlay_ui.add_child(component)
+    if self.do_skip:
+        component.enable()
+        return
+    else:
+        component.enter()

@@ -101,7 +101,7 @@ class AchievementManager():
                 return True
         return False
 
-    def complete_achievement(self, nid: str, complete: bool):
+    def complete_achievement(self, nid: str, complete: bool, banner: bool):
         for a in self.achievements:
             if a.nid == nid:
                 a.set_complete(complete)

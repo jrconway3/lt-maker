@@ -2641,10 +2641,10 @@ class UpdateAchievement(EventCommand):
 class CompleteAchievement(EventCommand):
     nid = 'complete_achievement'
     tag = Tags.ACHIEVEMENT
-    desc = ('True marks the achievement as complete. False marks it as incomplete. No effect if achievement doesn\'t exist.\n\nYou can check an achievement\'s completion status with game.achievements.check_achievement("nid")')
+    desc = ('True marks the achievement as complete. False marks it as incomplete. No effect if achievement doesn\'t exist.\n\nYou can check an achievement\'s completion status with game.achievements.check_achievement("nid")\n\nBanner determines whether a pop-up box will appear notifying the player. If the achievement is hidden the pop-up will never occur.')
 
-    keywords = ['Nid', 'Completed']
-    keyword_types = ['Nid', 'Bool']
+    keywords = ['Nid', 'Completed', 'Banner']
+    keyword_types = ['Nid', 'Bool', 'Bool']
 
 class ClearAchievements(EventCommand):
     nid = 'clear_achievements'

@@ -16,6 +16,7 @@ from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.skill import SkillObject
 from app.engine.game_state import game
+from app.engine.achievements import Achievement
 
 def draw_unit_top(surf, topleft, unit):
     x, y = topleft
@@ -1009,6 +1010,8 @@ class Table(Simple):
             if isinstance(option, UnitObject):
                 option = menu_options.UnitOption(idx, option)
                 option.set_mode(self.mode)
+            elif isinstance(option, Achievement):
+                option = menu_options.AchievementOption(idx, option)
             else:
                 option = menu_options.BasicOption(idx, option)
             self.options.append(option)

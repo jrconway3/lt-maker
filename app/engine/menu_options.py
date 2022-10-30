@@ -85,6 +85,45 @@ class BasicOption():
         self.draw(surf, x, y)
         return surf
 
+class AchievementOption(BasicOption):
+    def __init__(self, idx, achievement):
+        self.idx = idx
+        self.achievement = achievement
+        self.help_box = None
+        self.font = 'text'
+        self.color = None
+        self.ignore = False
+        self.mode = None
+
+    def height(self):
+        return 32
+
+    def width(self):
+        return 220
+
+    def get(self):
+        return self.achievement
+
+    def set_text(self, text):
+        pass
+
+    def draw(self, surf, x, y):
+        x_offset = 5
+        font = self.font
+        if FONT[font].width(self.achievement.name + " - Complete") > 220:
+            font = 'narrow'
+        FONT[font].blit(self.achievement.name + " - ", surf, (x + x_offset, y), self.get_color())
+        if self.achievement.get_complete():
+            FONT[font].blit("Complete", surf, (x + FONT[font].width(self.achievement.name + " - ") + x_offset, y), 'green')
+        else:
+            FONT[font].blit("Locked", surf, (x + FONT[font].width(self.achievement.name + " - ") + x_offset, y), 'red')
+        FONT[font].blit(self.achievement.desc, surf, (x + x_offset, y + 13), self.get_color())
+
+    def get_color(self):
+        if self.achievement.get_complete():
+            return 'white'
+        return 'grey'
+
 class NullOption(BasicOption):
     def __init__(self, idx):
         super().__init__(idx, "Nothing")

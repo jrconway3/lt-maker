@@ -81,6 +81,7 @@ class Recordkeeper():
     Stealing an Item
     Recruiting a Unit
     Turns Taken
+    Achievements
 
     And for all these, needs to know what Chapter and Turn
     """
@@ -238,7 +239,7 @@ class Recordkeeper():
 
     def get_mvp(self, level_nid: str = None) -> str:
         """
-        Returns which unit has the highest score 
+        Returns which unit has the highest score
         of units that participated in the level
         If level_nid is None, instead for all levels
         """

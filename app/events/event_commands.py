@@ -24,6 +24,7 @@ class Tags(Enum):
     UNIT_GROUPS = 'Unit Groups'
     MISCELLANEOUS = 'Miscellaneous'
     OVERWORLD = 'Overworld'
+    ACHIEVEMENT = 'Achievement'
     HIDDEN = 'Hidden'
 
 UNIVERSAL_FLAGS = ['no_warn']
@@ -2618,6 +2619,38 @@ class SetOverworldMenuOptionVisible(EventCommand):
 
     keywords = ['OverworldNodeNID', 'OverworldNodeMenuOption', 'Setting']
     keyword_types = ['OverworldNodeNID', 'OverworldNodeMenuOption', 'Bool']
+
+class CreateAchievement(EventCommand):
+    nid = 'create_achievement'
+    tag = Tags.ACHIEVEMENT
+    desc = ('Creates a new achievement. Set completed to 1 to automatically complete the achievement when it is first unlocked. Set hidden to 1 to prevent from appearing in records. Does nothing if nid already present.')
+
+    keywords = ['Achievement', 'Name', 'Description']
+    _flags = ['completed', 'hidden']
+    keyword_types = ['Achievement', 'String', 'String']
+
+class UpdateAchievement(EventCommand):
+    nid = 'update_achievement'
+    tag = Tags.ACHIEVEMENT
+    desc = ('Updates the name and description of achievement with the given nid. Does nothing if there is no achievement with that nid.')
+
+    keywords = ['Achievement', 'Name', 'Description']
+    _flags = ['hidden']
+    keyword_types = ['Achievement', 'String', 'String']
+
+class CompleteAchievement(EventCommand):
+    nid = 'complete_achievement'
+    tag = Tags.ACHIEVEMENT
+    desc = ('True marks the achievement as complete. False marks it as incomplete. No effect if achievement doesn\'t exist.\n\nYou can check an achievement\'s completion status with game.achievements.check_achievement("nid")\n\nBanner determines whether a pop-up box will appear notifying the player. If the achievement is hidden the pop-up will never occur.')
+
+    keywords = ['Nid', 'Completed', 'Banner']
+    keyword_types = ['Nid', 'Bool', 'Bool']
+
+class ClearAchievements(EventCommand):
+    nid = 'clear_achievements'
+    tag = Tags.ACHIEVEMENT
+    desc = ('Remove all achievements from the player')
+
 
 def get_commands():
     return EventCommand.__subclasses__()

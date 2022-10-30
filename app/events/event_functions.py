@@ -2989,13 +2989,17 @@ def separate(self: Event, unit, flags=None):
     action.do(action.RemovePartner(unit))
 
 def create_achievement(self: Event, achievement: str, name: str, description:str, completed='', hidden='', flags=None):
-    completed = completed.lower() in self.true_vals
-    hidden = hidden.lower() in self.true_vals
+    flags = flags or set()
+
+    completed = 'completed' in flags
+    hidden = 'hidden' in flags
     self.game.achievements.add_achievement(achievement, name, description, completed, hidden)
 
 def update_achievement(self: Event, achievement: str, name: str, description:str, hidden='', flags=None):
-    hidden = hidden.lower() in self.true_vals
-    self.game.achievements.update_achievement(achievement, name, description)
+    flags = flags or set()
+
+    hidden = 'hidden' in flags
+    self.game.achievements.update_achievement(achievement, name, description, hidden)
 
 def complete_achievement(self: Event, nid: str, completed: str, flags=None):
     completed = completed.lower() in self.true_vals

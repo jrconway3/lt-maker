@@ -6,9 +6,9 @@ You may wish to create an achievement system for your game. Alternatively, you m
 
 The create_achievement command creates a new achievement with the given specifications and saves it to saves/PROJECTID-achievements.p.
 
-```create_achievement;Sample;Test Goal;It's only a test!;f;f```
+```create_achievement;Sample;Test Goal;It's only a test!```
 
-Try it out by putting this line before a base event command in any given level. Test the level and go to Codex > Records. Scroll left, and...
+Try it out by putting this line before a base event command in any given level. Test the level and go to Codex > Achievements.
 
 ![TestAchievement](images/TestAchievement.png)
 

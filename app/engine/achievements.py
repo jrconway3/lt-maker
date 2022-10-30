@@ -77,11 +77,12 @@ class AchievementManager():
             logging.info("Attempted to define already existing achievement with nid %s", nid)
         self.save_achievements()
 
-    def update_achievement(self, nid, name, desc):
+    def update_achievement(self, nid, name, desc, hidden):
         a = self.get_achievement(nid)
         if a:
             a.name = name
             a.desc = desc
+            a.hidden = hidden
         else:
             logging.info("Attempted to update non-existant achievement with nid %s", nid)
         self.save_achievements()
@@ -131,5 +132,7 @@ class AchievementManager():
             logging.info("No achievements file found")
 
     def clear_achievements(self):
+        logging.info("Clearing achievements in %s", self.location)
+        self.achievements = []
         with open(self.location, 'wb') as fp:
-            pickle.dump(None, fp)
+            pickle.dump(self.achievements, fp)

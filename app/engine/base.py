@@ -1319,6 +1319,73 @@ class BaseBEXPAllocateState(State):
 class BaseAchievementState(State):
     name = 'base_achievement'
 
+    def start(self):
+        self.fluid = FluidScroll()
+        self.bg = game.memory.get('base_bg')
+
+        self.achievements = [a for a in game.achievements if not a.get_hidden()]
+        topleft = (10, 30)
+        layout = (4, 1)
+        self.menu = menus.Table(None, [self.achievements[i] for i in range(len(self.achievements))], layout, topleft)
+        self.menu.gem = True
+        self.menu.shimmer = 2
+        self.menu.set_mode('achievements')
+
+        game.state.change('transition_in')
+        return 'repeat'
+
+    def create_achievement_display(self, index):
+        a = self.achievements[index]
+        a_string = a.name
+        if a.get_complete():
+            a_string += " - Complete\n"
+        else:
+            a_string += " - Locked\n"
+        a_string += a.desc
+        return a_string
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+
+        if 'DOWN' in directions:
+            if self.menu.move_down(first_push):
+                get_sound_thread().play_sfx('Select 5')
+        elif 'UP' in directions:
+            if self.menu.move_up(first_push):
+                get_sound_thread().play_sfx('Select 5')
+
+        if event == 'BACK':
+            get_sound_thread().play_sfx('Select 4')
+            game.state.change('transition_pop')
+
+        elif event == 'SELECT':
+            pass
+
+        elif event == 'START':
+            pass
+
+        elif event == 'INFO':
+            pass
+
+    def update(self):
+        if self.menu:
+            self.menu.update()
+
+    def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
+        self.menu.draw(surf)
+        self.draw_top_section(surf, (24, -2), text_funcs.translate('Unlocked: ') + str(len([a for a in self.achievements if a.get_complete()])) + ' / ' + str(len([a for a in self.achievements])))
+        return surf
+
+    def draw_top_section(self, surf, topleft, completed):
+        surf.blit(SPRITES.get('chapter_select_green'), (topleft[0], topleft[1]))
+        FONT['text-yellow'].blit_center(completed, surf, (topleft[0] + 98, topleft[1] + 8))
+        return surf
+
 class BaseSoundRoomState(State):
     name = 'base_sound_room'
 

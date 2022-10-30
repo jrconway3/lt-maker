@@ -9,8 +9,8 @@ def translate(string):
     else:
         return string.replace('_', ' ')
 
-def get_max_width(font, text_list):
-    return max(font.width(t) for t in text_list)
+def get_max_width(font_name, text_list):
+    return max(rendered_text_width([font_name], [t]) for t in text_list)
 
 def split(font_name, string, num_lines, max_width):
     """

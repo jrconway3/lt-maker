@@ -495,7 +495,7 @@ Extra flags:
 
     keywords = ['Speaker', 'Text']
     optional_keywords = ['TextPosition', 'Width', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail']
-    keyword_types = ['Speaker', 'Text', 'TextPosition', 'Width', 'Nid', 'Float', 'FontColor', 'Font', 'DialogVariant', 'PositiveInteger', 'Bool', 'MessageTail']
+    keyword_types = ['Speaker', 'Text', 'TextPosition', 'Width', 'DialogVariant', 'Float', 'FontColor', 'Font', 'DialogVariant', 'PositiveInteger', 'Bool', 'MessageTail']
     _flags = ['low_priority', 'hold', 'no_popup', 'fit', 'no_block']
 
 class Unhold(EventCommand):
@@ -537,9 +537,14 @@ class Transition(EventCommand):
 If a scene is currently displayed, it is faded out to a black screen.
 The next use of this function will fade the scene back into view.
 The optional *Speed* and *Color3* keywords control the speed and color of the transition.
+
+Extra flags:
+
+1. *no_block*: The event script will continue to execute while the screen is fading in or out
         """
 
     optional_keywords = ['Direction', 'Speed', 'Color3']
+    _flags = ['no_block']
 
 class ChangeBackground(EventCommand):
     # Also does remove background
@@ -556,6 +561,27 @@ Displayed portraits are also removed unless the *keep_portraits* flag is set.
 
     optional_keywords = ['Panorama']
     _flags = ["keep_portraits"]
+
+class PauseBackground(EventCommand):
+    nid = "pause_background"
+    tag = Tags.BG_FG
+
+    desc = \
+        """
+Pauses the current background if it has multiple frames. Optional *PauseAt* parameter lets you control exactly which frame to pause on.
+        """
+
+    optional_keywords = ['PauseAt']
+    keyword_types = ['WholeNumber']
+
+class UnpauseBackground(EventCommand):
+    nid = "unpause_background"
+    tag = Tags.BG_FG
+
+    desc = \
+        """
+Unpauses the current background.
+        """
 
 class DispCursor(EventCommand):
     nid = "disp_cursor"
@@ -614,9 +640,34 @@ Causes the cursor to briefly blink on and off at the indicated *Position*.
     keywords = ["Position"]
     _flags = ["immediate"]
 
+class ScreenShake(EventCommand):
+    nid = 'screen_shake'
+    tag = Tags.CURSOR_CAMERA
+
+    desc = \
+        """
+Causes the map to shake rapidly, imitating an earthquake, powerful strike, or other effect.
+Several different screen shake variations are available.
+Set *Duration* to 0 to make screen shake effect last indefinitely.
+        """
+
+    keywords = ["Duration"]
+    optional_keywords = ["ShakeType"]
+    keyword_types = ["Time", "ShakeType"]
+    _flags = ["no_block"]
+
+class ScreenShakeEnd(EventCommand):
+    nid = 'screen_shake_end'
+    tag = Tags.CURSOR_CAMERA
+
+    desc = \
+        """
+Ends any extant screen shake command if there is one present
+        """
+
 class GameVar(EventCommand):
     nid = 'game_var'
-    nickname = 'set'
+    nickname = 'gvar'
     tag = Tags.GAME_VARS
 
     desc = \
@@ -630,7 +681,7 @@ The *Nid* is the variable's identifier, and the *Condition* is the value that is
 
 class IncGameVar(EventCommand):
     nid = 'inc_game_var'
-    nickname = 'inc'
+    nickname = 'ginc'
     tag = Tags.GAME_VARS
 
     desc = \
@@ -644,6 +695,7 @@ Increments a game variable by one, or by a Python expression provided using the 
 
 class LevelVar(EventCommand):
     nid = 'level_var'
+    nickname = 'lvar'
     tag = Tags.LEVEL_VARS
 
     desc = \
@@ -659,6 +711,7 @@ value that is given to the variable. *Expression* can be a number or a Python ex
 
 class IncLevelVar(EventCommand):
     nid = 'inc_level_var'
+    nickname = 'linc'
     tag = Tags.LEVEL_VARS
 
     desc = \
@@ -1261,6 +1314,33 @@ Also, if the item is removed from the convoy, there will not be a banner.
 
     keywords = ["GlobalUnitOrConvoy", "Item"]
     _flags = ['no_banner']
+
+class MoveItem(EventCommand):
+    nid = 'move_item'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Removes *Item* from the inventory of *Giver* and adds it to the inventory of *Receiver*.
+If *Item* is not supplied, just moves the last item from the inventory of *Giver*.
+If the inventory of *Receiver* is full, this command will not succeed.
+        """
+
+    keywords = ["Giver", "Receiver"]
+    optional_keywords = ["Item"]
+    keyword_types = ["GlobalUnitOrConvoy", "GlobalUnitOrConvoy", "Item"]
+
+class MoveItemBetweenConvoys(EventCommand):
+    nid = 'move_item_between_convoys'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Moves *Item* from the convoy of *Party1* and adds it to the convoy of *Party2*.
+        """
+
+    keywords = ["Item", "Party1", "Party2"]
+    keyword_types = ["Item", "Party", "Party"]
 
 class SetItemUses(EventCommand):
     nid = 'set_item_uses'

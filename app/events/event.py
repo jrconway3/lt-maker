@@ -57,6 +57,7 @@ class Event():
         self.text_boxes: List[dialog.Dialog] = []
         self.other_boxes: List[Tuple[NID, Any]] = []
         self.overlay_ui = uif.UIComponent.create_base_component()
+        self.overlay_ui.name = self.nid
 
         self.prev_state = None
         self.state = 'processing'
@@ -328,7 +329,7 @@ class Event():
                     internal_fors -= 1
                 looped_commands.append(curr_command)
                 curr_idx += 1
-                if curr_idx > len(self.commands):
+                if curr_idx >= len(self.commands):
                     self.logger.error("%s: could not find endf command for loop %s" % ('handle_conditional', cond))
                     return True
                 curr_command = self.commands[curr_idx]
@@ -462,6 +463,7 @@ class Event():
         return self.text_evaluator._evaluate_all(text)
 
     def _place_unit(self, unit, position, entry_type, entry_direc = None):
+        position = tuple(position)
         if self.do_skip:
             action.do(action.ArriveOnMap(unit, position))
         elif entry_type == 'warp':
@@ -583,9 +585,7 @@ class Event():
             self.logger.warning("Could not find level unit prefab for unit with nid: %s", unit_nid)
             return None
         new_nid = str_utils.get_next_int(level_unit_prefab.nid, self.game.unit_registry.keys())
-        level_unit_prefab.nid = new_nid
-        new_unit = UnitObject.from_prefab(level_unit_prefab, self.game.current_mode)
-        level_unit_prefab.nid = unit_nid  # Set back to old nid
+        new_unit = UnitObject.from_prefab(level_unit_prefab, self.game.current_mode, new_nid)
         new_unit.position = None
         new_unit.dead = False
         new_unit.party = self.game.current_party

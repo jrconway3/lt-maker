@@ -698,11 +698,12 @@ class InfoMenuState(State):
         right_stats = right_stats[:6]
 
         for idx, stat_nid in enumerate(left_stats):
+            curr_stat = DB.stats.get(stat_nid)
             # Value
             if growths:
                 icons.draw_growth(surf, stat_nid, self.unit, (47, 16 * idx + 24))
             else:
-                highest_stat = DB.stats.get(stat_nid).maximum
+                highest_stat = curr_stat.maximum
                 max_stat = max_stats.get(stat_nid, 30)
                 if max_stat > 0:
                     total_length = int(max_stat / highest_stat * 42)
@@ -710,26 +711,29 @@ class InfoMenuState(State):
                     build_groove(surf, (27, 16 * idx + 32), total_length, frac)
                 icons.draw_stat(surf, stat_nid, self.unit, (47, 16 * idx + 24))
             # Name
-            name = DB.stats.get(stat_nid).name
+            name = curr_stat.name
             render_text(surf, ['text'], [name], ['yellow'], (8, 16 * idx + 24))
             base_value = self.unit.stats.get(stat_nid, 0)
             contribution = self.unit.stat_contribution(stat_nid)
             contribution['Base Value'] = base_value
-            help_box = help_menu.StatDialog('%s_desc' % stat_nid, contribution)
+            desc_text = curr_stat.desc
+            help_box = help_menu.StatDialog(desc_text or ('%s_desc' % stat_nid), contribution)
             self.info_graph.register((96 + 8, 16 * idx + 24, 64, 16), help_box, state, first=(idx == 0))
 
         for idx, stat_nid in enumerate(right_stats):
+            curr_stat = DB.stats.get(stat_nid)
             if growths:
                 icons.draw_growth(surf, stat_nid, self.unit, (111, 16 * idx + 24))
             else:
                 icons.draw_stat(surf, stat_nid, self.unit, (111, 16 * idx + 24))
             # Name
-            name = DB.stats.get(stat_nid).name
+            name = curr_stat.name
             render_text(surf, ['text'], [name], ['yellow'], (72, 16 * idx + 24))
             base_value = self.unit.stats.get(stat_nid, 0)
             contribution = self.unit.stat_contribution(stat_nid)
             contribution['Base Value'] = base_value
-            help_box = help_menu.StatDialog('%s_desc' % stat_nid, contribution)
+            desc_text = curr_stat.desc
+            help_box = help_menu.StatDialog(desc_text or ('%s_desc' % stat_nid), contribution)
             self.info_graph.register((96 + 72, 16 * idx + 24, 64, 16), help_box, state)
 
         other_stats = ['TRV', 'AID', 'RAT']

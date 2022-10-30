@@ -49,8 +49,8 @@ class GameQueryEngine():
     def _resolve_pos(self, has_pos_or_is_pos) -> Tuple[int, int] | None:
         try:
             # possibly a unit?
-            has_pos_or_is_pos = self._resolve_to_unit(has_pos_or_is_pos)
-            return has_pos_or_is_pos.position
+            a_unit = self._resolve_to_unit(has_pos_or_is_pos)
+            return a_unit.position
         except:
             return has_pos_or_is_pos
 
@@ -280,7 +280,7 @@ Example usage:
         return all_units
 
     @categorize(QueryType.MAP)
-    def any_unit_in_region(self, region, nid=None, team=None, tag=None) -> List[UnitObject]:
+    def any_unit_in_region(self, region, nid=None, team=None, tag=None) -> bool:
         """checks if any unit matching the criteria is in the region
 
 Example usage:
@@ -310,7 +310,7 @@ Example usage:
             bool: if the unit has died
         """
         unit = self._resolve_to_unit(unit)
-        return self.game.check_dead(unit)
+        return self.game.check_dead(unit.nid)
 
     @categorize(QueryType.ACHIEVEMENT)
     def has_achievement(self, nid) -> bool:

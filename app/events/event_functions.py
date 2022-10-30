@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 import ast
 from typing import TYPE_CHECKING
 
@@ -408,6 +409,7 @@ def unhold(self: Event, nid, flags=None):
             box.hold = False
 
 def transition(self: Event, direction=None, speed=None, color3=None, flags=None):
+    flags = flags or set()
     current_time = engine.get_time()
     if direction:
         self.transition_state = direction.lower()
@@ -420,8 +422,11 @@ def transition(self: Event, direction=None, speed=None, color3=None, flags=None)
 
     if not self.do_skip:
         self.transition_update = current_time
-        self.wait_time = current_time + int(self.transition_speed * 1.33)
-        self.state = 'waiting'
+        if 'no_block' in flags:
+            pass
+        else:
+            self.wait_time = current_time + int(self.transition_speed * 1.33)
+            self.state = 'waiting'
 
 def change_background(self: Event, panorama=None, flags=None):
     flags = flags or set()
@@ -436,6 +441,18 @@ def change_background(self: Event, panorama=None, flags=None):
         pass
     else:
         self.portraits.clear()
+
+def pause_background(self: Event, pause_at=None, flags=None):
+    if not self.background:
+        self.logger.warning("No current background to pause!")
+        return
+    self.background.pause(pause_at)
+
+def unpause_background(self: Event, flags=None):
+    if not self.background:
+        self.logger.warning("No current background to unpause")
+        return
+    self.background.unpause()
 
 def disp_cursor(self: Event, show_cursor, flags=None):
     if show_cursor.lower() in self.true_vals:
@@ -481,7 +498,7 @@ def center_cursor(self: Event, position, speed=None, flags=None):
             # we are using a custom camera speed
             duration = int(speed)
             self.game.camera.do_slow_pan(duration)
-            self.game.camera.set_center(*position)
+        self.game.camera.set_center(*position)
         self.game.state.change('move_camera')
         self.state = 'paused'  # So that the message will leave the update loop
 
@@ -496,6 +513,41 @@ def flicker_cursor(self: Event, position, flags=None):
     self.commands.insert(self.command_idx + 1, wait_command)
     self.commands.insert(self.command_idx + 1, disp_cursor_command1)
     self.commands.insert(self.command_idx + 1, move_cursor_command)
+
+def screen_shake(self: Event, duration, shake_type=None, flags=None):
+    flags = flags or set()
+    shake_type = shake_type or 'default'
+    duration = int(duration)
+
+    shake_offset = None
+    if shake_type == 'default':
+        shake_offset = [(0, -2), (0, -2), (0, 0), (0, 0)]
+    elif shake_type == 'combat':
+        shake_offset = [(-3, -3), (0, 0), (3, 3), (0, 0)]
+    elif shake_type == 'kill':
+        shake_offset = [(3, 3), (0, 0), (0, 0), (3, 3), (-3, -3), (3, 3), (-3, -3), (0, 0)]
+    elif shake_type == 'random':
+        shake_offset = [(random.randint(-4, 4), random.randint(-4, 4)) for _ in range(16)]
+    elif shake_type == 'celeste':
+        shake_offset = [(random.choice([-1, 1]), random.choice([-1, 1])) for _ in range(16)]
+
+    if not shake_offset:
+        self.logger.error("shake mode %s not recognized by screen shake command. Recognized modes are ('default', 'combat').", shake_type)
+        return
+
+    self.game.camera.set_shake(shake_offset, duration)
+    if self.background:
+        self.background.set_shake(shake_offset, duration)
+    if 'no_block' in flags:
+        pass
+    else:
+        self.wait_time = engine.get_time() + duration
+        self.state = 'waiting'
+
+def screen_shake_end(self: Event, flags=None):
+    self.game.camera.reset_shake()
+    if self.background:
+        self.background.reset_shake()
 
 def game_var(self: Event, nid, expression, flags=None):
     try:
@@ -736,8 +788,8 @@ def make_generic(self: Event, nid, klass, level, team, ai=None, faction=None, an
         starting_items = item_list.split(',')
     else:
         starting_items = []
-    level_unit_prefab = GenericUnit(unit_nid, animation_variant, level, klass, faction, starting_items, team, ai)
-    new_unit = UnitObject.from_prefab(level_unit_prefab)
+    level_unit_prefab = GenericUnit(unit_nid, animation_variant, level, klass, faction, starting_items, [], team, ai)
+    new_unit = UnitObject.from_prefab(level_unit_prefab, self.game.current_mode)
     new_unit.party = self.game.current_party
     #self.game.full_register(new_unit)
     action.do(action.RegisterUnit(new_unit))
@@ -782,7 +834,7 @@ def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_ty
     if not faction:
         faction = DB.factions[0].nid
     level_unit_prefab = GenericUnit(
-        unit_nid, unit.variant, int(level), unit.klass, faction, [item.nid for item in unit.items], unit.team, unit.ai)
+        unit_nid, unit.variant, int(level), unit.klass, faction, [item.nid for item in unit.items], [skill.nid for skill in unit.skills], unit.team, unit.ai)
     new_unit = UnitObject.from_prefab(level_unit_prefab, self.game.current_mode)
 
     if 'copy_stats' in flags:
@@ -1254,7 +1306,7 @@ def give_item(self: Event, global_unit_or_convoy, item, flags=None):
         self.logger.error("give_item: Couldn't find item with nid %s" % item_id)
         return
     banner_flag = 'no_banner' not in flags
-    item.droppable = 'droppable' in flags
+    action.do(action.SetDroppable(item, 'droppable' in flags))
 
     if unit:
         if item_funcs.inventory_full(unit, item):
@@ -1335,6 +1387,80 @@ def remove_item(self: Event, global_unit_or_convoy, item, flags=None):
             self.game.alerts.append(b)
             self.game.state.change('alert')
             self.state = 'paused'
+
+def move_item(self: Event, giver, receiver, item=None, flags=None):
+    flags = flags or set()
+
+    if item:
+        unit, item = self._get_item_in_inventory(giver, item)
+        if not unit or not item:
+            self.logger.error("move_item: Either unit or item was invalid, see above")
+            return
+    else:
+        item = None
+        if giver.lower() == 'convoy':
+            unit = self.game.get_party()
+        else:
+            unit = self.game.get_unit(giver)
+            if not unit:
+                self.logger.error("Could not find unit %s", giver)
+                return
+
+        if unit.items:
+            item = unit.items[-1]
+        else:
+            self.logger.warning("Unit %s has no items", giver)
+            return
+
+    if giver.lower() == 'convoy':
+        if receiver.lower() == 'convoy':
+            self.logger.warning("No change, since moving from current convoy to current convoy")
+        else:
+            other_unit = self.game.get_unit(receiver)
+            if not other_unit:
+                self.logger.error("Could not find unit %s", receiver)
+                return
+            if not item_funcs.inventory_full(other_unit, item):
+                action.do(action.TakeItemFromConvoy(other_unit, item))
+            else:
+                self.logger.warning("No space in unit %s's inventory", receiver)
+                return
+    else:
+        if receiver.lower() == 'convoy':
+            action.do(action.RemoveItem(unit, item))
+            action.do(action.PutItemInConvoy(item))
+        else:
+            other_unit = self.game.get_unit(receiver)
+            if not other_unit:
+                self.logger.error("Could not find unit %s", receiver)
+                return
+            if not item_funcs.inventory_full(other_unit, item):
+                action.do(action.MoveItem(unit, other_unit, item))
+            else:
+                self.logger.warning("No space in unit %s's inventory", receiver)
+                return
+
+def move_item_between_convoys(self: Event, item, party1, party2, flags=None):
+    giver = self.game.get_party(party1)
+    if not giver:
+        self.logger.error("Could not find party with nid %s", party1)
+        return
+    receiver = self.game.get_party(party2)
+    if not receiver:
+        self.logger.error("Could not find party with nid %s", party2)
+        return
+
+    item_id = item
+    item_list = giver.items
+    inids = [item.nid for item in item_list]
+    iuids = [item.uid for item in item_list]
+    if (item_id not in inids) and (not str_utils.is_int(item_id) or not int(item_id) in iuids):
+        self.logger.error("Couldn't find item with id %s" % item)
+        return
+    item = [item for item in item_list if (item.nid == item_id or (str_utils.is_int(item_id) and item.uid == int(item_id)))][0]
+
+    action.do(action.RemoveItemFromConvoy(item, party1))
+    action.do(action.PutItemInConvoy(item, party2))
 
 def set_item_uses(self: Event, global_unit_or_convoy, item, uses, flags=None):
     flags = flags or set()
@@ -2564,7 +2690,7 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
         if anim_dir == 'fade':
             enter_anim = fade_anim(0, 1, 1000)
             exit_anim = fade_anim(1, 0, 1000)
-            component.margin = (x, y, 0, 0)
+            component.margin = (x, 0, y, 0)
         else:
             if anim_dir == 'west':
                 start_x = -component.width
@@ -2583,7 +2709,7 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
         component.save_animation(enter_anim, '!enter')
         component.save_animation(exit_anim, '!exit')
     else:
-        component.margin = (x, y, 0, 0)
+        component.margin = (x, 0, y, 0)
     self.overlay_ui.add_child(component)
     if self.do_skip:
         component.enable()
@@ -2600,8 +2726,10 @@ def remove_overlay_sprite(self: Event, nid, flags=None):
     component = self.overlay_ui.get_child(nid)
     if component:
         if self.do_skip:
+            self.overlay_ui._should_redraw = True
             component.disable()
         else:
+            self.overlay_ui._should_redraw = True
             component.exit()
             if component.is_animating() and 'no_block' not in flags:
                 self.wait_time = engine.get_time() + 750

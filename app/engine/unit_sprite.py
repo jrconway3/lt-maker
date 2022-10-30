@@ -1,10 +1,13 @@
+from __future__ import annotations
 from typing import Dict
+from app.data.units import UnitPrefab
 from app.engine.game_counters import ANIMATION_COUNTERS
 import math
 
 from app.constants import TILEWIDTH, TILEHEIGHT, COLORKEY
 from app.data.palettes import gray_colors, enemy_colors, other_colors, enemy2_colors, black_colors, \
     player_dark_colors, enemy_dark_colors, other_dark_colors, gray_dark_colors
+from app.engine.objects.unit import UnitObject
 
 from app.resources.resources import RESOURCES
 from app.data.database import DB
@@ -27,14 +30,17 @@ class MapSprite():
         self.resource = map_sprite
         if not map_sprite.standing_image:
             map_sprite.standing_image = engine.image_load(map_sprite.stand_full_path)
-        gray_stand = map_sprite.standing_image.copy()
         if not map_sprite.moving_image:
             map_sprite.moving_image = engine.image_load(map_sprite.move_full_path)
         stand, move = self.convert_to_team_colors(map_sprite)
         engine.set_colorkey(stand, COLORKEY, rleaccel=True)
         engine.set_colorkey(move, COLORKEY, rleaccel=True)
         self.passive = [engine.subsurface(stand, (num*64, 0, 64, 48)) for num in range(3)]
-        self.gray = self.create_gray([engine.subsurface(gray_stand, (num*64, 0, 64, 48)) for num in range(3)])
+        if DB.constants.value('autogenerate_grey_map_sprites'):
+            gray_stand = map_sprite.standing_image.copy()
+            self.gray = self.create_gray([engine.subsurface(gray_stand, (num*64, 0, 64, 48)) for num in range(3)])
+        else:
+            self.gray = [engine.subsurface(stand, (num*64, 48, 64, 48)) for num in range(3)]
         self.active = [engine.subsurface(stand, (num*64, 96, 64, 48)) for num in range(3)]
         self.down = [engine.subsurface(move, (num*48, 0, 48, 40)) for num in range(4)]
         self.left = [engine.subsurface(move, (num*48, 40, 48, 40)) for num in range(4)]
@@ -75,11 +81,12 @@ class MapSprite():
             engine.set_colorkey(img, COLORKEY, rleaccel=True)
         return imgs
 
-def load_map_sprite(unit, team='player'):
+def load_map_sprite(unit: UnitObject | UnitPrefab, team='player'):
     klass = DB.classes.get(unit.klass)
     nid = klass.map_sprite_nid
-    if unit.variant:
-        nid += unit.variant
+    variant =  unit.variant or (isinstance(unit, UnitObject) and skill_system.change_variant(unit))
+    if variant:
+        nid += variant
     res = RESOURCES.map_sprites.get(nid)
     if not res:  # Try without unit variant
         res = RESOURCES.map_sprites.get(klass.map_sprite_nid)

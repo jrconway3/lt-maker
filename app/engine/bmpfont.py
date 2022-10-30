@@ -98,52 +98,17 @@ class BmpFont():
             color = self.default_color
 
         def normal_render(left, top, string: str, bcolor):
-            curr_color = bcolor
-            color_stack = [bcolor]
-            mode = 'normal'
-            color = ""
             for c in string:
-                if c == '<' and not no_process: # detect color tag
-                    mode = 'color'
-                    color = ""
-                elif mode == 'normal':
-                    c_surf, char_width = self._get_char_from_surf(c, curr_color)
-                    engine.blit(surf, c_surf, (left, top))
-                    left += char_width + self.space_offset
-                elif c == '>' and not no_process and mode == 'color':
-                    color = color.lower()
-                    if color not in self.surfaces.keys():
-                        curr_color = color_stack.pop() if color_stack else bcolor
-                    else:
-                        color_stack.append(curr_color)
-                        curr_color = color
-                    mode = 'normal'
-                elif mode == 'color':
-                    color += c
+                c_surf, char_width = self._get_char_from_surf(c, bcolor)
+                engine.blit(surf, c_surf, (left, top))
+                left += char_width + self.space_offset
 
         def stacked_render(left, top, string: str, bcolor):
-            curr_color = bcolor
-            color_stack = [bcolor]
-            mode = 'normal'
             for c in string:
-                if c == '<' and not no_process: # detect color tag
-                    mode = 'color'
-                    color = ""
-                elif mode == 'normal':
-                    highsurf, lowsurf, char_width = self._get_stacked_char_from_surf(c, curr_color)
-                    engine.blit(surf, lowsurf, (left, top))
-                    engine.blit(surf, highsurf, (left, top))
-                    left += char_width + self.space_offset
-                elif c == '>' and not no_process and mode == 'color':
-                    color = color.lower()
-                    if color not in self.surfaces.keys():
-                        curr_color = color_stack.pop() if color_stack else bcolor
-                    else:
-                        color_stack.append(curr_color)
-                        curr_color = color
-                    mode = 'normal'
-                elif mode == 'color':
-                    color += c
+                highsurf, lowsurf, char_width = self._get_stacked_char_from_surf(c, bcolor)
+                engine.blit(surf, lowsurf, (left, top))
+                engine.blit(surf, highsurf, (left, top))
+                left += char_width + self.space_offset
 
         x, y = pos
         surfwidth, surfheight = surf.get_size()
@@ -163,15 +128,6 @@ class BmpFont():
         width = self.width(string)
         self.blit(string, surf, (pos[0] - width//2, pos[1]), color)
 
-    def process_string(self, string):
-        """
-        strips all non-displayed chars from string. used to calculate width.
-        """
-        stripped = re.sub(r"\<[^()]*?\>", "", string)
-        stripped = re.sub(r"\<[^()]*?$", "", stripped)
-        return stripped
-
-
     def size(self, string):
         """
         Returns the length and width of a bitmapped string
@@ -184,7 +140,6 @@ class BmpFont():
         """
         length = 0
         string = self.modify_string(string)
-        string = self.process_string(string)
         for c in string:
             try:
                 char_width = self.chartable[c].char_width
@@ -194,5 +149,4 @@ class BmpFont():
                 # print("string: ", string)
                 char_width = 8
             length += char_width
-        length += 1
         return length

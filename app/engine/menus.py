@@ -1057,7 +1057,7 @@ class Table(Simple):
         row, col = self._true_coords(old_index)
         idx = old_index
         while True:
-            if self.mode in 'objective_menu':
+            if self.mode == 'objective_menu':
                 row += 5
             else:
                 row += 1
@@ -1069,7 +1069,7 @@ class Table(Simple):
             else:
                 break
             idx = self._idx_coords(row, col)
-            if row > self.scroll + self.rows - 5 and self.mode in 'objective_menu':
+            if row > self.scroll + self.rows - 5 and self.mode == 'objective_menu':
                 self.scroll += 5
             elif row > self.scroll + self.rows - 2:
                 self.scroll += 1
@@ -1091,7 +1091,7 @@ class Table(Simple):
         row, col = self._true_coords(old_index)
         idx = old_index
         while True:
-            if self.mode in 'objective_menu':
+            if self.mode == 'objective_menu':
                 row -= 5
             else:
                 row -= 1
@@ -1104,7 +1104,7 @@ class Table(Simple):
             else:
                 break
             idx = self._idx_coords(row, col)
-            if row < self.scroll + 4 and self.mode in 'objective_menu':
+            if row < self.scroll + 4 and self.mode == 'objective_menu':
                 self.scroll -= 5
             elif row < self.scroll + 1:
                 self.scroll -= 1
@@ -1167,7 +1167,7 @@ class Table(Simple):
     def get_menu_width(self):
         max_width = max(option.width() - option.width()%8 for option in self.options)
         total_width = max_width * self.columns
-        if self.mode in 'objective_menu':
+        if self.mode == 'objective_menu':
             total_width = 120
         else:
             total_width = total_width - total_width%8

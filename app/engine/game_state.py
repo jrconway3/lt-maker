@@ -1006,7 +1006,7 @@ def start_level(level_nid):
         game = GameState()
     else:
         game.clear()  # Need to use old game if called twice in a row
-    game.load_states(['turn_change'])
+    game.load_states(['start_level_asset_loading'])
     game.build_new()
     game.start_level(level_nid)
     return game
@@ -1023,7 +1023,7 @@ def load_level(level_nid, save_loc):
     from app.engine import save
     with open(save_loc, 'rb') as fp:
         s_dict = pickle.load(fp)
-    game.load_states(['turn_change'])
+    game.load_states(['start_level_asset_loading'])
     game.build_new()
     game.load(s_dict)
     save.set_next_uids(game)

@@ -1,3 +1,4 @@
+from app.editor.lib.components.validated_line_edit import NidLineEdit
 from functools import partial
 
 from app.data.database import DB
@@ -72,7 +73,7 @@ class PropertiesMenu(QWidget):
         form = QVBoxLayout(self)
         form.setAlignment(Qt.AlignTop)
 
-        self.nid_box = PropertyBox("Level ID", QLineEdit, self)
+        self.nid_box = PropertyBox("Level ID", NidLineEdit, self)
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
         form.addWidget(self.nid_box)
@@ -260,6 +261,7 @@ class PropertiesMenu(QWidget):
         self.current.roam = bool(state)
         if self.current.roam:
             self.unit_box.show()
+            self.current.roam_unit = self.unit_box.edit.currentText()
             # self.unit_changed() - This line seems only to cause issues due to it reseting the roam_unit in line 265. Functionality appears to work correctly with it removed
         else:
             self.unit_box.hide()

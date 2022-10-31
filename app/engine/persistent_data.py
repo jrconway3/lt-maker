@@ -21,7 +21,7 @@ def deserialize(location):
             s_dict = pickle.load(fp)
             return s_dict
     except FileNotFoundError:
-        logging.warning("No persistent data file found at %s", location)
+        logging.info("No persistent data file found at %s", location)
 
 def clear(location):
     logging.info("Clearing data in %s", location)

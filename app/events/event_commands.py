@@ -25,6 +25,7 @@ class Tags(Enum):
     MISCELLANEOUS = 'Miscellaneous'
     OVERWORLD = 'Overworld'
     ACHIEVEMENT = 'Achievement'
+    PERSISTENT_RECORDS = 'Persistent Records'
     HIDDEN = 'Hidden'
 
 UNIVERSAL_FLAGS = ['no_warn']
@@ -2653,6 +2654,26 @@ class ClearAchievements(EventCommand):
     tag = Tags.ACHIEVEMENT
     desc = ('Clear all achievements from the player\'s computer')
 
+class CreateRecord(EventCommand):
+    nid = 'create_record'
+    tag = Tags.PERSISTENT_RECORDS
+    desc = ('Creates a new persistent record. Does nothing if nid is already present')
+
+    keywords = ['Nid', 'Expression']
+
+class UpdateRecord(EventCommand):
+    nid = 'update_record'
+    tag = Tags.PERSISTENT_RECORDS
+    desc = ('Updates a persistent record with a new value. Does nothing if nid is not present')
+
+    keywords = ['Nid', 'Expression']
+
+class DeleteRecord(EventCommand):
+    nid = 'delete_record'
+    tag = Tags.PERSISTENT_RECORDS
+    desc = ('Remove a persistent record. Does nothing if nid is not present')
+
+    keywords = ['Nid']
 
 def get_commands():
     return EventCommand.__subclasses__()

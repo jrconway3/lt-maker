@@ -1,12 +1,12 @@
 import app.engine.config as cf
 from app.constants import WINHEIGHT, WINWIDTH
 from app.data.database import DB
-from app.engine import (base_surf, bmpfont, engine, icons, item_funcs,
+from app.engine import (base_surf, engine, icons, item_funcs,
                         item_system, text_funcs)
 from app.engine.fonts import FONT
 from app.engine.game_state import game
 from app.engine.graphics.text.text_renderer import (fix_tags, font_height, render_text,
-                                                    rendered_text_width)
+                                                    text_width)
 from app.engine.sprites import SPRITES
 from app.utilities import utils
 from app.utilities.enums import Alignments
@@ -30,9 +30,9 @@ class HelpDialog():
         self.num_lines = self.find_num_lines(desc)
         self.build_lines(desc)
 
-        greater_line_len = max([rendered_text_width([self.font], [line]) for line in self.lines])
+        greater_line_len = text_funcs.get_max_width(self.font, self.lines)
         if self.name:
-            greater_line_len = max(greater_line_len, rendered_text_width([self.font], [self.name]))
+            greater_line_len = max(greater_line_len, text_width(self.font, self.name))
 
         self.width = greater_line_len + 24
         if self.name:
@@ -144,7 +144,7 @@ class HelpDialog():
         lines = desc.split("\n")
         total_lines = len(lines)
         for line in lines:
-            desc_length = rendered_text_width([self.font], [line])
+            desc_length = text_width(self.font, line)
             total_lines += desc_length // (WINWIDTH - 20)
         return total_lines
 

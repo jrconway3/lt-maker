@@ -62,6 +62,18 @@ def rendered_text_width(fonts: List[NID], texts: List[str]) -> int:
             total_width += 16
     return total_width
 
+def text_width(font: NID, text: str) -> int:
+    """Simply determines the width of the text
+
+    Args:
+        font (NID): font to use to write text.
+        text (str): string to write with corresponding font.
+
+    Returns:
+        int: Width of string if it were rendered
+    """
+    return rendered_text_width([font], [text])
+
 def fix_tags(text_block: List[str]) -> List[str]:
     """Fixes unclosed tags.
 

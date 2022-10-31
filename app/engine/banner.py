@@ -4,7 +4,7 @@ from app.constants import WINWIDTH, WINHEIGHT
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import engine, base_surf, image_mods, icons, text_funcs, item_system
-from app.engine.graphics.text.text_renderer import rendered_text_width, render_text
+from app.engine.graphics.text.text_renderer import text_width, render_text
 from app.data import skills, items
 
 from typing import TYPE_CHECKING
@@ -28,7 +28,7 @@ class Banner():
         self.sound = None
 
     def figure_out_size(self):
-        self.length = rendered_text_width(['text'], [self.text])
+        self.length = text_width('text', self.text)
         self.length += 16
         self.length -= self.length%8
         self.length += (16 if self.item else 0)
@@ -175,7 +175,7 @@ class CustomIcon(Banner):
         self.sound = sound
 
     def figure_out_size(self):
-        self.length = rendered_text_width(['text'], [self.text])
+        self.length = text_width('text', self.text)
         self.length += 16
         self.length -= self.length%8
         self.length += (16 if self.item else 0)
@@ -236,7 +236,7 @@ class Pennant():
 
     def change_text(self, text):
         self.text = text_funcs.translate(text)
-        self.text_width = rendered_text_width([self.font], [self.text])
+        self.text_width = text_width(self.font, self.text)
         self.text_counter = 0
 
     def draw(self, surf, draw_on_top=False):

@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from app.engine.graphics.text.text_renderer import render_text, rendered_text_width
+from app.engine.graphics.text.text_renderer import render_text, text_width
 from app.engine.objects.unit import UnitObject
 from dataclasses import dataclass
 
@@ -1040,7 +1040,7 @@ class InfoMenuState(State):
         build_groove(surf, (27, WINHEIGHT - 9), 88, utils.clamp(fatigue / max_fatigue, 0, 1))
         x_pos = 27 + 88 // 2
         text = str(fatigue) + '/' + str(max_fatigue)
-        x_pos -= rendered_text_width(['text'], [text])//2
+        x_pos -= text_width('text', text)//2
         render_text(surf, ['text'], [text], ['blue'], (x_pos, WINHEIGHT - 17))
         if fatigue >= max_fatigue:
             render_text(surf, ['text'], [str(fatigue)], ['red'], (x_pos, WINHEIGHT - 17))
@@ -1065,7 +1065,7 @@ class InfoMenuState(State):
                 entries = note[1].split(',')
                 render_text(menu_surf, ['text'], [category], ['blue'], (10, total_height))
                 for entry in entries:
-                    category_length = rendered_text_width(['text'], [category])
+                    category_length = text_width('text', category)
                     left_pos = 64 if category_length <= 64 else (category_length + 8)
                     render_text(menu_surf, ['text'], [entry], [], (left_pos, total_height))
                     total_height += 16

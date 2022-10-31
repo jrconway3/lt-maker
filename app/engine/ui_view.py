@@ -1,4 +1,4 @@
-from app.engine.graphics.text.text_renderer import fix_tags, render_text, rendered_text_width
+from app.engine.graphics.text.text_renderer import fix_tags, render_text, text_width
 import logging
 from app.engine.text_evaluator import TextEvaluator
 import app.engine.config as cf
@@ -316,7 +316,7 @@ class UIView():
         surf = image_mods.make_translucent(surf, .1)
 
         for idx, line in enumerate(text_lines):
-            pos = (surf.get_width()//2 - rendered_text_width(['text'], [line])//2, 16 * idx + 6)
+            pos = (surf.get_width()//2 - text_width('text', line)//2, 16 * idx + 6)
             render_text(surf, ['text'], [line], [None], pos)
 
         return surf

@@ -7,7 +7,7 @@ from app.engine.fonts import FONT
 from app.engine import engine, image_mods, icons, help_menu, text_funcs, item_system, item_funcs
 from app.engine.game_state import game
 
-from app.engine.graphics.text.text_renderer import render_text, rendered_text_width
+from app.engine.graphics.text.text_renderer import render_text, text_width
 
 class EmptyOption():
     def __init__(self, idx):
@@ -60,7 +60,7 @@ class BasicOption():
         self.display_text = text_funcs.translate(text)
 
     def width(self):
-        return rendered_text_width([self.font], [self.display_text]) + 24
+        return text_width(self.font, self.display_text) + 24
 
     def height(self):
         return 16
@@ -102,7 +102,7 @@ class NullOption(BasicOption):
 
 class HorizOption(BasicOption):
     def width(self):
-        return rendered_text_width([self.font], [self.display_text])
+        return text_width(self.font, self.display_text)
 
 class SingleCharacterOption(BasicOption):
     def width(self):
@@ -269,7 +269,7 @@ class ItemOption(BasicOption):
             surf.blit(icon, (x + 2, y))
         main_color, uses_color = self.get_color()
         main_font = self.font
-        if rendered_text_width([main_font], [self.item.name]) > 60:
+        if text_width(main_font, self.item.name) > 60:
             main_font = 'narrow'
         uses_font = 'text'
         FONT[main_font].blit(self.item.name, surf, (x + 20, y), main_color)
@@ -318,7 +318,7 @@ class FullItemOption(ItemOption):
             surf.blit(icon, (x + 2, y))
         main_color, uses_color = self.get_color()
         main_font = self.font
-        width = rendered_text_width([main_font], [self.item.name])
+        width = text_width(main_font, self.item.name)
         if width > 60:
             main_font = 'narrow'
         uses_font = 'text'
@@ -359,7 +359,7 @@ class ValueItemOption(ItemOption):
             surf.blit(icon, (x + 2, y))
         main_color, uses_color = self.get_color()
         main_font = self.font
-        width = rendered_text_width([main_font], [self.item.name])
+        width = text_width(main_font, self.item.name)
         if width > 60:
             main_font = 'narrow'
         uses_font = 'text'
@@ -405,7 +405,7 @@ class RepairValueItemOption(ValueItemOption):
             surf.blit(icon, (x + 2, y))
         main_color, uses_color = self.get_color()
         main_font = self.font
-        width = rendered_text_width([main_font], [self.item.name])
+        width = text_width(main_font, self.item.name)
         if width > 60:
             main_font = 'narrow'
         uses_font = 'text'
@@ -507,7 +507,7 @@ class UnitOption(BasicOption):
     def draw_text(self, surf, x, y):
         color = self.get_color()
         font = self.font
-        if rendered_text_width([font], [self.unit.name]) > 44:
+        if text_width(font, self.unit.name) > 44:
             font = 'narrow'
         FONT[font].blit(self.unit.name, surf, (x + 20, y), color)
 
@@ -567,7 +567,7 @@ class LoreOption(BasicOption):
             s = self.lore.category
         else:
             s = self.display_text
-        width = rendered_text_width([main_font], [s])
+        width = text_width(main_font, s)
         if width > 78:
             main_font = 'narrow'
         font = FONT[main_font]

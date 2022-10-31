@@ -243,9 +243,8 @@ class Achievement(Validator):
         return text
 
     def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
-        slots = []
-        achs_in_level = EventInspectorEngine(self._db.events).find_all_calls_of_command(CreateAchievement)
-        slots += [(None, achs_in_level[command].parameters['Nid']) for command in achs_in_level]
+        achs = EventInspectorEngine(self._db.events).find_all_calls_of_command(CreateAchievement)
+        slots = [(None, command.parameters['Nid']) for command in achs.values()]
         return slots
 
 class GeneralVar(Validator):

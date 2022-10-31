@@ -10,7 +10,6 @@ from app.events.regions import Region
 from app.utilities import utils
 from app.utilities.typing import NID
 
-
 class QueryType():
     UNIT = 'Units'
     SKILL = 'Skills'
@@ -322,4 +321,5 @@ Example usage:
         Returns:
             bool: if the achievement exists
         """
-        return self.game.achievements.check_achievement(nid)
+        from app.engine.achievements import ACHIEVEMENTS
+        return ACHIEVEMENTS.check_achievement(nid)

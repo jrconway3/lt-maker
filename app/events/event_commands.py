@@ -2623,11 +2623,11 @@ class SetOverworldMenuOptionVisible(EventCommand):
 class CreateAchievement(EventCommand):
     nid = 'create_achievement'
     tag = Tags.ACHIEVEMENT
-    desc = ('Creates a new achievement. Set completed to 1 to automatically complete the achievement when it is first unlocked. Set hidden to 1 to prevent from appearing in records. Does nothing if nid already present.')
+    desc = ('Creates a new achievement. Set `completed` flag to automatically complete the achievement when it is first unlocked. Set `hidden` flag to prevent the player from seeing it until it is completed. Does nothing if nid already present.')
 
-    keywords = ['Achievement', 'Name', 'Description']
+    keywords = ['Nid', 'Name', 'Description']
     _flags = ['completed', 'hidden']
-    keyword_types = ['Achievement', 'String', 'String']
+    keyword_types = ['Nid', 'String', 'String']
 
 class UpdateAchievement(EventCommand):
     nid = 'update_achievement'
@@ -2641,15 +2641,17 @@ class UpdateAchievement(EventCommand):
 class CompleteAchievement(EventCommand):
     nid = 'complete_achievement'
     tag = Tags.ACHIEVEMENT
-    desc = ('True marks the achievement as complete. False marks it as incomplete. No effect if achievement doesn\'t exist.\n\nYou can check an achievement\'s completion status with game.achievements.check_achievement("nid")\n\nBanner determines whether a pop-up box will appear notifying the player. If the achievement is hidden the pop-up will never occur.')
+    desc = ('True marks the achievement as complete. False marks it as incomplete. No effect if achievement doesn\'t exist.\n\nYou can check an achievement\'s completion status with `check_achievement("nid")`\n\nbanner flag determines whether a pop-up box will appear notifying the player.')
 
-    keywords = ['Nid', 'Completed', 'Banner']
-    keyword_types = ['Nid', 'Bool', 'Bool']
+    keywords = ['Achievement', 'Completed']
+    keyword_types = ['Achievement', 'Bool']
+
+    _flags = ['banner']
 
 class ClearAchievements(EventCommand):
     nid = 'clear_achievements'
     tag = Tags.ACHIEVEMENT
-    desc = ('Remove all achievements from the player')
+    desc = ('Clear all achievements from the player\'s computer')
 
 
 def get_commands():

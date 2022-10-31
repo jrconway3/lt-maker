@@ -24,7 +24,6 @@ if TYPE_CHECKING:
     from app.engine.objects.unit import UnitObject
     from app.engine.dialog_log import DialogLog
     from app.events.event_manager import EventManager
-    from app.engine.achievements import AchievementManager
     from app.events import speak_style
     from app.events.regions import Region
     from app.utilities.typing import NID, UID
@@ -102,9 +101,6 @@ class GameState():
         self.ai: ai_controller.AIController = None
         self.overworld_controller: OverworldManager = None
 
-        # achievements
-        self.achievements: AchievementManager = None
-
         self.clear()
 
     def is_displaying_overworld(self) -> bool:
@@ -177,8 +173,6 @@ class GameState():
         from app.engine.dialog_log import DialogLog
         self.dialog_log = DialogLog()
         self.already_triggered_events = []
-        from app.engine.achievements import AchievementManager
-        self.achievements = AchievementManager(str(DB.constants.value('game_nid')))
         self.sweep()
         self.generic()
 
@@ -392,7 +386,6 @@ class GameState():
         self.parties = {party_data['nid']: PartyObject.restore(party_data) for party_data in s_dict['parties']}
         self.market_items = s_dict.get('market_items', {})
         self.unlocked_lore = s_dict.get('unlocked_lore', [])
-        self.achievements.load_achievements()
         self.dialog_log = dialog_log.DialogLog.restore(s_dict.get('dialog_log', []))
 
         self.already_triggered_events = s_dict.get('already_triggered_events', [])

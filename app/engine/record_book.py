@@ -4,7 +4,6 @@ from app.data.database import DB
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import menus, menu_options, gui, base_surf, image_mods, text_funcs
-from app.engine.graphics.text.text_renderer import rendered_text_width
 
 from app.engine.game_state import game
 

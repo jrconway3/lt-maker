@@ -81,7 +81,6 @@ class Recordkeeper():
     Stealing an Item
     Recruiting a Unit
     Turns Taken
-    Achievements
 
     And for all these, needs to know what Chapter and Turn
     """

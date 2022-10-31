@@ -1211,7 +1211,8 @@ class Table(Simple):
         right = topleft[0] + self.get_menu_width()
         topright = (right, topleft[1])
         num_rows = math.ceil(len(self.options) / self.columns)
-        self.scroll_bar.draw(surf, topright, self.scroll, self.rows, num_rows)
+        option_height = 32 if self.mode == 'achievements' else 16
+        self.scroll_bar.draw(surf, topright, self.scroll, self.rows, num_rows, option_height)
 
     def draw(self, surf):
         topleft = self.get_topleft()

@@ -110,14 +110,28 @@ class AchievementOption(BasicOption):
     def draw(self, surf, x, y):
         x_offset = 5
         font = self.font
-        if FONT[font].width(self.achievement.name + " - Complete") > 220:
-            font = 'narrow'
-        FONT[font].blit(self.achievement.name + " - ", surf, (x + x_offset, y), self.get_color())
-        if self.achievement.get_complete():
-            FONT[font].blit("Complete", surf, (x + FONT[font].width(self.achievement.name + " - ") + x_offset, y), 'green')
+        
+        # Render Title
+        if self.achievement.get_hidden():
+            front_half = "Hidden - "
         else:
-            FONT[font].blit("Locked", surf, (x + FONT[font].width(self.achievement.name + " - ") + x_offset, y), 'red')
-        FONT[font].blit(self.achievement.desc, surf, (x + x_offset, y + 13), self.get_color())
+            front_half = self.achievement.name + " - "
+        if rendered_text_width([font], [front_half + "Complete"]) > 220:
+            font = 'narrow'
+        front_color = 'yellow' if self.achievement.get_complete() else 'grey'
+        render_text(surf, [font], [front_half], [front_color], (x + x_offset, y))
+
+        # Render Description
+        offset = rendered_text_width([font], [front_half])
+        if self.achievement.get_complete():
+            render_text(surf, [font], ["Complete"], ['green'], (x + x_offset + offset, y))
+        else:
+            render_text(surf, [font], ["Locked"], ['red'], (x + x_offset + offset, y))
+        if self.achievement.get_hidden():
+            desc = "???"
+        else:
+            desc = self.achievement.desc
+        render_text(surf, [font], [desc], [self.get_color()], (x + x_offset, y + 13))
 
     def get_color(self):
         if self.achievement.get_complete():

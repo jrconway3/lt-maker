@@ -8,7 +8,7 @@ from app.constants import WINHEIGHT, WINWIDTH
 from app.data.database import DB
 from app.data.level_units import GenericUnit, UniqueUnit
 from app.engine import (action, background, banner, dialog, engine, evaluate,
-                        icons, image_mods, item_funcs, item_system,
+                        icons, image_mods, item_funcs, item_system, base_surf,
                         skill_system, target_system, unit_funcs)
 from app.engine.animations import MapAnimation
 from app.engine.combat import interaction
@@ -17,9 +17,11 @@ from app.engine.game_menus.menu_components.generic_menu.simple_menu_wrapper impo
 from app.engine.graphics.ui_framework.premade_animations.animation_templates import \
     fade_anim, translate_anim
 from app.engine.graphics.ui_framework.ui_framework import UIComponent
+from app.engine.graphics.ui_framework.premade_components.plain_text_component import PlainTextLine
 from app.engine.graphics.ui_framework.ui_framework_animation import \
     InterpolationType
-from app.engine.graphics.ui_framework.ui_framework_layout import HAlignment
+from app.engine.graphics.ui_framework.ui_framework_layout import HAlignment, VAlignment
+from app.engine.graphics.text.text_renderer import rendered_text_width
 from app.engine.objects.item import ItemObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.objects.unit import UnitObject
@@ -33,6 +35,8 @@ from app.sprites import SPRITES
 from app.utilities import str_utils, utils
 from app.utilities.enums import Alignments
 from app.utilities.typing import NID
+from app.engine.achievements import ACHIEVEMENTS
+from app.engine.persistent_records import RECORDS
 
 if TYPE_CHECKING:
     from app.events.event import Event
@@ -2987,3 +2991,93 @@ def separate(self: Event, unit, flags=None):
         return
     unit = new_unit
     action.do(action.RemovePartner(unit))
+
+def create_achievement(self: Event, nid: str, name: str, description: str, flags=None):
+    flags = flags or set()
+
+    completed = 'completed' in flags
+    hidden = 'hidden' in flags
+    ACHIEVEMENTS.add_achievement(nid, name, description, completed, hidden)
+
+def update_achievement(self: Event, achievement: str, name: str, description:str, flags=None):
+    flags = flags or set()
+
+    hidden = 'hidden' in flags
+    ACHIEVEMENTS.update_achievement(achievement, name, description, hidden)
+
+def complete_achievement(self: Event, achievement: str, completed: str, flags=None):
+    flags = flags or set()
+    nid = achievement
+    
+    completed = completed.lower() in self.true_vals
+    banner = 'banner' in flags
+
+    complete = ACHIEVEMENTS.complete_achievement(nid, completed, banner)
+
+    def draw_achievement(self: Event, achievement):
+        # Nested for unit test/event command reasons
+        name = 'achievement_notification_' + achievement.nid
+        font = "text"
+        width = rendered_text_width([font], [achievement.name])
+        sprite = base_surf.create_base_surf(width + 16, 24, 'menu_bg_achievement_dark')
+        position = (WINWIDTH - width - 20, WINHEIGHT - 28)
+        x, y = position
+
+        component = UIComponent.from_existing_surf(sprite)
+        component.name = name
+        component.disable()
+
+        start_x = x
+        start_y = WINHEIGHT
+        enter_anim = translate_anim((start_x, start_y), (x, y), 750, interp_mode=InterpolationType.CUBIC)
+        exit_anim = translate_anim((x, y), (start_x, start_y), 750, disable_after=True, interp_mode=InterpolationType.CUBIC)
+        component.save_animation(enter_anim, '!enter')
+        component.save_animation(exit_anim, '!exit')
+
+        achievement_name = PlainTextLine("name", component, '<white>' + achievement.name + '</white>', font)
+        achievement_name.props.h_alignment = HAlignment.CENTER
+        achievement_name.props.v_alignment = VAlignment.CENTER
+        component.add_child(achievement_name)
+
+        get_sound_thread().play_sfx("Item", volume=0.5)
+
+        self.overlay_ui.add_child(component)
+        if self.do_skip:
+            component.enable()
+            return
+        else:
+            component.enter()
+    # End Func
+
+    if banner and complete:
+        draw_achievement(self, ACHIEVEMENTS.get(nid))
+
+        # Remember to remove the command eventually
+        anim_nid = 'achievement_notification_' + nid
+        if self.do_skip:
+            remove_overlay_sprite(self, anim_nid)
+        else:
+            self.wait_time = engine.get_time() + 2000
+            self.state = 'waiting'
+            remove_overlay_sprite_command = event_commands.RemoveOverlaySprite({'Nid': anim_nid})
+            self.commands.insert(self.command_idx + 1, remove_overlay_sprite_command)
+    
+def clear_achievements(self: Event, flags=None):
+    ACHIEVEMENTS.clear_achievements()
+
+def create_record(self: Event, nid: str, expression: str, flags=None):
+    try:
+        val = self.text_evaluator.direct_eval(expression)
+        RECORDS.create(nid, val)
+    except Exception as e:
+        self.logger.error("create_record: Could not evaluate %s (%s)" % (expression, e))
+
+def update_record(self: Event, nid: str, expression: str, flags=None):
+    try:
+        val = self.text_evaluator.direct_eval(expression)
+        RECORDS.update(nid, val)
+    except Exception as e:
+        self.logger.error("update_record: Could not evaluate %s (%s)" % (expression, e))
+
+def delete_record(self: Event, nid: str, flags=None):
+    RECORDS.delete(nid)

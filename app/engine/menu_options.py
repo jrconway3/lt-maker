@@ -85,6 +85,59 @@ class BasicOption():
         self.draw(surf, x, y)
         return surf
 
+class AchievementOption(BasicOption):
+    def __init__(self, idx, achievement):
+        self.idx = idx
+        self.achievement = achievement
+        self.help_box = None
+        self.font = 'text'
+        self.color = None
+        self.ignore = False
+        self.mode = None
+
+    def height(self):
+        return 32
+
+    def width(self):
+        return 220
+
+    def get(self):
+        return self.achievement
+
+    def set_text(self, text):
+        pass
+
+    def draw(self, surf, x, y):
+        x_offset = 5
+        font = self.font
+        
+        # Render Title
+        if self.achievement.get_hidden():
+            front_half = "Hidden - "
+        else:
+            front_half = self.achievement.name + " - "
+        if rendered_text_width([font], [front_half + "Complete"]) > 220:
+            font = 'narrow'
+        front_color = 'yellow' if self.achievement.get_complete() else 'grey'
+        render_text(surf, [font], [front_half], [front_color], (x + x_offset, y))
+
+        # Render Description
+        offset = rendered_text_width([font], [front_half])
+        if self.achievement.get_complete():
+            render_text(surf, [font], ["Complete"], ['green'], (x + x_offset + offset, y))
+        else:
+            render_text(surf, [font], ["Locked"], ['red'], (x + x_offset + offset, y))
+        if self.achievement.get_hidden():
+            desc = "???"
+        else:
+            desc = self.achievement.desc
+        render_text(surf, [font], [desc], [self.get_color()], (x + x_offset, y + 13))
+
+    def get_color(self):
+        if self.achievement.get_complete():
+            return 'white'
+        return 'grey'
+
 class NullOption(BasicOption):
     def __init__(self, idx):
         super().__init__(idx, "Nothing")

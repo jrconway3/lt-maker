@@ -1571,6 +1571,18 @@ Changes the *Party* of *GlobalUnit*. Used for games in which the player's units 
 
     keywords = ["GlobalUnit", "Party"]
 
+class ChangeFaction(EventCommand):
+    nid = 'change_faction'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Changes the *Faction* of *GlobalUnit*.
+        """
+
+    keywords = ["GlobalUnit", "Faction"]
+
+
 class ChangeTeam(EventCommand):
     nid = 'change_team'
     tag = Tags.MODIFY_UNIT_PROPERTIES

@@ -824,11 +824,6 @@ def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_ty
         level = unit.level
     if position:
         position = self._parse_pos(position)
-    else:
-        position = unit.starting_position
-    if not position:
-        self.logger.error("create_unit: No position found!")
-        return
     if not entry_type:
         entry_type = 'fade'
     if not placement:
@@ -843,11 +838,7 @@ def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_ty
 
     if 'copy_stats' in flags:
         new_unit.stats = unit.stats.copy()
-
-    position = self._check_placement(new_unit, position, placement)
-    if not position:
-        self.logger.error("create_unit: Couldn't get a good position %s %s %s" % (position, entry_type, placement))
-        return None
+        
     new_unit.party = self.game.current_party
     # self.game.full_register(new_unit)
     action.do(action.RegisterUnit(new_unit))
@@ -857,7 +848,10 @@ def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_ty
     if DB.constants.value('initiative'):
         action.do(action.InsertInitiative(new_unit))
 
-    self._place_unit(new_unit, position, entry_type)
+    if position:
+        position = self._check_placement(new_unit, position, placement)
+    if position:
+        self._place_unit(new_unit, position, entry_type)
 
 def add_unit(self: Event, unit, position=None, entry_type=None, placement=None, animation_type=None, flags=None):
     new_unit = self._get_unit(unit)
@@ -1065,9 +1059,9 @@ def interact_unit(self: Event, unit, position, combat_script=None, ability=None,
     self.state = "paused"
 
 def recruit_generic(self: Event, unit, nid, name, flags=None):
-    new_unit = self.game.get_unit(unit)
+    new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("recruit_generic: Couldn't find unit with nid %s" % unit)
+        self.logger.error("recruit_generic: Couldn't find unit %s" % unit)
         return
     unit = new_unit
     action.do(action.SetPersistent(unit))
@@ -1773,6 +1767,17 @@ def change_party(self: Event, global_unit, party, flags=None):
         action.do(action.ChangeParty(unit, party))
     else:
         self.logger.error("change_party: Couldn't find Party %s" % party)
+        return
+
+def change_faction(self: Event, global_unit, faction, flags=None):
+    unit = self._get_unit(global_unit)
+    if not unit:
+        self.logger.error("change_faction: Couldn't find unit %s" % global_unit)
+        return
+    if faction in DB.factions.keys():
+        action.do(action.ChangeFaction(unit, faction))
+    else:
+        self.logger.error("change_party: Couldn't find Faction %s" % faction)
         return
 
 def change_team(self: Event, global_unit, team, flags=None):

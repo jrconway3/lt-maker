@@ -833,7 +833,7 @@ def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_ty
     if not faction:
         faction = DB.factions[0].nid
     level_unit_prefab = GenericUnit(
-        unit_nid, unit.variant, int(level), unit.klass, faction, [item.nid for item in unit.items], [skill.nid for skill in unit.skills], unit.team, unit.ai)
+        unit_nid, unit.variant, int(level), unit.klass, faction, [item.nid for item in unit.items], [], unit.team, unit.ai)
     new_unit = UnitObject.from_prefab(level_unit_prefab, self.game.current_mode)
 
     if 'copy_stats' in flags:

@@ -55,8 +55,21 @@ class TitleStartState(State):
             get_sound_thread().fade_in(DB.constants.value('music_main'), fade_in=50)
 
         game.state.refresh()
-        game.state.change('transition_in')
+
+        # Title Screen Intro Cinematic
+        if game.memory.get('title_intro_already_played'):
+            game.state.change('transition_in')
+        else:
+            game.sweep()
+            game.events.trigger(triggers.OnTitleScreen())
+            game.memory['title_intro_already_played'] = True
+
         return 'repeat'
+
+    def begin(self):
+        if game.state.from_transition():
+            game.state.change('transition_in')
+            return 'repeat'
 
     def take_input(self, event):
         if event:

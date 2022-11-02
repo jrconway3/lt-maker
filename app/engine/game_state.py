@@ -182,14 +182,17 @@ class GameState():
         """
         from app.engine import turnwheel
         from app.events import event_manager
+        from app.engine.dialog_log import DialogLog
+        
         self.level_vars = Counter()
         self.turncount = 0
         self.talk_options = []
         self.base_convos = {}
         self.action_log = turnwheel.ActionLog()
         self.events = event_manager.EventManager()
-        if self.dialog_log:
-            self.dialog_log.clear()
+        if not self.dialog_log:
+            self.dialog_log = DialogLog()
+        self.dialog_log.clear()
 
     def generic(self):
         """

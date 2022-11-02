@@ -600,6 +600,7 @@ class Ending():
         self.speaker = None  # Unused attribute to match Dialog
         self.unit = unit
         self.font = FONT['text']
+        self.font_name = 'text'
 
         # Build dialog
         self.dialog = Dialog(text, num_lines=6, draw_cursor=False)

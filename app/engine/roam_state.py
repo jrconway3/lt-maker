@@ -278,11 +278,6 @@ class FreeRoamState(MapState):
         self.roam_unit = None
         self.last_move = 0
 
-    def rationalize_unit(self, unit):
-        new_pos = target_system.get_nearest_open_tile(unit, game.board.rationalize_pos(unit.position))
-        unit.position = new_pos
-        game.arrive(unit)
-
     def can_talk(self):
         """
         Returns a unit if that unit is close enough to talk. Returns the closest unit if more than one is
@@ -360,7 +355,6 @@ class RationalizeState(MapState):
                 t.stop_unit()
                 game.arrive(t.unit)
                 self.targets.remove(t)
-                print(game.board.get_unit(t.unit.position))
             else:
                 t.rationalization()
 

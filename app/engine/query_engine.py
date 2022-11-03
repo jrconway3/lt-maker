@@ -10,12 +10,12 @@ from app.events.regions import Region
 from app.utilities import utils
 from app.utilities.typing import NID
 
-
 class QueryType():
     UNIT = 'Units'
     SKILL = 'Skills'
     ITEM = 'Items'
     MAP = 'Map Functions'
+    ACHIEVEMENT = 'Achievements'
 
 def categorize(tag):
     def deco(func):
@@ -48,8 +48,8 @@ class GameQueryEngine():
     def _resolve_pos(self, has_pos_or_is_pos) -> Tuple[int, int] | None:
         try:
             # possibly a unit?
-            has_pos_or_is_pos = self._resolve_to_unit(has_pos_or_is_pos)
-            return has_pos_or_is_pos.position
+            a_unit = self._resolve_to_unit(has_pos_or_is_pos)
+            return a_unit.position
         except:
             return has_pos_or_is_pos
 
@@ -310,3 +310,16 @@ Example usage:
         """
         unit = self._resolve_to_unit(unit)
         return self.game.check_dead(unit.nid)
+
+    @categorize(QueryType.ACHIEVEMENT)
+    def has_achievement(self, nid) -> bool:
+        """Checks if an achievement is completed
+
+        Args:
+            nid: nid to check for completion
+
+        Returns:
+            bool: if the achievement exists
+        """
+        from app.engine.achievements import ACHIEVEMENTS
+        return ACHIEVEMENTS.check_achievement(nid)

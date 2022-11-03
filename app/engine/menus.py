@@ -1067,6 +1067,9 @@ class Table(Simple):
                 row = 0
                 self.scroll = 0
             else:
+                # Set to most recent good option
+                row = max(r for r in range(row) if self._exists(r, col) and not self.options[self._idx_coords(r, col)].ignore)
+                idx = self._idx_coords(row, col)
                 break
             idx = self._idx_coords(row, col)
             if row > self.scroll + self.rows - 5 and self.mode == 'objective_menu':
@@ -1089,6 +1092,7 @@ class Table(Simple):
             return
         old_index = self.current_index
         row, col = self._true_coords(old_index)
+        num_rows = math.ceil(len(self.options) / self.columns)
         idx = old_index
         while True:
             if self.mode == 'objective_menu':
@@ -1099,9 +1103,11 @@ class Table(Simple):
                 pass
             elif first_push:
                 row = self._get_bottom(col)
-                num_rows = math.ceil(len(self.options) / self.columns)
                 self.scroll = num_rows - self.rows
             else:
+                # Set to most recent good option
+                row = min(r for r in range(num_rows) if self._exists(r, col) and not self.options[self._idx_coords(r, col)].ignore)
+                idx = self._idx_coords(row, col)
                 break
             idx = self._idx_coords(row, col)
             if row < self.scroll + 4 and self.mode == 'objective_menu':
@@ -1134,6 +1140,8 @@ class Table(Simple):
                 row += 1
                 col = 0
             else:
+                # Set to most recent good option
+                idx = max(i for i in range(len(self.options)) if not self.options[idx].ignore)
                 break
             idx = self._idx_coords(row, col)
             if not self.options[idx].ignore:
@@ -1156,6 +1164,8 @@ class Table(Simple):
                 row -= 1
                 col = self._get_right(row)
             else:
+                # Set to most recent good option
+                idx = min(i for i in range(len(self.options)) if not self.options[idx].ignore)
                 break
             idx = self._idx_coords(row, col)
             if not self.options[idx].ignore:

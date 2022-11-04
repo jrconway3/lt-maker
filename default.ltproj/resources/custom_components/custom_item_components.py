@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from app.data.components import Type
+from app.data.components import ComponentType
 from app.data.database import DB
 from app.data.item_components import ItemComponent, ItemTags
 from app.engine import (action, banner, combat_calcs, engine, equations,
@@ -16,5 +16,5 @@ class DoNothing(ItemComponent):
     desc = 'does nothing'
     tag = ItemTags.CUSTOM
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 1

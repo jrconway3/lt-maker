@@ -3,7 +3,7 @@
 from app.data.database_validator import DatabaseValidatorEngine
 import logging
 from typing import List
-from app.data.components import Type, convert_type_from_string
+from app.data.components import ComponentType, convert_type_from_string
 from app.data.database import Database
 from app.data.items import ItemCatalog, ItemPrefab
 from app.data.klass import ClassCatalog
@@ -148,13 +148,13 @@ def update_db_with_unit_csv(db: Database, unit_csv_str):
                     curr_unit.wexp_gain[weapon] = WexpGain(False, rank)
 
 
-def validate_type(db: Database, expose_type: Type, value: str):
-    if expose_type == Type.WeaponType:
+def validate_type(db: Database, expose_type: ComponentType, value: str):
+    if expose_type == ComponentType.WeaponType:
         if value in db.weapons.keys():
             return True
         else:
             return False
-    elif expose_type == Type.WeaponRank:
+    elif expose_type == ComponentType.WeaponRank:
         if value in db.weapon_ranks.keys():
             return True
         else:

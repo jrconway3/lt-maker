@@ -1,5 +1,5 @@
 from app.data.skill_components import SkillComponent, SkillTags
-from app.data.components import Type
+from app.data.components import ComponentType
 
 from app.engine import action
 
@@ -8,7 +8,7 @@ class BuildCharge(SkillComponent):
     desc = "Skill gains charges until full"
     tag = SkillTags.CHARGE
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 10
 
     ignore_conditional = True
@@ -40,7 +40,7 @@ class DrainCharge(SkillComponent):
     desc = "Skill will have a number of charges that are drained by 1 when activated"
     tag = SkillTags.CHARGE
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 1
 
     ignore_conditional = True
@@ -70,7 +70,7 @@ class ChargesPerTurn(DrainCharge, SkillComponent):
     desc = "Skill will have a number of charges that are refreshed each turn"
     tag = SkillTags.CHARGE
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 1
 
     ignore_conditional = True
@@ -93,7 +93,7 @@ class CombatChargeIncrease(SkillComponent):
     desc = "Increases charge of skill each combat"
     tag = SkillTags.CHARGE
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 5
 
     ignore_conditional = True
@@ -110,7 +110,7 @@ class CombatChargeIncreaseByStat(SkillComponent):
     desc = "Increases charge of skill each combat"
     tag = SkillTags.CHARGE
 
-    expose = Type.Stat
+    expose = ComponentType.Stat
     value = 'SKL'
 
     ignore_conditional = True
@@ -128,7 +128,7 @@ class GainMana(SkillComponent):
     tag = SkillTags.CHARGE
     author = 'KD'
 
-    expose = Type.String
+    expose = ComponentType.String
 
     def start_combat(self, playback, unit, item, target, mode):
         from app.engine import evaluate
@@ -146,7 +146,7 @@ class CostMana(SkillComponent):
     tag = SkillTags.CHARGE
     author = 'KD'
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 2
 
     ignore_conditional = True
@@ -164,7 +164,7 @@ class CheckMana(SkillComponent):
     tag = SkillTags.CHARGE
     author = 'KD'
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 2
 
     ignore_conditional = True

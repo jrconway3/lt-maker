@@ -45,7 +45,7 @@ class WeaponModel(DragDropCollectionModel):
         nid = weapon_type.nid
         affected_klasses = [klass for klass in DB.classes if klass.wexp_gain.get(nid) and klass.wexp_gain.get(nid).wexp_gain > 0]
         affected_units = [unit for unit in DB.units if unit.wexp_gain.get(nid) and unit.wexp_gain.get(nid).wexp_gain > 0]
-        affected_items = item_components.get_items_using(components.Type.WeaponType, nid, DB)
+        affected_items = item_components.get_items_using(components.ComponentType.WeaponType, nid, DB)
         affected_weapons = [weapon for weapon in DB.weapons if weapon.advantage.contains(nid) or weapon.disadvantage.contains(nid)]
         if affected_klasses or affected_units or affected_items or affected_weapons:
             if affected_items:
@@ -92,8 +92,8 @@ class WeaponModel(DragDropCollectionModel):
             weapon.rank_bonus.swap_type(old_nid, new_nid)
             weapon.advantage.swap_type(old_nid, new_nid)
             weapon.disadvantage.swap_type(old_nid, new_nid)
-        affected_items = item_components.get_items_using(components.Type.WeaponType, old_nid, DB)
-        item_components.swap_values(affected_items, components.Type.WeaponType, old_nid, new_nid)
+        affected_items = item_components.get_items_using(components.ComponentType.WeaponType, old_nid, DB)
+        item_components.swap_values(affected_items, components.ComponentType.WeaponType, old_nid, new_nid)
 
     def create_new(self):
         nids = [d.nid for d in self._data]

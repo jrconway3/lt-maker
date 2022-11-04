@@ -62,7 +62,7 @@ class AnimationModel(ResourceCollectionModel):
         # Check to see what is using me?
         res = self._data[idx]
         nid = res.nid
-        affected_items = item_components.get_items_using(item_components.Type.MapAnimation, nid, DB)
+        affected_items = item_components.get_items_using(item_components.ComponentType.MapAnimation, nid, DB)
         if affected_items:
             affected = Data(affected_items)
             from app.editor.item_editor.item_model import ItemModel
@@ -78,5 +78,5 @@ class AnimationModel(ResourceCollectionModel):
     def on_nid_changed(self, old_nid, new_nid):
         # What uses Animations
         # Certain item components
-        affected_items = item_components.get_items_using(item_components.Type.MapAnimations, old_nid, DB)
-        item_components.swap_values(affected_items, item_components.Type.MapAnimations, old_nid, new_nid)
+        affected_items = item_components.get_items_using(item_components.ComponentType.MapAnimations, old_nid, DB)
+        item_components.swap_values(affected_items, item_components.ComponentType.MapAnimations, old_nid, new_nid)

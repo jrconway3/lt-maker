@@ -1,5 +1,5 @@
 from enum import Enum
-from app.data.components import Component, Type
+from app.data.components import Component, ComponentType
 
 class ItemTags(Enum):
     BASE = 'base'
@@ -23,7 +23,7 @@ class ItemTags(Enum):
 class ItemComponent(Component):
     item = None
 
-def get_items_using(expose: Type, value, db) -> list:
+def get_items_using(expose: ComponentType, value, db) -> list:
     affected_items = []
     for item in db.items:
         for component in item.components:
@@ -31,7 +31,7 @@ def get_items_using(expose: Type, value, db) -> list:
                 affected_items.append(item)
     return affected_items
 
-def swap_values(affected_items: list, expose: Type, old_value, new_value):
+def swap_values(affected_items: list, expose: ComponentType, old_value, new_value):
     for item in affected_items:
         for component in item.components:
             if component.expose == expose and component.value == old_value:

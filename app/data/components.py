@@ -3,7 +3,7 @@ from enum import IntEnum
 from app.utilities import str_utils
 from app.utilities.data import Data
 
-class Type(IntEnum):
+class ComponentType(IntEnum):
     Int = 1
     Float = 2
     String = 3
@@ -34,10 +34,10 @@ class Type(IntEnum):
     MultipleOptions = 104 # item is a dict of string options with types that can be individually configured
     StringDict = 105  # Item followed by string
 
-def convert_type_from_string(tstr: str, ttype: Type):
-    if ttype == Type.Int:
+def convert_type_from_string(tstr: str, ttype: ComponentType):
+    if ttype == ComponentType.Int:
         return int(tstr)
-    if ttype == Type.Float:
+    if ttype == ComponentType.Float:
         return float(tstr)
     else:
         return tstr

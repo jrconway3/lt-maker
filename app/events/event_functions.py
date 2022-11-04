@@ -790,6 +790,7 @@ def make_generic(self: Event, nid, klass, level, team, ai=None, faction=None, an
         faction = DB.factions[0].nid
     if item_list:
         starting_items = item_list.split(',')
+        item_list = [item_nid.strip() for item_nid in item_list]
     else:
         starting_items = []
     level_unit_prefab = GenericUnit(unit_nid, animation_variant, level, klass, faction, starting_items, [], team, ai)
@@ -838,7 +839,7 @@ def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_ty
 
     if 'copy_stats' in flags:
         new_unit.stats = unit.stats.copy()
-        
+
     new_unit.party = self.game.current_party
     # self.game.full_register(new_unit)
     action.do(action.RegisterUnit(new_unit))
@@ -1450,6 +1451,7 @@ def move_item_between_convoys(self: Event, item, party1, party2, flags=None):
 
     item_id = item
     item_list = giver.items
+    item_list = [item_nid.strip() for item_nid in item_list]
     inids = [item.nid for item in item_list]
     iuids = [item.uid for item in item_list]
     if (item_id not in inids) and (not str_utils.is_int(item_id) or not int(item_id) in iuids):
@@ -2464,6 +2466,7 @@ def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, flags=
     self.game.memory['shop_id'] = shop_id
     self.game.memory['current_unit'] = unit
     item_list = item_list.split(',') if item_list else []
+    item_list = [item_nid.strip() for item_nid in item_list]
     shop_items = item_funcs.create_items(unit, item_list)
     self.game.memory['shop_items'] = shop_items
 
@@ -3013,7 +3016,7 @@ def update_achievement(self: Event, achievement: str, name: str, description:str
 def complete_achievement(self: Event, achievement: str, completed: str, flags=None):
     flags = flags or set()
     nid = achievement
-    
+
     completed = completed.lower() in self.true_vals
     banner = 'banner' in flags
 
@@ -3066,7 +3069,7 @@ def complete_achievement(self: Event, achievement: str, completed: str, flags=No
             self.state = 'waiting'
             remove_overlay_sprite_command = event_commands.RemoveOverlaySprite({'Nid': anim_nid})
             self.commands.insert(self.command_idx + 1, remove_overlay_sprite_command)
-    
+
 def clear_achievements(self: Event, flags=None):
     ACHIEVEMENTS.clear_achievements()
 

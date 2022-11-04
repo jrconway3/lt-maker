@@ -4,12 +4,12 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon
 
-from app.resources.animations import Animation
-from app.resources.resources import RESOURCES
+from app.data.resources.animations import Animation
+from app.data.resources.resources import RESOURCES
 
 from app.utilities.data import Data
-from app.data.database import DB
-from app.data import item_components
+from app.data.database.database import DB
+from app.data.database import item_components
 
 from app.extensions.custom_gui import DeletionDialog
 

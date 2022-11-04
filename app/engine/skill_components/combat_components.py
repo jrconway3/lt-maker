@@ -1,6 +1,6 @@
-from app.data.database import DB
-from app.data.skill_components import SkillComponent, SkillTags
-from app.data.components import ComponentType
+from app.data.database.database import DB
+from app.data.database.skill_components import SkillComponent, SkillTags
+from app.data.database.components import ComponentType
 from app.engine import equations
 
 import logging

@@ -1,6 +1,6 @@
-from app.data.item_components import ItemComponent, ItemTags
-from app.data.components import ComponentType
-from app.data.database import DB
+from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
+from app.data.database.database import DB
 
 class Spell(ItemComponent):
     nid = 'spell'

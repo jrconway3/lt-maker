@@ -1,10 +1,10 @@
 from app.engine.exp_calculator import ExpCalcType, ExpCalculator
 import math
 
-from app.data.database import DB
+from app.data.database.database import DB
 
-from app.data.item_components import ItemComponent, ItemTags
-from app.data.components import ComponentType
+from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
 
 from app.engine import skill_system, action
 

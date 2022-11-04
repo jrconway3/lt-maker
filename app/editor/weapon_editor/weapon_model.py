@@ -2,9 +2,9 @@ from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
 from app.utilities.data import Data
-from app.resources.resources import RESOURCES
-from app.data.database import DB
-from app.data import weapons, components, item_components
+from app.data.resources.resources import RESOURCES
+from app.data.database.database import DB
+from app.data.database import weapons, components, item_components
 
 from app.editor.custom_widgets import WeaponTypeBox
 from app.extensions.custom_gui import DeletionDialog

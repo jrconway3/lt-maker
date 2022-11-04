@@ -3,14 +3,14 @@ from PyQt5.QtCore import Qt
 
 from app.utilities import str_utils
 from app.utilities.data import Data
-from app.data.database import DB
+from app.data.database.database import DB
 
 from app.extensions.custom_gui import ComboBox, PropertyBox, DeletionDialog
 from app.extensions.list_dialogs import MultiAttrListDialog
 from app.extensions.list_models import MultiAttrListModel, DefaultMultiAttrListModel
 
-from app.data.weapons import WeaponRank
-from app.data import item_components
+from app.data.database.weapons import WeaponRank
+from app.data.database import item_components
 
 class WeaponRankMultiModel(MultiAttrListModel):
     def delete(self, idx):

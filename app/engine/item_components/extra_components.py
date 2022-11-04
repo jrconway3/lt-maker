@@ -1,5 +1,5 @@
-from app.data.item_components import ItemComponent, ItemTags
-from app.data.components import ComponentType
+from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
 
 from app.utilities import utils
 from app.engine import action, combat_calcs, image_mods, engine, item_system, skill_system

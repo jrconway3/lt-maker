@@ -1,6 +1,6 @@
 from app.engine.fonts import NORMAL_FONT_COLORS
-from app.data.item_components import ItemComponent, ItemTags
-from app.data.components import ComponentType
+from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
 
 from app.engine.combat import playback as pb
 from app.engine import engine, image_mods, skill_system

@@ -1,5 +1,5 @@
-from app.data.item_components import ItemComponent, ItemTags
-from app.data.components import ComponentType
+from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
 
 from app.utilities import utils
 from app.engine import target_system, skill_system

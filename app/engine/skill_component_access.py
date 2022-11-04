@@ -1,7 +1,7 @@
 from functools import lru_cache
 from app.utilities.data import Data
-from app.data.components import ComponentType
-from app.data.skill_components import SkillComponent, SkillTags
+from app.data.database.components import ComponentType
+from app.data.database.skill_components import SkillComponent, SkillTags
 
 @lru_cache(1)
 def get_cached_skill_components(proj_dir: str):
@@ -21,7 +21,7 @@ def get_cached_skill_components(proj_dir: str):
     return Data(subclasses)
 
 def get_skill_components():
-    from app.data.database import DB
+    from app.data.database.database import DB
     return get_cached_skill_components(DB.current_proj_dir)
 
 def get_skill_tags():

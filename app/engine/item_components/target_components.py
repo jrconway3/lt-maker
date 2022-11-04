@@ -3,8 +3,8 @@ from __future__ import annotations
 import logging
 from functools import lru_cache
 
-from app.data.components import ComponentType
-from app.data.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
+from app.data.database.item_components import ItemComponent, ItemTags
 from app.engine import item_funcs, skill_system, target_system
 from app.engine.game_state import game
 from app.utilities import utils

@@ -1,8 +1,8 @@
 from functools import partial
 
 from app.utilities import utils
-from app.data.components import ComponentType
-from app.data.database import DB
+from app.data.database.components import ComponentType
+from app.data.database.database import DB
 from app.extensions import list_models
 from app.extensions.color_icon import AlphaColorIcon, ColorIcon
 from app.extensions.custom_gui import ComboBox
@@ -12,7 +12,7 @@ from app.extensions.list_widgets import (AppendMultiListWidget,
                                          AppendSingleListWidget,
                                          BasicMultiListWidget)
 from app.extensions.widget_list import WidgetList
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QIcon
 from PyQt5.QtWidgets import (QDoubleSpinBox, QHBoxLayout,

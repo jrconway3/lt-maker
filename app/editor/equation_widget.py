@@ -3,13 +3,13 @@ from PyQt5.QtCore import Qt
 
 from app.utilities import str_utils
 from app.utilities.data import Data
-from app.data.database import DB
+from app.data.database.database import DB
 
 from app.extensions.custom_gui import DeletionDialog, PropertyBox, ComboBox
 from app.extensions.list_dialogs import MultiAttrListDialog
 from app.extensions.list_models import MultiAttrListModel
 
-from app.data import equations, level_units, item_components, components
+from app.data.database import equations, level_units, item_components, components
 
 import logging
 

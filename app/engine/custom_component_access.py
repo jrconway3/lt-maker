@@ -8,7 +8,7 @@ def get_components() -> bool:
     import importlib.util
     import os
     import sys
-    from app.resources.resources import RESOURCES
+    from app.data.resources.resources import RESOURCES
 
     global current_custom_path
 

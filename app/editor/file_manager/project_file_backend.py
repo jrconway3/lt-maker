@@ -7,12 +7,12 @@ from pathlib import Path
 from time import time_ns
 
 from app.constants import VERSION
-from app.data.database import DB, Database
+from app.data.database.database import DB, Database
 from app.editor import timer
 from app.editor.lib.csv import text_data_exporter, csv_data_exporter
 from app.editor.new_game_dialog import NewGameDialog
 from app.editor.settings import MainSettingsController
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
 from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 

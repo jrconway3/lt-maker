@@ -1,6 +1,6 @@
 from typing import Dict
-from app.data.item_components import ItemComponent, ItemTags
-from app.data.components import ComponentType
+from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
 
 from app.engine import action, item_funcs
 

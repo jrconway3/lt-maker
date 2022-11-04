@@ -1,5 +1,5 @@
-from app.data.skill_components import SkillComponent, SkillTags
-from app.data.components import ComponentType
+from app.data.database.skill_components import SkillComponent, SkillTags
+from app.data.database.components import ComponentType
 
 from app.engine import action
 
@@ -80,7 +80,7 @@ class ChargesPerTurn(DrainCharge, SkillComponent):
         action.do(action.SetObjData(self.skill, 'charge', value))
 
 def get_marks(playback, unit, item):
-    from app.data.database import DB
+    from app.data.database.database import DB
     marks = [mark for mark in playback if mark.nid == 'mark_hit']
     marks += [mark for mark in playback if mark.nid == 'mark_crit']
     if DB.constants.value('miss_wexp'):

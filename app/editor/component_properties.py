@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
 from PyQt5.QtCore import Qt, QSortFilterProxyModel, QSize
 from PyQt5.QtGui import QIcon, QFontMetrics, QPalette
 
-from app.data.database import DB
+from app.data.database.database import DB
 
 from app.editor.base_database_gui import CollectionModel
 from app.extensions.custom_gui import PropertyBox, QHLine

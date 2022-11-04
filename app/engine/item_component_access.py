@@ -1,7 +1,7 @@
 from functools import lru_cache
 from app.utilities.data import Data
-from app.data.components import ComponentType
-from app.data.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
+from app.data.database.item_components import ItemComponent, ItemTags
 
 @lru_cache(1)
 def get_cached_item_components(proj_dir: str):
@@ -23,7 +23,7 @@ def get_cached_item_components(proj_dir: str):
     return Data(subclasses)
 
 def get_item_components():
-    from app.data.database import DB
+    from app.data.database.database import DB
     return get_cached_item_components(DB.current_proj_dir)
 
 def get_item_tags():

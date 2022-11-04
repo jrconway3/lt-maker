@@ -4,10 +4,10 @@ from app.editor.lib.csv.csv_data_exporter import update_db_with_item_csv
 
 from app.utilities import str_utils, utils
 from app.utilities.data import Data
-from app.data.database import DB, Database
-from app.data import items
+from app.data.database.database import DB, Database
+from app.data.database import items
 
-from app.data.components import ComponentType
+from app.data.database.components import ComponentType
 
 import app.engine.item_component_access as ICA
 

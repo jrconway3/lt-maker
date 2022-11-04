@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from app.data.components import ComponentType
-from app.data.skill_components import SkillComponent, SkillTags
+from app.data.database.components import ComponentType
+from app.data.database.skill_components import SkillComponent, SkillTags
 from app.engine import (action, equations, item_funcs, skill_system,
                         static_random)
 from app.engine.game_state import game

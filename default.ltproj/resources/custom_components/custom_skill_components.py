@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from app.data.components import ComponentType
-from app.data.database import DB
-from app.data.skill_components import SkillComponent, SkillTags
+from app.data.database.components import ComponentType
+from app.data.database.database import DB
+from app.data.database.skill_components import SkillComponent, SkillTags
 from app.engine import (action, banner, combat_calcs, engine, equations,
                         image_mods, item_funcs, item_system, skill_system,
                         static_random, target_system)

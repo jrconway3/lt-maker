@@ -91,7 +91,6 @@ class ComponentProperties(QWidget):
         self.show_components_button = QPushButton("Search Components")
         self.show_components_button.clicked.connect(self.show_components)
         self.toolbar.addWidget(self.show_components_button)
-
         for component in self.get_components():
             if component.tag.value not in ('hidden', 'deprecated'):
                 if component.tag.value not in self.menus:

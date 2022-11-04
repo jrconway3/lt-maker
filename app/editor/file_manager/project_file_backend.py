@@ -213,6 +213,14 @@ class ProjectFileBackend():
                 self.settings.set_current_project(self.current_proj)
                 self.load()
                 return True
+            except SyntaxError as e:
+                logging.exception(e)
+                logging.error("Failed to load project at %s due to syntax error. Likely there's a problem in your Custom Components file, located at %s. See error above." % (path, RESOURCES.get_custom_components_path()))
+                QMessageBox.warning(self.parent, "Load of project failed",
+                                    "Failed to load project at %s due to syntax error. Likely there's a problem in your Custom Components file, located at %s. Exception:\n%s." % (path, RESOURCES.get_custom_components_path(), e))
+                logging.warning("falling back to default.ltproj")
+                self.auto_open_fallback()
+                return False
             except Exception as e:
                 logging.exception(e)
                 backup_project_name = path + '.lttmp'

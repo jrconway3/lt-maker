@@ -2,20 +2,21 @@ from functools import lru_cache
 from app.utilities.data import Data
 from app.data.database.components import ComponentType
 from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.resources.resources import RESOURCES
 
 @lru_cache(1)
 def get_cached_item_components(proj_dir: str):
     # Necessary for get_item_components to find all the
     # item components defined in item_components folder
     from app.engine import item_components
+    print("redoing")
+    print("do we load?", RESOURCES.has_loaded_custom_components())
 
-    from app.engine import custom_component_access
-    if custom_component_access.get_components():
+    if RESOURCES.has_loaded_custom_components():
         # Necessary for get_item_components to find the item component subclasses
         # defined here
+        print('we are importing')
         import custom_components
-    # else:
-        # custom_component_access.clean()
 
     subclasses = ItemComponent.__subclasses__()
     # Sort by tag

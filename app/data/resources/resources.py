@@ -1,5 +1,6 @@
 import shutil
 import os
+import traceback
 
 from app import sprites
 
@@ -31,6 +32,9 @@ class Resources():
 
         # Standardized, Locked resources
         self.load_standard_resources()
+
+        # custom components
+        self.loaded_custom_components_path = None
 
     def load_standard_resources(self):
         self.platforms = self.get_sprites('resources', 'platforms')
@@ -90,6 +94,38 @@ class Resources():
             logging.info("Loading %s from %s..." % (data_type, self.main_folder))
             getattr(self, data_type).clear()  # Now always clears first
             getattr(self, data_type).load(os.path.join(self.main_folder, data_type))
+
+        # load custom components
+        self.load_components()
+
+    def load_components(self):
+        # For getting custom project components at runtime
+        import importlib
+        import importlib.util
+        import os
+        import sys
+
+        cc_path = self.get_custom_components_path()
+
+        if not cc_path:
+            self.loaded_custom_components_path = None
+
+        module_path = os.path.join(cc_path, '__init__.py')
+        if module_path != self.loaded_custom_components_path and os.path.exists(module_path):
+            self.loaded_custom_components_path = module_path
+            print("Importing Custom Components")
+            try:
+                spec = importlib.util.spec_from_file_location('custom_components', module_path)
+                module = importlib.util.module_from_spec(spec)
+                # spec.name is 'custom_components'
+                sys.modules[spec.name] = module
+                spec.loader.exec_module(module)
+            except:
+                import_failure_msg = traceback.format_exc()
+                logging.error("Failed to import custom components: %s" % (import_failure_msg))
+                raise SyntaxError("Failed to import custom components: %s" % (import_failure_msg))
+        if not os.path.exists(module_path):
+            self.loaded_custom_components_path = None
 
     def save(self, proj_dir, specific=None, progress=None):
         logging.warning("Starting Resource Serialization...")
@@ -169,6 +205,9 @@ class Resources():
         logging.warning("Total Time Taken for cleaning resource directory: %s ms" % (end - start))
         logging.warning("Done Resource Cleaning!")
         return True
+
+    def has_loaded_custom_components(self):
+        return self.loaded_custom_components_path
 
     def get_custom_components_path(self):
         if self.main_folder:

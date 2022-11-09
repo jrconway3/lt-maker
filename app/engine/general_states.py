@@ -42,7 +42,7 @@ class LoadingState(State):
 
         # unload used assets
         # unload music
-        get_sound_thread().reset()
+        get_sound_thread().flush(False)
         get_sound_thread().set_music_volume(cf.SETTINGS['music_volume'])
         get_sound_thread().set_sfx_volume(cf.SETTINGS['sound_volume'])
 
@@ -67,6 +67,10 @@ class LoadingState(State):
             if engine.get_time() - self.completed_time > self.duration:
                 logging.debug("All loading threads complete for level %s" % self.level_nid)
                 game.state.change('turn_change')
+
+    def draw(self, surf):
+        surf.blit(SPRITES.get('bg_black'), (0, 0))
+        return surf
 
     def end(self):
         pass

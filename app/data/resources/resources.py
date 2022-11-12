@@ -3,7 +3,7 @@ import os
 import traceback
 
 from app import sprites
-
+from app.utilities import exceptions
 from app.data.resources.fonts import FontCatalog
 from app.data.resources.icons import Icon16Catalog, Icon32Catalog, Icon80Catalog
 from app.data.resources.portraits import PortraitCatalog
@@ -109,6 +109,7 @@ class Resources():
 
         if not cc_path:
             self.loaded_custom_components_path = None
+            return
 
         module_path = os.path.join(cc_path, '__init__.py')
         if module_path != self.loaded_custom_components_path and os.path.exists(module_path):
@@ -123,7 +124,7 @@ class Resources():
             except:
                 import_failure_msg = traceback.format_exc()
                 logging.error("Failed to import custom components: %s" % (import_failure_msg))
-                raise SyntaxError("Failed to import custom components: %s" % (import_failure_msg))
+                raise exceptions.CustomComponentsException("Failed to import custom components: %s" % (import_failure_msg))
         if not os.path.exists(module_path):
             self.loaded_custom_components_path = None
 

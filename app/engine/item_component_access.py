@@ -9,13 +9,10 @@ def get_cached_item_components(proj_dir: str):
     # Necessary for get_item_components to find all the
     # item components defined in item_components folder
     from app.engine import item_components
-    print("redoing")
-    print("do we load?", RESOURCES.has_loaded_custom_components())
 
     if RESOURCES.has_loaded_custom_components():
         # Necessary for get_item_components to find the item component subclasses
         # defined here
-        print('we are importing')
         import custom_components
 
     subclasses = ItemComponent.__subclasses__()

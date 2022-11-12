@@ -13,6 +13,7 @@ from app.editor.lib.csv import text_data_exporter, csv_data_exporter
 from app.editor.new_game_dialog import NewGameDialog
 from app.editor.settings import MainSettingsController
 from app.data.resources.resources import RESOURCES
+from app.utilities import exceptions
 from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
@@ -213,7 +214,7 @@ class ProjectFileBackend():
                 self.settings.set_current_project(self.current_proj)
                 self.load()
                 return True
-            except SyntaxError as e:
+            except exceptions.CustomComponentsException as e:
                 logging.exception(e)
                 logging.error("Failed to load project at %s due to syntax error. Likely there's a problem in your Custom Components file, located at %s. See error above." % (path, RESOURCES.get_custom_components_path()))
                 QMessageBox.warning(self.parent, "Load of project failed",

@@ -4,7 +4,7 @@ from typing import Set, List
 import pygame
 
 from app.utilities import utils
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
 from app.engine import engine
 
 import logging

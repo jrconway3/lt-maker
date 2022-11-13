@@ -3,7 +3,7 @@ from app.editor.event_editor.event_inspector import EventInspectorEngine
 from collections import OrderedDict
 
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, TILEX
-from app.data.database import DB
+from app.data.database.database import DB
 from app.events.regions import RegionType
 from app.events import triggers, event_commands
 from app.engine.objects.item import ItemObject

@@ -32,7 +32,10 @@ class HelpDialog():
         lines = self.build_lines(desc)
         num_lines = len(lines)
 
-        self.greatest_line_len = text_funcs.get_max_width(self.font, lines)
+        if lines:
+            self.greatest_line_len = text_funcs.get_max_width(self.font, lines)
+        else:
+            self.greatest_line_len = 8
         if self.name:
             self.greatest_line_len = max(self.greatest_line_len, text_width(self.font, self.name))
             num_lines += 1
@@ -73,16 +76,17 @@ class HelpDialog():
     def build_lines(self, desc: str) -> List[str]:
         # Hard set num lines if desc is very short
         if '\n' in desc:
-            lines = desc.splitlines()
+            desc_lines = desc.splitlines()
             lines = []
-            for line in lines:
+            for line in desc_lines:
                 num = self.find_num_lines(line)
                 line = text_funcs.split(self.font, line, num, MAX_TEXT_WIDTH)
                 lines.extend(line)
         else:
             num = self.find_num_lines(desc)
             lines = text_funcs.split(self.font, desc, num, MAX_TEXT_WIDTH)
-        return fix_tags(lines)
+        lines = fix_tags(lines)
+        return lines
 
     def set_transition_in(self):
         self.transition_in = True

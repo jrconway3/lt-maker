@@ -101,7 +101,7 @@ class WitchWarp(SkillComponent):
                 left = (pos[0] - 1, pos[1])
                 right = (pos[0] + 1, pos[1])
                 for point in [up, down, left, right]:
-                    if game.board.check_bounds(point) and game.movement.check_weakly_traversable(unit, point):
+                    if game.board.check_bounds(point) and game.movement.check_weakly_traversable(unit, point) and not game.board.get_unit(point):
                         warp_spots.add(point)
         return warp_spots
 

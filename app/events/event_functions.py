@@ -1804,6 +1804,13 @@ def change_portrait(self: Event, global_unit, portrait_nid, flags=None):
         return
     action.do(action.ChangePortrait(unit, portrait_nid))
 
+def change_unit_desc(self: Event, global_unit, string, flags=None):
+    unit = self._get_unit(global_unit)
+    if not unit:
+        self.logger.error("change_portrait: Couldn't find unit %s" % global_unit)
+        return
+    action.do(action.ChangeUnitDesc(unit, string))
+
 def change_stats(self: Event, global_unit, stat_list, flags=None):
     flags = flags or set()
 
@@ -1871,6 +1878,16 @@ def set_growths(self: Event, global_unit, stat_list, flags=None):
             growth_changes[stat_nid] = stat_value - current
 
     self._apply_growth_changes(unit, growth_changes)
+    
+def set_unit_level(self: Event, global_unit, level, flags=None):
+    unit = self._get_unit(global_unit)
+    if not unit:
+        self.logger.error("set_growths: Couldn't find unit %s" % global_unit)
+        return
+    if int(level) < 1:
+        self.logger.error("Can't set level to less than 1")
+        return
+    action.do(action.SetLevel(unit, max(1, int(level))))
 
 def autolevel_to(self: Event, global_unit, level, growth_method=None, flags=None):
     flags = flags or set()

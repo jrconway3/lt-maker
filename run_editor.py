@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QLockFile, QDir, Qt
 from PyQt5.QtGui import QIcon
 
-current_locale = 'zh_CN'
+current_locale = 'en_US'
 locale_path = 'locale/'
 translation_module = gettext.translation(
     domain='messages',

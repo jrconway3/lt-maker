@@ -78,7 +78,7 @@ class MainEditor(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.window_title = 'LT Maker'
+        self.window_title = _('LT Maker')
         self.setWindowTitle(self.window_title)
         self.settings = MainSettingsController()
         # Will be overwritten by auto-open
@@ -122,7 +122,7 @@ class MainEditor(QMainWindow):
         self.create_actions()
         self.recreate_menus()
         # init toolbar
-        self.toolbar = Toolbar(self.addToolBar("Edit"))
+        self.toolbar = Toolbar(self.addToolBar(_("Edit")))
         self.create_toolbar()
         self.set_icons()
         self.create_statusbar()
@@ -294,7 +294,7 @@ class MainEditor(QMainWindow):
         file_menu.addSeparator()
         file_menu.addAction(self.quit_act)
 
-        edit_menu = QMenu("Edit", self)
+        edit_menu = QMenu(_("Edit"), self)
         for action in self.database_actions.values():
             edit_menu.addAction(action)
         edit_menu.addSeparator()

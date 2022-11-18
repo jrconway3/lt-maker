@@ -656,8 +656,8 @@ class UIView():
 
             # Blit name
             running_height += 16
-            name_width = FONT['text'].width(spell.name)
-            FONT['text'].blit(spell.name, bg_surf, (52 - name_width//2, running_height))
+            name_width = text_width('text', spell.name)
+            render_text(bg_surf, ['text'], [spell.name], ['white'], (52 - name_width//2, running_height))
 
             return bg_surf
 
@@ -686,8 +686,8 @@ class UIView():
             # Blit name
             running_height += 16
             icons.draw(bg_surf, spell, (4, running_height))
-            name_width = FONT['text'].width(spell.name)
-            FONT['text'].blit(spell.name, bg_surf, (52 - name_width//2, running_height))
+            name_width = text_width('text', spell.name)
+            render_text(bg_surf, ['text'], [spell.name], ['white'], (52 - name_width//2, running_height))
 
             return bg_surf
 

@@ -45,5 +45,5 @@ msgstr "数据库"
 
 #: app/editor/main_editor.py:338
 msgid "Resource"
-msgstr "资产"
+msgstr "资源"
 

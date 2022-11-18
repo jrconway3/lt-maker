@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-17 22:31-0600\n"
+"POT-Creation-Date: 2022-11-17 22:45-0600\n"
 "PO-Revision-Date: 2022-11-17 22:26-0600\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hans_CN\n"
@@ -22,7 +22,28 @@ msgstr ""
 msgid "LT Maker"
 msgstr "LT制作者"
 
-#: app/editor/main_editor.py:125
+#: app/editor/global_editor/global_editor.py:132 app/editor/main_editor.py:125
+#: app/editor/main_editor.py:297
 msgid "Edit"
 msgstr "编辑"
+
+#: app/editor/main_editor.py:286
+msgid "File"
+msgstr "文件"
+
+#: app/editor/main_editor.py:304 app/editor/main_editor.py:347
+msgid "Test"
+msgstr "运行"
+
+#: app/editor/main_editor.py:309
+msgid "Extra"
+msgstr "杂项"
+
+#: app/editor/main_editor.py:329
+msgid "Database"
+msgstr "数据库"
+
+#: app/editor/main_editor.py:338
+msgid "Resource"
+msgstr "资产"
 

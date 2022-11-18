@@ -1,6 +1,6 @@
 To regenerate all symbols to be translated:
 
-`pybabel extract . -o locale/base.pot`
+`pybabel extract app/ -o locale/base.pot`
 
 `pybabel update -i locale/base.pot -d locale`
 

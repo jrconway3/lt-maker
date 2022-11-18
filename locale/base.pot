@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-17 22:31-0600\n"
+"POT-Creation-Date: 2022-11-17 22:45-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,28 @@ msgstr ""
 msgid "LT Maker"
 msgstr ""
 
-#: app/editor/main_editor.py:125
+#: app/editor/global_editor/global_editor.py:132 app/editor/main_editor.py:125
+#: app/editor/main_editor.py:297
 msgid "Edit"
+msgstr ""
+
+#: app/editor/main_editor.py:286
+msgid "File"
+msgstr ""
+
+#: app/editor/main_editor.py:304 app/editor/main_editor.py:347
+msgid "Test"
+msgstr ""
+
+#: app/editor/main_editor.py:309
+msgid "Extra"
+msgstr ""
+
+#: app/editor/main_editor.py:329
+msgid "Database"
+msgstr ""
+
+#: app/editor/main_editor.py:338
+msgid "Resource"
 msgstr ""
 

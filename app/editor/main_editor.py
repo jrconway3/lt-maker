@@ -283,7 +283,7 @@ class MainEditor(QMainWindow):
 
     def recreate_menus(self):
         self.menuBar().clear()
-        file_menu = QMenu("File", self)
+        file_menu = QMenu(_("File"), self)
         file_menu.addAction(self.new_act)
         file_menu.addAction(self.open_act)
         file_menu.addSeparator()
@@ -301,12 +301,12 @@ class MainEditor(QMainWindow):
         for action in self.resource_actions.values():
             edit_menu.addAction(action)
 
-        test_menu = QMenu("Test", self)
+        test_menu = QMenu(_("Test"), self)
         test_menu.addAction(self.test_current_act)
         test_menu.addAction(self.test_load_act)
         test_menu.addAction(self.test_full_act)
 
-        help_menu = QMenu("Extra", self)
+        help_menu = QMenu(_("Extra"), self)
         help_menu.addAction(self.about_act)
         help_menu.addAction(self.preferences_act)
         help_menu.addAction(self.remove_unused_resources_act)
@@ -326,7 +326,7 @@ class MainEditor(QMainWindow):
     def create_toolbar(self):
         self.database_button = QToolButton(self)
         self.database_button.setPopupMode(QToolButton.InstantPopup)
-        database_menu = QMenu("Database", self)
+        database_menu = QMenu(_("Database"), self)
         for action in self.database_actions.values():
             database_menu.addAction(action)
         self.database_button.setMenu(database_menu)
@@ -335,7 +335,7 @@ class MainEditor(QMainWindow):
 
         self.resource_button = QToolButton(self)
         self.resource_button.setPopupMode(QToolButton.InstantPopup)
-        resource_menu = QMenu("Resource", self)
+        resource_menu = QMenu(_("Resource"), self)
         for action in self.resource_actions.values():
             resource_menu.addAction(action)
         self.resource_button.setMenu(resource_menu)
@@ -344,7 +344,7 @@ class MainEditor(QMainWindow):
 
         self.test_button = QToolButton(self)
         self.test_button.setPopupMode(QToolButton.InstantPopup)
-        test_menu = QMenu("Test", self)
+        test_menu = QMenu(_("Test"), self)
         test_menu.addAction(self.test_current_act)
         test_menu.addAction(self.test_load_act)
         test_menu.addAction(self.test_full_act)

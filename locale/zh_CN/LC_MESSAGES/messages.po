@@ -20,7 +20,7 @@ msgstr ""
 
 #: app/editor/main_editor.py:81
 msgid "LT Maker"
-msgstr "LT制作者"
+msgstr "LT 制作者"
 
 #: app/editor/global_editor/global_editor.py:132 app/editor/main_editor.py:125
 #: app/editor/main_editor.py:297

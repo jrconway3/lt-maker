@@ -1604,6 +1604,16 @@ Changes *GlobalUnit*'s portrait to the one specified by *PortraitNid*.
         """
 
     keywords = ["GlobalUnit", "PortraitNid"]
+    
+class ChangeUnitDesc(EventCommand):
+    nid = 'change_unit_desc'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+    
+    desc = \
+        """
+Changes *GlobalUnit*'s description to *String*.
+        """
+    keywords = ["GlobalUnit", "String"]
 
 class ChangeStats(EventCommand):
     nid = 'change_stats'
@@ -1650,6 +1660,18 @@ Sets the growths (STR, SKL, etc.) of *GlobalUnit* to specific values defined in 
         """
 
     keywords = ["GlobalUnit", "StatList"]
+    
+class SetUnitLevel(EventCommand):
+    nid = 'set_unit_level'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+    
+    desc = \
+        """
+Sets *GlobalUnit*'s level to the specified value. Does not change stats like a levelup.
+        """
+        
+    keywords = ["GlobalUnit", "Level"]
+    keyword_types = ["GlobalUnit", "Integer"]
 
 class AutolevelTo(EventCommand):
     nid = 'autolevel_to'

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-19 10:25+0800\n"
+"POT-Creation-Date: 2022-11-19 16:38+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -78,6 +78,7 @@ msgstr ""
 msgid "Classes"
 msgstr ""
 
+#: app/editor/class_editor/class_properties.py:102
 #: app/editor/main_editor.py:233
 msgid "Tags"
 msgstr ""
@@ -106,7 +107,8 @@ msgstr ""
 msgid "Movement Costs"
 msgstr ""
 
-#: app/editor/main_editor.py:241
+#: app/editor/class_editor/class_properties.py:114
+#: app/editor/main_editor.py:241 app/editor/unit_editor/unit_properties.py:190
 msgid "Stats"
 msgstr ""
 
@@ -156,5 +158,218 @@ msgstr ""
 
 #: app/editor/main_editor.py:338
 msgid "Resource"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:56
+#: app/editor/party_editor/party_properties.py:21
+#: app/editor/unit_editor/unit_properties.py:143
+#: app/editor/weapon_editor/weapon_properties.py:35
+msgid "Unique ID"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:61
+#: app/editor/party_editor/party_properties.py:26
+#: app/editor/unit_editor/unit_properties.py:148
+#: app/editor/weapon_editor/weapon_properties.py:40
+msgid "Display Name"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:66
+#: app/editor/unit_editor/unit_properties.py:160
+msgid "Description"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:72
+msgid "Movement Type"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:77
+msgid "Tier"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:83
+msgid "Promotes From"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:84
+msgid "None"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:88
+msgid "Max Level"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:96
+msgid "Turns Into"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:97
+msgid "Promotion Options..."
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:103
+#: app/editor/unit_editor/unit_properties.py:179
+msgid "No tag"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:122
+msgid "usable"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:122
+msgid "nid"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:122
+msgid "wexp_gain"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:125
+msgid "Weapon Experience"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:131
+#: app/editor/unit_editor/unit_properties.py:199
+msgid "level"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:131
+#: app/editor/unit_editor/unit_properties.py:199
+msgid "skill_nid"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:132
+msgid "Class Skills"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:142
+msgid "Choose Map Sprite..."
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:148
+msgid "Auto-assign map sprite with the same unique ID"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:153
+msgid "Choose Combat Animation..."
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:160
+msgid "Auto-assign combat animation with the same unique ID"
+msgstr ""
+
+#: app/editor/class_editor/class_tab.py:19
+msgid "Class"
+msgstr ""
+
+#: app/editor/class_editor/class_tab.py:35
+msgid "Import classes from class_info.xml"
+msgstr ""
+
+#: app/editor/party_editor/party_properties.py:31
+msgid "Leader Unit"
+msgstr ""
+
+#: app/editor/party_editor/party_tab.py:12
+msgid "Party"
+msgstr ""
+
+#: app/editor/unit_editor/unit_properties.py:166
+msgid "Level"
+msgstr ""
+
+#: app/editor/unit_editor/unit_properties.py:178
+msgid "Personal Tags"
+msgstr ""
+
+#: app/editor/unit_editor/unit_properties.py:200
+msgid "Personal Skills"
+msgstr ""
+
+#: app/editor/unit_editor/unit_properties.py:222
+msgid "Starting Items"
+msgstr ""
+
+#: app/editor/unit_editor/unit_tab.py:19
+msgid "Unit"
+msgstr ""
+
+#: app/editor/unit_editor/unit_tab.py:29
+msgid "Import units from units.xml"
+msgstr ""
+
+#: app/editor/unit_editor/unit_tab.py:41
+msgid "Import units from csv"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:47
+msgid "Force Melee Anim"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:49
+msgid ""
+"Force this weapontype to use the melee animation at melee range, even "
+"with a ranged weapon. Ex. Javelins in GBA"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "weapon_rank"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "damage"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "resist"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "accuracy"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "avoid"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "crit"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "dodge"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "attack_speed"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "defense_speed"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:53
+msgid "Rank Bonus"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "weapon_type"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:55
+msgid "Advantage versus"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:56
+msgid "Disadvantage versus"
 msgstr ""
 

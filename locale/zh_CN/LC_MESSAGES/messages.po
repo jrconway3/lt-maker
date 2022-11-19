@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-19 10:25+0800\n"
+"POT-Creation-Date: 2022-11-19 16:38+0800\n"
 "PO-Revision-Date: 2022-11-17 22:26-0600\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hans_CN\n"
@@ -79,9 +79,10 @@ msgstr "阵营"
 msgid "Classes"
 msgstr "职业"
 
+#: app/editor/class_editor/class_properties.py:102
 #: app/editor/main_editor.py:233
 msgid "Tags"
-msgstr "标签"
+msgstr "特性"
 
 #: app/editor/main_editor.py:234
 msgid "Game Vars"
@@ -107,7 +108,8 @@ msgstr "地形"
 msgid "Movement Costs"
 msgstr "地形阻碍"
 
-#: app/editor/main_editor.py:241
+#: app/editor/class_editor/class_properties.py:114
+#: app/editor/main_editor.py:241 app/editor/unit_editor/unit_properties.py:190
 msgid "Stats"
 msgstr ""
 
@@ -158,4 +160,219 @@ msgstr "数据库"
 #: app/editor/main_editor.py:338
 msgid "Resource"
 msgstr "资源"
+
+#: app/editor/class_editor/class_properties.py:56
+#: app/editor/party_editor/party_properties.py:21
+#: app/editor/unit_editor/unit_properties.py:143
+#: app/editor/weapon_editor/weapon_properties.py:35
+msgid "Unique ID"
+msgstr "唯一标识"
+
+#: app/editor/class_editor/class_properties.py:61
+#: app/editor/party_editor/party_properties.py:26
+#: app/editor/unit_editor/unit_properties.py:148
+#: app/editor/weapon_editor/weapon_properties.py:40
+msgid "Display Name"
+msgstr "名称"
+
+#: app/editor/class_editor/class_properties.py:66
+#: app/editor/unit_editor/unit_properties.py:160
+msgid "Description"
+msgstr "描述"
+
+#: app/editor/class_editor/class_properties.py:72
+msgid "Movement Type"
+msgstr "行动类型"
+
+#: app/editor/class_editor/class_properties.py:77
+msgid "Tier"
+msgstr "位阶"
+
+#: app/editor/class_editor/class_properties.py:83
+msgid "Promotes From"
+msgstr "从...转职"
+
+#: app/editor/class_editor/class_properties.py:84
+msgid "None"
+msgstr "无"
+
+#: app/editor/class_editor/class_properties.py:88
+msgid "Max Level"
+msgstr "等级上限"
+
+#: app/editor/class_editor/class_properties.py:96
+msgid "Turns Into"
+msgstr "转职为..."
+
+#: app/editor/class_editor/class_properties.py:97
+msgid "Promotion Options..."
+msgstr "转职设定..."
+
+#: app/editor/class_editor/class_properties.py:103
+#: app/editor/unit_editor/unit_properties.py:179
+msgid "No tag"
+msgstr "无"
+
+#: app/editor/class_editor/class_properties.py:122
+msgid "usable"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:122
+msgid "nid"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:122
+msgid "wexp_gain"
+msgstr ""
+
+#: app/editor/class_editor/class_properties.py:125
+msgid "Weapon Experience"
+msgstr "武器熟练度"
+
+#: app/editor/class_editor/class_properties.py:131
+#: app/editor/unit_editor/unit_properties.py:199
+msgid "level"
+msgstr "等级"
+
+#: app/editor/class_editor/class_properties.py:131
+#: app/editor/unit_editor/unit_properties.py:199
+msgid "skill_nid"
+msgstr "技能"
+
+#: app/editor/class_editor/class_properties.py:132
+msgid "Class Skills"
+msgstr "职业技能"
+
+#: app/editor/class_editor/class_properties.py:142
+msgid "Choose Map Sprite..."
+msgstr "选择地图图标..."
+
+#: app/editor/class_editor/class_properties.py:148
+msgid "Auto-assign map sprite with the same unique ID"
+msgstr "根据唯一标识自动匹配地图图标"
+
+#: app/editor/class_editor/class_properties.py:153
+msgid "Choose Combat Animation..."
+msgstr "选择战斗动画..."
+
+#: app/editor/class_editor/class_properties.py:160
+msgid "Auto-assign combat animation with the same unique ID"
+msgstr "根据唯一标识自动匹配战斗动画"
+
+#: app/editor/class_editor/class_tab.py:19
+msgid "Class"
+msgstr "职业"
+
+#: app/editor/class_editor/class_tab.py:35
+msgid "Import classes from class_info.xml"
+msgstr "从XML导入职业信息"
+
+#: app/editor/party_editor/party_properties.py:31
+msgid "Leader Unit"
+msgstr "领导角色"
+
+#: app/editor/party_editor/party_tab.py:12
+msgid "Party"
+msgstr "阵营"
+
+#: app/editor/unit_editor/unit_properties.py:166
+msgid "Level"
+msgstr "等级"
+
+#: app/editor/unit_editor/unit_properties.py:178
+msgid "Personal Tags"
+msgstr "角色特性"
+
+#: app/editor/unit_editor/unit_properties.py:200
+msgid "Personal Skills"
+msgstr "个人技能"
+
+#: app/editor/unit_editor/unit_properties.py:222
+msgid "Starting Items"
+msgstr "持有物"
+
+#: app/editor/unit_editor/unit_tab.py:19
+msgid "Unit"
+msgstr "角色"
+
+#: app/editor/unit_editor/unit_tab.py:29
+msgid "Import units from units.xml"
+msgstr "从XML导入角色"
+
+#: app/editor/unit_editor/unit_tab.py:41
+msgid "Import units from csv"
+msgstr "从CSV导入角色"
+
+#: app/editor/weapon_editor/weapon_properties.py:47
+msgid "Force Melee Anim"
+msgstr "锁近战动画"
+
+#: app/editor/weapon_editor/weapon_properties.py:49
+msgid ""
+"Force this weapontype to use the melee animation at melee range, even "
+"with a ranged weapon. Ex. Javelins in GBA"
+msgstr ""
+"近战时锁定近战动画，"
+"例：GBA的投枪"
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "weapon_rank"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "damage"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "resist"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "accuracy"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "avoid"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "crit"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "dodge"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "attack_speed"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:52
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "defense_speed"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:53
+msgid "Rank Bonus"
+msgstr "熟练度加成"
+
+#: app/editor/weapon_editor/weapon_properties.py:54
+msgid "weapon_type"
+msgstr ""
+
+#: app/editor/weapon_editor/weapon_properties.py:55
+msgid "Advantage versus"
+msgstr "有利相性"
+
+#: app/editor/weapon_editor/weapon_properties.py:56
+msgid "Disadvantage versus"
+msgstr "不利相性"
 

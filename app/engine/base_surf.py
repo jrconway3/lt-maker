@@ -8,6 +8,10 @@ def create_base_surf(width, height, base='menu_bg_base') -> engine.Surface:
     if not sprite:
         logging.error("Could not find sprite named '%s.png'. Falling back on 'menu_bg_base.png'." % (base))
         sprite = SPRITES.get('menu_bg_base')
+    elif sprite and not '_bg' in base:
+        new_base_surf = engine.create_surface((width, height), transparent=True)
+        new_base_surf.blit(sprite, (0, 0))
+        return new_base_surf
 
     base_width = sprite.get_width()
     base_height = sprite.get_height()

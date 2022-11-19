@@ -453,12 +453,15 @@ Automatically formats all `speak` commands with NID equal to the style's NID wit
 
 A style consists of all parameters that one can apply to individual speak commands, including flags.
 
-A style only applies to `speak` commands inside this event.
+NOTE: Speak styles persist through events. If you load your speak styles in the `on_title_screen` trigger, you will be able to use them
+throughout the entire game.
+
+NOTE: You can set the `__default` speak style, which will automatically apply to all speak commands thereafter.
 """
 
     keywords = ['Style']
-    optional_keywords = ['Speaker', 'TextPosition', 'Width', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail']
-    keyword_types = ['Nid', 'Speaker', 'AlignOrPosition', 'Width', 'Float', 'FontColor', 'Font', 'DialogVariant', 'PositiveInteger', 'Bool', 'MessageTail']
+    optional_keywords = ['Speaker', 'TextPosition', 'Width', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail', 'NameTagBg']
+    keyword_types = ['Nid', 'Speaker', 'AlignOrPosition', 'Width', 'Float', 'FontColor', 'Font', 'Sprite', 'PositiveInteger', 'Bool', 'MessageTail', 'Sprite']
     _flags = ['low_priority', 'hold', 'no_popup', 'fit']
 
 class Speak(EventCommand):
@@ -495,8 +498,8 @@ Extra flags:
         """
 
     keywords = ['Speaker', 'Text']
-    optional_keywords = ['TextPosition', 'Width', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail']
-    keyword_types = ['Speaker', 'Text', 'AlignOrPosition', 'Width', 'DialogVariant', 'Float', 'FontColor', 'Font', 'DialogVariant', 'PositiveInteger', 'Bool', 'MessageTail']
+    optional_keywords = ['TextPosition', 'Width', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail', 'NameTagBg']
+    keyword_types = ['Speaker', 'Text', 'AlignOrPosition', 'Width', 'DialogVariant', 'Float', 'FontColor', 'Font', 'Sprite', 'PositiveInteger', 'Bool', 'MessageTail', 'Sprite']
     _flags = ['low_priority', 'hold', 'no_popup', 'fit', 'no_block']
 
 class Unhold(EventCommand):

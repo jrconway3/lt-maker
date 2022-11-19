@@ -12,7 +12,7 @@ class SpeakStyle(Prefab):
     def __init__(self, nid: NID = None, speaker: NID = None, text_position: Alignments | Tuple[int, int] = None,
                  width: int = None, text_speed: float = None, font_color: str = None,
                  font_type: str = None, dialog_box: str = None, num_lines: int = None,
-                 draw_cursor: bool = None, message_tail: str = None, flags: Set[str] = None):
+                 draw_cursor: bool = None, message_tail: str = None, name_tag_bg: str = None, flags: Set[str] = None):
         self.nid: NID = nid
         self.speaker: NID = speaker
         self.text_position: Alignments | Tuple[int, int] = text_position
@@ -24,13 +24,16 @@ class SpeakStyle(Prefab):
         self.num_lines: int = num_lines
         self.draw_cursor: bool = draw_cursor
         self.message_tail: str = message_tail
+        self.name_tag_bg: str = name_tag_bg
         self.flags: Set[str] = flags
 
 class SpeakStyleLibrary(Dict[NID, SpeakStyle]):
     def __init__(self, user_styles=None):
         # Built in speak styles for backwards compatibility
         self.update(
-            {'noir': SpeakStyle(dialog_box='menu_bg_dark', font_color='white', message_tail='None'),
+            {'__default': SpeakStyle(text_speed=1, font_type='convo', dialog_box='message_bg_base', num_lines=2, draw_cursor=True,
+                                     message_tail='message_bg_tail', name_tag_bg='name_tag'),
+             'noir': SpeakStyle(dialog_box='menu_bg_dark', font_color='white', message_tail='None'),
              'hint': SpeakStyle(dialog_box='menu_bg_parchment', text_position=Alignments.CENTER, width=WINWIDTH//2 + 8, num_lines=4, message_tail='None'),
              'cinematic': SpeakStyle(dialog_box='None', text_position=Alignments.CENTER, font_color='grey', num_lines=5,
                                      font_type='chapter', draw_cursor=False, message_tail='None'),

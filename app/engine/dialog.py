@@ -28,7 +28,7 @@ class Dialog():
 
     def __init__(self, text, portrait=None, background=None, position=None, width=None,
                  speaker=None, style_nid=None, autosize=False, speed: float=1.0, font_color='black',
-                 font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail'):
+                 font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail', name_tag_bg='name_tag'):
         self.plain_text = text
         self.portrait = portrait
         self.speaker = speaker
@@ -91,7 +91,7 @@ class Dialog():
             if message_tail and message_tail != 'None':
                 self.tail = SPRITES.get(message_tail)
 
-        self.name_tag_surf = create_base_surf(64, 16, 'name_tag')
+        self.name_tag_surf = create_base_surf(64, 16, name_tag_bg)
 
         # For drawing
         self.cursor_offset_index = 0

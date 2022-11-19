@@ -1,3 +1,4 @@
+from app.events.speak_style import SpeakStyle, SpeakStyleLibrary
 from app.events.triggers import GenericTrigger
 from typing import List
 import unittest
@@ -14,6 +15,7 @@ class EventUnitTests(unittest.TestCase):
         for patcher in self.patchers:
             patcher.start()
         self.game = get_mock_game()
+        self.game.speak_styles = SpeakStyleLibrary()
 
     def initialize_patchers(self):
         patchers = [

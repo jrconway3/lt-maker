@@ -1,17 +1,20 @@
 import re
 from typing import List
-from app.engine.graphics.text.text_renderer import MATCH_CAPTURE_TAG_RE, fix_tags, render_text, text_width
 
-from app.utilities import utils
-from app.constants import WINWIDTH, WINHEIGHT
-from app.engine.fonts import FONT
-from app.engine.sprites import SPRITES
-from app.engine.sound import get_sound_thread
-from app.engine.base_surf import create_base_surf
-from app.engine import text_funcs, engine, image_mods
+from app.constants import WINHEIGHT, WINWIDTH
 from app.engine import config as cf
-
+from app.engine import engine, image_mods, text_funcs
+from app.engine.base_surf import create_base_surf
+from app.engine.fonts import FONT
 from app.engine.game_state import game
+from app.engine.graphics.ingame_ui.ui_funcs import calc_align
+from app.engine.graphics.text.text_renderer import (MATCH_CAPTURE_TAG_RE,
+                                                    fix_tags, render_text,
+                                                    text_width)
+from app.engine.sound import get_sound_thread
+from app.engine.sprites import SPRITES
+from app.utilities import utils
+from app.utilities.enums import Alignments
 
 MATCH_DIALOG_COMMAND_RE = re.compile('(\{[^\{]*?\})')
 
@@ -24,7 +27,7 @@ class Dialog():
     attempt_split: bool = True # Whether we attempt to split big chunks across multiple lines
 
     def __init__(self, text, portrait=None, background=None, position=None, width=None,
-                 speaker=None, style_nid=None, autosize=False, speed=1, font_color='black',
+                 speaker=None, style_nid=None, autosize=False, speed: float=1.0, font_color='black',
                  font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail'):
         self.plain_text = text
         self.portrait = portrait
@@ -37,7 +40,6 @@ class Dialog():
         self.num_lines = num_lines
         self.draw_cursor_flag = draw_cursor
         self.font = FONT[self.font_type]
-
         if '{sub_break}' in self.plain_text:
             self.attempt_split = False
 
@@ -63,9 +65,8 @@ class Dialog():
 
         # Position
         if position:
-            if position == 'center':
-                pos_x = WINWIDTH//2 - self.width//2
-                pos_y = WINHEIGHT//2 - self.height//2
+            if position in Alignments:
+                pos_x, pos_y = calc_align((self.width, self.height), position)
             else:
                 pos_x = position[0]
                 pos_y = position[1]
@@ -345,6 +346,7 @@ class Dialog():
                     self.portrait.talk()
 
         self.cursor_offset_index = (self.cursor_offset_index + 1) % len(self.cursor_offset)
+        return True
 
     def draw_text(self, surf):
         end_x_pos, end_y_pos = 0, 0

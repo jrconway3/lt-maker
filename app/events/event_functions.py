@@ -1,42 +1,45 @@
 from __future__ import annotations
 
-import random
 import ast
-from typing import TYPE_CHECKING
+import random
+from typing import TYPE_CHECKING, Optional
 
 from app.constants import WINHEIGHT, WINWIDTH
 from app.data.database.database import DB
 from app.data.database.level_units import GenericUnit, UniqueUnit
-from app.engine import (action, background, banner, dialog, engine, evaluate,
-                        icons, image_mods, item_funcs, item_system, base_surf,
+from app.data.resources.resources import RESOURCES
+from app.engine import (action, background, banner, base_surf, dialog, engine,
+                        evaluate, icons, image_mods, item_funcs, item_system,
                         skill_system, target_system, unit_funcs)
+from app.engine.achievements import ACHIEVEMENTS
 from app.engine.animations import MapAnimation
 from app.engine.combat import interaction
+from app.engine.fonts import FONT
 from app.engine.game_menus.menu_components.generic_menu.simple_menu_wrapper import \
     SimpleMenuUI
-from app.engine.graphics.ui_framework.premade_animations.animation_templates import \
-    fade_anim, translate_anim
+from app.engine.graphics.text.text_renderer import rendered_text_width
+from app.engine.graphics.ui_framework.premade_animations.animation_templates import (
+    fade_anim, translate_anim)
+from app.engine.graphics.ui_framework.premade_components.plain_text_component import \
+    PlainTextLine
 from app.engine.graphics.ui_framework.ui_framework import UIComponent
-from app.engine.graphics.ui_framework.premade_components.plain_text_component import PlainTextLine
 from app.engine.graphics.ui_framework.ui_framework_animation import \
     InterpolationType
-from app.engine.graphics.ui_framework.ui_framework_layout import HAlignment, VAlignment
-from app.engine.graphics.text.text_renderer import rendered_text_width
+from app.engine.graphics.ui_framework.ui_framework_layout import (HAlignment,
+                                                                  VAlignment)
 from app.engine.objects.item import ItemObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.objects.unit import UnitObject
+from app.engine.persistent_records import RECORDS
 from app.engine.sound import get_sound_thread
 from app.events import event_commands, regions, triggers
 from app.events.event_portrait import EventPortrait
-from app.events.speak_style import SpeakStyle
 from app.events.screen_positions import parse_screen_position
-from app.data.resources.resources import RESOURCES
+from app.events.speak_style import SpeakStyle
 from app.sprites import SPRITES
 from app.utilities import str_utils, utils
 from app.utilities.enums import Alignments
 from app.utilities.typing import NID
-from app.engine.achievements import ACHIEVEMENTS
-from app.engine.persistent_records import RECORDS
 
 if TYPE_CHECKING:
     from app.events.event import Event
@@ -272,10 +275,12 @@ def speak_style(self: Event, style, speaker=None, text_position=None, width=None
     if speaker:
         style.speaker = speaker
     if text_position:
-        if text_position == 'center':
-            style.text_position = text_position
-        else:
+        try:
+            align = Alignments(text_position)
+            style.text_position = align
+        except:
             style.text_position = self._parse_pos(text_position)
+
     if width:
         style.width = int(width)
     if text_speed:
@@ -322,9 +327,9 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
     portrait = self.portraits.get(speaker)
 
     if text_position:
-        if text_position == 'center':
-            position = 'center'
-        else:
+        try:
+            position = Alignments(text_position)
+        except:
             position = self._parse_pos(text_position)
     elif speak_style and speak_style.text_position:
         position = speak_style.text_position
@@ -1878,7 +1883,7 @@ def set_growths(self: Event, global_unit, stat_list, flags=None):
             growth_changes[stat_nid] = stat_value - current
 
     self._apply_growth_changes(unit, growth_changes)
-    
+
 def set_unit_level(self: Event, global_unit, level, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
@@ -2600,7 +2605,7 @@ def unchoice(self: Event, flags=None):
             if unchoose_prev_state:
                 unchoose_prev_state()
     except Exception as e:
-        self.logger.error("unchoice: Unchoice failed: " + e)
+        self.logger.error("unchoice: Unchoice failed: " + str(e))
 
 def table(self: Event, nid: NID, table_data: str, title: str = None,
           dimensions: str = None, row_width: str = None, alignment: str = None,

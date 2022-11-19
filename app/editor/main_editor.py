@@ -188,17 +188,17 @@ class MainEditor(QMainWindow):
 
     # === Create Menu ===
     def create_actions(self):
-        self.new_act = QAction("&New Project...", self,
+        self.new_act = QAction(_("&New Project..."), self,
                                shortcut="Ctrl+N", triggered=self.new)
-        self.open_act = QAction("&Open Project...", self,
+        self.open_act = QAction(_("&Open Project..."), self,
                                 shortcut="Ctrl+O", triggered=self.open)
-        self.save_act = QAction("&Save Project", self,
+        self.save_act = QAction(_("&Save Project"), self,
                                 shortcut="Ctrl+S", triggered=self.save)
         self.save_as_act = QAction(
-            "Save Project As...", self, shortcut="Ctrl+Shift+S", triggered=self.save_as)
+            _("Save Project As..."), self, shortcut="Ctrl+Shift+S", triggered=self.save_as)
         # self.build_act = QAction(QIcon(), "Build Project...", self, shortcut="Ctrl+B", triggered=self.build_project)
         self.quit_act = QAction(
-            "&Quit", self, shortcut="Ctrl+Q", triggered=self.close)
+            _("&Quit"), self, shortcut="Ctrl+Q", triggered=self.close)
 
         self.dump_csv = QAction(
             "Dump CSV data", self, triggered=lambda: self.project_save_load_handler.dump_csv(DB))
@@ -206,12 +206,12 @@ class MainEditor(QMainWindow):
             "Dump script", self, triggered=lambda: self.project_save_load_handler.dump_script(DB))
 
         self.preferences_act = QAction(
-            "&Preferences...", self, triggered=self.edit_preferences)
-        self.about_act = QAction("&About", self, triggered=self.about)
+            _("&Preferences..."), self, triggered=self.edit_preferences)
+        self.about_act = QAction(_("&About"), self, triggered=self.about)
         self.remove_unused_resources_act = QAction(
-            "Remove Unused Resources", self, triggered=self.remove_unused_resources)
+            _("Remove Unused Resources"), self, triggered=self.remove_unused_resources)
         self.check_for_updates_act = QAction(
-            "Check for updates...", self, triggered=self.check_for_updates)
+            _("Check for updates..."), self, triggered=self.check_for_updates)
 
         # Test actions
         self.test_current_act = QAction(
@@ -226,26 +226,26 @@ class MainEditor(QMainWindow):
         #     "Preload Units...", self, triggered=self.edit_preload_units)
 
         # Database actions
-        database_actions = {"Units": UnitDatabase.edit,
-                            "Factions": FactionDatabase.edit,
-                            "Parties": PartyDatabase.edit,
-                            "Classes": ClassDatabase.edit,
-                            "Tags": self.edit_tags,
-                            "Game Vars": self.edit_game_vars,
-                            "Weapon Types": WeaponDatabase.edit,
-                            "Items": ItemDatabase.edit,
-                            "Skills": SkillDatabase.edit,
+        database_actions = {_("Units"): UnitDatabase.edit,
+                            _("Factions"): FactionDatabase.edit,
+                            _("Parties"): PartyDatabase.edit,
+                            _("Classes"): ClassDatabase.edit,
+                            _("Tags"): self.edit_tags,
+                            _("Game Vars"): self.edit_game_vars,
+                            _("Weapon Types"): WeaponDatabase.edit,
+                            _("Items"): ItemDatabase.edit,
+                            _("Skills"): SkillDatabase.edit,
                             "AI": AIDatabase.edit,
-                            "Terrain": TerrainDatabase.edit,
-                            "Movement Costs": self.edit_mcost,
-                            "Stats": StatTypeDatabase.edit,
-                            "Equations": self.edit_equations,
-                            "Constants": ConstantDatabase.edit,
-                            "Difficulty Modes": DifficultyModeDatabase.edit,
-                            "Supports": self.edit_supports,
-                            "Lore": LoreDatabase.edit,
-                            "Raw Data": RawDataDatabase.edit,
-                            "Translations": self.edit_translations
+                            _("Terrain"): TerrainDatabase.edit,
+                            _("Movement Costs"): self.edit_mcost,
+                            _("Stats"): StatTypeDatabase.edit,
+                            _("Equations"): self.edit_equations,
+                            _("Constants"): ConstantDatabase.edit,
+                            _("Difficulty Modes"): DifficultyModeDatabase.edit,
+                            _("Supports"): self.edit_supports,
+                            _("Lore"): LoreDatabase.edit,
+                            _("Raw Data"): RawDataDatabase.edit,
+                            _("Translations"): self.edit_translations
                             }
         self.database_actions = {}
         for name, func in database_actions.items():

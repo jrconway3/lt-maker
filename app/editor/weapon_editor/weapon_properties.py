@@ -49,9 +49,9 @@ class WeaponProperties(QWidget):
         self.force_melee_anim_box.setToolTip(_("Force this weapontype to use the melee animation at melee range, even with a ranged weapon. Ex. Javelins in GBA"))
         name_section.addWidget(self.force_melee_anim_box)
 
-        attrs = (_('weapon_rank'), _('damage'), _('resist'), _('accuracy'), _('avoid'), _('crit'), _('dodge'), _('attack_speed'), _('defense_speed'))
+        attrs = ('weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attack_speed', 'defense_speed')
         self.rank_bonus = AppendMultiListWidget(CombatBonusList(), _("Rank Bonus"), attrs, RankBonusDelegate, self)
-        attrs = (_('weapon_type'), _('weapon_rank'), _('damage'), _('resist'), _('accuracy'), _('avoid'), _('crit'), _('dodge'), _('attack_speed'), _('defense_speed'))
+        attrs = ('weapon_type', 'weapon_rank', 'damage', 'resist', 'accuracy', 'avoid', 'crit', 'dodge', 'attack_speed', 'defense_speed')
         self.advantage = AppendMultiListWidget(CombatBonusList(), _("Advantage versus"), attrs, CombatBonusDelegate, self)
         self.disadvantage = AppendMultiListWidget(CombatBonusList(), _("Disadvantage versus"), attrs, CombatBonusDelegate, self)
 

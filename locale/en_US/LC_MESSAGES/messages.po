@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-19 16:38+0800\n"
+"POT-Creation-Date: 2022-11-19 23:42+0800\n"
 "PO-Revision-Date: 2022-11-17 22:52-0600\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en_US\n"
@@ -213,18 +213,6 @@ msgstr ""
 msgid "No tag"
 msgstr ""
 
-#: app/editor/class_editor/class_properties.py:122
-msgid "usable"
-msgstr ""
-
-#: app/editor/class_editor/class_properties.py:122
-msgid "nid"
-msgstr ""
-
-#: app/editor/class_editor/class_properties.py:122
-msgid "wexp_gain"
-msgstr ""
-
 #: app/editor/class_editor/class_properties.py:125
 msgid "Weapon Experience"
 msgstr ""
@@ -313,57 +301,8 @@ msgid ""
 "with a ranged weapon. Ex. Javelins in GBA"
 msgstr ""
 
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "weapon_rank"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "damage"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "resist"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "accuracy"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "avoid"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "crit"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "dodge"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "attack_speed"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "defense_speed"
-msgstr ""
-
 #: app/editor/weapon_editor/weapon_properties.py:53
 msgid "Rank Bonus"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "weapon_type"
 msgstr ""
 
 #: app/editor/weapon_editor/weapon_properties.py:55
@@ -373,4 +312,43 @@ msgstr ""
 #: app/editor/weapon_editor/weapon_properties.py:56
 msgid "Disadvantage versus"
 msgstr ""
+
+#~ msgid "usable"
+#~ msgstr ""
+
+#~ msgid "nid"
+#~ msgstr ""
+
+#~ msgid "wexp_gain"
+#~ msgstr ""
+
+#~ msgid "weapon_rank"
+#~ msgstr ""
+
+#~ msgid "damage"
+#~ msgstr ""
+
+#~ msgid "resist"
+#~ msgstr ""
+
+#~ msgid "accuracy"
+#~ msgstr ""
+
+#~ msgid "avoid"
+#~ msgstr ""
+
+#~ msgid "crit"
+#~ msgstr ""
+
+#~ msgid "dodge"
+#~ msgstr ""
+
+#~ msgid "attack_speed"
+#~ msgstr ""
+
+#~ msgid "defense_speed"
+#~ msgstr ""
+
+#~ msgid "weapon_type"
+#~ msgstr ""
 

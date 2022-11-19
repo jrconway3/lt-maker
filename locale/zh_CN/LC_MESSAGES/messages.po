@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-19 16:38+0800\n"
+"POT-Creation-Date: 2022-11-19 23:42+0800\n"
 "PO-Revision-Date: 2022-11-17 22:26-0600\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hans_CN\n"
@@ -213,18 +213,6 @@ msgstr "转职设定..."
 msgid "No tag"
 msgstr "无"
 
-#: app/editor/class_editor/class_properties.py:122
-msgid "usable"
-msgstr ""
-
-#: app/editor/class_editor/class_properties.py:122
-msgid "nid"
-msgstr ""
-
-#: app/editor/class_editor/class_properties.py:122
-msgid "wexp_gain"
-msgstr ""
-
 #: app/editor/class_editor/class_properties.py:125
 msgid "Weapon Experience"
 msgstr "武器熟练度"
@@ -311,62 +299,11 @@ msgstr "锁近战动画"
 msgid ""
 "Force this weapontype to use the melee animation at melee range, even "
 "with a ranged weapon. Ex. Javelins in GBA"
-msgstr ""
-"近战时锁定近战动画，"
-"例：GBA的投枪"
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "weapon_rank"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "damage"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "resist"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "accuracy"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "avoid"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "crit"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "dodge"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "attack_speed"
-msgstr ""
-
-#: app/editor/weapon_editor/weapon_properties.py:52
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "defense_speed"
-msgstr ""
+msgstr "近战时锁定近战动画，例：GBA的投枪"
 
 #: app/editor/weapon_editor/weapon_properties.py:53
 msgid "Rank Bonus"
 msgstr "熟练度加成"
-
-#: app/editor/weapon_editor/weapon_properties.py:54
-msgid "weapon_type"
-msgstr ""
 
 #: app/editor/weapon_editor/weapon_properties.py:55
 msgid "Advantage versus"
@@ -375,4 +312,3 @@ msgstr "有利相性"
 #: app/editor/weapon_editor/weapon_properties.py:56
 msgid "Disadvantage versus"
 msgstr "不利相性"
-

@@ -119,7 +119,7 @@ class ClassProperties(QWidget):
 
         weapon_section = QHBoxLayout()
 
-        attrs = (_("usable"), _("nid"), _("wexp_gain"))
+        attrs = ("usable", "nid", "wexp_gain")
         default_weapons = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}
         self.wexp_gain_widget = MultiDictWidget(
             default_weapons, _("Weapon Experience"),

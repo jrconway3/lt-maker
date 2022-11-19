@@ -188,7 +188,7 @@ class MainEditor(QMainWindow):
 
     # === Create Menu ===
     def create_actions(self):
-        self.new_act = QAction("&New Project...", self,
+        self.new_act = QAction(_("&New Project..."), self,
                                shortcut="Ctrl+N", triggered=self.new)
         self.open_act = QAction("&Open Project...", self,
                                 shortcut="Ctrl+O", triggered=self.open)

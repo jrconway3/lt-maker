@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-11-17 22:45-0600\n"
+"POT-Creation-Date: 2022-11-19 10:17+0800\n"
 "PO-Revision-Date: 2022-11-17 22:26-0600\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hans_CN\n"
 "Language-Team: zh_Hans_CN <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.11.0\n"
 
 #: app/editor/main_editor.py:81
 msgid "LT Maker"
@@ -26,6 +26,10 @@ msgstr "LT 制作者"
 #: app/editor/main_editor.py:297
 msgid "Edit"
 msgstr "编辑"
+
+#: app/editor/main_editor.py:191
+msgid "&New Project..."
+msgstr "&新建项目"
 
 #: app/editor/main_editor.py:286
 msgid "File"

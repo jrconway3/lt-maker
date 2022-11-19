@@ -955,7 +955,7 @@ class Weather(OptionValidator):
 class Align(OptionValidator):
     valid = [align.value for align in Alignments]
 
-class AlignOrPosition(Validator):
+class AlignOrPosition(OptionValidator):
     valid = [align.value for align in Alignments]
 
     def validate(self, text, level):

@@ -30,12 +30,12 @@ def calc_align(box_size: Tuple[int, int], alignment: Alignments,
     elif halign is HAlignment.CENTER:
         left = disp_width // 2 - width // 2
     else: # RIGHT
-        left = mr + width
+        left = disp_width - (mr + width)
 
     if valign is VAlignment.TOP:
         top = mt
     elif valign is VAlignment.CENTER:
         top = disp_height // 2 - height // 2
     else: # BOTTOMT
-        top = mb + height
+        top = disp_height - (mb + height)
     return left, top

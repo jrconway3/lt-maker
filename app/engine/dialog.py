@@ -1,5 +1,5 @@
 import re
-from typing import List
+from typing import Callable, List
 
 from app.constants import WINHEIGHT, WINWIDTH
 from app.engine import config as cf
@@ -17,6 +17,18 @@ from app.utilities import utils
 from app.utilities.enums import Alignments
 
 MATCH_DIALOG_COMMAND_RE = re.compile('(\{[^\{]*?\})')
+
+def clean_newlines(text: str) -> str:
+    if not text:
+        return text
+    # special char: this is a unicode single-line break.
+    # basically equivalent to {br}
+    # the first char shouldn't be one of these
+    if text[0] == '\u2028':
+        text = text[1:]
+    text = text.replace('\u2028', '{sub_break}')  # sub break to distinguish it
+    text = text.replace('\n', '{br}')
+    return text
 
 class Dialog():
     solo_flag = False
@@ -411,7 +423,7 @@ class Dialog():
         surf.blit(name_tag_surf, (x_pos, y_pos))
         return surf
 
-    def draw(self, surf):
+    def draw(self, surf: engine.Surface) -> engine.Surface:
         if self.background:
             if self.state == 'transition':
                 # bg = image_mods.resize(self.background, (1, .5 + self.transition_progress/2.))
@@ -440,6 +452,46 @@ class Dialog():
                 surf.blit(self.cursor, cursor_pos)
 
         return surf
+
+class DynamicDialogWrapper():
+    def __init__(self, text_func: Callable[[], str], portrait=None, background=None, position=None, width=None,
+                 speaker=None, style_nid=None, autosize=False, speed: float=1.0, font_color='black',
+                 font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail', name_tag_bg='name_tag') -> None:
+        # eval trick
+        self.resolve_text_func: Callable[[], str] = text_func
+        self.resolved_text = clean_newlines(self.resolve_text_func())
+        # dialog props
+        self.portrait = portrait
+        self.background = background
+        self.position = position
+        self.width = width
+        self.speaker = speaker
+        self.style_nid = style_nid
+        self.autosize = autosize
+        self.speed = speed
+        self.font_color = font_color
+        self.font_type = font_type
+        self.num_lines = num_lines
+        self.draw_cursor = draw_cursor
+        self.message_tail = message_tail
+        self.name_tag_bg = name_tag_bg
+
+        self.dialog = Dialog(self.resolved_text, portrait, background, position, width, speaker, style_nid, autosize, speed, font_color,
+                             font_type, num_lines, draw_cursor, message_tail, name_tag_bg)
+
+    def update(self):
+        new_text = clean_newlines(self.resolve_text_func())
+        if new_text != self.resolved_text:
+            self.resolved_text = new_text
+            self.dialog = Dialog(self.resolved_text, self.portrait, self.background,
+                                 self.position, self.width, self.speaker, self.style_nid,
+                                 self.autosize, self.speed, self.font_color, self.font_type,
+                                 self.num_lines, self.draw_cursor, self.message_tail,self.name_tag_bg)
+            self.dialog.last_update = engine.get_time() - 10000
+        return self.dialog.update()
+
+    def draw(self, surf) -> engine.Surface:
+        self.dialog.draw(surf)
 
 class LocationCard():
     exist_time = 2000

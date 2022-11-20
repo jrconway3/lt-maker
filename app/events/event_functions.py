@@ -308,12 +308,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
           font_color=None, font_type=None, dialog_box=None, num_lines=None, draw_cursor=None,
           message_tail=None, name_tag_bg=None, flags=None):
     flags = flags or set()
-    # special char: this is a unicode single-line break.
-    # basically equivalent to {br}
-    # the first char shouldn't be one of these
-    if text[0] == '\u2028':
-        text = text[1:]
-    text = text.replace('\u2028', '{sub_break}')  # sub break to distinguish it
+    text = dialog.clean_newlines(text)
 
     if 'no_block' in flags:
         text += '{no_wait}'
@@ -2622,14 +2617,6 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
             width=None, num_lines=None, style_nid=None, text_speed=None,
             font_color=None, font_type=None, bg=None, flags=None):
     flags = flags or set()
-    # special char: this is a unicode single-line break.
-    # basically equivalent to {br}
-    # the first char shouldn't be one of these
-    if text[0] == '\u2028':
-        text = text[1:]
-    text = text.replace('\u2028', '{sub_break}')  # sub break to distinguish it
-    # textboxes shouldn't use {w} or |
-    text = text.replace('{w}', '').replace('|', '{br}')
 
     textbox_style = None
     if style_nid and style_nid in self.game.speak_styles:
@@ -2690,12 +2677,35 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
 
     if textbox_style and textbox_style.flags:
         flags = textbox_style.flags.union(flags)
-
-    textbox = \
-        dialog.Dialog(text, background=box_bg, position=position, width=box_width,
+    if 'expression' in flags:
+        expr = lambda: ""
+        try:
+            # eval once to make sure it's eval-able
+            ast.parse(text)
+            def tryexcept(callback_expr) -> str:
+                try:
+                    val = self.text_evaluator.direct_eval(self.text_evaluator._evaluate_all(callback_expr))
+                    return str(val)
+                except:
+                    self.logger.error("textbox: failed to eval %s", callback_expr)
+                    return ""
+            expr = lambda: tryexcept(text)
+        except:
+            self.logger.error('textbox: %s is not a valid python expression' % text)
+        textbox = dialog.DynamicDialogWrapper(expr, background=box_bg, position=position, width=box_width,
                       style_nid=style_nid, speed=speed,
                       font_color=fcolor, font_type=ftype, num_lines=lines,
                       draw_cursor=False)
+    else:
+        text = self.text_evaluator._evaluate_all(text)
+        text = dialog.clean_newlines(text)
+        # textboxes shouldn't use {w} or |
+        text = text.replace('{w}', '').replace('|', '{br}')
+        textbox = \
+            dialog.Dialog(text, background=box_bg, position=position, width=box_width,
+                        style_nid=style_nid, speed=speed,
+                        font_color=fcolor, font_type=ftype, num_lines=lines,
+                        draw_cursor=False)
     self.other_boxes.append((nid, textbox))
 
 def table(self: Event, nid: NID, table_data: str, title: str = None,

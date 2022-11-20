@@ -2618,6 +2618,86 @@ def unchoice(self: Event, flags=None):
     except Exception as e:
         self.logger.error("unchoice: Unchoice failed: " + str(e))
 
+def textbox(self: Event, nid: str, text: str, box_position=None,
+            width=None, num_lines=None, style_nid=None, text_speed=None,
+            font_color=None, font_type=None, bg=None, flags=None):
+    flags = flags or set()
+    # special char: this is a unicode single-line break.
+    # basically equivalent to {br}
+    # the first char shouldn't be one of these
+    if text[0] == '\u2028':
+        text = text[1:]
+    text = text.replace('\u2028', '{sub_break}')  # sub break to distinguish it
+    # textboxes shouldn't use {w} or |
+    text = text.replace('{w}', '').replace('|', '{br}')
+
+    textbox_style = None
+    if style_nid and style_nid in self.game.speak_styles:
+        textbox_style = self.game.speak_styles[style_nid]
+    default_textbox_style = self.game.speak_styles['__default_text']
+
+    if box_position:
+        try:
+            position = Alignments(box_position)
+        except:
+            position = self._parse_pos(box_position)
+    elif textbox_style and textbox_style.text_position:
+        position = textbox_style.text_position
+    else:
+        position = default_textbox_style.text_position
+
+    if width:
+        box_width = int(width)
+    elif textbox_style and textbox_style.width:
+        box_width = textbox_style.width
+    else:
+        box_width = default_textbox_style.width
+
+    if text_speed:
+        speed = float(text_speed)
+    elif textbox_style and textbox_style.text_speed:
+        speed = textbox_style.text_speed
+    else:
+        speed = default_textbox_style.text_speed
+
+    if font_color:
+        fcolor = font_color
+    elif textbox_style and textbox_style.font_color:
+        fcolor = textbox_style.font_color
+    else:
+        fcolor = default_textbox_style.font_color
+
+    if font_type:
+        ftype = font_type
+    elif textbox_style and textbox_style.font_type:
+        ftype = textbox_style.font_type
+    else:
+        ftype = default_textbox_style.font_type
+
+    if bg:
+        box_bg = bg
+    elif textbox_style and textbox_style.dialog_box:
+        box_bg = textbox_style.dialog_box
+    else:
+        box_bg = default_textbox_style.dialog_box
+
+    if num_lines:
+        lines = int(num_lines)
+    elif textbox_style and textbox_style.num_lines:
+        lines = textbox_style.num_lines
+    else:
+        lines = default_textbox_style.num_lines
+
+    if textbox_style and textbox_style.flags:
+        flags = textbox_style.flags.union(flags)
+
+    textbox = \
+        dialog.Dialog(text, background=box_bg, position=position, width=box_width,
+                      style_nid=style_nid, speed=speed,
+                      font_color=fcolor, font_type=ftype, num_lines=lines,
+                      draw_cursor=False)
+    self.other_boxes.append((nid, textbox))
+
 def table(self: Event, nid: NID, table_data: str, title: str = None,
           dimensions: str = None, row_width: str = None, alignment: str = None,
           bg: str = None, entry_type: str = None, text_align: str = None, flags=None):

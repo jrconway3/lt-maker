@@ -2232,6 +2232,16 @@ class Unchoice(EventCommand):
 If this event was called from a Choice, then prevents that Choice from ending once this event ends. Otherwise, does nothing.
     """
 
+class TextBox(EventCommand):
+    nid = 'textbox'
+    tag = Tags.MISCELLANEOUS
+
+    desc = ""
+
+    keywords = ['NID', 'Text']
+    optional_keywords = ['BoxPosition', 'Width', 'NumLines', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'BG']
+    keyword_types = ['Nid', 'Text', 'AlignOrPosition', 'Width', 'PositiveInteger', 'Nid', 'Float', 'FontColor', 'Font', 'Sprite']
+
 class Table(EventCommand):
     nid = 'table'
     tag = Tags.MISCELLANEOUS

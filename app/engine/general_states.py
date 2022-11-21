@@ -582,6 +582,11 @@ class MoveState(MapState):
             game.highlight.display_moves(self.valid_moves, light=False)
         else:
             self.valid_moves = game.highlight.display_highlights(cur_unit)
+        
+        # Fade in phase music if the unit has canto
+        if cur_unit.has_attacked or cur_unit.has_traded:  
+            phase.fade_in_phase_music()
+
         game.highlight.display_aura_highlights(cur_unit)
 
         game.cursor.show_arrows()

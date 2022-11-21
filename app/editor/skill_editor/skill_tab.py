@@ -36,7 +36,7 @@ class SkillDatabase(DatabaseTab):
     def import_data(self):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
-        fn, ok = QFileDialog.getOpenFileName(self, "Import skills from status.xml", starting_path, "Status XML (status.xml);;All Files(*)")
+        fn, ok = QFileDialog.getOpenFileName(self, _("Import skills from status.xml"), starting_path, "Status XML (status.xml);;All Files(*)")
         if ok and fn.endswith('status.xml'):
             parent_dir = os.path.split(fn)[0]
             settings.set_last_open_path(parent_dir)

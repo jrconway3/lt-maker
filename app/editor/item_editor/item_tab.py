@@ -37,7 +37,7 @@ class ItemDatabase(DatabaseTab):
     def import_data(self):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
-        fn, ok = QFileDialog.getOpenFileName(self, "Import items from items.xml", starting_path, "Items XML (items.xml);;All Files(*)")
+        fn, ok = QFileDialog.getOpenFileName(self, _("Import items from items.xml"), starting_path, "Items XML (items.xml);;All Files(*)")
         if ok and fn.endswith('items.xml'):
             parent_dir = os.path.split(fn)[0]
             settings.set_last_open_path(parent_dir)
@@ -49,7 +49,7 @@ class ItemDatabase(DatabaseTab):
     def import_csv(self):
         settings = MainSettingsController()
         starting_path = settings.get_last_open_path()
-        fn, ok = QFileDialog.getOpenFileName(self, "Import items from csv", starting_path, "items csv (*.csv);;All Files(*)")
+        fn, ok = QFileDialog.getOpenFileName(self, _("Import items from csv"), starting_path, "items csv (*.csv);;All Files(*)")
         if ok and fn:
             parent_dir = os.path.split(fn)[0]
             settings.set_last_open_path(parent_dir)

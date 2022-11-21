@@ -596,7 +596,7 @@ def set_next_chapter(self: Event, chapter, flags=None):
 
 def enable_supports(self: Event, activated: str, flags=None):
     state = activated.lower() in self.true_vals
-    action.do(action.SetGameVar("_supports", activated))
+    action.do(action.SetGameVar("_supports", state))
 
 def set_fog_of_war(self: Event, fog_of_war_type, radius, ai_radius=None, other_radius=None, flags=None):
     fowt = fog_of_war_type.lower()

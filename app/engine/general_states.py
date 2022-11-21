@@ -1793,7 +1793,6 @@ class CombatTargetingState(MapState):
         self.prev_targets = game.memory.get('prev_targets', [])
 
         positions = target_system.get_valid_targets(self.cur_unit, self.item)
-
         # Remove previous targets if not allow_same_target
         if self.parent_item:
             allow_same_target = item_system.allow_same_target(self.cur_unit, self.parent_item)

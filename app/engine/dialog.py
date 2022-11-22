@@ -411,8 +411,8 @@ class Dialog():
         surf.blit(tail_surf, (x_pos, y_pos))
 
     def draw_nametag(self, surf, name):
-        if self.position[1] < 10: # if it would get cut off @todo(mag, rain) find out the most AESTHETIC position for this
-            y_pos = self.position[1] + self.height - 10
+        if self.position[1] < 10: # if it would get cut off
+            y_pos = self.position[1] + self.height - 6
         else:
             y_pos = self.position[1] - 10
         x_pos = self.position[0] - 4

@@ -3,6 +3,7 @@ from app.engine import engine
 
 import logging
 
+# For bg surfs that don't have `_bg` in their name
 HARDCODED_BG_SURFS = [
     'name_tag'
 ]
@@ -12,7 +13,7 @@ def create_base_surf(width, height, base='menu_bg_base') -> engine.Surface:
     if not sprite:
         logging.error("Could not find sprite named '%s.png'. Falling back on 'menu_bg_base.png'." % (base))
         sprite = SPRITES.get('menu_bg_base')
-    elif sprite and not '_bg' in base and not base in HARDCODED_BG_SURFS:
+    elif sprite and '_bg' not in base and base not in HARDCODED_BG_SURFS:
         new_base_surf = engine.create_surface((width, height), transparent=True)
         new_base_surf.blit(sprite, (0, 0))
         return new_base_surf

@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import logging
 from typing import Dict, Generic, List, Optional, Tuple, Type, TypeVar
-from typing_extensions import Protocol
+try:
+    from typing_extensions import Protocol
+except ModuleNotFoundError:
+    Protocol = object
+    print("You are missing the `typing-extensions` module.\nTry running `pip install -r requirements_editor.txt`")
 
 from app.utilities.typing import NID
 

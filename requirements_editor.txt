@@ -1,5 +1,4 @@
 altgraph==0.17
-Babel==2.9.1
 future==0.18.2
 pefile==2019.4.18
 pygame==1.9.6

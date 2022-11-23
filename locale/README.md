@@ -1,6 +1,14 @@
+# Install PyBabel
+
+You will need this python library to create new translation files.
+
+`pip install Babel`
+
+# Important Commands
+
 To regenerate all symbols to be translated:
 
-`pybabel extract app/ -o locale/base.pot`
+`pybabel extract app/editor/ -o locale/base.pot`
 
 `pybabel update -i locale/base.pot -d locale`
 

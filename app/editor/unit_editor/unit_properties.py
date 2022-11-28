@@ -196,7 +196,7 @@ class UnitProperties(QWidget):
         # self.unit_stat_widget.button.clicked.connect(self.access_stats)
         # Changing of stats done automatically by using model view framework within
 
-        attrs = (_("level"), _("skill_nid"))
+        attrs = ("level", "skill_nid")
         self.personal_skill_widget = AppendMultiListWidget([], _("Personal Skills"), attrs, LearnedSkillDelegate, self, model=ReverseDoubleListModel)
         self.personal_skill_widget.view.setMaximumHeight(120)
         # Changing of Personal skills done automatically also

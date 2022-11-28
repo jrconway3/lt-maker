@@ -39,7 +39,7 @@ class StatTypeProperties(QWidget):
         name_section.addWidget(self.desc_box)
 
         self.position_box = PropertyBox(_("Position"), ComboBox, self)
-        self.position_box.edit.addItems([_("hidden"), _("left"), _("right")])
+        self.position_box.edit.addItems(["hidden", "left", "right"])
         self.position_box.setToolTip("Column within Info Menu in engine")
         self.position_box.edit.currentTextChanged.connect(self.position_changed)
         name_section.addWidget(self.position_box)

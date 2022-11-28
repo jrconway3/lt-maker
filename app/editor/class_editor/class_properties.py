@@ -122,13 +122,13 @@ class ClassProperties(QWidget):
         attrs = ("usable", "nid", "wexp_gain")
         default_weapons = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}
         self.wexp_gain_widget = MultiDictWidget(
-            default_weapons, _("Weapon Experience"),
+            default_weapons, "Weapon Experience",
             attrs, WexpGainDelegate, self, model=WexpGainMultiAttrModel)
         self.wexp_gain_widget.model.checked_columns = {0}  # Add checked column
         weapon_section.addWidget(self.wexp_gain_widget)
 
         skill_section = QHBoxLayout()
-        attrs = (_("level"), _("skill_nid"))
+        attrs = ("level", "skill_nid")
         self.class_skill_widget = AppendMultiListWidget([], _("Class Skills"), attrs, LearnedSkillDelegate, self, model=ReverseDoubleListModel)
         skill_section.addWidget(self.class_skill_widget)
 

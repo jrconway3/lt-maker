@@ -140,7 +140,7 @@ class TerrainProperties(QWidget):
 
     def status_changed(self, index):
         status = self.status_box.edit.currentText()
-        if status == 'None':
+        if status == _('None'):
             self.current.status = None
         else:
             self.current.status = status

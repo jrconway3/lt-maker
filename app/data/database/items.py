@@ -1,6 +1,6 @@
 from dataclasses import field
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
-from app.data.category import Categories
+from app.data.category import Categories, CategorizedCatalog
 import app.engine.item_component_access as ICA
 from app.utilities.data import Data, Prefab
 from app.data.database.components import Component
@@ -72,6 +72,5 @@ class ItemPrefab(Prefab):
                 all_components)
         return i
 
-class ItemCatalog(Data[ItemPrefab]):
+class ItemCatalog(CategorizedCatalog[ItemPrefab]):
     datatype = ItemPrefab
-    categories: Categories = field(default_factory=Categories)

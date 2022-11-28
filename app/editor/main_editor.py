@@ -58,6 +58,7 @@ from app.editor.equation_widget import EquationDialog
 from app.editor.event_editor.event_tab import EventDatabase
 from app.editor.lore_editor.lore_tab import LoreDatabase
 from app.editor.raw_editor.raw_data_tab import RawDataDatabase
+from app.editor.item_skill_editor import NewItemDatabase, NewSkillDatabase
 
 # Resources
 from app.editor.icon_editor import icon_tab
@@ -233,8 +234,8 @@ class MainEditor(QMainWindow):
                             _("Tags"): self.edit_tags,
                             _("Game Vars"): self.edit_game_vars,
                             _("Weapon Types"): WeaponDatabase.edit,
-                            _("Items"): ItemDatabase.edit,
-                            _("Skills"): SkillDatabase.edit,
+                            _("Items"): NewItemDatabase.edit,
+                            _("Skills"): NewSkillDatabase.edit,
                             "AI": AIDatabase.edit,
                             _("Terrain"): TerrainDatabase.edit,
                             _("Movement Costs"): self.edit_mcost,

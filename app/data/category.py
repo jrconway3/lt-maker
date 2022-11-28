@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Dict, List
+from dataclasses import dataclass, field
+from typing import Dict, Generic, List, TypeVar
+from app.utilities.data import Data, HasNid
 
 from app.utilities.typing import NID
 
-
+T = TypeVar('T', bound=HasNid)
 @dataclass
 class Categories(Dict[NID, List[str]]):
     @classmethod
@@ -22,3 +23,6 @@ class Categories(Dict[NID, List[str]]):
         for nid, cats in categories:
             s_dict[nid] = '/'.join(cats)
         return s_dict
+
+class CategorizedCatalog(Data[T], Generic[T]):
+    categories: Categories = field(default_factory=Categories)

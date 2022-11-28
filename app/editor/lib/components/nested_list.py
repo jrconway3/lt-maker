@@ -22,6 +22,8 @@ def create_tree_entry(nid: NID, icon: QIcon, is_category: bool) -> QTreeWidgetIt
     new_item.setData(0, IsCategoryRole, is_category)
     if not is_category:
         new_item.setFlags(new_item.flags() & ~QtCore.Qt.ItemIsDropEnabled)
+    else:
+        new_item.setFlags(new_item.flags() | QtCore.Qt.ItemIsEditable)
     return new_item
 
 def create_empty_icon(w: int, h: int):
@@ -72,7 +74,7 @@ class LTNestedList(QWidget):
     def __init__(self, parent=None,
                  list_entries: Optional[List[NID]]=None,
                  list_categories: Optional[Categories]=None,
-                 get_icon: Optional[Callable[[NID], QIcon]]=None,
+                 get_icon: Optional[Callable[[NID], Optional[QIcon]]]=None,
                  on_click_item: Optional[Callable[[Optional[NID]], None]]=None,
                  on_rearrange_items: Optional[Callable[[List[NID], Categories], None]]=None,
                  attempt_delete: Optional[Callable[[NID], bool]]=None,
@@ -176,6 +178,7 @@ class LTNestedList(QWidget):
         new_category = create_tree_entry(new_category_name, create_empty_icon(32, 32), True)
         row = self._determine_insertion_row(index, item)
         closest_category.insertChild(row, new_category)
+        self.regenerate_icons()
 
     def duplicate(self, index, item: QTreeWidgetItem):
         list_entries, _ = self.get_list_and_category_structure()
@@ -192,9 +195,7 @@ class LTNestedList(QWidget):
                 self.select_item(new_item)
 
     def rename_category(self, item: QTreeWidgetItem):
-        item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
         self.tree_widget.editItem(item)
-        item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
 
     def delete(self, index, item):
         nid = item.data(0, 2)
@@ -243,6 +244,7 @@ class LTNestedList(QWidget):
 
     def on_drag_drop(self, event):
         self.tree_widget.originalDropEvent(event)
+        self.regenerate_icons(False)
 
     def data_changed(self, item=None, column=None):
         list_entries, list_categories = self.get_list_and_category_structure()
@@ -280,7 +282,7 @@ class LTNestedList(QWidget):
         def recurse_get_icon(node: QTreeWidgetItem) -> Optional[QIcon]:
             if not node.data(0, IsCategoryRole) and not node == self.tree_widget.invisibleRootItem(): # is an item
                 if initial_generation: # if initial, create icons before returning them
-                    icon = self.get_icon(node.data(0, 0))
+                    icon = self.get_icon(node.data(0, 0)) or create_empty_icon(32, 32)
                     node.setIcon(0, icon)
                 return node.icon(0)
             else: # is a category, fish for child icons
@@ -369,15 +371,11 @@ class LTNestedList(QWidget):
                 list_item = LTNestedList.ListNode(nid)
                 curr_node.children[nid] = list_item
             return root
-        def _build_tree_widget(root: LTNestedList.ListNode, parent):
+        def _build_tree_widget(root: LTNestedList.ListNode, parent: QTreeWidgetItem):
             for node in root.children.values():
-                item = QTreeWidgetItem(parent)
-                text = node.nid
-                item.setText(0, text)
-                item.setData(0, IsCategoryRole, node.is_category)
+                item = create_tree_entry(node.nid, create_empty_icon(32, 32), node.is_category)
+                parent.addChild(item)
                 if(node.is_category):
                     _build_tree_widget(node, item)
-                else:
-                    item.setFlags(item.flags() & ~QtCore.Qt.ItemIsDropEnabled)
         list_as_tree = _treeify(list_entries, list_categories)
         _build_tree_widget(list_as_tree, parent)

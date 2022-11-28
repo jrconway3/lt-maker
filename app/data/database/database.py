@@ -180,7 +180,6 @@ class Database(object):
         for key in self.save_data_types:
             catalog = getattr(self, key)
             if hasattr(catalog, 'categories'):
-                # sort dict so it always saves in the same order
                 self.json_save(os.path.join(data_dir, key, '.categories'), catalog.categories.save())
         end = time.perf_counter() * 1000
         logging.warning("Total Time Taken for Database: %s ms" % (end - start))

@@ -1,9 +1,11 @@
 from functools import lru_cache
 from typing import List, Type
-from app.utilities.data import Data
+
 from app.data.database.components import ComponentType
 from app.data.database.item_components import ItemComponent, ItemTags
 from app.data.resources.resources import RESOURCES
+from app.utilities.data import Data
+
 
 @lru_cache(1)
 def get_cached_item_components(proj_dir: str):

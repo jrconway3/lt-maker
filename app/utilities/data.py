@@ -5,6 +5,7 @@ from typing import Dict, Generic, List, Optional, Tuple, Type, TypeVar
 
 from app.utilities.typing import NID, Protocol
 
+
 class HasNid(Protocol):
     nid: NID
 

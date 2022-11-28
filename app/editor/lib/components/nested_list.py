@@ -114,11 +114,14 @@ class LTNestedList(QWidget):
         new_category = QAction("New Folder", self, triggered=lambda:self.new_category(index, item))
         menu.addAction(new_category)
         if item:
-            duplicate_action = QAction("Duplicate", self, triggered=lambda: self.duplicate(index, item))
-            menu.addAction(duplicate_action)
-            delete_action = QAction("Delete", self, triggered=lambda: self.delete(index, item))
-            menu.addAction(delete_action)
-            if item.data(0, IsCategoryRole):
+            is_category = item.data(0, IsCategoryRole)
+            if not is_category:
+                duplicate_action = QAction("Duplicate", self, triggered=lambda: self.duplicate(index, item))
+                menu.addAction(duplicate_action)
+            if self.can_delete(index, item):
+                delete_action = QAction("Delete", self, triggered=lambda: self.delete(index, item))
+                menu.addAction(delete_action)
+            if is_category:
                 rename_action = QAction("Rename", self, triggered=lambda: self.rename_category(item))
                 menu.addAction(rename_action)
         menu.popup(self.tree_widget.viewport().mapToGlobal(pos))
@@ -197,18 +200,23 @@ class LTNestedList(QWidget):
     def rename_category(self, item: QTreeWidgetItem):
         self.tree_widget.editItem(item)
 
+    def can_delete(self, index, item: QTreeWidgetItem):
+        if not index or not item:
+            return False
+        is_category = item.data(0, IsCategoryRole)
+        if is_category and not item.childCount(): # is an empty category
+            return True
+        if not is_category: # is a normal item
+            return True
+        return False
+
     def delete(self, index, item):
         nid = item.data(0, 2)
-        is_category = item.data(0, IsCategoryRole)
-        should_delete = False
-        if is_category:
-            any_children = item.child(0)
-            if not any_children: # only delete if category is empty
-                should_delete = True
-        else: # trying to delete item. let the callback handle it.
+        actually_delete = False
+        if self.can_delete(index, item):
             if self.attempt_delete and self.attempt_delete(nid):
-                should_delete = True
-        if should_delete:
+                actually_delete = True
+        if actually_delete:
             parent = item.parent() or self.tree_widget.invisibleRootItem()
             parent.removeChild(item)
             index_of_item_before = max(index.row() - 1, 0)

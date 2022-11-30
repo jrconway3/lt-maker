@@ -101,6 +101,16 @@ class LTNestedList(QWidget):
         layout.addWidget(self.new_item_button)
         self.setLayout(layout)
 
+        # used to keep track of which category we just dragged an item out of
+        self.disturbed_category = None
+
+    def on_click(self, e):
+        self.tree_widget.originalMousePressEvent(e)
+        item = self.tree_widget.itemAt(e.pos())
+        while item.parent():
+            item = item.parent()
+        self.disturbed_category = item
+
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
             self.delete(self.tree_widget.selectedIndexes()[0], self.tree_widget.selectedItems()[0])
@@ -130,14 +140,14 @@ class LTNestedList(QWidget):
         previous_selected_item_nid = self.get_selected_item()
         self.tree_widget.clear()
         self._build_tree_widget_in_place(list_entries, list_categories, self.tree_widget.invisibleRootItem())
-        self.regenerate_icons(True)
+        self.regenerate_icons(initial_generation=True)
         should_select = self.find_item_by_nid(previous_selected_item_nid)
         if should_select:
             self.select_item(should_select)
 
     def build_tree_widget(self, tree_widget: QTreeWidget, list_entries: Optional[List[NID]], list_categories: Optional[Categories]):
         self._build_tree_widget_in_place(list_entries, list_categories, tree_widget.invisibleRootItem())
-        self.regenerate_icons(True)
+        self.regenerate_icons(initial_generation=True)
         tree_widget.setItemDelegate(NestedListStyleDelegate(self))
         tree_widget.setUniformRowHeights(True)
         tree_widget.setDragDropMode(QTreeWidget.InternalMove)
@@ -146,6 +156,8 @@ class LTNestedList(QWidget):
         tree_widget.selectionModel().selectionChanged.connect(self.on_select)
         tree_widget.originalDropEvent = tree_widget.dropEvent
         tree_widget.dropEvent = self.on_drag_drop
+        tree_widget.originalMousePressEvent = tree_widget.mousePressEvent
+        tree_widget.mousePressEvent = self.on_click
         tree_widget.customContextMenuRequested.connect(self.customMenuRequested)
         tree_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         tree_widget.itemChanged.connect(self.data_changed)
@@ -181,7 +193,7 @@ class LTNestedList(QWidget):
         new_category = create_tree_entry(new_category_name, create_empty_icon(32, 32), True)
         row = self._determine_insertion_row(index, item)
         closest_category.insertChild(row, new_category)
-        self.regenerate_icons()
+        self.regenerate_icons(new_category)
 
     def duplicate(self, index, item: QTreeWidgetItem):
         list_entries, _ = self.get_list_and_category_structure()
@@ -252,15 +264,16 @@ class LTNestedList(QWidget):
 
     def on_drag_drop(self, event):
         self.tree_widget.originalDropEvent(event)
-        self.regenerate_icons(False)
+        if self.disturbed_category:
+            self.regenerate_icons(self.disturbed_category)
+        if self.tree_widget.itemAt(event.pos()):
+            self.regenerate_icons(self.tree_widget.itemAt(event.pos()))
 
-    def data_changed(self, item=None, column=None):
+    def data_changed(self, item: Optional[QTreeWidgetItem], column=None):
         list_entries, list_categories = self.get_list_and_category_structure()
         if self.on_rearrange_items:
             self.on_rearrange_items(list_entries, list_categories)
-        self.tree_widget.blockSignals(True)
-        self.regenerate_icons(False)
-        self.tree_widget.blockSignals(False)
+        self.regenerate_icons(item, False)
 
     def find_item_by_nid(self, nid) -> Optional[QTreeWidgetItem]:
         list_entries, list_categories = self.get_list_and_category_structure()
@@ -283,10 +296,14 @@ class LTNestedList(QWidget):
                     break
         return found_item
 
-    def regenerate_icons(self, initial_generation=False):
+    def regenerate_icons(self, root: Optional[QTreeWidgetItem]=None, initial_generation=False):
         """sets the icons for every entry. repeated calls will update category icons.
         initial call will also update the item-level icons.
         """
+        if not root:
+            root = self.tree_widget.invisibleRootItem()
+        while root.parent():
+            root = root.parent()
         def recurse_get_icon(node: QTreeWidgetItem) -> Optional[QIcon]:
             if not node.data(0, IsCategoryRole) and not node == self.tree_widget.invisibleRootItem(): # is an item
                 if initial_generation: # if initial, create icons before returning them
@@ -303,7 +320,9 @@ class LTNestedList(QWidget):
                         recurse_get_icon(child)
                 node.setIcon(0, create_folder_icon(icon) or create_empty_icon(32, 32))
                 return icon
-        recurse_get_icon(self.tree_widget.invisibleRootItem())
+        self.tree_widget.blockSignals(True)
+        recurse_get_icon(root)
+        self.tree_widget.blockSignals(False)
 
     def get_list_and_category_structure(self) -> Tuple[List[NID], Categories]:
         item_list = []

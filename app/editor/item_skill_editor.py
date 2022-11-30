@@ -6,7 +6,7 @@ import os
 from typing import Dict, Generic, List, Optional, Type, TypeVar
 
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (QApplication, QFileDialog, QGridLayout,
+from PyQt5.QtWidgets import (QApplication, QFileDialog, QGridLayout, QVBoxLayout,
                              QHBoxLayout, QMessageBox, QPushButton, QSplitter,
                              QWidget)
 
@@ -37,22 +37,25 @@ class ItemSkillEditor(QWidget, Generic[T]):
         self.categories = self.data.categories
 
         self.left_frame = QWidget()
-        left_frame_layout = QGridLayout()
+        left_frame_layout = QVBoxLayout()
         self.left_frame.setLayout(left_frame_layout)
         self.tree_list = LTNestedList(self, self.data.keys(), self.categories, self.get_icon,
                                       self.on_select, self.resort_db, self.delete_from_db, self.create_new,
                                       self.duplicate)
-        left_frame_layout.addWidget(self.tree_list, 0, 0, 1, 4)
-        self.import_csv_button = QPushButton("Import .csv")
-        self.import_csv_button.clicked.connect(self.import_csv)
-        left_frame_layout.addWidget(self.import_csv_button, 1, 0, 1, 4)
-        self.copy_to_clipboard_button = QPushButton("Copy to clipboard")
-        self.copy_to_clipboard_button.clicked.connect(self.copy_to_clipboard)
-        left_frame_layout.addWidget(self.copy_to_clipboard_button, 2, 0, 1, 2)
-        self.paste_from_clipboard_button = QPushButton("Paste from clipboard")
-        self.paste_from_clipboard_button.clicked.connect(self.paste_from_clipboard)
-        left_frame_layout.addWidget(self.paste_from_clipboard_button, 2, 2, 1, 2)
+        left_frame_layout.addWidget(self.tree_list)
 
+        button_frame = QWidget()
+        button_frame_layout = QGridLayout(button_frame)
+        import_csv_button = QPushButton("Import .csv")
+        import_csv_button.clicked.connect(self.import_csv)
+        button_frame_layout.addWidget(import_csv_button, 0, 0, 1, 4)
+        copy_to_clipboard_button = QPushButton("Copy to clipboard")
+        copy_to_clipboard_button.clicked.connect(self.copy_to_clipboard)
+        button_frame_layout.addWidget(copy_to_clipboard_button, 1, 0, 1, 2)
+        paste_from_clipboard_button = QPushButton("Paste from clipboard")
+        paste_from_clipboard_button.clicked.connect(self.paste_from_clipboard)
+        button_frame_layout.addWidget(paste_from_clipboard_button, 1, 2, 1, 2)
+        left_frame_layout.addWidget(button_frame)
         self.right_frame = NewItemProperties(self, None, self.attempt_change_nid, lambda: self.tree_list.regenerate_icons(True))
         self.splitter = QSplitter(self)
         self.splitter.setChildrenCollapsible(False)

@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QFileDialog, QGridLayout, QVBoxLayout
 
 import app.engine.item_component_access as ICA
 import app.engine.skill_component_access as SCA
-from app.data.category import CategorizedCatalog
+from app.data.category import Categories, CategorizedCatalog
 from app.data.database.database import DB, Database
 from app.data.database.items import ItemCatalog, ItemPrefab
 from app.data.database.skills import SkillCatalog, SkillPrefab
@@ -104,7 +104,7 @@ class ItemSkillEditor(QWidget, Generic[T]):
         if curr_entry:
             self.right_frame.set_current(curr_entry)
 
-    def resort_db(self, entries: List[str], categories):
+    def resort_db(self, entries: List[str], categories: Categories):
         self.data.categories = categories
         self.data.sort(lambda x: entries.index(x.nid) if x.nid in entries else -1)
 

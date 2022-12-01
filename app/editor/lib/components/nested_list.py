@@ -222,16 +222,18 @@ class LTNestedList(QWidget):
             return True
         return False
 
-    def delete(self, index, item):
+    def delete(self, index, item: QTreeWidgetItem):
         nid = item.data(0, 2)
         actually_delete = False
         if self.can_delete(index, item):
-            if self.attempt_delete and self.attempt_delete(nid):
+            if item.data(0, IsCategoryRole):
+                actually_delete = True
+            elif self.attempt_delete and self.attempt_delete(nid):
                 actually_delete = True
         if actually_delete:
             parent = item.parent() or self.tree_widget.invisibleRootItem()
             parent.removeChild(item)
-            index_of_item_before = max(index.row() - 1, 0)
+            index_of_item_before = min(index.row(), parent.childCount())
             self.select_item(parent.child(index_of_item_before))
 
     def get_selected_item(self) -> Optional[NID]:
@@ -265,9 +267,10 @@ class LTNestedList(QWidget):
     def on_drag_drop(self, event):
         self.tree_widget.originalDropEvent(event)
         if self.disturbed_category:
-            self.regenerate_icons(self.disturbed_category)
-        if self.tree_widget.itemAt(event.pos()):
-            self.regenerate_icons(self.tree_widget.itemAt(event.pos()))
+            self.data_changed(self.disturbed_category)
+        target_item = self.tree_widget.itemAt(event.pos())
+        if target_item:
+            self.data_changed(target_item)
 
     def data_changed(self, item: Optional[QTreeWidgetItem], column=None):
         list_entries, list_categories = self.get_list_and_category_structure()

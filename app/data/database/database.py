@@ -6,7 +6,7 @@ import os
 import re
 import shutil
 from typing import Any, Dict, List
-from app.data.category import Categories
+from app.data.category import Categories, CategorizedCatalog
 
 from app.data.database import (ai, constants, difficulty_modes, equations, factions,
                       items, klass, levels, lore, mcost, minimap, overworld,
@@ -74,7 +74,7 @@ class Database(object):
 
     def load_categories(self, data_dir: str, key: str) -> Dict[NID, List[str]]:
         full_data_dir = os.path.join(data_dir, key)
-        categories = {}
+        categories = Categories()
         if os.path.exists(full_data_dir):
             category_path = os.path.join(full_data_dir, '.categories')
             try:
@@ -179,7 +179,7 @@ class Database(object):
 
         for key in self.save_data_types:
             catalog = getattr(self, key)
-            if hasattr(catalog, 'categories'):
+            if isinstance(catalog, CategorizedCatalog):
                 self.json_save(os.path.join(data_dir, key, '.categories'), catalog.categories.save())
         end = time.perf_counter() * 1000
         logging.warning("Total Time Taken for Database: %s ms" % (end - start))

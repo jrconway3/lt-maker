@@ -235,7 +235,7 @@ class NewSkillDatabase(ItemSkillEditor):
         return
 
 # Testing
-# Run "python -m app.editor.item_editor.new_item_tab" from main directory
+# Run "python -m app.editor.item_editor.item_skill_editor" from main directory
 if __name__ == '__main__':
     import sys
 

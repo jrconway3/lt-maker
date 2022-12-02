@@ -1,16 +1,23 @@
+from __future__ import annotations
+
 from app.constants import WINWIDTH, WINHEIGHT
-from app.engine.objects.item import ItemObject
-from app.engine.objects.skill import SkillObject
-from app.engine.objects.unit import UnitObject
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
 from app.engine import engine, base_surf, image_mods, icons, text_funcs, item_system
-from app.data import skills, items
+from app.engine.graphics.text.text_renderer import text_width, render_text
+from app.data.database import skills, items
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.engine.objects.item import ItemObject
+    from app.engine.objects.skill import SkillObject
+    from app.engine.objects.unit import UnitObject
 
 class Banner():
     update_flag = False
     time_to_pause = 300
-    time_to_wait = 2500
+    time_to_wait = 3000
     time_to_start = None
     remove_flag = False
     surf = None
@@ -21,7 +28,7 @@ class Banner():
         self.sound = None
 
     def figure_out_size(self):
-        self.length = FONT['text'].width(self.text)
+        self.length = text_width('text', self.text)
         self.length += 16
         self.length -= self.length%8
         self.length += (16 if self.item else 0)
@@ -54,7 +61,7 @@ class Banner():
 
         bg_surf = self.surf.copy()
 
-        FONT['text'].blit(self.text, bg_surf, (6, self.size[1]//2 - self.font_height//2 + 3))
+        render_text(bg_surf, ['text'], [self.text], ['white'], topleft=(6, self.size[1]//2 - self.font_height//2 + 3))
 
         self.draw_icon(bg_surf)
 
@@ -168,19 +175,21 @@ class CustomIcon(Banner):
         self.sound = sound
 
     def figure_out_size(self):
-        self.length = FONT['text'].width(self.text)
+        self.length = text_width('text', self.text)
         self.length += 16
         self.length -= self.length%8
-        self.length += (10 if self.item else 0)
+        self.length += (16 if self.item else 0)
         self.font_height = 16
         self.size = self.length, 24
 
     def draw_icon(self, surf):
         if self.item:
             if isinstance(self.item, skills.SkillPrefab):
-                icons.draw_skill(surf, self.item, (2, 7), simple=True)
+                icons.draw_skill(surf, self.item, (4, 7), simple=True)
             elif isinstance(self.item, items.ItemPrefab):
-                icons.draw_item(surf, self.item, (2,7), cooldown=False)
+                icons.draw_item(surf, self.item, (4, 7), cooldown=False)
+            elif isinstance(self.item, str):
+                icons.draw_icon_by_alias(surf, self.item, (4, 7))
 
     def draw(self, surf):
         if not self.surf:
@@ -193,7 +202,7 @@ class CustomIcon(Banner):
 
         bg_surf = self.surf.copy()
 
-        FONT['text'].blit(self.text, bg_surf, (20, self.size[1]//2 - self.font_height//2 + 3))
+        render_text(bg_surf, ['text'], [self.text], ['white'], topleft=(22, self.size[1]//2 - self.font_height//2 + 3))
 
         self.draw_icon(bg_surf)
 
@@ -212,7 +221,7 @@ class Pennant():
     Lower banner that scrolls across bottom of screen
     """
 
-    font = FONT['convo']
+    font = 'convo'
     bg_surf = SPRITES.get('pennant_bg')
 
     def __init__(self, text):
@@ -227,7 +236,7 @@ class Pennant():
 
     def change_text(self, text):
         self.text = text_funcs.translate(text)
-        self.text_width = self.font.width(self.text)
+        self.text_width = text_width(self.font, self.text)
         self.text_counter = 0
 
     def draw(self, surf, draw_on_top=False):
@@ -240,12 +249,12 @@ class Pennant():
         if draw_on_top:
             surf.blit(engine.flip_vert(self.bg_surf), (0, -self.sprite_offset))
             while counter < self.width:
-                self.font.blit(self.text, surf, (counter, -self.sprite_offset), 'white')
+                render_text(surf, [self.font], [self.text], ['white'], (counter, -self.sprite_offset))
                 counter += self.text_width + 24
         else:
             surf.blit(self.bg_surf, (0, WINHEIGHT - self.height + self.sprite_offset))
             while counter < self.width:
-                self.font.blit(self.text, surf, (counter, WINHEIGHT - self.height + self.sprite_offset), 'white')
+                render_text(surf, [self.font], [self.text], ['white'], (counter, WINHEIGHT - self.height + self.sprite_offset))
                 counter += self.text_width + 24
 
         self.text_counter += (engine.get_time() - self.last_update)/24

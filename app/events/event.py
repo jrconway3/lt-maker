@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.engine.objects.item import ItemObject
 from app.engine.text_evaluator import TextEvaluator
 
 import logging
@@ -7,50 +8,56 @@ from typing import Any, Callable, Dict, List, Tuple
 import app.engine.config as cf
 import app.engine.graphics.ui_framework as uif
 from app.constants import WINHEIGHT, WINWIDTH
-from app.data.database import DB
+from app.data.database.database import DB
 from app.engine import (action, dialog, engine, evaluate,
-                        static_random, target_system)
+                        static_random, target_system, item_funcs)
 from app.engine.game_state import GameState
 from app.engine.objects.overworld import OverworldNodeObject
 from app.engine.objects.unit import UnitObject
 from app.engine.sound import get_sound_thread
-from app.events import event_commands
+from app.events import event_commands, triggers
 from app.events.event_portrait import EventPortrait
 from app.utilities import str_utils, utils
 from app.utilities.typing import NID
 
 class Event():
-    _transition_speed = 250
-    _transition_color = (0, 0, 0)
-
     true_vals = ('t', 'true', '1', 'y', 'yes')
 
     skippable = {"speak", "wait", "bop_portrait",
                  "sound", "location_card", "credits", "ending"}
 
-    def __init__(self, nid, commands, unit=None, unit2=None, item=None, position=None, region=None, game: GameState = None):
+    def __init__(self, nid, commands, trigger: triggers.EventTrigger, game: GameState = None):
+        self._transition_speed = 250
+        self._transition_color = (0, 0, 0)
+
         self.nid = nid
         self.commands: List[event_commands.EventCommand] = commands.copy()
         self.command_idx = 0
 
         self.background = None
 
-        self.unit = unit
-        self.unit2 = unit2
+        event_args = trigger.to_args()
+        self.unit = event_args.get('unit1', None)
+        self.unit2 = event_args.get('unit2', None)
         self.created_unit = None
-        self.item = item
-        self.position = position
-        self.region = region
+        self.position = event_args.get('position', None)
+        self.local_args = event_args or {}
         if game:
             self.game = game
         else:
             from app.engine.game_state import game
             self.game = game
 
+        self._generic_setup()
+
+        self.text_evaluator = TextEvaluator(self.logger, self.game, self.unit, self.unit2, self.position, self.local_args)
+
+    def _generic_setup(self):
         self.portraits: Dict[str, EventPortrait] = {}
         self.text_boxes: List[dialog.Dialog] = []
         self.other_boxes: List[Tuple[NID, Any]] = []
         self.overlay_ui = uif.UIComponent.create_base_component()
+        self.overlay_ui.name = self.nid
 
         self.prev_state = None
         self.state = 'processing'
@@ -94,8 +101,6 @@ class Event():
 
         self.logger = logging.getLogger()
 
-        self.text_evaluator = TextEvaluator(self.logger, self.game, self.unit, self.unit2, self.item, self.position, self.region)
-
     @property
     def unit1(self):
         return self.unit
@@ -107,9 +112,8 @@ class Event():
         ser_dict['command_idx'] = self.command_idx
         ser_dict['unit1'] = self.unit.nid if self.unit else None
         ser_dict['unit2'] = self.unit2.nid if self.unit2 else None
-        ser_dict['region'] = self.region.nid if self.region else None
-        ser_dict['item'] = self.item.uid if self.item else None
         ser_dict['position'] = self.position
+        ser_dict['local_args'] = {k: action.Action.save_obj(v) for k, v in self.local_args.items()}
         ser_dict['if_stack'] = self.if_stack
         ser_dict['parse_stack'] = self.parse_stack
         return ser_dict
@@ -118,19 +122,18 @@ class Event():
     def restore(cls, ser_dict, game: GameState):
         unit = game.get_unit(ser_dict['unit1'])
         unit2 = game.get_unit(ser_dict['unit2'])
-        region = game.get_region(ser_dict['region'])
-        item = game.get_item(ser_dict.get('item'))
         position = ser_dict['position']
+        local_args = ser_dict.get('local_args', {})
+        local_args = {k: action.Action.restore_obj(v) for k, v in local_args.items()}
         commands = ser_dict['commands']
         nid = ser_dict['nid']
-        self = cls(nid, commands, unit, unit2, item, position, region, game)
+        self = cls(nid, commands, triggers.GenericTrigger(unit, unit2, position, local_args), game)
         self.command_idx = ser_dict['command_idx']
         self.if_stack = ser_dict['if_stack']
         self.parse_stack = ser_dict['parse_stack']
         return self
 
     def update(self):
-        current_time = engine.get_time()
         # update all internal updates, remove the ones that are finished
         self.should_update = {name: to_update for name, to_update in self.should_update.items() if not to_update(self.do_skip)}
 
@@ -138,6 +141,11 @@ class Event():
         if self.game.movement:
             self.game.movement.update()
 
+        self._update_state()
+        self._update_transition()
+
+    def _update_state(self, dialog_log=True):
+        current_time = engine.get_time()
         # Can move through its own internal state up to 5 times in a frame
         counter = 0
         while counter < 5:
@@ -163,13 +171,18 @@ class Event():
             elif self.state == 'dialog':
                 if self.text_boxes:
                     if self.text_boxes[-1].is_done():
-                        action.do(action.LogDialog(self.text_boxes[-1]))
+                        if dialog_log:
+                            action.do(action.LogDialog(self.text_boxes[-1]))
                         self.state = 'processing'
                 else:
                     self.state = 'processing'
 
             elif self.state == 'paused':
                 self.state = 'processing'
+
+            elif self.state == 'almost_complete':
+                if not self.game.movement or len(self.game.movement) <= 0:
+                    self.state = 'complete'
 
             elif self.state == 'complete':
                 break
@@ -188,6 +201,8 @@ class Event():
                     self.should_remain_blocked.clear()
                     self.state = 'processing'
 
+    def _update_transition(self):
+        current_time = engine.get_time()
         # Handle transition
         if self.transition_state:
             perc = (current_time - self.transition_update) / self.transition_speed
@@ -258,7 +273,7 @@ class Event():
         return surf
 
     def end(self):
-        self.state = 'complete'
+        self.state = 'almost_complete'
 
     def process(self):
         while self.command_idx < len(self.commands) and self.state == 'processing':
@@ -290,14 +305,14 @@ class Event():
             cond = command.parameters['Expression']
             cond = self._evaluate_all(cond)
             try:
-                arg_list = evaluate.evaluate(cond, self.unit, self.unit2, self.item, self.position, self.region)
+                arg_list = self.text_evaluator.direct_eval(cond)
                 arg_list = [self._object_to_str(arg) for arg in arg_list]
             except Exception as e:
-                self.logger.error("%s: Could not evaluate {%s}" % (e, command.parameters['Expression']))
+                self.logger.error("%s: Could not evaluate {%s} in %s" % (e, command.parameters['Expression'], command.to_plain_text()))
                 return True
             if not arg_list:
                 if show_warning:
-                    self.logger.warning("Arg list is empty for: %s" % (command.parameters['Expression']))
+                    self.logger.warning("Arg list is empty for: %s in %s" % (command.parameters['Expression'], command.to_plain_text()))
 
             # template and paste all commands inside the for loop
             # to find the correct endf, we'll need to make sure that
@@ -314,8 +329,8 @@ class Event():
                     internal_fors -= 1
                 looped_commands.append(curr_command)
                 curr_idx += 1
-                if curr_idx > len(self.commands):
-                    self.logger.error("%s: could not find end command for loop %s" % ('handle_conditional', cond))
+                if curr_idx >= len(self.commands):
+                    self.logger.error("%s: could not find endf command for loop %s" % ('handle_conditional', cond))
                     return True
                 curr_command = self.commands[curr_idx]
 
@@ -333,6 +348,17 @@ class Event():
             return True
         return False
 
+    def _get_truth(self, command: event_commands.EventCommand) -> bool:
+        try:
+            cond = command.parameters['Expression']
+            cond = self._evaluate_all(cond)
+            truth = bool(self.text_evaluator.direct_eval(cond))
+        except Exception as e:
+            self.logger.error("%s: Could not evaluate {%s} in %s" % (e, cond, command.to_plain_text()))
+            truth = False
+        self.logger.info("Result: %s" % truth)
+        return truth
+
     def handle_conditional(self, command) -> bool:
         """
         Returns true if the processor should be processing this command
@@ -341,14 +367,7 @@ class Event():
         if command.nid == 'if':
             self.logger.info('%s: %s, %s', command.nid, command.parameters, command.chosen_flags)
             if not self.if_stack or self.if_stack[-1]:
-                try:
-                    cond = command.parameters['Expression']
-                    cond = self._evaluate_all(cond)
-                    truth = bool(evaluate.evaluate(cond, self.unit, self.unit2, self.item, self.position, self.region))
-                except Exception as e:
-                    self.logger.error("%s: Could not evaluate {%s}" % (e, cond))
-                    truth = False
-                self.logger.info("Result: %s" % truth)
+                truth = self._get_truth(command)
                 self.if_stack.append(truth)
                 self.parse_stack.append(truth)
             else:
@@ -362,16 +381,9 @@ class Event():
                 return False
             # If we haven't encountered a truth yet
             if not self.parse_stack[-1]:
-                try:
-                    cond = command.parameters['Expression']
-                    cond = self._evaluate_all(cond)
-                    truth = bool(evaluate.evaluate(cond, self.unit, self.unit2, self.item, self.position, self.region))
-                except Exception as e:
-                    self.logger.error("Could not evaluate {%s}" % cond)
-                    truth = False
+                truth = self._get_truth(command)
                 self.if_stack[-1] = truth
                 self.parse_stack[-1] = truth
-                self.logger.info("Result: %s" % truth)
             else:
                 self.if_stack[-1] = False
             return False
@@ -430,7 +442,9 @@ class Event():
         elif command.nid == 'table':
             unevaled_parameters, _ = event_commands.convert_parse(command, None)
             parameters['TableData'] = unevaled_parameters['TableData']
-
+        elif command.nid == 'textbox':
+            unevaled_parameters, _ = event_commands.convert_parse(command, None)
+            parameters['Text'] = unevaled_parameters['Text']
         if 'no_warn' in flags:
             self.logger.disabled = True
         else:
@@ -450,7 +464,8 @@ class Event():
     def _evaluate_all(self, text: str) -> str:
         return self.text_evaluator._evaluate_all(text)
 
-    def _place_unit(self, unit, position, entry_type):
+    def _place_unit(self, unit, position, entry_type, entry_direc = None):
+        position = tuple(position)
         if self.do_skip:
             action.do(action.ArriveOnMap(unit, position))
         elif entry_type == 'warp':
@@ -458,7 +473,7 @@ class Event():
         elif entry_type == 'swoosh':
             action.do(action.SwooshIn(unit, position))
         elif entry_type == 'fade':
-            action.do(action.FadeIn(unit, position))
+            action.do(action.FadeIn(unit, position, entry_direc))
         else:  # immediate
             action.do(action.ArriveOnMap(unit, position))
 
@@ -480,6 +495,7 @@ class Event():
                 return
             path = target_system.get_path(unit, position)
             action.do(action.Move(unit, position, path, event=True, follow=follow))
+        return position
 
     def _add_unit_from_direction(self, unit, position, direction, placement) -> bool:
         offsets = [-1, 1, -2, 2, -3, 3, -4, 4, -5, 5, -6, 6, -7, 7]
@@ -543,6 +559,8 @@ class Event():
             self.logger.error("%s: position out of bounds %s", 'check_placement', position)
             return None
         current_occupant = self.game.board.get_unit(position)
+        if not current_occupant:
+            current_occupant = self.game.movement.check_if_occupied_in_future(position)
         if current_occupant:
             if placement == 'giveup':
                 self.logger.warning("Check placement (giveup): Unit already present on tile %s", position)
@@ -569,16 +587,14 @@ class Event():
             self.logger.warning("Could not find level unit prefab for unit with nid: %s", unit_nid)
             return None
         new_nid = str_utils.get_next_int(level_unit_prefab.nid, self.game.unit_registry.keys())
-        level_unit_prefab.nid = new_nid
-        new_unit = UnitObject.from_prefab(level_unit_prefab, self.game.current_mode)
-        level_unit_prefab.nid = unit_nid  # Set back to old nid
+        new_unit = UnitObject.from_prefab(level_unit_prefab, self.game.current_mode, new_nid)
         new_unit.position = None
         new_unit.dead = False
         new_unit.party = self.game.current_party
         self.game.full_register(new_unit)
         return new_unit
 
-    def _get_item_in_inventory(self, unit_nid: str, item: str) -> tuple:
+    def _get_item_in_inventory(self, unit_nid: str, item: str, recursive=False) -> tuple[UnitObject, ItemObject]:
         if unit_nid.lower() == 'convoy':
             unit = self.game.get_party()
         else:
@@ -587,12 +603,16 @@ class Event():
                 self.logger.error("Couldn't find unit with nid %s" % unit_nid)
                 return None, None
         item_id = item
-        inids = [item.nid for item in unit.items]
-        iuids = [item.uid for item in unit.items]
+        if recursive:
+            item_list = item_funcs.get_all_items_with_multiitems(unit.items)
+        else:
+            item_list = unit.items
+        inids = [item.nid for item in item_list]
+        iuids = [item.uid for item in item_list]
         if (item_id not in inids) and (not str_utils.is_int(item_id) or not int(item_id) in iuids):
             self.logger.error("Couldn't find item with id %s" % item)
             return None, None
-        item = [item for item in unit.items if (item.nid == item_id or (str_utils.is_int(item_id) and item.uid == int(item_id)))][0]
+        item = [item for item in item_list if (item.nid == item_id or (str_utils.is_int(item_id) and item.uid == int(item_id)))][0]
         return unit, item
 
     def _apply_stat_changes(self, unit, stat_changes, flags):
@@ -626,6 +646,8 @@ class Event():
             position = self._get_unit(text).position
         elif self.game.is_displaying_overworld() and self._get_overworld_location_of_object(text):
             position = self._get_overworld_location_of_object(text).position
+        elif text in self.game.level.regions.keys():
+            return self.game.level.regions.get(text).position
         else:
             valid_regions = \
                 [tuple(region.position) for region in self.game.level.regions

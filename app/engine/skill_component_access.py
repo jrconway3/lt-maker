@@ -1,14 +1,25 @@
+from functools import lru_cache
 from app.utilities.data import Data
-from app.data.components import Type
-from app.data.skill_components import SkillComponent, SkillTags
+from app.data.database.components import ComponentType
+from app.data.database.skill_components import SkillComponent, SkillTags
+from app.data.resources.resources import RESOURCES
 
-def get_skill_components():
+@lru_cache(1)
+def get_cached_skill_components(proj_dir: str):
     from app.engine import skill_components
+    if RESOURCES.has_loaded_custom_components():
+        # Necessary for get_skill_components to find the item component subclasses
+        # defined here
+        import custom_components
 
     subclasses = SkillComponent.__subclasses__()
     # Sort by tag
     subclasses = sorted(subclasses, key=lambda x: list(SkillTags).index(x.tag) if x.tag in list(SkillTags) else 100)
     return Data(subclasses)
+
+def get_skill_components():
+    from app.data.database.database import DB
+    return get_cached_skill_components(DB.current_proj_dir)
 
 def get_skill_tags():
     return list(SkillTags)
@@ -26,11 +37,11 @@ def restore_component(dat):
     base_class = _skill_components.get(nid)
     if base_class:
         if isinstance(base_class.expose, tuple):
-            if base_class.expose[0] == Type.List:
+            if base_class.expose[0] == ComponentType.List:
                 # Need to make a copy
                 # so we don't keep the reference around
                 copy = base_class(value.copy())
-            elif base_class.expose[0] in (Type.Dict, Type.FloatDict):
+            elif base_class.expose[0] in (ComponentType.Dict, ComponentType.FloatDict, ComponentType.StringDict):
                 val = [v.copy() for v in value]
                 copy = base_class(val)
         else:

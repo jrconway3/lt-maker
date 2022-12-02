@@ -1,5 +1,5 @@
-from app.data.skill_components import SkillComponent, SkillTags
-from app.data.components import Type
+from app.data.database.skill_components import SkillComponent, SkillTags
+from app.data.database.components import ComponentType
 
 from app.engine import action
 
@@ -8,7 +8,7 @@ class BuildCharge(SkillComponent):
     desc = "Skill gains charges until full"
     tag = SkillTags.CHARGE
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 10
 
     ignore_conditional = True
@@ -40,7 +40,7 @@ class DrainCharge(SkillComponent):
     desc = "Skill will have a number of charges that are drained by 1 when activated"
     tag = SkillTags.CHARGE
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 1
 
     ignore_conditional = True
@@ -65,13 +65,27 @@ class DrainCharge(SkillComponent):
     def cooldown(self):
         return self.skill.data['charge'] / self.skill.data['total_charge']
 
+class ChargesPerTurn(DrainCharge, SkillComponent):
+    nid = 'charges_per_turn'
+    desc = "Skill will have a number of charges that are refreshed each turn"
+    tag = SkillTags.CHARGE
+
+    expose = ComponentType.Int
+    value = 1
+
+    ignore_conditional = True
+
+    def on_endstep(self, actions, playback, unit):
+        value = self.skill.data['total_charge']
+        action.do(action.SetObjData(self.skill, 'charge', value))
+
 def get_marks(playback, unit, item):
-    from app.data.database import DB
-    marks = [mark for mark in playback if mark[0] == 'mark_hit']
-    marks += [mark for mark in playback if mark[0] == 'mark_crit']
+    from app.data.database.database import DB
+    marks = [mark for mark in playback if mark.nid == 'mark_hit']
+    marks += [mark for mark in playback if mark.nid == 'mark_crit']
     if DB.constants.value('miss_wexp'):
-        marks += [mark for mark in playback if mark[0] == 'mark_miss']
-    marks = [mark for mark in marks if mark[1] == unit and mark[2] != unit and mark[4] == item]
+        marks += [mark for mark in playback if mark.nid == 'mark_miss']
+    marks = [mark for mark in marks if mark.attacker == unit and mark.defender != unit and mark.item == item]
     return marks
 
 class CombatChargeIncrease(SkillComponent):
@@ -79,7 +93,7 @@ class CombatChargeIncrease(SkillComponent):
     desc = "Increases charge of skill each combat"
     tag = SkillTags.CHARGE
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 5
 
     ignore_conditional = True
@@ -96,7 +110,7 @@ class CombatChargeIncreaseByStat(SkillComponent):
     desc = "Increases charge of skill each combat"
     tag = SkillTags.CHARGE
 
-    expose = Type.Stat
+    expose = ComponentType.Stat
     value = 'SKL'
 
     ignore_conditional = True
@@ -114,7 +128,7 @@ class GainMana(SkillComponent):
     tag = SkillTags.CHARGE
     author = 'KD'
 
-    expose = Type.String
+    expose = ComponentType.String
 
     def start_combat(self, playback, unit, item, target, mode):
         from app.engine import evaluate
@@ -132,7 +146,7 @@ class CostMana(SkillComponent):
     tag = SkillTags.CHARGE
     author = 'KD'
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 2
 
     ignore_conditional = True
@@ -150,7 +164,7 @@ class CheckMana(SkillComponent):
     tag = SkillTags.CHARGE
     author = 'KD'
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 2
 
     ignore_conditional = True

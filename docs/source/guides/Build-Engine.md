@@ -7,9 +7,9 @@ If you want to be able to distribute an executable to others for release and pla
 
 If you are working with an executable version of the editor, follow this process. 
 
-You can download the current version of the standalone engine from here: https://www.dropbox.com/s/lil6j8mf6dclz6f/lt_engine.zip?dl=1. 
+You can download the current version of the standalone engine from here: https://gitlab.com/rainlash/lt-maker/-/jobs/artifacts/release/download?job=build_engine (Download will start automatically!)
 
-![GenericEngineProject](../Images/GenericEngineProject.png)
+![GenericEngineProject](images/GenericEngineProject.png)
 
 Unzip the download, stick your `.ltproj` file in the folder `lt_engine/lt_engine` (should be at the same level as `app`, `Include`, etc.), and then you should be good to go. Test that the engine works with your project, and then re-zip it all up for distribution to others!
 
@@ -18,6 +18,10 @@ Unzip the download, stick your `.ltproj` file in the folder `lt_engine/lt_engine
 If are working with the Python version of the **Lex Talionis** engine, follow this process.
 
 First, make sure that you have everything installed from the [Python Installation](PyInstall) guide, including PyInstaller.
+
+Next, go to your `/saves/config.ini` file and set debug to 0. Make sure it says `debug=0` at the top. This will remove the debug menu and some other small things from your game that you probably don't want the player to have access to.
+
+Make sure that your .ltproj folder is located directly in the `lt-maker` directory. For instance, I put my `lion_throne.ltproj` folder right next to the other folders, like `app`, `saves`, `sprites`, etc.
 
 Now from **Git Bash** in the `lt-maker` directory, run:
 

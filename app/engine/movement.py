@@ -1,7 +1,7 @@
 import logging
 
 import app.engine.config as cf
-from app.data.database import DB
+from app.data.database.database import DB
 from app.engine import action, engine, equations, skill_system
 from app.engine.game_state import game
 from app.engine.sound import get_sound_thread
@@ -9,12 +9,13 @@ from app.utilities import utils
 
 
 class MovementData():
-    def __init__(self, path, event, follow, muted=False):
+    def __init__(self, path, event, follow, muted=False, speed=cf.SETTINGS['unit_speed']):
         self.path = path
         self.last_update = 0
         self.event = event
         self.follow = follow
         self.muted = muted
+        self.speed = speed
 
 class MovementManager():
     def __init__(self):
@@ -23,12 +24,13 @@ class MovementManager():
 
         self.surprised = False
 
-    def add(self, unit, path, event=False, follow=True):
-        self.moving_units[unit.nid] = MovementData(path, event, follow)
+    def add(self, unit, path, event=False, follow=True, speed=cf.SETTINGS['unit_speed']):
+        self.moving_units[unit.nid] = MovementData(path, event, follow, speed=speed)
 
-    def begin_move(self, unit, path, event=False, follow=True):
+    def begin_move(self, unit, path, event=False, follow=True, speed=cf.SETTINGS['unit_speed']):
         logging.info("Unit %s begin move: %s", unit.nid, path)
-        self.add(unit, path, event, follow)
+        self.add(unit, path, event, follow, speed=speed)
+        unit.sprite.set_speed(int(speed))
         unit.sprite.change_state('moving')
         game.leave(unit)
         unit.sound.play()
@@ -49,6 +51,12 @@ class MovementManager():
             return data.path[-1]
         else:
             return None
+
+    def check_if_occupied_in_future(self, pos):
+        for unit_nid, movement_data in self.moving_units.items():
+            if movement_data.path and movement_data.path[0] == pos:
+                return game.get_unit(unit_nid)
+        return None
 
     @classmethod
     def get_movement_group(cls, unit_to_move):
@@ -73,21 +81,21 @@ class MovementManager():
         return mcost
 
     def check_traversable(self, unit_to_move, pos) -> bool:
-        if not game.tilemap.check_bounds(pos):
+        if not game.board.check_bounds(pos):
             return False
         mcost = self.get_mcost(unit_to_move, pos)
         movement = equations.parser.movement(unit_to_move)
         return mcost <= movement
 
     def check_weakly_traversable(self, unit_to_move, pos) -> bool:
-        if not game.tilemap.check_bounds(pos):
+        if not game.board.check_bounds(pos):
             return False
         mcost = self.get_mcost(unit_to_move, pos)
         movement = equations.parser.movement(unit_to_move)
         return mcost <= 5 or mcost <= movement
 
     def check_simple_traversable(self, pos) -> bool:
-        if not game.tilemap.check_bounds(pos):
+        if not game.board.check_bounds(pos):
             return False
         mcost = self.get_mcost(None, pos)
         return mcost <= 5
@@ -97,9 +105,9 @@ class MovementManager():
         # Check if we run into an enemy
         # Returns True if position is OK
         """
-        for region in game.level.regions:
-            if region.contains(unit.position) and region.interrupt_move:
-                return False
+        interrupted = self.check_region_interrupt(unit)
+        if interrupted:
+            return False
         if data.event:
             return True
         elif skill_system.pass_through(unit):
@@ -124,8 +132,9 @@ class MovementManager():
             if unit.team == 'player':
                 self.surprised = True
                 self.update_surprise()
-        self.remove_interrupt_regions(unit)
-
+            # If unit is an ai unit, their turn is now complete
+            if game.ai.unit is unit:
+                game.ai.interrupt()
 
         del self.moving_units[unit_nid]
         game.arrive(unit)
@@ -149,14 +158,6 @@ class MovementManager():
                 return True
         return False
 
-    def remove_interrupt_regions(self, unit):
-        for region in game.level.regions:
-            if region.contains(unit.position) and region.interrupt_move:
-                if region.region_type == 'event':
-                    did_trigger = game.events.trigger(region.sub_nid, unit, position=unit.position, region=region)
-                if (region.region_type != 'event' or did_trigger) and region.only_once:
-                    action.do(action.RemoveRegion(region))
-
     def update_surprise(self):
         game.state.clear()
         game.state.change('free')
@@ -166,7 +167,7 @@ class MovementManager():
         current_time = engine.get_time()
         for unit_nid in list(self.moving_units.keys()):
             data = self.moving_units[unit_nid]
-            if current_time - data.last_update > cf.SETTINGS['unit_speed']:
+            if current_time - data.last_update > int(data.speed):
                 data.last_update = current_time
                 unit = game.get_unit(unit_nid)
                 if not unit:
@@ -182,13 +183,10 @@ class MovementManager():
                     new_position = data.path.pop()
                     if unit.position != new_position:
                         if self.check_position(unit, data, new_position):
-                            pass
+                            logging.debug("%s moved to %s", unit, new_position)
                         else:  # Can only happen when not in an event
+                            logging.debug("%s done moving", unit)
                             self.done_moving(unit_nid, data, unit, surprise=True)
-                            if unit.team == 'player':
-                                self.update_surprise()
-                                self.remove_interrupt_regions(unit)
-                                self.surprised = True
                             continue
 
                         mcost = self.get_mcost(unit, new_position)

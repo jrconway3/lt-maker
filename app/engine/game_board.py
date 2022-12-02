@@ -1,7 +1,10 @@
-from app.data.database import DB
+from typing import Dict
 
-from app.engine import target_system, line_of_sight
+from app.data.database.database import DB
+from app.engine import line_of_sight, target_system
 from app.engine.game_state import game
+from app.utilities.typing import NID
+
 
 class Node():
     __slots__ = ['reachable', 'cost', 'x', 'y', 'parent', 'g', 'h', 'f', 'true_f']
@@ -41,6 +44,7 @@ class GameBoard(object):
     def __init__(self, tilemap):
         self.width = tilemap.width
         self.height = tilemap.height
+        self.bounds = (0, 0, self.width - 1, self.height - 1)
         self.mcost_grids = {}
 
         self.reset_grid(tilemap)
@@ -64,26 +68,36 @@ class GameBoard(object):
         # For opacity
         self.opacity_grid = self.init_opacity_grid(tilemap)
 
+    def set_bounds(self, min_x, min_y, max_x, max_y):
+        self.bounds = (min_x, min_y, max_x, max_y)
+
     def check_bounds(self, pos):
-        return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
+        return self.bounds[0] <= pos[0] <= self.bounds[2] and self.bounds[1] <= pos[1] <= self.bounds[3]
 
     def reset_grid(self, tilemap):
         # For each movement type
+        mtype_grid = [[None for j in range(self.height)] for i in range(self.width)]
+        for x in range(self.width):
+            for y in range(self.height):
+                if DB.terrain:
+                    terrain_type = DB.terrain.get(tilemap.get_terrain((x, y)))
+                    if not terrain_type:
+                        terrain_type = DB.terrain[0]
+                    mtype_grid[x][y] = terrain_type.mtype
+                else:
+                    mtype_grid[x][y] = None
         for idx, mode in enumerate(DB.mcost.unit_types):
-            self.mcost_grids[mode] = self.init_grid(mode, tilemap)
+            self.mcost_grids[mode] = self.init_grid(mode, tilemap, mtype_grid)
         self.opacity_grid = self.init_opacity_grid(tilemap)
 
     # For movement
-    def init_grid(self, movement_group, tilemap):
+    def init_grid(self, movement_group, tilemap, mtype_grid: Dict[int, Dict[int, int]]):
         cells = []
         for x in range(self.width):
             for y in range(self.height):
-                terrain_nid = tilemap.get_terrain((x, y))
-                if DB.terrain:
-                    terrain = DB.terrain.get(terrain_nid)
-                    if not terrain:
-                        terrain = DB.terrain[0]
-                    tile_cost = DB.mcost.get_mcost(movement_group, terrain.mtype)
+                mtype = mtype_grid[x][y]
+                if mtype:
+                    tile_cost = DB.mcost.get_mcost(movement_group, mtype)
                 else:
                     tile_cost = 1
                 cells.append(Node(x, y, tile_cost < 99, tile_cost))
@@ -118,6 +132,11 @@ class GameBoard(object):
         if self.unit_grid[idx]:
             return self.unit_grid[idx][0]
         return None
+
+    def rationalize_pos(self, pos: tuple):
+        """Similar to in roam_state, except
+        does not force the unit into a particular position"""
+        return (int(round(pos[0])), int(round(pos[1])))
 
     def get_team(self, pos):
         if not pos:
@@ -161,14 +180,7 @@ class GameBoard(object):
                 return True
         else:
             if DB.constants.value('fog_los'):
-                ai_fog_of_war_radius = \
-                    game.level_vars.get('_ai_fog_of_war_radius',
-                                        game.level_vars.get('_fog_of_war_radius', 0))
-                if team == 'other':
-                    fog_of_war_radius = \
-                        game.level_vars.get('_other_fog_of_war_radius', ai_fog_of_war_radius)
-                else:
-                    fog_of_war_radius = ai_fog_of_war_radius
+                fog_of_war_radius = self.get_fog_of_war_radius(team)
                 valid = line_of_sight.simple_check(pos, team, fog_of_war_radius)
                 if not valid:
                     return False
@@ -176,6 +188,16 @@ class GameBoard(object):
             if grid[idx]:
                 return True
         return False
+
+    def get_fog_of_war_radius(self, team: str) -> int:
+        ai_fog_of_war_radius = game.level_vars.get('_ai_fog_of_war_radius', game.level_vars.get('_fog_of_war_radius', 0))
+        if team == 'player':
+            fog_of_war_radius = game.level_vars.get('_fog_of_war_radius', 0)
+        elif team == 'other':
+            fog_of_war_radius = game.level_vars.get('_other_fog_of_war_radius', ai_fog_of_war_radius)
+        else:
+            fog_of_war_radius = ai_fog_of_war_radius
+        return fog_of_war_radius
 
     # Line of sight
     def init_opacity_grid(self, tilemap):

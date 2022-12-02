@@ -3,11 +3,11 @@ from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QPixmap
 
 from app.editor import timer
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
 
 from app.editor.data_editor import SingleResourceEditor
 from app.editor.panorama_editor import panorama_model
-from app.editor.icon_editor.icon_tab import IconListView
+from app.extensions.delete_list_view import DeleteListView
 
 class PanoramaTab(QWidget):
     def __init__(self, data, title, model, parent=None):
@@ -15,7 +15,7 @@ class PanoramaTab(QWidget):
         self.window = parent
         self._data = data
         self.title = title
- 
+
         self.setWindowTitle(self.title + "s")
         self.setStyleSheet("font: 10pt;")
 
@@ -27,7 +27,7 @@ class PanoramaTab(QWidget):
                 for path in panorama.get_all_paths():
                     panorama.pixmaps.append(QPixmap(path))
 
-        self.view = IconListView()
+        self.view = DeleteListView()
         self.view.setMinimumSize(240*3 + 22, 180*3)
         self.view.setUniformItemSizes(True)
         self.view.setIconSize(QSize(240, 160))
@@ -53,7 +53,7 @@ class PanoramaTab(QWidget):
         timer.get_timer().tick_elapsed.connect(self.tick)
 
     def update_list(self):
-        # self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))                
+        # self.model.dataChanged.emit(self.model.index(0), self.model.index(self.model.rowCount()))
         self.model.layoutChanged.emit()
 
     def tick(self):

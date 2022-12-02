@@ -1,3 +1,4 @@
+from app.editor.lib.components.validated_line_edit import NidLineEdit
 import functools
 
 from PyQt5.QtWidgets import QPushButton, QLineEdit, \
@@ -8,8 +9,8 @@ from PyQt5.QtGui import QBrush, QColor, QIcon
 
 from app.utilities import str_utils
 from app.utilities.data import Data
-from app.data.database import DB
-from app.data.level_units import GenericUnit
+from app.data.database.database import DB
+from app.data.database.level_units import GenericUnit
 
 from app.editor import timer
 
@@ -20,7 +21,7 @@ from app.editor.level_editor.unit_painter_menu import AllUnitModel, InventoryDel
 from app.editor.base_database_gui import DragDropCollectionModel
 from app.editor.class_editor import class_model
 
-from app.data.level_units import UnitGroup
+from app.data.database.level_units import UnitGroup
 
 import logging
 
@@ -136,7 +137,7 @@ class GroupWidget(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.layout)
 
-        self.nid_box = QLineEdit(self)
+        self.nid_box = NidLineEdit(self)
         self.nid_box.textChanged.connect(self.nid_changed)
         self.nid_box.editingFinished.connect(self.nid_done_editing)
         self.layout.addWidget(self.nid_box, 0, 0)
@@ -179,7 +180,7 @@ class GroupWidget(QWidget):
     def tick(self):
         self.model.layoutChanged.emit()
 
-    def nid_changed(self, text):
+    def nid_changed(self, text: str):
         self.current.nid = text
 
     def nid_done_editing(self):

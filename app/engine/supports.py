@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 
-from app.data.database import DB
+from app.data.database.database import DB
 
 from app.utilities import utils
 
 from app.engine import action, target_system
 from app.engine.game_state import game
+
+import logging
 
 class SupportPair():
     """
@@ -36,7 +38,7 @@ class SupportPair():
                 (not rank_limit or self.ranks_gained_this_chapter < rank_limit):
             reqs = support_prefab.requirements
             for bonus in reversed(reqs):
-                if self.points < bonus.requirement and self.points + 1 >= bonus.requirement:                     
+                if self.points < bonus.requirement and self.points + 1 >= bonus.requirement:
                     self.ranks_gained_this_chapter += 1
                     self.locked_ranks.append(bonus.support_rank)
             inc -= 1
@@ -149,6 +151,9 @@ class SupportController():
         pairs = []
         for key, pair in self.support_pairs.items():
             prefab = DB.support_pairs.get(key)
+            if not prefab:  # In case you somehow deleted a pair!
+                logging.warning("Support Pair with key %s no longer exists in database! Skipping..." % key)
+                continue
             if prefab.unit1 == unit_nid or (prefab.unit2 == unit_nid and not prefab.one_way):
                 pairs.append(pair)
         return pairs
@@ -200,7 +205,7 @@ class SupportController():
             return False
         else:
             dist = utils.calculate_distance(unit1.position, unit2.position)
-            return dist <= r 
+            return dist <= r
 
     def get_specific_bonus(self, unit1, unit2, highest_rank):
         for pair in DB.support_pairs:
@@ -274,7 +279,7 @@ def increment_end_chapter_supports():
 
         unit_nids = {unit.nid for unit in units}
         for support_prefab in DB.support_pairs:
-            if support_prefab.unit1 in unit_nids and support_prefab.unit2 in unit_nids:     
+            if support_prefab.unit1 in unit_nids and support_prefab.unit2 in unit_nids:
                 action.do(action.IncrementSupportPoints(support_prefab.nid, inc))
 
     # Reset max number of support points and rank that can be gotten in one chapter
@@ -314,10 +319,14 @@ def increment_team_end_turn_supports(team='player'):
                 if dist == 99 or utils.calculate_distance(unit1.position, unit2.position) <= dist:
                     action.do(action.IncrementSupportPoints(support_prefab.nid, inc))
 
-def increment_end_combat_supports(combatant, target=None):
+def increment_end_combat_supports(combatant, target=None) -> list:
+    """
+    Returns a list of tuples, containing the units that gained support points together
+    """
     if not game.game_vars.get('_supports'):
-        return
+        return []
     inc = DB.support_constants.value('combat_points')
+    pairs = []
     if inc:
         dist = DB.support_constants.value('growth_range')
         units = [unit for unit in game.units if unit.position and not unit.generic and unit.team == combatant.team and unit is not combatant]
@@ -333,15 +342,30 @@ def increment_end_combat_supports(combatant, target=None):
             if dist == 0 and target:
                 if target.position in target_system.get_attacks(other_unit, force=True):
                     action.do(action.IncrementSupportPoints(support_prefab.nid, inc))
+                    pairs.append((combatant, other_unit))
             elif dist == 99 or utils.calculate_distance(combatant.position, other_unit.position) <= dist:
                 action.do(action.IncrementSupportPoints(support_prefab.nid, inc))
+                pairs.append((combatant, other_unit))
+    return pairs
 
-def increment_interact_supports(combatant, target):
+def increment_supports(combatant, partner, constant: str) -> bool:
+    """
+    Returns whether the combatant and partner are successful in incrementing their support
+    """
     if not game.game_vars.get('_supports'):
-        return
-    inc = DB.support_constants.value('interact_points')
+        return False
+    inc = DB.support_constants.value(constant)
+    success: bool = False
     if inc:
         for support_prefab in DB.support_pairs:
-            if (support_prefab.unit1 == combatant.nid and support_prefab.unit2 == target.nid) or \
-                    (support_prefab.unit2 == combatant.nid and support_prefab.unit1 == target.nid):
+            if (support_prefab.unit1 == combatant.nid and support_prefab.unit2 == partner.nid) or \
+                    (support_prefab.unit2 == combatant.nid and support_prefab.unit1 == partner.nid):
                 action.do(action.IncrementSupportPoints(support_prefab.nid, inc))
+                success = True
+    return success
+
+def increment_interact_supports(combatant, target) -> bool:
+    return increment_supports(combatant, target, 'interact_points')
+
+def increment_pairup_supports(combatant, partner) -> bool:
+    return increment_supports(combatant, partner, 'pairup_points')

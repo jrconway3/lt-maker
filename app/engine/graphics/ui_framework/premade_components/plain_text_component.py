@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.engine.graphics.text.text_renderer import render_text
 from app.engine.graphics.ui_framework.ui_framework_layout import ListLayoutStyle, UILayoutType
 from app.constants import WINHEIGHT, WINWIDTH
 from app.sprites import SPRITES
@@ -80,7 +81,7 @@ class PlainTextLine(UIComponent):
         text_surf = engine.create_surface(text_size, True)
         if self.props.bg_color:
             text_surf.fill(self.props.bg_color)
-        self.props.font.blit(self.text, text_surf, (0, 0))
+        render_text(text_surf, [self.props.font_name], [self.text], None, (0, 0))
         self.props.bg = text_surf
 
 class PlainTextComponent(UIComponent):
@@ -153,9 +154,9 @@ class PlainTextComponent(UIComponent):
             self.add_child(line1)
         else:
             all_text = self.text
-            all_split = text_funcs.line_wrap(self.props.font, all_text, self.iwidth, True)
+            all_split = text_funcs.line_wrap(self.props.font_name, all_text, self.iwidth, True)
             visible_text = self.text[:self.num_visible_chars]
-            visible_split = text_funcs.line_wrap(self.props.font, visible_text, self.iwidth, True)
+            visible_split = text_funcs.line_wrap(self.props.font_name, visible_text, self.iwidth, True)
             if len(self.children) != len(all_split): # our text itself changed, we should full reset
                 self.children.clear()
                 for i in range(0, len(all_split)):

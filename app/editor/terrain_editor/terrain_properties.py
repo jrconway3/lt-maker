@@ -5,14 +5,15 @@ from PyQt5.QtGui import QImage, QIcon, QPixmap, QColor
 from PyQt5.QtCore import Qt, QSize
 
 from app.sprites import SPRITES
-from app.resources.resources import RESOURCES
-from app.data.database import DB
+from app.data.resources.resources import RESOURCES
+from app.data.database.database import DB
 
 from app.extensions.custom_gui import ComboBox, PropertyBox
 from app.editor.custom_widgets import MovementCostBox
 from app.editor.mcost_dialog import McostDialog
 from app.editor.skill_editor import skill_model
 from app.extensions.color_icon import ColorIcon
+from app.editor.lib.components.validated_line_edit import NidLineEdit
 from app.utilities import str_utils
 
 class TerrainProperties(QWidget):
@@ -34,7 +35,7 @@ class TerrainProperties(QWidget):
 
         name_section = QVBoxLayout()
 
-        self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
+        self.nid_box = PropertyBox("Unique ID", NidLineEdit, self)
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
         name_section.addWidget(self.nid_box)
@@ -65,6 +66,7 @@ class TerrainProperties(QWidget):
         self.platform_box.edit.currentIndexChanged.connect(self.platform_changed)
 
         self.background_box = PropertyBox("Combat Background", ComboBox, self)
+        self.background_box.edit.addItem(QIcon(), 'None')
         for panorama in RESOURCES.panoramas:
             icon = QIcon(panorama.get_all_paths()[0])
             self.background_box.edit.addItem(icon, panorama.nid)
@@ -161,7 +163,10 @@ class TerrainProperties(QWidget):
         self.name_box.edit.setText(current.name)
         self.minimap_box.edit.setValue(current.minimap)
         self.platform_box.edit.setValue(current.platform)
-        self.background_box.edit.setValue(current.background)
+        if current.background:
+            self.background_box.edit.setValue(current.background)
+        else:
+            self.background_box.edit.setValue('None')
         self.movement_box.edit.setValue(current.mtype)
         self.opaque_box.edit.setChecked(bool(current.opaque))
         if current.status:

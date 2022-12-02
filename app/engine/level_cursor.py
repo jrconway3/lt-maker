@@ -12,7 +12,7 @@ from app.engine.engine import Surface
 
 class LevelCursor(BaseCursor):
     def __init__(self, game: GameState):
-        super().__init__(camera=game.camera, tilemap=game.tilemap)
+        super().__init__(camera=game.camera, game_board=game.board)
         # this is frame-accurate to GBA
         self.cursor_counter = generic3counter(frames2ms(20), frames2ms(2), frames2ms(8))
         self.game = game
@@ -39,7 +39,7 @@ class LevelCursor(BaseCursor):
         return None
 
     def get_bounds(self) -> Tuple[int, int, int, int]:
-        self.tilemap = self.game.tilemap
+        self.game_board = self.game.board
         return super().get_bounds()
 
     def hide(self):
@@ -209,49 +209,7 @@ class LevelCursor(BaseCursor):
         else:
             self.stopped_at_move_border = False
 
-        # handle the move
-        dx, dy = 0, 0
-        from_mouse = False
-
-        # Handle keyboard first
-        if directions:
-            if 'LEFT' in directions and self.position[0] > self.get_bounds()[0]:
-                dx = -1
-            elif 'RIGHT' in directions and self.position[0] < self.get_bounds()[2]:
-                dx = 1
-            if 'UP' in directions and self.position[1] > self.get_bounds()[1]:
-                dy = -1
-            elif 'DOWN' in directions and self.position[1] < self.get_bounds()[3]:
-                dy = 1
-            self.mouse_mode = False
-
-        # Handle mouse
-        mouse_position = get_input_manager().get_mouse_position()
-        if mouse_position:
-            self.mouse_mode = True
-        if self.mouse_mode:
-            # Get the actual mouse position, irrespective if actually used recently
-            mouse_pos = get_input_manager().get_real_mouse_position()
-            if mouse_pos:
-                from_mouse = True
-                new_pos = mouse_pos[0] // TILEWIDTH, mouse_pos[1] // TILEHEIGHT
-                new_pos = int(new_pos[0] + self.game.camera.get_x()), int(new_pos[1] + self.game.camera.get_y())
-                new_pos = tclamp(new_pos, self.get_bounds()[:2], self.get_bounds()[2:])
-                dpos = new_pos[0] - self.position[0], new_pos[1] - self.position[1]
-                dx = dpos[0]
-                dy = dpos[1]
-                # self._transition_speed = 2
-
-        if dx != 0 or dy != 0:
-            # adjust camera accordingly
-            self.move(dx, dy, mouse=from_mouse)
-            if self.camera:
-                if from_mouse:
-                    self.camera.mouse_x(self.position[0])
-                    self.camera.mouse_y(self.position[1])
-                else:
-                    self.camera.cursor_x(self.position[0])
-                    self.camera.cursor_y(self.position[1])
+        self._handle_move(directions)
 
     def get_image(self) -> Surface:
         self.cursor_counter.update(engine.get_time())

@@ -1,10 +1,14 @@
+import math
+import random
 from typing import List, Tuple
 from app.engine.game_counters import ANIMATION_COUNTERS
 from app.constants import WINWIDTH, WINHEIGHT
 from app.utilities import utils
 
-from app.resources.resources import RESOURCES
-from app.data.database import DB
+from app.data.resources.resources import RESOURCES
+from app.data.database.database import DB
+
+from app.engine.achievements import ACHIEVEMENTS
 
 from app.engine.sprites import SPRITES
 from app.engine.sound import get_sound_thread
@@ -15,9 +19,11 @@ from app.engine.state import State
 from app.engine.state import MapState
 from app.engine.game_state import game
 from app.engine import menus, base_surf, background, text_funcs, \
-    image_mods, gui, icons, prep, record_book, unit_sprite, action
+    image_mods, gui, icons, prep, record_book, unit_sprite, action, \
+    engine
 from app.engine.fluid_scroll import FluidScroll
 import app.engine.config as cf
+from app.events import triggers
 
 
 class BaseMainState(State):
@@ -39,7 +45,14 @@ class BaseMainState(State):
             ignore[1] = False
         if game.game_vars.get('_supports') and DB.support_constants.value('base_convos'):
             options.insert(2, 'Supports')
-            ignore.insert(2, False)
+            # make sure we have supports to begin with
+            player_units = game.get_units_in_party()
+            units = [unit for unit in player_units if
+                     any(prefab.unit1 == unit.nid or prefab.unit2 == unit.nid for prefab in DB.support_pairs)]
+            if units:
+                ignore.insert(2, False)
+            else:
+                ignore.insert(2, True)
         if DB.constants.value('bexp'):
             options.insert(2, 'Bonus EXP')
             ignore.insert(2, False)
@@ -56,7 +69,7 @@ class BaseMainState(State):
         # initialize custom options and events
         events = [None for option in options]
         additional_options = game.game_vars.get('_base_additional_options')
-        additional_ignore = game.game_vars.get('_base_options_enabled')
+        additional_ignore = game.game_vars.get('_base_options_disabled')
         additional_events = game.game_vars.get('_base_options_events')
 
         options = options + additional_options if additional_options else options
@@ -93,6 +106,8 @@ class BaseMainState(State):
         topleft = 4, WINHEIGHT // 2 - (len(options) * 16 + 8) // 2
         self.menu = menus.Choice(None, options, topleft=topleft)
         self.menu.set_ignore(ignore)
+
+        game.events.trigger(triggers.OnBaseStart())
 
         game.state.change('transition_in')
         return 'repeat'
@@ -275,7 +290,7 @@ class BaseConvosChildState(State):
                 get_sound_thread().play_sfx('Select 1')
                 # Auto-ignore
                 game.base_convos[selection] = True
-                game.events.trigger('on_base_convo', selection)
+                game.events.trigger(triggers.OnBaseConvo(selection, selection))
 
     def update(self):
         if self.menu:
@@ -293,6 +308,7 @@ class SupportDisplay():
     def __init__(self):
         self.unit_nid = None
         self.topleft = (84, 4)
+        self.limit = 8
         self.width = WINWIDTH - 100
         self.bg_surf = base_surf.create_base_surf(self.width, WINHEIGHT - 8)
         shimmer = SPRITES.get('menu_shimmer2')
@@ -306,6 +322,8 @@ class SupportDisplay():
 
         self.char_idx = 0
         self.rank_idx = 0
+
+        self.next_scroll_time = 0
 
     def update_entry(self, unit_nid):
         if self.unit_nid and unit_nid == self.unit_nid:
@@ -340,10 +358,10 @@ class SupportDisplay():
             bonus = prefab.requirements[self.rank_idx]
             rank = bonus.support_rank
             if rank in pair.unlocked_ranks:
-                game.events.trigger('on_support', game.get_unit(self.unit_nid), game.get_unit(other_unit_nid), rank)
+                game.events.trigger(triggers.OnSupport(game.get_unit(self.unit_nid), game.get_unit(other_unit_nid), None, rank, True))
                 return True
             elif pair.can_support() and rank in pair.locked_ranks:
-                game.events.trigger('on_support', game.get_unit(self.unit_nid), game.get_unit(other_unit_nid), rank)
+                game.events.trigger(triggers.OnSupport(game.get_unit(self.unit_nid), game.get_unit(other_unit_nid), None, rank, False))
                 action.do(action.UnlockSupportRank(pair.nid, rank))
                 return True
         return False
@@ -409,13 +427,12 @@ class SupportDisplay():
 
             map_sprites = []
 
-            limit = 8
-            start_index = utils.clamp(self.char_idx - 4, 0, max(0, len(other_unit_nids) - limit))
-            end_index = start_index + limit
+            start_index = utils.clamp(self.char_idx - 4, 0, max(0, len(other_unit_nids) - self.limit))
+            end_index = start_index + self.limit
             choices = other_unit_nids[start_index:end_index]
 
             for idx, other_unit_nid in enumerate(choices):
-                if game.get_unit(other_unit_nid):
+                if game.get_unit(other_unit_nid) and game.get_unit(other_unit_nid).party == game.get_unit(self.unit_nid).party:
                     other_unit = game.get_unit(other_unit_nid)
                     if other_unit.dead:
                         map_sprite = other_unit.sprite.create_image('gray')
@@ -470,10 +487,10 @@ class SupportDisplay():
             surf.blit(self.support_word_sprite, (120, 11))
 
             # Scroll Bar
-            if len(self.options) > limit:
+            if len(self.options) > self.limit:
                 right = 100 + self.width
                 topright = (right, 4)
-                self.scroll_bar.draw(surf, topright, start_index, limit, len(self.options))
+                self.scroll_bar.draw(surf, topright, start_index, self.limit, len(self.options))
 
             # Cursor
             if self.draw_cursor:
@@ -484,6 +501,44 @@ class SupportDisplay():
 
         return surf
 
+    # MOUSE STUFF FOR SUPPORT DISPLAY MENU
+    def handle_mouse(self) -> bool:
+        mouse_position = get_input_manager().get_mouse_position()
+        if mouse_position:
+            mouse_x, mouse_y = mouse_position
+            idxs, option_rects = self.get_rects()
+            for idx, option_rect in zip(idxs, option_rects):
+                char_idx, rank_idx = idx
+                x, y, width, height = option_rect
+                if x <= mouse_x <= x + width and y <= mouse_y <= y + height:
+                    self.mouse_move(char_idx, rank_idx)
+                    return True
+        return False
+
+    def mouse_move(self, char_idx, rank_idx):
+        if engine.get_time() > self.next_scroll_time:
+            self.char_idx, self.rank_idx = char_idx, rank_idx
+            self.next_scroll_time = engine.get_time() + 50
+
+    def get_rects(self) -> tuple:
+        idxs = []
+        rects = []
+        if self.unit_nid:
+            other_unit_nids = self.options
+
+            start_index = utils.clamp(self.char_idx - 4, 0, max(0, len(other_unit_nids) - self.limit))
+            end_index = start_index + self.limit
+            choices = other_unit_nids[start_index:end_index]
+
+            for idx, other_unit_nid in enumerate(choices):
+                # Blit support levels
+                prefabs = DB.support_pairs.get_pairs(self.unit_nid, other_unit_nid)
+                if prefabs:
+                    prefab = prefabs[0]
+                    for ridx, bonus in enumerate(prefab.requirements):
+                        idxs.append((idx, ridx))
+                        rects.append((190 + ridx * 10, idx * 16 + 24, 10, 16))
+        return idxs, rects
 
 class BaseSupportsState(State):
     name = 'base_supports'
@@ -520,6 +575,7 @@ class BaseSupportsState(State):
         self.menu.handle_mouse()
         if not self.display.unit_nid or self.display.unit_nid != self.menu.get_current().nid:
             self.display.update_entry(self.menu.get_current().nid)
+        self.display.handle_mouse()
 
         if 'DOWN' in directions:
             if self.in_display:
@@ -573,10 +629,9 @@ class BaseSupportsState(State):
                 else:
                     get_sound_thread().play_sfx('Error')
             else:
-                if self.display.move_right():
-                    get_sound_thread().play_sfx('TradeRight')
-                else:
-                    get_sound_thread().play_sfx('Error')
+                get_sound_thread().play_sfx('TradeRight')
+                self.in_display = True
+                self.display.draw_cursor = True
 
         elif event == 'INFO':
             game.memory['scroll_units'] = self.units
@@ -612,8 +667,10 @@ class BaseCodexChildState(State):
         if game.game_vars['_world_map_in_base']:
             options.append('Map')
         options.append('Records')
-        # TODO Achievements?
-        # TODO Tactics?
+        if DB.constants.value('sound_room_in_codex'):
+            options.append('Sound Room')
+        if ACHIEVEMENTS:
+            options.append('Achievements')
         unlocked_guide = [lore for lore in unlocked_lore if lore.category == 'Guide']
         if unlocked_guide:
             options.append('Guide')
@@ -654,6 +711,12 @@ class BaseCodexChildState(State):
                 game.state.change('transition_to')
             elif selection == 'Guide':
                 game.memory['next_state'] = 'base_guide'
+                game.state.change('transition_to')
+            elif selection == 'Sound Room':
+                game.memory['next_state'] = 'base_sound_room'
+                game.state.change('transition_to')
+            elif selection == 'Achievements':
+                game.memory['next_state'] = 'base_achievement'
                 game.state.change('transition_to')
 
     def update(self):
@@ -832,21 +895,28 @@ class BaseLibraryState(State):
             # Go to previous category
             cidx = self.categories.index(lore.category)
             new_category = self.categories[(cidx + 1) % len(self.categories)]
-            idx = self.options.index(new_category)
-            option = self.options[idx + 1]
-
-            self.display.update_entry(option.nid)
+            if new_category in self.options:
+                idx = self.options.index(new_category)
+                if len(self.option) > idx + 1:
+                    get_sound_thread().play_sfx('Info')
+                    option = self.options[idx + 1]
+                    self.display.update_entry(option.nid)
+            else:
+                pass  # Doesn't do anything if that category is not present
 
         elif event == 'INFO':
-            get_sound_thread().play_sfx('Info')
             lore = self.menu.get_current()
             # Go to next category
             cidx = self.categories.index(lore.category)
             new_category = self.categories[(cidx - 1) % len(self.categories)]
-            idx = self.options.index(new_category)
-            option = self.options[idx + 1]
-
-            self.display.update_entry(option.nid)
+            if new_category in self.options:
+                idx = self.options.index(new_category)
+                if len(self.option) > idx + 1:
+                    get_sound_thread().play_sfx('Info')
+                    option = self.options[idx + 1]
+                    self.display.update_entry(option.nid)
+            else:
+                pass  # Doesn't do anything if that category is not present
 
     def update(self):
         if self.menu:
@@ -1073,13 +1143,13 @@ class BaseBEXPSelectState(prep.PrepManageState):
     name = 'base_bexp_select'
 
     def begin(self):
-        super().begin()
         ignore = []
         for unit in self.units:
             auto_promote = (DB.constants.value('auto_promote') or 'AutoPromote' in unit.tags) and \
                 DB.classes.get(unit.klass).turns_into and 'NoAutoPromote' not in unit.tags
             ignore.append(unit.level >= DB.classes.get(unit.klass).max_level and not auto_promote)
         self.menu.set_ignore(ignore)
+        super().begin()
 
     def create_quick_disp(self):
         sprite = SPRITES.get('buttons')
@@ -1220,7 +1290,7 @@ class BaseBEXPAllocateState(State):
                 get_sound_thread().play_sfx('Select 1')
                 exp_to_gain = self.new_exp - self.current_exp
                 if DB.constants.value('rd_bexp_lvl'):
-                    game.memory['exp_method'] = 'BEXP'
+                    game.memory['exp_method'] = 'Bexp'
                 game.exp_instance.append((self.unit, exp_to_gain, None, 'init'))
                 game.state.change('exp')
                 if self.new_exp == 100:
@@ -1246,3 +1316,182 @@ class BaseBEXPAllocateState(State):
         menus.draw_unit_bexp(surf, (6, 72), self.unit, self.new_exp, self.new_bexp, self.current_bexp,
                              include_face=True, include_top=True, shimmer=2)
         return surf
+
+class BaseAchievementState(State):
+    name = 'base_achievement'
+
+    def start(self):
+        self.fluid = FluidScroll()
+        self.bg = game.memory.get('base_bg')
+
+        topleft = (10, 34)
+        layout = (3, 1)
+        self.achievements = ACHIEVEMENTS.values()
+        self.menu = menus.Table(None, self.achievements, layout, topleft)
+        self.menu.gem = True
+        self.menu.shimmer = 2
+        self.menu.set_mode('achievements')
+
+        game.state.change('transition_in')
+        return 'repeat'
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+
+        if 'DOWN' in directions:
+            if self.menu.move_down(first_push):
+                get_sound_thread().play_sfx('Select 6')
+        elif 'UP' in directions:
+            if self.menu.move_up(first_push):
+                get_sound_thread().play_sfx('Select 6')
+
+        if event == 'BACK':
+            get_sound_thread().play_sfx('Select 4')
+            game.state.change('transition_pop')
+
+        elif event == 'SELECT':
+            pass
+
+        elif event == 'START':
+            pass
+
+        elif event == 'INFO':
+            pass
+
+    def update(self):
+        if self.menu:
+            self.menu.update()
+
+    def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
+        self.menu.draw(surf)
+        num_complete = len([a for a in self.achievements if a.get_complete()])
+        num_total = len(self.achievements)
+        text = text_funcs.translate('Unlocked: ') + str(num_complete) + ' / ' + str(num_total)
+        self.draw_top_section(surf, (24, 2), text)
+        return surf
+
+    def draw_top_section(self, surf, topleft, title):
+        surf.blit(SPRITES.get('chapter_select_green'), (topleft[0], topleft[1]))
+        FONT['text-yellow'].blit_center(title, surf, (topleft[0] + 98, topleft[1] + 8))
+        return surf
+
+class BaseSoundRoomState(State):
+    name = 'base_sound_room'
+
+    def start(self):
+        self.fluid = FluidScroll()
+        self.bg = game.memory.get('base_bg')
+
+        self.music_names = [title for title in RESOURCES.music.keys() if not title.startswith('_')]
+
+        layout = (6, 4)
+        topleft = (80, 48)
+        self.menu = menus.Table(None, [str(i + 1) for i in range(len(self.music_names))], layout, topleft)
+        self.menu.gem = True
+        self.menu.shimmer = 2
+
+        self.playing = False
+        full_sound_room_volume_sprite = SPRITES.get('sound_room_volume')
+        self.green_volume = engine.subsurface(full_sound_room_volume_sprite, (0, 0, 2, 8))
+        self.yellow_volume = engine.subsurface(full_sound_room_volume_sprite, (2, 0, 2, 8))
+        self.red_volume = engine.subsurface(full_sound_room_volume_sprite, (4, 0, 2, 8))
+
+        game.state.change('transition_in')
+        return 'repeat'
+
+    def begin(self):
+        get_sound_thread().fade_clear()
+        self.playing = False
+
+    def take_input(self, event):
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+
+        if 'DOWN' in directions:
+            if self.menu.move_down(first_push):
+                get_sound_thread().play_sfx('Select 5')
+        elif 'UP' in directions:
+            if self.menu.move_up(first_push):
+                get_sound_thread().play_sfx('Select 5')
+        elif 'LEFT' in directions:
+            if self.menu.move_left(first_push):
+                get_sound_thread().play_sfx('Select 5')
+        elif 'RIGHT' in directions:
+            if self.menu.move_right(first_push):
+                get_sound_thread().play_sfx('Select 5')
+
+        if event == 'BACK':
+            get_sound_thread().play_sfx('Select 4')
+            game.state.change('transition_pop')
+            if self.name == 'base_sound_room':
+                base_music = game.game_vars.get('_base_music')
+                if base_music:
+                    get_sound_thread().fade_in(base_music)
+            elif self.name == 'extras_sound_room':
+                get_sound_thread().clear()
+                if DB.constants.value('music_main'):
+                    get_sound_thread().fade_in(DB.constants.value('music_main'), fade_in=50)
+
+        elif event == 'SELECT':
+            current_music_index = int(self.menu.get_current()) - 1
+            music = self.music_names[current_music_index]
+            get_sound_thread().fade_in(music)
+            self.playing = True
+
+        elif event == 'START':
+            get_sound_thread().fade_clear()
+            self.playing = False
+
+        elif event == 'INFO':
+            rand_idx = random.randrange(0, len(self.music_names))
+            self.menu.move_to(rand_idx)
+            music = self.music_names[rand_idx]
+            get_sound_thread().fade_in(music)
+            self.playing = True
+
+    def update(self):
+        if self.menu:
+            self.menu.update()
+
+    def draw(self, surf):
+        if self.bg:
+            self.bg.draw(surf)
+        surf.blit(SPRITES.get('sound_player'), (8, 56))
+        if self.playing:
+            self.draw_volume(surf)
+        self.menu.draw(surf)
+        current_music_index = int(self.menu.get_current()) - 1
+        music = self.music_names[current_music_index]
+        self.draw_sound_room_title(surf, (24, 6), music)
+        return surf
+
+    def draw_sound_room_title(self, surf, topleft, music_name):
+        surf.blit(SPRITES.get('chapter_select_green'), (topleft[0], topleft[1]))
+        FONT['chapter-white'].blit_center(music_name, surf, (topleft[0] + 98, topleft[1] + 8))
+        return surf
+
+    def draw_volume(self, surf):
+        scale = 1500
+        t = engine.get_time() / scale
+        n = 13
+        t2 = t + (20/scale)
+        left_volume = n * math.sin(n * (t + 1)) + n*0.5 * math.sin(n*2 * (t + 2)) + n*0.25 * math.sin(n*4 * (t + 3))
+        right_volume = n * math.sin(n * (t2 + 1)) + n*0.5 * math.sin(n*2 * (t2 + 2)) + n*0.25 * math.sin(n*4 * (t2 + 3))
+        left_volume = int(abs(left_volume)) + 4
+        right_volume = int(abs(right_volume)) + 4
+        for idx, vol in enumerate([left_volume, right_volume]):
+            for i in range(vol):
+                if i > 22:
+                    sprite = self.red_volume
+                elif i > 12:
+                    sprite = self.yellow_volume
+                else:
+                    sprite = self.green_volume
+                surf.blit(sprite, (9 + i * 2, 60 + idx * 8))

@@ -1,6 +1,5 @@
 from app.engine.objects.item import ItemObject
 
-
 class Defaults():
     @staticmethod
     def can_select(unit) -> bool:
@@ -26,7 +25,11 @@ class Defaults():
 
     @staticmethod
     def can_trade(unit1, unit2) -> bool:
-        return unit2.position and unit1.team == unit2.team and check_ally(unit1, unit2)
+        return unit1.team == unit2.team and check_ally(unit1, unit2) and not no_trade(unit1) and not no_trade(unit2)
+        
+    @staticmethod
+    def no_trade(unit) -> bool:
+        return False
 
     @staticmethod
     def num_items_offset(unit) -> int:
@@ -61,6 +64,10 @@ class Defaults():
         return False
 
     @staticmethod
+    def wexp_unusable_skill(unit1, unit2) -> float:
+        return False
+
+    @staticmethod
     def change_variant(unit) -> str:
         return unit.variant
 
@@ -73,8 +80,8 @@ class Defaults():
         return unit.ai
 
     @staticmethod
-    def steal_icon(unit1, unit2) -> bool:
-        return False
+    def change_roam_ai(unit) -> str:
+        return unit.roam_ai
 
     @staticmethod
     def has_canto(unit1, unit2) -> bool:
@@ -82,6 +89,10 @@ class Defaults():
 
     @staticmethod
     def empower_heal(unit1, unit2) -> int:
+        return 0
+
+    @staticmethod
+    def empower_heal_received(unit2, unit1) -> int:
         return 0
 
     @staticmethod
@@ -144,12 +155,27 @@ class Defaults():
     def defense_speed_formula(unit) -> str:
         return 'DEFENSE_SPEED'
 
+    @staticmethod
+    def critical_multiplier_formula(unit) -> str:
+        return 'CRIT_MULT'
+
+    @staticmethod
+    def critical_addition_formula(unit) -> str:
+        return 'CRIT_ADD'
+
+    @staticmethod
+    def thracia_critical_multiplier_formula(unit) -> str:
+        return 'THRACIA_CRIT'
+
 def condition(skill, unit) -> bool:
     for component in skill.components:
         if component.defines('condition'):
             if not component.condition(unit):
                 return False
     return True
+
+def is_grey(skill, unit) -> bool:
+    return (not condition(skill, unit) and skill.grey_if_inactive)
 
 def hidden(skill, unit) -> bool:
     return skill.hidden or skill.is_terrain or (skill.hidden_if_inactive and not condition(skill, unit))
@@ -214,6 +240,16 @@ def unit_sprite_flicker_tint(unit) -> list:
                     flicker.append(d)
     return flicker
 
+def should_draw_anim(unit) -> list:
+    avail = []
+    for skill in unit.skills:
+        for component in skill.components:
+            if component.defines('should_draw_anim'):
+                if component.ignore_conditional or condition(skill, unit):
+                    d = component.should_draw_anim(unit, skill)
+                    avail.append(d)
+    return avail
+
 def additional_tags(unit) -> set:
     new_tags = set()
     for skill in unit.skills:
@@ -239,6 +275,17 @@ def can_unlock(unit, region) -> bool:
                     if component.can_unlock(unit, region):
                         return True
     return False
+
+def target_icon(cur_unit, displaying_unit) -> list:
+    markers = []
+    for skill in cur_unit.skills:
+        for component in skill.components:
+            if component.defines('target_icon'):
+                if component.ignore_conditional or condition(skill, cur_unit):
+                    marker = component.target_icon(cur_unit, displaying_unit)
+                    if marker:
+                        markers.append(marker)
+    return markers
 
 def before_crit(actions, playback, attacker, item, defender, mode, attack_info) -> bool:
     for skill in attacker.skills:
@@ -335,7 +382,7 @@ def get_extra_abilities(unit):
     return abilities
 
 def get_combat_arts(unit):
-    from app.engine import item_funcs, target_system
+    from app.engine import item_funcs, target_system, action
     combat_arts = {}
     for skill in unit.skills:
         if not condition(skill, unit):
@@ -363,9 +410,17 @@ def get_combat_arts(unit):
                 if combat_art_set_max_range:
                     weapon._force_max_range = max(0, combat_art_set_max_range)
                 elif combat_art_modify_max_range:
-                    max_range = max(item_funcs.get_range(unit, weapon))
-                    weapon._force_max_range = max(0, max_range + combat_art_modify_max_range)
+                    item_range = item_funcs.get_range(unit, weapon)
+                    if item_range:
+                        max_range = max(item_range)
+                        weapon._force_max_range = max(0, max_range + combat_art_modify_max_range)
+                
+                # activate_combat_art(unit, skill)
+                act = action.AddSkill(unit, skill.combat_art.value)
+                act.do()
                 targets = target_system.get_valid_targets(unit, weapon)
+                act.reverse()
+                # deactivate_combat_art(unit, skill)
                 weapon._force_max_range = None
                 if targets:
                     good_weapons.append(weapon)
@@ -380,11 +435,14 @@ def activate_combat_art(unit, skill):
         if component.defines('on_activation'):
             component.on_activation(unit)
 
+def deactivate_combat_art(unit, skill):
+    for component in skill.components:
+        if component.defines('on_deactivation'):
+            component.on_deactivation(unit)
+
 def deactivate_all_combat_arts(unit):
     for skill in unit.skills:
-        for component in skill.components:
-            if component.defines('on_deactivation'):
-                component.on_deactivation(unit)
+        deactivate_combat_art(unit, skill)
 
 def on_pairup(unit, leader):
     for skill in unit.skills:

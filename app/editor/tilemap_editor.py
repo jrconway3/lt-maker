@@ -1,5 +1,6 @@
 import os
 import functools
+import math
 from enum import IntEnum
 
 from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, QDialogButtonBox, \
@@ -10,9 +11,9 @@ from PyQt5.QtCore import Qt, QRect, QDateTime
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QIcon, QColor, QPen
 
 from app.constants import TILEWIDTH, TILEHEIGHT, TILEX, TILEY
-from app.resources.resources import RESOURCES
-from app.resources.tiles import LayerGrid
-from app.data.database import DB
+from app.data.resources.resources import RESOURCES
+from app.data.resources.tiles import LayerGrid
+from app.data.database.database import DB
 
 from app.editor.tile_editor import autotiles
 from app.editor.icon_editor.icon_view import IconView
@@ -325,7 +326,8 @@ class MapEditorView(DraggableTileImageView):
                 current_layer.terrain_grid[coord] = current_nid
 
     def flood_fill_tile(self, tile_pos):
-        if not self.tilemap.check_bounds(tile_pos):
+        tileset, coords = self.window.get_tileset_coords()
+        if not self.tilemap.check_bounds(tile_pos) or not coords or not tileset:
             return
 
         current_layer = self.get_current_layer()
@@ -376,7 +378,6 @@ class MapEditorView(DraggableTileImageView):
                 tileset_nid = tile_sprite.tileset_nid
                 tileset = RESOURCES.tilesets.get(tileset_nid)
             else:
-                tileset, coords = self.window.get_tileset_coords()
                 tileset_nid = tileset.nid
 
             if not coords:
@@ -582,6 +583,7 @@ class MapEditor(QDialog):
         self.terrain_action.setCheckable(True)
 
         self.export_as_png_action = QAction(QIcon(f"{icon_folder}/export_as_png.png"), "E&xport Current Image as PNG", self, shortcut="X", triggered=self.export_as_png)
+        self.save_action = QAction(QIcon(f"{icon_folder}/save.png"), "Save", self, shortcut="Ctrl+S", triggered=self.save_current)
 
         self.show_autotiles_action = QAction(QIcon(f"{icon_folder}/wave.png"), "Show Autotiles", self, triggered=self.autotile_toggle)
         self.show_autotiles_action.setCheckable(True)
@@ -622,6 +624,7 @@ class MapEditor(QDialog):
         self.toolbar.addAction(self.erase_action)
         self.toolbar.addAction(self.resize_action)
         self.toolbar.addAction(self.terrain_action)
+        self.toolbar.addAction(self.save_action)
         self.toolbar.addAction(self.export_as_png_action)
         self.toolbar.addAction(self.show_gridlines_action)
         self.toolbar.addAction(self.show_autotiles_action)
@@ -669,6 +672,11 @@ class MapEditor(QDialog):
                 image.save(fn)
                 parent_dir = os.path.split(fn)[0]
                 self.settings.set_last_open_path(parent_dir)
+
+    def save_current(self):
+        if self.current and DB.current_proj_dir:
+            RESOURCES.save(DB.current_proj_dir, specific=['tilemaps'])
+            QMessageBox.information(self, "Save Complete", "Successfully saved tilemaps!")
 
     def update_view(self):
         self.view.update_view()
@@ -723,12 +731,12 @@ class ResizeDialog(Dialog):
         size_layout = QFormLayout()
         self.width_box = QSpinBox()
         self.width_box.setValue(self.current.width)
-        self.width_box.setRange(TILEX, 255)
+        self.width_box.setRange(math.ceil(TILEX), 65536)
         self.width_box.valueChanged.connect(self.on_width_changed)
         size_layout.addRow("Width:", self.width_box)
         self.height_box = QSpinBox()
         self.height_box.setValue(self.current.height)
-        self.height_box.setRange(TILEY, 255)
+        self.height_box.setRange(math.ceil(TILEY), 65536)
         self.height_box.valueChanged.connect(self.on_height_changed)
         size_layout.addRow("Height:", self.height_box)
         size_section.setLayout(size_layout)

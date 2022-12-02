@@ -1,18 +1,18 @@
+import logging
 from dataclasses import dataclass
-from app.constants import WINWIDTH, WINHEIGHT
 
+import app.engine.action as Action
+from app.constants import WINHEIGHT, WINWIDTH
+from app.engine import base_surf, engine, gui, image_mods
+from app.engine.background import SpriteBackground
+from app.engine.fonts import FONT
+from app.engine.game_state import game
+from app.engine.input_manager import get_input_manager
 from app.engine.sound import get_sound_thread
 from app.engine.sprites import SPRITES
-from app.engine.fonts import FONT
-from app.engine.input_manager import get_input_manager
-
-from app.engine.game_state import game
-import app.engine.action as Action
-from app.engine.background import SpriteBackground
 from app.engine.state import MapState
-from app.engine import engine, base_surf, image_mods, gui
+from app.events import triggers
 
-import logging
 
 class ActionLog():
     def __init__(self):
@@ -42,13 +42,25 @@ class ActionLog():
 
     def hard_remove(self, action):
         """
-        Removes action and all actions that happened after it
+        Reverses and removes action and all actions that happened after it
+        (except Equip action)
         """
         logging.debug("Hard Remove Action %d: %s", self.action_index, action.__class__.__name__)
         idx = self.actions.index(action)
-        diff = len(self.actions) - idx
-        self.action_index -= diff
-        self.actions = self.actions[:idx]
+        for act in reversed(self.actions[idx:]):
+            if act.__class__.__name__ == 'EquipItem':
+                logging.debug("Not going to reverse or remove the EquipItem action")
+            elif act.__class__.__name__ == 'BringToTopItem':
+                logging.debug("Not going to reverse or remove the BringToTopItem action")
+            else:
+                act.reverse()
+                self.actions.remove(act)
+                self.action_index -= 1
+        # self.actions.remove(action)
+        # self.action_index -= 1
+        # diff = len(self.actions) - idx
+        # self.action_index -= diff
+        # self.actions = self.actions[:idx]
         logging.debug("New Action Index: %d", self.action_index)
 
     def run_action_backward(self):
@@ -122,6 +134,7 @@ class ActionLog():
                 self.unique_moves.append(('Extra', last_move[1] + 1, last_action_index))
 
         logging.debug("*** Turnwheel Begin ***")
+        # logging.debug(self.actions)
         logging.debug(self.unique_moves)
 
         self.current_move_index = len(self.unique_moves)
@@ -419,9 +432,12 @@ class TurnwheelDisplay():
 
 class TurnwheelState(MapState):
     def begin(self):
+        # Remember who gets resurrected
+        game.level_vars['_resurrect'] = set()
         # Whether the player MUST move the turnwheel back
         self.force = game.memory.get('force_turnwheel', False)
         game.memory['force_turnwheel'] = False
+        game.game_vars['turnwheel_starting_turn'] = game.turncount
 
         self.mouse_indicator = gui.MouseIndicator()
         # Kill off any units who are currently dying
@@ -552,7 +568,7 @@ class TurnwheelState(MapState):
                     game.phase.set_player()
                 # Call turnwheel script whenever the turnwheel is used
                 if self.turnwheel_activated:
-                    game.events.trigger('on_turnwheel')
+                    game.events.trigger(triggers.OnTurnwheel())
 
         # Update animations
         # if self.end_effect:

@@ -1,6 +1,7 @@
-from app.data.database import DB
+from app.data.database.database import DB
 from app.engine import target_system, skill_system, action, equations
 from app.engine.game_state import game
+from app.events import triggers
 
 class Ability():
     @staticmethod
@@ -58,9 +59,12 @@ class TalkAbility(Ability):
         u = game.board.get_unit(game.cursor.position)
         game.state.back()
         action.do(action.HasTraded(unit))
-        did_trigger = game.events.trigger('on_talk', unit, u, unit.position)
-        if did_trigger:
-            action.do(action.RemoveTalk(unit.nid, u.nid))
+        game.events.trigger(triggers.OnTalk(unit, u, unit.position))
+        # Rely on the talk event itself to remove the trigger
+        # Behaves more like other things in the engine
+        # did_trigger = game.events.trigger(triggers.OnTalk(unit, u, unit.position))
+        # if did_trigger:
+            # action.do(action.RemoveTalk(unit.nid, u.nid))
 
 class SupportAbility(Ability):
     name = 'Support'
@@ -89,7 +93,7 @@ class SupportAbility(Ability):
         rank = pair.locked_ranks[0]
         game.state.back()
         action.do(action.HasTraded(unit))
-        did_trigger = game.events.trigger('on_support', unit, u, rank, unit.position)
+        did_trigger = game.events.trigger(triggers.OnSupport(unit, u, unit.position, rank, False))
         action.do(action.UnlockSupportRank(pair.nid, rank))
 
 class DropAbility(Ability):
@@ -119,8 +123,7 @@ class DropAbility(Ability):
         else:
             game.state.change('free')
             game.cursor.set_pos(unit.position)
-            game.events.trigger('unit_wait', unit, position=unit.position, region=game.get_region_under_pos(unit.position))
-            action.do(action.Wait(unit))
+            unit.wait()
 
 class RescueAbility(Ability):
     name = "Rescue"
@@ -144,8 +147,7 @@ class RescueAbility(Ability):
         else:
             game.state.change('free')
             game.cursor.set_pos(unit.position)
-            game.events.trigger('unit_wait', unit, position=unit.position, region=game.get_region_under_pos(unit.position))
-            action.do(action.Wait(unit))
+            unit.wait()
 
 class TakeAbility(Ability):
     name = 'Take'
@@ -157,7 +159,7 @@ class TakeAbility(Ability):
         if not unit.traveler and not unit.has_attacked and not unit.has_given and not unit.has_dropped:
             adj_allies = target_system.get_adj_allies(unit)
             return set([u.position for u in adj_allies if u.traveler and
-                        equations.parser.rescue_aid(unit) > equations.parser.rescue_weight(game.get_unit(u.traveler))])
+                        equations.parser.rescue_aid(unit) >= equations.parser.rescue_weight(game.get_unit(u.traveler))])
 
     @staticmethod
     def do(unit):
@@ -177,7 +179,7 @@ class GiveAbility(Ability):
         if unit.traveler and not unit.has_attacked and (not unit.has_taken or DB.constants.value('give_and_take')) and not unit.has_rescued:
             adj_allies = target_system.get_adj_allies(unit)
             return set([u.position for u in adj_allies if not u.traveler and
-                        equations.parser.rescue_aid(u) > equations.parser.rescue_weight(game.get_unit(unit.traveler))])
+                        equations.parser.rescue_aid(u) >= equations.parser.rescue_weight(game.get_unit(unit.traveler))])
 
     @staticmethod
     def do(unit):
@@ -193,7 +195,7 @@ class PairUpAbility(Ability):
     @staticmethod
     def targets(unit) -> set:
         # Pair up not enabled
-        if not DB.constants.value('pairup'):
+        if not DB.constants.value('pairup') or DB.constants.value('attack_stance_only'):
             return set()
         if unit.traveler:
             return set()
@@ -206,6 +208,7 @@ class PairUpAbility(Ability):
     def do(unit):
         target = game.board.get_unit(game.cursor.position)
         action.do(action.PairUp(unit, target))
+        game.state.clear()
         game.state.change('free')
         game.cursor.set_pos(target.position)
 
@@ -230,8 +233,7 @@ class SeparateAbility(Ability):
         action.do(action.Separate(unit, u, game.cursor.position))
         game.state.change('free')
         game.cursor.set_pos(unit.position)
-        game.events.trigger('unit_wait', unit, position=unit.position, region=game.get_region_under_pos(unit.position))
-        action.do(action.Wait(unit))
+        unit.wait()
 
 class SwapAbility(Ability):
     name = 'Swap'
@@ -247,6 +249,7 @@ class SwapAbility(Ability):
         u = game.get_unit(unit.traveler)
         action.do(action.SwapPaired(unit, u))
         game.cursor.cur_unit = u
+        game.state.clear()
         game.state.change('menu')
 
 class TransferAbility(Ability):
@@ -265,6 +268,7 @@ class TransferAbility(Ability):
         u = game.board.get_unit(game.cursor.position)
         action.do(action.HasTraded(unit))
         action.do(action.Transfer(unit, u))
+        game.state.clear()
         game.state.change('menu')
 
 class ItemAbility(Ability):
@@ -298,11 +302,12 @@ class TradeAbility(Ability):
         if not DB.constants.value('trade'):
             return set()
 
-        adj_allies = target_system.get_adj_allies(unit)
-        adj = set([u.position for u in adj_allies if unit.team == u.team])
-        if unit.traveler:
+        adj_units = target_system.get_adj_units(unit)
+        adj = set([u.position for u in adj_units if skill_system.can_trade(unit, u)])
+        if unit.traveler and skill_system.can_trade(unit, game.get_unit(unit.traveler)):
             adj.add(unit.position)
         return adj
+
 
     @staticmethod
     def do(unit):

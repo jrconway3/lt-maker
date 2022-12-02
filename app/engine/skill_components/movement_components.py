@@ -1,8 +1,8 @@
 from typing import Set, Tuple
-from app.data.skill_components import SkillComponent, SkillTags
-from app.data.components import Type
+from app.data.database.skill_components import SkillComponent, SkillTags
+from app.data.database.components import ComponentType
 
-from app.engine import equations, target_system
+from app.engine import equations, target_system, action
 from app.engine.game_state import game
 from app.engine.objects.unit import UnitObject
 
@@ -38,7 +38,7 @@ class MovementType(SkillComponent):
     desc = "Unit will have a non-default movement type"
     tag = SkillTags.MOVEMENT
 
-    expose = Type.MovementType
+    expose = ComponentType.MovementType
 
     def movement_type(self, unit):
         return self.value
@@ -94,14 +94,14 @@ class WitchWarp(SkillComponent):
     def witch_warp(self, unit: UnitObject) -> Set[Tuple[int, int]]:
         warp_spots = set()
         for ally in game.get_all_units():
-            if ally.team == unit.team and ally.position and game.tilemap.check_bounds(ally.position):
+            if ally.team == unit.team and ally.position and game.board.check_bounds(ally.position):
                 pos = ally.position
                 up = (pos[0], pos[1] - 1)
                 down = (pos[0], pos[1] + 1)
                 left = (pos[0] - 1, pos[1])
                 right = (pos[0] + 1, pos[1])
                 for point in [up, down, left, right]:
-                    if game.tilemap.check_bounds(point):
+                    if game.board.check_bounds(point) and game.movement.check_weakly_traversable(unit, point) and not game.board.get_unit(point):
                         warp_spots.add(point)
         return warp_spots
 
@@ -110,9 +110,9 @@ class SpecificWitchWarp(SkillComponent):
     desc = "Allows unit to witch warp to the given units"
     tag = SkillTags.MOVEMENT
 
-    expose = (Type.List, Type.Unit)
+    expose = (ComponentType.List, ComponentType.Unit)
 
-    def witch_warp(self, unit) -> list:
+    def witch_warp(self, unit: UnitObject) -> list:
         positions = []
         for val in self.value:
             u = game.get_unit(val)
@@ -121,5 +121,17 @@ class SpecificWitchWarp(SkillComponent):
             else:
                 continue
             if partner_pos:
-                positions += target_system.get_adjacent_positions(partner_pos)
+                positions += [pos for pos in target_system.get_adjacent_positions(partner_pos) if game.movement.check_weakly_traversable(unit, pos) and not game.board.get_unit(pos)]
         return positions
+
+class Galeforce(SkillComponent):
+    nid = 'galeforce'
+    desc = "After killing an enemy on player phase, unit can move again."
+    tag = SkillTags.MOVEMENT
+
+    def end_combat(self, playback, unit, item, target, mode):
+        mark_playbacks = [p for p in playback if p.nid in ('mark_miss', 'mark_hit', 'mark_crit')]
+        if target and target.get_hp() <= 0 and \
+                any(p.main_attacker is unit for p in mark_playbacks):  # Unit is overall attacker
+            action.do(action.Reset(unit))
+            action.do(action.TriggerCharge(unit, self.skill))

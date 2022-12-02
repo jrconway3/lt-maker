@@ -3,7 +3,7 @@ from typing import List
 from app.constants import TILEWIDTH, TILEHEIGHT, AUTOTILE_FRAMES, COLORKEY
 from app.utilities.data import Data, Prefab
 
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
 
 from app.engine import engine, image_mods, particles, animations
 
@@ -117,6 +117,7 @@ class TileMapObject(Prefab):
         super().__init__()
         self.weather: List[particles.ParticleSystem] = []
         self.animations: List[animations.MapAnimation] = []
+        self.high_animations: List[animations.MapAnimation] = []
         self.width: int = 0
         self.height: int = 0
         self.nid: NID = None
@@ -213,6 +214,7 @@ class TileMapObject(Prefab):
 
     def get_full_image(self, cull_rect):
         image = engine.create_surface((cull_rect[2], cull_rect[3]))
+        engine.fill(image, COLORKEY)
         engine.set_colorkey(image, COLORKEY)
         for layer in self.layers:
             if (layer.visible or layer.state == 'fade_out') and \
@@ -263,7 +265,13 @@ class TileMapObject(Prefab):
                 loop=anim['loop'],
                 hold=anim['hold'],
                 reverse=anim['reverse'],
-                speed_adj=anim['speed_adj'])
+                speed_adj=anim['speed_adj'],
+                contingent=anim.get('contingent', False))
+            # @todo(mag): remove this eventually, this is just a stopgap to prevent crashes on load
+            try:
+                new_anim.set_tint(engine.BlendMode(anim.get('tint', 0)))
+            except:
+                pass
             self.animations.append(new_anim)
 
         return self

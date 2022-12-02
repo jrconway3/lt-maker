@@ -1,31 +1,34 @@
-from app.data.skill_components import SkillComponent, SkillTags
-from app.data.components import Type
+from app.data.database.skill_components import SkillComponent, SkillTags
+from app.data.database.components import ComponentType
 
-from app.engine import equations, action, item_system, item_funcs
-from app.engine.game_state import game
+from app.engine import equations, item_system, item_funcs, skill_system
+from app.engine.combat import playback as pb
 
 class UnitAnim(SkillComponent):
     nid = 'unit_anim'
     desc = "Displays MapAnimation over unit"
     tag = SkillTags.AESTHETIC
 
-    expose = Type.MapAnimation
+    expose = ComponentType.MapAnimation
 
     def on_add(self, unit, skill):
-        unit.sprite.add_animation(self.value)
+        unit.sprite.add_animation(self.value, contingent=True)
 
     def re_add(self, unit, skill):
-        unit.sprite.add_animation(self.value)
+        unit.sprite.add_animation(self.value, contingent=True)
 
     def on_remove(self, unit, skill):
         unit.sprite.remove_animation(self.value)
+
+    def should_draw_anim(self, unit, skill):
+        return self.value
 
 class UnitFlickeringTint(SkillComponent):
     nid = 'unit_flickering_tint'
     desc = "Displays a flickering tint on the unit"
     tag = SkillTags.AESTHETIC
 
-    expose = Type.Color3
+    expose = ComponentType.Color3
 
     def unit_sprite_flicker_tint(self, unit, skill) -> tuple:
         return (self.value, 900, 300)
@@ -35,10 +38,20 @@ class UpkeepAnimation(SkillComponent):
     desc = "Displays map animation at beginning of turn"
     tag = SkillTags.AESTHETIC
 
-    expose = Type.MapAnimation
+    expose = ComponentType.MapAnimation
 
     def on_upkeep(self, actions, playback, unit):
-        playback.append(('cast_anim', self.value, unit))
+        playback.append(pb.CastAnim(self.value))
+
+class UpkeepSound(SkillComponent):
+    nid = 'upkeep_sound'
+    desc = "Plays sound at beginning of turn"
+    tag = SkillTags.AESTHETIC
+
+    expose = ComponentType.Sound
+
+    def on_upkeep(self, actions, playback, unit):
+        playback.append(pb.HitSound(self.value))
 
 # Get proc skills working before bothering with this one
 class DisplaySkillIconInCombat(SkillComponent):
@@ -55,15 +68,16 @@ class StealIcon(SkillComponent):
     desc = "Displays icon above units with stealable items"
     tag = SkillTags.AESTHETIC
 
-    def steal_icon(self, unit, target) -> bool:
+    def target_icon(self, unit, target) -> str:
         # Unit has item that can be stolen
-        attack = equations.parser.steal_atk(unit)
-        defense = equations.parser.steal_def(target)
-        if attack >= defense:
-            for def_item in target.items:
-                if self._item_restrict(unit, target, def_item):
-                    return True
-        return False
+        if skill_system.check_enemy(unit, target):
+            attack = equations.parser.steal_atk(unit)
+            defense = equations.parser.steal_def(target)
+            if attack >= defense:
+                for def_item in target.items:
+                    if self._item_restrict(unit, target, def_item):
+                        return 'steal'
+        return None
 
     def _item_restrict(self, unit, defender, def_item) -> bool:
         if item_system.unstealable(defender, def_item):
@@ -91,21 +105,30 @@ class AlternateBattleAnim(SkillComponent):
     desc = "Use a specific pose when attacking in an animation combat (except on miss)"
     tag = SkillTags.AESTHETIC
 
-    expose = Type.String
+    expose = ComponentType.String
     value = 'Critical'
 
     def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
-        marks = [mark[0] for mark in playback]
+        marks = [mark.nid for mark in playback]
         if 'mark_hit' in marks or 'mark_crit' in marks:
-            playback.append(('alternate_battle_pose', self.value))
+            playback.append(pb.AlternateBattlePose(self.value))
 
 class ChangeVariant(SkillComponent):
     nid = 'change_variant'
     desc = "Change the unit's variant"
     tag = SkillTags.AESTHETIC
 
-    expose = Type.String
+    expose = ComponentType.String
     value = ''
+
+    def on_add(self, unit, skill):
+        unit.sprite.load_sprites()
+
+    def re_add(self, unit, skill):
+        unit.sprite.load_sprites()
+
+    def on_remove(self, unit, skill):
+        unit.sprite.load_sprites()
 
     def change_variant(self, unit):
         return self.value
@@ -115,7 +138,7 @@ class ChangeAnimation(SkillComponent):
     desc = "Change the unit's animation"
     tag = SkillTags.AESTHETIC
 
-    expose = Type.String
+    expose = ComponentType.String
     value = ''
 
     def change_animation(self, unit):
@@ -126,7 +149,7 @@ class MapCastAnim(SkillComponent):
     desc = "Adds a map animation on cast"
     tag = SkillTags.AESTHETIC
 
-    expose = Type.MapAnimation
+    expose = ComponentType.MapAnimation
 
     def start_combat(self, playback, unit, item, target, mode):
-        playback.append(('cast_anim', self.value))
+        playback.append(pb.CastAnim(self.value))

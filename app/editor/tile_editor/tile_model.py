@@ -5,11 +5,11 @@ from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon, QColor
 import os
 
 from app.constants import TILEWIDTH, TILEHEIGHT
-from app.resources.resources import RESOURCES
-from app.resources.tiles import TileSet, TileMapPrefab
+from app.data.resources.resources import RESOURCES
+from app.data.resources.tiles import TileSet, TileMapPrefab
 
 from app.utilities.data import Data
-from app.data.database import DB
+from app.data.database.database import DB
 
 from app.editor.base_database_gui import ResourceCollectionModel
 from app.extensions.custom_gui import DeletionDialog
@@ -34,7 +34,9 @@ class TileSetModel(ResourceCollectionModel):
         elif role == Qt.DecorationRole:
             tileset = self._data[index.row()]
             pixmap = tileset.pixmap
-            return QIcon(pixmap)
+            pix = pixmap.scaled(96, 96)
+            # pix = pixmap
+            return QIcon(pix)
         return None
 
     def create_new(self):
@@ -144,7 +146,8 @@ class TileMapModel(ResourceCollectionModel):
             tilemap = self._data[index.row()]
             pixmap = tilemap.pixmap
             if pixmap:
-                return QIcon(pixmap)
+                pix = pixmap.scaled(96, 96)
+                return QIcon(pix)
         return None
 
     def create_new(self):

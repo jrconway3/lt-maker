@@ -8,7 +8,7 @@ from PyQt5.QtGui import QIcon
 
 from app.editor.settings import MainSettingsController
 
-from app.resources import combat_commands
+from app.data.resources import combat_commands
 
 from app.editor import combat_command_widgets
 from app.extensions.widget_list import WidgetList
@@ -150,8 +150,9 @@ class TimelineMenu(QWidget):
         self.view.remove_command_widget(command)
 
     def add_command(self, command):
-        self.current_pose.timeline.append(command)
-        self.add_command_widget(command)
+        new_command = command.__class__.copy(command)
+        self.current_pose.timeline.append(new_command)
+        self.add_command_widget(new_command)
 
     def insert_command(self, idx, command):
         self.current_pose.timeline.insert(idx, command)
@@ -178,7 +179,7 @@ class TimelineMenu(QWidget):
         try:
             text = self.entry.text()
             command = combat_commands.parse_text(text)
-            self.add_command(command)                
+            self.add_command(command)
             self.entry.clear()
         except Exception:
             # play error sound

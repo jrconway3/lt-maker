@@ -20,12 +20,28 @@
         false
     ],
     [
+        "reset_fatigue",
+        false
+    ],
+    [
+        "minimap",
+        true
+    ],
+    [
         "pairup",
         false
     ],
     [
         "limit_attack_stance",
         false
+    ],
+    [
+        "attack_stance_only",
+        true
+    ],
+    [
+        "player_pairup_only",
+        true
     ],
     [
         "lead",
@@ -49,7 +65,7 @@
     ],
     [
         "unit_notes",
-        false
+        true
     ],
     [
         "crit",
@@ -66,6 +82,10 @@
     [
         "backpropagate_difficulty_growths",
         true
+    ],
+    [
+        "traveler_time_decrement",
+        false
     ],
     [
         "line_of_sight",
@@ -88,6 +108,10 @@
         true
     ],
     [
+        "unit_stats_as_bonus",
+        false
+    ],
+    [
         "enemy_leveling",
         "Dynamic"
     ],
@@ -101,6 +125,14 @@
     ],
     [
         "class_change_level_reset",
+        false
+    ],
+    [
+        "negative_growths",
+        true
+    ],
+    [
+        "class_change_same_tier",
         false
     ],
     [
@@ -120,11 +152,31 @@
         true
     ],
     [
+        "roam_hide_hp",
+        false
+    ],
+    [
+        "autogenerate_grey_map_sprites",
+        true
+    ],
+    [
         "convoy_on_death",
         false
     ],
     [
+        "repair_shop",
+        false
+    ],
+    [
+        "sound_room_in_codex",
+        true
+    ],
+    [
         "give_and_take",
+        false
+    ],
+    [
+        "combat_art_category",
         false
     ],
     [
@@ -138,6 +190,10 @@
     [
         "num_save_slots",
         3
+    ],
+    [
+        "sell_modifier",
+        0.5
     ],
     [
         "attack_zero_hit",
@@ -180,6 +236,10 @@
         false
     ],
     [
+        "restart_battle_music",
+        true
+    ],
+    [
         "kill_wexp",
         true
     ],
@@ -202,6 +262,26 @@
     [
         "exp_offset",
         0
+    ],
+    [
+        "gexp_max",
+        30
+    ],
+    [
+        "gexp_min",
+        1
+    ],
+    [
+        "gexp_slope",
+        0.25
+    ],
+    [
+        "gexp_intercept",
+        10
+    ],
+    [
+        "exp_formula",
+        "standard"
     ],
     [
         "kill_multiplier",

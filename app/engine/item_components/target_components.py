@@ -3,8 +3,8 @@ from __future__ import annotations
 import logging
 from functools import lru_cache
 
-from app.data.components import Type
-from app.data.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
+from app.data.database.item_components import ItemComponent, ItemTags
 from app.engine import item_funcs, skill_system, target_system
 from app.engine.game_state import game
 from app.utilities import utils
@@ -21,7 +21,7 @@ class TargetsAnything(ItemComponent):
     def valid_targets(self, unit, item) -> set:
         rng = item_funcs.get_range(unit, item)
         positions = target_system.find_manhattan_spheres(rng, *unit.position)
-        return {pos for pos in positions if game.tilemap.check_bounds(pos)}
+        return {pos for pos in positions if game.board.check_bounds(pos)}
 
 class TargetsUnits(ItemComponent):
     nid = 'target_unit'
@@ -67,8 +67,8 @@ class TargetsSpecificTiles(ItemComponent):
     nid = 'target_specific_tile'
     desc = "Item targets tiles specified by the condition. Condition must return a list of positions, or a list of lists of positions. Positions must be within the item's range."
     tag = ItemTags.TARGET
-    
-    expose = Type.String
+
+    expose = ComponentType.String
     value = ''
 
     def ai_targets(self, unit, item) -> set:
@@ -77,12 +77,16 @@ class TargetsSpecificTiles(ItemComponent):
     def valid_targets(self, unit, item) -> set:
         rng = item_funcs.get_range(unit, item)
         range_restrictions = target_system.find_manhattan_spheres(rng, *unit.position)
-        targetable_positions = self.resolve_targets()
+        targetable_positions = self.resolve_targets(unit, item)
         return {pos for pos in targetable_positions if pos in range_restrictions}
 
-    def resolve_targets(self):
+    def resolve_targets(self, unit, item):
         from app.engine import evaluate
-        value_list = evaluate.evaluate(self.value)
+        try:
+            value_list = evaluate.evaluate(self.value, unit, position=unit.position, local_args={'item': item})
+        except Exception as e:
+            logging.error("target_specific_tile component failed to evaluate expression %s with error %s", self.value, e)
+            value_list = []
         return utils.flatten_list(value_list)
 
 class EvalSpecialRange(ItemComponent):
@@ -90,14 +94,14 @@ class EvalSpecialRange(ItemComponent):
     desc = "Use this to restrict range to specific tiles around the unit"
     tag = ItemTags.TARGET
 
-    expose = Type.String
+    expose = ComponentType.String
     value = ''
 
     # if the range is large, the calculation will be large; let's not repeat this more than necessary.
     # luckily, the calculation is trivial.
     @staticmethod
     @lru_cache(maxsize=None)
-    def calculate_range_restrict(condition, max_rng):
+    def calculate_range_restrict(condition, max_rng) -> set:
         valid_range_squares = set()
         try:
             # neat performance trick
@@ -110,9 +114,12 @@ class EvalSpecialRange(ItemComponent):
             logging.error("eval_special_range failed for condition %s with error %s", condition, str(e))
         return valid_range_squares
 
-    def range_restrict(self, unit, item):
+    def range_restrict(self, unit, item) -> set:
         rng = item_funcs.get_range(unit, item)
-        return EvalSpecialRange.calculate_range_restrict(self.value, max(rng))
+        if not rng:
+            return set()
+        max_rng = max(rng)
+        return EvalSpecialRange.calculate_range_restrict(self.value, max_rng)
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         net_pos = (def_pos[0] - unit.position[0], def_pos[1] - unit.position[1])
@@ -121,23 +128,34 @@ class EvalSpecialRange(ItemComponent):
             return True
         return False
 
-class EvalTargetRestrict(ItemComponent):
-    nid = 'eval_target_restrict'
-    desc = "Use this to restrict what units can be targeted"
+class EvalTargetRestrict2(ItemComponent):
+    nid = 'eval_target_restrict_2'
+    desc = \
+"""
+Restricts which units can be targeted. These properties are accessible in the eval body:
+
+- `unit`: the unit using the item
+- `target`: the target of the item
+- `item`: the item itself
+- `position`: the position of the unit
+- `target_pos`: the position of the target
+"""
     tag = ItemTags.TARGET
 
-    expose = Type.String
+    expose = ComponentType.String
     value = 'True'
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         from app.engine import evaluate
         try:
             target = game.board.get_unit(def_pos)
-            if target and evaluate.evaluate(self.value, target, position=def_pos):
+            unit_pos = unit.position
+            target_pos = def_pos
+            if target and evaluate.evaluate(self.value, unit, target, unit_pos, local_args={'target_pos': target_pos, 'item': item}):
                 return True
             for s_pos in splash:
                 target = game.board.get_unit(s_pos)
-                if evaluate.evaluate(self.value, target, position=s_pos):
+                if evaluate.evaluate(self.value, unit, target, unit_pos, local_args={'target_pos': s_pos, 'item': item}):
                     return True
         except Exception as e:
             print("Could not evaluate %s (%s)" % (self.value, e))
@@ -147,7 +165,7 @@ class EvalTargetRestrict(ItemComponent):
     def simple_target_restrict(self, unit, item):
         from app.engine import evaluate
         try:
-            if evaluate.evaluate(self.value, unit):
+            if evaluate.evaluate(self.value, unit, local_args={'item': item}):
                 return True
         except Exception as e:
             print("Could not evaluate %s (%s)" % (self.value, e))
@@ -164,12 +182,23 @@ class EmptyTileTargetRestrict(ItemComponent):
             return True
         return False
 
+class TraversableTargetRestrict(ItemComponent):
+    nid = 'traversable_tile_target_restrict'
+    desc = 'Item targets tiles that are traversable by the unit. Useful for movement (warp) and summon skills, for example'
+    tag = ItemTags.TARGET
+
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
+        if unit and def_pos:
+            if game.movement.check_traversable(unit, def_pos):
+                return True
+        return False
+
 class MinimumRange(ItemComponent):
     nid = 'min_range'
     desc = "Set the minimum_range of the item to an integer"
     tag = ItemTags.TARGET
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 0
 
     def minimum_range(self, unit, item) -> int:
@@ -180,7 +209,7 @@ class MaximumRange(ItemComponent):
     desc = "Set the maximum_range of the item to an integer"
     tag = ItemTags.TARGET
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 0
 
     def maximum_range(self, unit, item) -> int:
@@ -191,7 +220,7 @@ class MaximumEquationRange(ItemComponent):
     desc = "Set the maximum_range of the item to an equation"
     tag = ItemTags.TARGET
 
-    expose = Type.Equation
+    expose = ComponentType.Equation
 
     def maximum_range(self, unit, item) -> int:
         from app.engine import equations

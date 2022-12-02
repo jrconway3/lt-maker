@@ -1,13 +1,13 @@
-from app.utilities import utils
-from app.data.database import DB
-
+from app.data.database.database import DB
+from app.engine import (action, banner, item_funcs, item_system, skill_system,
+                        static_random, supports)
 from app.engine.combat.solver import CombatPhaseSolver
-
-from app.engine import action, skill_system, banner, item_system, item_funcs, supports, static_random
 from app.engine.game_state import game
-
-from app.engine.objects.unit import UnitObject
 from app.engine.objects.item import ItemObject
+from app.engine.objects.unit import UnitObject
+from app.events import triggers, event_commands
+from app.utilities import utils
+
 
 class SimpleCombat():
     ai_combat: bool = False
@@ -73,10 +73,10 @@ class SimpleCombat():
             self.state_machine.setup_next_state()
 
     def get_from_playback(self, s):
-        return [brush for brush in self.playback if brush[0] == s]
+        return [brush for brush in self.playback if brush.nid == s]
 
     def get_from_full_playback(self, s):
-        return [brush for brush in self.full_playback if brush[0] == s]
+        return [brush for brush in self.full_playback if brush.nid == s]
 
     def skip(self):
         pass
@@ -126,10 +126,11 @@ class SimpleCombat():
         self.turnwheel_death_messages(all_units)
 
         self.handle_state_stack()
-        game.events.trigger('combat_end', self.attacker, self.defender, self.main_item, self.attacker.position)
+        game.events.trigger(triggers.CombatEnd(self.attacker, self.defender, self.attacker.position, self.main_item))
         self.handle_item_gain(all_units)
 
-        self.handle_supports(all_units)
+        pairs = self.handle_supports(all_units)
+        self.handle_support_pairs(pairs)
 
         # handle wexp & skills
         if not self.attacker.is_dying:
@@ -139,7 +140,7 @@ class SimpleCombat():
             if self.attacker.strike_partner:
                 self.handle_wexp(self.attacker.strike_partner, self.main_item, self.defender)
             if self.attacker.traveler:
-                self.handle_wexp(self.attacker.traveler, self.main_item, self.defender)
+                self.handle_wexp(game.get_unit(self.attacker.traveler), self.main_item, self.defender)
 
         if self.defender and self.def_item and not self.defender.is_dying:
             self.handle_wexp(self.defender, self.def_item, self.attacker)
@@ -148,7 +149,7 @@ class SimpleCombat():
             if self.defender and self.defender.strike_partner:
                 self.handle_wexp(self.defender.strike_partner, self.def_item, self.attacker)
             if self.defender and self.defender.traveler:
-                self.handle_wexp(self.defender.traveler, self.def_item, self.attacker)
+                self.handle_wexp(game.get_unit(self.defender.traveler), self.def_item, self.attacker)
 
         self.handle_mana(all_units)
         self.handle_exp()
@@ -169,7 +170,7 @@ class SimpleCombat():
 
     def start_event(self, full_animation=False):
         # region is set to True or False depending on whether we are in a battle anim
-        game.events.trigger('combat_start', self.attacker, self.defender, self.main_item, self.attacker.position, full_animation)
+        game.events.trigger(triggers.CombatStart(self.attacker, self.defender, self.attacker.position, self.main_item, full_animation))
 
     def start_combat(self):
         self.initial_random_state = static_random.get_combat_random_state()
@@ -215,13 +216,13 @@ class SimpleCombat():
         skill_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         item_system.end_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         if self.attacker.strike_partner:
-            skill_system.end_combat(self.full_playback, self.attacker.strike_partner, self.main_item, self.defender, 'attack')
-            item_system.end_combat(self.full_playback, self.attacker.strike_partner, self.main_item, self.defender, 'attack')
+            skill_system.end_combat(self.full_playback, self.attacker.strike_partner, self.attacker.strike_partner.get_weapon(), self.defender, 'attack')
+            item_system.end_combat(self.full_playback, self.attacker.strike_partner, self.attacker.strike_partner.get_weapon(), self.defender, 'attack')
             self.attacker.strike_partner = None
         if self.defender:
             if self.defender.strike_partner:
-                skill_system.end_combat(self.full_playback, self.defender.strike_partner, self.main_item, self.attacker, 'defense')
-                item_system.end_combat(self.full_playback, self.defender.strike_partner, self.main_item, self.attacker, 'defense')
+                skill_system.end_combat(self.full_playback, self.defender.strike_partner, self.defender.strike_partner.get_weapon(), self.attacker, 'defense')
+                item_system.end_combat(self.full_playback, self.defender.strike_partner, self.defender.strike_partner.get_weapon(), self.attacker, 'defense')
                 self.defender.strike_partner = None
         already_pre = [self.attacker]
         for idx, defender in enumerate(self.defenders):
@@ -233,6 +234,8 @@ class SimpleCombat():
                     item_system.end_combat(self.full_playback, defender, def_item, self.attacker, 'defense')
         for unit in self.all_splash:
             skill_system.end_combat(self.full_playback, unit, None, self.attacker, 'defense')
+
+        skill_system.deactivate_all_combat_arts(self.attacker)
 
         skill_system.post_combat(self.full_playback, self.attacker, self.main_item, self.defender, 'attack')
         already_pre = [self.attacker]
@@ -326,39 +329,39 @@ class SimpleCombat():
                 game.state.change('wait')
 
     def handle_item_gain(self, all_units):
+        # What we are doing is basically mocking a drop item event so it will happen in the correct order with other
+        # events that we are adding to the event trigger stack
         enemies = all_units.copy()
         enemies.remove(self.attacker)
-        has_discard = False
+        counter = 0
         for unit in enemies:
             if unit.is_dying:
                 for item in unit.items[:]:
                     if item.droppable:
                         action.do(action.RemoveItem(unit, item))
-                        if not has_discard and item_funcs.inventory_full(self.attacker, item):
-                            action.do(action.DropItem(self.attacker, item))
-                            game.cursor.cur_unit = self.attacker
-                            game.state.change('item_discard')
-                            has_discard = True
-                        else:
-                            action.do(action.DropItem(self.attacker, item))
+                        event_nid = 'DropItem%d' % counter
                         if self.alerts:
-                            game.alerts.append(banner.AcquiredItem(self.attacker, item))
-                            game.state.change('alert')
-        has_discard = False
+                            flags = None
+                        else:
+                            flags = {'no_banner'}
+                        command = event_commands.GiveItem({'GlobalUnitOrConvoy': '{unit}', 'Item': str(item.uid)}, flags)
+                        trigger = triggers.GenericTrigger(self.attacker, unit, self.attacker.position, {'item_uid': item.uid})
+                        game.events._add_event(event_nid, [command], trigger)
+                        counter += 1
+
         if self.attacker.is_dying and self.defender:
             for item in self.attacker.items[:]:
                 if item.droppable:
                     action.do(action.RemoveItem(self.attacker, item))
-                    if not has_discard and item_funcs.inventory_full(self.defender, item):
-                        action.do(action.DropItem(self.defender, item))
-                        game.cursor.cur_unit = self.defender
-                        game.state.change('item_discard')
-                        has_discard = True
-                    else:
-                        action.do(action.DropItem(self.defender, item))
+                    event_nid = 'DropItem%d' % counter
                     if self.alerts:
-                        game.alerts.append(banner.AcquiredItem(self.defender, item))
-                        game.state.change('alert')
+                        flags = None
+                    else:
+                        flags = {'no_banner'}
+                    command = event_commands.GiveItem({'GlobalUnitOrConvoy': '{unit}', 'Item': str(item.uid)}, flags)
+                    trigger = triggers.GenericTrigger(self.defender, self.attacker, self.defender.position, {'item_uid': item.uid})
+                    game.events._add_event(event_nid, [command], trigger)
+                    counter += 1
 
     def find_broken_items(self):
         a_broke, d_broke = False, False
@@ -387,7 +390,7 @@ class SimpleCombat():
         marks += self.get_from_full_playback('mark_crit')
         if DB.constants.value('miss_wexp'):
             marks += self.get_from_full_playback('mark_miss')
-        marks = [mark for mark in marks if mark[1] == unit and mark[4] == item]
+        marks = [mark for mark in marks if mark.attacker == unit and mark.item == item]
         wexp = item_system.wexp(self.full_playback, unit, item, target)
 
         if self.alerts:
@@ -397,11 +400,11 @@ class SimpleCombat():
 
         if DB.constants.value('double_wexp'):
             for mark in marks:
-                if mark[2]:
-                    multiplier = skill_system.wexp_multiplier(unit, mark[2]) * skill_system.enemy_wexp_multiplier(mark[2], unit)
+                if mark.defender:
+                    multiplier = skill_system.wexp_multiplier(unit, mark.defender) * skill_system.enemy_wexp_multiplier(mark.defender, unit)
                 else:
-                    multiplier = skill_system.wexp_multiplier(unit, mark[2])
-                if mark[2] and mark[2].is_dying and DB.constants.value('kill_wexp'):
+                    multiplier = skill_system.wexp_multiplier(unit, mark.defender)
+                if mark.defender and mark.defender.is_dying and DB.constants.value('kill_wexp'):
                     func(action.GainWexp(unit, item, (wexp * 2) * multiplier))
                 else:
                     func(action.GainWexp(unit, item, wexp * multiplier))
@@ -410,24 +413,31 @@ class SimpleCombat():
                 multiplier = skill_system.wexp_multiplier(unit, target) * skill_system.enemy_wexp_multiplier(target, unit)
             else:
                 multiplier = skill_system.wexp_multiplier(unit, target)
-            if DB.constants.value('kill_wexp') and any(mark[2] and mark[2].is_dying for mark in marks):
+            if DB.constants.value('kill_wexp') and any(mark.defender and mark.defender.is_dying for mark in marks):
                 func(action.GainWexp(unit, item, (wexp * 2) * multiplier))
             else:
                 func(action.GainWexp(unit, item, wexp * multiplier))
 
     def handle_mana(self, all_units):
+        # Attacker mana
+        total_mana = 0
+        for unit in all_units:
+            if unit is not self.attacker:
+                total_mana += skill_system.mana(self.full_playback, self.attacker, self.main_item, unit)
+        # This is being left open - if something effects mana gain it will be done here
         if self.attacker.team == 'player':
-            total_mana = 0
-            for unit in all_units:
-                if unit is not self.attacker:
-                    total_mana += skill_system.mana(self.full_playback, self.attacker, self.main_item, unit)
-            # This is being left open - if something effects mana gain it will be done here
             game.mana_instance.append((self.attacker, total_mana))
+        else:
+            action.do(action.ChangeMana(self.attacker, total_mana))
 
-        elif self.defender and self.defender.team == 'player':
+        # Defender mana
+        if self.defender:
             # This is being left open - if something effects mana gain it will be done here
             mana_gain = skill_system.mana(self.full_playback, self.defender, self.def_item, self.attacker)
-            game.mana_instance.append((self.defender, mana_gain))
+            if self.defender.team == 'player':
+                game.mana_instance.append((self.defender, mana_gain))
+            else:
+                action.do(action.ChangeMana(self.defender, mana_gain))
 
     def handle_exp(self, combat_object=None):
         # handle exp
@@ -440,7 +450,7 @@ class SimpleCombat():
                 exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))
 
             if DB.constants.value('pairup') and self.main_item:
-                self.handle_paired_exp(self.attacker)
+                self.handle_paired_exp(self.attacker, combat_object)
 
             if (self.alerts and exp > 0) or exp + self.attacker.exp >= 100:
                 game.exp_instance.append((self.attacker, exp, combat_object, 'init'))
@@ -454,7 +464,7 @@ class SimpleCombat():
             exp = int(utils.clamp(exp, DB.constants.value('min_exp'), 100))
 
             if DB.constants.value('pairup') and self.def_item:
-                self.handle_paired_exp(self.defender)
+                self.handle_paired_exp(self.defender, combat_object)
 
             if (self.alerts and exp > 0) or exp + self.defender.exp >= 100:
                 game.exp_instance.append((self.defender, exp, combat_object, 'init'))
@@ -463,7 +473,7 @@ class SimpleCombat():
             elif not self.alerts and exp > 0:
                 action.do(action.GainExp(self.defender, exp))
 
-    def handle_paired_exp(self, leader_unit):
+    def handle_paired_exp(self, leader_unit, combat_object=None):
         partner = None
         if leader_unit.strike_partner:
             # Get half the exp you would normally get
@@ -478,7 +488,7 @@ class SimpleCombat():
             exp = int(utils.clamp(exp, 0, 100))
         if partner:
             if (self.alerts and exp > 0) or exp + partner.exp >= 100:
-                game.exp_instance.append((partner, exp, None, 'init'))
+                game.exp_instance.append((partner, exp, combat_object, 'init'))
                 game.state.change('exp')
                 game.ai.end_skip()
             elif not self.alerts and exp > 0:
@@ -503,26 +513,22 @@ class SimpleCombat():
         """
         marks = self.get_from_full_playback('mark_hit')
         marks += self.get_from_full_playback('mark_crit')
-        marks = [mark for mark in marks if mark[1] == unit]
+        marks = [mark for mark in marks if mark.attacker == unit]
         damage_marks = self.get_from_full_playback('damage_hit')
-        damage_marks = [mark for mark in damage_marks if mark[1] == unit and skill_system.check_enemy(unit, mark[3])]
+        damage_marks = [mark for mark in damage_marks if mark.attacker == unit and skill_system.check_enemy(unit, mark.defender)]
         total_exp = 0
         all_defenders = set()
         for mark in marks:
-            attacker = mark[1]
-            defender = mark[2]
-            if defender in all_defenders:
+            if mark.defender in all_defenders:
                 continue  # Don't double count defenders
-            all_defenders.add(defender)
-            exp = self.get_exp(attacker, item, defender)
+            all_defenders.add(mark.defender)
+            exp = self.get_exp(mark.attacker, item, mark.defender)
             total_exp += exp
         for mark in damage_marks:
-            attacker = mark[1]
-            defender = mark[3]
-            if defender in all_defenders:
+            if mark.defender in all_defenders:
                 continue  # Don't double count defenders
-            all_defenders.add(defender)
-            exp = self.get_exp(attacker, item, defender)
+            all_defenders.add(mark.defender)
+            exp = self.get_exp(mark.attacker, item, mark.defender)
             total_exp += exp
 
         return total_exp
@@ -534,30 +540,45 @@ class SimpleCombat():
         # if not item:  #
             # return 0
         marks = self.get_from_full_playback('mark_hit')
-        marks += self.get_from_full_playback('mark_crit')
-        marks = [mark for mark in marks if len(mark) > 5 and mark[5] is True]
+        marks = [mark for mark in marks if mark.guard_hit]
         total_exp = 0
         for mark in marks:
-            # attacker = mark[1]
-            # defender = mark[2]
             exp = 10
             # exp = self.get_exp(game.get_unit(defender.traveler), item, attacker)
             total_exp += exp
 
         return total_exp
 
-    def handle_supports(self, all_units):
+    def handle_supports(self, all_units) -> list:
+        """
+        Returns a list of pairs of units that gained support together
+        """
+        pairs = []
         if game.game_vars.get('_supports'):
             # End combat supports
             for unit in all_units:
                 if unit is self.attacker and self.defender and self.defender is not self.attacker:
-                    supports.increment_end_combat_supports(self.attacker, self.defender)
+                    pairs += supports.increment_end_combat_supports(self.attacker, self.defender)
                 else:
-                    supports.increment_end_combat_supports(unit)
+                    pairs += supports.increment_end_combat_supports(unit)
             enemies = all_units.copy()
             enemies.remove(self.attacker)
             for unit in enemies:
-                supports.increment_interact_supports(self.attacker, unit)
+                if supports.increment_interact_supports(self.attacker, unit):
+                    pairs.append((self.attacker, unit))
+
+            if DB.constants.value('pairup'):
+                for unit in all_units:
+                    if unit.traveler:
+                        if supports.increment_pairup_supports(unit, unit.traveler):
+                            pairs.append((unit, unit.traveler))
+                    if unit.strike_partner:
+                        if supports.increment_pairup_supports(unit, unit.strike_partner):
+                            pairs.append((unit, unit.strike_partner))
+        return pairs
+
+    def handle_support_pairs(self, pairs):
+        pass
 
     def handle_records(self, full_playback, all_units):
         miss_marks = self.get_from_full_playback('mark_miss')
@@ -565,46 +586,36 @@ class SimpleCombat():
         crit_marks = self.get_from_full_playback('mark_crit')
 
         for mark in miss_marks:
-            attacker = mark[1]
-            defender = mark[2]
-            action.do(action.UpdateRecords('miss', (attacker.nid, defender.nid)))
+            action.do(action.UpdateRecords('miss', (mark.attacker.nid, mark.defender.nid)))
 
         for mark in hit_marks:
-            attacker = mark[1]
-            defender = mark[2]
-            action.do(action.UpdateRecords('hit', (attacker.nid, defender.nid)))
+            action.do(action.UpdateRecords('hit', (mark.attacker.nid, mark.defender.nid)))
 
         for mark in crit_marks:
-            attacker = mark[1]
-            defender = mark[2]
-            action.do(action.UpdateRecords('crit', (attacker.nid, defender.nid)))
+            action.do(action.UpdateRecords('crit', (mark.attacker.nid, mark.defender.nid)))
 
         damage_marks = self.get_from_full_playback('damage_hit')
         damage_marks += self.get_from_full_playback('damage_crit')
         for mark in damage_marks:
-            kind, dealer, item, receiver, damage, true_damage = mark
-            action.do(action.UpdateRecords('damage', (dealer.nid, receiver.nid, item.nid, damage, true_damage, 'crit' if kind == 'damage_crit' else 'hit')))
+            action.do(action.UpdateRecords('damage', (mark.attacker.nid, mark.defender.nid, mark.item.nid, mark.damage, mark.true_damage, 'crit' if mark.nid == 'damage_crit' else 'hit')))
 
         heal_marks = self.get_from_full_playback('heal_hit')
         for mark in heal_marks:
-            kind, dealer, item, receiver, heal, true_heal = mark
-            action.do(action.UpdateRecords('heal', (dealer.nid, receiver.nid, item.nid, heal, true_heal, 'hit')))
+            action.do(action.UpdateRecords('heal', (mark.attacker.nid, mark.defender.nid, mark.item.nid, mark.damage, mark.true_damage, 'hit')))
 
         for mark in self.full_playback:
-            if mark[0] in ('mark_miss', 'mark_hit', 'mark_crit'):
-                attacker = mark[1]
-                defender = mark[2]
-                if defender.is_dying:
-                    act = action.UpdateRecords('kill', (attacker.nid, defender.nid))
+            if mark.nid in ('mark_miss', 'mark_hit', 'mark_crit'):
+                if mark.defender.is_dying:
+                    act = action.UpdateRecords('kill', (mark.attacker.nid, mark.defender.nid))
                     action.do(act)
-                    if defender.team == 'player':  # If player is dying, save this result even if we turnwheel back
-                        act = action.UpdateRecords('death', (attacker.nid, defender.nid))
+                    if mark.defender.team == 'player':  # If player is dying, save this result even if we turnwheel back
+                        act = action.UpdateRecords('death', (mark.attacker.nid, mark.defender.nid))
                         act.do()
-                if attacker.is_dying:
-                    act = action.UpdateRecords('kill', (defender.nid, attacker.nid))
+                if mark.attacker.is_dying:
+                    act = action.UpdateRecords('kill', (mark.defender.nid, mark.attacker.nid))
                     action.do(act)
-                    if defender.team == 'player':  # If player is dying, save this result even if we turnwheel back
-                        act = action.UpdateRecords('death', (defender.nid, attacker.nid))
+                    if mark.defender.team == 'player':  # If player is dying, save this result even if we turnwheel back
+                        act = action.UpdateRecords('death', (mark.defender.nid, mark.attacker.nid))
                         act.do()
 
     def handle_death(self, units):
@@ -619,7 +630,7 @@ class SimpleCombat():
                 killer = game.records.get_killer(unit.nid, game.level.nid if game.level else None)
                 if killer:
                     killer = game.get_unit(killer)
-                game.events.trigger('unit_death', unit, killer, position=unit.position)
+                game.events.trigger(triggers.UnitDeath(unit, killer, unit.position))
                 skill_system.on_death(unit)
 
         if self.arena_combat:

@@ -1,9 +1,10 @@
+from app.engine.graphics.text.text_renderer import fix_tags, render_text, text_width
 import logging
 from app.engine.text_evaluator import TextEvaluator
 import app.engine.config as cf
 from app.constants import TILEX, TILEY, WINHEIGHT, WINWIDTH
-from app.data.database import DB
-from app.data.difficulty_modes import RNGOption
+from app.data.database.database import DB
+from app.data.database.difficulty_modes import RNGOption
 from app.engine import (base_surf, combat_calcs, engine, equations, evaluate,
                         icons, image_mods, item_funcs, item_system,
                         menu_options, skill_system, text_funcs)
@@ -13,6 +14,7 @@ from app.engine.game_state import game
 from app.engine.sprites import SPRITES
 from app.utilities import utils
 
+from typing import List
 
 class UIView():
     legal_states = ('free', 'prep_formation', 'prep_formation_select')
@@ -42,6 +44,7 @@ class UIView():
         self.current_tile_pos = None
 
         self.remove_unit_info = True
+        self.prev_unit_info_top = False
         self.obj_top = False
 
     def remove_unit_display(self):
@@ -121,10 +124,17 @@ class UIView():
         if self.unit_info_disp:
             # If in top and not in right
             if not DB.constants.value('initiative') or not game.initiative.draw_me:
-                if game.cursor.position[1] < TILEY // 2 + game.camera.get_y() and \
+                if self.remove_unit_info:
+                    if self.prev_unit_info_top:
+                        surf.blit(self.unit_info_disp, (-self.unit_info_offset, 0))
+                    else:
+                        surf.blit(self.unit_info_disp, (-self.unit_info_offset, WINHEIGHT - self.unit_info_disp.get_height()))
+                elif game.cursor.position[1] < TILEY // 2 + game.camera.get_y() and \
                         not (game.cursor.position[0] > TILEX // 2 + game.camera.get_x() - 1):
+                    self.prev_unit_info_top = False
                     surf.blit(self.unit_info_disp, (-self.unit_info_offset, WINHEIGHT - self.unit_info_disp.get_height()))
                 else:
+                    self.prev_unit_info_top = True
                     surf.blit(self.unit_info_disp, (-self.unit_info_offset, 0))
             else:
                 pass
@@ -268,11 +278,14 @@ class UIView():
             tile_def, tile_avoid = 0, 0
             if terrain.status:
                 status_prefab = DB.skills.get(terrain.status)
-                for component in status_prefab.components:
-                    if component.defines('tile_def'):
-                        tile_def += component.tile_def()
-                    if component.defines('tile_avoid'):
-                        tile_avoid += component.tile_avoid()
+                if status_prefab:
+                    for component in status_prefab.components:
+                        if component.defines('tile_def'):
+                            tile_def += component.tile_def()
+                        if component.defines('tile_avoid'):
+                            tile_avoid += component.tile_avoid()
+                else:
+                    logging.error("Could not find status %s for terrain %s", terrain.status, terrain.nid)
             FONT['small'].blit_right(str(tile_def), bg_surf, (bg_surf.get_width() - 4, 17))
             FONT['small'].blit_right(str(tile_avoid), bg_surf, (bg_surf.get_width() - 4, 25))
 
@@ -283,11 +296,12 @@ class UIView():
         return bg_surf
 
     def create_obj_info(self):
-        font = FONT['text']
         obj = game.level.objective['simple']
         text_parser = TextEvaluator(logging.getLogger(), game)
         text_lines = text_parser._evaluate_all(obj).split(',')
-        longest_surf_width = text_funcs.get_max_width(font, text_lines)
+        text_lines = [line.replace('{comma}', ',') for line in text_lines]
+        text_lines = fix_tags(text_lines)
+        longest_surf_width = text_funcs.get_max_width('text', text_lines)
         bg_surf = base_surf.create_base_surf(longest_surf_width + 16, 16 * len(text_lines) + 8)
 
         if len(text_lines) == 1:
@@ -302,8 +316,8 @@ class UIView():
         surf = image_mods.make_translucent(surf, .1)
 
         for idx, line in enumerate(text_lines):
-            pos = (surf.get_width()//2 - font.width(line)//2, 16 * idx + 6)
-            font.blit(line, surf, pos)
+            pos = (surf.get_width()//2 - text_width('text', line)//2, 16 * idx + 6)
+            render_text(surf, ['text'], [line], [None], pos)
 
         return surf
 
@@ -374,8 +388,8 @@ class UIView():
 
             if not defender.traveler and a_assist:
 
-                width = FONT['text'].width(a_assist.name)
-                FONT['text'].blit(a_assist.name, surf, (90 - width//2, 19))
+                width = text_width('text', a_assist.name)
+                render_text(surf, ['text'], [a_assist.name], ['white'], (90 - width//2, 19))
                 mt = combat_calcs.compute_assist_damage(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack', (0, 0))
                 if grandmaster:
                     hit = combat_calcs.compute_hit(a_assist, defender, a_assist.get_weapon(), defender.get_weapon(), 'attack', (0, 0))
@@ -392,8 +406,8 @@ class UIView():
             if not attacker.traveler and d_assist and defender.get_weapon() and \
                     combat_calcs.can_counterattack(attacker, weapon, defender, defender.get_weapon()):
 
-                width = FONT['text'].width(d_assist.name)
-                FONT['text'].blit(d_assist.name, surf, (90 - width//2, 81))
+                width = text_width('text', d_assist.name)
+                render_text(surf, ['text'], [d_assist.name], ['white'], (90 - width//2, 81))
                 mt = combat_calcs.compute_assist_damage(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense', (0, 0))
                 if grandmaster:
                     hit = combat_calcs.compute_hit(d_assist, attacker, d_assist.get_weapon(), weapon, 'defense', (0, 0))
@@ -408,26 +422,26 @@ class UIView():
                         blit_num(surf, c, 87, 66)
 
         # Name
-        width = FONT['text'].width(attacker.name)
-        FONT['text'].blit(attacker.name, surf, (43 - width//2, 3))
+        width = text_width('text', attacker.name)
+        render_text(surf, ['text'], [attacker.name], ['white'], (43 - width//2, 3))
         # Enemy name
         y_pos = 84
         if not crit_flag:
             y_pos -= 16
         if grandmaster:
             y_pos -= 16
-        position = 26 - FONT['text'].width(defender.name)//2, y_pos
-        FONT['text'].blit(defender.name, surf, position)
+        position = 26 - text_width('text', defender.name)//2, y_pos
+        render_text(surf, ['text'], [defender.name], ['white'], position)
         # Enemy Weapon
         if defender.get_weapon():
-            width = FONT['text'].width(defender.get_weapon().name)
+            width = text_width('text', defender.get_weapon().name)
             y_pos = 100
             if not crit_flag:
                 y_pos -= 16
             if grandmaster:
                 y_pos -= 16
             position = 32 - width//2, y_pos
-            FONT['text'].blit(defender.get_weapon().name, surf, position)
+            render_text(surf, ['text'], [defender.get_weapon().name], ['white'], position)
         # Self HP
         blit_num(surf, attacker.get_hp(), 64, 19)
         # Enemy HP
@@ -642,8 +656,8 @@ class UIView():
 
             # Blit name
             running_height += 16
-            name_width = FONT['text'].width(spell.name)
-            FONT['text'].blit(spell.name, bg_surf, (52 - name_width//2, running_height))
+            name_width = text_width('text', spell.name)
+            render_text(bg_surf, ['text'], [spell.name], ['white'], (52 - name_width//2, running_height))
 
             return bg_surf
 
@@ -672,8 +686,8 @@ class UIView():
             # Blit name
             running_height += 16
             icons.draw(bg_surf, spell, (4, running_height))
-            name_width = FONT['text'].width(spell.name)
-            FONT['text'].blit(spell.name, bg_surf, (52 - name_width//2, running_height))
+            name_width = text_width('text', spell.name)
+            render_text(bg_surf, ['text'], [spell.name], ['white'], (52 - name_width//2, running_height))
 
             return bg_surf
 
@@ -717,8 +731,9 @@ class UIView():
         return surf
 
     @staticmethod
-    def draw_trade_preview(unit, surf):
+    def draw_trade_preview(unit, surf, ignore: List[bool] = None):
         items = unit.items
+        ignore = ignore or [False for _ in items]
         # Build window
         window = SPRITES.get('trade_window')
         width, height = window.get_width(), window.get_height()
@@ -738,6 +753,7 @@ class UIView():
 
         for idx, item in enumerate(items):
             item_option = menu_options.ItemOption(idx, item)
+            item_option.ignore = ignore[idx]
             item_option.draw(bg_surf, 5, 27 + idx * 16 - 2)
         if not items:
             FONT['text-grey'].blit('Nothing', bg_surf, (25, 27 - 2))
@@ -822,9 +838,15 @@ class ItemDescriptionPanel():
                 desc = self.item.desc
             else:
                 desc = "Cannot wield."
-            lines = text_funcs.line_wrap(FONT['text'], desc, width - 8)
+
+            desc = desc.replace('{br}', '\n')
+            lines = text_funcs.line_wrap('text', desc, width - 8)
+            new_lines = []
+            for line in lines:
+                new_lines += line.split('\n')
+            lines = fix_tags(new_lines)
             for idx, line in enumerate(lines):
-                FONT['text'].blit(line, bg_surf, (4 + 2, 8 + idx * 16))
+                render_text(bg_surf, ['text'], [line], [None], (4 + 2, 8 + idx * 16))
 
         return bg_surf
 

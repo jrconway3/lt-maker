@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 
 from app.utilities import utils
-from app.data.database import DB
+from app.data.database.database import DB
 
 from app.extensions.custom_gui import IntDelegate, PropertyBox, SimpleDialog
 from app.extensions.list_models import VirtualListModel
@@ -481,6 +481,10 @@ class UnitStatAveragesModel(ClassStatAveragesModel):
     def determine_average(self, obj, stat_nid, level_ups):
         stat_base = obj.bases.get(stat_nid, 0)
         stat_growth = obj.growths.get(stat_nid, 0)
+        if DB.constants.value('unit_stats_as_bonus'):
+            klass = DB.classes.get(obj.klass)
+            stat_base += klass.bases.get(stat_nid, 0)
+            stat_growth += klass.growths.get(stat_nid, 0)
         average = 0.5
         quantile10 = 0
         quantile90 = 0

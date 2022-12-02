@@ -1,7 +1,9 @@
 from app.utilities.data import Data
 
-from app.data.database import DB
+from app.data.database.database import DB
 import app.engine.item_component_access as ICA
+
+import logging
 
 class ItemObject():
     next_uid = 100
@@ -48,23 +50,35 @@ class ItemObject():
             item.owner_nid = nid
 
     @classmethod
-    def from_prefab(cls, prefab):
+    def from_prefab(cls, prefab, component_data=None):
         # Components NEED To be copies! Since they store individualized information
         components = Data()
+        component_data = component_data or []
 
-        # Check if there is a prefab
-        for component in prefab.components:
-            if component.nid == 'item_prefab':
-                item_prefab_nid = component.value
-                item_prefab = DB.items.get(item_prefab_nid)
-                for component in item_prefab.components:
-                    new_component = ICA.restore_component((component.nid, component.value))
-                    components.append(new_component)
-                break
+        if component_data:
+            # Regular components
+            for component_nid, component_value in component_data:
+                new_component = ICA.restore_component((component_nid, component_value))
+                components.append(new_component, overwrite=True)
 
-        for component in prefab.components:
-            new_component = ICA.restore_component((component.nid, component.value))
-            components.append(new_component, overwrite=True)
+        else:
+            # Check if there is a prefab
+            for component in prefab.components:
+                if component.nid == 'item_prefab':
+                    item_prefab_nid = component.value
+                    item_prefab = DB.items.get(item_prefab_nid)
+                    if not item_prefab:
+                        logging.error("Couldn't find %s for %s", item_prefab_nid, prefab.nid)
+                        break
+                    for component in item_prefab.components:
+                        new_component = ICA.restore_component((component.nid, component.value))
+                        components.append(new_component)
+                    break
+
+            # Regular components
+            for component in prefab.components:
+                new_component = ICA.restore_component((component.nid, component.value))
+                components.append(new_component, overwrite=True)
 
         return cls(prefab.nid, prefab.name, prefab.desc, prefab.icon_nid, prefab.icon_index, components)
 
@@ -90,13 +104,16 @@ class ItemObject():
         serial_dict['droppable'] = self.droppable
         serial_dict['data'] = self.data
         serial_dict['subitems'] = self.subitem_uids
+        components = [(component.nid, component.value) for component in self.components]
+        serial_dict['components'] = components
         return serial_dict
 
     @classmethod
     def restore(cls, dat):
         prefab = DB.items.get(dat['nid'])
         if prefab:
-            self = cls.from_prefab(prefab)
+            components = dat.get('components', [])
+            self = cls.from_prefab(prefab, components)
             self.name = dat.get('name', prefab.name)
             self.desc = dat.get('desc', prefab.desc)
         else:

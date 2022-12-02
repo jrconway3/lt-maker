@@ -3,7 +3,7 @@ from app.constants import WINWIDTH, WINHEIGHT, TILEX, TILEY
 from app.utilities import utils
 from app.sprites import SPRITES
 from app.engine.sound import get_sound_thread
-from app.data.database import DB
+from app.data.database.database import DB
 from app.engine import engine, image_mods
 from app.engine.state import MapState
 from app.engine.game_state import game
@@ -289,7 +289,7 @@ class MiniMap(object):
 
     def build_units(self, units):
         for unit in units:
-            if unit.position and game.board.in_vision(unit.position):
+            if unit.position and 'Tile' not in unit.tags and game.board.in_vision(unit.position):
                 pos = unit.position[0] * self.scale_factor, unit.position[1] * self.scale_factor
                 if unit.team == 'player':
                     self.pin_surf.blit(engine.subsurface(self.minimap_units, (0, 0, self.scale_factor, self.scale_factor)), pos)

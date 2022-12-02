@@ -3,8 +3,8 @@ from PyQt5.QtWidgets import QDialog, QGridLayout, QDialogButtonBox, QTabWidget, 
     QSizePolicy
 from PyQt5.QtCore import Qt
 
-from app.resources.resources import RESOURCES
-from app.data.database import DB
+from app.data.resources.resources import RESOURCES
+from app.data.database.database import DB
 
 from app.editor.settings import MainSettingsController
 
@@ -183,7 +183,7 @@ class MultiDatabaseEditor(SingleDatabaseEditor):
         super().closeEvent(event)
 
 class SingleResourceEditor(QDialog):
-    def __init__(self, tab, resource_types=None, parent=None):
+    def __init__(self, tab, resource_types=None, parent=None, *args, **kwargs):
         super().__init__(parent)
         self.window = parent
         self.resource_types = resource_types
@@ -200,7 +200,7 @@ class SingleResourceEditor(QDialog):
         self.buttonbox.rejected.connect(self.reject)
         self.buttonbox.button(QDialogButtonBox.Apply).clicked.connect(self.apply)
 
-        self.tab = tab.create(self)
+        self.tab = tab.create(self, *args, **kwargs)
         self.grid.addWidget(self.tab, 0, 0, 1, 2)
 
         self.setWindowTitle(self.tab.windowTitle())

@@ -1,3 +1,6 @@
+from app.editor.lib.components.validated_line_edit import NoParentheticalLineEdit
+from app.events.triggers import ALL_TRIGGERS
+import functools
 import logging
 import math
 import os
@@ -5,16 +8,19 @@ import re
 from dataclasses import dataclass
 from app.extensions.markdown2 import Markdown
 
-from app.data.database import DB
+from app.data.database.database import DB
+from app.events.regions import RegionType
 from app.editor import table_model, timer
 from app.editor.base_database_gui import CollectionModel
 from app.editor.event_editor import event_autocompleter, find_and_replace
+import app.editor.game_actions.game_actions as GAME_ACTIONS
 from app.editor.map_view import SimpleMapView
 from app.editor.settings import MainSettingsController
 from app.events import event_commands, event_prefab, event_validators
+from app.events.mock_event import IfStatementStrategy
 from app.extensions.custom_gui import (ComboBox, PropertyBox, PropertyCheckBox,
                                        QHLine, TableView)
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
 from app.utilities import str_utils
 from PyQt5.QtCore import (QRect, QRegularExpression, QSize,
                           QSortFilterProxyModel, QStringListModel, Qt, pyqtSignal)
@@ -27,7 +33,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QAction, QApplication,
                              QMessageBox, QPlainTextEdit, QPushButton,
                              QSizePolicy, QSpinBox, QSplitter, QStyle,
                              QStyledItemDelegate, QTextEdit, QToolBar,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QMenu, QHeaderView)
 
 
 @dataclass
@@ -60,6 +66,7 @@ class Highlighter(QSyntaxHighlighter):
 
         function_head_format = QTextCharFormat()
         function_head_format.setForeground(self.func_color)
+        function_head_format.setFontWeight(QFont.Bold)
         # First part of line with semicolon
         self.function_head_rule1 = Rule(
             QRegularExpression("^(.*?);"), function_head_format)
@@ -174,7 +181,7 @@ class Highlighter(QSyntaxHighlighter):
                     validator = command.get_validator_from_keyword(keyword)
                     level_nid = self.window.current.level_nid
                     level = DB.levels.get(level_nid)
-                    text = event_validators.validate(validator, value, level)
+                    text = event_validators.validate(validator, value, level, DB, RESOURCES)
                     if text is None:
                         broken_args.append(command.get_index_from_keyword(keyword) + 1)
                 return broken_args
@@ -392,7 +399,7 @@ class CodeEditor(QPlainTextEdit):
 
         # determine what dictionary to use for completion
         validator, flags = event_autocompleter.detect_type_under_cursor(line, cursor_pos, arg_under_cursor)
-        autofill_dict = event_autocompleter.generate_wordlist_from_validator_type(validator, self.window.current.level_nid, arg_under_cursor)
+        autofill_dict = event_autocompleter.generate_wordlist_from_validator_type(validator, self.window.current.level_nid, arg_under_cursor, DB, RESOURCES)
         if flags:
             autofill_dict = autofill_dict + event_autocompleter.generate_flags_wordlist(flags)
         if len(autofill_dict) == 0:
@@ -567,6 +574,8 @@ class EventCollection(QWidget):
         self.view.setModel(self.level_filtered_model)
         # self.view.setModel(self.model)
         self.view.setSortingEnabled(True)
+        self.view.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.view.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
         # sort is stored as (col, dir)
         # see leaveEvent
         sort = self.settings.component_controller.get_sort(self.__class__.__name__)
@@ -748,6 +757,12 @@ class EventCollection(QWidget):
                 first_index = self.level_filtered_model.index(0, 0)
                 self.view.setCurrentIndex(first_index)
                 self.set_current_index(first_index)
+        elif self.display and not self.display.current:
+            # Change selection only if we need to!
+            first_index = self.level_filtered_model.index(0, 0)
+            self.view.setCurrentIndex(first_index)
+            self.set_current_index(first_index)
+
         self.update_list()
 
         if self.level_filtered_model.rowCount() > 0:
@@ -802,7 +817,7 @@ class EventProperties(QWidget):
         self.level_filter_box = left_frame.level_filter_box
         grid = left_frame.layout()
 
-        self.name_box = PropertyBox("Name", QLineEdit, self)
+        self.name_box = PropertyBox("Name", NoParentheticalLineEdit, self)
         self.name_box.edit.textChanged.connect(self.name_changed)
         self.name_box.edit.editingFinished.connect(self.name_done_editing)
 
@@ -854,6 +869,14 @@ class EventProperties(QWidget):
         self.show_commands_button.clicked.connect(self.show_commands)
         bottom_section.addWidget(self.show_commands_button)
 
+        self.test_event_button = QPushButton("Test Event")
+        test_menu = QMenu("Test", self)
+        test_menu.addAction(QAction("with If Statements always True", self, triggered=functools.partial(self.test_event, IfStatementStrategy.ALWAYS_TRUE)))
+        test_menu.addAction(QAction("with If Statements always False", self, triggered=functools.partial(self.test_event, IfStatementStrategy.ALWAYS_FALSE)))
+        self.test_event_button.setMenu(test_menu)
+        # self.test_event_button.clicked.connect(self.test_event)
+        bottom_section.addWidget(self.test_event_button)
+
     def setEnabled(self, val):
         super().setEnabled(val)
         # Need to also set these, since they are considered
@@ -870,10 +893,10 @@ class EventProperties(QWidget):
         for level in DB.levels:
             if level_nid == 'Global' or level_nid == level.nid:
                 for region in level.regions:
-                    if region.region_type == 'event':
+                    if region.region_type == RegionType.EVENT:
                         all_custom_triggers.add(region.sub_nid)
         all_items += list(all_custom_triggers)
-        all_items += [trigger.nid for trigger in event_prefab.all_triggers]
+        all_items += [trigger.nid for trigger in ALL_TRIGGERS]
         return all_items
 
     def insert_text(self, text):
@@ -914,6 +937,14 @@ class EventProperties(QWidget):
             self.show_commands_dialog.done(0)
             self.show_commands_dialog = None
 
+    def test_event(self, strategy):
+        if self.current:
+            commands = self.current.commands
+            cursor_position = 0
+            timer.get_timer().stop()
+            GAME_ACTIONS.test_event(commands, cursor_position, strategy)
+            timer.get_timer().start()
+
     def name_changed(self, text):
         self.current.name = text
         self.window.update_list()
@@ -933,7 +964,7 @@ class EventProperties(QWidget):
         cur_val = self.trigger_box.edit.currentText()
         if cur_val == 'None':
             self.current.trigger = None
-        elif cur_val in [trigger.nid for trigger in event_prefab.all_triggers]:
+        elif cur_val in [trigger.nid for trigger in ALL_TRIGGERS]:
             self.current.trigger = cur_val
         else:
             self.current.trigger = cur_val
@@ -1186,7 +1217,7 @@ class ShowCommandsDialog(QDialog):
                         already.append(keyword)
                     validator = event_validators.get(keyword)
                     if validator and validator.desc:
-                        text += '_%s_ %s\n\n' % (keyword, validator().desc)
+                        text += '_%s_ %s\n\n' % (keyword, validator.desc)
                     else:
                         text += '_%s_ %s\n\n' % (keyword, "")
                 if command.desc:

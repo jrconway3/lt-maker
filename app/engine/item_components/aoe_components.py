@@ -1,5 +1,5 @@
-from app.data.item_components import ItemComponent, ItemTags
-from app.data.components import Type
+from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
 
 from app.utilities import utils
 from app.engine import target_system, skill_system
@@ -10,7 +10,7 @@ class BlastAOE(ItemComponent):
     desc = "Blast extends outwards the specified number of tiles."
     tag = ItemTags.AOE
 
-    expose = Type.Int  # Radius
+    expose = ComponentType.Int  # Radius
     value = 1
 
     def _get_power(self, unit) -> int:
@@ -47,7 +47,7 @@ class EnemyBlastAOE(BlastAOE, ItemComponent):
     def splash(self, unit, item, position) -> tuple:
         ranges = set(range(self._get_power(unit)))
         splash = target_system.find_manhattan_spheres(ranges, position[0], position[1])
-        splash = {pos for pos in splash if 0 <= pos[0] < game.tilemap.width and 0 <= pos[1] < game.tilemap.height}
+        splash = {pos for pos in splash if game.board.check_bounds(pos)}
         from app.engine import item_system, skill_system
         if item_system.is_spell(unit, item):
             # spell blast
@@ -109,7 +109,7 @@ class EquationBlastAOE(BlastAOE, ItemComponent):
     desc = "Gives Equation-Sized Blast AOE"
     tag = ItemTags.AOE
 
-    expose = Type.Equation  # Radius
+    expose = ComponentType.Equation  # Radius
     value = None
 
     def _get_power(self, unit) -> int:
@@ -123,7 +123,7 @@ class AllyBlastEquationAOE(AllyBlastAOE, EquationBlastAOE, ItemComponent):
     desc = "Gives Equation-Sized Blast AOE that only hits allies"
     tag = ItemTags.AOE
 
-    expose = Type.Equation  # Radius
+    expose = ComponentType.Equation  # Radius
     value = None
 
 class EnemyCleaveAOE(ItemComponent):

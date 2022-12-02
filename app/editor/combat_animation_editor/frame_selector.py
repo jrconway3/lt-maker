@@ -8,8 +8,8 @@ from PyQt5.QtGui import QPixmap, QIcon, QImage, QPainter
 from app.constants import WINWIDTH, WINHEIGHT
 
 from app import utilities
-from app.resources import combat_anims, combat_palettes
-from app.resources.resources import RESOURCES
+from app.data.resources import combat_anims, combat_palettes
+from app.data.resources.resources import RESOURCES
 
 from app.editor.settings import MainSettingsController
 
@@ -50,6 +50,15 @@ class FrameSelector(Dialog):
             self.current = self.frames[0]
         else:
             self.current = None
+        # animations aren't loaded yet
+        if not self.current or not self.current.pixmap:
+            try:
+                from app.editor.combat_animation_editor.combat_animation_display import populate_anim_pixmaps
+                populate_anim_pixmaps(combat_anim)
+            except:
+                from app.editor.combat_animation_editor.combat_effect_display import populate_effect_pixmaps
+                populate_effect_pixmaps(combat_anim)
+
 
         self.display = IconView(self)
         self.display.static_size = True

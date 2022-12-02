@@ -7,11 +7,12 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, \
 from PyQt5.QtCore import Qt, QSortFilterProxyModel, QSize
 from PyQt5.QtGui import QIcon, QFontMetrics, QPalette
 
-from app.data.database import DB
+from app.data.database.database import DB
 
 from app.editor.base_database_gui import CollectionModel
 from app.extensions.custom_gui import PropertyBox, QHLine
 from app.editor.icons import ItemIcon16
+from app.editor.lib.components.validated_line_edit import NidLineEdit
 from app.editor.settings import MainSettingsController
 from app.editor import component_database
 from app.utilities import str_utils
@@ -41,7 +42,7 @@ class ComponentProperties(QWidget):
 
         name_section = QVBoxLayout()
 
-        self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
+        self.nid_box = PropertyBox("Unique ID", NidLineEdit, self)
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
         name_section.addWidget(self.nid_box)
@@ -90,9 +91,8 @@ class ComponentProperties(QWidget):
         self.show_components_button = QPushButton("Search Components")
         self.show_components_button.clicked.connect(self.show_components)
         self.toolbar.addWidget(self.show_components_button)
-
         for component in self.get_components():
-            if not component.tag.value == 'hidden':
+            if component.tag.value not in ('hidden', 'deprecated'):
                 if component.tag.value not in self.menus:
                     new_menu = QHelpMenu(self)
                     self.menus[component.tag.value] = new_menu
@@ -155,8 +155,8 @@ class ComponentProperties(QWidget):
 
     def nid_changed(self, text):
         # Also change name if they are identical
-        if self.current.name == self.current.nid:
-            self.name_box.edit.setText(text)
+        if self.current.name == self.current.nid.replace('_', ' '):
+            self.name_box.edit.setText(text.replace('_', ' '))
         self.current.nid = text
         self.window.update_list()
 
@@ -238,7 +238,7 @@ class ShowComponentSearchDialog(QDialog):
         self._data = []
         for category in self.categories:
             # Ignore hidden category
-            if category == 'hidden':
+            if category in {'hidden', 'deprecated'}:
                 continue
             self._data.append(category)
             components = [component() for component in self.components if component.tag.value == category]

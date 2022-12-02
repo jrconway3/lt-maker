@@ -2,18 +2,21 @@ from app.engine.objects.unit import UnitObject
 import math
 
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
-from app.resources.resources import RESOURCES
-from app.data.database import DB
+from app.data.resources.resources import RESOURCES
+from app.data.database.database import DB
 
 from app.utilities import utils
 from app.engine import engine, image_mods, icons, unit_funcs, action, banner, skill_system
 from app.engine.sprites import SPRITES
 from app.engine.sound import get_sound_thread
 from app.engine.fonts import FONT
+from app.events import triggers
 from app.engine.state import State
 from app.engine.state_machine import SimpleStateMachine
 from app.engine.animations import Animation
 from app.engine.game_state import game
+from app.engine.graphics.text.text_renderer import render_text
+from app.utilities.enums import Alignments
 
 class ExpState(State):
     name = 'exp'
@@ -65,13 +68,14 @@ class ExpState(State):
             max_exp = 100 * (self.unit_klass.max_level - self.old_level) - self.old_exp
             self.exp_gain = min(self.exp_gain, max_exp)
 
-        self.total_time_for_exp = utils.frames2ms(self.exp_gain)  # 1 frame per exp
+        self.total_time_for_exp = utils.frames2ms(abs(self.exp_gain))  # 1 frame per exp
 
         self.stat_changes = None
         self.new_wexp = None
 
-        if self.unit.level >= self.unit_klass.max_level and not (self.auto_promote or self.starting_state in ('promote', 'class_change')):
-            # We're done here
+        if self.unit.level >= self.unit_klass.max_level and \
+                not self.auto_promote and self.starting_state not in ('promote', 'class_change', 'stat_booster'):
+            # We're done here, since the unit is at max level and has no stats to gain
             game.state.back()
             return 'repeat'
 
@@ -157,7 +161,13 @@ class ExpState(State):
                 else:
                     self.state.change('exp100')
 
-            elif current_time - self.start_time >= self.total_time_for_exp + 500:
+            if exp_set <= 0 and self.exp_gain < 0:
+                if self.unit.level > 1:
+                    self.state.change('exp-100')
+                else:
+                    get_sound_thread().stop_sfx('Experience Gain')
+
+            if current_time - self.start_time >= self.total_time_for_exp + 500:
                 get_sound_thread().stop_sfx('Experience Gain')  # Just in case
                 self.state.clear()
                 self.state.change('exp_leave')
@@ -191,11 +201,36 @@ class ExpState(State):
             # Extra time to account for pause at end
             if current_time - self.start_time >= self.total_time_for_exp + 333:
                 old_growth_points = self.unit.growth_points.copy()
-                self.stat_changes = unit_funcs.get_next_level_up(self.unit, self.method)
+                self.stat_changes = unit_funcs.get_next_level_up(self.unit, self.unit.get_internal_level(), self.method)
                 action.do(action.GrowthPointChange(self.unit, old_growth_points, self.unit.growth_points))
                 action.do(action.IncLevel(self.unit))
                 action.do(action.ApplyStatChanges(self.unit, self.stat_changes, False))
                 action.do(action.UpdateRecords('level_gain', (self.unit.nid, self.unit.level, self.unit.klass)))
+                self.create_level_up_logo()
+                self.state.clear()
+                self.state.change('level_up')
+                self.state.change('exp_leave')
+                self.exp_bar.fade_out()
+                self.start_time = current_time
+
+        elif self.state.get_state() == 'exp-100':
+            progress = (current_time - self.start_time)/float(self.total_time_for_exp)
+            exp_set = 100 + self.old_exp + (self.exp_gain * progress)
+            exp_set = max(100 + self.old_exp + self.exp_gain, exp_set)
+            self.exp_bar.update(exp_set)
+            exp_set = int(exp_set)
+
+            if exp_set <= 100 + self.old_exp + self.exp_gain:
+                get_sound_thread().stop_sfx('Experience Gain')
+
+            # Extra time to account for pause at end
+            if current_time - self.start_time >= self.total_time_for_exp + 333:
+                old_growth_points = self.unit.growth_points.copy()
+                stat_changes = unit_funcs.get_next_level_up(self.unit, self.unit.get_internal_level() - 1, self.method)
+                self.stat_changes = {nid: -value for nid, value in stat_changes.items()}  # Make negative
+                action.do(action.GrowthPointChange(self.unit, old_growth_points, self.unit.growth_points))
+                action.do(action.SetLevel(self.unit, self.unit.level - 1))
+                action.do(action.ApplyStatChanges(self.unit, self.stat_changes, False))
                 self.create_level_up_logo()
                 self.state.clear()
                 self.state.change('level_up')
@@ -220,7 +255,7 @@ class ExpState(State):
                     self, self.unit, self.stat_changes, self.old_level, self.unit.level)
             if self.level_up_screen.update(current_time):
                 game.state.back()
-                game.events.trigger('unit_level_up', self.unit, unit2=self.stat_changes)
+                game.events.trigger(triggers.UnitLevelUp(self.unit, self.stat_changes))
                 if self.combat_object:
                     self.combat_object.lighten_ui()
 
@@ -296,7 +331,7 @@ class ExpState(State):
         if not self.state:
             return surf
 
-        if self.state.get_state() in ('init', 'exp_wait', 'exp_leave', 'exp0', 'exp100', 'prepare_promote'):
+        if self.state.get_state() in ('init', 'exp_wait', 'exp_leave', 'exp0', 'exp100', 'exp-100', 'prepare_promote'):
             if self.mana_bar:
                 self.mana_bar.draw(surf)
             if self.exp_bar:
@@ -336,7 +371,7 @@ class ExpState(State):
         if not unit_prefab:
             return
         for level_needed, personal_skill_nid in unit_prefab.learned_skills:
-            if unit.level == level_needed:
+            if unit.get_internal_level() == level_needed:
                 if personal_skill_nid == 'Feat':
                     game.memory['current_unit'] = unit
                     game.state.change('feat_choice')
@@ -375,6 +410,7 @@ class LevelUpScreen():
 
         self.animations = []
         self.arrow_animations = []
+        self.simple_nums = []
 
         self.state = 'scroll_in'
         self.start_time = 0
@@ -444,7 +480,7 @@ class LevelUpScreen():
         elif self.state == 'get_next_spark':
             done = self.inc_spark()
             if done:
-                game.events.trigger('during_unit_level_up', self.unit, unit2=self.parent.stat_changes)
+                game.events.trigger(triggers.DuringUnitLevelUp(self.unit, self.parent.stat_changes))
                 self.state = 'level_up_wait'
                 self.start_time = current_time
             else:
@@ -475,6 +511,11 @@ class LevelUpScreen():
                 if anim:
                     number_animation = Animation(anim, (offset_pos[0] + 37, offset_pos[1] + 4), delay=80, hold=True)
                     self.animations.append(number_animation)
+                else:
+                    if increase > 0:
+                        self.simple_nums.append(('stat', 'white', '+' + str(increase), (offset_pos[0] + 57, offset_pos[1] - 2), current_time))
+                    elif increase < 0:
+                        self.simple_nums.append(('stat', 'purple', str(increase), (offset_pos[0] + 57, offset_pos[1] - 2), current_time))
 
                 get_sound_thread().play_sfx('Stat Up')
                 self.underline_offset = 36 # for underline growing
@@ -488,6 +529,7 @@ class LevelUpScreen():
         elif self.state == 'level_up_wait':
             if current_time - self.start_time > self.level_up_wait:
                 self.animations.clear()
+                self.simple_nums.clear()
                 self.state = 'scroll_out'
                 self.start_time = current_time
 
@@ -501,7 +543,10 @@ class LevelUpScreen():
 
         # Render top
         klass = DB.classes.get(self.unit.klass)
-        FONT['text'].blit(klass.name, sprite, (12, 3))
+        if FONT['text'].width(klass.name) > 60:
+            FONT['narrow'].blit(klass.name, sprite, (12, 3))
+        else:
+            FONT['text'].blit(klass.name, sprite, (12, 3))
         FONT['text-yellow'].blit('Lv', sprite, (self.width//2 + 12, 3))
         if self.state in ('scroll_in', 'init_wait'):
             level = str(self.old_level)
@@ -557,6 +602,10 @@ class LevelUpScreen():
         # offset = game.camera.get_x() * TILEWIDTH, game.camera.get_y() * TILEHEIGHT
         for animation in self.animations:
             animation.draw(surf)
+
+        for font, color, text, pos, time in self.simple_nums:
+            if engine.get_time() - time > 80:
+                render_text(surf, [font], [text], [color], pos, align=Alignments.RIGHT)
 
         return surf
 

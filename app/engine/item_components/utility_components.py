@@ -1,55 +1,59 @@
 from app.utilities import utils
 
-from app.data.item_components import ItemComponent, ItemTags
-from app.data.components import Type
+from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
+from app.events.regions import RegionType
+from app.events import triggers
 
 from app.engine import action
 from app.engine import item_system, item_funcs, skill_system, equations
 from app.engine.game_state import game
+from app.engine.combat import playback as pb
 
 class Heal(ItemComponent):
     nid = 'heal'
     desc = "Item heals this amount on hit"
     tag = ItemTags.UTILITY
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 10
 
     def _get_heal_amount(self, unit, target):
         empower_heal = skill_system.empower_heal(unit, target)
-        return self.value + empower_heal
+        empower_heal_received = skill_system.empower_heal_received(target, unit)
+        return self.value + empower_heal + empower_heal_received
 
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
         defender = game.board.get_unit(def_pos)
-        if defender and defender.get_hp() < equations.parser.hitpoints(defender):
+        if defender and defender.get_hp() < defender.get_max_hp():
             return True
         for s_pos in splash:
             s = game.board.get_unit(s_pos)
-            if s and s.get_hp() < equations.parser.hitpoints(s):
+            if s and s.get_hp() < s.get_max_hp():
                 return True
         return False
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         heal = self._get_heal_amount(unit, target)
-        true_heal = min(heal, equations.parser.hitpoints(target) - target.get_hp())
+        true_heal = min(heal, target.get_max_hp() - target.get_hp())
         actions.append(action.ChangeHP(target, heal))
 
         # For animation
         if true_heal > 0:
-            playback.append(('heal_hit', unit, item, target, heal, true_heal))
-            playback.append(('hit_sound', 'MapHeal'))
+            playback.append(pb.HealHit(unit, item, target, heal, true_heal))
+            playback.append(pb.HitSound('MapHeal', map_only=True))
             if heal >= 30:
                 name = 'MapBigHealTrans'
             elif heal >= 15:
                 name = 'MapMediumHealTrans'
             else:
                 name = 'MapSmallHealTrans'
-            playback.append(('hit_anim', name, target))
+            playback.append(pb.HitAnim(name, target))
 
     def ai_priority(self, unit, item, target, move):
-        if skill_system.check_ally(unit, target):
-            max_hp = equations.parser.hitpoints(target)
+        if target and skill_system.check_ally(unit, target):
+            max_hp = target.get_max_hp()
             missing_health = max_hp - target.get_hp()
             help_term = utils.clamp(missing_health / float(max_hp), 0, 1)
             heal = self._get_heal_amount(unit, target)
@@ -63,7 +67,8 @@ class MagicHeal(Heal, ItemComponent):
 
     def _get_heal_amount(self, unit, target):
         empower_heal = skill_system.empower_heal(unit, target)
-        return self.value + equations.parser.heal(unit) + empower_heal
+        empower_heal_received = skill_system.empower_heal_received(target, unit)
+        return self.value + equations.parser.heal(unit) + empower_heal + empower_heal_received
 
 class Refresh(ItemComponent):
     nid = 'refresh'
@@ -82,7 +87,7 @@ class Refresh(ItemComponent):
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
         actions.append(action.Reset(target))
-        playback.append(('refresh_hit', unit, item, target))
+        playback.append(pb.RefreshHit(unit, item, target))
 
 class Restore(ItemComponent):
     nid = 'restore'
@@ -107,14 +112,14 @@ class Restore(ItemComponent):
         for skill in target.skills:
             if self._can_be_restored(skill):
                 actions.append(action.RemoveSkill(target, skill))
-        playback.append(('restore_hit', unit, item, target))
+                playback.append(pb.RestoreHit(unit, item, target))
 
 class RestoreSpecific(Restore, ItemComponent):
     nid = 'restore_specific'
     desc = "Item removes specific status from target on hit"
     tag = ItemTags.UTILITY
 
-    expose = Type.Skill # Nid
+    expose = ComponentType.Skill # Nid
 
     def _can_be_restored(self, status):
         return status.nid == self.value
@@ -127,7 +132,7 @@ class UnlockStaff(ItemComponent):
     _did_hit = False
 
     def _valid_region(self, region) -> bool:
-        return region.region_type == 'event' and 'can_unlock' in region.condition
+        return region.region_type == RegionType.EVENT and 'can_unlock' in region.condition
 
     def ai_targets(self, unit, item) -> set:
         targets = set()
@@ -163,7 +168,7 @@ class UnlockStaff(ItemComponent):
                     region = reg
                     break
             if region:
-                did_trigger = game.events.trigger(region.sub_nid, unit, position=pos, region=region)
+                did_trigger = game.events.trigger(triggers.RegionTrigger(region.sub_nid, unit, pos, region, item))
                 if did_trigger and region.only_once:
                     action.do(action.RemoveRegion(region))
         self._did_hit = False
@@ -173,13 +178,13 @@ class CanUnlock(ItemComponent):
     desc = "Allows the item to unlock specific types of locks. In GBA games, the unlock staff can only unlock doors. This component would allow for that limited functionality. In particular, region.nid.startswith('Door') would limit the staff to unlocking doors."
     tag = ItemTags.UTILITY
 
-    expose = Type.String
+    expose = ComponentType.String
     value = 'True'
 
     def can_unlock(self, unit, item, region) -> bool:
         from app.engine import evaluate
         try:
-            return bool(evaluate.evaluate(self.value, unit, item, region=region))
+            return bool(evaluate.evaluate(self.value, unit, local_args={'item': item, 'region': region}))
         except:
             print("Could not evaluate %s" % self.value)
         return False
@@ -203,6 +208,8 @@ class Repair(ItemComponent):
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Unit has item that can be repaired
         defender = game.board.get_unit(def_pos)
+        if not defender:
+            return False
         return self._target_restrict(defender)
 
     def simple_target_restrict(self, unit, item):
@@ -261,8 +268,6 @@ class AttackAfterCombat(ItemComponent):
 
     def can_attack_after_combat(self, unit, item):
         return True
-
-
 
 class NoAttackAfterMove(ItemComponent):
     nid = 'no_attack_after_move'

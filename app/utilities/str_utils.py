@@ -1,15 +1,15 @@
 import functools
 import re
 
-def get_next_name(name, names):
+def get_next_name(name, names, infix='_'):
     if name not in names:
         return name
     else:
-        # Remove the (1) when generating additional names
-        name = re.sub(r' \(\d+\)$', '', name)
+        # Remove the _1 when generating additional names
+        name = re.sub(('%s' % infix) + r'\d+$', '', name)
         counter = 1
         while True:
-            test_name = name + (' (%s)' % counter)
+            test_name = name + ('%s%s' % (infix, counter))
             if test_name not in names:
                 return test_name
             counter += 1
@@ -92,6 +92,9 @@ def camel_to_snake(name: str) -> str:
     """
     name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
+
+def snake_to_readable(s: str) -> str:
+    return s.replace('_', ' ').title()
 
 def nested_expr(s, opener, closer):
     # Returns a nested list

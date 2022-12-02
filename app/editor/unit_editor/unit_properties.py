@@ -1,5 +1,6 @@
+from app.editor.lib.components.database_delegate import DBNamesDelegate, UnitFieldDelegate
 from app.extensions.key_value_delegate import KeyValueDelegate, KeyValueDoubleListModel
-from app.data.database import DB
+from app.data.database.database import DB
 from app.editor.custom_widgets import AffinityBox, ClassBox
 from app.editor.icons import UnitPortrait
 from app.editor.item_list_widget import ItemListWidget
@@ -8,6 +9,7 @@ from app.editor.stat_widget import (StatAverageDialog, StatListWidget,
                                     UnitStatAveragesModel)
 from app.editor.tag_widget import TagDialog
 from app.editor.weapon_editor import weapon_model
+from app.editor.lib.components.validated_line_edit import NidLineEdit
 from app.extensions.custom_gui import ComboBox, PropertyBox, QHLine
 from app.extensions.list_models import ReverseDoubleListModel, VirtualListModel
 from app.extensions.list_widgets import (AppendMultiListWidget,
@@ -138,7 +140,7 @@ class UnitProperties(QWidget):
 
         # name_section = QVBoxLayout()
 
-        self.nid_box = PropertyBox("Unique ID", QLineEdit, self)
+        self.nid_box = PropertyBox("Unique ID", NidLineEdit, self)
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
         main_section.addWidget(self.nid_box, 0, 1)
@@ -207,7 +209,7 @@ class UnitProperties(QWidget):
             self.unit_notes_widget.hide()
 
         fieldAttrs = ("Field", "Value")
-        self.unit_fields_widget = AppendMultiListWidget([], "Unit Fields", fieldAttrs, KeyValueDelegate, self, model=KeyValueDoubleListModel)
+        self.unit_fields_widget = AppendMultiListWidget([], "Unit Fields", fieldAttrs, UnitFieldDelegate, self, model=KeyValueDoubleListModel)
         self.unit_fields_widget.view.setMaximumHeight(120)
 
         default_weapons = {weapon_nid: DB.weapons.default() for weapon_nid in DB.weapons.keys()}
@@ -263,8 +265,8 @@ class UnitProperties(QWidget):
 
     def nid_changed(self, text):
         # Also change name if they are identical
-        if self.current.name == self.current.nid:
-            self.name_box.edit.setText(text)
+        if self.current.name == self.current.nid.replace('_', ' '):
+            self.name_box.edit.setText(text.replace('_', ' '))
         self.current.nid = text
         self.window.update_list()
 

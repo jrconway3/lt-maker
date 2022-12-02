@@ -5,9 +5,10 @@ from app.utilities import str_utils
 
 def read_config_file():
     from app.engine import engine
-    lines = OrderedDict([('debug', 1),
+    lines = OrderedDict([('debug', 0),
                          ('random_seed', -1),
                          ('screen_size', 2),
+                         ('fullscreen', 0),
                          ('sound_buffer_size', 4),
                          ('animation', 'Always'),
                          ('display_fps', 0),
@@ -22,6 +23,8 @@ def read_config_file():
                          ('music_volume', 0.3),
                          ('sound_volume', 0.3),
                          ('talk_boop', 1),
+                         ('show_bounds', 0),
+                         ('grid_opacity', 127),
                          ('autoend_turn', 1),
                          ('confirm_end', 1),
                          ('hp_map_team', 'All'),

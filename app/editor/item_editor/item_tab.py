@@ -2,7 +2,7 @@ import os
 
 from PyQt5.QtWidgets import QFileDialog
 
-from app.data.database import DB
+from app.data.database.database import DB
 
 from app.editor.data_editor import SingleDatabaseEditor
 from app.editor.base_database_gui import DatabaseTab
@@ -21,6 +21,7 @@ class ItemProperties(ComponentProperties):
 
 class ItemDatabase(DatabaseTab):
     allow_import_from_lt = True
+    allow_import_from_csv = True
     allow_copy_and_paste = True
 
     @classmethod
@@ -45,13 +46,24 @@ class ItemDatabase(DatabaseTab):
                 self._data.append(item)
             self.update_list()
 
+    def import_csv(self):
+        settings = MainSettingsController()
+        starting_path = settings.get_last_open_path()
+        fn, ok = QFileDialog.getOpenFileName(self, "Import items from csv", starting_path, "items csv (*.csv);;All Files(*)")
+        if ok and fn:
+            parent_dir = os.path.split(fn)[0]
+            settings.set_last_open_path(parent_dir)
+            item_import.update_db_from_csv(DB, fn)
+            self.update_list()
+            self.reset()
+
 # Testing
 # Run "python -m app.editor.item_editor.item_tab" from main directory
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
-    from app.resources.resources import RESOURCES
+    from app.data.resources.resources import RESOURCES
     RESOURCES.load('default.ltproj')
     DB.load('default.ltproj')
     window = SingleDatabaseEditor(ItemDatabase)

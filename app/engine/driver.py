@@ -74,6 +74,7 @@ def run(game):
     # import time
     clock = engine.Clock()
     fps_records = collections.deque(maxlen=FPS)
+    inp = get_input_manager()
     while True:
         # start = time.time_ns()
         engine.update_time()
@@ -81,13 +82,25 @@ def run(game):
         # print(engine.get_delta())
 
         raw_events = engine.get_events()
+
         if raw_events == engine.QUIT:
             break
-        event = get_input_manager().process_input(raw_events)
+
+        event = inp.process_input(raw_events)
+
+        # Handle soft reset
+        if game.state.current() != 'title_start' and \
+                inp.is_pressed('SELECT') and inp.is_pressed('BACK') and \
+                inp.is_pressed('START'):
+            game.state.change('title_start')
+            game.state.update([], surf)
+            continue
 
         surf, repeat = game.state.update(event, surf)
         while repeat:  # Let's the game traverse through state chains
+            # print("Repeating States:\t", game.state.state)
             surf, repeat = game.state.update([], surf)
+        # print("States:\t\t\t", game.state.state)
 
         if cf.SETTINGS['display_fps']:
             draw_fps(surf, fps_records)
@@ -106,7 +119,13 @@ def run(game):
 
         game.playtime += clock.tick()
 
-def run_combat(mock_combat):
+def run_in_isolation(obj):
+    """
+    Requires that the object has
+    1) take_input function that takes in the event
+    2) update function
+    3) draw function that returns the surface to be drawn
+    """
     from app.engine.sound import get_sound_thread
     from app.engine.input_manager import get_input_manager
 
@@ -124,9 +143,9 @@ def run_combat(mock_combat):
             break
         event = get_input_manager().process_input(raw_events)
 
-        mock_combat.take_input(event)
-        mock_combat.update()
-        surf = mock_combat.draw(surf)
+        obj.take_input(event)
+        obj.update()
+        surf = obj.draw(surf)
 
         get_sound_thread().update(raw_events)
 
@@ -135,3 +154,9 @@ def run_combat(mock_combat):
 
         engine.update_display()
         clock.tick()
+
+def run_combat(mock_combat):
+    run_in_isolation(mock_combat)
+
+def run_event(event):
+    run_in_isolation(event)

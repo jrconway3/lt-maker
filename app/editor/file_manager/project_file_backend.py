@@ -4,13 +4,16 @@ import os
 import shutil
 from datetime import datetime
 from pathlib import Path
+from time import time_ns
 
 from app.constants import VERSION
-from app.data.database import DB
+from app.data.database.database import DB, Database
 from app.editor import timer
+from app.editor.lib.csv import text_data_exporter, csv_data_exporter
 from app.editor.new_game_dialog import NewGameDialog
 from app.editor.settings import MainSettingsController
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
+from app.utilities import exceptions
 from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
@@ -92,27 +95,23 @@ class ProjectFileBackend():
             if os.path.exists(self.tmp_proj):
                 shutil.rmtree(self.tmp_proj)
 
-            # check if autosave or current save is more recent
             most_recent_path = self.current_proj
-            try:
-                autosave_dir = os.path.abspath('autosave.ltproj')
-                autosave_meta = json.load(open(autosave_dir + '/metadata.json'))
-                curr_meta = json.load(open(self.current_proj + '/metadata.json'))
-                if autosave_meta['project'] == curr_meta['project']: # make sure same project
-                    autosave_ts = datetime.strptime(autosave_meta['date'], '%Y-%m-%d %H:%M:%S.%f')
-                    curr_ts = datetime.strptime(curr_meta['date'], '%Y-%m-%d %H:%M:%S.%f')
-                    if autosave_ts > curr_ts:
-                        most_recent_path = autosave_dir
-            except Exception as e:
-                # autosave doesn't have metadata, autosave doesn't exist, etc.
-                # just copy the previous save
-                pass
-            def copyonly(dirpath, contents):
-                copied_patterns = ['game_data', 'resources', 'metadata.json']
-                return set(contents) - set(
-                    shutil.ignore_patterns(*copied_patterns)(dirpath, contents),
-                    )
-            shutil.copytree(most_recent_path, self.tmp_proj, ignore=copyonly)
+            # check if autosave or current save is more recent
+            # try:
+            #     autosave_dir = os.path.abspath('autosave.ltproj')
+            #     autosave_meta = json.load(open(autosave_dir + '/metadata.json'))
+            #     curr_meta = json.load(open(self.current_proj + '/metadata.json'))
+            #     if autosave_meta['project'] == curr_meta['project']: # make sure same project
+            #         autosave_ts = datetime.strptime(autosave_meta['date'], '%Y-%m-%d %H:%M:%S.%f')
+            #         curr_ts = datetime.strptime(curr_meta['date'], '%Y-%m-%d %H:%M:%S.%f')
+            #         if autosave_ts > curr_ts:
+            #             most_recent_path = autosave_dir
+            # except Exception as e:
+            #     print(e)
+            #     # autosave doesn't have metadata, autosave doesn't exist, etc.
+            #     # just copy the previous save
+            #     pass
+            shutil.move(most_recent_path, self.tmp_proj)
         self.save_progress.setLabelText("Saving project to %s" % self.current_proj)
         self.save_progress.setValue(10)
 
@@ -120,17 +119,38 @@ class ProjectFileBackend():
         RESOURCES.save(self.current_proj, progress=self.save_progress)
         self.save_progress.setValue(75)
         DB.serialize(self.current_proj)
-        self.save_progress.setValue(99)
+        self.save_progress.setValue(85)
 
         # Save metadata
         self.save_metadata(self.current_proj)
-
-        self.save_progress.setValue(100)
-
+        self.save_progress.setValue(87)
         if not new and self.settings.get_should_make_backup_save():
-            # we have fully saved the current project; remove the backup folder
-            if os.path.isdir(self.tmp_proj):
-                shutil.rmtree(self.tmp_proj)
+            # we have fully saved the current project.
+            # first, delete the .json files that don't appear in the new project
+            for old_dir, dirs, files in os.walk(self.tmp_proj):
+                new_dir = old_dir.replace(self.tmp_proj, self.current_proj)
+                for f in files:
+                    if f.endswith('.json'):
+                        old_file = os.path.join(old_dir, f)
+                        new_file = os.path.join(new_dir, f)
+                        if not os.path.exists(new_file):
+                            os.remove(old_file)
+            # then replace the files in the original backup folder and rename it back
+            for src_dir, dirs, files in os.walk(self.current_proj):
+                dst_dir = src_dir.replace(self.current_proj, self.tmp_proj)
+                for f in files:
+                    src_file = os.path.join(src_dir, f)
+                    dst_file = os.path.join(dst_dir, f)
+                    if os.path.exists(dst_file + '.bak'):
+                        os.remove(dst_file)
+                    os.rename(src_file, dst_file + '.bak')
+                    if os.path.exists(dst_file):
+                        os.remove(dst_file)
+                    os.rename(dst_file + '.bak', dst_file)
+            if os.path.isdir(self.current_proj):
+                shutil.rmtree(self.current_proj)
+            os.rename(self.tmp_proj, self.current_proj)
+        self.save_progress.setValue(100)
 
         return True
 
@@ -194,6 +214,14 @@ class ProjectFileBackend():
                 self.settings.set_current_project(self.current_proj)
                 self.load()
                 return True
+            except exceptions.CustomComponentsException as e:
+                logging.exception(e)
+                logging.error("Failed to load project at %s due to syntax error. Likely there's a problem in your Custom Components file, located at %s. See error above." % (path, RESOURCES.get_custom_components_path()))
+                QMessageBox.warning(self.parent, "Load of project failed",
+                                    "Failed to load project at %s due to syntax error. Likely there's a problem in your Custom Components file, located at %s. Exception:\n%s." % (path, RESOURCES.get_custom_components_path(), e))
+                logging.warning("falling back to default.ltproj")
+                self.auto_open_fallback()
+                return False
             except Exception as e:
                 logging.exception(e)
                 backup_project_name = path + '.lttmp'
@@ -275,3 +303,45 @@ class ProjectFileBackend():
 
     def clean(self):
         RESOURCES.clean(self.current_proj)
+
+    def dump_csv(self, db: Database):
+        starting_path = self.current_proj or QDir.currentPath()
+        fn = QFileDialog.getExistingDirectory(
+                self.parent, "Choose dump location", starting_path)
+        if fn:
+            csv_direc = fn
+            for ttype, tstr in csv_data_exporter.dump_as_csv(db):
+                with open(os.path.join(csv_direc, ttype + '.csv'), 'w') as f:
+                    f.write(tstr)
+        else:
+            return False
+
+    def dump_script(self, db: Database, single_block=True):
+        starting_path = self.current_proj or QDir.currentPath()
+        fn = QFileDialog.getExistingDirectory(
+                self.parent, "Choose dump location", starting_path)
+        if fn:
+            script_direc = os.path.join(fn, 'script')
+            if not os.path.exists(script_direc):
+                os.mkdir(script_direc)
+            else:
+                shutil.rmtree(script_direc)
+                os.mkdir(script_direc)
+            if single_block:
+                with open(os.path.join(script_direc, "script.txt"), 'w') as f:
+                    for level_nid, event_dict in text_data_exporter.dump_script(db.events, db.levels).items():
+                        for event_nid, event_script in event_dict.items():
+                            f.write(event_script + "\n")
+            else:
+                for level_nid, event_dict in text_data_exporter.dump_script(db.events, db.levels).items():
+                    level_direc = os.path.join(script_direc, level_nid)
+                    if not os.path.exists(level_direc):
+                        os.mkdir(level_direc)
+                    else:
+                        shutil.rmtree(level_direc)
+                        os.mkdir(level_direc)
+                    for event_nid, event_script in event_dict.items():
+                        with open(os.path.join(level_direc, event_nid + '.txt'), 'w') as f:
+                            f.write(event_script)
+        else:
+            return False

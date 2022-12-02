@@ -1,5 +1,6 @@
 import sys
 from typing import Tuple
+from enum import Enum
 
 import pygame
 import pygame.image
@@ -15,6 +16,8 @@ constants = {'current_time': 0,
              'delta_t': 0,
              'standalone': True,
              'running': True}
+
+fast_quit = False
 
 # === engine functions ===
 def init():
@@ -33,7 +36,12 @@ def set_title(text):
     pygame.display.set_caption(text)
 
 def build_display(size):
-    return pygame.display.set_mode(size)
+    try:
+        return pygame.display.set_mode(size, pygame.FULLSCREEN if cf.SETTINGS['fullscreen'] else 0)
+    except pygame.error as e:
+        logging.exception(e)
+        logging.error("Your screen is probably too small to activate fullscreen with this resolution. Close the engine and editor. Go to your saves/config.ini file and change the screensize variable to 1. Then try again.")
+        return pygame.display.set_mode(size)
 
 def push_display(surf, size, new_surf):
     pygame.transform.scale(surf, size, new_surf)
@@ -82,6 +90,22 @@ BLEND_RGB_MULT = pygame.BLEND_RGB_MULT
 BLEND_RGBA_ADD = pygame.BLEND_RGBA_ADD
 BLEND_RGBA_SUB = pygame.BLEND_RGBA_SUB
 BLEND_RGBA_MULT = pygame.BLEND_RGBA_MULT
+
+class BlendMode(Enum):
+    NONE = 0
+    BLEND_RGB_ADD = 1
+    BLEND_RGB_SUB = 2
+    BLEND_RGB_MULT = 3
+
+    @staticmethod
+    def convert(blendmode):
+        if blendmode == BlendMode.BLEND_RGB_ADD:
+            return pygame.BLEND_RGB_ADD
+        elif blendmode == BlendMode.BLEND_RGB_SUB:
+            return pygame.BLEND_RGB_SUB
+        elif blendmode == BlendMode.BLEND_RGB_MULT:
+            return pygame.BLEND_RGB_MULT
+        return 0
 
 Surface = pygame.Surface
 
@@ -171,6 +195,9 @@ def set_colorkey(surf, color, rleaccel=True):
 def make_pixel_array(surf):
     return pygame.PixelArray(surf)
 
+def draw_line(surf, color, start, end, width=1):
+    return pygame.draw.line(surf, color, start, end, width)
+
 # === transform functions ===
 def flip_horiz(surf):
     return pygame.transform.flip(surf, 1, 0)
@@ -205,6 +232,9 @@ events = []
 def get_events():
     global events
     events.clear()
+    if fast_quit:
+        terminate()
+        return pygame.QUIT
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             terminate()

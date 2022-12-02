@@ -5,10 +5,10 @@ from app.engine.objects.item import ItemObject
 
 from typing import Callable, List, Tuple
 
-from app.data.database import DB
-from app.data.items import ItemPrefab
-from app.data.klass import Klass
-from app.data.skills import SkillPrefab
+from app.data.database.database import DB
+from app.data.database.items import ItemPrefab
+from app.data.database.klass import Klass
+from app.data.database.skills import SkillPrefab
 from app.engine import engine
 from app.engine.game_menus.menu_components.generic_menu.simple_menu import \
     SimpleIconTable
@@ -17,10 +17,11 @@ from app.engine.graphics.ui_framework.ui_framework import UIComponent
 from app.engine.graphics.ui_framework.ui_framework_layout import HAlignment, convert_align
 from app.engine.icons import draw_chibi, get_icon, get_icon_by_nid
 from app.engine.objects.unit import UnitObject
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
 from app.sprites import SPRITES
 from app.utilities.enums import Alignments, Orientation
 from app.utilities.typing import NID
+
 class SimpleMenuUI():
     def __init__(self, data: List[str] | Callable[[], List] = None, data_type: str = 'str',
                  title: str = None, rows: int = 0, cols: int = 1, row_width: int = -1,
@@ -74,9 +75,9 @@ class SimpleMenuUI():
                 name = processed[1]
             split_data.append((nid, name))
         if self._data_type == 'type_base_item':
-            return [self.parse_item(DB.items.get(item_nid), choice_text) for item_nid, choice_text in split_data]
+            return [self.parse_item(DB.items.get(item_nid), choice_text, item_nid) for item_nid, choice_text in split_data]
         if self._data_type == 'type_game_item':
-            return [self.parse_item(game.item_registry.get(int(item_uid)), choice_text) for item_uid, choice_text in split_data]
+            return [self.parse_item(game.item_registry.get(int(item_uid)), choice_text, item_uid) for item_uid, choice_text in split_data]
         elif self._data_type == 'type_skill':
             return [self.parse_skill(DB.skills.get(skill_nid), choice_text) for skill_nid, choice_text in split_data]
         elif self._data_type == 'type_unit':
@@ -113,9 +114,9 @@ class SimpleMenuUI():
         else:
             return (get_icon(skill), "ERR", "ERR")
 
-    def parse_item(self, item: ItemPrefab | ItemObject, choice_name: str) -> Tuple[engine.Surface, str, str]:
+    def parse_item(self, item: ItemPrefab | ItemObject, choice_name: str, choice_value: str) -> Tuple[engine.Surface, str, str]:
         if item:
-            return (get_icon(item), item.name if not choice_name else choice_name, item.nid)
+            return (get_icon(item), item.name if not choice_name else choice_name, choice_value)
         else:
             return (get_icon(item), "ERR", "ERR")
 

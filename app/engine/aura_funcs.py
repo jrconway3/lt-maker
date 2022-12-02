@@ -1,8 +1,35 @@
-from app.data.database import DB
+from dataclasses import dataclass
+from typing import List
+from app.utilities.typing import Color3, NID
+from app.engine.objects.unit import UnitObject
+from app.data.database.database import DB
 
 from app.engine import action, skill_system, target_system, line_of_sight
 
 import logging
+
+from app.engine import item_funcs
+
+@dataclass
+class AuraInfo():
+    parent_skill: NID
+    aura_skill_nid: NID
+    aura_range: int
+    aura_target: str
+    show_aura: bool = False
+    aura_color: Color3 = None
+
+def get_all_aura_info(unit: UnitObject) -> List[AuraInfo]:
+    all_aura_info: List[AuraInfo] = []
+    for skill in unit.skills:
+        if skill.aura:
+            aura_info = AuraInfo(skill.nid, skill.aura.value,
+                                 skill.aura_range.value, skill.aura_target.value)
+            if skill.show_aura:
+                aura_info.show_aura = True
+                aura_info.aura_color = skill.show_aura.value
+            all_aura_info.append(aura_info)
+    return all_aura_info
 
 def pull_auras(unit, game, test=False):
     for aura_data in game.board.get_auras(unit.position):
@@ -34,7 +61,8 @@ def apply_aura(owner, unit, child_skill, target, test=False):
         logging.debug("Applying Aura %s to %s", child_skill, unit)
         if test:
             # Doesn't need to use action system
-            if child_skill.stack or child_skill.nid not in [skill.nid for skill in unit.skills]:
+            if((child_skill.stack and item_funcs.num_stacks(unit, child_skill.nid) < child_skill.stack.value) or
+                child_skill.nid not in [skill.nid for skill in unit.skills]):
                 unit.skills.append(child_skill)
         else:
             act = action.AddSkill(unit, child_skill)
@@ -53,7 +81,7 @@ def propagate_aura(unit, skill, game):
     game.board.reset_aura(skill.subskill)
     aura_range = skill.aura_range.value
     aura_range = set(range(1, aura_range + 1))
-    positions = target_system.get_shell({unit.position}, aura_range, game.tilemap.width, game.tilemap.height)
+    positions = target_system.get_shell({unit.position}, aura_range, game.board.bounds)
     for pos in positions:
         game.board.add_aura(pos, unit, skill.subskill, skill.aura_target.value)
         # Propagate my aura to others
@@ -69,7 +97,7 @@ def repopulate_aura(unit, skill, game):
     game.board.reset_aura(skill.subskill)
     aura_range = skill.aura_range.value
     aura_range = set(range(1, aura_range + 1))
-    positions = target_system.get_shell({unit.position}, aura_range, game.tilemap.width, game.tilemap.height)
+    positions = target_system.get_shell({unit.position}, aura_range, game.board.bounds)
     for pos in positions:
         game.board.add_aura(pos, unit, skill.subskill, skill.aura_target.value)
 

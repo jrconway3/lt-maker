@@ -1,13 +1,17 @@
+from __future__ import annotations
+import logging
 import math
+from typing import TYPE_CHECKING, List
 
-from app.data.database import DB
-
-from app.utilities import utils
+from app.data.database.database import DB
 from app.engine import item_system, skill_system, text_funcs
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
+from app.utilities import utils
 
-import logging
+if TYPE_CHECKING:
+    from app.engine.objects.unit import UnitObject
+    from app.utilities.typing import NID
 
 def is_magic(unit, item, distance=0) -> bool:
     if item.magic or (item.magic_at_range and distance > 1):
@@ -114,7 +118,10 @@ def create_items(unit, item_nid_list: list) -> list:
             item_nid = val
             droppable = False
         item = create_item(unit, item_nid, droppable)
-        items.append(item)
+        if item:
+            items.append(item)
+        else:
+            logging.error("Cannot find item with nid %s" % item_nid)
     return items
 
 def get_all_items(unit) -> list:
@@ -124,11 +131,50 @@ def get_all_items(unit) -> list:
     items = []
     for item in unit.items:
         if item.multi_item:
-            for subitem in item.subitems:
-                items.append(subitem)
+            subitems = get_all_items_from_multi_item(unit, item)
+            items += subitems
         else:
             items.append(item)
     return items
+
+def get_all_items_with_multiitems(item_list) -> list:
+    """
+    Get all of the normal items, subitems and the multi items themselves from a list of items
+    """
+    items = []
+    for item in item_list:
+        if item.multi_item:
+            subitems = get_all_items_with_multiitems(item.subitems)
+            items += subitems
+        items.append(item)
+    return items
+
+def is_weapon_recursive(unit, item) -> bool:
+    if item_system.is_weapon(unit, item):
+        return True
+    if item.multi_item:
+        if any([is_weapon_recursive(unit, sitem) for sitem in item.subitems]):
+            return True
+    return False
+
+def is_spell_recursive(unit, item) -> bool:
+    if item_system.is_spell(unit, item):
+        return True
+    if item.multi_item:
+        if any([is_spell_recursive(unit, sitem) for sitem in item.subitems]):
+            return True
+    return False
+
+def get_all_items_from_multi_item(unit, item) -> List[ItemObject]:
+    all_items = []
+    if item.multi_item:
+        for subitem in item.subitems:
+            if subitem.multi_item:
+                all_subitems = get_all_items_from_multi_item(unit, subitem)
+                all_items += all_subitems
+            else:
+                all_items.append(subitem)
+    return all_items
 
 def get_all_tradeable_items(unit) -> list:
     items = []
@@ -231,3 +277,6 @@ def create_skills(unit, skill_nid_list: list) -> list:
         if skill:
             skills.append(skill)
     return skills
+
+def num_stacks(unit: UnitObject, skill_nid: NID) -> int:
+    return len([skill for skill in unit.skills if skill.nid == skill_nid])

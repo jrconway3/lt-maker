@@ -24,6 +24,8 @@ class Tags(Enum):
     UNIT_GROUPS = 'Unit Groups'
     MISCELLANEOUS = 'Miscellaneous'
     OVERWORLD = 'Overworld'
+    ACHIEVEMENT = 'Achievement'
+    PERSISTENT_RECORDS = 'Persistent Records'
     HIDDEN = 'Hidden'
 
 UNIVERSAL_FLAGS = ['no_warn']
@@ -451,12 +453,15 @@ Automatically formats all `speak` commands with NID equal to the style's NID wit
 
 A style consists of all parameters that one can apply to individual speak commands, including flags.
 
-A style only applies to `speak` commands inside this event.
+NOTE: Speak styles persist through events. If you load your speak styles in the `on_title_screen` trigger, you will be able to use them
+throughout the entire game.
+
+NOTE: You can set the `__default` speak style, which will automatically apply to all speak commands thereafter.
 """
 
     keywords = ['Style']
-    optional_keywords = ['Speaker', 'TextPosition', 'Width', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail']
-    keyword_types = ['Nid', 'Speaker', 'TextPosition', 'Width', 'Float', 'FontColor', 'FontType', 'DialogBox', 'PositiveInteger', 'Bool', 'MessageTail']
+    optional_keywords = ['Speaker', 'TextPosition', 'Width', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail', 'NameTagBg']
+    keyword_types = ['Nid', 'Speaker', 'AlignOrPosition', 'Width', 'Float', 'FontColor', 'Font', 'Sprite', 'PositiveInteger', 'Bool', 'MessageTail', 'Sprite']
     _flags = ['low_priority', 'hold', 'no_popup', 'fit']
 
 class Speak(EventCommand):
@@ -493,8 +498,8 @@ Extra flags:
         """
 
     keywords = ['Speaker', 'Text']
-    optional_keywords = ['TextPosition', 'Width', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail']
-    keyword_types = ['Speaker', 'Text', 'TextPosition', 'Width', 'Nid', 'Float', 'FontColor', 'FontType', 'DialogBox', 'PositiveInteger', 'Bool', 'MessageTail']
+    optional_keywords = ['TextPosition', 'Width', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail', 'NameTagBg']
+    keyword_types = ['Speaker', 'Text', 'AlignOrPosition', 'Width', 'DialogVariant', 'Float', 'FontColor', 'Font', 'Sprite', 'PositiveInteger', 'Bool', 'MessageTail', 'Sprite']
     _flags = ['low_priority', 'hold', 'no_popup', 'fit', 'no_block']
 
 class Unhold(EventCommand):
@@ -536,9 +541,14 @@ class Transition(EventCommand):
 If a scene is currently displayed, it is faded out to a black screen.
 The next use of this function will fade the scene back into view.
 The optional *Speed* and *Color3* keywords control the speed and color of the transition.
+
+Extra flags:
+
+1. *no_block*: The event script will continue to execute while the screen is fading in or out
         """
 
     optional_keywords = ['Direction', 'Speed', 'Color3']
+    _flags = ['no_block']
 
 class ChangeBackground(EventCommand):
     # Also does remove background
@@ -555,6 +565,27 @@ Displayed portraits are also removed unless the *keep_portraits* flag is set.
 
     optional_keywords = ['Panorama']
     _flags = ["keep_portraits"]
+
+class PauseBackground(EventCommand):
+    nid = "pause_background"
+    tag = Tags.BG_FG
+
+    desc = \
+        """
+Pauses the current background if it has multiple frames. Optional *PauseAt* parameter lets you control exactly which frame to pause on.
+        """
+
+    optional_keywords = ['PauseAt']
+    keyword_types = ['WholeNumber']
+
+class UnpauseBackground(EventCommand):
+    nid = "unpause_background"
+    tag = Tags.BG_FG
+
+    desc = \
+        """
+Unpauses the current background.
+        """
 
 class DispCursor(EventCommand):
     nid = "disp_cursor"
@@ -613,9 +644,34 @@ Causes the cursor to briefly blink on and off at the indicated *Position*.
     keywords = ["Position"]
     _flags = ["immediate"]
 
+class ScreenShake(EventCommand):
+    nid = 'screen_shake'
+    tag = Tags.CURSOR_CAMERA
+
+    desc = \
+        """
+Causes the map to shake rapidly, imitating an earthquake, powerful strike, or other effect.
+Several different screen shake variations are available.
+Set *Duration* to 0 to make screen shake effect last indefinitely.
+        """
+
+    keywords = ["Duration"]
+    optional_keywords = ["ShakeType"]
+    keyword_types = ["Time", "ShakeType"]
+    _flags = ["no_block"]
+
+class ScreenShakeEnd(EventCommand):
+    nid = 'screen_shake_end'
+    tag = Tags.CURSOR_CAMERA
+
+    desc = \
+        """
+Ends any extant screen shake command if there is one present
+        """
+
 class GameVar(EventCommand):
     nid = 'game_var'
-    nickname = 'set'
+    nickname = 'gvar'
     tag = Tags.GAME_VARS
 
     desc = \
@@ -629,7 +685,7 @@ The *Nid* is the variable's identifier, and the *Condition* is the value that is
 
 class IncGameVar(EventCommand):
     nid = 'inc_game_var'
-    nickname = 'inc'
+    nickname = 'ginc'
     tag = Tags.GAME_VARS
 
     desc = \
@@ -643,6 +699,7 @@ Increments a game variable by one, or by a Python expression provided using the 
 
 class LevelVar(EventCommand):
     nid = 'level_var'
+    nickname = 'lvar'
     tag = Tags.LEVEL_VARS
 
     desc = \
@@ -658,6 +715,7 @@ value that is given to the variable. *Expression* can be a number or a Python ex
 
 class IncLevelVar(EventCommand):
     nid = 'inc_level_var'
+    nickname = 'linc'
     tag = Tags.LEVEL_VARS
 
     desc = \
@@ -668,6 +726,42 @@ Increments a level variable by one, or by a Python expression provided using the
     keywords = ["Nid"]
     optional_keywords = ["Expression"]
     keyword_types = ["GeneralVar", "Expression"]
+
+class SetNextChapter(EventCommand):
+    nid = 'set_next_chapter'
+    tag = Tags.GAME_VARS
+
+    desc = \
+        """
+Sets the next chapter the player will go to
+        """
+
+    keywords = ["Chapter"]
+
+class SetFogOfWar(EventCommand):
+    nid = 'set_fog_of_war'
+    tag = Tags.LEVEL_VARS
+
+    desc = \
+        """
+Sets the fog of war state for the current level.
+        """
+
+    keywords = ["FogOfWarType", "Radius"]
+    optional_keywords = ["AIRadius", "OtherRadius"]
+    keyword_types = ["FogOfWarType", "PositiveInteger", "PositiveInteger", "PositiveInteger"]
+
+class EnableSupports(EventCommand):
+    nid = 'enable_supports'
+    tag = Tags.GAME_VARS
+
+    desc = \
+    """
+Activates or deactivates supports.
+    """
+
+    keywords = ["Activated"]
+    keyword_types = ['Bool']
 
 class WinGame(EventCommand):
     nid = 'win_game'
@@ -686,6 +780,51 @@ class LoseGame(EventCommand):
         """
 Ends the current chapter in defeat. The game over screen will be displayed.
         """
+
+class MainMenu(EventCommand):
+    nid = 'main_menu'
+    tag = Tags.LEVEL_VARS
+
+    desc = \
+        """
+Returns the player to the main menu
+        """
+
+class ForceChapterCleanUp(EventCommand):
+    nid = 'force_chapter_clean_up'
+    tag = Tags.LEVEL_VARS
+
+    desc = \
+        """
+Cleans up the chapter as if the chapter were about to end
+What does it do?:
+    - Increments End Chapter Supports
+    - Resets all units, items, and skills
+    - Resurrects units if you are in casual mode
+    - Moves dead unit items to the convoy
+    - Resets the turnwheel
+    - Sets turncount to 0
+Unlike a true chapter clean up, it doesn't:
+    - Remove any units from the field
+    - Remove all generic units from memory
+    - Remove all now unused items and skills from memory
+    - Remove any regions or terrain statuses
+    - Reset level vars
+    - Reset talk options or base convos
+    - Actually remove the level
+        """
+
+class SkipSave(EventCommand):
+    nid = 'skip_save'
+    tag = Tags.LEVEL_VARS
+
+    desc = \
+    """
+Sets whether or not to bring up the save screen after the level ends.
+    """
+
+    keywords = ["TrueOrFalse"]
+    keyword_types = ["Bool"]
 
 class ActivateTurnwheel(EventCommand):
     nid = 'activate_turnwheel'
@@ -751,6 +890,38 @@ they cannot turn time back past the point when this command was executed.
     keyword_types = ["Tilemap", "PositionOffset", "Tilemap"]
     _flags = ["reload"]  # Should place units in previously recorded positions
 
+class ChangeBgTilemap(EventCommand):
+    nid = 'change_bg_tilemap'
+    tags = Tags.TILEMAP
+
+    desc = "Changes the bg tilemap for this level. Call without arguments to remove the bg tilemap. Can be turnwheeled, unlike `change_tilemap`."
+
+    optional_keywords = ['Tilemap']
+    keyword_types = ['Tilemap']
+
+class SetGameBoardBounds(EventCommand):
+    nid = 'set_game_board_bounds'
+    tag = Tags.TILEMAP
+
+    desc = \
+        """
+Instead of using the natural boundaries of the tilemap as the board boundaries,
+specific bounds within the tilemap can be specified
+Bounds must form a rectangle
+        """
+
+    keywords = ["MinX", "MinY", "MaxX", "MaxY"]
+    keyword_types = ["WholeNumber", "WholeNumber", "WholeNumber", "WholeNumber"]
+
+class RemoveGameBoardBounds(EventCommand):
+    nid = 'remove_game_board_bounds'
+    tag = Tags.TILEMAP
+
+    desc = \
+        """
+Return to using the natural boundaries of the tilemap as the board boundaries
+        """
+
 class LoadUnit(EventCommand):
     nid = 'load_unit'
     tag = Tags.ADD_REMOVE_INTERACT_WITH_UNITS
@@ -780,6 +951,8 @@ Several optional keywords can also be provided to further modify the new unit:
 *AI* defines an AI preset to be given to the unit, *Faction* assignes the unit
 to one of the factions for the chapter, the unit can be given an animation variant
 (*AnimationVariant*), and finally the unit can be given an inventory of items (*ItemList*).
+
+
         """
 
     # Nid, class, level, team, ai, faction, anim variant
@@ -806,12 +979,15 @@ The *Level* value, if provided, sets the unit's level.
 The *Position* value indicates the map coordinates that the unit will be placed at.
 *EntryType* defines which placement animation is used.
 Finally, *Placement* defines the behavior that occurs if the chosen map position is already occupied.
+
+The optional flag *copy_stats* will cause the new unit to have exactly the same stats as the original *Unit*, rather than being calculated anew.
         """
 
     # Unit template
     keywords = ["Unit"]
     optional_keywords = ["Nid", "Level", "Position", "EntryType", "Placement"]
     keyword_types = ["Unit", "Nid", "PositiveInteger", "Position", "EntryType", "Placement"]
+    _flags = ["copy_stats"]
 
 class AddUnit(EventCommand):
     nid = 'add_unit'
@@ -825,10 +1001,11 @@ Places *Unit* on the map. The unit must be in the chapter's data or otherwise ha
 The optional keywords define how the unit is placed. *Position* indicates the map coordinates that the unit will be placed at.
 *EntryType* defines which placement animation is used. *Placement* defines the behavior that occurs if the chosen map position is already occupied.
 If no placement information is provided, the unit will attempt to be placed at its starting location from the chapter data (if any).
+*AnimationType* defines from which direction the unit enters, if using the *fade* entrytype.
         """
 
     keywords = ["Unit"]
-    optional_keywords = ["Position", "EntryType", "Placement"]
+    optional_keywords = ["Position", "EntryType", "Placement", "AnimationType"]
 
 class MoveUnit(EventCommand):
     nid = 'move_unit'
@@ -842,13 +1019,14 @@ Causes *Unit* to move to a new position on the map.
 The optional keywords define how the movement occurs.
 *Position* indicates the target map coordinates. *MovementType* selects the method of movement.
 *Placement* defines the behavior that occurs if the chosen map position is already occupied.
+*Speed* defines the speed of the moving unit. 120 is the default. Lower numbers are faster and higher slower.
 
 The *no_block* optional flag causes the event script to continue to execute while the unit is moving.
 The *no_follow* flag prevents the camera from tracking the unit as it moves.
         """
 
     keywords = ["Unit"]
-    optional_keywords = ["Position", "MovementType", "Placement"]
+    optional_keywords = ["Position", "MovementType", "Placement", "Speed"]
     _flags = ['no_block', 'no_follow']
 
 class RemoveUnit(EventCommand):
@@ -859,10 +1037,12 @@ class RemoveUnit(EventCommand):
     desc = \
         """
 Removes *Unit* from the map. The optional *RemoveType* keyword specifies the method of removal.
+If the `fade` RemoveType is chosen, the unit will use `AnimationType` to determine which direction
+(if any) to fade into.
         """
 
     keywords = ["Unit"]
-    optional_keywords = ["RemoveType"]
+    optional_keywords = ["RemoveType", 'AnimationType']
 
 class KillUnit(EventCommand):
     nid = 'kill_unit'
@@ -949,7 +1129,7 @@ Sets *Unit*'s mana to *Mana*.
         """
 
     keywords = ["Unit", "Mana"]
-    keyword_types = ["Unit", "PositiveIntegerOrZero"]
+    keyword_types = ["Unit", "WholeNumber"]
 
 class AddFatigue(EventCommand):
     nid = 'add_fatigue'
@@ -976,7 +1156,7 @@ If the flag `increment_mode` is supplied, this will add the value to the existin
 Please try to avoid using `increment_mode` with non-numerical fields. That would erase your field and then nobody will be happy.
     """
     keywords = ["Unit", "Key", "Value"]
-    keyword_types = ['Unit', 'String', 'String']
+    keyword_types = ['Unit', 'UnitField', 'String']
     _flags = ['increment_mode']
 
 class Resurrect(EventCommand):
@@ -1019,6 +1199,17 @@ class HasTraded(EventCommand):
     desc = \
         """
 Sets the unit's state as having already traded this turn. The unit can still attack, but can no longer move.
+        """
+
+    keywords = ['Unit']
+
+class HasFinished(EventCommand):
+    nid = 'has_finished'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets the unit's state as already having completed all of its actions this turn. The unit will be grayed out.
         """
 
     keywords = ['Unit']
@@ -1121,6 +1312,23 @@ The *droppable* flag determines whether the item is set as a "droppable" item (g
     keywords = ["GlobalUnitOrConvoy", "Item"]
     _flags = ['no_banner', 'no_choice', 'droppable']
 
+class EquipItem(EventCommand):
+    nid = 'equip_item'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+    desc = \
+        """
+Forces *GlobalUnit* to equip *Item*.
+
+The event will produce no effect if the item does not exist in the unit's inventory yet.
+It will also produce no effect if the item cannot be equipped by that unit.
+If the item chosen is a multi-item, the top-most valid option will be equipped.
+If the *recursive* flag is set, the event will first attempt to equip items directly
+in the unit's inventory, and then if no matching item is found, check the sub-items of multi-items.
+        """
+
+    keywords = ["GlobalUnit", "Item"]
+    _flags = ['recursive']
+
 class RemoveItem(EventCommand):
     nid = 'remove_item'
     tag = Tags.MODIFY_UNIT_PROPERTIES
@@ -1134,6 +1342,61 @@ Also, if the item is removed from the convoy, there will not be a banner.
 
     keywords = ["GlobalUnitOrConvoy", "Item"]
     _flags = ['no_banner']
+
+class MoveItem(EventCommand):
+    nid = 'move_item'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Removes *Item* from the inventory of *Giver* and adds it to the inventory of *Receiver*.
+If *Item* is not supplied, just moves the last item from the inventory of *Giver*.
+If the inventory of *Receiver* is full, this command will not succeed.
+        """
+
+    keywords = ["Giver", "Receiver"]
+    optional_keywords = ["Item"]
+    keyword_types = ["GlobalUnitOrConvoy", "GlobalUnitOrConvoy", "Item"]
+
+class MoveItemBetweenConvoys(EventCommand):
+    nid = 'move_item_between_convoys'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Moves *Item* from the convoy of *Party1* and adds it to the convoy of *Party2*.
+        """
+
+    keywords = ["Item", "Party1", "Party2"]
+    keyword_types = ["Item", "Party", "Party"]
+
+class SetItemUses(EventCommand):
+    nid = 'set_item_uses'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Sets the uses of an *Item* to *Uses* in the inventory of *GlobalUnitOrConvoy*.
+
+*  the *additive* flag adds the given uses instead
+        """
+
+    keywords = ["GlobalUnitOrConvoy", "Item", "Uses"]
+    keyword_types = ["GlobalUnitOrConvoy", "Item", "Integer"]
+
+    _flags = ["additive"]
+
+class SetItemData(EventCommand):
+    nid = 'set_item_data'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Finds the *Item* in the inventory of *GlobalUnitOrConvoy*.
+Then, it sets the data field *Nid* of the *Item* to *Expression*.
+        """
+
+    keywords = ["GlobalUnitOrConvoy", "Item", "Nid", "Expression"]
 
 class ChangeItemName(EventCommand):
     nid = 'change_item_name'
@@ -1164,10 +1427,15 @@ class AddItemToMultiitem(EventCommand):
     desc = \
         """
 Adds a new item to an existing multi-item in the inventory of *GlobalUnitOrConvoy*.
+
+Flags:
+-`no_duplicate` will not add if the item already exists on the multi-item.
+If the *equip* flag is set, the unit will automatically equip the added item.
         """
 
     keywords = ["GlobalUnitOrConvoy", "MultiItem", "ChildItem"]
     keyword_types = ["GlobalUnitOrConvoy", "Item", "Item"]
+    _flags = ['no_duplicate', 'equip']
 
 class RemoveItemFromMultiitem(EventCommand):
     nid = 'remove_item_from_multiitem'
@@ -1176,10 +1444,36 @@ class RemoveItemFromMultiitem(EventCommand):
     desc = \
         """
 Removes an item from an existing multi-item in the inventory of *GlobalUnitOrConvoy*.
+If *ChildItem* is not specified, all items will be removed form the existing multi-item in the inventory of *GlobalUnitOrConvoy*.
         """
 
-    keywords = ["GlobalUnitOrConvoy", "MultiItem", "ChildItem"]
+    keywords = ["GlobalUnitOrConvoy", "MultiItem"]
+    optional_keywords = ['ChildItem']
     keyword_types = ["GlobalUnitOrConvoy", "Item", "Item"]
+
+class AddItemComponent(EventCommand):
+    nid = 'add_item_component'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Adds an *ItemComponent* with optional value of *Expression* to *Item* in the inventory of *GlobalUnitOrConvoy*.
+Can be used to modify a specific item within your game, such as for forging.
+        """
+
+    keywords = ["GlobalUnitOrConvoy", "Item", "ItemComponent"]
+    optional_keywords = ["Expression"]
+
+class RemoveItemComponent(EventCommand):
+    nid = 'remove_item_component'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Removes *ItemComponent* from *Item* in the inventory of *GlobalUnitOrConvoy*.
+        """
+
+    keywords = ["GlobalUnitOrConvoy", "Item", "ItemComponent"]
 
 class GiveMoney(EventCommand):
     nid = 'give_money'
@@ -1225,7 +1519,9 @@ Gives *Experience* to *GlobalUnit*.
         """
 
     keywords = ["GlobalUnit", "Experience"]
-    keyword_types = ["GlobalUnit", "PositiveInteger"]
+    keyword_types = ["GlobalUnit", "Integer"]
+
+    _flags = ['silent']
 
 class SetExp(EventCommand):
     nid = 'set_exp'
@@ -1237,7 +1533,7 @@ Sets *GlobalUnit*'s current experience to *Experience*.
         """
 
     keywords = ["GlobalUnit", "Experience"]
-    keyword_types = ["GlobalUnit", "PositiveIntegerOrZero"]
+    keyword_types = ["GlobalUnit", "WholeNumber"]
 
 class GiveWexp(EventCommand):
     nid = 'give_wexp'
@@ -1258,9 +1554,12 @@ class GiveSkill(EventCommand):
     desc = \
         """
 *GlobalUnit* gains *Skill*. If the *no_banner* flag is set, the player will not be informed of this.
-        """
+Optional *Initiator* global unit can be given to give the skill an initiator.
+         """
 
     keywords = ["GlobalUnit", "Skill"]
+    optional_keywords = ["Initiator"]
+    keyword_types = ["GlobalUnit", "Skill", "GlobalUnit"]
     _flags = ['no_banner']
 
 class RemoveSkill(EventCommand):
@@ -1273,6 +1572,8 @@ class RemoveSkill(EventCommand):
         """
 
     keywords = ["GlobalUnit", "Skill"]
+    optional_keywords = ['Count']
+    keyword_types = ['GlobalUnit', 'Skill', 'Integer']
     _flags = ['no_banner']
 
 class ChangeAI(EventCommand):
@@ -1297,6 +1598,18 @@ Changes the *Party* of *GlobalUnit*. Used for games in which the player's units 
 
     keywords = ["GlobalUnit", "Party"]
 
+class ChangeFaction(EventCommand):
+    nid = 'change_faction'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Changes the *Faction* of *GlobalUnit*.
+        """
+
+    keywords = ["GlobalUnit", "Faction"]
+
+
 class ChangeTeam(EventCommand):
     nid = 'change_team'
     tag = Tags.MODIFY_UNIT_PROPERTIES
@@ -1318,6 +1631,16 @@ Changes *GlobalUnit*'s portrait to the one specified by *PortraitNid*.
         """
 
     keywords = ["GlobalUnit", "PortraitNid"]
+
+class ChangeUnitDesc(EventCommand):
+    nid = 'change_unit_desc'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Changes *GlobalUnit*'s description to *String*.
+        """
+    keywords = ["GlobalUnit", "String"]
 
 class ChangeStats(EventCommand):
     nid = 'change_stats'
@@ -1365,19 +1688,32 @@ Sets the growths (STR, SKL, etc.) of *GlobalUnit* to specific values defined in 
 
     keywords = ["GlobalUnit", "StatList"]
 
+class SetUnitLevel(EventCommand):
+    nid = 'set_unit_level'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets *GlobalUnit*'s level to the specified value. Does not change stats like a levelup.
+        """
+
+    keywords = ["GlobalUnit", "Level"]
+    keyword_types = ["GlobalUnit", "Integer"]
+
 class AutolevelTo(EventCommand):
     nid = 'autolevel_to'
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
     desc = \
         """
-Levels *GlobalUnit* up to *Level*. If *Level* is less than the unit's current level, this does nothing.
-
+Levels *GlobalUnit* up to *Level*.
+If *GrowthMethod* is not specified, the unit will use whatever they would normally use for the player's selected difficulty setting.
 If the *hidden* flag is set, the unit still gains the effects of the indicated level-ups, but its actual level is not incremented. In other words, the unit gets more powerful but remains at the same level.
         """
 
     keywords = ["GlobalUnit", "Level"]
-    keyword_types = ["GlobalUnit", "PositiveInteger"]
+    optional_keywords = ["GrowthMethod"]
+    keyword_types = ["GlobalUnit", "Integer", "GrowthMethod"]
     # Whether to actually change the unit's level
     _flags = ["hidden"]
 
@@ -1387,13 +1723,13 @@ class SetModeAutolevels(EventCommand):
 
     desc = \
         """
-Changes the number of additional levels that enemy units gain from the difficulty mode setting. This can be used to grant a higher number of bonus levels to enemies later in the game to maintain a resonable difficulty curve. *Level* specifies the number of levels to be granted. If the *hidden* flag is set, enemy units will still gain the effects of the indicated level-ups, but their actual level is not incremented. In other words, the units get more powerful but remains at the same level.
+Changes the number of additional levels that enemy units gain from the difficulty mode setting. This can be used to grant a higher number of bonus levels to enemies later in the game to maintain a resonable difficulty curve. *Level* specifies the number of levels to be granted. If the *hidden* flag is set, enemy units will still gain the effects of the indicated level-ups, but their actual level is not incremented. In other words, the units get more powerful but remains at the same level. If the *boss* flag is included, this will only affect units with the "Boss" tag.
         """
 
     keywords = ["Level"]
     keyword_types = ["Integer"]
     # Whether to actually change the unit's level
-    _flags = ["hidden"]
+    _flags = ["hidden", "boss"]
 
 class Promote(EventCommand):
     nid = 'promote'
@@ -1401,11 +1737,13 @@ class Promote(EventCommand):
 
     desc = \
         """
-Promotes *GlobalUnit* into a specified class (*Klass*) or, if no *Klass* is given, the unit promotes as normal using its promotion data.
+Promotes *GlobalUnit* into a specified class (*Klass*) or, if no *Klass* is given, the unit promotes as normal using its promotion data. If more than one *Klass* is given (comma-delimited), the player will receive a promotion choice menu.
+If the *silent* flag is given, the unit will promote immediately into the specified class (*Klass*).
         """
 
     keywords = ["GlobalUnit"]
-    optional_keywords = ["Klass"]
+    optional_keywords = ["KlassList"]
+    _flags = ["silent"]
 
 class ChangeClass(EventCommand):
     nid = 'change_class'
@@ -1512,6 +1850,8 @@ Sets the base conversation specified by *Nid* to unselectable and greyed-out, bu
         """
 
     keywords = ["Nid"]
+    optional_keywords = ["Ignore"]
+    keyword_types = ["Nid", "Bool"]
 
 class RemoveBaseConvo(EventCommand):
     nid = 'remove_base_convo'
@@ -1554,10 +1894,12 @@ class AddMarketItem(EventCommand):
 
     desc = \
         """
-Adds *Item* to the list of purchaseable goods in the base's market.
+Adds *Item* to the list of purchaseable goods in the base's market. If the optional *Stock* is supplied, adds that amount of stock of the item to the base's market.
         """
 
     keywords = ["Item"]
+    optional_keywords = ["Stock"]
+    keywords_types = ["Item", "WholeNumber"]
 
 class RemoveMarketItem(EventCommand):
     nid = 'remove_market_item'
@@ -1565,10 +1907,21 @@ class RemoveMarketItem(EventCommand):
 
     desc = \
         """
-Removes *Item* from the list of purchaseable goods in the base's market.
+Removes *Item* from the list of purchaseable goods in the base's market. If the optional *Stock* is supplied, removes that amount of stock of the item from the base's market.
         """
 
     keywords = ["Item"]
+    optional_keywords = ["Stock"]
+    keywords_types = ["Item", "WholeNumber"]
+
+class ClearMarketItems(EventCommand):
+    nid = 'clear_market_items'
+    tag = Tags.GAME_VARS
+
+    desc = \
+        """
+Removes all items from the list of purchaseable goods in the base's market.
+        """
 
 class AddRegion(EventCommand):
     nid = 'add_region'
@@ -1583,7 +1936,7 @@ The optional *String* keyword can be used to specify the sub-region type.
 When set, the *only_once* flag prevents multiples of the same region from being created. The *interrupt_move* flag halts a unit's movement once they move into the region.
         """
 
-    keywords = ["Nid", "Position", "Size", "RegionType"]
+    keywords = ["Region", "Position", "Size", "RegionType"]
     optional_keywords = ["String"]
     _flags = ["only_once", "interrupt_move"]
 
@@ -1593,10 +1946,10 @@ class RegionCondition(EventCommand):
 
     desc = \
         """
-Modifies the trigger *Expression* for the event-type region specified by *Nid*.
+Modifies the trigger *Expression* for the event-type region specified by *Region*.
         """
 
-    keywords = ["Nid", "Expression"]
+    keywords = ["Region", "Expression"]
 
 class RemoveRegion(EventCommand):
     nid = 'remove_region'
@@ -1604,10 +1957,10 @@ class RemoveRegion(EventCommand):
 
     desc = \
         """
-Removes the region specified by *Nid*.
+Removes the region specified by *Region*.
         """
 
-    keywords = ["Nid"]
+    keywords = ["Region"]
 
 class ShowLayer(EventCommand):
     nid = 'show_layer'
@@ -1704,12 +2057,22 @@ Stores a given position as the event's home position. It can later be referenced
 class MapAnim(EventCommand):
     nid = 'map_anim'
     tag = Tags.TILEMAP
-    desc = ('Plays a map animation denoted by the nid *MapAnim* at *Position*. Optional args: a speed multiplier'
-            ' which increases the length of time it takes to play the animation (larger is slower)')
+    desc = \
+'''Plays a map animation denoted by the nid *MapAnim* at *Position*. Optional args: a speed multiplier
+which increases the length of time it takes to play the animation (larger is slower).
+
+Flags:
+* *no_block* - whether to wait until the animation finishes to continue
+* *permanent* - whether the effect persists
+* *blend* - additive blending
+* *multiply* - multiplicative blending
+* *overlay* - whether the animation will be played above units or below units
+'''
+
     keywords = ["MapAnim", "FloatPosition"]
     optional_keywords = ["Speed"]
     keyword_types = ["MapAnim", "FloatPosition", "Float"]
-    _flags = ["no_block", "permanent", "blend"]
+    _flags = ["no_block", "permanent", "blend", "multiply", "overlay"]
 
 class RemoveMapAnim(EventCommand):
     nid = 'remove_map_anim'
@@ -1717,6 +2080,23 @@ class RemoveMapAnim(EventCommand):
     desc = ('Removes a map animation denoted by the nid *MapAnim* at *Position*. Only removes MapAnims that were created using'
             ' the "permanent" flag')
     keywords = ["MapAnim", "Position"]
+
+class AddUnitMapAnim(EventCommand):
+    nid = 'add_unit_map_anim'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+    desc = ('Plays a map animation denoted by the nid *MapAnim* on *Unit*. Optional args: a speed multiplier'
+            ' which increases the length of time it takes to play the animation (larger is slower)')
+    keywords = ["MapAnim", "Unit"]
+    optional_keywords = ["Speed"]
+    keyword_types = ["MapAnim", "Unit", "Float"]
+    _flags = ["no_block", "permanent", "blend"]
+
+class RemoveUnitMapAnim(EventCommand):
+    nid = 'remove_unit_map_anim'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+    desc = ('Removes a map animation denoted by the nid *MapAnim* from *Unit*. Only removes MapAnims that were created using'
+            ' the "permanent" flag')
+    keywords = ["MapAnim", "Unit"]
 
 class MergeParties(EventCommand):
     nid = 'merge_parties'
@@ -1794,11 +2174,12 @@ class Shop(EventCommand):
 
     desc = \
         """
-Causes *Unit* to enter a shop that sells *ItemList* items. The optional *ShopFlavor* keyword determines whether the shop appears as a vendor or an armory.
+Causes *Unit* to enter a shop that sells *ItemList* items. The optional *ShopFlavor* keyword determines whether the shop appears as a vendor or an armory. The optional *StockList* keyword determines if an item should have a limited stock. The order will be the same as ItemList. Use -1 for unlimited stock.
         """
 
     keywords = ["Unit", "ItemList"]
-    optional_keywords = ["ShopFlavor"]
+    optional_keywords = ["ShopFlavor", "StockList"]
+    keyword_types = ["Unit", "ItemList", "ShopFlavor", "IntegerList"]
 
 class Choice(EventCommand):
     nid = 'choice'
@@ -1874,6 +2255,17 @@ class Unchoice(EventCommand):
     """
 If this event was called from a Choice, then prevents that Choice from ending once this event ends. Otherwise, does nothing.
     """
+
+class Textbox(EventCommand):
+    nid = 'textbox'
+    tag = Tags.MISCELLANEOUS
+
+    desc = ""
+
+    keywords = ['NID', 'Text']
+    optional_keywords = ['BoxPosition', 'Width', 'NumLines', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'BG']
+    keyword_types = ['Nid', 'String', 'AlignOrPosition', 'Width', 'PositiveInteger', 'Nid', 'Float', 'FontColor', 'Font', 'Sprite']
+    _flags = ['expression']
 
 class Table(EventCommand):
     nid = 'table'
@@ -2001,11 +2393,11 @@ class Alert(EventCommand):
         """
 Displays the text given in *String* in an alert box. This is used for events such as "The switch was pulled!".
 
-Optionally, takes in an item icon from *Item* to display, or a skill icon from *Skill* to display.
+Optionally, takes in an item icon from *Item* to display, a skill icon from *Skill* to display, or a named icon *Icon*.
         """
 
     keywords = ["String"]
-    optional_keywords = ["Item", "Skill"]
+    optional_keywords = ["Item", "Skill", "Icon"]
 
 class VictoryScreen(EventCommand):
     nid = 'victory_screen'
@@ -2130,12 +2522,14 @@ class TriggerScriptWithArgs(EventCommand):
 
     desc = \
         """
-Executes the event script specified by *Event*. Can feed up to five arguments of your choice to the new event. These args can be accessed via {1}, {2}, {3}, {4}, and {5}.
+Executes the event script specified by *Event*. Can feed any number of arguments of your choice to the new event, as long as they are strings. You will give each of these arguments a name that you can access in the called event using `{eval:name}`, syntax.
+
+For example, if you called `trigger_script_with_args;MyEvent;Color,Purple,Animal,Dog`, when MyEvent runs you could access the color in that event using `{eval:Color}` which would return 'Purple'. Similarly, you could access the animal using `{eval:Animal}`.
         """
 
     keywords = ["Event"]
-    optional_keywords = ["Arg1", "Arg2", "Arg3", "Arg4", "Arg5"]
-    keyword_types = ["Event", "String", "String", "String", "String", "String"]
+    optional_keywords = ["ArgList"]
+    keyword_types = ["Event", "ArgList"]
 
 class LoopUnits(EventCommand):
     nid = 'loop_units'
@@ -2211,7 +2605,8 @@ class OverworldCinematic(EventCommand):
     tag = Tags.OVERWORLD
     desc = 'Sets the background to the overworld, allowing us to create cutscenes set in the overworld'
 
-    optional_keywords = ['OverworldNid']
+    optional_keywords = ['OverworldNID']
+    keyword_types = ['OverworldNID']
 
 class SetOverworldPosition(EventCommand):
     nid = 'set_overworld_position'
@@ -2242,6 +2637,7 @@ class RevealOverworldNode(EventCommand):
             'By default, fades in via animation; use the *immediate* flag to skip this anim.')
 
     keywords = ['OverworldNodeNid']
+    keyword_types = ["OverworldLocation"]
     _flags = ["immediate"]
 
 class RevealOverworldRoad(EventCommand):
@@ -2297,6 +2693,60 @@ class SetOverworldMenuOptionVisible(EventCommand):
     keywords = ['OverworldNodeNID', 'OverworldNodeMenuOption', 'Setting']
     keyword_types = ['OverworldNodeNID', 'OverworldNodeMenuOption', 'Bool']
 
+class CreateAchievement(EventCommand):
+    nid = 'create_achievement'
+    tag = Tags.ACHIEVEMENT
+    desc = ('Creates a new achievement. Set `completed` flag to automatically complete the achievement when it is first unlocked. Set `hidden` flag to prevent the player from seeing it until it is completed. Does nothing if nid already present.')
+
+    keywords = ['Nid', 'Name', 'Description']
+    _flags = ['completed', 'hidden']
+    keyword_types = ['Nid', 'String', 'String']
+
+class UpdateAchievement(EventCommand):
+    nid = 'update_achievement'
+    tag = Tags.ACHIEVEMENT
+    desc = ('Updates the name and description of achievement with the given nid. Does nothing if there is no achievement with that nid.')
+
+    keywords = ['Achievement', 'Name', 'Description']
+    _flags = ['hidden']
+    keyword_types = ['Achievement', 'String', 'String']
+
+class CompleteAchievement(EventCommand):
+    nid = 'complete_achievement'
+    tag = Tags.ACHIEVEMENT
+    desc = ('True marks the achievement as complete. False marks it as incomplete. No effect if achievement doesn\'t exist.\n\nYou can check an achievement\'s completion status with `check_achievement("nid")`\n\nbanner flag determines whether a pop-up box will appear notifying the player.')
+
+    keywords = ['Achievement', 'Completed']
+    keyword_types = ['Achievement', 'Bool']
+
+    _flags = ['banner']
+
+class ClearAchievements(EventCommand):
+    nid = 'clear_achievements'
+    tag = Tags.ACHIEVEMENT
+    desc = ('Clear all achievements from the player\'s computer')
+
+class CreateRecord(EventCommand):
+    nid = 'create_record'
+    tag = Tags.PERSISTENT_RECORDS
+    desc = ('Creates a new persistent record. Does nothing if nid is already present')
+
+    keywords = ['Nid', 'Expression']
+
+class UpdateRecord(EventCommand):
+    nid = 'update_record'
+    tag = Tags.PERSISTENT_RECORDS
+    desc = ('Updates a persistent record with a new value. Does nothing if nid is not present')
+
+    keywords = ['Nid', 'Expression']
+
+class DeleteRecord(EventCommand):
+    nid = 'delete_record'
+    tag = Tags.PERSISTENT_RECORDS
+    desc = ('Remove a persistent record. Does nothing if nid is not present')
+
+    keywords = ['Nid']
+
 def get_commands():
     return EventCommand.__subclasses__()
 
@@ -2349,8 +2799,8 @@ def parse_text_to_command(text: str, strict: bool = False) -> Tuple[EventCommand
         # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
         # we do NOT want to use this with evals, hence the '{' and '}' stoppage
         if '(' in arg and ')' in arg and '{' not in arg and '}' not in arg and \
-                ('FLAG' in arg or cmd_keyword not in evaluables):
-            return arg[arg.find("(") + 1 : arg.find(")")]
+                ('FLAG' in arg or (cmd_keyword and cmd_keyword not in evaluables and 'list' not in cmd_keyword.lower())):
+            return arg[arg.find("(") + 1 : arg.rfind(")")]
         return arg
 
     def _parse_command(command: EventCommand, arguments: List[str]) -> Tuple:
@@ -2362,7 +2812,7 @@ def parse_text_to_command(text: str, strict: bool = False) -> Tuple[EventCommand
 
         for idx, arg in enumerate(cmd_args):
             # remove line break chars. speak has its own handling, so keep them
-            if command_info.nid != 'speak':
+            if command_info.nid not in ('speak', 'textbox'):
                 arg = arg.replace('\u2028', '')
 
             all_keywords = command_info.keywords + command_info.optional_keywords

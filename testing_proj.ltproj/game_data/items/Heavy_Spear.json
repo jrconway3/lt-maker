@@ -42,6 +42,16 @@
                 16
             ],
             [
+                "uses_options",
+                [
+                    [
+                        "LoseUsesOnMiss (T/F)",
+                        "F",
+                        "Lose uses even on miss"
+                    ]
+                ]
+            ],
+            [
                 "weight",
                 14
             ],
@@ -66,6 +76,10 @@
                 [
                     "Armor"
                 ]
+            ],
+            [
+                "effective_multiplier",
+                1
             ],
             [
                 "effective",

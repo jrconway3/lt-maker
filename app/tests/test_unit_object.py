@@ -6,7 +6,7 @@ from app.tests.mocks.mock_game import get_mock_game
 
 class UnitObjectUnitTests(unittest.TestCase):
     def setUp(self):
-        from app.data.database import DB
+        from app.data.database.database import DB
         DB.load('testing_proj.ltproj')
         from app.engine import equations
         equations.clear()
@@ -17,8 +17,8 @@ class UnitObjectUnitTests(unittest.TestCase):
 
     def test_db_unit_constructor(self):
         unit = self.db_unit
-        from app.data.database import DB
-        from app.data.units import UnitPrefab
+        from app.data.database.database import DB
+        from app.data.database.units import UnitPrefab
         self.assertEqual(unit.nid, "Eirika")
         self.assertEqual(unit.generic, False)
         self.assertEqual(unit.persistent, True)
@@ -69,6 +69,7 @@ class UnitObjectUnitTests(unittest.TestCase):
                     'action_state': (False, False, False, False, False, False, False, False),
                     'affinity': 'Light',
                     'ai': 'None',
+                    'roam_ai': 'None',
                     'ai_group': None,
                     'ai_group_active': False,
                     'built_guard': False,
@@ -142,6 +143,7 @@ class UnitObjectUnitTests(unittest.TestCase):
         self.assertEqual(unit.generic, False)
         self.assertEqual(unit.persistent, True)
         self.assertEqual(unit.ai, 'None')
+        self.assertEqual(unit.roam_ai, 'None')
         self.assertEqual(unit.ai_group, None)
         self.assertEqual(unit.faction, None)
         self.assertEqual(unit.team, "player")

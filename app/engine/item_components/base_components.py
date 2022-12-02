@@ -1,5 +1,6 @@
-from app.data.item_components import ItemComponent, ItemTags
-from app.data.components import Type
+from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
+from app.data.database.database import DB
 
 class Spell(ItemComponent):
     nid = 'spell'
@@ -116,10 +117,10 @@ class Unsplashable(ItemComponent):
 
 class Value(ItemComponent):
     nid = 'value'
-    desc = "Item has a value and can be bought and sold. Items sell for half their value."
+    desc = "Item has a value and can be bought and sold. Items sell for a reduced value based on the value multiplier constant."
     tag = ItemTags.BASE
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 0
 
     def full_price(self, unit, item):
@@ -128,14 +129,14 @@ class Value(ItemComponent):
     def buy_price(self, unit, item):
         if item.uses:
             frac = item.data['uses'] / item.data['starting_uses']
-            return int(self.value * frac)
+            return self.value * frac
         return self.value
 
     def sell_price(self, unit, item):
         if item.uses:
             frac = item.data['uses'] / item.data['starting_uses']
-            return int(self.value * frac // 2)
-        return self.value // 2
+            return self.value * frac * DB.constants.value('sell_modifier')
+        return self.value * DB.constants.value('sell_modifier')
 
 class Accessory(ItemComponent):
     nid = 'accessory'
@@ -169,12 +170,12 @@ class ItemPrefab(ItemComponent):
     desc = "This item will automatically inherit the components of the chosen item"
     tag = ItemTags.BASE
 
-    expose = Type.Item
+    expose = ComponentType.Item
 
 class ItemTags(ItemComponent):
     nid = 'item_tags'
     desc = 'attach arbitrary tags to items. Useful for conditionals.'
     tag = ItemTags.BASE
 
-    expose = (Type.List, Type.Tag)
+    expose = (ComponentType.List, ComponentType.Tag)
     value = []

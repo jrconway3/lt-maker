@@ -4,11 +4,11 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon, QPainter, QColor, QTransform
 
-from app.resources.map_sprites import MapSprite
-from app.resources.resources import RESOURCES
+from app.data.resources.map_sprites import MapSprite
+from app.data.resources.resources import RESOURCES
 
 from app.utilities.data import Data
-from app.data.database import DB
+from app.data.database.database import DB
 
 from app.extensions.custom_gui import DeletionDialog
 from app.editor.settings import MainSettingsController
@@ -34,7 +34,10 @@ def get_basic_icon(pixmap, num, active=False, team='player'):
         else:
             one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy_colors)
     elif team == 'other':
-        one_frame = editor_utilities.color_convert(one_frame, editor_utilities.other_colors)
+        if DB.constants.value('dark_sprites'):
+            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.other_dark_colors)
+        else:
+            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.other_colors)
     elif team == 'enemy2':
         one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy2_colors)
     # Must convert colorkey last, or else color conversion doesn't work correctly

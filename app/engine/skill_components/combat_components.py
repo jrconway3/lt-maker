@@ -1,14 +1,16 @@
-from app.data.database import DB
-from app.data.skill_components import SkillComponent, SkillTags
-from app.data.components import Type
+from app.data.database.database import DB
+from app.data.database.skill_components import SkillComponent, SkillTags
+from app.data.database.components import ComponentType
 from app.engine import equations
+
+import logging
 
 class StatChange(SkillComponent):
     nid = 'stat_change'
     desc = "Gives stat bonuses"
     tag = SkillTags.COMBAT
 
-    expose = (Type.Dict, Type.Stat)
+    expose = (ComponentType.Dict, ComponentType.Stat)
     value = []
 
     def stat_change(self, unit=None):
@@ -21,12 +23,28 @@ class StatChange(SkillComponent):
                 total_value += stat_value
         return total_value
 
+class StatChangeExpression(SkillComponent):
+    nid = 'stat_change_expression'
+    desc = "Gives stat bonuses based on expression"
+    tag = SkillTags.COMBAT
+
+    expose = (ComponentType.StringDict, ComponentType.Stat)
+    value = []
+
+    def stat_change(self, unit=None):
+        from app.engine import evaluate
+        try:
+            return {stat[0]: int(evaluate.evaluate(stat[1], unit)) for stat in self.value}
+        except Exception as e:
+            logging.error("Couldn't evaluate conditional %s", e)
+        return {stat[0]: 0 for stat in self.value}
+
 class StatMultiplier(SkillComponent):
     nid = 'stat_multiplier'
     desc = "Gives stat bonuses"
     tag = SkillTags.COMBAT
 
-    expose = (Type.FloatDict, Type.Stat)
+    expose = (ComponentType.FloatDict, ComponentType.Stat)
     value = []
 
     def stat_change(self, unit):
@@ -37,7 +55,7 @@ class GrowthChange(SkillComponent):
     desc = "Gives growth rate % bonuses"
     tag = SkillTags.COMBAT
 
-    expose = (Type.Dict, Type.Stat)
+    expose = (ComponentType.Dict, ComponentType.Stat)
     value = []
 
     def growth_change(self, unit):
@@ -48,7 +66,7 @@ class EquationGrowthChange(SkillComponent):
     desc = "Gives growth rate % bonuses equal to chosen equation"
     tag = SkillTags.COMBAT
 
-    expose = Type.Equation
+    expose = ComponentType.Equation
 
     def growth_change(self, unit):
         value = equations.parser.get(self.value, unit)
@@ -59,7 +77,7 @@ class Damage(SkillComponent):
     desc = "Gives +X damage"
     tag = SkillTags.COMBAT
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 3
 
     def modify_damage(self, unit, item):
@@ -70,14 +88,14 @@ class EvalDamage(SkillComponent):
     desc = "Gives +X damage solved using evaluate"
     tag = SkillTags.COMBAT
 
-    expose = Type.String
+    expose = ComponentType.String
 
     def modify_damage(self, unit, item):
         from app.engine import evaluate
         try:
-            return int(evaluate.evaluate(self.value, unit, item=item))
-        except:
-            print("Couldn't evaluate %s conditional" % self.value)
+            return int(evaluate.evaluate(self.value, unit, local_args={'item': item}))
+        except Exception as e:
+            logging.error("Couldn't evaluate %s conditional (%s)", self.value, e)
         return 0
 
 class Resist(SkillComponent):
@@ -85,7 +103,7 @@ class Resist(SkillComponent):
     desc = "Gives +X damage resist"
     tag = SkillTags.COMBAT
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 2
 
     def modify_resist(self, unit, item_to_avoid):
@@ -96,18 +114,33 @@ class Hit(SkillComponent):
     desc = "Gives +X accuracy"
     tag = SkillTags.COMBAT
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 15
 
     def modify_accuracy(self, unit, item):
         return self.value
+
+class EvalHit(SkillComponent):
+    nid = 'eval_hit'
+    desc = "Gives +X damage solved using evaluate"
+    tag = SkillTags.COMBAT
+
+    expose = ComponentType.String
+
+    def modify_accuracy(self, unit, item):
+        from app.engine import evaluate
+        try:
+            return int(evaluate.evaluate(self.value, unit, local_args={'item': item}))
+        except Exception as e:
+            logging.error("Couldn't evaluate %s conditional (%s)", self.value, e)
+        return 0
 
 class Avoid(SkillComponent):
     nid = 'avoid'
     desc = "Gives +X avoid"
     tag = SkillTags.COMBAT
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 20
 
     def modify_avoid(self, unit, item_to_avoid):
@@ -121,18 +154,33 @@ class Crit(SkillComponent):
     desc = "Gives +X crit"
     tag = SkillTags.COMBAT
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 30
 
     def modify_crit_accuracy(self, unit, item):
         return self.value
+
+class EvalCrit(SkillComponent):
+    nid = 'eval_crit'
+    desc = "Gives +X crit solved using evaluate"
+    tag = SkillTags.COMBAT
+
+    expose = ComponentType.String
+
+    def modify_crit_accuracy(self, unit, item):
+        from app.engine import evaluate
+        try:
+            return int(evaluate.evaluate(self.value, unit, local_args={'item': item}))
+        except Exception as e:
+            logging.error("Couldn't evaluate %s conditional (%s)", self.value, e)
+        return 0
 
 class CritAvoid(SkillComponent):
     nid = 'crit_avoid'
     desc = "Gives +X crit avoid"
     tag = SkillTags.COMBAT
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 10
 
     def modify_crit_avoid(self, unit, item_to_avoid):
@@ -143,7 +191,7 @@ class AttackSpeed(SkillComponent):
     desc = "Gives +X attack speed"
     tag = SkillTags.COMBAT
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 4
 
     def modify_attack_speed(self, unit, item):
@@ -154,7 +202,7 @@ class DefenseSpeed(SkillComponent):
     desc = "Gives +X defense speed"
     tag = SkillTags.COMBAT
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 4
 
     def modify_defense_speed(self, unit, item_to_avoid):
@@ -165,7 +213,7 @@ class DamageMultiplier(SkillComponent):
     desc = "Multiplies damage given by a fraction"
     tag = SkillTags.COMBAT
 
-    expose = Type.Float
+    expose = ComponentType.Float
     value = 0.5
 
     def damage_multiplier(self, unit, item, target, mode, attack_info, base_value):
@@ -176,12 +224,13 @@ class DynamicDamageMultiplier(SkillComponent):
     desc = "Multiplies damage given by a fraction"
     tag = SkillTags.COMBAT
 
-    expose = Type.String
+    expose = ComponentType.String
 
     def damage_multiplier(self, unit, item, target, mode, attack_info, base_value):
         from app.engine import evaluate
         try:
-            return float(evaluate.evaluate(self.value, unit, target, item, mode=mode, skill=self.skill, attack_info=attack_info, base_value=base_value))
+            local_args = {'item': item, 'mode': mode, 'skill': self.skill, 'attack_info': attack_info, 'base_value': base_value}
+            return float(evaluate.evaluate(self.value, unit, target, unit.position, local_args))
         except Exception:
             print("Couldn't evaluate %s conditional" % self.value)
             return 1
@@ -191,7 +240,7 @@ class ResistMultiplier(SkillComponent):
     desc = "Multiplies damage taken by a fraction"
     tag = SkillTags.COMBAT
 
-    expose = Type.Float
+    expose = ComponentType.Float
     value = 0.5
 
     def resist_multiplier(self, unit, item, target, mode, attack_info, base_value):
@@ -202,7 +251,7 @@ class PCC(SkillComponent):
     desc = "Multiplies crit chance by a stat on second strike"
     tag = SkillTags.COMBAT
 
-    expose = Type.Stat
+    expose = ComponentType.Stat
 
     def crit_multiplier(self, unit, item, target, mode, attack_info, base_value):
         return unit.get_stat(self.value) if attack_info[0] > 0 else 1
@@ -214,8 +263,19 @@ class PCCStatic(SkillComponent):
     tag = SkillTags.COMBAT
     author = 'BigMood'
 
-    expose = Type.Float
+    expose = ComponentType.Float
     value = 1
 
     def crit_multiplier(self, unit, item, target, mode, attack_info, base_value):
+        return self.value if attack_info[0] > 0 else 1
+
+class ResistFollowUp(SkillComponent):
+    nid = 'resist_follow_up'
+    desc = "Multiplies damage taken by a fraction after the first strike"
+    tag = SkillTags.COMBAT
+
+    expose = ComponentType.Float
+    value = 0.5
+
+    def resist_multiplier(self, unit, item, target, mode, attack_info, base_value):
         return self.value if attack_info[0] > 0 else 1

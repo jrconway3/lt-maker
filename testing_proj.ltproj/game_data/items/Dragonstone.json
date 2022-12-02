@@ -34,6 +34,16 @@
                 50
             ],
             [
+                "uses_options",
+                [
+                    [
+                        "LoseUsesOnMiss (T/F)",
+                        "F",
+                        "Lose uses even on miss"
+                    ]
+                ]
+            ],
+            [
                 "crit",
                 15
             ],
@@ -62,6 +72,10 @@
                 [
                     "Monster"
                 ]
+            ],
+            [
+                "effective_multiplier",
+                1
             ],
             [
                 "prf_unit",

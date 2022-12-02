@@ -1,10 +1,13 @@
-import random, re
-from typing import Dict
+import logging
+import math, random, re
+from typing import Any, Dict
+from app.engine.query_engine import GameQueryEngine
 
 from app.utilities import utils
-from app.data.database import DB
+from app.data.database.database import DB
 
 import app.engine.config as cf
+from app.engine.persistent_records import RECORDS
 from app.engine import engine, item_funcs, item_system, skill_system, combat_calcs, unit_funcs, target_system
 from app.engine import static_random
 
@@ -13,14 +16,23 @@ Essentially just a repository that imports a lot of different things so that man
 will be accepted
 """
 
-def evaluate(string: str, unit1=None, unit2=None, item=None, position=None,
-             region=None, mode=None, skill=None, attack_info=None, base_value=None,
-             local_args: Dict = None, game=None) -> bool:
-    unit = unit1  # noqa: F841
-    target = unit2  # noqa: F841
+_QUERY_ENGINE = None
+QUERY_ENGINE_FUNC_DICT = None
 
+def init_query_engine(game):
+    global _QUERY_ENGINE
+    global QUERY_ENGINE_FUNC_DICT
+    if not _QUERY_ENGINE:
+        _QUERY_ENGINE = GameQueryEngine(logging.Logger("query_engine"), game)
+    query_funcs = [funcname for funcname in dir(_QUERY_ENGINE) if not funcname.startswith('_')]
+    QUERY_ENGINE_FUNC_DICT = {funcname: getattr(_QUERY_ENGINE, funcname) for funcname in query_funcs}
+
+def evaluate(string: str, unit1=None, unit2=None, position=None,
+             local_args: Dict = None, game=None) -> Any:
     if not game:
         from app.engine.game_state import game
+    if not QUERY_ENGINE_FUNC_DICT:
+        init_query_engine(game)
 
     def check_pair(s1: str, s2: str) -> bool:
         """
@@ -50,17 +62,13 @@ def evaluate(string: str, unit1=None, unit2=None, item=None, position=None,
         'unit': unit1,
         'unit2': unit2,
         'target': unit2,
-        'item': item,
         'position': position,
-        'region': region,
-        'mode': mode,
-        'skill': skill,
-        'attack_info': attack_info,
-        'base_value': base_value,
         'check_pair': check_pair,
         'check_default': check_default,
         'game': game
     })
+    temp_globals.update(QUERY_ENGINE_FUNC_DICT)
     if local_args:
         temp_globals.update(local_args)
+    string = string.strip()
     return eval(string, temp_globals)

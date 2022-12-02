@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt, pyqtSignal
 
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
 
 import app.editor.utilities as editor_utilities
 
@@ -51,7 +51,7 @@ class PushableIcon16(QPushButton):
 
     def onIconSourcePicker(self):
         from app.editor.icon_editor import icon_tab
-        res, ok = icon_tab.get(self.width)
+        res, ok = icon_tab.get(self.width, self._nid)
         if res and ok:
             self.change_icon(res.nid, res.icon_index)
 

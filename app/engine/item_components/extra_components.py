@@ -1,8 +1,9 @@
-from app.data.item_components import ItemComponent, ItemTags
-from app.data.components import Type
+from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
 
 from app.utilities import utils
-from app.engine import action, combat_calcs, image_mods, engine, item_system
+from app.engine import action, combat_calcs, image_mods, engine, item_system, skill_system
+from app.engine.combat import playback as pb
 
 class Effective(ItemComponent):
     nid = 'effective'
@@ -11,20 +12,33 @@ class Effective(ItemComponent):
     paired_with = ('effective_tag',)
     tag = ItemTags.EXTRA
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 0
 
     def init(self, item):
         item.data['effective'] = self.value
 
+class EffectiveMultiplier(ItemComponent):
+    nid = 'effective_multiplier'
+    desc = 'If this item is effective against an enemy its might will be multiplied by this value and added to total damage.'
+    # requires = ['damage']
+    paired_with = ('effective_tag',)
+    tag = ItemTags.EXTRA
+
+    expose = ComponentType.Float
+    value = 1
+
+    def init(self, item):
+        item.data['effective_multiplier'] = self.value
+
 class EffectiveTag(ItemComponent):
     nid = 'effective_tag'
     desc = "Item will be considered effective if the targeted enemy has any of the tags listed in this component."
     # requires = ['damage']
-    paired_with = ('effective',)
+    paired_with = ('effective_multiplier',)
     tag = ItemTags.EXTRA
 
-    expose = (Type.List, Type.Tag)
+    expose = (ComponentType.List, ComponentType.Tag)
     value = []
 
     def _check_negate(self, target) -> bool:
@@ -44,6 +58,11 @@ class EffectiveTag(ItemComponent):
         if any(tag in target.tags for tag in self.value):
             if self._check_negate(target):
                 return 0
+            if item.data.get('effective_multiplier') is not None:
+                might = item_system.damage(unit, item)
+                if might is None:
+                    return 0
+                return int((item.data.get('effective_multiplier') - 1) * might)
             return item.data.get('effective', 0)
         return 0
 
@@ -54,10 +73,14 @@ class EffectiveTag(ItemComponent):
             sprite = image_mods.make_white(sprite.convert_alpha(), abs(250 - engine.get_time()%500)/250)
         return sprite
 
-    def danger(self, unit, item, target) -> bool:
+    def target_icon(self, target, item, unit) -> bool:
+        if not skill_system.check_enemy(target, unit):
+            return None
         if self._check_negate(target):
-            return False
-        return any(tag in target.tags for tag in self.value)
+            return None
+        if any(tag in target.tags for tag in self.value):
+            return 'danger'
+        return None
 
 class Brave(ItemComponent):
     nid = 'brave'
@@ -81,28 +104,27 @@ class Lifelink(ItemComponent):
     # requires = ['damage']
     tag = ItemTags.EXTRA
 
-    expose = Type.Float
+    expose = ComponentType.Float
     value = 0.5
 
     def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
         total_damage_dealt = 0
-        playbacks = [p for p in playback if p[0] in ('damage_hit', 'damage_crit') and p[1] == unit]
+        playbacks = [p for p in playback if p.nid in ('damage_hit', 'damage_crit') and p.attacker == unit]
         for p in playbacks:
-            total_damage_dealt += p[5]
+            total_damage_dealt += p.true_damage
 
         damage = utils.clamp(total_damage_dealt, 0, target.get_hp())
         true_damage = int(damage * self.value)
         actions.append(action.ChangeHP(unit, true_damage))
 
-        playback.append(('heal_hit', unit, item, unit, true_damage, true_damage))
+        playback.append(pb.HealHit(unit, item, unit, true_damage, true_damage))
 
 class DamageOnMiss(ItemComponent):
     nid = 'damage_on_miss'
     desc = "Item deals a percentage of it's normal damage on a miss."
-    # requires = ['damage']
     tag = ItemTags.EXTRA
 
-    expose = Type.Float
+    expose = ComponentType.Float
     value = 0.5
 
     def on_miss(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
@@ -113,10 +135,10 @@ class DamageOnMiss(ItemComponent):
         actions.append(action.ChangeHP(target, -damage))
 
         # For animation
-        playback.append(('damage_hit', unit, item, target, damage, true_damage))
+        playback.append(pb.DamageHit(unit, item, target, damage, true_damage))
         if true_damage == 0:
-            playback.append(('hit_sound', 'No Damage'))
-            playback.append(('hit_anim', 'MapNoDamage', target))
+            playback.append(pb.HitSound('No Damage'))
+            playback.append(pb.HitAnim('MapNoDamage', target))
 
 class Eclipse(ItemComponent):
     nid = 'Eclipse'
@@ -128,10 +150,10 @@ class Eclipse(ItemComponent):
         actions.append(action.ChangeHP(target, -damage))
 
         # For animation
-        playback.append(('damage_hit', unit, item, target, damage, true_damage))
-        if damage == 0:
-            playback.append(('hit_sound', 'No Damage'))
-            playback.append(('hit_anim', 'MapNoDamage', target))
+        playback.append(pb.DamageHit(unit, item, target, damage, true_damage))
+        if true_damage == 0:
+            playback.append(pb.HitSound('No Damage'))
+            playback.append(pb.HitAnim('MapNoDamage', target))
 
 class NoDouble(ItemComponent):
     nid = 'no_double'
@@ -167,26 +189,37 @@ class IgnoreWeaponAdvantage(ItemComponent):
 
 class Reaver(ItemComponent):
     nid = 'reaver'
-    desc = "Weapon advantage relationships defined in the weapon types editor are doubled and reversed against this weapon. If two reaver weapons are in combat with each other weapon advantage works as normal."
+    desc = "Weapon advantage relationships defined in the weapon types editor are doubled and reversed against this weapon. If two reaver weapons are in combat with each other weapon advantage works as normal. Identical to a custom_triangle_multiplier of -2.0."
     tag = ItemTags.EXTRA
 
     def modify_weapon_triangle(self, unit, item):
-        return -2
+        return -2.0
 
 class DoubleTriangle(ItemComponent):
     nid = 'double_triangle'
-    desc = "The effects of weapon advantage relationships are doubled by this item."
+    desc = "The effects of weapon advantage relationships are doubled by this item. Identical to a custom_triangle_multiplier of 2.0."
     tag = ItemTags.EXTRA
 
     def modify_weapon_triangle(self, unit, item):
-        return 2
+        return 2.0
+
+class CustomTriangleMultiplier(ItemComponent):
+    nid = 'custom_triangle_multiplier'
+    desc = "Weapon advantage effects are multiplied by the provided value."
+    tag = ItemTags.EXTRA
+
+    expose = ComponentType.Float
+    value = 1.0
+
+    def modify_weapon_triangle(self, unit, item):
+        return self.value
 
 class StatusOnEquip(ItemComponent):
     nid = 'status_on_equip'
     desc = "A unit with this item equipped will receive the specified status."
     tag = ItemTags.EXTRA
 
-    expose = Type.Skill  # Nid
+    expose = ComponentType.Skill  # Nid
 
     def on_equip_item(self, unit, item):
         if self.value not in [skill.nid for skill in unit.skills]:
@@ -201,7 +234,7 @@ class MultiStatusOnEquip(ItemComponent):
     desc = "Item gives these statuses while equipped"
     tag = ItemTags.EXTRA
 
-    expose = (Type.List, Type.Skill)  # Nid
+    expose = (ComponentType.List, ComponentType.Skill)  # Nid
 
     def on_equip_item(self, unit, item):
         for skl in self.value:
@@ -218,7 +251,7 @@ class StatusOnHold(ItemComponent):
     desc = "Item gives status while in unit's inventory"
     tag = ItemTags.EXTRA
 
-    expose = Type.Skill  # Nid
+    expose = ComponentType.Skill  # Nid
 
     def on_add_item(self, unit, item):
         action.do(action.AddSkill(unit, self.value))
@@ -232,14 +265,13 @@ class GainManaAfterCombat(ItemComponent):
     tag = ItemTags.EXTRA
     author = 'KD'
 
-    expose = Type.String
+    expose = ComponentType.String
 
     def end_combat(self, playback, unit, item, target, mode):
         from app.engine import evaluate
         try:
-            if target:
-                mana_gain = int(evaluate.evaluate(self.value, unit, target, position=unit.position))
-                action.do(action.ChangeMana(unit, mana_gain))
+            mana_gain = int(evaluate.evaluate(self.value, unit, target, position=unit.position))
+            action.do(action.ChangeMana(unit, mana_gain))
         except Exception as e:
             print("Could not evaluate %s (%s)" % (self.value, e))
             return True

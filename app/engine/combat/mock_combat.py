@@ -1,7 +1,7 @@
 import random
 
 from app.constants import WINWIDTH, WINHEIGHT
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
 
 from app.engine.sprites import SPRITES
 
@@ -203,6 +203,9 @@ class MockCombat():
     def get_damage(self):
         return self.damage
 
+    def get_from_playback(self, s: str):
+        return []
+
     def left_team(self):
         return 'enemy'
 
@@ -219,7 +222,7 @@ class MockCombat():
             animation = RESOURCES.animations.get(anim_nid)
             if animation:
                 anim = Animation(animation, position)
-                anim.set_tint(True)
+                anim.set_tint(engine.BlendMode.BLEND_RGB_ADD)
                 self.animations.append(anim)
         else:
             self.no_damage()
@@ -235,7 +238,7 @@ class MockCombat():
                     pass
                 else:
                     anim.sprite = engine.flip_horiz(anim.sprite)
-                anim.set_tint(True)
+                anim.set_tint(engine.BlendMode.BLEND_RGB_ADD)
                 self.animations.append(anim)
         else:
             self.no_damage()
@@ -359,7 +362,7 @@ class MockCombat():
         total_shake_x = self.shake_offset[0] + self.platform_shake_offset[0]
         total_shake_y = self.shake_offset[1] + self.platform_shake_offset[1]
         # Platform
-        from app.data.database import DB
+        from app.data.database.database import DB
         if not self.battle_background or DB.constants.value('battle_platforms'):
             top = platform_top + (platform_trans - self.bar_offset * platform_trans) + total_shake_y
             if self.at_range:

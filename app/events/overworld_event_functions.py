@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import List, Tuple
 from typing import TYPE_CHECKING
 
-from app.data.database import DB
-from app.engine import engine
+from app.data.database.database import DB
+from app.engine import engine, action
 from app.engine.game_state import game
 from app.engine.graphics.dialog.narration_dialogue import NarrationDialogue
 from app.engine.objects.overworld import OverworldNodeObject, OverworldEntityObject
@@ -26,6 +26,18 @@ def overworld_cinematic(self: Event, overworld_nid=None, flags=None):
     # save level state
     self.prev_game_boundary = game.boundary
     self.prev_board = game.board
+
+    # Remove all units from the map
+    # But remember their original positions for later
+    previous_unit_pos = {}
+    for unit in self.game.units:
+        if unit.position:
+            previous_unit_pos[unit.nid] = unit.position
+            act = action.LeaveMap(unit)
+            act.execute()
+    current_tilemap_nid = self.game.level.tilemap.nid
+    self.game.level_vars['_prev_pos_%s' % current_tilemap_nid] = previous_unit_pos
+
     from app.engine.overworld.overworld_states import OverworldFreeState
     OverworldFreeState.set_up_overworld_game_state(overworld_nid)
 
@@ -253,6 +265,7 @@ def toggle_narration_mode(self: Event, direction, speed=None, flags=None):
             narration_component.exit()
             self.wait_time = engine.get_time() + anim_duration
             self.state = 'waiting'
+
 
 def narrate(self: Event, speaker, string, flags=None):
     if not self.overlay_ui.has_child('event_narration'):

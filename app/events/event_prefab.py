@@ -3,42 +3,6 @@ from typing import List
 from app.events import event_commands
 from app.utilities.data import Data, Prefab
 
-
-class Trigger(object):
-    def __init__(self, nid, unit1=False, unit2=False, item=False, position=False, region=False):
-        self.nid: str = nid
-        self.unit1: bool = unit1
-        self.unit2: bool = unit2
-        self.item: bool = item
-        self.position: bool = position
-        self.region: bool = region
-
-all_triggers = Data([
-    Trigger('level_start'),
-    Trigger('level_end'),
-    Trigger('overworld_start'),
-    Trigger('level_select'),
-    Trigger('turn_change'),
-    Trigger('enemy_turn_change'),
-    Trigger('enemy2_turn_change'),
-    Trigger('other_turn_change'),
-    Trigger('on_region_interact', unit1=True, position=True, region=True),
-    Trigger('unit_death', True, False, False, True),
-    Trigger('unit_wait', True, False, False, True, True),
-    Trigger('unit_select', True, False, False, True),
-    Trigger('unit_level_up', True, True, False, False),
-    Trigger('during_unit_level_up', True, True, False, False),
-    Trigger('combat_start', True, True, True, True, True),  # Region is whether we are in full battle anim
-    Trigger('combat_end', True, True, True, True),
-    Trigger('on_talk', True, True, False, True),
-    Trigger('on_support', True, True, True, True),  # Item is support rank nid
-    Trigger('on_base_convo', True, True, False, False),
-    Trigger('on_turnwheel'),
-    Trigger('on_title_screen'),
-    Trigger('time_region_complete', region=True),
-    Trigger('on_overworld_node_select', unit1=True, region=True) # unit1 is entity nid, region is node nid
-])
-
 class EventPrefab(Prefab):
     def __init__(self, name):
         self.name = name
@@ -85,8 +49,8 @@ class EventPrefab(Prefab):
 class EventCatalog(Data[EventPrefab]):
     datatype = EventPrefab
 
-    def get(self, trigger, level_nid):
-        return [event for event in self._list if event.trigger == trigger and
+    def get(self, trigger_nid, level_nid):
+        return [event for event in self._list if event.trigger == trigger_nid and
                 (not event.level_nid or event.level_nid == level_nid)]
 
     def get_by_level(self, level_nid: str) -> List[EventPrefab]:

@@ -1,3 +1,4 @@
+from app.editor.lib.components.validated_line_edit import NidLineEdit
 import os, glob
 import json
 
@@ -7,8 +8,8 @@ from PyQt5.QtWidgets import QVBoxLayout, \
 from PyQt5.QtGui import QImage, QPixmap, QPainter
 
 from app.constants import WINWIDTH, WINHEIGHT
-from app.resources import combat_anims
-from app.resources.resources import RESOURCES
+from app.data.resources import combat_anims
+from app.data.resources.resources import RESOURCES
 
 from app.editor.settings import MainSettingsController
 
@@ -37,15 +38,15 @@ class CombatEffectProperties(CombatAnimProperties):
         self._data = self.window._data
 
         # Populate resources
-        for effect_anim in self._data:
-            populate_effect_pixmaps(effect_anim)
+        # for effect_anim in self._data:
+        #     populate_effect_pixmaps(effect_anim)
 
         self.control_setup(current)
         self.test_combat_button.setEnabled(False)
 
         self.info_form = QFormLayout()
 
-        self.nid_box = QLineEdit()
+        self.nid_box = NidLineEdit()
         self.nid_box.textChanged.connect(self.nid_changed)
         self.nid_box.editingFinished.connect(self.nid_done_editing)
 
@@ -133,7 +134,7 @@ class CombatEffectProperties(CombatAnimProperties):
         new_nid = self.make_pose()
         if not new_nid:
             return
-        
+
         new_pose = combat_anims.Pose(new_nid)
         self.current.poses.append(new_pose)
         self.pose_box.addItem(new_nid)
@@ -142,13 +143,13 @@ class CombatEffectProperties(CombatAnimProperties):
     def duplicate_pose(self):
         new_nid = self.make_pose()
         if not new_nid:
-            return 
+            return
 
         current_pose_nid = self.pose_box.currentText()
         current_pose = self.current.poses.get(current_pose_nid)
         # Make a copy
-        ser = current_pose.serialize()
-        new_pose = combat_anims.Pose.deserialize(ser)
+        ser = current_pose.save()
+        new_pose = combat_anims.Pose.restore(ser)
         new_pose.nid = new_nid
         self.current.poses.append(new_pose)
         self.pose_box.addItem(new_nid)
@@ -201,6 +202,7 @@ class CombatEffectProperties(CombatAnimProperties):
         self.stop()
 
         self.current = current
+        populate_effect_pixmaps(self.current)
         self.nid_box.setText(self.current.nid)
 
         poses = self.reset_pose_box()
@@ -303,7 +305,7 @@ class CombatEffectProperties(CombatAnimProperties):
                 continue
             # Store all of this in effect_nid.lteffect folder
             # Gather reference to images for this effect
-            RESOURCES.combat_effects.save_image(path, effect)
+            RESOURCES.combat_effects.save_image(path, effect, temp=True)
             # Serialize into json form
             serialized_data = effect.save()
             serialized_path = os.path.join(path, '%s_effect.json' % effect_nid)
@@ -322,7 +324,7 @@ class CombatEffectProperties(CombatAnimProperties):
                     json.dump(serialized_data, serialize_file, indent=4)
         # Print done export! Export to %s complete!
         QMessageBox.information(self, "Export Complete", "Export of effect to %s complete!" % path)
-        
+
     def export_all_frames(self, fn_dir: str):
         current_pose_nid = self.pose_box.currentText()
         current_pose = self.current.poses.get(current_pose_nid)
@@ -391,9 +393,9 @@ class CombatEffectProperties(CombatAnimProperties):
                 return None
 
             left_palette_name, left_palette, right_palette_name, right_palette = self.get_test_palettes(combat_anim)
-            
+
             timer.get_timer().stop()
             GAME_ACTIONS.test_combat(
-                combat_anim, weapon_anim, left_palette_name, left_palette, self.current.nid, 
+                combat_anim, weapon_anim, left_palette_name, left_palette, self.current.nid,
                 combat_anim, weapon_anim, right_palette_name, right_palette, self.current.nid, current_pose_nid)
             timer.get_timer().start()

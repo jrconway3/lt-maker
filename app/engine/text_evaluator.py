@@ -1,3 +1,5 @@
+from app.data.database.components import Component
+from app.data.database.database import DB
 from app.engine.game_state import GameState
 from app.engine import evaluate
 import re
@@ -7,15 +9,24 @@ from app.utilities import str_utils
 import logging
 
 class TextEvaluator():
-    def __init__(self, logger: logging.Logger, game: GameState, unit=None, unit2=None, item=None, position=None, region=None) -> None:
+    def __init__(self, logger: logging.Logger, game: GameState, unit=None, unit2=None, position=None, local_args=None) -> None:
         self.logger = logger
         self.game: GameState = game
         self.unit = unit
         self.unit2 = unit2
-        self.created_unit = None
-        self.item = item
         self.position = position
-        self.region = region
+        self.local_args = local_args or {}
+
+    def direct_eval(self, to_eval):
+        return evaluate.evaluate(to_eval, self.unit, self.unit2, self.position, self.local_args)
+
+    @property
+    def created_unit(self):
+        return self.local_args.get('created_unit', None)
+
+    @created_unit.setter
+    def created_unit(self, created):
+        self.local_args['created_unit'] = created
 
     def _object_to_str(self, obj) -> str:
         if hasattr(obj, 'uid'):
@@ -30,14 +41,16 @@ class TextEvaluator():
         """
         if re.match(r'\{e:[^{}]*\}', text) or re.match(r'\{eval:[^{}]*\}', text): # eval statement
             return self._evaluate_evals(text)
-        elif re.match(r'\{[1-5]\}', text):
-            return self._evaluate_args(text)
         elif re.match(r'\{d:[^{}]*\}', text) or re.findall(r'\{data:[^{}]*\}', text):
             return self._evaluate_data(text)
         elif re.match(r'\{f:[^{}]*\}', text) or re.match(r'\{field:[^{}]*\}', text):
             return self._evaluate_unit_fields(text)
         elif re.match(r'\{v:[^{}]*\}', text) or re.match(r'\{var:[^{}]*\}', text):
             return self._evaluate_vars(text)
+        elif re.match(r'\{s:[^{}]*\}', text) or re.match(r'\{skill:[^{}]*\}', text):
+            return self._evaluate_skill_db(text)
+        elif re.match(r'\{i:[^{}]*\}', text) or re.match(r'\{item:[^{}]*\}', text):
+            return self._evaluate_item_db(text)
         else:
             return text
 
@@ -57,39 +70,6 @@ class TextEvaluator():
             parsed = str_utils.nested_expr(to_eval, '{', '}')
             evaled = recursive_parse(parsed)
             evaluated.append(evaled)
-        for idx in range(len(to_evaluate)):
-            text = text.replace(to_evaluate[idx], evaluated[idx])
-        return text
-
-    def _evaluate_args(self, text) -> str:
-        to_evaluate = re.findall(r'\{[1-5]\}', text)
-        evaluated = []
-        for to_eval in to_evaluate:
-            try:
-                if to_eval == '{1}':
-                    if not isinstance(self.unit, str):
-                        self.logger.error("{1} is not a string. If you wish to access {unit}, use that tag instead. Evaluating to %s" % self._object_to_str(self.unit))
-                    value = self._object_to_str(self.unit)
-                elif to_eval == '{2}':
-                    if not isinstance(self.unit2, str):
-                        self.logger.error("{2} is not a string. If you wish to access {unit2}, use that tag instead. Evaluating to %s" % self._object_to_str(self.unit2))
-                    value = self._object_to_str(self.unit2)
-                elif to_eval == '{3}':
-                    if not isinstance(self.item, str):
-                        self.logger.error("{3} is not a string. Evaluating to %s" % self._object_to_str(self.item))
-                    value = self._object_to_str(self.item)
-                elif to_eval == '{4}':
-                    if not isinstance(self.position, str):
-                        self.logger.error("{4} is not a string. Evaluating to %s" % self._object_to_str(self.position))
-                    value = self._object_to_str(self.position)
-                elif to_eval == '{5}':
-                    if not isinstance(self.region, str):
-                        self.logger.error("{5} is not a string. Evaluating to %s" % self._object_to_str(self.region))
-                    value = self._object_to_str(self.region)
-                evaluated.append(value)
-            except Exception as e:
-                self.logger.error("Could not evaluate %s (%s)" % (to_eval, e))
-                evaluated.append('??')
         for idx in range(len(to_evaluate)):
             text = text.replace(to_evaluate[idx], evaluated[idx])
         return text
@@ -122,7 +102,7 @@ class TextEvaluator():
                         search_keys: List[Tuple[str, str]] = []
                         general_search_keys: List[str] = []
                         for term in searches:
-                            searchl = term.split('-')
+                            searchl = term.split('=')
                             if len(searchl) == 1: # single search term, if any match we're good
                                 general_search_keys.append(searchl[0].strip())
                             elif len(searchl) == 2: # search key set to value
@@ -159,23 +139,92 @@ class TextEvaluator():
                 field_text, fallback = to_eval, " "
 
             if '.' in to_eval: # possible unit tag?
-                unit_nid, field = field_text.split('.', 1)
+                nid, field = field_text.split('.', 1)
             else:
-                unit_nid, field = '_unit', field_text
+                nid, field = '_unit', field_text
 
-            if unit_nid == '_unit':
+            if nid == '_unit':
                 unit = self.unit
-            elif unit_nid == '_unit2':
+            elif nid == '_unit2':
                 unit = self.unit2
             elif self.game:
-                unit = self.game.get_unit(unit_nid)
+                unit = self.game.get_unit(nid)
 
-            if not unit:
-                self.logger.error("eval of {f:%s} failed, unknown unit: %s", to_eval, unit_nid)
+            if not unit: # maybe class?
+                klass = DB.classes.get(nid)
+                if not klass:
+                    self.logger.error("eval of {f:%s} failed, unknown unit or class: %s", to_eval, nid)
+                    evaluated.append('??')
+                    continue
+                found_vals = [val for (name, val) in klass.fields if name == field]
+                if not any(found_vals):
+                    self.logger.error("eval of {f:%s} failed, no such field %s on class %s: %s", to_eval, field, nid)
+                    evaluated.append('??')
+                    continue
+                field_value = found_vals[0]
+            else:
+                field_value = unit.get_field(field, fallback)
+            evaluated.append(self._object_to_str(field_value))
+        for idx in range(len(to_evaluate)):
+            text = text.replace(to_evaluate[idx], evaluated[idx])
+        return text
+
+    def _evaluate_skill_db(self, text) -> str:
+        # find skill queries
+        to_evaluate: List[str] = re.findall(r'\{s:[^{}]*\}', text) + re.findall(r'\{skill:[^{}]*\}', text)
+        evaluated = []
+        for to_eval in to_evaluate:
+            to_eval = self.trim_eval_tags(to_eval)
+            # expected syntax: {s:skill.key}
+            if not '.' in to_eval:
+                self.logger.error("eval of {s:%s} failed, no period", to_eval)
                 evaluated.append('??')
                 continue
-            field_value = unit.get_field(field, fallback)
-            evaluated.append(self._object_to_str(field_value))
+            skill_nid, attribute = to_eval.split('.', 1)
+            skill = DB.skills.get(skill_nid, None)
+            if not skill:
+                self.logger.error("eval of {s:%s} failed, no such skill %s", to_eval, skill_nid)
+                evaluated.append('??')
+                continue
+            if not hasattr(skill, attribute):
+                self.logger.error("eval of {s:%s} failed, no such attribute %s for skill %s", to_eval, attribute, skill_nid)
+                evaluated.append('??')
+                continue
+            attribute_obj = getattr(skill, attribute)
+            if isinstance(attribute_obj, Component):
+                attribute_obj = attribute_obj.value
+            attribute_value = str(attribute_obj)
+            evaluated.append(self._object_to_str(attribute_value))
+        for idx in range(len(to_evaluate)):
+            text = text.replace(to_evaluate[idx], evaluated[idx])
+        return text
+
+    def _evaluate_item_db(self, text) -> str:
+        # find item queries
+        to_evaluate: List[str] = re.findall(r'\{i:[^{}]*\}', text) + re.findall(r'\{item:[^{}]*\}', text)
+        evaluated = []
+        for to_eval in to_evaluate:
+            to_eval = self.trim_eval_tags(to_eval)
+            # expected syntax: {i:item.key}
+            if not '.' in to_eval:
+                self.logger.error("eval of {i:%s} failed, no period", to_eval)
+                evaluated.append('??')
+                continue
+            item_nid, attribute = to_eval.split('.', 1)
+            item = DB.items.get(item_nid, None)
+            if not item:
+                self.logger.error("eval of {i:%s} failed, no such item %s", to_eval, item_nid)
+                evaluated.append('??')
+                continue
+            if not hasattr(item, attribute):
+                self.logger.error("eval of {i:%s} failed, no such attribute %s for item %s", to_eval, attribute, item_nid)
+                evaluated.append('??')
+                continue
+            attribute_obj = getattr(item, attribute)
+            if isinstance(attribute_obj, Component):
+                attribute_obj = attribute_obj.value
+            attribute_value = str(attribute_obj)
+            evaluated.append(self._object_to_str(attribute_value))
         for idx in range(len(to_evaluate)):
             text = text.replace(to_evaluate[idx], evaluated[idx])
         return text
@@ -187,10 +236,10 @@ class TextEvaluator():
         for to_eval in to_evaluate:
             to_eval = self.trim_eval_tags(to_eval)
             try:
-                val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.item, self.position, self.region)
+                val = evaluate.evaluate(to_eval, self.unit, self.unit2, self.position, self.local_args)
                 evaluated.append(self._object_to_str(val))
             except Exception as e:
-                self.logger.error("Could not evaluate %s (%s)" % (to_eval[6:-1], e))
+                self.logger.error("Could not evaluate %s (%s)" % (to_eval, e))
                 evaluated.append('??')
         for idx in range(len(to_evaluate)):
             text = text.replace(to_evaluate[idx], evaluated[idx])
@@ -199,7 +248,6 @@ class TextEvaluator():
     def _evaluate_vars(self, text) -> str:
         if not self.game:
             return "??"
-        text = self._evaluate_args(text)
         to_evaluate = re.findall(r'\{v:[^{}]*\}', text) + re.findall(r'\{var:[^{}]*\}', text)
         evaluated = []
         for to_eval in to_evaluate:

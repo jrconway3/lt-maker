@@ -2,14 +2,14 @@ import functools
 from enum import Enum
 
 from app.constants import TILEHEIGHT, TILEWIDTH, WINHEIGHT, WINWIDTH
-from app.data.database import DB
-from app.data.level_units import UniqueUnit
-from app.data.levels import LevelPrefab
+from app.data.database.database import DB
+from app.data.database.level_units import UniqueUnit
+from app.data.database.levels import LevelPrefab
 from app.editor import tilemap_editor, timer
 from app.editor.class_editor import class_model
 from app.editor.overworld_editor.road_sprite_wrapper import RoadSpriteWrapper
 from app.editor.settings import MainSettingsController
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
 from app.sprites import SPRITES
 from app.utilities import utils
 from PyQt5.QtCore import Qt, pyqtSignal
@@ -146,7 +146,7 @@ class SimpleMapView(QGraphicsView):
         pos = int(scene_pos.x() / TILEWIDTH), int(scene_pos.y() / TILEHEIGHT)
 
         if self.current_map and self.current_map.check_bounds(pos):
-            if(event.buttons() == Qt.RightButton):
+            if event.buttons() == Qt.RightButton:
                 self.position_double_right_clicked.emit(*pos)
             else:
                 self.position_double_clicked.emit(*pos)

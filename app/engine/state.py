@@ -41,6 +41,12 @@ class State():
     def finish(self):
         pass
 
+    def __repr__(self) -> str:
+        return str(self)
+
+    def __str__(self) -> str:
+        return self.name
+
 class MapState(State):
     def __init__(self, name=None):
         if name:
@@ -54,5 +60,6 @@ class MapState(State):
         game.camera.update()
         game.highlight.update()
         camera_cull = int(game.camera.get_x() * TILEWIDTH), int(game.camera.get_y() * TILEHEIGHT), WINWIDTH, WINHEIGHT
-        surf = game.map_view.draw(camera_cull, culled_rect)
+        map_surf = game.map_view.draw(camera_cull, culled_rect)
+        surf.blit(map_surf, (0, 0))
         return surf

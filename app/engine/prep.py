@@ -1,22 +1,23 @@
 from typing import List, Tuple
-from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT
 
-# from app.resources.resources import RESOURCES
-from app.data.database import DB
-
-from app.engine.sprites import SPRITES
-from app.engine.sound import get_sound_thread
-from app.engine.fonts import FONT
-from app.engine.state import State, MapState
-
-from app.engine.background import SpriteBackground
+from app.constants import TILEHEIGHT, TILEWIDTH, WINHEIGHT, WINWIDTH
+# from app.data.resources.resources import RESOURCES
+from app.data.database.database import DB
+from app.engine import action, background, banner, base_surf
 from app.engine import config as cf
-from app.engine.game_state import game
-from app.engine import menus, banner, action, base_surf, background, \
-    info_menu, engine, equations, item_funcs, text_funcs, image_mods, \
-    convoy_funcs, item_system, gui, trade
+from app.engine import (convoy_funcs, engine, equations, gui, image_mods,
+                        info_menu, item_funcs, item_system, menus, text_funcs,
+                        trade)
+from app.engine.background import SpriteBackground
 from app.engine.combat import interaction
 from app.engine.fluid_scroll import FluidScroll
+from app.engine.fonts import FONT
+from app.engine.game_state import game
+from app.engine.sound import get_sound_thread
+from app.engine.sprites import SPRITES
+from app.engine.state import MapState, State
+from app.events import triggers
+
 
 class PrepMainState(MapState):
     name = 'prep_main'
@@ -74,9 +75,7 @@ class PrepMainState(MapState):
         self.fade_out = False
         self.last_update = 0
 
-        # game.state.change('transition_in')
-        # return 'repeat'
-        # game.events.trigger('prep_start')
+        game.events.trigger(triggers.OnPrepStart())
 
     def create_background(self):
         img = SPRITES.get('focus_fade').convert_alpha()
@@ -193,6 +192,9 @@ class PrepPickUnitsState(State):
 
         if event == 'SELECT':
             unit = self.menu.get_current()
+            if not unit:
+                get_sound_thread().play_sfx('Error')
+                return
             if unit.position and not game.check_for_region(unit.position, 'formation'):
                 get_sound_thread().play_sfx('Select 4')  # Locked/Lord character
             elif unit.position and 'Required' in unit.tags:
@@ -261,7 +263,8 @@ class PrepPickUnitsState(State):
     def draw(self, surf):
         if self.bg:
             self.bg.draw(surf)
-        menus.draw_unit_items(surf, (4, 44), self.menu.get_current(), include_top=True)
+        if self.menu.get_current():
+            menus.draw_unit_items(surf, (4, 44), self.menu.get_current(), include_top=True)
 
         self.draw_pick_units_card(surf)
         if DB.constants.value('fatigue') and game.game_vars.get('_fatigue'):
@@ -413,7 +416,10 @@ class PrepManageState(State):
         units = game.get_units_in_party()
         self.units = sorted(units, key=lambda unit: bool(unit.position), reverse=True)
         self.menu = menus.Table(None, self.units, (4, 3), (6, 0))
-        self.menu.set_mode('unit')
+        if self.name.startswith('base'):
+            self.menu.set_mode('unit')
+        else:
+            self.menu.set_mode('prep_manage')  # Gray out undeployed units in prep
 
         # Display
         self.quick_disp = self.create_quick_disp()
@@ -488,7 +494,8 @@ class PrepManageState(State):
             game.state.change('transition_to')
         elif event == 'START':
             get_sound_thread().play_sfx('Select 1')
-            convoy_funcs.optimize_all()
+            # convoy_funcs.optimize_all()
+            game.state.change('optimize_all_choice')
 
     def update(self):
         self.menu.update()
@@ -500,6 +507,52 @@ class PrepManageState(State):
         menus.draw_unit_items(surf, (6, 72), self.menu.get_current(), include_face=True, shimmer=2)
         surf.blit(self.quick_disp, (WINWIDTH//2 + 10, WINHEIGHT//2 + 9))
         draw_funds(surf)
+        return surf
+
+class OptimizeAllChoiceState(State):
+    name = 'optimize_all_choice'
+    transparent = True
+    bg_surf = None
+
+    def start(self):
+        options = ['Yes', 'No']
+        self.menu = menus.Choice(None, options, 'center', None)  # Clear background
+        self.menu.set_horizontal(True)
+
+        width = sum(option.width() + 8 for option in self.menu.options) + 16
+        owidth = FONT['text'].width('Optimize All?') + 8
+        self.bg_surf = base_surf.create_base_surf(max(width, owidth), 40)
+        FONT['text'].blit('Optimize All?', self.bg_surf, (self.bg_surf.get_width()//2 - owidth//2 + 4, 4))
+
+    def take_input(self, event):
+        self.menu.handle_mouse()
+        if event == 'RIGHT':
+            get_sound_thread().play_sfx('Select 6')
+            self.menu.move_down()
+        elif event == 'LEFT':
+            get_sound_thread().play_sfx('Select 6')
+            self.menu.move_up()
+
+        elif event == 'BACK':
+            get_sound_thread().play_sfx('Select 4')
+            game.state.back()
+
+        elif event == 'SELECT':
+            selection = self.menu.get_current()
+            if selection == 'Yes':
+                get_sound_thread().play_sfx('Select 1')
+                convoy_funcs.optimize_all()
+            else:
+                get_sound_thread().play_sfx('Select 4')
+            game.state.back()
+
+    def update(self):
+        self.menu.update()
+
+    def draw(self, surf):
+        if self.bg_surf:
+            surf.blit(self.bg_surf, (WINWIDTH//2 - self.bg_surf.get_width()//2, WINHEIGHT//2 - 28))
+        surf = self.menu.draw(surf)
         return surf
 
 class PrepManageSelectState(State):
@@ -572,7 +625,10 @@ class PrepManageSelectState(State):
                 for item in tradeable_items:
                     convoy_funcs.store_item(item, self.unit)
             elif choice == 'Items':
-                game.memory['next_state'] = 'prep_items'
+                if self.name.startswith('base'):
+                    game.memory['next_state'] = 'base_items'
+                else:
+                    game.memory['next_state'] = 'prep_items'
                 game.state.change('transition_to')
             elif choice == 'Restock':
                 game.state.change('prep_restock')
@@ -691,6 +747,10 @@ class PrepItemsState(State):
 
     def begin(self):
         self.menu.update_options()
+        if self.name.startswith('base'):
+            base_music = game.game_vars.get('_base_music')
+            if base_music:
+                get_sound_thread().fade_in(base_music)
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -731,7 +791,8 @@ class PrepItemsState(State):
                         if not item_system.locked(self.unit, current):
                             options.append('Store')
                             options.append('Trade')
-                        if item_system.can_use(self.unit, current) and \
+                        if self.name != 'supply_items' and \
+                                item_system.can_use(self.unit, current) and \
                                 item_funcs.available(self.unit, current) and \
                                 item_system.can_use_in_base(self.unit, current) and \
                                 item_system.simple_target_restrict(self.unit, current):
@@ -740,13 +801,16 @@ class PrepItemsState(State):
                             options.append('Restock')
                         if not options:
                             options.append('Nothing')
-                        topleft = (96, self.menu.get_current_index() * 16 + 68 - 8 * len(options))
-                        self.sub_menu = menus.Choice(current, options, topleft)
+                        top = self.menu.get_current_index() * 16 + 68 - 8 * len(options)
+                        left = 96
+                        top = min(top, WINHEIGHT - 4 - 16 * len(options))
+                        self.sub_menu = menus.Choice(current, options, (left, top))
                     else:
                         self.menu.move_to_convoy()
                 elif context == 'convoy':
                     if current:
-                        if item_system.can_use(self.unit, current) and \
+                        if self.name != 'supply_items' and \
+                                item_system.can_use(self.unit, current) and \
                                 item_funcs.available(self.unit, current) and \
                                 item_system.can_use_in_base(self.unit, current) and \
                                 item_system.simple_target_restrict(self.unit, current):
@@ -794,6 +858,8 @@ class PrepItemsState(State):
                     convoy_funcs.restock(item)
                     self.menu.update_options()
                     self.state = 'free'
+                elif current == 'Nothing':
+                    self.state = 'free'
                 self.sub_menu = None
 
             elif self.state == 'convoy_item':
@@ -801,7 +867,11 @@ class PrepItemsState(State):
                 item = self.menu.get_current()
                 if current == 'Take':
                     action.do(action.HasTraded(self.unit))
-                    convoy_funcs.take_item(item, self.unit)
+                    if item.owner_nid:
+                        unit = game.get_unit(item.owner_nid)
+                        convoy_funcs.give_item(item, unit, self.unit)
+                    else:
+                        convoy_funcs.take_item(item, self.unit)
                     self.state = 'free'
                 elif current == 'Trade':
                     self.state = 'trade_inventory'
@@ -809,6 +879,8 @@ class PrepItemsState(State):
                 elif current == 'Use':
                     action.do(action.HasTraded(self.unit))
                     interaction.start_combat(self.unit, None, item)
+                    self.state = 'free'
+                elif current == 'Nothing':
                     self.state = 'free'
                 self.sub_menu = None
                 self.menu.update_options()
@@ -953,9 +1025,11 @@ class PrepMarketState(State):
         self.bg = game.memory['prep_bg']
         self.unit = game.memory['current_unit']
 
-        self.sell_menu = menus.Market(self.unit, None, (WINWIDTH - 160, 40), disp_value='sell')
-        market_items = item_funcs.create_items(self.unit, game.market_items)
-        self.buy_menu = menus.Market(self.unit, market_items, (WINWIDTH - 160, 40), disp_value='buy')
+        self.sell_menu = menus.Market(self.unit, None, (WINWIDTH - 164, 40), disp_value='sell')
+        market_items = game.market_items.keys()
+        market_items = item_funcs.create_items(self.unit, market_items)
+        show_stock = any(stock >= 0 for stock in game.market_items.values())
+        self.buy_menu = menus.Market(self.unit, market_items, (WINWIDTH - 164, 40), disp_value='buy', show_stock=show_stock)
         self.display_menu = self.buy_menu
         self.sell_menu.set_takes_input(False)
         self.buy_menu.set_takes_input(False)
@@ -1010,10 +1084,12 @@ class PrepMarketState(State):
                 item = self.menu.get_current()
                 if item:
                     value = item_funcs.buy_price(self.unit, item)
-                    if game.get_money() - value >= 0:
+                    if game.get_money() - value >= 0 and self.menu.get_stock() != 0:
                         get_sound_thread().play_sfx('GoldExchange')
                         game.set_money(game.get_money() - value)
                         self.money_counter_disp.start(-value)
+                        self.menu.decrement_stock()
+                        game.market_items[item.nid] -= 1
                         new_item = item_funcs.create_item(self.unit, item.nid)
                         game.register_item(new_item)
                         if not item_funcs.inventory_full(self.unit, new_item):
@@ -1022,6 +1098,9 @@ class PrepMarketState(State):
                             new_item.change_owner(None)
                             game.party.convoy.append(new_item)
                         self.update_options()
+                    elif self.menu.get_stock() == 0:
+                        # Market is out of stock
+                        get_sound_thread().play_sfx('Select 4')
                     else:
                         # You don't have enough money
                         get_sound_thread().play_sfx('Select 4')
@@ -1097,5 +1176,8 @@ class PrepMarketState(State):
         money = str(game.get_money())
         FONT['text-blue'].blit_right(money, surf, (61, WINHEIGHT - 20))
         self.money_counter_disp.draw(surf)
+
+        if self.display_menu.info_flag:
+            self.display_menu.draw_info(surf)
 
         return surf

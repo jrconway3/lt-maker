@@ -1,7 +1,7 @@
 from app.constants import WINWIDTH, WINHEIGHT
 
-from app.data.database import DB
-from app.resources.resources import RESOURCES
+from app.data.database.database import DB
+from app.data.resources.resources import RESOURCES
 from app.utilities import utils
 
 from app.engine.fonts import FONT
@@ -23,7 +23,8 @@ class PromotionChoiceState(State):
         self.bg = background.create_background('settings_background')
 
     def _get_choices(self):
-        self.class_options = self.unit_klass.turns_into
+        self.class_options = game.memory.get('promo_options', None) or self.unit_klass.turns_into
+        game.memory['promo_options'] = None
         return [DB.classes.get(c).name for c in self.class_options]
 
     def _proceed(self, next_class):
@@ -39,7 +40,6 @@ class PromotionChoiceState(State):
         game.memory['can_go_back'] = None
         self.combat_item = game.memory.get('combat_item')
         game.memory['combat_item'] = None
-
         self.unit = game.memory['current_unit']
         self.unit_klass = DB.classes.get(self.unit.klass)
         display_options = self._get_choices()
@@ -117,7 +117,7 @@ class PromotionChoiceState(State):
                 get_sound_thread().play_sfx('Select 4')
                 game.state.back()
                 if self.combat_item:
-                    action.do(action.Reset(self.unit))
+                    action.do(action.HasNotAttacked(self.unit))
                     item_system.reverse_use(self.unit, self.combat_item)
             else:
                 # Can't go back...
@@ -212,6 +212,8 @@ class ClassChangeChoiceState(PromotionChoiceState):
             self.class_options = [c for c in unit_prefab.alternate_classes if c != self.unit.klass]
         else:  # Just every class, lol?
             self.class_options = [c.nid for c in DB.classes.values() if c.nid != self.unit.klass]
+        if DB.constants.value('class_change_same_tier'):
+            self.class_options = [c for c in self.class_options if DB.classes.get(c).tier == DB.classes.get(self.unit.klass).tier]
         return [DB.classes.get(c).name for c in self.class_options]
 
     def _proceed(self, next_class):

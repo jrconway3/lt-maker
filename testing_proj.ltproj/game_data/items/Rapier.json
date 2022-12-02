@@ -54,6 +54,16 @@
                 40
             ],
             [
+                "uses_options",
+                [
+                    [
+                        "LoseUsesOnMiss (T/F)",
+                        "F",
+                        "Lose uses even on miss"
+                    ]
+                ]
+            ],
+            [
                 "prf_unit",
                 [
                     "Eirika"
@@ -69,6 +79,10 @@
                     "Horse",
                     "Armor"
                 ]
+            ],
+            [
+                "effective_multiplier",
+                1
             ]
         ]
     }

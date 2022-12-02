@@ -2,8 +2,8 @@ import os
 
 from app import autoupdate
 from app.constants import TILEX, TILEY, WINHEIGHT, WINWIDTH
-from app.data.database import DB
-from app.data.difficulty_modes import GrowthOption, PermadeathOption
+from app.data.database.database import DB
+from app.data.database.difficulty_modes import GrowthOption, PermadeathOption
 from app.engine import banner, base_surf
 from app.engine import config as cf
 from app.engine import (dialog, engine, gui, image_mods, menus, particles,
@@ -17,7 +17,8 @@ from app.engine.sound import get_sound_thread
 from app.engine.sprites import SPRITES
 from app.engine.state import State
 from app.events.event import Event
-from app.resources.resources import RESOURCES
+from app.events import triggers
+from app.data.resources.resources import RESOURCES
 
 import logging
 
@@ -54,8 +55,23 @@ class TitleStartState(State):
             get_sound_thread().fade_in(DB.constants.value('music_main'), fade_in=50)
 
         game.state.refresh()
-        game.state.change('transition_in')
+
+        # Title Screen Intro Cinematic
+        if game.memory.get('title_intro_already_played'):
+            game.state.change('transition_in')
+        else:
+            game.sweep()
+            game.events.trigger(triggers.OnTitleScreen())
+            # On startup occurs before on title_screen
+            game.events.trigger(triggers.OnStartup()) 
+            game.memory['title_intro_already_played'] = True
+
         return 'repeat'
+
+    def begin(self):
+        if game.state.from_transition():
+            game.state.change('transition_in')
+            return 'repeat'
 
     def take_input(self, event):
         if event:
@@ -397,6 +413,9 @@ class TitleLoadState(State):
     menu = None
     bg = None
 
+    def get_slots(self):
+        return save.SAVE_SLOTS
+
     def start(self):
         self.fluid = FluidScroll(128)
         self.state = 'transition_in'
@@ -406,7 +425,7 @@ class TitleLoadState(State):
         self.particles = game.memory['title_particles']
 
         save.check_save_slots()
-        self.save_slots = save.SAVE_SLOTS
+        self.save_slots = self.get_slots()
         options, colors = save.get_save_title(self.save_slots)
         self.menu = menus.ChapterSelect(options, colors)
         most_recent = self.save_slots.index(max(self.save_slots, key=lambda x: x.realtime))
@@ -445,7 +464,7 @@ class TitleLoadState(State):
                 if save_slot.kind == 'start':  # Restart
                     # Restart level
                     next_level_nid = game.game_vars['_next_level_nid']
-                    game.load_states(['turn_change'])
+                    game.load_states(['start_level_asset_loading'])
                     game.start_level(next_level_nid)
                 elif save_slot.kind == 'overworld': # load overworld
                     game.load_states(['overworld'])
@@ -491,6 +510,9 @@ class TitleLoadState(State):
 class TitleRestartState(TitleLoadState):
     name = 'title_restart'
 
+    def get_slots(self):
+        return save.RESTART_SLOTS
+
     def take_input(self, event):
         # Only take input in normal state
         if self.state != 'normal':
@@ -535,14 +557,16 @@ class TitleRestartState(TitleLoadState):
             else:
                 get_sound_thread().play_sfx('Error')
 
-def build_new_game(slot):
+def build_new_game(slot: int):
     # Make sure to keep the current mode
+    assert isinstance(slot, int)
     old_mode = game.current_mode
     game.build_new()
     game.current_mode = old_mode
 
     game.state.clear()
-    game.state.change('turn_change')
+    game.current_save_slot = slot
+    game.state.change('start_level_asset_loading')
     game.state.process_temp_state()
 
     first_level_nid = DB.levels[0].nid
@@ -665,7 +689,7 @@ class TitleExtrasState(TitleLoadState):
         self.bg = game.memory['title_bg']
         self.particles = game.memory['title_particles']
 
-        options = ['Options', 'Credits']
+        options = ['Options', 'Achievements', 'Credits', 'Sound Room']
         if cf.SETTINGS['debug']:
             options.insert(0, 'All Saves')
         self.menu = menus.Main(options, 'title_menu_dark')
@@ -703,7 +727,7 @@ class TitleExtrasState(TitleLoadState):
                 game.sweep()  # Set up event manager
                 event_prefab = DB.events.get_from_nid('Global Credits')
                 if event_prefab:
-                    event = Event(event_prefab.nid, event_prefab.commands)
+                    event = Event(event_prefab.nid, event_prefab.commands, triggers.GenericTrigger())
                     game.events.append(event)
                     game.memory['next_state'] = 'event'
                     game.state.change('transition_to')
@@ -714,6 +738,14 @@ class TitleExtrasState(TitleLoadState):
                 game.state.change('transition_to')
             elif selection == 'All Saves':
                 game.memory['next_state'] = 'title_all_saves'
+                game.state.change('transition_to')
+            elif selection == 'Sound Room':
+                game.memory['next_state'] = 'extras_sound_room'
+                game.memory['base_bg'] = self.bg
+                game.state.change('transition_to')
+            elif selection == 'Achievements':
+                game.memory['next_state'] = 'base_achievement'
+                game.memory['base_bg'] = self.bg
                 game.state.change('transition_to')
 
 class TitleAllSavesState(TitleLoadState):
@@ -780,6 +812,10 @@ class TitleSaveState(State):
     menu = None
 
     def start(self):
+        if game.memory.get('_skip_save', False):
+            game.memory['_skip_save'] = False
+            self.go_to_next_level(False)
+            return 'repeat'
         self.fluid = FluidScroll(128)
         imgs = RESOURCES.panoramas.get('title_background')
         self.bg = PanoramaBackground(imgs) if imgs else None
@@ -810,7 +846,7 @@ class TitleSaveState(State):
         current_state = game.state.state[-1]
         next_level_nid = game.game_vars['_next_level_nid']
 
-        game.load_states(['turn_change'])
+        game.load_states(['start_level_asset_loading'])
         if make_save:
             save.suspend_game(game, game.memory['save_kind'], slot=self.menu.current_index)
 
@@ -828,7 +864,6 @@ class TitleSaveState(State):
 
         game.state.state.append(current_state)
         game.state.change('transition_pop')
-
 
     def take_input(self, event):
         if self.wait_time > 0:

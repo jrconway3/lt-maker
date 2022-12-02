@@ -1,6 +1,6 @@
 import logging
 
-from app.data.database import DB
+from app.data.database.database import DB
 from app.engine import action
 from app.engine.game_menus.menu_components.generic_menu.choice_table_wrapper import ChoiceMenuUI
 from app.engine.game_state import game
@@ -21,12 +21,16 @@ class PlayerChoiceState(MapState):
         if self.size:
             rows, ncols = self.size
         else:
+            if callable(options_list):
+                data = options_list()
+            else:
+                data = options_list
             if self.orientation == 'horizontal':
-                ncols = len(options_list)
+                ncols = len(data)
                 self.size = (1, ncols)
                 rows, ncols = self.size
             else:
-                nrows = len(options_list)
+                nrows = len(data)
                 self.size = (nrows, 1)
                 rows, ncols = self.size
         self.menu = ChoiceMenuUI(options_list, data_type=self.data_type, rows=rows, row_width=self.row_width,

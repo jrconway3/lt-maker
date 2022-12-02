@@ -1,33 +1,41 @@
 from __future__ import annotations
 
 import ast
-from typing import TYPE_CHECKING
+import random
+from typing import TYPE_CHECKING, Optional
 
 from app.constants import WINHEIGHT, WINWIDTH
-from app.data.database import DB
-from app.data.level_units import GenericUnit, UniqueUnit
-from app.engine import (action, background, banner, dialog, engine, evaluate,
-                        icons, image_mods, item_funcs, item_system,
+from app.data.database.database import DB
+from app.data.database.level_units import GenericUnit, UniqueUnit
+from app.data.resources.resources import RESOURCES
+from app.engine import (action, background, banner, base_surf, dialog, engine,
+                        evaluate, icons, image_mods, item_funcs, item_system,
                         skill_system, target_system, unit_funcs)
+from app.engine.achievements import ACHIEVEMENTS
 from app.engine.animations import MapAnimation
 from app.engine.combat import interaction
+from app.engine.fonts import FONT
 from app.engine.game_menus.menu_components.generic_menu.simple_menu_wrapper import \
     SimpleMenuUI
-from app.engine.graphics.ui_framework.premade_animations.animation_templates import \
-    fade_anim, translate_anim
+from app.engine.graphics.text.text_renderer import rendered_text_width
+from app.engine.graphics.ui_framework.premade_animations.animation_templates import (
+    fade_anim, translate_anim)
+from app.engine.graphics.ui_framework.premade_components.plain_text_component import \
+    PlainTextLine
 from app.engine.graphics.ui_framework.ui_framework import UIComponent
 from app.engine.graphics.ui_framework.ui_framework_animation import \
     InterpolationType
-from app.engine.graphics.ui_framework.ui_framework_layout import HAlignment
+from app.engine.graphics.ui_framework.ui_framework_layout import (HAlignment,
+                                                                  VAlignment)
 from app.engine.objects.item import ItemObject
 from app.engine.objects.tilemap import TileMapObject
 from app.engine.objects.unit import UnitObject
+from app.engine.persistent_records import RECORDS
 from app.engine.sound import get_sound_thread
-from app.events import event_commands, regions
+from app.events import event_commands, regions, triggers
 from app.events.event_portrait import EventPortrait
-from app.events.speak_style import SpeakStyle
 from app.events.screen_positions import parse_screen_position
-from app.resources.resources import RESOURCES
+from app.events.speak_style import SpeakStyle
 from app.sprites import SPRITES
 from app.utilities import str_utils, utils
 from app.utilities.enums import Alignments
@@ -81,6 +89,8 @@ def add_portrait(self: Event, portrait, screen_position, slide=None, expression_
 
     name = portrait
     unit = self._get_unit(name)
+    if unit:
+        name = unit.nid
     if unit and unit.portrait_nid:
         portrait = RESOURCES.portraits.get(unit.portrait_nid)
     elif name in DB.units.keys():
@@ -88,7 +98,7 @@ def add_portrait(self: Event, portrait, screen_position, slide=None, expression_
     else:
         portrait = RESOURCES.portraits.get(name)
     if not portrait:
-        self.logger.error("Couldn't find portrait %s" % name)
+        self.logger.error("add_portrait: Couldn't find portrait %s" % name)
         return False
     # If already present, don't add
     if name in self.portraits and not self.portraits[name].remove:
@@ -135,7 +145,7 @@ def multi_add_portrait(self: Event, portrait1, screen_position1, portrait2, scre
         flags = {'no_block'} if portrait4 else set()
         commands.append(event_commands.AddPortrait({'Portrait': portrait3, 'ScreenPosition': screen_position3}, flags))
     if portrait4:
-        commands.append(event_commands.AddPortrait({'Portrait': portrait3, 'ScreenPosition': screen_position3}, set()))
+        commands.append(event_commands.AddPortrait({'Portrait': portrait4, 'ScreenPosition': screen_position4}, set()))
     for command in reversed(commands):
         # Done backwards to preserve order upon insertion
         self.commands.insert(self.command_idx + 1, command)
@@ -144,6 +154,9 @@ def remove_portrait(self: Event, portrait, flags=None):
     flags = flags or set()
 
     name = portrait
+    unit = self._get_unit(name)
+    if unit:
+        name = unit.nid
     if name not in self.portraits:
         return False
 
@@ -178,6 +191,9 @@ def move_portrait(self: Event, portrait, screen_position, flags=None):
     flags = flags or set()
 
     name = portrait
+    unit = self._get_unit(name)
+    if unit:
+        name = unit.nid
     portrait = self.portraits.get(name)
     if not portrait:
         return False
@@ -199,6 +215,9 @@ def mirror_portrait(self: Event, portrait, flags=None):
     flags = flags or set()
 
     name = portrait
+    unit = self._get_unit(name)
+    if unit:
+        name = unit.nid
     portrait = self.portraits.get(name)
     if not portrait:
         return False
@@ -219,7 +238,11 @@ def mirror_portrait(self: Event, portrait, flags=None):
 def bop_portrait(self: Event, portrait, flags=None):
     flags = flags or set()
 
-    _portrait = self.portraits.get(portrait)
+    name = portrait
+    unit = self._get_unit(name)
+    if unit:
+        name = unit.nid
+    _portrait = self.portraits.get(name)
     if not _portrait:
         return False
     _portrait.bop()
@@ -230,14 +253,19 @@ def bop_portrait(self: Event, portrait, flags=None):
         self.state = 'waiting'
 
 def expression(self: Event, portrait, expression_list, flags=None):
-    _portrait = self.portraits.get(portrait)
+    name = portrait
+    unit = self._get_unit(name)
+    if unit:
+        name = unit.nid
+    _portrait = self.portraits.get(name)
     if not _portrait:
         return False
     expression_list = expression_list.split(',')
     _portrait.set_expression(expression_list)
 
 def speak_style(self: Event, style, speaker=None, text_position=None, width=None, text_speed=None,
-                font_color=None, font_type=None, dialog_box=None, num_lines=None, draw_cursor=None, message_tail=None, flags=None):
+                font_color=None, font_type=None, dialog_box=None, num_lines=None, draw_cursor=None, message_tail=None,
+                name_tag_bg=None, flags=None):
     flags = flags or set()
     style_nid = style
     if style_nid in self.game.speak_styles:
@@ -248,10 +276,12 @@ def speak_style(self: Event, style, speaker=None, text_position=None, width=None
     if speaker:
         style.speaker = speaker
     if text_position:
-        if text_position == 'center':
-            style.text_position = text_position
-        else:
+        try:
+            align = Alignments(text_position)
+            style.text_position = align
+        except:
             style.text_position = self._parse_pos(text_position)
+
     if width:
         style.width = int(width)
     if text_speed:
@@ -268,20 +298,17 @@ def speak_style(self: Event, style, speaker=None, text_position=None, width=None
         style.draw_cursor = bool(draw_cursor)
     if message_tail:
         style.message_tail = message_tail
+    if name_tag_bg:
+        style.name_tag_bg = name_tag_bg
     if flags:
         style.flags = flags
     self.game.speak_styles[style.nid] = style
 
 def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=None, text_speed=None,
           font_color=None, font_type=None, dialog_box=None, num_lines=None, draw_cursor=None,
-          message_tail=None, flags=None):
+          message_tail=None, name_tag_bg=None, flags=None):
     flags = flags or set()
-    # special char: this is a unicode single-line break.
-    # basically equivalent to {br}
-    # the first char shouldn't be one of these
-    if text[0] == '\u2028':
-        text = text[1:]
-    text = text.replace('\u2028', '{sub_break}')  # sub break to distinguish it
+    text = dialog.clean_newlines(text)
 
     if 'no_block' in flags:
         text += '{no_wait}'
@@ -289,76 +316,87 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
     speak_style = None
     if style_nid and style_nid in self.game.speak_styles:
         speak_style = self.game.speak_styles[style_nid]
+    default_speak_style = self.game.speak_styles['__default']
 
     if not speaker and speak_style:
         speaker = speak_style.speaker
+    unit = self._get_unit(speaker)
+    if unit:
+        speaker = unit.nid
     portrait = self.portraits.get(speaker)
 
     if text_position:
-        if text_position == 'center':
-            position = 'center'
-        else:
+        try:
+            position = Alignments(text_position)
+        except:
             position = self._parse_pos(text_position)
     elif speak_style and speak_style.text_position:
         position = speak_style.text_position
     else:
-        position = None
+        position = default_speak_style.text_position
 
     if width:
         box_width = int(width)
     elif speak_style and speak_style.width:
         box_width = speak_style.width
     else:
-        box_width = None
+        box_width = default_speak_style.width
 
     if text_speed:
         speed = float(text_speed)
     elif speak_style and speak_style.text_speed:
         speed = speak_style.text_speed
     else:
-        speed = 1
+        speed = default_speak_style.text_speed
 
     if font_color:
         fcolor = font_color
     elif speak_style and speak_style.font_color:
         fcolor = speak_style.font_color
     else:
-        fcolor = None
+        fcolor = default_speak_style.font_color
 
     if font_type:
         ftype = font_type
     elif speak_style and speak_style.font_type:
         ftype = speak_style.font_type
     else:
-        ftype = 'convo'
+        ftype = default_speak_style.font_type
 
     if dialog_box:
         bg = dialog_box
     elif speak_style and speak_style.dialog_box:
         bg = speak_style.dialog_box
     else:
-        bg = 'message_bg_base'
+        bg = default_speak_style.dialog_box
 
     if num_lines:
         lines = int(num_lines)
     elif speak_style and speak_style.num_lines:
         lines = speak_style.num_lines
     else:
-        lines = 2
+        lines = default_speak_style.num_lines
 
     if draw_cursor:
         cursor = bool(draw_cursor)
     elif speak_style and speak_style.draw_cursor:
         cursor = speak_style.draw_cursor
     else:
-        cursor = True
+        cursor = default_speak_style.draw_cursor
 
     if message_tail:
         tail = message_tail
     elif speak_style and speak_style.message_tail:
         tail = speak_style.message_tail
     else:
-        tail = "message_bg_tail"
+        tail = default_speak_style.message_tail
+
+    if name_tag_bg:
+        nametag = name_tag_bg
+    elif speak_style and speak_style.name_tag_bg:
+        nametag = speak_style.name_tag_bg
+    else:
+        nametag = default_speak_style.name_tag_bg
 
     if speak_style and speak_style.flags:
         flags = speak_style.flags.union(flags)
@@ -368,7 +406,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
         dialog.Dialog(text, portrait, bg, position, box_width, speaker=speaker,
                       style_nid=style_nid, autosize=autosize, speed=speed,
                       font_color=fcolor, font_type=ftype, num_lines=lines,
-                      draw_cursor=cursor, message_tail=tail)
+                      draw_cursor=cursor, message_tail=tail, name_tag_bg=nametag)
     new_dialog.hold = 'hold' in flags
     if 'no_popup' in flags:
         new_dialog.last_update = engine.get_time() - 10000
@@ -386,6 +424,7 @@ def unhold(self: Event, nid, flags=None):
             box.hold = False
 
 def transition(self: Event, direction=None, speed=None, color3=None, flags=None):
+    flags = flags or set()
     current_time = engine.get_time()
     if direction:
         self.transition_state = direction.lower()
@@ -398,8 +437,11 @@ def transition(self: Event, direction=None, speed=None, color3=None, flags=None)
 
     if not self.do_skip:
         self.transition_update = current_time
-        self.wait_time = current_time + int(self.transition_speed * 1.33)
-        self.state = 'waiting'
+        if 'no_block' in flags:
+            pass
+        else:
+            self.wait_time = current_time + int(self.transition_speed * 1.33)
+            self.state = 'waiting'
 
 def change_background(self: Event, panorama=None, flags=None):
     flags = flags or set()
@@ -415,6 +457,18 @@ def change_background(self: Event, panorama=None, flags=None):
     else:
         self.portraits.clear()
 
+def pause_background(self: Event, pause_at=None, flags=None):
+    if not self.background:
+        self.logger.warning("No current background to pause!")
+        return
+    self.background.pause(pause_at)
+
+def unpause_background(self: Event, flags=None):
+    if not self.background:
+        self.logger.warning("No current background to unpause")
+        return
+    self.background.unpause()
+
 def disp_cursor(self: Event, show_cursor, flags=None):
     if show_cursor.lower() in self.true_vals:
         self.game.cursor.show()
@@ -426,7 +480,7 @@ def move_cursor(self: Event, position, speed=None, flags=None):
 
     _position = self._parse_pos(position)
     if not _position:
-        self.logger.error("Could not determine position from %s" % position)
+        self.logger.error("move_cursor: Could not determine position from %s" % position)
         return
     position = _position
 
@@ -447,7 +501,7 @@ def center_cursor(self: Event, position, speed=None, flags=None):
 
     _position = self._parse_pos(position)
     if not _position:
-        self.logger.error("Could not determine position from %s" % position)
+        self.logger.error("center_cursor: Could not determine position from %s" % position)
         return
     position = _position
 
@@ -459,7 +513,7 @@ def center_cursor(self: Event, position, speed=None, flags=None):
             # we are using a custom camera speed
             duration = int(speed)
             self.game.camera.do_slow_pan(duration)
-            self.game.camera.set_center(*position)
+        self.game.camera.set_center(*position)
         self.game.state.change('move_camera')
         self.state = 'paused'  # So that the message will leave the update loop
 
@@ -475,46 +529,119 @@ def flicker_cursor(self: Event, position, flags=None):
     self.commands.insert(self.command_idx + 1, disp_cursor_command1)
     self.commands.insert(self.command_idx + 1, move_cursor_command)
 
+def screen_shake(self: Event, duration, shake_type=None, flags=None):
+    flags = flags or set()
+    shake_type = shake_type or 'default'
+    duration = int(duration)
+
+    shake_offset = None
+    if shake_type == 'default':
+        shake_offset = [(0, -2), (0, -2), (0, 0), (0, 0)]
+    elif shake_type == 'combat':
+        shake_offset = [(-3, -3), (0, 0), (3, 3), (0, 0)]
+    elif shake_type == 'kill':
+        shake_offset = [(3, 3), (0, 0), (0, 0), (3, 3), (-3, -3), (3, 3), (-3, -3), (0, 0)]
+    elif shake_type == 'random':
+        shake_offset = [(random.randint(-4, 4), random.randint(-4, 4)) for _ in range(16)]
+    elif shake_type == 'celeste':
+        shake_offset = [(random.choice([-1, 1]), random.choice([-1, 1])) for _ in range(16)]
+
+    if not shake_offset:
+        self.logger.error("shake mode %s not recognized by screen shake command. Recognized modes are ('default', 'combat').", shake_type)
+        return
+
+    self.game.camera.set_shake(shake_offset, duration)
+    if self.background:
+        self.background.set_shake(shake_offset, duration)
+    if 'no_block' in flags:
+        pass
+    else:
+        self.wait_time = engine.get_time() + duration
+        self.state = 'waiting'
+
+def screen_shake_end(self: Event, flags=None):
+    self.game.camera.reset_shake()
+    if self.background:
+        self.background.reset_shake()
+
 def game_var(self: Event, nid, expression, flags=None):
     try:
-        val = evaluate.evaluate(expression, self.unit, self.unit2, self.item, self.position, self.region)
+        val = self.text_evaluator.direct_eval(expression)
         action.do(action.SetGameVar(nid, val))
     except Exception as e:
-        self.logger.error("Could not evaluate %s (%s)" % (expression, e))
+        self.logger.error("game_var: Could not evaluate %s (%s)" % (expression, e))
 
 def inc_game_var(self: Event, nid, expression=None, flags=None):
     if expression:
         try:
-            val = evaluate.evaluate(expression, self.unit, self.unit2, self.item, self.position, self.region)
+            val = self.text_evaluator.direct_eval(expression)
             action.do(action.SetGameVar(nid, self.game.game_vars.get(nid, 0) + val))
         except Exception as e:
-            self.logger.error("Could not evaluate %s (%s)" % (expression, e))
+            self.logger.error("inc_game_var: Could not evaluate %s (%s)" % (expression, e))
     else:
         action.do(action.SetGameVar(nid, self.game.game_vars.get(nid, 0) + 1))
 
 def level_var(self: Event, nid, expression, flags=None):
     try:
-        val = evaluate.evaluate(expression, self.unit, self.unit2, self.item, self.position, self.region)
+        val = self.text_evaluator.direct_eval(expression)
         action.do(action.SetLevelVar(nid, val))
     except Exception as e:
-        self.logger.error("Could not evaluate %s (%s)" % (expression, e))
+        self.logger.error("level_var: Could not evaluate %s (%s)" % (expression, e))
         return
 
 def inc_level_var(self: Event, nid, expression=None, flags=None):
     if expression:
         try:
-            val = evaluate.evaluate(expression, self.unit, self.unit2, self.item, self.position, self.region)
+            val = self.text_evaluator.direct_eval(expression)
             action.do(action.SetLevelVar(nid, self.game.level_vars.get(nid, 0) + val))
         except Exception as e:
-            self.logger.error("Could not evaluate %s (%s)" % (expression, e))
+            self.logger.error("inc_level_var: Could not evaluate %s (%s)" % (expression, e))
     else:
         action.do(action.SetLevelVar(nid, self.game.level_vars.get(nid, 0) + 1))
+
+def set_next_chapter(self: Event, chapter, flags=None):
+    if chapter not in DB.levels.keys():
+        self.logger.error("set_next_chapter: %s is not a valid chapter nid" % chapter)
+        return
+    action.do(action.SetGameVar("_goto_level", chapter))
+
+def enable_supports(self: Event, activated: str, flags=None):
+    state = activated.lower() in self.true_vals
+    action.do(action.SetGameVar("_supports", state))
+
+def set_fog_of_war(self: Event, fog_of_war_type, radius, ai_radius=None, other_radius=None, flags=None):
+    fowt = fog_of_war_type.lower()
+    if fowt == 'gba':
+        fowt = 1
+    elif fowt == 'thracia':
+        fowt = 2
+    else:
+        fowt = 0
+    action.do(action.SetLevelVar('_fog_of_war', fowt))
+    radius = int(radius)
+    action.do(action.SetLevelVar('_fog_of_war_radius', radius))
+    if ai_radius is not None:
+        ai_radius = int(ai_radius)
+        action.do(action.SetLevelVar('_ai_fog_of_war_radius', ai_radius))
+    if other_radius is not None:
+        other_radius = int(ai_radius)
+        action.do(action.SetLevelVar('_ai_fog_of_war_radius', other_radius))
 
 def win_game(self: Event, flags=None):
     self.game.level_vars['_win_game'] = True
 
 def lose_game(self: Event, flags=None):
     self.game.level_vars['_lose_game'] = True
+
+def main_menu(self: Event, flags=None):
+    self.game.level_vars['_main_menu'] = True
+
+def force_chapter_clean_up(self: Event, flags=None):
+    self.game.clean_up(full=False)
+
+def skip_save(self: Event, true_or_false: str, flags=None):
+    state = true_or_false.lower() in self.true_vals
+    action.do(action.SetLevelVar('_skip_save', state))
 
 def activate_turnwheel(self: Event, force=None, flags=None):
     if force and force.lower() not in self.true_vals:
@@ -534,20 +661,10 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
     """
     flags = flags or set()
 
-    reload_map = 'reload' in flags
-    if reload_map and self.game.is_displaying_overworld(): # just go back to the level
-        from app.engine import level_cursor, map_view, movement
-        self.game.cursor = level_cursor.LevelCursor(self.game)
-        self.game.movement = movement.MovementManager()
-        self.game.map_view = map_view.MapView()
-        self.game.boundary = self.prev_game_boundary
-        self.game.board = self.prev_board
-        return
-
     tilemap_nid = tilemap
     tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
     if not tilemap_prefab:
-        self.logger.error("Couldn't find tilemap %s" % tilemap_nid)
+        self.logger.error("change_tilemap: Couldn't find tilemap %s" % tilemap_nid)
         return
 
     if position_offset:
@@ -558,6 +675,24 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
         reload_map_nid = load_tilemap
     else:
         reload_map_nid = tilemap_nid
+
+    reload_map = 'reload' in flags
+    if reload_map and self.game.is_displaying_overworld(): # just go back to the level
+        from app.engine import level_cursor, map_view, movement
+        self.game.cursor = level_cursor.LevelCursor(self.game)
+        self.game.movement = movement.MovementManager()
+        self.game.map_view = map_view.MapView()
+        self.game.boundary = self.prev_game_boundary
+        self.game.board = self.prev_board
+        if reload_map and self.game.level_vars.get('_prev_pos_%s' % reload_map_nid):
+            for unit_nid, pos in self.game.level_vars['_prev_pos_%s' % reload_map_nid].items():
+                # Reload unit's position with position offset
+                final_pos = pos[0] + position_offset[0], pos[1] + position_offset[1]
+                if self.game.tilemap.check_bounds(final_pos):
+                    unit = self.game.get_unit(unit_nid)
+                    act = action.ArriveOnMap(unit, final_pos)
+                    act.execute()
+        return
 
     # Reset cursor position
     self.game.cursor.set_pos((0, 0))
@@ -596,14 +731,48 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
     # Can't use turnwheel to go any further back
     self.game.action_log.set_first_free_action()
 
+def change_bg_tilemap(self: Event, tilemap=None, flags=None):
+    flags = flags or set()
+
+    tilemap_nid = tilemap
+    tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
+    if not tilemap_prefab:
+        self.game.level.bg_tilemap = None
+        return
+
+    tilemap = TileMapObject.from_prefab(tilemap_prefab)
+    action.do(action.ChangeBGTileMap(tilemap))
+
+def set_game_board_bounds(self: Event, min_x, min_y, max_x, max_y, flags=None):
+    min_x = int(min_x)
+    max_x = int(max_x)
+    min_y = int(min_y)
+    max_y = int(max_y)
+    if not self.game.board:
+        self.logger.warning("set_game_board_bounds: No game board available")
+    elif max_x <= min_x:
+        self.logger.warning("set_game_board_bounds: MaxX must be strictly greater than MinX, (MinX: %d, MaxX: %d)", min_x, max_x)
+    elif max_y <= min_y:
+        self.logger.warning("set_game_board_bounds: MaxY must be strictly greater than MinY, (MinY: %d, MaxY: %d)", min_y, max_y)
+    else:
+        bounds = (min_x, min_y, max_x, max_y)
+        action.do(action.SetGameBoardBounds(bounds))
+
+def remove_game_board_bounds(self: Event, flags=None):
+    if self.game.board:
+        bounds = (0, 0, self.game.tilemap.width - 1, self.game.tilemap.height - 1)
+        action.do(action.SetGameBoardBounds(bounds))
+    else:
+        self.logger.warning("remove_game_board_bounds: No game board available")
+
 def load_unit(self: Event, unique_unit, team=None, ai=None, flags=None):
     unit_nid = unique_unit
     if self.game.get_unit(unit_nid):
-        self.logger.error("Unit with NID %s already exists!" % unit_nid)
+        self.logger.error("load_unit: Unit with NID %s already exists!" % unit_nid)
         return
     unit_prefab = DB.units.get(unit_nid)
     if not unit_prefab:
-        self.logger.error("Could not find unit %s in database" % unit_nid)
+        self.logger.error("load_unit: Could not find unit %s in database" % unit_nid)
         return
     if not team:
         team = 'player'
@@ -622,11 +791,11 @@ def make_generic(self: Event, nid, klass, level, team, ai=None, faction=None, an
         unit_nid = str_utils.get_next_int('201', [unit.nid for unit in self.game.units])
         assign_unit = True
     elif self.game.get_unit(unit_nid):
-        self.logger.error("Unit with NID %s already exists!" % unit_nid)
+        self.logger.error("make_generic: Unit with NID %s already exists!" % unit_nid)
         return
 
     if klass not in DB.classes.keys():
-        self.logger.error("Class %s doesn't exist in database " % klass)
+        self.logger.error("make_generic: Class %s doesn't exist in database " % klass)
         return
     level = int(level)
     if not ai:
@@ -635,23 +804,25 @@ def make_generic(self: Event, nid, klass, level, team, ai=None, faction=None, an
         faction = DB.factions[0].nid
     if item_list:
         starting_items = item_list.split(',')
+        item_list = [item_nid.strip() for item_nid in item_list]
     else:
         starting_items = []
-    level_unit_prefab = GenericUnit(unit_nid, animation_variant, level, klass, faction, starting_items, team, ai)
-    new_unit = UnitObject.from_prefab(level_unit_prefab)
+    level_unit_prefab = GenericUnit(unit_nid, animation_variant, level, klass, faction, starting_items, [], team, ai)
+    new_unit = UnitObject.from_prefab(level_unit_prefab, self.game.current_mode)
     new_unit.party = self.game.current_party
-    self.game.full_register(new_unit)
+    #self.game.full_register(new_unit)
+    action.do(action.RegisterUnit(new_unit))
 
     if assign_unit:
-        self.unit2 = new_unit
         self.created_unit = new_unit
-        self.text_evaluator.unit2 = new_unit
         self.text_evaluator.created_unit = new_unit
 
 def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_type=None, placement=None, flags=None):
+    flags = flags or set()
+
     new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("create_unit: Couldn't find unit %s" % unit)
         return
     unit = new_unit
     # Get input
@@ -661,81 +832,89 @@ def create_unit(self: Event, unit, nid=None, level=None, position=None, entry_ty
         unit_nid = str_utils.get_next_int('201', [unit.nid for unit in self.game.units])
         assign_unit = True
     elif self.game.get_unit(unit_nid):
-        self.logger.error("Unit with NID %s already exists!" % unit_nid)
+        self.logger.error("create_unit: Unit with NID %s already exists!" % unit_nid)
         return
 
     if not level:
         level = unit.level
     if position:
         position = self._parse_pos(position)
-    else:
-        position = unit.starting_position
-    if not position:
-        self.logger.error("No position found!")
-        return
     if not entry_type:
         entry_type = 'fade'
     if not placement:
         placement = 'giveup'
 
+    faction = unit.faction
+    if not faction:
+        faction = DB.factions[0].nid
     level_unit_prefab = GenericUnit(
-        unit_nid, unit.variant, int(level), unit.klass, unit.faction, [item.nid for item in unit.items], unit.team, unit.ai)
+        unit_nid, unit.variant, int(level), unit.klass, faction, [item.nid for item in unit.items], [], unit.team, unit.ai)
     new_unit = UnitObject.from_prefab(level_unit_prefab, self.game.current_mode)
-    position = self._check_placement(new_unit, position, placement)
-    if not position:
-        return None
+
+    if 'copy_stats' in flags:
+        new_unit.stats = unit.stats.copy()
+
     new_unit.party = self.game.current_party
-    self.game.full_register(new_unit)
+    # self.game.full_register(new_unit)
+    action.do(action.RegisterUnit(new_unit))
     if assign_unit:
-        self.unit2 = new_unit
         self.created_unit = new_unit
-        self.text_evaluator.unit2 = new_unit
         self.text_evaluator.created_unit = new_unit
     if DB.constants.value('initiative'):
-        action.do(action.InsertInitiative(unit))
+        action.do(action.InsertInitiative(new_unit))
 
-    self._place_unit(new_unit, position, entry_type)
+    if position:
+        position = self._check_placement(new_unit, position, placement)
+    if position:
+        self._place_unit(new_unit, position, entry_type)
 
-def add_unit(self: Event, unit, position=None, entry_type=None, placement=None, flags=None):
+def add_unit(self: Event, unit, position=None, entry_type=None, placement=None, animation_type=None, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("add_unit: Couldn't find unit %s" % unit)
         return
     unit = new_unit
     if unit.position:
-        self.logger.error("Unit already on map!")
+        self.logger.error("add_unit: Unit already on map!")
         return
     if unit.dead:
-        self.logger.error("Unit is dead!")
+        self.logger.error("add_unit: Unit is dead!")
         return
     if position:
         position = self._parse_pos(position)
     else:
         position = unit.starting_position
     if not position:
-        self.logger.error("No position found!")
+        self.logger.error("add_unit: No position found!")
         return
     if not entry_type:
         entry_type = 'fade'
     if not placement:
         placement = 'giveup'
+
+    if not animation_type or animation_type == 'fade':
+        fade_direction = None
+    else:
+        fade_direction = animation_type
+
     position = self._check_placement(unit, position, placement)
     if not position:
+        self.logger.error("add_unit: Couldn't get a good position %s %s %s" % (position, entry_type, placement))
         return None
     if DB.constants.value('initiative'):
         action.do(action.InsertInitiative(unit))
-    self._place_unit(unit, position, entry_type)
+    self._place_unit(unit, position, entry_type, fade_direction)
 
-def move_unit(self: Event, unit, position=None, movement_type=None, placement=None, flags=None):
+def move_unit(self: Event, unit, position=None, movement_type=None, placement=None, speed=None, flags=None):
     flags = flags or set()
 
     new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("move_unit: Couldn't find unit %s" % unit)
         return
     unit = new_unit
     if not unit.position:
-        self.logger.error("Unit not on map!")
+        self.logger.error("move_unit: Unit not on map!")
         return
 
     if position:
@@ -743,7 +922,7 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
     else:
         position = unit.starting_position
     if not position:
-        self.logger.error("No position found!")
+        self.logger.error("move_unit: No position found!")
         return
 
     if not movement_type:
@@ -754,7 +933,7 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
 
     position = self._check_placement(unit, position, placement)
     if not position:
-        self.logger.error("Couldn't get a good position %s %s %s" % (position, movement_type, placement))
+        self.logger.error("move_unit: Couldn't get a good position %s %s %s" % (position, movement_type, placement))
         return None
 
     if movement_type == 'immediate' or self.do_skip:
@@ -767,7 +946,10 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
         action.do(action.FadeMove(unit, position))
     elif movement_type == 'normal':
         path = target_system.get_path(unit, position)
-        action.do(action.Move(unit, position, path, event=True, follow=follow))
+        if speed:
+            action.do(action.Move(unit, position, path, event=True, follow=follow, speed=speed))
+        else:
+            action.do(action.Move(unit, position, path, event=True, follow=follow))
 
     if 'no_block' in flags or self.do_skip:
         pass
@@ -775,17 +957,21 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
         self.state = 'paused'
         self.game.state.change('movement')
 
-def remove_unit(self: Event, unit, remove_type=None, flags=None):
+def remove_unit(self: Event, unit, remove_type=None, animation_type=None, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("remove_unit: Couldn't find unit %s" % unit)
         return
     unit = new_unit
     if not unit.position:
-        self.logger.error("Unit not on map!")
+        self.logger.error("remove_unit: Unit not on map!")
         return
     if not remove_type:
         remove_type = 'fade'
+    if not animation_type or animation_type == 'fade':
+        fade_direction = None
+    else:
+        fade_direction = animation_type
     if DB.constants.value('initiative'):
         action.do(action.RemoveInitiative(unit))
     if self.do_skip:
@@ -795,7 +981,7 @@ def remove_unit(self: Event, unit, remove_type=None, flags=None):
     elif remove_type == 'swoosh':
         action.do(action.SwooshOut(unit))
     elif remove_type == 'fade':
-        action.do(action.FadeOut(unit))
+        action.do(action.FadeOut(unit, fade_direction))
     else:  # immediate
         action.do(action.LeaveMap(unit))
 
@@ -804,7 +990,7 @@ def kill_unit(self: Event, unit, flags=None):
 
     new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("kill_unit: Couldn't find unit %s" % unit)
         return
     unit = new_unit
 
@@ -819,7 +1005,7 @@ def kill_unit(self: Event, unit, flags=None):
     else:
         self.game.death.should_die(unit)
         self.game.state.change('dying')
-    self.game.events.trigger('unit_death', unit, position=unit.position)
+    self.game.events.trigger(triggers.UnitDeath(unit, None, unit.position))
     skill_system.on_death(unit)
     self.state = 'paused'
 
@@ -838,11 +1024,11 @@ def interact_unit(self: Event, unit, position, combat_script=None, ability=None,
 
     actor = self._get_unit(unit)
     if not actor or not actor.position:
-        self.logger.error("Couldn't find %s" % unit)
+        self.logger.error("interact_unit: Couldn't find %s" % unit)
         return
     target = self._parse_pos(position)
     if not target:
-        self.logger.error("Couldn't find target %s" % position)
+        self.logger.error("interact_unit: Couldn't find target %s" % position)
         return
 
     if combat_script:
@@ -867,7 +1053,7 @@ def interact_unit(self: Event, unit, position, combat_script=None, ability=None,
         else:  # Create item on the fly
             item_prefab = DB.items.get(ability)
             if not item_prefab:
-                self.logger.error("Couldn't find item with nid %s" % ability)
+                self.logger.error("interact_unit: Couldn't find item with nid %s" % ability)
                 return
             # Create item
             item = ItemObject.from_prefab(item_prefab)
@@ -879,7 +1065,7 @@ def interact_unit(self: Event, unit, position, combat_script=None, ability=None,
         elif items:
             item = items[0]
         else:
-            self.logger.error("Unit does not have item!")
+            self.logger.error("interact_unit: Unit does not have item!")
             return
 
     interaction.start_combat(
@@ -888,9 +1074,9 @@ def interact_unit(self: Event, unit, position, combat_script=None, ability=None,
     self.state = "paused"
 
 def recruit_generic(self: Event, unit, nid, name, flags=None):
-    new_unit = self.game.get_unit(unit)
+    new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("Couldn't find unit with nid %s" % unit)
+        self.logger.error("recruit_generic: Couldn't find unit %s" % unit)
         return
     unit = new_unit
     action.do(action.SetPersistent(unit))
@@ -900,28 +1086,28 @@ def recruit_generic(self: Event, unit, nid, name, flags=None):
 def set_name(self: Event, unit, string, flags=None):
     actor = self._get_unit(unit)
     if not actor:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("set_name: Couldn't find unit %s" % unit)
         return
     action.do(action.SetName(actor, string))
 
 def set_current_hp(self: Event, unit, hp, flags=None):
     actor = self._get_unit(unit)
     if not actor:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("set_current_hp: Couldn't find unit %s" % unit)
         return
     action.do(action.SetHP(actor, int(hp)))
 
 def set_current_mana(self: Event, unit, mana, flags=None):
     actor = self._get_unit(unit)
     if not actor:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("set_current_mana: Couldn't find unit %s" % unit)
         return
     action.do(action.SetMana(actor, int(mana)))
 
 def add_fatigue(self: Event, unit, fatigue, flags=None):
     actor = self._get_unit(unit)
     if not actor:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("add_fatigue: Couldn't find unit %s" % unit)
         return
     action.do(action.ChangeFatigue(actor, int(fatigue)))
 
@@ -930,12 +1116,12 @@ def set_unit_field(self: Event, unit, key, value, flags=None):
 
     actor = self._get_unit(unit)
     if not actor:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("set_unit_field: Couldn't find unit %s" % unit)
         return
     try:
-        value = evaluate.evaluate(value)
+        value = self.text_evaluator.direct_eval(value)
     except:
-        self.logger.error("Could not evaluate {%s}" % value)
+        self.logger.error("set_unit_field: Could not evaluate {%s}" % value)
         return
     should_increment = False
     if 'increment_mode' in flags:
@@ -945,7 +1131,7 @@ def set_unit_field(self: Event, unit, key, value, flags=None):
 def resurrect(self: Event, global_unit, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("resurrect: Couldn't find unit %s" % global_unit)
         return
     if unit.dead:
         action.do(action.Resurrect(unit))
@@ -955,30 +1141,37 @@ def resurrect(self: Event, global_unit, flags=None):
 def reset(self: Event, unit, flags=None):
     actor = self._get_unit(unit)
     if not actor:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("reset: Couldn't find unit %s" % unit)
         return
     action.do(action.Reset(actor))
 
 def has_attacked(self: Event, unit, flags=None):
     actor = self._get_unit(unit)
     if not actor:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("has_attacked: Couldn't find unit %s" % unit)
         return
     action.do(action.HasAttacked(actor))
 
 def has_traded(self: Event, unit, flags=None):
     actor = self._get_unit(unit)
     if not actor:
-        self.logger.error("Couldn't find unit %s" % unit)
+        self.logger.error("has_traded: Couldn't find unit %s" % unit)
         return
     action.do(action.HasTraded(actor))
+
+def has_finished(self: Event, unit, flags=None):
+    actor = self._get_unit(unit)
+    if not actor:
+        self.logger.error("has_finished: Couldn't find unit %s" % unit)
+        return
+    action.do(action.Wait(actor))
 
 def add_group(self: Event, group, starting_group=None, entry_type=None, placement=None, flags=None):
     flags = flags or set()
 
     new_group = self.game.level.unit_groups.get(group)
     if not new_group:
-        self.logger.error("Couldn't find group %s" % group)
+        self.logger.error("add_group: Couldn't find group %s" % group)
         return
     group = new_group
     next_pos = starting_group
@@ -1001,7 +1194,7 @@ def add_group(self: Event, group, starting_group=None, entry_type=None, placemen
         position = tuple(position)
         position = self._check_placement(unit, position, placement)
         if not position:
-            self.logger.warning("Couldn't determine valid position for %s?", unit.nid)
+            self.logger.warning("add_group: Couldn't determine valid position for %s?", unit.nid)
             continue
         if DB.constants.value('initiative'):
             action.do(action.InsertInitiative(unit))
@@ -1012,12 +1205,12 @@ def spawn_group(self: Event, group, cardinal_direction, starting_group, movement
 
     new_group = self.game.level.unit_groups.get(group)
     if not new_group:
-        self.logger.error("Couldn't find group %s", group)
+        self.logger.error("spawn_group: Couldn't find group %s", group)
         return
     group = new_group
     cardinal_direction = cardinal_direction.lower()
     if cardinal_direction not in ('east', 'west', 'north', 'south'):
-        self.logger.error("%s not a legal cardinal direction", cardinal_direction)
+        self.logger.error("spawn_group: %s not a legal cardinal direction", cardinal_direction)
         return
     next_pos = starting_group
     if not movement_type:
@@ -1034,7 +1227,7 @@ def spawn_group(self: Event, group, cardinal_direction, starting_group, movement
             if not unit:
                 continue
         elif unit.position or unit.dead:
-            self.logger.warning("Unit %s in group %s already on map or dead", unit.nid, group.nid)
+            self.logger.warning("spawn_group: Unit %s in group %s already on map or dead", unit.nid, group.nid)
             continue
         position = self._get_position(next_pos, unit, group, unit_nid)
         if not position:
@@ -1045,7 +1238,7 @@ def spawn_group(self: Event, group, cardinal_direction, starting_group, movement
                 action.do(action.InsertInitiative(unit))
             self._move_unit(movement_type, placement, follow, unit, position)
         else:
-            self.logger.error("Couldn't add unit %s to position %s" % (unit.nid, position))
+            self.logger.error("spawn_group: Couldn't add unit %s to position %s" % (unit.nid, position))
 
     if 'no_block' in flags or self.do_skip:
         pass
@@ -1058,7 +1251,7 @@ def move_group(self: Event, group, starting_group, movement_type=None, placement
 
     new_group = self.game.level.unit_groups.get(group)
     if not new_group:
-        self.logger.error("Couldn't find group %s" % group)
+        self.logger.error("move_group: Couldn't find group %s" % group)
         return
     group = new_group
     next_pos = starting_group
@@ -1086,7 +1279,7 @@ def move_group(self: Event, group, starting_group, movement_type=None, placement
 def remove_group(self: Event, group, remove_type=None, flags=None):
     new_group = self.game.level.unit_groups.get(group)
     if not new_group:
-        self.logger.error("Couldn't find group %s" % group)
+        self.logger.error("remove_group: Couldn't find group %s" % group)
         return
     group = new_group
     if not remove_type:
@@ -1114,7 +1307,7 @@ def give_item(self: Event, global_unit_or_convoy, item, flags=None):
     else:
         unit = self._get_unit(global_unit)
         if not unit:
-            self.logger.error("Couldn't find unit with nid %s" % global_unit)
+            self.logger.error("give_item: Couldn't find unit with nid %s" % global_unit)
             return
     item_id = item
     if item_id in DB.items.keys():
@@ -1123,10 +1316,10 @@ def give_item(self: Event, global_unit_or_convoy, item, flags=None):
     elif str_utils.is_int(item_id) and int(item_id) in self.game.item_registry:
         item = self.game.item_registry[int(item_id)]
     else:
-        self.logger.error("Couldn't find item with nid %s" % item_id)
+        self.logger.error("give_item: Couldn't find item with nid %s" % item_id)
         return
     banner_flag = 'no_banner' not in flags
-    item.droppable = 'droppable' in flags
+    action.do(action.SetDroppable(item, 'droppable' in flags))
 
     if unit:
         if item_funcs.inventory_full(unit, item):
@@ -1157,12 +1350,43 @@ def give_item(self: Event, global_unit_or_convoy, item, flags=None):
             self.game.state.change('alert')
             self.state = 'paused'
 
+def equip_item(self: Event, global_unit, item, flags=None):
+    flags = flags or set()
+    recursive_flag = 'recursive' in flags
+    item_input = item
+    unit = self._get_unit(global_unit)
+    if not unit:
+        self.logger.error("equip_item: Couldn't find unit with nid %s" % global_unit)
+        return
+    unit, item = self._get_item_in_inventory(global_unit, item, recursive=recursive_flag)
+    if not unit or not item:
+        self.logger.error("equip_item: Item %s was invalid, see above" % item_input)
+        return
+    if item.multi_item:
+        for subitem in item.subitems:
+            if item_system.equippable(unit, subitem) and item_system.available(unit, subitem):
+                equip_action = action.EquipItem(unit, subitem)
+                action.do(equip_action)
+                return
+        self.logger.error("equip_item: No valid subitem to equip in %s" % item.nid)
+    else:
+        if not item_system.equippable(unit, item):
+            self.logger.error("equip_item: %s is not an item that can be equipped" % item.nid)
+            return
+        if not item_system.available(unit, item):
+            self.logger.error("equip_item: %s is unable to equip %s" % (unit.nid, item.nid))
+            return
+    equip_action = action.EquipItem(unit, item)
+    action.do(equip_action)
+
+
 def remove_item(self: Event, global_unit_or_convoy, item, flags=None):
     flags = flags or set()
     global_unit = global_unit_or_convoy
 
     unit, item = self._get_item_in_inventory(global_unit, item)
     if not unit or not item:
+        self.logger.error("remove_item: Either unit or item was invalid, see above")
         return
     banner_flag = 'no_banner' not in flags
 
@@ -1177,59 +1401,228 @@ def remove_item(self: Event, global_unit_or_convoy, item, flags=None):
             self.game.state.change('alert')
             self.state = 'paused'
 
+def move_item(self: Event, giver, receiver, item=None, flags=None):
+    flags = flags or set()
+
+    if item:
+        unit, item = self._get_item_in_inventory(giver, item)
+        if not unit or not item:
+            self.logger.error("move_item: Either unit or item was invalid, see above")
+            return
+    else:
+        item = None
+        if giver.lower() == 'convoy':
+            unit = self.game.get_party()
+        else:
+            unit = self.game.get_unit(giver)
+            if not unit:
+                self.logger.error("Could not find unit %s", giver)
+                return
+
+        if unit.items:
+            item = unit.items[-1]
+        else:
+            self.logger.warning("Unit %s has no items", giver)
+            return
+
+    if giver.lower() == 'convoy':
+        if receiver.lower() == 'convoy':
+            self.logger.warning("No change, since moving from current convoy to current convoy")
+        else:
+            other_unit = self.game.get_unit(receiver)
+            if not other_unit:
+                self.logger.error("Could not find unit %s", receiver)
+                return
+            if not item_funcs.inventory_full(other_unit, item):
+                action.do(action.TakeItemFromConvoy(other_unit, item))
+            else:
+                self.logger.warning("No space in unit %s's inventory", receiver)
+                return
+    else:
+        if receiver.lower() == 'convoy':
+            action.do(action.RemoveItem(unit, item))
+            action.do(action.PutItemInConvoy(item))
+        else:
+            other_unit = self.game.get_unit(receiver)
+            if not other_unit:
+                self.logger.error("Could not find unit %s", receiver)
+                return
+            if not item_funcs.inventory_full(other_unit, item):
+                action.do(action.MoveItem(unit, other_unit, item))
+            else:
+                self.logger.warning("No space in unit %s's inventory", receiver)
+                return
+
+def move_item_between_convoys(self: Event, item, party1, party2, flags=None):
+    giver = self.game.get_party(party1)
+    if not giver:
+        self.logger.error("Could not find party with nid %s", party1)
+        return
+    receiver = self.game.get_party(party2)
+    if not receiver:
+        self.logger.error("Could not find party with nid %s", party2)
+        return
+
+    item_id = item
+    item_list = giver.items
+    item_list = [item_nid.strip() for item_nid in item_list]
+    inids = [item.nid for item in item_list]
+    iuids = [item.uid for item in item_list]
+    if (item_id not in inids) and (not str_utils.is_int(item_id) or not int(item_id) in iuids):
+        self.logger.error("Couldn't find item with id %s" % item)
+        return
+    item = [item for item in item_list if (item.nid == item_id or (str_utils.is_int(item_id) and item.uid == int(item_id)))][0]
+
+    action.do(action.RemoveItemFromConvoy(item, party1))
+    action.do(action.PutItemInConvoy(item, party2))
+
+def set_item_uses(self: Event, global_unit_or_convoy, item, uses, flags=None):
+    flags = flags or set()
+    global_unit = global_unit_or_convoy
+
+    unit, item = self._get_item_in_inventory(global_unit, item)
+    if not unit or not item:
+        self.logger.error("set_item_uses: Either unit or item was invalid, see above")
+        return
+    uses = int(uses)
+    if 'additive' in flags:
+        if 'starting_uses' in item.data:
+            uses = item.data['uses'] + uses
+        elif 'starting_c_uses' in item.data:
+            uses = item.data['c_uses'] + uses
+
+    if 'starting_uses' in item.data:
+        action.do(action.SetObjData(item, 'uses', utils.clamp(uses, 0, item.data['starting_uses'])))
+    elif 'starting_c_uses' in item.data:
+        action.do(action.SetObjData(item, 'c_uses', utils.clamp(uses, 0, item.data['starting_c_uses'])))
+    else:
+        self.logger.error("set_item_uses: Item %s does not have uses!" % item.nid)
+
+def set_item_data(self: Event, global_unit_or_convoy, item, nid, expression, flags=None):
+    flags = flags or set()
+    global_unit = global_unit_or_convoy
+
+    unit, item = self._get_item_in_inventory(global_unit, item)
+    if not unit or not item:
+        self.logger.error("set_item_data: Either unit or item was invalid, see above")
+        return
+
+    try:
+        data_value = self.text_evaluator.direct_eval(expression)
+    except Exception as e:
+        self.logger.error("set_item_data: %s: Could not evaluate {%s}" % (e, expression))
+        return
+
+    action.do(action.SetObjData(item, nid, data_value))
+
 def change_item_name(self: Event, global_unit_or_convoy, item, string, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, item)
     if not unit or not item:
+        self.logger.error("change_item_name: Either unit or item was invalid, see above")
         return
     action.do(action.ChangeItemName(item, string))
 
 def change_item_desc(self: Event, global_unit_or_convoy, item, string, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, item)
     if not unit or not item:
+        self.logger.error("change_item_desc: Either unit or item was invalid, see above")
         return
     action.do(action.ChangeItemDesc(item, string))
 
 def add_item_to_multiitem(self: Event, global_unit_or_convoy, multi_item, child_item, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, multi_item)
     if not unit or not item:
+        self.logger.error("add_item_to_multiitem: Either unit or item was invalid, see above")
         return
     if not item.multi_item:
-        self.logger.error("Item %s is not a multi-item!" % item.nid)
+        self.logger.error("add_item_to_muliitem: Item %s is not a multi-item!" % item.nid)
         return
     subitem_prefab = DB.items.get(child_item)
     if not subitem_prefab:
-        self.logger.error("Couldn't find item with nid %s" % child_item)
+        self.logger.error("add_item_to_multiitem: Couldn't find item with nid %s" % child_item)
         return
+    if 'no_duplicate' in flags:
+        children = {item.nid for item in item.subitems}
+        if child_item in children:
+            self.logger.info("add_item_to_multiitem: Item %s already exists on multi-item %s on unit %s" % (child_item, item.nid, unit.nid))
+            return
     # Create subitem
     subitem = ItemObject.from_prefab(subitem_prefab)
     for component in subitem.components:
         component.item = item
     item_system.init(subitem)
     self.game.register_item(subitem)
-    if global_unit_or_convoy.lower() == 'convoy':
-        owner_nid = None
-    else:
+    owner_nid = None
+    if unit:
         owner_nid = unit.nid
     action.do(action.AddItemToMultiItem(owner_nid, item, subitem))
+    if 'equip' in flags and owner_nid:
+        action.do(action.EquipItem(unit, subitem))
 
-def remove_item_from_multiitem(self: Event, global_unit_or_convoy, multi_item, child_item, flags=None):
+def remove_item_from_multiitem(self: Event, global_unit_or_convoy, multi_item, child_item=None, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, multi_item)
     if not unit or not item:
+        self.logger.error("remove_item_from_multiitem: Either unit or item was invalid, see above")
         return
     if not item.multi_item:
-        self.logger.error("Item %s is not a multi-item!" % item.nid)
+        self.logger.error("remove_item_from_multiitem: Item %s is not a multi-item!" % item.nid)
         return
-    # Check if item in multiitem
-    subitem_nids = [subitem.nid for subitem in item.subitems]
-    if child_item not in subitem_nids:
-        self.logger.error("Couldn't find subitem with nid %s" % child_item)
-        return
-    subitem = [subitem for subitem in item.subitems if subitem.nid == child_item][0]
     if global_unit_or_convoy.lower() == 'convoy':
         owner_nid = None
     else:
         owner_nid = unit.nid
-    action.do(action.RemoveItemFromMultiItem(owner_nid, item, subitem))
+    if not child_item:
+        # remove all subitems
+        subitems = [subitem for subitem in item.subitems]
+        for subitem in subitems:
+            if owner_nid:
+                action.do(action.UnequipItem(unit, subitem))
+            action.do(action.RemoveItemFromMultiItem(owner_nid, item, subitem))
+    else:
+        # Check if item in multiitem
+        subitem_nids = [subitem.nid for subitem in item.subitems]
+        if child_item not in subitem_nids:
+            self.logger.error("remove_item_from_multiitem: Couldn't find subitem with nid %s" % child_item)
+            return
+        subitem = [subitem for subitem in item.subitems if subitem.nid == child_item][0]
+        # Unequip subitem if necessary
+        if owner_nid:
+            action.do(action.UnequipItem(unit, subitem))
+        action.do(action.RemoveItemFromMultiItem(owner_nid, item, subitem))
+
+def add_item_component(self: Event, global_unit_or_convoy, item, item_component, expression=None, flags=None):
+    flags = flags or set()
+    global_unit = global_unit_or_convoy
+    component_nid = item_component
+
+    unit, item = self._get_item_in_inventory(global_unit, item)
+    if not unit or not item:
+        self.logger.error("add_item_component: Either unit or item was invalid, see above")
+        return
+
+    if expression is not None:
+        try:
+            component_value = self.text_evaluator.direct_eval(expression)
+        except Exception as e:
+            self.logger.error("add_item_component: %s: Could not evalute {%s}" % (e, expression))
+            return
+    else:
+        component_value = None
+
+    action.do(action.AddItemComponent(item, component_nid, component_value))
+
+
+def remove_item_component(self: Event, global_unit_or_convoy, item, item_component, flags=None):
+    flags = flags or set()
+    global_unit = global_unit_or_convoy
+    component_nid = item_component
+
+    unit, item = self._get_item_in_inventory(global_unit, item)
+    if not unit or not item:
+        self.logger.error("remove_item_component: Either unit or item was invalid, see above")
+        return
+
+    action.do(action.RemoveItemComponent(item, component_nid))
 
 def give_money(self: Event, money, party=None, flags=None):
     flags = flags or set()
@@ -1273,19 +1666,38 @@ def give_bexp(self: Event, bexp, party=None, string=None, flags=None):
         self.state = 'paused'
 
 def give_exp(self: Event, global_unit, experience, flags=None):
+    flags = flags or set()
+
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit with nid %s" % global_unit)
+        self.logger.error("give_exp: Couldn't find unit with nid %s" % global_unit)
         return
-    exp = utils.clamp(int(experience), 0, 100)
-    self.game.exp_instance.append((unit, exp, None, 'init'))
-    self.game.state.change('exp')
-    self.state = 'paused'
+    exp = utils.clamp(int(experience), -100, 100)
+    if 'silent' in flags:
+        old_exp = unit.exp
+        if old_exp + exp >= 100:
+            if unit.level < DB.classes.get(unit.klass).max_level:
+                action.do(action.GainExp(unit, exp))
+                autolevel_to(self, global_unit, unit.level + 1)
+            else:
+                action.do(action.SetExp(unit, 99))
+        elif old_exp + exp < 0:
+            if unit.level > 1:
+                action.do(action.SetExp(unit, 100 + old_exp - exp))
+                autolevel_to(self, global_unit, unit.level - 1)
+            else:
+                action.do(action.SetExp(unit, 0))
+        else:
+            action.do(action.SetExp(unit, old_exp + exp))
+    else:
+        self.game.exp_instance.append((unit, exp, None, 'init'))
+        self.game.state.change('exp')
+        self.state = 'paused'
 
 def set_exp(self: Event, global_unit, experience, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit with nid %s" % global_unit)
+        self.logger.error("set_exp: Couldn't find unit with nid %s" % global_unit)
         return
     exp = utils.clamp(int(experience), 0, 100)
     action.do(action.SetExp(unit, exp))
@@ -1295,27 +1707,33 @@ def give_wexp(self: Event, global_unit, weapon_type, positive_integer, flags=Non
 
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit with nid %s" % global_unit)
+        self.logger.error("give_wexp: Couldn't find unit with nid %s" % global_unit)
         return
     wexp = int(positive_integer)
     if 'no_banner' in flags:
         action.execute(action.AddWexp(unit, weapon_type, wexp))
     else:
         action.do(action.AddWexp(unit, weapon_type, wexp))
+        self.state = 'paused'
 
-def give_skill(self: Event, global_unit, skill, flags=None):
+def give_skill(self: Event, global_unit, skill, initiator=None, flags=None):
     flags = flags or set()
 
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit with nid %s" % global_unit)
+        self.logger.error("give_skill: Couldn't find unit with nid %s" % global_unit)
         return
     skill_nid = skill
     if skill_nid not in DB.skills.keys():
-        self.logger.error("Couldn't find skill with nid %s" % skill)
+        self.logger.error("give_skill: Couldn't find skill with nid %s" % skill)
         return
+    if initiator is not None:
+        initiator = self._get_unit(initiator)
+        if not initiator:
+            self.logger.error("Couldn't find unit with nid %s" % initiator)
+            return
     banner_flag = 'no_banner' not in flags
-    action.do(action.AddSkill(unit, skill_nid))
+    action.do(action.AddSkill(unit, skill_nid, initiator))
     if banner_flag:
         skill = DB.skills.get(skill_nid)
         b = banner.GiveSkill(unit, skill)
@@ -1323,20 +1741,21 @@ def give_skill(self: Event, global_unit, skill, flags=None):
         self.game.state.change('alert')
         self.state = 'paused'
 
-def remove_skill(self: Event, global_unit, skill, flags=None):
+def remove_skill(self: Event, global_unit, skill, count='-1', flags=None):
     flags = flags or set()
+    count = int(count)
 
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit with nid %s" % global_unit)
+        self.logger.error("remove_skill: Couldn't find unit with nid %s" % global_unit)
         return
     skill_nid = skill
     if skill_nid not in [skill.nid for skill in unit.skills]:
-        self.logger.error("Couldn't find skill with nid %s" % skill)
+        self.logger.error("remove_skill: Couldn't find skill with nid %s" % skill)
         return
     banner_flag = 'no_banner' not in flags
 
-    action.do(action.RemoveSkill(unit, skill_nid))
+    action.do(action.RemoveSkill(unit, skill_nid, count))
     if banner_flag:
         skill = DB.skills.get(skill_nid)
         b = banner.TakeSkill(unit, skill)
@@ -1347,53 +1766,71 @@ def remove_skill(self: Event, global_unit, skill, flags=None):
 def change_ai(self: Event, global_unit, ai, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("change_ai: Couldn't find unit %s" % global_unit)
         return
     if ai in DB.ai.keys():
         action.do(action.ChangeAI(unit, ai))
     else:
-        self.logger.error("Couldn't find AI %s" % ai)
+        self.logger.error("change_ai: Couldn't find AI %s" % ai)
         return
 
 def change_party(self: Event, global_unit, party, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("change_party: Couldn't find unit %s" % global_unit)
         return
     if party in DB.parties.keys():
         action.do(action.ChangeParty(unit, party))
     else:
-        self.logger.error("Couldn't find Party %s" % party)
+        self.logger.error("change_party: Couldn't find Party %s" % party)
+        return
+
+def change_faction(self: Event, global_unit, faction, flags=None):
+    unit = self._get_unit(global_unit)
+    if not unit:
+        self.logger.error("change_faction: Couldn't find unit %s" % global_unit)
+        return
+    if faction in DB.factions.keys():
+        action.do(action.ChangeFaction(unit, faction))
+    else:
+        self.logger.error("change_party: Couldn't find Faction %s" % faction)
         return
 
 def change_team(self: Event, global_unit, team, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("change_team: Couldn't find unit %s" % global_unit)
         return
     if team in DB.teams:
         action.do(action.ChangeTeam(unit, team))
     else:
-        self.logger.error("Not a valid team: %s" % team)
+        self.logger.error("change_team: Not a valid team: %s" % team)
         return
 
 def change_portrait(self: Event, global_unit, portrait_nid, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("change_portrait: Couldn't find unit %s" % global_unit)
         return
     portrait = RESOURCES.portraits.get(portrait_nid)
     if not portrait:
-        self.logger.error("Couldn't find portrait %s" % portrait_nid)
+        self.logger.error("change_portrait: Couldn't find portrait %s" % portrait_nid)
         return
     action.do(action.ChangePortrait(unit, portrait_nid))
+
+def change_unit_desc(self: Event, global_unit, string, flags=None):
+    unit = self._get_unit(global_unit)
+    if not unit:
+        self.logger.error("change_unit_desc: Couldn't find unit %s" % global_unit)
+        return
+    action.do(action.ChangeUnitDesc(unit, string))
 
 def change_stats(self: Event, global_unit, stat_list, flags=None):
     flags = flags or set()
 
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("change_stats: Couldn't find unit %s" % global_unit)
         return
 
     s_list = stat_list.split(',')
@@ -1410,7 +1847,7 @@ def set_stats(self: Event, global_unit, stat_list, flags=None):
 
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("set_stats: Couldn't find unit %s" % global_unit)
         return
 
     s_list = stat_list.split(',')
@@ -1427,7 +1864,7 @@ def set_stats(self: Event, global_unit, stat_list, flags=None):
 def change_growths(self: Event, global_unit, stat_list, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("change_growths: Couldn't find unit %s" % global_unit)
         return
 
     s_list = stat_list.split(',')
@@ -1442,7 +1879,7 @@ def change_growths(self: Event, global_unit, stat_list, flags=None):
 def set_growths(self: Event, global_unit, stat_list, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("set_growths: Couldn't find unit %s" % global_unit)
         return
 
     s_list = stat_list.split(',')
@@ -1456,24 +1893,35 @@ def set_growths(self: Event, global_unit, stat_list, flags=None):
 
     self._apply_growth_changes(unit, growth_changes)
 
-def autolevel_to(self: Event, global_unit, level, flags=None):
+def set_unit_level(self: Event, global_unit, level, flags=None):
+    unit = self._get_unit(global_unit)
+    if not unit:
+        self.logger.error("set_unit_level: Couldn't find unit %s" % global_unit)
+        return
+    if int(level) < 1:
+        self.logger.error("Can't set level to less than 1")
+        return
+    action.do(action.SetLevel(unit, max(1, int(level))))
+
+def autolevel_to(self: Event, global_unit, level, growth_method=None, flags=None):
     flags = flags or set()
 
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("autolevel_to: Couldn't find unit %s" % global_unit)
         return
     final_level = int(level)
     current_level = unit.level
-    diff = max(0, final_level - current_level)
-    if diff <= 0:
+    diff = final_level - current_level
+    if diff == 0:
+        self.logger.warning("autolevel_to: Unit %s is already that level!" % global_unit)
         return
 
-    action.do(action.AutoLevel(unit, diff))
+    action.do(action.AutoLevel(unit, diff, growth_method))
     if 'hidden' in flags:
         pass
     else:
-        action.do(action.SetLevel(unit, final_level))
+        action.do(action.SetLevel(unit, max(1, final_level)))
     if not unit.generic and DB.units.get(unit.nid):
         unit_prefab = DB.units.get(unit.nid)
         personal_skills = unit_funcs.get_personal_skills(unit, unit_prefab)
@@ -1488,21 +1936,33 @@ def set_mode_autolevels(self: Event, level, flags=None):
 
     autolevel = int(level)
     if 'hidden' in flags:
-        self.game.current_mode.enemy_autolevels = autolevel
+        if 'boss' in flags:
+            self.game.current_mode.boss_autolevels = autolevel
+        else:
+            self.game.current_mode.enemy_autolevels = autolevel
     else:
-        self.game.current_mode.enemy_truelevels = autolevel
+        if 'boss' in flags:
+            self.game.current_mode.boss_truelevels = autolevel
+        else:
+            self.game.current_mode.enemy_truelevels = autolevel
 
-def promote(self: Event, global_unit, klass=None, flags=None):
+def promote(self: Event, global_unit, klass_list=None, flags=None):
+    flags = flags or set()
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("promote: Couldn't find unit %s" % global_unit)
         return
-    if klass:
-        new_klass = klass
+    if klass_list:
+        s_klass = klass_list.split(',')
+        if len(s_klass) == 1:
+            new_klass = s_klass[0]
+        else:
+            self.game.memory['promo_options'] = s_klass
+            new_klass = None
     else:
         klass = DB.classes.get(unit.klass)
         if len(klass.turns_into) == 0:
-            self.logger.error("No available promotions for %s" % klass)
+            self.logger.error("promote: No available promotions for %s" % klass)
             return
         elif len(klass.turns_into) == 1:
             new_klass = klass.turns_into[0]
@@ -1510,7 +1970,36 @@ def promote(self: Event, global_unit, klass=None, flags=None):
             new_klass = None
 
     self.game.memory['current_unit'] = unit
-    if new_klass:
+    silent = 'silent' in flags
+    if self.game.memory.get('promo_options', False):
+        if silent:
+            self.logger.warning("promote: silent flag set with multiple klass options. Silent will be ignored.")
+        self.game.state.change('promotion_choice')
+        self.game.state.change('transition_out')
+        self.state = 'paused'
+    elif silent and new_klass:
+        swap_class = action.Promote(unit, new_klass)
+        action.do(swap_class)
+        #check for new class skill
+        unit_klass = DB.classes.get(unit.klass)
+        for level_needed, class_skill_nid in unit_klass.learned_skills:
+            if unit.level == level_needed:
+                if class_skill_nid == 'Feat':
+                    self.game.memory['current_unit'] = unit
+                    self.game.state.change('feat_choice')
+                    self.state = 'paused'
+                else:
+                    if class_skill_nid not in [skill.nid for skill in unit.skills]:
+                        act = action.AddSkill(unit, class_skill_nid)
+                        action.do(act)
+        _, new_wexp = swap_class.get_data()
+        # check for weapon experience gain
+        if new_wexp:
+            for weapon_nid, value in new_wexp.items():
+                # Execute for silent mode
+                action.execute(action.AddWexp(unit, weapon_nid, value))
+        action.do(action.UpdateRecords('level_gain', (unit.nid, unit.level, unit.klass)))
+    elif new_klass:
         self.game.memory['next_class'] = new_klass
         self.game.state.change('promotion')
         self.game.state.change('transition_out')
@@ -1525,14 +2014,14 @@ def change_class(self: Event, global_unit, klass=None, flags=None):
 
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("change_class: Couldn't find unit %s" % global_unit)
         return
     if klass:
         new_klass = klass
     elif not unit.generic:
         unit_prefab = DB.units.get(unit.nid)
         if not unit_prefab.alternate_classes:
-            self.logger.error("No available alternate classes for %s" % unit)
+            self.logger.error("change_class: No available alternate classes for %s" % unit)
             return
         elif len(unit_prefab.alternate_classes) == 1:
             new_klass = unit_prefab.alternate_classes[0]
@@ -1540,7 +2029,7 @@ def change_class(self: Event, global_unit, klass=None, flags=None):
             new_klass = None
 
     if new_klass == unit.klass:
-        self.logger.error("No need to change classes")
+        self.logger.error("change_class: No need to change classes")
         return
 
     self.game.memory['current_unit'] = unit
@@ -1548,6 +2037,18 @@ def change_class(self: Event, global_unit, klass=None, flags=None):
     if silent and new_klass:
         swap_class = action.ClassChange(unit, new_klass)
         action.do(swap_class)
+        #check for new class skill
+        unit_klass = DB.classes.get(unit.klass)
+        for level_needed, class_skill_nid in unit_klass.learned_skills:
+            if unit.level == level_needed:
+                if class_skill_nid == 'Feat':
+                    self.game.memory['current_unit'] = unit
+                    self.game.state.change('feat_choice')
+                    self.state = 'paused'
+                else:
+                    if class_skill_nid not in [skill.nid for skill in unit.skills]:
+                        act = action.AddSkill(unit, class_skill_nid)
+                        action.do(act)
         _, new_wexp = swap_class.get_data()
         # check for weapon experience gain
         if new_wexp:
@@ -1568,7 +2069,7 @@ def change_class(self: Event, global_unit, klass=None, flags=None):
 def add_tag(self: Event, global_unit, tag, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("add_tag: Couldn't find unit %s" % global_unit)
         return
     if tag in DB.tags.keys():
         action.do(action.AddTag(unit, tag))
@@ -1576,7 +2077,7 @@ def add_tag(self: Event, global_unit, tag, flags=None):
 def remove_tag(self: Event, global_unit, tag, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
-        self.logger.error("Couldn't find unit %s" % global_unit)
+        self.logger.error("add_tag: Couldn't find unit %s" % global_unit)
         return
     if tag in DB.tags.keys():
         action.do(action.RemoveTag(unit, tag))
@@ -1596,9 +2097,13 @@ def remove_lore(self: Event, lore, flags=None):
 def add_base_convo(self: Event, nid, flags=None):
     self.game.base_convos[nid] = False
 
-def ignore_base_convo(self: Event, nid, flags=None):
+def ignore_base_convo(self: Event, nid, ignore=None, flags=None):
     if nid in self.game.base_convos:
-        self.game.base_convos[nid] = True
+        if ignore is not None:
+            ignore = ignore.lower() in self.true_vals
+        else:
+            ignore = True
+        self.game.base_convos[nid] = ignore
 
 def remove_base_convo(self: Event, nid, flags=None):
     if nid in self.game.base_convos:
@@ -1609,14 +2114,14 @@ def increment_support_points(self: Event, unit1, unit2, support_points, flags=No
     if not _unit1:
         _unit1 = DB.units.get(unit1)
     if not _unit1:
-        self.logger.error("Couldn't find unit %s" % unit1)
+        self.logger.error("increment_support_points: Couldn't find unit %s" % unit1)
         return
     unit1 = _unit1
     _unit2 = self._get_unit(unit2)
     if not _unit2:
         _unit2 = DB.units.get(unit2)
     if not _unit2:
-        self.logger.error("Couldn't find unit %s" % unit2)
+        self.logger.error("increment_support_points: Couldn't find unit %s" % unit2)
         return
     unit2 = _unit2
     inc = int(support_points)
@@ -1625,7 +2130,7 @@ def increment_support_points(self: Event, unit1, unit2, support_points, flags=No
         prefab = prefabs[0]
         action.do(action.IncrementSupportPoints(prefab.nid, inc))
     else:
-        self.logger.error("Couldn't find prefab for units %s and %s" % (unit1.nid, unit2.nid))
+        self.logger.error("increment_support_points: Couldn't find prefab for units %s and %s" % (unit1.nid, unit2.nid))
         return
 
 def unlock_support_rank(self: Event, unit1, unit2, support_rank, flags=None):
@@ -1633,40 +2138,59 @@ def unlock_support_rank(self: Event, unit1, unit2, support_rank, flags=None):
     if not _unit1:
         _unit1 = DB.units.get(unit1)
     if not _unit1:
-        self.logger.error("Couldn't find unit %s" % unit1)
+        self.logger.error("unlock_support_rank: Couldn't find unit %s" % unit1)
         return
     _unit2 = self._get_unit(unit2)
     if not _unit2:
         _unit2 = DB.units.get(unit2)
     if not _unit2:
-        self.logger.error("Couldn't find unit %s" % unit2)
+        self.logger.error("unlock_support_rank: Couldn't find unit %s" % unit2)
         return
     rank = support_rank
     if rank not in DB.support_ranks.keys():
-        self.logger.error("Support rank %s not a valid rank!" % rank)
+        self.logger.error("unlock_support_rank: Support rank %s not a valid rank!" % rank)
         return
     prefabs = DB.support_pairs.get_pairs(_unit1.nid, _unit2.nid)
     if prefabs:
         prefab = prefabs[0]
         action.do(action.UnlockSupportRank(prefab.nid, rank))
     else:
-        self.logger.error("Couldn't find prefab for units %s and %s" % (_unit1.nid, _unit2.nid))
+        self.logger.error("unlock_support_rank: Couldn't find prefab for units %s and %s" % (_unit1.nid, _unit2.nid))
         return
 
-def add_market_item(self: Event, item, flags=None):
-    if item in DB.items.keys():
-        self.game.market_items.add(item)
+def add_market_item(self: Event, item, stock=None, flags=None):
+    if item not in DB.items.keys():
+        self.logger.warning("add_market_item: %s is not a legal item nid", item)
+        return
+    stock = int(stock) if stock else 0
+    if stock:
+        if item in self.game.market_items:
+            self.game.market_items[item] += stock
+        else:
+            self.game.market_items[item] = stock
     else:
-        self.logger.warning("%s is not a legal item nid", item)
+        self.game.market_items[item] = -1  # Any negative number means infinite
 
-def remove_market_item(self: Event, item, flags=None):
-    self.game.market_items.discard(item)
+def remove_market_item(self: Event, item, stock=None, flags=None):
+    if item not in DB.items.keys():
+        self.logger.warning("remove_market_item: %s is not a legal item nid", item)
+        return
+    stock = int(stock) if stock else 0
+    if stock and item in self.game.market_items:
+        self.game.market_items[item] -= stock
+        if self.game.market_items[item] <= 0:
+            self.game.market_items.pop(item, None)
+    else:
+        self.game.market_items.pop(item, None)
 
-def add_region(self: Event, nid, position, size, region_type, string=None, flags=None):
+def clear_market_items(self: Event, flags=None):
+    self.game.market_items.clear()
+
+def add_region(self: Event, region, position, size, region_type, string=None, flags=None):
     flags = flags or set()
 
-    if nid in self.game.level.regions.keys():
-        self.logger.error("Region nid %s already present!" % nid)
+    if region in self.game.level.regions.keys():
+        self.logger.error("add_region: Region nid %s already present!" % region)
         return
     position = self._parse_pos(position)
     size = self._parse_pos(size)
@@ -1675,8 +2199,8 @@ def add_region(self: Event, nid, position, size, region_type, string=None, flags
     region_type = region_type.lower()
     sub_region_type = string
 
-    new_region = regions.Region(nid)
-    new_region.region_type = region_type
+    new_region = regions.Region(region)
+    new_region.region_type = regions.RegionType(region_type)
     new_region.position = position
     new_region.size = size
     new_region.sub_nid = sub_region_type
@@ -1689,38 +2213,42 @@ def add_region(self: Event, nid, position, size, region_type, string=None, flags
     self.game.register_region(new_region)
     action.do(action.AddRegion(new_region))
 
-def region_condition(self: Event, nid, expression, flags=None):
-    if nid in self.game.level.regions.keys():
-        region = self.game.level.regions.get(nid)
+def region_condition(self: Event, region, expression, flags=None):
+    if region in self.game.level.regions.keys():
+        region = self.game.level.regions.get(region)
         action.do(action.ChangeRegionCondition(region, expression))
     else:
-        self.logger.error("Couldn't find Region %s" % nid)
+        self.logger.error("region_condition: Couldn't find Region %s" % region)
 
-def remove_region(self: Event, nid, flags=None):
-    if nid == '{region}' and self.region:
-        action.do(action.RemoveRegion(self.region))
-    elif nid in self.game.level.regions.keys():
-        region = self.game.level.regions.get(nid)
+def remove_region(self: Event, region, flags=None):
+    if region in self.game.level.regions.keys():
+        region = self.game.level.regions.get(region)
         action.do(action.RemoveRegion(region))
     else:
-        self.logger.error("Couldn't find Region %s" % nid)
+        self.logger.error("remove_region: Couldn't find Region %s" % region)
 
 def show_layer(self: Event, layer, layer_transition=None, flags=None):
     if layer not in self.game.level.tilemap.layers.keys():
-        self.logger.error("Could not find layer %s in tilemap" % layer)
+        self.logger.error("show_layer: Could not find layer %s in tilemap" % layer)
         return
     if not layer_transition:
         layer_transition = 'fade'
 
+    if self.game.level.tilemap.layers.get(layer).visible:
+        self.logger.warning("show_layer: Layer %s is already visible!" % layer)
+        return
     action.do(action.ShowLayer(layer, layer_transition))
 
 def hide_layer(self: Event, layer, layer_transition=None, flags=None):
     if layer not in self.game.level.tilemap.layers.keys():
-        self.logger.error("Could not find layer %s in tilemap" % layer)
+        self.logger.error("hide_layer: Could not find layer %s in tilemap" % layer)
         return
     if not layer_transition:
         layer_transition = 'fade'
 
+    if not self.game.level.tilemap.layers.get(layer).visible:
+        self.logger.warning("hide_layer: Layer %s is already hidden!" % layer)
+        return
     action.do(action.HideLayer(layer, layer_transition))
 
 def add_weather(self: Event, weather, position=None, flags=None):
@@ -1757,19 +2285,25 @@ def map_anim(self: Event, map_anim, float_position, speed=None, flags=None):
     flags = flags or set()
 
     if map_anim not in RESOURCES.animations.keys():
-        self.logger.error("Could not find map animation %s" % map_anim)
+        self.logger.error("map_anim: Could not find map animation %s" % map_anim)
         return
     pos = self._parse_pos(float_position, True)
+    assert(pos is not None)
     if speed:
         speed_mult = float(speed)
     else:
         speed_mult = 1
+    mode = engine.BlendMode.NONE
+    if 'blend' in flags:
+        mode = engine.BlendMode.BLEND_RGB_ADD
+    elif 'multiply' in flags:
+        mode = engine.BlendMode.BLEND_RGB_MULT
     if 'permanent' in flags:
-        action.do(action.AddMapAnim(map_anim, pos, speed_mult, 'blend' in flags))
+        action.do(action.AddMapAnim(map_anim, pos, speed_mult, mode, 'overlay' in flags))
     else:
         anim = RESOURCES.animations.get(map_anim)
         anim = MapAnimation(anim, pos, speed_adj=speed_mult)
-        anim.set_tint('blend' in flags)
+        anim.set_tint(mode)
         self.animations.append(anim)
 
     if 'no_block' in flags or self.do_skip or 'permanent' in flags:
@@ -1782,13 +2316,51 @@ def remove_map_anim(self: Event, map_anim, position, flags=None):
     pos = self._parse_pos(position, True)
     action.do(action.RemoveMapAnim(map_anim, pos))
 
+def add_unit_map_anim(self: Event, map_anim: NID, unit: NID, speed=None, flags=None):
+    flags = flags or set()
+
+    if map_anim not in RESOURCES.animations.keys():
+        self.logger.error("add_unit_map_anim: Could not find map animation %s" % map_anim)
+        return
+    unit_nid = unit
+    unit = self._get_unit(unit_nid)
+    if not unit:
+        self.logger.error("add_unit_map_anim: Could not find unit %s" % unit_nid)
+        return
+    if speed:
+        speed_mult = float(speed)
+    else:
+        speed_mult = 1
+    if 'permanent' in flags:
+        action.do(action.AddAnimToUnit(map_anim, unit, speed_mult, 'blend' in flags))
+    else:
+        anim = RESOURCES.animations.get(map_anim)
+        pos = unit.position
+        if pos:
+            anim = MapAnimation(anim, pos, speed_adj=speed_mult)
+            anim.set_tint('blend' in flags)
+            self.animations.append(anim)
+
+    if 'no_block' in flags or self.do_skip or 'permanent' in flags:
+        pass
+    else:
+        self.wait_time = engine.get_time() + anim.get_wait()
+        self.state = 'waiting'
+
+def remove_unit_map_anim(self: Event, map_anim, unit, flags=None):
+    unit = self._get_unit(unit)
+    if not unit:
+        self.logger.error("remove_unit_map_anim: Could not find unit %s" % unit)
+        return
+    action.do(action.RemoveAnimFromUnit(map_anim, unit))
+
 def merge_parties(self: Event, party1, party2, flags=None):
     host, guest = party1, party2
     if host not in DB.parties.keys():
-        self.logger.error("Could not locate party %s" % host)
+        self.logger.error("merge_parties: Could not locate party %s" % host)
         return
     if guest not in DB.parties.keys():
-        self.logger.error("Could not locate party %s" % guest)
+        self.logger.error("merge_parties: Could not locate party %s" % guest)
         return
     guest_party = self.game.get_party(guest)
     # Merge units
@@ -1813,6 +2385,8 @@ def arrange_formation(self: Event, flags=None):
     unstuck_units = [unit for unit in unstuck_units if 'Blacklist' not in unit.tags]
     if DB.constants.value('fatigue') and self.game.game_vars.get('_fatigue') == 1:
         unstuck_units = [unit for unit in unstuck_units if unit.get_fatigue() < unit.get_max_fatigue()]
+    # Place required units first
+    unstuck_units = list(sorted(unstuck_units, key=lambda u: 'Required' in u.tags, reverse=True))
     num_slots = self.game.level_vars.get('_prep_slots')
     all_formation_spots = self.game.get_open_formation_spots()
     if num_slots is None:
@@ -1845,7 +2419,7 @@ def prep(self: Event, pick_units_enabled: str = None, music: str = None, other_o
                     options_enabled[idx] = True
             action.do(action.SetGameVar('_prep_options_enabled', options_enabled))
         else:
-            self.logger.error("base: too many bools in option enabled list: ", other_options_enabled)
+            self.logger.error("prep: too many bools in option enabled list: ", other_options_enabled)
             return
 
         event_nids = other_options_on_select.split(',') if other_options_on_select else []
@@ -1857,6 +2431,11 @@ def prep(self: Event, pick_units_enabled: str = None, music: str = None, other_o
             self.logger.error("prep: too many events in option event list: ", other_options_on_select)
             return
         action.do(action.SetGameVar('_prep_additional_options', options_list))
+    else:
+        action.do(action.SetGameVar('_prep_options_enabled', []))
+        action.do(action.SetGameVar('_prep_options_events', []))
+        action.do(action.SetGameVar('_prep_additional_options', []))
+
     self.game.state.change('prep_main')
     self.state = 'paused'  # So that the message will leave the update loop
 
@@ -1880,7 +2459,7 @@ def base(self: Event, background: str, music: str = None, other_options: str = N
             for idx, is_enabled in enumerate(enabled_strs):
                 if is_enabled in self.true_vals:
                     options_enabled[idx] = True
-            action.do(action.SetGameVar('_base_options_enabled', options_enabled))
+            action.do(action.SetGameVar('_base_options_disabled', [not enabled for enabled in options_enabled]))
         else:
             self.logger.error("base: too many bools in option enabled list: ", other_options_enabled)
             return
@@ -1894,6 +2473,11 @@ def base(self: Event, background: str, music: str = None, other_options: str = N
             self.logger.error("base: too many events in option event list: ", other_options_on_select)
             return
         action.do(action.SetGameVar('_base_additional_options', options_list))
+    else:
+        action.do(action.SetGameVar('_base_options_disabled', []))
+        action.do(action.SetGameVar('_base_options_events', []))
+        action.do(action.SetGameVar('_base_additional_options', []))
+
 
     if 'show_map' in flags:
         action.do(action.SetGameVar('_base_transparent', True))
@@ -1903,14 +2487,17 @@ def base(self: Event, background: str, music: str = None, other_options: str = N
     self.game.state.change('base_main')
     self.state = 'paused'
 
-def shop(self: Event, unit, item_list, shop_flavor=None, flags=None):
+def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("Must have a unit visit the shop!")
+        self.logger.error("shop: Must have a unit visit the shop!")
         return
     unit = new_unit
+    shop_id = self.nid
+    self.game.memory['shop_id'] = shop_id
     self.game.memory['current_unit'] = unit
-    item_list = item_list.split(',')
+    item_list = item_list.split(',') if item_list else []
+    item_list = [item_nid.strip() for item_nid in item_list]
     shop_items = item_funcs.create_items(unit, item_list)
     self.game.memory['shop_items'] = shop_items
 
@@ -1918,6 +2505,18 @@ def shop(self: Event, unit, item_list, shop_flavor=None, flags=None):
         self.game.memory['shop_flavor'] = shop_flavor.lower()
     else:
         self.game.memory['shop_flavor'] = 'armory'
+
+    if stock_list:
+        stock_list = str_utils.intify(stock_list)
+        # Remember which items have already been bought for this shop...
+        for idx, item in enumerate(item_list):
+            item_history = '__shop_%s_%s' % (shop_id, item)
+            if item_history in self.game.level_vars:
+                stock_list[idx] -= self.game.level_vars[item_history]
+        self.game.memory['shop_stock'] = stock_list
+    else:
+        self.game.memory['shop_stock'] = None
+
     self.game.state.change('shop')
     self.state = 'paused'
 
@@ -1947,20 +2546,21 @@ def choice(self: Event, nid: NID, title: str, choices: str, row_width: str = Non
             ast.parse(choices)
             def tryexcept(callback_expr):
                 try:
-                    val = evaluate.evaluate(self.text_evaluator._evaluate_all(callback_expr, True), self.unit, self.unit2, self.item, self.position, self.region, game=self.game)
+                    val = self.text_evaluator.direct_eval(self.text_evaluator._evaluate_all(callback_expr))
                     if isinstance(val, list):
                         return val
                     else:
                         return [self._object_to_str(val)]
-                except:
+                except Exception as e:
+                    self.logger.error("choice: Choice %s failed to evaluate expression %s with error %s", nid, callback_expr, str(e))
                     return [""]
             data = lambda: tryexcept(choices)
         except:
-            self.logger.error('%s is not a valid python expression' % choices)
+            self.logger.error('choice: %s is not a valid python expression' % choices)
     else: # list of NIDs
         choices = self.text_evaluator._evaluate_all(choices)
         data = choices.split(',')
-        data = [s.strip() for s in data]
+        data = [s.strip().replace('{comma}', ',') for s in data]
 
     row_width = int(row_width)
 
@@ -1994,9 +2594,8 @@ def choice(self: Event, nid: NID, title: str, choices: str, row_width: str = Non
     event_context = {
         'unit': self.unit,
         'unit2': self.unit2,
-        'item': self.item,
         'position': self.position,
-        'region': self.region
+        'local_args': self.local_args
     }
 
     self.game.memory['player_choice'] = (nid, header, data, row_width,
@@ -2015,7 +2614,102 @@ def unchoice(self: Event, flags=None):
             if unchoose_prev_state:
                 unchoose_prev_state()
     except Exception as e:
-        self.logger.error("Unchoice failed: " + e)
+        self.logger.error("unchoice: Unchoice failed: " + str(e))
+
+def textbox(self: Event, nid: str, text: str, box_position=None,
+            width=None, num_lines=None, style_nid=None, text_speed=None,
+            font_color=None, font_type=None, bg=None, flags=None):
+    flags = flags or set()
+
+    textbox_style = None
+    if style_nid and style_nid in self.game.speak_styles:
+        textbox_style = self.game.speak_styles[style_nid]
+    default_textbox_style = self.game.speak_styles['__default_text']
+
+    if box_position:
+        try:
+            position = Alignments(box_position)
+        except:
+            position = self._parse_pos(box_position)
+    elif textbox_style and textbox_style.text_position:
+        position = textbox_style.text_position
+    else:
+        position = default_textbox_style.text_position
+
+    if width:
+        box_width = int(width)
+    elif textbox_style and textbox_style.width:
+        box_width = textbox_style.width
+    else:
+        box_width = default_textbox_style.width
+
+    if text_speed:
+        speed = float(text_speed)
+    elif textbox_style and textbox_style.text_speed:
+        speed = textbox_style.text_speed
+    else:
+        speed = default_textbox_style.text_speed
+
+    if font_color:
+        fcolor = font_color
+    elif textbox_style and textbox_style.font_color:
+        fcolor = textbox_style.font_color
+    else:
+        fcolor = default_textbox_style.font_color
+
+    if font_type:
+        ftype = font_type
+    elif textbox_style and textbox_style.font_type:
+        ftype = textbox_style.font_type
+    else:
+        ftype = default_textbox_style.font_type
+
+    if bg:
+        box_bg = bg
+    elif textbox_style and textbox_style.dialog_box:
+        box_bg = textbox_style.dialog_box
+    else:
+        box_bg = default_textbox_style.dialog_box
+
+    if num_lines:
+        lines = int(num_lines)
+    elif textbox_style and textbox_style.num_lines:
+        lines = textbox_style.num_lines
+    else:
+        lines = default_textbox_style.num_lines
+
+    if textbox_style and textbox_style.flags:
+        flags = textbox_style.flags.union(flags)
+    if 'expression' in flags:
+        expr = lambda: ""
+        try:
+            # eval once to make sure it's eval-able
+            ast.parse(text)
+            def tryexcept(callback_expr) -> str:
+                try:
+                    val = self.text_evaluator.direct_eval(self.text_evaluator._evaluate_all(callback_expr))
+                    return str(val)
+                except:
+                    self.logger.error("textbox: failed to eval %s", callback_expr)
+                    return ""
+            expr = lambda: tryexcept(text)
+        except:
+            self.logger.error('textbox: %s is not a valid python expression' % text)
+        textbox = dialog.DynamicDialogWrapper(expr, background=box_bg, position=position, width=box_width,
+                      style_nid=style_nid, speed=speed,
+                      font_color=fcolor, font_type=ftype, num_lines=lines,
+                      draw_cursor=False)
+    else:
+        text = self.text_evaluator._evaluate_all(text)
+        text = dialog.clean_newlines(text)
+        # textboxes shouldn't use {w} or |
+        text = text.replace('{w}', '').replace('|', '{br}')
+        textbox = \
+            dialog.Dialog(text, background=box_bg, position=position, width=box_width,
+                        style_nid=style_nid, speed=speed,
+                        font_color=fcolor, font_type=ftype, num_lines=lines,
+                        draw_cursor=False)
+    self.other_boxes.append((nid, textbox))
 
 def table(self: Event, nid: NID, table_data: str, title: str = None,
           dimensions: str = None, row_width: str = None, alignment: str = None,
@@ -2024,7 +2718,7 @@ def table(self: Event, nid: NID, table_data: str, title: str = None,
 
     box_nids = [nid for nid, _ in self.other_boxes]
     if nid in box_nids:
-        self.logger.error("UI element with nid %s already exists" % nid)
+        self.logger.error("table: UI element with nid %s already exists" % nid)
         return
 
     # default args
@@ -2052,21 +2746,21 @@ def table(self: Event, nid: NID, table_data: str, title: str = None,
             ast.parse(table_data)
             def tryexcept(callback_expr):
                 try:
-                    val = evaluate.evaluate(self.text_evaluator._evaluate_all(callback_expr), self.unit, self.unit2, self.item, self.position, self.region, game=self.game)
+                    val = self.text_evaluator.direct_eval(self.text_evaluator._evaluate_all(callback_expr))
                     if isinstance(val, list):
                         return val
                     else:
                         return [self._object_to_str(val)]
                 except:
-                    self.logger.error("display_table: failed to eval %s", callback_expr)
+                    self.logger.error("table: failed to eval %s", callback_expr)
                     return [""]
             data = lambda: tryexcept(table_data)
         except:
-            self.logger.error('%s is not a valid python expression' % table_data)
+            self.logger.error('table: %s is not a valid python expression' % table_data)
     else: # list of NIDs
         table_data = self.text_evaluator._evaluate_all(table_data)
         data = table_data.split(',')
-        data = [s.strip() for s in data]
+        data = [s.strip().replace('{comma}', ',') for s in data]
 
     align = Alignments.TOP_LEFT
     if alignment:
@@ -2134,6 +2828,7 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
         if anim_dir == 'fade':
             enter_anim = fade_anim(0, 1, 1000)
             exit_anim = fade_anim(1, 0, 1000)
+            component.margin = (x, 0, y, 0)
         else:
             if anim_dir == 'west':
                 start_x = -component.width
@@ -2151,7 +2846,8 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
             exit_anim = translate_anim((x, y), (start_x, start_y), 750, disable_after=True, interp_mode=InterpolationType.CUBIC)
         component.save_animation(enter_anim, '!enter')
         component.save_animation(exit_anim, '!exit')
-
+    else:
+        component.margin = (x, 0, y, 0)
     self.overlay_ui.add_child(component)
     if self.do_skip:
         component.enable()
@@ -2168,20 +2864,24 @@ def remove_overlay_sprite(self: Event, nid, flags=None):
     component = self.overlay_ui.get_child(nid)
     if component:
         if self.do_skip:
+            self.overlay_ui._should_redraw = True
             component.disable()
         else:
+            self.overlay_ui._should_redraw = True
             component.exit()
             if component.is_animating() and 'no_block' not in flags:
                 self.wait_time = engine.get_time() + 750
                 self.state = 'waiting'
 
-def alert(self: Event, string, item=None, skill=None, flags=None):
+def alert(self: Event, string, item=None, skill=None, icon=None, flags=None):
     if item and item in DB.items.keys():
         custom_item = DB.items.get(item)
         self.game.alerts.append(banner.CustomIcon(string, custom_item))
     elif skill and skill in DB.skills.keys():
         custom_skill = DB.skills.get(skill)
         self.game.alerts.append(banner.CustomIcon(string, custom_skill))
+    elif icon and any([sheet.get_index(icon) for sheet in RESOURCES.icons16]):
+        self.game.alerts.append(banner.CustomIcon(string, icon))
     else:
         self.game.alerts.append(banner.Custom(string))
     self.game.state.change('alert')
@@ -2205,7 +2905,7 @@ def location_card(self: Event, string, flags=None):
 def credits(self: Event, role, credits, flags=None):
     flags = flags or set()
 
-    title = role
+    title = role or ''
     credits = credits.split(',') if 'no_split' not in flags else [credits]
     wait = 'wait' in flags
     center = 'center' in flags
@@ -2223,7 +2923,7 @@ def ending(self: Event, portrait, title, text, flags=None):
         portrait = portrait.convert_alpha()
         portrait = image_mods.make_translucent(portrait, 0.2)
     else:
-        self.logger.error("Couldn't find unit or portrait %s" % portrait)
+        self.logger.error("ending: Couldn't find unit or portrait %s" % portrait)
         return False
 
     new_ending = dialog.Ending(portrait, title, text, unit)
@@ -2231,33 +2931,35 @@ def ending(self: Event, portrait, title, text, flags=None):
     self.state = 'dialog'
 
 def pop_dialog(self: Event, flags=None):
-    self.text_boxes.pop()
+    if self.text_boxes:
+        self.text_boxes.pop()
 
 def unlock(self: Event, unit, flags=None):
     # This is a macro that just adds new commands to command list
     find_unlock_command = event_commands.FindUnlock({'Unit': unit})
     spend_unlock_command = event_commands.SpendUnlock({'Unit': unit})
-    # Done backwards to presever order upon insertion
+    # Done backwards to preseve order upon insertion
     self.commands.insert(self.command_idx + 1, spend_unlock_command)
     self.commands.insert(self.command_idx + 1, find_unlock_command)
 
 def find_unlock(self: Event, unit, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("Couldn't find unit with nid %s" % unit)
+        self.logger.error("find_unlock: Couldn't find unit with nid %s" % unit)
         return
     unit = new_unit
-    if not self.region:
-        self.logger.error("Can only find_unlock within a region's event script")
+    region = self.local_args.get('region')
+    if not region:
+        self.logger.error("find_unlock: Can only find_unlock within a region's event script")
         return
-    if skill_system.can_unlock(unit, self.region):
+    if skill_system.can_unlock(unit, region):
         self.game.memory['unlock_item'] = None
         return  # We're done here
 
     all_items = []
     for item in item_funcs.get_all_items(unit):
         if item_funcs.available(unit, item) and \
-                item_system.can_unlock(unit, item, self.region):
+                item_system.can_unlock(unit, item, region):
             all_items.append(item)
 
     if len(all_items) > 1:
@@ -2268,13 +2970,13 @@ def find_unlock(self: Event, unit, flags=None):
     elif len(all_items) == 1:
         self.game.memory['unlock_item'] = all_items[0]
     else:
-        self.logger.debug("Somehow unlocked event without being able to")
+        self.logger.debug("find_unlock: Somehow unlocked event without being able to")
         self.game.memory['unlock_item'] = None
 
 def spend_unlock(self: Event, unit, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("Couldn't find unit with nid %s" % unit)
+        self.logger.error("spend_unlock: Couldn't find unit with nid %s" % unit)
         return
     unit = new_unit
 
@@ -2315,34 +3017,43 @@ def trigger_script(self: Event, event, unit1=None, unit2=None, flags=None):
 
     valid_events = DB.events.get_by_nid_or_name(event, self.game.level.nid)
     for event_prefab in valid_events:
-        self.game.events.trigger_specific_event(event_prefab.nid, unit, unit2, position=self.position, region=self.region)
+        self.game.events.trigger_specific_event(event_prefab.nid, unit, unit2, self.position, self.local_args)
         self.state = 'paused'
 
     if not valid_events:
-        self.logger.error("Couldn't find any valid events matching name %s" % event)
+        self.logger.error("trigger_script: Couldn't find any valid events matching name %s" % event)
 
-def trigger_script_with_args(self: Event, event: str, arg1: str = None, arg2: str = None, arg3: str = None, arg4: str = None, arg5: str = None, flags=None):
+def trigger_script_with_args(self: Event, event: str, arg_list: str = None, flags=None):
     trigger_script = event
     valid_events = DB.events.get_by_nid_or_name(trigger_script, self.game.level.nid)
+
+    # Process Arg List into local args directory
+    a_list = arg_list.split(',')
+    local_args = {}
+    for idx in range(len(a_list)//2):
+        arg_nid = a_list[idx*2]
+        arg_value = a_list[idx*2 + 1]
+        local_args[arg_nid] = arg_value
+
     for event_prefab in valid_events:
-        self.game.events.trigger_specific_event(event_prefab.nid, arg1, arg2, arg3, arg4, arg5)
+        self.game.events.trigger_specific_event(event_prefab.nid, local_args=local_args)
         self.state = 'paused'
     if not valid_events:
-        self.logger.error("Couldn't find any valid events matching name %s" % trigger_script)
+        self.logger.error("trigger_script_with_args: Couldn't find any valid events matching name %s" % trigger_script)
         return
 
 def loop_units(self: Event, expression, event, flags=None):
     unit_list_str = expression
     try:
-        unit_list = evaluate.evaluate(unit_list_str)
+        unit_list = self.text_evaluator.direct_eval(unit_list_str)
     except Exception as e:
-        self.logger.error("%s: Could not evalute {%s}" % (e, unit_list_str))
+        self.logger.error("loop_units: %s: Could not evalute {%s}" % (e, unit_list_str))
         return
     if not unit_list:
-        self.logger.warning("No units returned for list: %s" % (unit_list_str))
+        self.logger.warning("loop_units: No units returned for list: %s" % (unit_list_str))
         return
     if not all((isinstance(unit_nid, str) or isinstance(unit_nid, UnitObject)) for unit_nid in unit_list):
-        self.logger.error("%s: could not evaluate to NID list {%s}" % ('loop_units', unit_list_str))
+        self.logger.error("loop_units: %s: could not evaluate to NID list {%s}" % ('loop_units', unit_list_str))
         return
     for unit_nid in reversed(unit_list):
         if not isinstance(unit_nid, str):
@@ -2353,6 +3064,7 @@ def loop_units(self: Event, expression, event, flags=None):
 def change_roaming(self: Event, free_roam_enabled, flags=None):
     val = free_roam_enabled.lower()
     if self.game.level:
+        self.game.action_log.set_first_free_action()
         self.game.level.roam = val in self.true_vals
 
 def change_roaming_unit(self: Event, unit, flags=None):
@@ -2376,7 +3088,7 @@ def add_to_initiative(self: Event, unit, integer, flags=None):
     # NOT CURRENTLY TURNWHEEL COMPATIBLE
     new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("Couldn't find unit with nid %s" % unit)
+        self.logger.error("add_to_initiative: Couldn't find unit with nid %s" % unit)
         return
     unit = new_unit
     pos = int(integer)
@@ -2387,7 +3099,7 @@ def add_to_initiative(self: Event, unit, integer, flags=None):
 def move_in_initiative(self: Event, unit, integer, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("Couldn't find unit with nid %s" % unit)
+        self.logger.error("move_in_initiative: Couldn't find unit with nid %s" % unit)
         return
     unit = new_unit
     offset = int(integer)
@@ -2396,12 +3108,12 @@ def move_in_initiative(self: Event, unit, integer, flags=None):
 def pair_up(self: Event, unit1, unit2, flags=None):
     new_unit1 = self._get_unit(unit1)
     if not new_unit1:
-        self.logger.error("Couldn't find unit with nid %s" % unit1)
+        self.logger.error("pair_up: Couldn't find unit with nid %s" % unit1)
         return
     unit1 = new_unit1
     new_unit2 = self._get_unit(unit2)
     if not new_unit2:
-        self.logger.error("Couldn't find unit with nid %s" % unit2)
+        self.logger.error("pair_up: Couldn't find unit with nid %s" % unit2)
         return
     unit2 = new_unit2
     action.do(action.PairUp(unit1, unit2))
@@ -2409,7 +3121,97 @@ def pair_up(self: Event, unit1, unit2, flags=None):
 def separate(self: Event, unit, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:
-        self.logger.error("Couldn't find unit with nid %s" % unit)
+        self.logger.error("separate: Couldn't find unit with nid %s" % unit)
         return
     unit = new_unit
     action.do(action.RemovePartner(unit))
+
+def create_achievement(self: Event, nid: str, name: str, description: str, flags=None):
+    flags = flags or set()
+
+    completed = 'completed' in flags
+    hidden = 'hidden' in flags
+    ACHIEVEMENTS.add_achievement(nid, name, description, completed, hidden)
+
+def update_achievement(self: Event, achievement: str, name: str, description:str, flags=None):
+    flags = flags or set()
+
+    hidden = 'hidden' in flags
+    ACHIEVEMENTS.update_achievement(achievement, name, description, hidden)
+
+def complete_achievement(self: Event, achievement: str, completed: str, flags=None):
+    flags = flags or set()
+    nid = achievement
+
+    completed = completed.lower() in self.true_vals
+    banner = 'banner' in flags
+
+    complete = ACHIEVEMENTS.complete_achievement(nid, completed, banner)
+
+    def draw_achievement(self: Event, achievement):
+        # Nested for unit test/event command reasons
+        name = 'achievement_notification_' + achievement.nid
+        font = "text"
+        width = rendered_text_width([font], [achievement.name])
+        sprite = base_surf.create_base_surf(width + 16, 24, 'menu_bg_achievement_dark')
+        position = (WINWIDTH - width - 20, WINHEIGHT - 28)
+        x, y = position
+
+        component = UIComponent.from_existing_surf(sprite)
+        component.name = name
+        component.disable()
+
+        start_x = x
+        start_y = WINHEIGHT
+        enter_anim = translate_anim((start_x, start_y), (x, y), 750, interp_mode=InterpolationType.CUBIC)
+        exit_anim = translate_anim((x, y), (start_x, start_y), 750, disable_after=True, interp_mode=InterpolationType.CUBIC)
+        component.save_animation(enter_anim, '!enter')
+        component.save_animation(exit_anim, '!exit')
+
+        achievement_name = PlainTextLine("name", component, '<white>' + achievement.name + '</white>', font)
+        achievement_name.props.h_alignment = HAlignment.CENTER
+        achievement_name.props.v_alignment = VAlignment.CENTER
+        component.add_child(achievement_name)
+
+        get_sound_thread().play_sfx("Item", volume=0.5)
+
+        self.overlay_ui.add_child(component)
+        if self.do_skip:
+            component.enable()
+            return
+        else:
+            component.enter()
+    # End Func
+
+    if banner and complete:
+        draw_achievement(self, ACHIEVEMENTS.get(nid))
+
+        # Remember to remove the command eventually
+        anim_nid = 'achievement_notification_' + nid
+        if self.do_skip:
+            remove_overlay_sprite(self, anim_nid)
+        else:
+            self.wait_time = engine.get_time() + 2000
+            self.state = 'waiting'
+            remove_overlay_sprite_command = event_commands.RemoveOverlaySprite({'Nid': anim_nid})
+            self.commands.insert(self.command_idx + 1, remove_overlay_sprite_command)
+
+def clear_achievements(self: Event, flags=None):
+    ACHIEVEMENTS.clear_achievements()
+
+def create_record(self: Event, nid: str, expression: str, flags=None):
+    try:
+        val = self.text_evaluator.direct_eval(expression)
+        RECORDS.create(nid, val)
+    except Exception as e:
+        self.logger.error("create_record: Could not evaluate %s (%s)" % (expression, e))
+
+def update_record(self: Event, nid: str, expression: str, flags=None):
+    try:
+        val = self.text_evaluator.direct_eval(expression)
+        RECORDS.update(nid, val)
+    except Exception as e:
+        self.logger.error("update_record: Could not evaluate %s (%s)" % (expression, e))
+
+def delete_record(self: Event, nid: str, flags=None):
+    RECORDS.delete(nid)

@@ -16,7 +16,7 @@ default_hooks = ('full_price', 'buy_price', 'sell_price', 'special_sort', 'num_t
 default_hooks += formula
 
 target_hooks = ('wexp', 'exp')
-simple_target_hooks = ('warning', 'danger')
+simple_target_hooks = ('target_icon', )
 
 dynamic_hooks = ('dynamic_damage', 'dynamic_accuracy', 'dynamic_crit_accuracy',
                  'dynamic_attack_speed', 'dynamic_multiattacks')
@@ -40,7 +40,7 @@ def compile_item_system():
     dir_path = os.path.dirname(os.path.realpath(__file__))
     compiled_item_system = open(os.path.join(dir_path, '..', 'item_system.py'), 'w')
     item_system_base = open(os.path.join(dir_path, 'item_system_base.py'), 'r')
-    warning_msg = open(os.path.join(dir_path, 'warning_msg'), 'r')
+    warning_msg = open(os.path.join(dir_path, 'warning_msg.txt'), 'r')
 
     # write warning msg
     for line in warning_msg.readlines():
@@ -81,13 +81,15 @@ def %s(unit, item):
 
     for hook in simple_target_hooks:
         func = """
-def %s(unit, item, target):
-    all_components = get_all_components(unit, item)
-    val = 0
+def %s(cur_unit, item, displaying_unit):
+    all_components = get_all_components(displaying_unit, item)
+    markers = []
     for component in all_components:
         if component.defines('%s'):
-            val += component.%s(unit, item, target)
-    return val""" \
+            marker = component.%s(cur_unit, item, displaying_unit)
+            if marker:
+                markers.append(marker)
+    return markers""" \
             % (hook, hook, hook)
         compiled_item_system.write(func)
         compiled_item_system.write('\n')

@@ -1325,23 +1325,27 @@ class TradeItem(Action):
         if item1:
             unit1.remove_item(item1)
             unit2.insert_item(item_index2, item1)
-            if item_index2 == 0:
-                self.subactions.append(EquipItem(unit2, item1))
         if item2:
             unit2.remove_item(item2)
             unit1.insert_item(item_index1, item2)
-            if item_index1 == 0:
-                self.subactions.append(EquipItem(unit1, item2))
+
+    def equip_first_weapon(self, unit):
+        for item in unit.items:
+            if item_system.equippable(unit, item):
+                self.subactions.append(EquipItem(unit, item))
+                break
 
     def do(self):
         self.swap(self.unit1, self.unit2, self.item1, self.item2, self.item_index1, self.item_index2)
+
+        self.equip_first_weapon(self.unit1)
+        self.equip_first_weapon(self.unit2)
 
         if self.unit1.position and game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit1)
         if self.unit2.position and game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit2)
 
-        self.subactions.clear()
         for act in self.subactions:
             act.do()
 
@@ -1355,7 +1359,6 @@ class TradeItem(Action):
 
         for act in self.subactions:
             act.reverse()
-        self.subactions.clear()
 
 
 class RepairItem(Action):

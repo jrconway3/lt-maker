@@ -158,7 +158,7 @@ class PrepPickUnitsState(State):
 
     def start(self):
         self.fluid = FluidScroll()
-        player_units = game.get_party_order()
+        player_units = game.get_units_in_party()
         stuck_units = [unit for unit in player_units if unit.position and not game.check_for_region(unit.position, 'formation')]
         unstuck_units = [unit for unit in player_units if unit not in stuck_units]
 
@@ -420,7 +420,7 @@ class PrepManageState(State):
     def start(self):
         self.fluid = FluidScroll()
 
-        units = game.get_party_order()
+        units = game.get_units_in_party()
         self.units = sorted(units, key=lambda unit: bool(unit.position), reverse=True)
         self.menu = menus.Table(None, self.units, (4, 3), (6, 0))
         if self.name.startswith('base'):

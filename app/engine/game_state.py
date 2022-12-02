@@ -760,11 +760,15 @@ class GameState():
     def get_units_in_party(self, party=None) -> List[UnitObject]:
         if party is None:
             party = self.current_party
-        party_order = [self.get_unit(u) for u in self.parties[party].party_prep_manage_sort_order]
-        for unit in self.get_all_units_in_party():
-            if not unit.dead and unit not in party_order:
-                party_order.append(unit)
-        return party_order
+        party_order = self.parties[party].party_prep_manage_sort_order
+        party_units = game.get_all_units_in_party()
+        def index_or_last(nid):
+            try:
+                return party_order.index(nid)
+            except:
+                return len(party_order)
+        party_units = sorted(party_units, key=lambda unit: index_or_last(unit.nid))
+        return party_units
 
     def check_dead(self, nid):
         unit = self.get_unit(nid)

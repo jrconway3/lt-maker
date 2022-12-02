@@ -158,12 +158,12 @@ class PrepPickUnitsState(State):
 
     def start(self):
         self.fluid = FluidScroll()
-        player_units = game.get_units_in_party()
+        player_units = game.parties[game.current_party].units or game.get_units_in_party() # If .units is empty try get_units_in_party
         stuck_units = [unit for unit in player_units if unit.position and not game.check_for_region(unit.position, 'formation')]
         unstuck_units = [unit for unit in player_units if unit not in stuck_units]
 
-        units = stuck_units + sorted(unstuck_units, key=lambda unit: bool(unit.position), reverse=True)
-        self.menu = menus.Table(None, units, (6, 2), (110, 24))
+        self.units = stuck_units + sorted(unstuck_units, key=lambda unit: bool(unit.position), reverse=True)
+        self.menu = menus.Table(None, self.units, (6, 2), (110, 24))
         self.menu.set_mode('position')
 
         self.bg = background.create_background('rune_background')
@@ -171,6 +171,11 @@ class PrepPickUnitsState(State):
 
         game.state.change('transition_in')
         return 'repeat'
+
+    def order_party(self):
+        party = game.parties[game.current_party]
+        party.units = sorted(self.units, key=lambda unit: bool(unit.position), reverse=True)
+        print(game.parties[game.current_party].units) # Issue #1 - saving isn't correct. Need to go into an exit menu twice
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -218,6 +223,7 @@ class PrepPickUnitsState(State):
                     get_sound_thread().play_sfx('Select 4')
 
         elif event == 'BACK':
+            self.order_party()
             get_sound_thread().play_sfx('Select 4')
             game.state.change('transition_pop')
 

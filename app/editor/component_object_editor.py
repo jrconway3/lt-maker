@@ -6,29 +6,19 @@ import os
 from typing import Dict, Generic, List, Optional, Type, TypeVar
 
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (QApplication, QFileDialog, QGridLayout, QVBoxLayout,
-                             QHBoxLayout, QMessageBox, QPushButton, QSplitter,
+from PyQt5.QtWidgets import (QApplication, QGridLayout, QHBoxLayout,
+                             QMessageBox, QPushButton, QSplitter, QVBoxLayout,
                              QWidget)
 
-import app.engine.item_component_access as ICA
-import app.engine.skill_component_access as SCA
 from app.data.category import Categories, CategorizedCatalog
 from app.data.database.database import DB, Database
-from app.data.database.items import ItemCatalog, ItemPrefab
-from app.data.database.skills import SkillCatalog, SkillPrefab
-from app.editor import timer
-from app.editor.data_editor import SingleDatabaseEditor
-from app.editor.item_skill_properties import NewComponentProperties
-from app.editor.item_editor import item_import, item_model
 from app.editor.lib.components.nested_list import LTNestedList
-from app.editor.settings.main_settings_controller import MainSettingsController
-from app.editor.skill_editor import skill_model
 from app.utilities import str_utils
 from app.utilities.typing import NID
 
 T = TypeVar('T', bound=CategorizedCatalog)
 
-class ItemSkillEditor(QWidget, Generic[T]):
+class ComponentObjectEditor(QWidget, Generic[T]):
     catalog_type: Type[T]
 
     def __init__(self, parent, database: Database) -> None:
@@ -169,73 +159,8 @@ class ItemSkillEditor(QWidget, Generic[T]):
         db = db or DB
         return cls(parent, db)
 
-class NewItemProperties(NewComponentProperties[ItemPrefab]):
-    title = "Item"
-    get_components = staticmethod(ICA.get_item_components)
-    get_templates = staticmethod(ICA.get_templates)
-    get_tags = staticmethod(ICA.get_item_tags)
-
-class NewSkillProperties(NewComponentProperties[SkillPrefab]):
-    title = "Skill"
-    get_components = staticmethod(SCA.get_skill_components)
-    get_templates = staticmethod(SCA.get_templates)
-    get_tags = staticmethod(SCA.get_skill_tags)
-
-class NewItemDatabase(ItemSkillEditor):
-    catalog_type = ItemCatalog
-
-    @classmethod
-    def edit(cls, parent=None):
-        timer.get_timer().stop_for_editor()  # Don't need these while running game
-        window = SingleDatabaseEditor(NewItemDatabase, parent)
-        window.exec_()
-        timer.get_timer().start_for_editor()
-
-    @property
-    def data(self):
-        return self._db.items
-
-    def get_icon(self, item_nid) -> Optional[QIcon]:
-        pix = item_model.get_pixmap(self.data.get(item_nid))
-        if pix:
-            return QIcon(pix.scaled(32, 32))
-        return None
-
-    def import_csv(self):
-        settings = MainSettingsController()
-        starting_path = settings.get_last_open_path()
-        fn, ok = QFileDialog.getOpenFileName(self, "Import items from csv", starting_path, "items csv (*.csv);;All Files(*)")
-        if ok and fn:
-            parent_dir = os.path.split(fn)[0]
-            settings.set_last_open_path(parent_dir)
-            item_import.update_db_from_csv(self._db, fn)
-            self.reset()
-
-class NewSkillDatabase(ItemSkillEditor):
-    catalog_type = SkillCatalog
-
-    @classmethod
-    def edit(cls, parent=None):
-        timer.get_timer().stop_for_editor()  # Don't need these while running game
-        window = SingleDatabaseEditor(NewSkillDatabase, parent)
-        window.exec_()
-        timer.get_timer().start_for_editor()
-
-    @property
-    def data(self):
-        return self._db.skills
-
-    def get_icon(self, skill_nid) -> Optional[QIcon]:
-        pix = skill_model.get_pixmap(self.data.get(skill_nid))
-        if pix:
-            return QIcon(pix.scaled(32, 32))
-        return None
-
-    def import_csv(self):
-        return
-
 # Testing
-# Run "python -m app.editor.item_editor.item_skill_editor" from main directory
+# Run "python -m app.editor.item_editor.component_object_editor" from main directory
 if __name__ == '__main__':
     import sys
 

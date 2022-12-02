@@ -43,8 +43,8 @@ from app.editor.faction_editor.faction_tab import FactionDatabase
 from app.editor.party_editor.party_tab import PartyDatabase
 from app.editor.class_editor.class_tab import ClassDatabase
 from app.editor.weapon_editor.weapon_tab import WeaponDatabase
-from app.editor.item_editor.item_tab import ItemDatabase
-from app.editor.skill_editor.skill_tab import SkillDatabase
+from app.editor.item_editor.new_item_tab import NewItemDatabase
+from app.editor.skill_editor.new_skill_tab import NewSkillDatabase
 from app.editor.terrain_editor.terrain_tab import TerrainDatabase
 from app.editor.stat_editor.stat_tab import StatTypeDatabase
 from app.editor.ai_editor.ai_tab import AIDatabase
@@ -58,7 +58,6 @@ from app.editor.equation_widget import EquationDialog
 from app.editor.event_editor.event_tab import EventDatabase
 from app.editor.lore_editor.lore_tab import LoreDatabase
 from app.editor.raw_editor.raw_data_tab import RawDataDatabase
-from app.editor.item_skill_editor import NewItemDatabase, NewSkillDatabase
 
 # Resources
 from app.editor.icon_editor import icon_tab

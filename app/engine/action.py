@@ -1329,17 +1329,27 @@ class TradeItem(Action):
             unit2.remove_item(item2)
             unit1.insert_item(item_index1, item2)
 
-    def equip_first_weapon(self, unit):
-        for item in unit.items:
-            if item_system.equippable(unit, item):
+    def equip_items(self, unit):
+        for item in unit.nonaccessories:
+            available = item_system.available(unit, item)
+            equippable = item_system.equippable(unit, item)
+            if available and equippable:
+                self.subactions.append(EquipItem(unit, item))
+                break
+        for item in unit.accessories:
+            available = item_system.available(unit, item)
+            equippable = item_system.equippable(unit, item)
+            if available and equippable:
                 self.subactions.append(EquipItem(unit, item))
                 break
 
     def do(self):
+        self.subactions.clear()
+
         self.swap(self.unit1, self.unit2, self.item1, self.item2, self.item_index1, self.item_index2)
 
-        self.equip_first_weapon(self.unit1)
-        self.equip_first_weapon(self.unit2)
+        self.equip_items(self.unit1)
+        self.equip_items(self.unit2)
 
         if self.unit1.position and game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit1)

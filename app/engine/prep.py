@@ -173,9 +173,10 @@ class PrepPickUnitsState(State):
         return 'repeat'
 
     def order_party(self):
+        '''Run on exiting the prep menu. Saves the order for future levels with the party.
+        Saved order is unique to current party - will not effect other parties'''
         party = game.parties[game.current_party]
         party.units = sorted(self.units, key=lambda unit: bool(unit.position), reverse=True)
-        print(game.parties[game.current_party].units) # Issue #1 - saving isn't correct. Need to go into an exit menu twice
 
     def take_input(self, event):
         first_push = self.fluid.update()

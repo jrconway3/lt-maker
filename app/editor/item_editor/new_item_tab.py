@@ -11,7 +11,7 @@ from app.data.database.items import ItemCatalog, ItemPrefab
 from app.editor import timer
 from app.editor.data_editor import SingleDatabaseEditor
 from app.editor.item_editor import item_import, item_model
-from app.editor.item_skill_properties import NewComponentProperties
+from app.editor.component_editor_properties import NewComponentProperties
 from app.editor.settings.main_settings_controller import MainSettingsController
 from app.editor.component_object_editor import ComponentObjectEditor
 
@@ -24,6 +24,7 @@ class NewItemProperties(NewComponentProperties[ItemPrefab]):
 
 class NewItemDatabase(ComponentObjectEditor):
     catalog_type = ItemCatalog
+    properties_type = NewItemProperties
 
     @classmethod
     def edit(cls, parent=None):
@@ -51,3 +52,17 @@ class NewItemDatabase(ComponentObjectEditor):
             settings.set_last_open_path(parent_dir)
             item_import.update_db_from_csv(self._db, fn)
             self.reset()
+
+# Testing
+# Run "python -m app.editor.item_editor.new_item_tab" from main directory
+if __name__ == '__main__':
+    import sys
+    from app.data.database.database import DB
+    from PyQt5.QtWidgets import QApplication
+    app = QApplication(sys.argv)
+    from app.data.resources.resources import RESOURCES
+    DB.load('default.ltproj')
+    RESOURCES.load('default.ltproj')
+    window = NewItemDatabase(None, DB)
+    window.show()
+    app.exec_()

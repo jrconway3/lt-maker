@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QGridLayout, QHBoxLayout,
 
 from app.data.category import Categories, CategorizedCatalog
 from app.data.database.database import DB, Database
+from app.editor.component_editor_properties import NewComponentProperties
 from app.editor.lib.components.nested_list import LTNestedList
 from app.utilities import str_utils
 from app.utilities.typing import NID
@@ -20,6 +21,7 @@ T = TypeVar('T', bound=CategorizedCatalog)
 
 class ComponentObjectEditor(QWidget, Generic[T]):
     catalog_type: Type[T]
+    properties_type: NewComponentProperties
 
     def __init__(self, parent, database: Database) -> None:
         QWidget.__init__(self, parent)
@@ -46,7 +48,7 @@ class ComponentObjectEditor(QWidget, Generic[T]):
         paste_from_clipboard_button.clicked.connect(self.paste_from_clipboard)
         button_frame_layout.addWidget(paste_from_clipboard_button, 1, 2, 1, 2)
         left_frame_layout.addWidget(button_frame)
-        self.right_frame = NewItemProperties(self, None, self.attempt_change_nid, lambda: self.tree_list.regenerate_icons(True))
+        self.right_frame = self.properties_type(self, None, self.attempt_change_nid, lambda: self.tree_list.regenerate_icons(initial_generation=True))
         self.splitter = QSplitter(self)
         self.splitter.setChildrenCollapsible(False)
         self.splitter.addWidget(self.left_frame)
@@ -158,17 +160,3 @@ class ComponentObjectEditor(QWidget, Generic[T]):
     def create(cls, parent=None, db=None):
         db = db or DB
         return cls(parent, db)
-
-# Testing
-# Run "python -m app.editor.item_editor.component_object_editor" from main directory
-if __name__ == '__main__':
-    import sys
-
-    from PyQt5.QtWidgets import QApplication
-    app = QApplication(sys.argv)
-    from app.data.resources.resources import RESOURCES
-    DB.load('default.ltproj')
-    RESOURCES.load('default.ltproj')
-    window = NewItemDatabase(None, DB)
-    window.show()
-    app.exec_()

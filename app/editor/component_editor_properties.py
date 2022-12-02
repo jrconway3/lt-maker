@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QGridLayout, QHBoxLayout, QLabel,
 
 from app.data.database.components import Component
 from app.editor import component_database
-from app.editor.component_properties import ShowComponentSearchDialog
+from app.editor.component_search_dialog import ShowComponentSearchDialog
 from app.editor.icons import PushableIcon16
 from app.editor.lib.components.validated_line_edit import NidLineEdit
 from app.editor.settings import MainSettingsController

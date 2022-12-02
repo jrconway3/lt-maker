@@ -9,7 +9,7 @@ from app.data.database.skills import SkillCatalog, SkillPrefab
 from app.editor import timer
 from app.editor.component_object_editor import ComponentObjectEditor
 from app.editor.data_editor import SingleDatabaseEditor
-from app.editor.item_skill_properties import NewComponentProperties
+from app.editor.component_editor_properties import NewComponentProperties
 from app.editor.skill_editor import skill_model
 
 
@@ -22,6 +22,7 @@ class NewSkillProperties(NewComponentProperties[SkillPrefab]):
 
 class NewSkillDatabase(ComponentObjectEditor):
     catalog_type = SkillCatalog
+    properties_type = NewSkillProperties
 
     @classmethod
     def edit(cls, parent=None):
@@ -42,3 +43,17 @@ class NewSkillDatabase(ComponentObjectEditor):
 
     def import_csv(self):
         return
+
+# Testing
+# Run "python -m app.editor.skill_editor.new_skill_tab" from main directory
+if __name__ == '__main__':
+    import sys
+    from app.data.database.database import DB
+    from PyQt5.QtWidgets import QApplication
+    app = QApplication(sys.argv)
+    from app.data.resources.resources import RESOURCES
+    DB.load('default.ltproj')
+    RESOURCES.load('default.ltproj')
+    window = NewSkillDatabase(None, DB)
+    window.show()
+    app.exec_()

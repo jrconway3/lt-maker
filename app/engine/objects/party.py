@@ -7,7 +7,7 @@ class PartyObject(Prefab):
         self.nid = nid
         self.name = name
         self.leader_nid = leader_nid
-        self.units = units or []  # Unit nids (The order is used for the prep and manage screen)
+        self.party_prep_manage_sort_order = units or []  # Unit nids (The order is used for the prep and manage screen and NOTHING ELSE)
         self.money = money
         if convoy:
             # Actually the item, not just a uid reference
@@ -25,7 +25,7 @@ class PartyObject(Prefab):
         return {'nid': self.nid,
                 'name': self.name,
                 'leader_nid': self.leader_nid,
-                'units': self.units,
+                'units': self.party_prep_manage_sort_order,
                 'money': self.money,
                 'convoy': [item.uid for item in self.convoy],
                 'bexp': self.bexp}
@@ -33,6 +33,6 @@ class PartyObject(Prefab):
     @classmethod
     def restore(cls, s_dict):
         party = cls(s_dict['nid'], s_dict['name'], s_dict['leader_nid'],
-                    s_dict['units'], s_dict['money'], s_dict['convoy'],
+                    s_dict['party_prep_manage_sort_order'], s_dict['money'], s_dict['convoy'],
                     s_dict['bexp'])
         return party

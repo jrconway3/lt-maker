@@ -176,7 +176,7 @@ class PrepPickUnitsState(State):
         '''Run on exiting the prep menu. Saves the order for future levels with the party.
         Saved order is unique to current party - will not effect other parties'''
         party = game.parties[game.current_party]
-        party.units = [u.nid for u in sorted(self.units, key=lambda unit: bool(unit.position), reverse=True)]
+        party.party_prep_manage_sort_order = [u.nid for u in sorted(self.units, key=lambda unit: bool(unit.position), reverse=True)]
 
     def take_input(self, event):
         first_push = self.fluid.update()

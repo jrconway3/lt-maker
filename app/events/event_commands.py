@@ -799,14 +799,15 @@ class ForceChapterCleanUp(EventCommand):
 Cleans up the chapter as if the chapter were about to end
 What does it do?:
     - Increments End Chapter Supports
-    - Resets all units, items, and skills and removes them from the field
-    - Removes all generic units from memory
-    - Removes all now unused items and skills from memory
-    - Resurrects units if you in casual mode
+    - Resets all units, items, and skills
+    - Resurrects units if you are in casual mode
     - Moves dead unit items to the convoy
     - Resets the turnwheel
     - Sets turncount to 0
 Unlike a true chapter clean up, it doesn't:
+    - Remove any units from the field
+    - Remove all generic units from memory
+    - Remove all now unused items and skills from memory
     - Remove any regions or terrain statuses
     - Reset level vars
     - Reset talk options or base convos

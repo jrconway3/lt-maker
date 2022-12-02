@@ -1232,20 +1232,34 @@ class TradeItem(Action):
         self.item_index1 = unit1.items.index(item1) if item1 else DB.constants.total_items() - 1
         self.item_index2 = unit2.items.index(item2) if item2 else DB.constants.total_items() - 1
 
+        self.subactions = []
+
     def swap(self, unit1, unit2, item1, item2, item_index1, item_index2):
         # Do the swap
         if item1:
             unit1.remove_item(item1)
             unit2.insert_item(item_index2, item1)
+            if item_index2 == 0:
+                self.subactions.append(EquipItem(unit2, item1))
         if item2:
             unit2.remove_item(item2)
             unit1.insert_item(item_index1, item2)
+            if item_index1 == 0:
+                self.subactions.append(EquipItem(unit1, item2))
 
     def do(self):
         self.swap(self.unit1, self.unit2, self.item1, self.item2, self.item_index1, self.item_index2)
 
+        self.subactions.clear()
+        for act in self.subactions:
+            act.do()
+
     def reverse(self):
         self.swap(self.unit1, self.unit2, self.item2, self.item1, self.item_index2, self.item_index1)
+
+        for act in self.subactions:
+            act.reverse()
+        self.subactions.clear()
 
 
 class RepairItem(Action):

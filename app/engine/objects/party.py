@@ -35,7 +35,7 @@ class PartyObject(Prefab):
 
     @classmethod
     def restore(cls, s_dict):
-        party = cls(s_dict['nid'], s_dict['name'], s_dict['leader_nid'],
-                    s_dict.get('party_prep_manage_sort_order'), s_dict.get('money'), s_dict.get('convoy'),
-                    s_dict.get('bexp'))
+        party = cls(s_dict['nid'], s_dict.get('name', s_dict['nid']), s_dict['leader_nid'],
+                    s_dict.get('party_prep_manage_sort_order', []), s_dict.get('money', 0), s_dict.get('convoy', []),
+                    s_dict.get('bexp', 0))
         return party

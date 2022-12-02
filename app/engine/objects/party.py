@@ -6,7 +6,7 @@ from app.utilities.typing import NID
 
 class PartyObject(Prefab):
     def __init__(self, nid: str, name: str, leader_nid: str, party_prep_manage_sort_order: Optional[List[NID]]=None,
-                    money: Optional[int]=0, convoy: Optional[List[int]]=None, bexp: Optional[int]=0):
+                    money: int=0, convoy: Optional[List[int]]=None, bexp: int=0):
         self.nid = nid
         self.name = name
         self.leader_nid = leader_nid

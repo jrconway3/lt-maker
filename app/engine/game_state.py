@@ -447,9 +447,18 @@ class GameState():
 
         self.events = event_manager.EventManager.restore(s_dict.get('events'))
 
-    def clean_up(self):
+    def clean_up(self, full: bool = True):
+        '''
+        A `full` cleanup does everything associated with cleaning up
+        a chapter in preparation for the next. 
+        A non-full cleanup does not 
+            - remove any regions or terrain statuses
+            - reset level vars
+            - reset talk options or base convos
+        '''
+
         from app.engine import (action, item_funcs, item_system, skill_system,
-                                supports)
+                                supports, turnwheel)
 
         supports.increment_end_chapter_supports()
 
@@ -487,8 +496,9 @@ class GameState():
                 else:
                     logging.error("Unable to find owner %s in unit_registry", skill.owner_nid)
 
-        self.terrain_status_registry.clear()
-        self.region_registry.clear()
+        if full:
+            self.terrain_status_registry.clear()
+            self.region_registry.clear()
 
         # Remove all generics
         self.unit_registry = {k: v for (k, v) in self.unit_registry.items() if v.persistent}
@@ -533,8 +543,12 @@ class GameState():
                         self.parties[unit.party].convoy.append(item)
 
         # Remove unnecessary information between levels
-        self.sweep()
-        self.current_level = None
+        if full:
+            self.sweep()
+            self.current_level = None
+        else:
+            self.turncount = 1
+            self.action_log = turnwheel.ActionLog()
 
     @property
     def level(self):

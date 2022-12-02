@@ -158,7 +158,7 @@ class PrepPickUnitsState(State):
 
     def start(self):
         self.fluid = FluidScroll()
-        player_units = game.parties[game.current_party].units or game.get_units_in_party() # If .units is empty try get_units_in_party
+        player_units = game.get_party_order()
         stuck_units = [unit for unit in player_units if unit.position and not game.check_for_region(unit.position, 'formation')]
         unstuck_units = [unit for unit in player_units if unit not in stuck_units]
 
@@ -176,7 +176,7 @@ class PrepPickUnitsState(State):
         '''Run on exiting the prep menu. Saves the order for future levels with the party.
         Saved order is unique to current party - will not effect other parties'''
         party = game.parties[game.current_party]
-        party.units = sorted(self.units, key=lambda unit: bool(unit.position), reverse=True)
+        party.units = [u.nid for u in sorted(self.units, key=lambda unit: bool(unit.position), reverse=True)]
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -420,7 +420,7 @@ class PrepManageState(State):
     def start(self):
         self.fluid = FluidScroll()
 
-        units = game.get_units_in_party()
+        units = game.get_party_order()
         self.units = sorted(units, key=lambda unit: bool(unit.position), reverse=True)
         self.menu = menus.Table(None, self.units, (4, 3), (6, 0))
         if self.name.startswith('base'):

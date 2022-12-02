@@ -2379,7 +2379,7 @@ def merge_parties(self: Event, party1, party2, flags=None):
     action.do(action.GiveBexp(guest, -guest_party.bexp))
 
 def arrange_formation(self: Event, flags=None):
-    player_units = self.game.parties[self.game.current_party].units or self.game.get_units_in_party() # If .units is empty try get_units_in_party
+    player_units = self.game.get_party_order()
     stuck_units = [unit for unit in player_units if unit.position and not self.game.check_for_region(unit.position, 'formation')]
     unstuck_units = [unit for unit in player_units if unit not in stuck_units and not self.game.check_for_region(unit.position, 'formation')]
     unstuck_units = [unit for unit in unstuck_units if 'Blacklist' not in unit.tags]

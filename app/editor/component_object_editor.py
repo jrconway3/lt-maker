@@ -41,12 +41,15 @@ class ComponentObjectEditor(QWidget, Generic[T]):
         import_csv_button = QPushButton("Import .csv")
         import_csv_button.clicked.connect(self.import_csv)
         button_frame_layout.addWidget(import_csv_button, 0, 0, 1, 4)
+        import_xml_button = QPushButton("Import .xml")
+        import_xml_button.clicked.connect(self.import_xml)
+        button_frame_layout.addWidget(import_xml_button, 1, 0, 1, 4)
         copy_to_clipboard_button = QPushButton("Copy to clipboard")
         copy_to_clipboard_button.clicked.connect(self.copy_to_clipboard)
-        button_frame_layout.addWidget(copy_to_clipboard_button, 1, 0, 1, 2)
+        button_frame_layout.addWidget(copy_to_clipboard_button, 2, 0, 1, 2)
         paste_from_clipboard_button = QPushButton("Paste from clipboard")
         paste_from_clipboard_button.clicked.connect(self.paste_from_clipboard)
-        button_frame_layout.addWidget(paste_from_clipboard_button, 1, 2, 1, 2)
+        button_frame_layout.addWidget(paste_from_clipboard_button, 2, 2, 1, 2)
         left_frame_layout.addWidget(button_frame)
         self.right_frame = self.properties_type(self, None, self.attempt_change_nid, lambda: self.tree_list.regenerate_icons(initial_generation=True))
         self.splitter = QSplitter(self)
@@ -73,6 +76,9 @@ class ComponentObjectEditor(QWidget, Generic[T]):
         raise NotImplementedError("This class must be extended and this method overriden.")
 
     def import_csv(self):
+        raise NotImplementedError("This class must be extended and this method overriden.")
+
+    def import_xml(self):
         raise NotImplementedError("This class must be extended and this method overriden.")
 
     def reset(self):

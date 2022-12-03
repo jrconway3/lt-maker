@@ -263,6 +263,8 @@ class LTNestedList(QWidget):
         is_category = selected.indexes()[0].data(IsCategoryRole)
         if not is_category and self.on_click_item:
             self.on_click_item(nid)
+        elif is_category and self.on_click_item:
+            self.on_click_item(None)
 
     def on_drag_drop(self, event):
         self.tree_widget.originalDropEvent(event)

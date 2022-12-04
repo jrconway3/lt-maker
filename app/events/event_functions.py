@@ -636,6 +636,9 @@ def lose_game(self: Event, flags=None):
 def main_menu(self: Event, flags=None):
     self.game.level_vars['_main_menu'] = True
 
+def force_chapter_clean_up(self: Event, flags=None):
+    self.game.clean_up(full=False)
+
 def skip_save(self: Event, true_or_false: str, flags=None):
     state = true_or_false.lower() in self.true_vals
     action.do(action.SetLevelVar('_skip_save', state))

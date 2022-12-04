@@ -107,9 +107,10 @@ class LTNestedList(QWidget):
     def on_click(self, e):
         self.tree_widget.originalMousePressEvent(e)
         item = self.tree_widget.itemAt(e.pos())
-        while item.parent():
-            item = item.parent()
-        self.disturbed_category = item
+        if item:
+            while item.parent():
+                item = item.parent()
+            self.disturbed_category = item
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:

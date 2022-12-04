@@ -272,7 +272,7 @@ class GameState():
             self.initiative.start(self.get_all_units())
 
         from app.events import triggers
-        game.events.trigger(triggers.OnStartup()) 
+        game.events.trigger(triggers.OnStartup())
 
     def full_register(self, unit):
         self.register_unit(unit)
@@ -450,8 +450,8 @@ class GameState():
     def clean_up(self, full: bool = True):
         '''
         A `full` cleanup does everything associated with cleaning up
-        a chapter in preparation for the next. 
-        A non-full cleanup does not 
+        a chapter in preparation for the next.
+        A non-full cleanup does not
             - remove any regions or terrain statuses
             - reset level vars
             - reset talk options or base convos
@@ -760,7 +760,10 @@ class GameState():
     def get_units_in_party(self, party=None) -> List[UnitObject]:
         if party is None:
             party = self.current_party
-        return [unit for unit in self.get_all_units_in_party() if not unit.dead]
+        party_order = self.parties[party].party_prep_manage_sort_order
+        party_units = [unit for unit in game.get_all_units_in_party(party) if not unit.dead]
+        party_units = sorted(party_units, key=lambda unit: party_order.index(unit.nid) if unit.nid in party_order else 999999)
+        return party_units
 
     def check_dead(self, nid):
         unit = self.get_unit(nid)

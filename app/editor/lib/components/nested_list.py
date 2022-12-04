@@ -110,7 +110,7 @@ class LTNestedList(QWidget):
         if item:
             while item.parent():
                 item = item.parent()
-            self.disturbed_category = item
+        self.disturbed_category = item
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:

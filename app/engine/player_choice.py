@@ -101,7 +101,7 @@ class PlayerChoiceState(MapState):
                     logging.error("Couldn't find any valid events matching name %s" % self.event_on_choose)
             return 'repeat'
 
-         elif event == 'INFO':
+        elif event == 'INFO':
             if self.info_flag:
                 get_sound_thread().play_sfx('Info Out')
                 self.info_flag = False

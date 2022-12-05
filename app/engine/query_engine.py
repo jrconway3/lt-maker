@@ -6,7 +6,7 @@ from app.engine.game_state import GameState
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
 from app.engine.objects.unit import UnitObject
-from app.events.objects.region import RegionObject
+from app.engine.objects.region import RegionObject
 from app.utilities import utils
 from app.utilities.typing import NID
 

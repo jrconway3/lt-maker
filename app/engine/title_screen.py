@@ -28,7 +28,7 @@ class TitleStartState(State):
     show_map = False
 
     def start(self):
-        self.logo = SPRITES.get('logo')
+        logo = SPRITES.get('logo')
         imgs = RESOURCES.panoramas.get('title_background')
         self.bg = PanoramaBackground(imgs) if imgs else None
         game.memory['title_bg'] = self.bg
@@ -37,6 +37,13 @@ class TitleStartState(State):
             self.press_start = gui.Logo(press_start_sprite, (WINWIDTH//2, 4*WINHEIGHT//5))
         else:
             self.press_start = None
+
+        if logo:
+            num_frames = 1
+            speed = 64
+            self.logo = gui.Logo(logo, (WINWIDTH//2, WINHEIGHT//2 - 40), num_frames, speed)
+        else:
+            self.logo = None
 
         self.particles = None
         if DB.constants.value('title_particles'):
@@ -86,7 +93,8 @@ class TitleStartState(State):
             self.particles.update()
             self.particles.draw(surf)
         if self.logo:
-            engine.blit(surf, self.logo, (WINWIDTH//2 - self.logo.get_width()//2, WINHEIGHT//2 - self.logo.get_height()//2 - 20))
+            self.logo.update()
+            self.logo.draw(surf)
         if self.press_start:
             self.press_start.update()
             self.press_start.draw(surf)
@@ -810,6 +818,8 @@ class TitleSaveState(State):
     bg = None
     particles = None
     menu = None
+
+    wait_time = 0
 
     def start(self):
         if game.memory.get('_skip_save', False):

@@ -159,7 +159,7 @@ class EventUnitTests(unittest.TestCase):
                                        Alignments.CENTER, None, speaker=None, style_nid=None,
                                        autosize=False, speed=1, font_color=None,
                                        font_type='convo', num_lines=2, draw_cursor=True,
-                                       message_tail='message_bg_tail', transparency=0.2,
+                                       message_tail='message_bg_tail', transparency=0.05,
                                        name_tag_bg='name_tag')
 
         # disable intercepting calls at the end of the test

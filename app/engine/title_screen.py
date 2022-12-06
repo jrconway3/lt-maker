@@ -19,6 +19,7 @@ from app.engine.state import State
 from app.events.event import Event
 from app.events import triggers
 from app.data.resources.resources import RESOURCES
+from app.utilities import utils
 
 import logging
 
@@ -41,7 +42,8 @@ class TitleStartState(State):
         if logo:
             num_frames = 1
             speed = 64
-            self.logo = gui.Logo(logo, (WINWIDTH//2, WINHEIGHT//2 - 40), num_frames, speed)
+            height = utils.clamp(WINHEIGHT//2 - 40, logo.get_height()//2, WINHEIGHT//2)
+            self.logo = gui.Logo(logo, (WINWIDTH//2, height), num_frames, speed)
         else:
             self.logo = None
 

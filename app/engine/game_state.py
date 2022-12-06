@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from app.engine.objects.party import PartyObject
     from app.engine.objects.skill import SkillObject
     from app.engine.objects.unit import UnitObject
+    from app.engine.objects.region import RegionObject
     from app.engine.dialog_log import DialogLog
     from app.events.event_manager import EventManager
     from app.events.regions import Region
@@ -33,7 +34,8 @@ from app.data.database.difficulty_modes import GrowthOption, PermadeathOption
 from app.events.regions import RegionType
 from app.events import speak_style
 from app.engine import config as cf
-from app.engine import state_machine, static_random
+from app.engine import state_machine
+from app.utilities import static_random
 from app.data.resources.resources import RESOURCES
 
 import logging
@@ -60,7 +62,7 @@ class GameState():
         self.item_registry: Dict[UID, ItemObject] = {}
         self.skill_registry: Dict[UID, SkillObject] = {}
         self.terrain_status_registry: Dict[NID, NID] = {}
-        self.region_registry: Dict[NID, Region] = {}
+        self.region_registry: Dict[NID, RegionObject] = {}
         self.overworld_registry: Dict[NID, OverworldObject] = {}
         self.parties: Dict[NID, PartyObject] = {}
         self.unlocked_lore: List[NID] = []
@@ -222,31 +224,8 @@ class GameState():
         # caches
         self.get_region_under_pos.cache_clear()
 
-    def start_level(self, level_nid, with_party=None):
-        """
-        Done at the beginning of a new level to start the level up
-        """
-        self.boundary = None
-        self.generic()
-        logging.debug("Starting Level %s", level_nid)
-
+    def level_setup(self):
         from app.engine.initiative import InitiativeTracker
-        from app.engine.level_cursor import LevelCursor
-        from app.engine.objects.level import LevelObject
-        from app.engine.objects.tilemap import TileMapObject
-
-        level_nid = str(level_nid)
-        level_prefab = DB.levels.get(level_nid)
-        tilemap_nid = level_prefab.tilemap
-        tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
-        tilemap = TileMapObject.from_prefab(tilemap_prefab)
-        bg_tilemap = TileMapObject.from_prefab(RESOURCES.tilemaps.get(level_prefab.bg_tilemap)) if level_prefab.bg_tilemap else None
-        self.cursor = LevelCursor(self)
-        self.current_level = LevelObject.from_prefab(level_prefab, tilemap, bg_tilemap, self.unit_registry, self.current_mode)
-        if with_party:
-            self.current_party = with_party
-        else:
-            self.current_party = self.current_level.party
 
         # Build party object for new parties
         if self.current_party not in self.parties:
@@ -272,7 +251,52 @@ class GameState():
             self.initiative.start(self.get_all_units())
 
         from app.events import triggers
-        game.events.trigger(triggers.OnStartup())
+        game.events.trigger(triggers.OnStartup()) 
+
+    def start_level(self, level_nid, with_party=None):
+        """
+        Done at the beginning of a new level to start the level up
+        """
+        self.boundary = None
+        self.generic()
+        logging.debug("Starting Level %s", level_nid)
+
+        from app.engine.level_cursor import LevelCursor
+        from app.engine.objects.level import LevelObject
+        from app.engine.objects.tilemap import TileMapObject
+
+        level_nid = str(level_nid)
+        level_prefab = DB.levels.get(level_nid)
+        tilemap_nid = level_prefab.tilemap
+        tilemap_prefab = RESOURCES.tilemaps.get(tilemap_nid)
+        tilemap = TileMapObject.from_prefab(tilemap_prefab)
+        bg_tilemap = TileMapObject.from_prefab(RESOURCES.tilemaps.get(level_prefab.bg_tilemap)) if level_prefab.bg_tilemap else None
+        self.cursor = LevelCursor(self)
+        self.current_level = LevelObject.from_prefab(level_prefab, tilemap, bg_tilemap, self.unit_registry, self.current_mode)
+        if with_party:
+            self.current_party = with_party
+        else:
+            self.current_party = self.current_level.party
+
+        self.level_setup()
+
+    def build_level_from_scratch(self, level_nid, tilemap):
+        """
+        Using the tilemap: TileMapObject to build a level
+        """
+        self.boundary = None
+        self.generic()
+        logging.debug("Building Level %s", level_nid)
+
+        from app.engine.level_cursor import LevelCursor
+        from app.engine.objects.level import LevelObject
+
+        self.cursor = LevelCursor(self)
+        party = DB.parties.keys()[0]
+        self.current_level = LevelObject.from_scratch(level_nid, tilemap, None, party, self.unit_registry, self.current_mode)
+        self.current_party = self.current_level.party
+
+        self.level_setup()
 
     def full_register(self, unit):
         self.register_unit(unit)
@@ -349,8 +373,8 @@ class GameState():
         from app.engine.objects.party import PartyObject
         from app.engine.objects.skill import SkillObject
         from app.engine.objects.unit import UnitObject
+        from app.engine.objects.region import RegionObject
         from app.events import event_manager, speak_style
-        from app.events.regions import Region
 
         logging.info("Loading Game...")
         self.game_vars = Counter(s_dict.get('game_vars', {}))
@@ -371,7 +395,7 @@ class GameState():
         self.skill_registry = {skill['uid']: SkillObject.restore(skill) for skill in s_dict['skills']}
         save.set_next_uids(self)
         self.terrain_status_registry = s_dict.get('terrain_status_registry', {})
-        self.region_registry = {region['nid']: Region.restore(region) for region in s_dict.get('regions', [])}
+        self.region_registry = {region['nid']: RegionObject.restore(region) for region in s_dict.get('regions', [])}
         self.unit_registry = {unit['nid']: UnitObject.restore(unit, self) for unit in s_dict['units']}
 
         # Handle subitems
@@ -452,13 +476,17 @@ class GameState():
         A `full` cleanup does everything associated with cleaning up
         a chapter in preparation for the next.
         A non-full cleanup does not
-            - remove any regions or terrain statuses
-            - reset level vars
-            - reset talk options or base convos
+            - Remove any units from the field
+            - Remove all generic units from memory
+            - Remove all now unused items and skills from memory
+            - Remove any regions or terrain statuses
+            - Reset level vars
+            - Reset talk options or base convos
+            - Actually remove the level
         '''
 
         from app.engine import (action, item_funcs, item_system, skill_system,
-                                supports, target_system, turnwheel)
+                                supports, target_system)
 
         supports.increment_end_chapter_supports()
 
@@ -474,11 +502,11 @@ class GameState():
             if unit.traveler:
                 if full:
                     unit.traveler = None
-                    action.execute(action.RemoveSkill(unit, 'Rescue'))
+                    action.RemoveSkill(unit, 'Rescue').execute()
                 else:
                     droppee = self.get_unit(unit.traveler)
                     pos = target_system.get_nearest_open_tile(droppee, unit.position)
-                    action.execute(action.Drop(unit, droppee, pos))
+                    action.Drop(unit, droppee, pos).execute()
             unit.set_hp(1000)  # Set to full health
             unit.set_guard_gauge(0) # Remove all guard gauge
             if DB.constants.value('reset_mana'):
@@ -638,7 +666,7 @@ class GameState():
 
     @property
     def regions(self):
-        return list(self.level.regions.values())
+        return list(self.region_registry.values())
 
     def register_unit(self, unit):
         logging.debug("Registering unit %s as %s", unit, unit.nid)
@@ -680,7 +708,7 @@ class GameState():
         logging.debug("Registering terrain status %s", skill_uid)
         self.terrain_status_registry[key] = skill_uid
 
-    def register_region(self, region):
+    def register_region(self, region: RegionObject):
         logging.debug("Registering region %s", region.nid)
         self.region_registry[region.nid] = region
 
@@ -727,7 +755,7 @@ class GameState():
         return region
 
     @lru_cache(128)
-    def get_region_under_pos(self, pos: Tuple[int, int]) -> Region:
+    def get_region_under_pos(self, pos: Tuple[int, int]) -> RegionObject:
         if pos:
             for region in self.level.regions.values():
                 if region.contains(pos):
@@ -902,7 +930,7 @@ class GameState():
                     act = action.AddSkill(unit, skill_obj)
                     action.do(act)
 
-    def add_region_status(self, unit, region, test):
+    def add_region_status(self, unit: UnitObject, region: RegionObject, test: bool):
         from app.engine import action, item_funcs
         skill_uid = self.get_terrain_status(region.nid)
         skill_obj = self.get_skill(skill_uid)

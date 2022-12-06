@@ -130,13 +130,14 @@ class TurnChangeState(MapState):
                 game.state.change('status_upkeep')
                 game.state.change('phase_change')
                 # EVENTS TRIGGER HERE
-                # Update time regions
-                for region in game.level.regions.values()[:]:
-                    if region.region_type == RegionType.TIME:
-                        action.do(action.DecrementTimeRegion(region))
-                        if region.sub_nid <= 0:
-                            action.do(action.RemoveRegion(region))
-                            game.events.trigger(triggers.TimeRegionComplete(region))
+                # Update time regions after the first turn
+                if game.turncount > 1:
+                    for region in game.level.regions.values()[:]:
+                        if region.region_type == RegionType.TIME:
+                            action.do(action.DecrementTimeRegion(region))
+                            if region.sub_nid <= 0:
+                                action.do(action.RemoveRegion(region))
+                                game.events.trigger(triggers.TimeRegionComplete(region.position, region))
                 game.events.trigger(triggers.TurnChange())
                 if game.turncount - 1 <= 0:  # Beginning of the level
                     for unit in game.get_all_units_in_party():
@@ -2287,10 +2288,10 @@ class AIState(MapState):
 
             if not change and game.ai.is_done():
                 logging.info("Current AI %s is done with turn.", self.cur_unit.nid)
+                self.cur_unit.has_run_ai = True
                 if did_something:  # Don't turn grey if didn't actually do anything
                     self.cur_unit.wait()
                 game.ai.reset()
-                self.cur_unit.has_run_ai = True
                 self.cur_unit = None
         else:
             logging.info("AI Phase complete")

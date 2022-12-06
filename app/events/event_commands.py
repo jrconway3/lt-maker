@@ -460,8 +460,8 @@ NOTE: You can set the `__default` speak style, which will automatically apply to
 """
 
     keywords = ['Style']
-    optional_keywords = ['Speaker', 'TextPosition', 'Width', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail', 'NameTagBg']
-    keyword_types = ['Nid', 'Speaker', 'AlignOrPosition', 'Width', 'Float', 'FontColor', 'Font', 'Sprite', 'PositiveInteger', 'Bool', 'MessageTail', 'Sprite']
+    optional_keywords = ['Speaker', 'TextPosition', 'Width', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail', 'Transparency', 'NameTagBg']
+    keyword_types = ['Nid', 'Speaker', 'AlignOrPosition', 'Width', 'Float', 'FontColor', 'Font', 'Sprite', 'PositiveInteger', 'Bool', 'MessageTail', 'Float', 'Sprite']
     _flags = ['low_priority', 'hold', 'no_popup', 'fit']
 
 class Speak(EventCommand):
@@ -498,8 +498,8 @@ Extra flags:
         """
 
     keywords = ['Speaker', 'Text']
-    optional_keywords = ['TextPosition', 'Width', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail', 'NameTagBg']
-    keyword_types = ['Speaker', 'Text', 'AlignOrPosition', 'Width', 'DialogVariant', 'Float', 'FontColor', 'Font', 'Sprite', 'PositiveInteger', 'Bool', 'MessageTail', 'Sprite']
+    optional_keywords = ['TextPosition', 'Width', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail', 'Transparency', 'NameTagBg']
+    keyword_types = ['Speaker', 'Text', 'AlignOrPosition', 'Width', 'DialogVariant', 'Float', 'FontColor', 'Font', 'Sprite', 'PositiveInteger', 'Bool', 'MessageTail', 'Float', 'Sprite']
     _flags = ['low_priority', 'hold', 'no_popup', 'fit', 'no_block']
 
 class Unhold(EventCommand):
@@ -803,7 +803,7 @@ What does it do?:
     - Resurrects units if you are in casual mode
     - Moves dead unit items to the convoy
     - Resets the turnwheel
-    - Sets turncount to 0
+    - Sets turncount to 1
 Unlike a true chapter clean up, it doesn't:
     - Remove any units from the field
     - Remove all generic units from memory
@@ -1962,6 +1962,17 @@ Removes the region specified by *Region*.
 
     keywords = ["Region"]
 
+class RemoveGenericsFromRegion(EventCommand):
+    nid = 'remove_generics_from_region'
+    tag = Tags.REGION
+
+    desc = \
+        """
+Removes all generics in the given region.
+        """
+
+    keywords = ["Nid"]
+
 class ShowLayer(EventCommand):
     nid = 'show_layer'
     tag = Tags.TILEMAP
@@ -2737,6 +2748,13 @@ class UpdateRecord(EventCommand):
     nid = 'update_record'
     tag = Tags.PERSISTENT_RECORDS
     desc = ('Updates a persistent record with a new value. Does nothing if nid is not present')
+
+    keywords = ['Nid', 'Expression']
+
+class ReplaceRecord(EventCommand):
+    nid = 'replace_record'
+    tag = Tags.PERSISTENT_RECORDS
+    desc = ("Updates a persistent record with a new value. Creates it first if it doesn't already exist")
 
     keywords = ['Nid', 'Expression']
 

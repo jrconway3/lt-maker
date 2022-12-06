@@ -510,6 +510,7 @@ class AnimationCombat(BaseCombat, MockCombat):
         else:
             font = FONT['text-brown']
         font.blit_center(self.left.name, self.left_name, (30, 8))
+        # Partner name tag
         if self.lp_battle_anim:
             if self.left.strike_partner:
                 ln = self.left.strike_partner.name

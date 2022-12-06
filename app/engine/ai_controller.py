@@ -3,8 +3,9 @@ import math
 
 from app.data.database.database import DB
 from app.engine import (action, combat_calcs, engine, equations, evaluate,
-                        item_funcs, item_system, line_of_sight, pathfinding,
+                        item_funcs, item_system, line_of_sight,
                         skill_system, target_system)
+from app.engine.pathfinding import pathfinding
 from app.engine.combat import interaction
 from app.engine.game_state import game
 from app.engine.movement import MovementManager
@@ -678,8 +679,7 @@ class SecondaryAI():
         self.pathfinder = \
             pathfinding.AStar(self.unit.position, None, self.grid,
                               game.board.bounds, game.tilemap.height,
-                              self.unit.team, skill_system.pass_through(self.unit),
-                              DB.constants.value('ai_fog_of_war'))
+                              self.unit.team)
 
         self.widen_flag = False  # Determines if we've widened our search
         self.reset()
@@ -754,7 +754,11 @@ class SecondaryAI():
             adj_good_enough = True
 
         limit = self.get_limit()
-        path = self.pathfinder.process(game.board, adj_good_enough=adj_good_enough, ally_block=False, limit=limit)
+        if skill_system.pass_through(self.unit):
+            can_move_through = lambda team, adj: True
+        else:
+            can_move_through = game.board.can_move_through
+        path = self.pathfinder.process(can_move_through, adj_good_enough=adj_good_enough, limit=limit)
         self.pathfinder.reset()
         return path
 

@@ -419,7 +419,7 @@ class MockCombat():
                 x_pos = WINWIDTH//2 - 26 + left_range_offset - total_shake_x + self.pan_offset
             else:
                 x_pos = WINWIDTH//2 + 26 + right_range_offset - total_shake_x + self.pan_offset
-            damage_num.draw(surf, (x_pos, WINHEIGHT - 40))
+            damage_num.draw(surf, (x_pos, WINHEIGHT - 120))
         self.damage_numbers = [d for d in self.damage_numbers if not d.done]
 
     def draw(self, surf):

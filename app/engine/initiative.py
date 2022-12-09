@@ -67,7 +67,7 @@ class InitiativeTracker():
             idx = self.unit_line.index(unit.nid)
             self.unit_line.pop(idx)
             self.initiative_line.pop(idx)
-            if self.current_idx > idx:
+            if self.current_idx >= idx:
                 self.current_idx -= 1
 
     def insert_at(self, unit, idx: int, initiative=None) -> int:

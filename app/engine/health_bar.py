@@ -55,7 +55,7 @@ class CombatHealthBar(HealthBar):
         self.empty_hp_blip = SPRITES.get('empty_hp_blip')
         self.overflow_hp_blip = SPRITES.get('overflow_hp_blip')
         self.overflowpurple_hp_blip = SPRITES.get('overflowpurple_hp_blip')
-        self.end_hp_blip = engine.subsurface(full_hp_blip, (0, 0, 1, full_hp_blip.get_height()))
+        self.end_hp_blip = engine.subsurface(self.full_hp_blip, (0, 0, 1, self.full_hp_blip.get_height()))
         self.color_tick = 0
         self.heal_sound_update = 0
 

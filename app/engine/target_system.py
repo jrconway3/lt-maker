@@ -180,7 +180,7 @@ def find_potential_range(unit, weapon=True, spell=False, boundary=False) -> set:
             potential_range.add(rng)
     return potential_range
 
-def get_valid_moves(unit, force=False) -> set:
+def get_valid_moves(unit, force=False, witch_warp=True) -> set:
     # Assumes unit is on the map
     if not force and unit.finished:
         return set()
@@ -199,8 +199,9 @@ def get_valid_moves(unit, force=False) -> set:
         can_move_through = game.board.can_move_through
     valid_moves = pathfinder.process(can_move_through, movement_left)
     valid_moves.add(unit.position)
-    witch_warp = set(skill_system.witch_warp(unit))
-    valid_moves |= witch_warp
+    if witch_warp:
+        witch_warp = set(skill_system.witch_warp(unit))
+        valid_moves |= witch_warp
     return valid_moves
 
 def get_path(unit, position, ally_block=False, use_limit=False, free_movement=False) -> list:

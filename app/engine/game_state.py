@@ -25,7 +25,6 @@ if TYPE_CHECKING:
     from app.engine.objects.region import RegionObject
     from app.engine.dialog_log import DialogLog
     from app.events.event_manager import EventManager
-    from app.events.regions import Region
     from app.utilities.typing import NID, UID
 
 from app.constants import VERSION
@@ -185,7 +184,7 @@ class GameState():
         from app.engine import turnwheel
         from app.events import event_manager
         from app.engine.dialog_log import DialogLog
-
+        
         self.level_vars = Counter()
         self.turncount = 0
         self.talk_options = []
@@ -221,7 +220,6 @@ class GameState():
         # Build registries
         self.map_sprite_registry = {}
 
-        # caches
         self.get_region_under_pos.cache_clear()
 
     def level_setup(self):
@@ -395,8 +393,8 @@ class GameState():
         self.skill_registry = {skill['uid']: SkillObject.restore(skill) for skill in s_dict['skills']}
         save.set_next_uids(self)
         self.terrain_status_registry = s_dict.get('terrain_status_registry', {})
-        self.region_registry = {region['nid']: RegionObject.restore(region) for region in s_dict.get('regions', [])}
         self.unit_registry = {unit['nid']: UnitObject.restore(unit, self) for unit in s_dict['units']}
+        self.region_registry = {region['nid']: RegionObject.restore(region) for region in s_dict.get('regions', [])}
 
         # Handle subitems
         for item in self.item_registry.values():

@@ -17,6 +17,7 @@ GRADIENTS2 = [5, 2, 2, 5,
 def _overflow(x):
     return c_int64(x).value
 
+@lru_cache(64)
 def _init(seed):
     # Have to zero fill so we can properly loop over it later
     perm = [0] * 256

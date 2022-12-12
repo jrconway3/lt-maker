@@ -245,34 +245,34 @@ class QSkyBGPalette(QLightPalette):
         self.set_stylesheet(app)
 
 class QPurpleBGPalette(QLightPalette):
-	def __init__(self, *__args):
-		super().__init__(*__args)
-		self.highlight_color = PURPLEHIGHLIGHT
+    def __init__(self, *__args):
+        super().__init__(*__args)
+        self.highlight_color = PURPLEHIGHLIGHT
 
-		# Set all the colors based on the constants in globals
-		self.setColor(QPalette.Window, PURPLESECONDARY)
-		self.setColor(QPalette.WindowText, WHITE)
-		self.setColor(QPalette.Base, PURPLETERTIARY)
-		self.setColor(QPalette.AlternateBase, PURPLESECONDARY)
-		self.setColor(QPalette.ToolTipBase, WHITE)
-		self.setColor(QPalette.ToolTipText, WHITE)
-		self.setColor(QPalette.Text, WHITE)
-		self.setColor(QPalette.Button, PURPLEPRIMARY)
-		self.setColor(QPalette.ButtonText, WHITE)
-		self.setColor(QPalette.BrightText, RED)
-		self.setColor(QPalette.Link, TERTIARY)
-		self.setColor(QPalette.Highlight, PURPLEHIGHLIGHT)
-		self.setColor(QPalette.HighlightedText, WHITE)
+        # Set all the colors based on the constants in globals
+        self.setColor(QPalette.Window, PURPLESECONDARY)
+        self.setColor(QPalette.WindowText, WHITE)
+        self.setColor(QPalette.Base, PURPLETERTIARY)
+        self.setColor(QPalette.AlternateBase, PURPLESECONDARY)
+        self.setColor(QPalette.ToolTipBase, WHITE)
+        self.setColor(QPalette.ToolTipText, WHITE)
+        self.setColor(QPalette.Text, WHITE)
+        self.setColor(QPalette.Button, PURPLEPRIMARY)
+        self.setColor(QPalette.ButtonText, WHITE)
+        self.setColor(QPalette.BrightText, RED)
+        self.setColor(QPalette.Link, TERTIARY)
+        self.setColor(QPalette.Highlight, PURPLEHIGHLIGHT)
+        self.setColor(QPalette.HighlightedText, WHITE)
 
-		self.setColor(QPalette.Disabled, QPalette.WindowText, DISABLED)
-		self.setColor(QPalette.Disabled, QPalette.Text, DISABLED)
-		self.setColor(QPalette.Disabled, QPalette.ButtonText, DISABLED)
+        self.setColor(QPalette.Disabled, QPalette.WindowText, DISABLED)
+        self.setColor(QPalette.Disabled, QPalette.Text, DISABLED)
+        self.setColor(QPalette.Disabled, QPalette.ButtonText, DISABLED)
 
-	def set_app(self, app):
-		"""Set the Fusion theme and this palette to a `QtWidgets.QApplication`."""
-		app.setStyle("Fusion")
-		app.setPalette(self)
-		self.set_stylesheet(app)
+    def set_app(self, app):
+        """Set the Fusion theme and this palette to a `QtWidgets.QApplication`."""
+        app.setStyle("Fusion")
+        app.setPalette(self)
+        self.set_stylesheet(app)
 
 def set(app, theme_idx):
     """

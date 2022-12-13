@@ -66,6 +66,7 @@ constants = ConstantCatalog([
     Constant('rd_bexp_lvl', "Always gain 3 stat-ups when using Bonus Exp.", ConstantType.BOOL, False, 'features'),
     Constant('support', "Supports", ConstantType.BOOL, False, 'features'),
     Constant('overworld', "Overworld", ConstantType.BOOL, False, 'features'),
+    Constant('overworld_start', "Start in Overworld", ConstantType.BOOL, False, 'features'),
     Constant('unit_notes', "Unit Notes", ConstantType.BOOL, False, 'features'),
     Constant('crit', "Allow Criticals", ConstantType.BOOL, True, 'features'),
     Constant('trade', "Can trade items on map", ConstantType.BOOL, True, 'features'),

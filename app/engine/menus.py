@@ -14,7 +14,6 @@ from app.engine.gui import ScrollBar
 from app.engine.base_surf import create_base_surf
 from app.engine.objects.item import ItemObject
 from app.engine.objects.unit import UnitObject
-from app.engine.objects.skill import SkillObject
 from app.engine.game_state import game
 from app.engine.achievements import Achievement
 
@@ -421,12 +420,12 @@ class Choice(Simple):
                             option.help_box = help_menu.HelpDialog(desc)
                     self.options.append(option)
 
-            if self.hard_limit:
-                for num in range(self.limit - len(options)):
-                    option = menu_options.EmptyOption(len(options) + num)
-                    if self.is_convoy:
-                        option._width = 112
-                    self.options.append(option)
+        if self.hard_limit:
+            for num in range(self.limit - len(options)):
+                option = menu_options.EmptyOption(len(options) + num)
+                if self.is_convoy:
+                    option._width = 112
+                self.options.append(option)
 
     def move_down(self, first_push=True):
         if all(option.ignore for option in self.options):

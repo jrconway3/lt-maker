@@ -2201,7 +2201,7 @@ def add_region(self: Event, region, position, size, region_type, string=None, fl
     flags = flags or set()
 
     if region in self.game.level.regions.keys():
-        self.logger.error("add_region: RegionObjet nid %s already present!" % region)
+        self.logger.error("add_region: RegionObject nid %s already present!" % region)
         return
     position = self._parse_pos(position)
     size = self._parse_pos(size)

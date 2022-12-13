@@ -140,6 +140,9 @@ class RegionModel(DragDropCollectionModel):
                     text += ' ' + reg.sub_nid
                 if reg.condition:
                     text += '\n' + reg.condition
+            elif reg.region_type == RegionType.TIME:
+                if reg.sub_nid:
+                    text += ' ' + reg.sub_nid
             return text
         elif role == Qt.DecorationRole:
             reg = self._data[index.row()]
@@ -205,14 +208,12 @@ class ModifyRegionWidget(QWidget):
         self.only_once_box = PropertyCheckBox("Only once?", QCheckBox, self)
         self.only_once_box.edit.stateChanged.connect(self.only_once_changed)
         layout.addWidget(self.only_once_box)
-
+        
         self.interrupt_move_box = PropertyCheckBox("Interrupts Movement?", QCheckBox, self)
         self.interrupt_move_box.edit.stateChanged.connect(self.interrupt_move_changed)
         layout.addWidget(self.interrupt_move_box)
 
         self.status_box = SkillBox(self)
-        # if self.current.sub_nid and self.current.region_type == 'Status':
-        #     self.status_box.edit.setText(self.current.sub_nid)
         self.status_box.edit.currentIndexChanged.connect(self.status_changed)
         layout.addWidget(self.status_box)
 
@@ -275,7 +276,7 @@ class ModifyRegionWidget(QWidget):
 
     def only_once_changed(self, state):
         self.current.only_once = bool(state)
-
+        
     def interrupt_move_changed(self, state):
         self.current.interrupt_move = bool(state)
 

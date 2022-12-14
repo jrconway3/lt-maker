@@ -834,6 +834,7 @@ class TitleSaveState(State):
     menu = None
 
     wait_time = 0
+    fluid = None
 
     def start(self):
         if game.memory.get('_skip_save', False):
@@ -893,6 +894,8 @@ class TitleSaveState(State):
         if self.wait_time > 0:
             return
 
+        if not self.fluid:
+            return
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 

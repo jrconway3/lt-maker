@@ -67,6 +67,10 @@ class AchievementManager(Data):
         persistent_data.serialize(self.location, self.save())
         return complete
 
+    def clear_achievements(self):
+        self.clear()
+        persistent_data.serialize(self.location, self.save())
+
 # Make sure to reload all achievements whenever we start the engine
 game_id = str(DB.constants.value('game_nid'))
 location = 'saves/' + game_id + '-achievements.p'

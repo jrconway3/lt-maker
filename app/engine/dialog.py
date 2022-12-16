@@ -477,7 +477,7 @@ class DynamicDialogWrapper():
                  font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail', transparency: float=0.05, name_tag_bg='name_tag') -> None:
         # eval trick
         self.resolve_text_func: Callable[[], str] = text_func
-        self.resolved_text = clean_newlines(self.resolve_text_func())
+        self.resolved_text = clean_newlines(self.resolve_text_func()).replace('{w}', '').replace('|', '{br}')
         # dialog props
         self.portrait = portrait
         self.background = background
@@ -499,7 +499,7 @@ class DynamicDialogWrapper():
                              font_type, num_lines, draw_cursor, message_tail, transparency, name_tag_bg)
 
     def update(self):
-        new_text = clean_newlines(self.resolve_text_func())
+        new_text = clean_newlines(self.resolve_text_func()).replace('{w}', '').replace('|', '{br}')
         if new_text != self.resolved_text:
             self.resolved_text = new_text
             self.dialog = Dialog(self.resolved_text, self.portrait, self.background,

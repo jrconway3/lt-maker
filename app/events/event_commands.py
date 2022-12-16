@@ -2282,7 +2282,7 @@ and predictably, those args will function the same way as in `speak`.
 * *Width* allows you to specify the width of the box. This defaults to full screen width.
 * *NumLines* allows you to specify the number of lines taken up by the textbox. This defaults to 1.
 * The *StyleNid* allows you to outsource all configuration to an existing speak style.
-* The *TextSpeed* keyword species how quickly the text is displayed.
+* The *TextSpeed* keyword specifies how quickly the text is displayed. Lower is faster.
 * The *FontColor* keyword specifies the font color
 * The *FontType* keyword specifies the font type
 * The *BG* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.

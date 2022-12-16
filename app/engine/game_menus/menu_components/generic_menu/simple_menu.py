@@ -299,8 +299,23 @@ class ChoiceTable(SimpleIconTable):
         if self.selected_index[0] > self.table_scroll() + self.num_display_columns - 1:
             self.scroll_right()
 
+    def set_data(self, data: List):
+        super().set_data(data)
+        if hasattr(self, 'selected_index'):
+            x, y = self.selected_index
+            while x >= len(self.column_data):
+                x -= 1
+            while y >= len(self.column_data[x]):
+                y -= 1
+            x = max(x, 0)
+            y = max(y, 0)
+            self.selected_index = (x, y)
+
     def get_selected(self):
         x, y = self.selected_index
+        if not self.column_data or not self.column_data[x]:
+            self.selected_index = (0, 0)
+            return None
         return self.column_data[x][y].data
 
     def set_cursor_mode(self, cursor_mode):

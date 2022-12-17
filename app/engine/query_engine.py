@@ -43,11 +43,11 @@ class GameQueryEngine():
             except:
                 return obj_or_nid
 
-    def _resolve_to_unit(self, unit_or_nid) -> UnitObject:
+    def _resolve_to_unit(self, unit_or_nid) -> Optional[UnitObject]:
         nid = self._resolve_to_nid(unit_or_nid)
         return self.game.get_unit(nid)
 
-    def _resolve_to_region(self, region_or_nid) -> RegionObject:
+    def _resolve_to_region(self, region_or_nid) -> Optional[RegionObject]:
         nid = self._resolve_to_nid(region_or_nid)
         return self.game.get_region(nid)
 
@@ -55,7 +55,10 @@ class GameQueryEngine():
         try:
             # possibly a unit?
             a_unit = self._resolve_to_unit(has_pos_or_is_pos)
-            return a_unit.position
+            if a_unit:
+                return a_unit.position
+            else:
+                return has_pos_or_is_pos
         except:
             return has_pos_or_is_pos
 
@@ -71,11 +74,13 @@ class GameQueryEngine():
             Optional[ItemObject] | None: Item if exists on unit, otherwise None
         """
         item = self._resolve_to_nid(item)
+        found_items = []
         if unit == 'convoy':
             found_items = [it for it in self.game.get_convoy_inventory() if it.uid == item or it.nid == item]
         else:
             unit = self._resolve_to_unit(unit)
-            found_items = [it for it in unit.items if it.uid == item or it.nid == item]
+            if unit:
+                found_items = [it for it in unit.items if it.uid == item or it.nid == item]
         if found_items:
             return found_items[0]
         return None
@@ -100,8 +105,10 @@ Example usage:
             bool: True if unit has item, else False
         """
         all_units = self.game.get_all_units() if not party else self.game.get_all_units_in_party(party)
-        convoy = None
+        convoy: List[ItemObject] = []
         item = self._resolve_to_nid(item)
+        if not item:
+            return False
         if not nid or nid == 'convoy':
             if nid == 'convoy' or team == 'player':
                 convoy = self.game.get_convoy_inventory()
@@ -133,9 +140,10 @@ Example usage:
         """
         unit = self._resolve_to_unit(unit)
         skill = self._resolve_to_nid(skill)
-        for sk in unit.skills:
-            if sk.nid == skill:
-                return sk
+        if unit:
+            for sk in unit.skills:
+                if sk.nid == skill:
+                    return sk
         return None
 
     @categorize(QueryType.SKILL)
@@ -254,7 +262,9 @@ Example usage:
             int: Number of unique negative skills on the unit
         """
         unit = self._resolve_to_unit(unit)
-        return len([skill for skill in unit.skills if skill.negative])
+        if unit:
+            return len([skill for skill in unit.skills if skill.negative])
+        return 0
 
     @categorize(QueryType.MAP)
     def get_units_in_region(self, region, nid=None, team=None, tag=None) -> List[UnitObject]:
@@ -275,6 +285,8 @@ Example usage:
             List[UnitObject]: all units matching the criteria in the region
         """
         region = self._resolve_to_region(region)
+        if not region:
+            return []
         all_units = []
         for unit in self.game.get_all_units():
             if nid and nid != unit.nid:
@@ -318,17 +330,19 @@ Example usage:
             bool: if the unit has died
         """
         unit = self._resolve_to_unit(unit)
-        return self.game.check_dead(unit.nid)
+        if unit:
+            return self.game.check_dead(unit.nid)
+        return False
 
     @categorize(QueryType.UNIT)
-    def u(self, unit) -> UnitObject:
+    def u(self, unit) -> Optional[UnitObject]:
         """Shorthand for game.get_unit. Fetches the unit object.
 
         Args:
             unit: unit nid
 
         Returns:
-            UnitObject: the actual unit object
+            Optional[UnitObject]: the actual unit object, if exists, else None
         """
         return self._resolve_to_unit(unit)
 

@@ -1,14 +1,17 @@
 from __future__ import annotations
-import logging
-from typing import Any, List, Tuple
 
-from app.engine.game_state import GameState
-from app.engine.objects.item import ItemObject
-from app.engine.objects.skill import SkillObject
-from app.engine.objects.unit import UnitObject
-from app.engine.objects.region import RegionObject
-from app.utilities import utils
-from app.utilities.typing import NID
+import logging
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple
+
+if TYPE_CHECKING:
+    from app.engine.game_state import GameState
+    from app.engine.objects.item import ItemObject
+    from app.engine.objects.region import RegionObject
+    from app.engine.objects.skill import SkillObject
+    from app.engine.objects.unit import UnitObject
+    from app.utilities import utils
+    from app.utilities.typing import NID
+
 
 class QueryType():
     UNIT = 'Units'
@@ -28,6 +31,8 @@ class GameQueryEngine():
     def __init__(self, logger: logging.Logger, game: GameState) -> None:
         self.logger = logger
         self.game = game
+        query_funcs = [funcname for funcname in dir(self) if not funcname.startswith('_')]
+        self.func_dict = {funcname: getattr(self, funcname) for funcname in query_funcs}
 
     def _resolve_to_nid(self, obj_or_nid) -> NID:
         try:
@@ -46,7 +51,7 @@ class GameQueryEngine():
         nid = self._resolve_to_nid(region_or_nid)
         return self.game.get_region(nid)
 
-    def _resolve_pos(self, has_pos_or_is_pos) -> Tuple[int, int] | None:
+    def _resolve_pos(self, has_pos_or_is_pos) -> Optional[Tuple[int, int]]:
         try:
             # possibly a unit?
             a_unit = self._resolve_to_unit(has_pos_or_is_pos)
@@ -55,7 +60,7 @@ class GameQueryEngine():
             return has_pos_or_is_pos
 
     @categorize(QueryType.ITEM)
-    def get_item(self, unit, item) -> ItemObject:
+    def get_item(self, unit, item) -> Optional[ItemObject]:
         """Returns a item object by nid.
 
         Args:
@@ -63,7 +68,7 @@ class GameQueryEngine():
             item: item to check
 
         Returns:
-            ItemObject | None: Item if exists on unit, otherwise None
+            Optional[ItemObject] | None: Item if exists on unit, otherwise None
         """
         item = self._resolve_to_nid(item)
         if unit == 'convoy':
@@ -116,7 +121,7 @@ Example usage:
         return False
 
     @categorize(QueryType.SKILL)
-    def get_skill(self, unit, skill) -> SkillObject:
+    def get_skill(self, unit, skill) -> Optional[SkillObject]:
         """Returns a skill object by nid.
 
         Args:
@@ -124,7 +129,7 @@ Example usage:
             skill: nid of skill
 
         Returns:
-            SkillObject | None: Skill, if exists on unit, else None.
+            Optional[SkillObject] | None: Skill, if exists on unit, else None.
         """
         unit = self._resolve_to_unit(unit)
         skill = self._resolve_to_nid(skill)
@@ -160,8 +165,10 @@ Example usage:
             Will return fewer if there are fewer player units than `num`.
         """
         position = self._resolve_pos(position)
-        return sorted([(unit, utils.calculate_distance(unit.position, position)) for unit in self.game.get_player_units()],
-                      key=lambda pair: pair[1])[:num]
+        if position:
+            return sorted([(unit, utils.calculate_distance(unit.position, position)) for unit in self.game.get_player_units()],
+                        key=lambda pair: pair[1])[:num]
+        return []
 
     @categorize(QueryType.MAP)
     def get_units_within_distance(self, position, dist: int = 1, nid=None, team=None, tag=None, party=None) -> List[Tuple[UnitObject, int]]:
@@ -191,9 +198,10 @@ Example usage:
                 continue
             if party and not unit.party == party:
                 continue
-            distance = utils.calculate_distance(unit.position, position)
-            if distance <= dist:
-                res.append(unit)
+            if position:
+                distance = utils.calculate_distance(unit.position, position)
+                if distance <= dist:
+                    res.append(unit)
         return res
 
     @categorize(QueryType.MAP)

@@ -185,7 +185,7 @@ class SimpleIconTable(UIComponent):
                 for row in col:
                     max_row_width = max(row.text.twidth + row.icon.twidth, max_row_width)
             if self.header:
-                max_row_width = max(self.header.twidth / self.num_display_columns, max_row_width)
+                max_row_width = int(max(self.header.twidth / self.num_display_columns, max_row_width))
         else:
             max_row_width = force_row_width
 

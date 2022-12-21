@@ -72,7 +72,7 @@ class TargetsSpecificTiles(ItemComponent):
     value = ''
 
     def ai_targets(self, unit, item) -> set:
-        return set(self.resolve_targets())
+        return set(self.resolve_targets(unit, item))
 
     def valid_targets(self, unit, item) -> set:
         rng = item_funcs.get_range(unit, item)

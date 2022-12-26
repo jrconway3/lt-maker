@@ -545,12 +545,8 @@ class OptionChildState(State):
                         elif self.menu.owner == 'Storage':
                             action.do(action.StoreItem(cur_unit, item))
                     if item_funcs.too_much_in_inventory(cur_unit):
-                        game.state.back()
-                    elif cur_unit.items:
-                        game.state.back()
-                        game.state.back()
-                    else:  # If the unit has no more items, head all the way back to menu
-                        game.state.back()
+                        game.state.back()  # You need to pick another item to discard
+                    else:
                         game.state.back()
                         game.state.back()
             else:

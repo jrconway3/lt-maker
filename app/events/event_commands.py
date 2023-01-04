@@ -1599,7 +1599,7 @@ Sets *Unit*'s *skill* attribute to a specific value.
         """
 
     keywords = ["Unit", "Skill", "Attribute", "Value"]
-    keyword_types = ["Unit", "Skill", "String", "Expression"]
+    keyword_types = ["Unit", "Skill", "String", "Value"]
 
 class ChangeAI(EventCommand):
     nid = 'change_ai'

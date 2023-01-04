@@ -2927,6 +2927,57 @@ class AddSkill(Action):
         if self.skill_obj.aura and self.unit.position and game.board and game.tilemap:
             aura_funcs.release_aura(self.unit, self.skill_obj, game)
 
+class SetSkill(Action):
+    def __init__(self, unit, skill, attribute, value):
+        self.unit = unit
+        self.attribute = attribute
+        # Check if we just passed in the skill nid to create
+        if isinstance(skill, str):
+            skill_obj = unit.get_skill(skill)
+        else:
+            skill_obj = skill
+        self.skill_obj = skill_obj
+        if isinstance(skill_obj.data[attribute], int):
+            self.value = int(value)
+        else:
+            self.value = value
+        self.reset_action = ResetUnitVars(self.unit)
+        self.old_value = skill_obj.data[attribute]
+        self.subactions = []
+
+    @recalculate_unit
+    def do(self):
+        self.subactions.clear()
+        if not self.skill_obj:
+            return
+        self.skill_obj.owner_nid = self.unit.nid
+        self.skill_obj.data[self.attribute] = self.value
+
+        if self.skill_obj.aura and self.skill_obj in self.unit.skills and \
+                self.unit.position and game.board and game.tilemap:
+            aura_funcs.propagate_aura(self.unit, self.skill_obj, game)
+            game.boundary.register_unit_auras(self.unit)
+
+        # Handle affects movement
+        self.reset_action.execute()
+        if game.tilemap and game.boundary:
+            game.boundary.recalculate_unit(self.unit)
+
+    @recalculate_unit
+    def reverse(self):
+        self.reset_action.reverse()
+        if not self.skill_obj:
+            return
+        game.boundary.unregister_unit_auras(self.unit)
+        if self.skill_obj in self.unit.skills:
+            self.skill_obj.data[self.attribute] = self.old_value
+        else:
+            logging.error("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
+        for action in self.subactions:
+            action.reverse()
+
+        if self.skill_obj.aura and self.unit.position and game.board and game.tilemap:
+            aura_funcs.release_aura(self.unit, self.skill_obj, game)
 
 class RemoveSkill(Action):
     def __init__(self, unit, skill, count=-1):

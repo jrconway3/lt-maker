@@ -1589,6 +1589,18 @@ class RemoveSkill(EventCommand):
     keyword_types = ['GlobalUnit', 'Skill', 'Integer']
     _flags = ['no_banner']
 
+class SetSkillData(EventCommand):
+    nid = 'set_skill_data'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets *Unit*'s *skill* attribute to a specific value.
+        """
+
+    keywords = ["Unit", "Skill", "Attribute", "Value"]
+    keyword_types = ["Unit", "Skill", "String", "Expression"]
+
 class ChangeAI(EventCommand):
     nid = 'change_ai'
     tag = Tags.MODIFY_UNIT_PROPERTIES

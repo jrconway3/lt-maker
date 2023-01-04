@@ -1756,6 +1756,25 @@ def give_skill(self: Event, global_unit, skill, initiator=None, flags=None):
         self.game.state.change('alert')
         self.state = 'paused'
 
+def set_skill_data(self: Event, unit, skill, attribute, value, flags=None):
+    unit = self._get_unit(unit)
+    if not unit:
+        self.logger.error("set_skill_data: Couldn't find unit with nid %s" % unit)
+        return
+    skill_nid = skill
+    if skill_nid not in DB.skills.keys():
+        self.logger.error("set_skill_data: Couldn't find skill with nid %s" % skill)
+        return
+    found_skill = unit.get_skill(skill_nid)
+    if not found_skill:
+        self.logger.error("set_skill_data: Couldn't find skill with nid %s on unit selected" % skill)
+        return
+    if attribute not in found_skill.data:
+        self.logger.error("set_skill_data: Attribute %s was not found in data for the skill given." % attribute)
+        return
+    action.do(action.SetSkill(unit, skill_nid, attribute, value))
+
+
 def remove_skill(self: Event, global_unit, skill, count='-1', flags=None):
     flags = flags or set()
     count = int(count)

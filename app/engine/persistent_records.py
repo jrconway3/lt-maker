@@ -3,7 +3,7 @@ from app.utilities.data import Data, Prefab
 
 from app.engine import persistent_data
 
-from app.data.database import DB
+from app.data.database.database import DB
 
 class PersistentRecord(Prefab):
     def __init__(self, nid: str = '', value=None):
@@ -36,6 +36,14 @@ class PersistentRecordManager(Data):
             persistent_data.serialize(self.location, self.save())
         else:
             logging.info("Record with nid of %s doesn't exist")
+
+    def replace(self, nid, value):
+        if nid in self.keys():
+            record = super().get(nid)
+            record.value = value
+        else:
+            self.append(PersistentRecord(nid, value))
+        persistent_data.serialize(self.location, self.save())
 
     def delete(self, nid):
         if nid in self.keys():

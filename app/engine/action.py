@@ -8,19 +8,19 @@ import app.engine.config as cf
 from typing import Tuple
 
 from app.constants import TILEHEIGHT, TILEWIDTH
-from app.data.database import DB
+from app.data.database.database import DB
 from app.events.regions import RegionType
 from app.events import triggers
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
 from app.engine import (aura_funcs, banner, equations, item_funcs, item_system,
-                        particles, skill_system, static_random, unit_funcs, animations)
+                        particles, skill_system, unit_funcs, animations)
 from app.engine.game_state import game
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
 from app.engine.objects.unit import UnitObject
+from app.engine.objects.region import RegionObject
 from app.engine import engine
-from app.events.regions import Region
-from app.utilities import utils
+from app.utilities import utils, static_random
 
 
 class Action():
@@ -55,7 +55,7 @@ class Action():
             value = ('item', value.uid)
         elif isinstance(value, SkillObject):
             value = ('skill', value.uid)
-        elif isinstance(value, Region):
+        elif isinstance(value, RegionObject):
             value = ('region', value.nid)
         elif isinstance(value, list):
             value = ('list', [Action.save_obj(v) for v in value])
@@ -105,6 +105,7 @@ def recalculate_unit(func):
         func(*args, **kwargs)
         self = args[0]
         if self.unit.position and game.tilemap and game.boundary:
+            self.unit.autoequip()
             game.boundary.recalculate_unit(self.unit)
     return wrapper
 
@@ -113,7 +114,7 @@ class Move(Action):
     A basic, user-directed move
     """
 
-    def __init__(self, unit, new_pos, path=None, event=False, follow=True, speed=cf.SETTINGS['unit_speed']):
+    def __init__(self, unit, new_pos, path=None, event=False, follow=True, speed=0):
         self.unit = unit
         self.old_pos = self.unit.position
         self.new_pos = new_pos
@@ -125,7 +126,7 @@ class Move(Action):
         self.has_moved = self.unit.has_moved
         self.event = event
         self.follow = follow
-        self.speed = speed
+        self.speed = speed or cf.SETTINGS['unit_speed']
 
     def do(self):
         if self.path is None:
@@ -144,12 +145,11 @@ class Move(Action):
     def reverse(self):
         game.leave(self.unit)
         self.new_movement_left = self.unit.movement_left
-        self.unit.movement_left = self.prev_movement_left
         self.unit.has_moved = self.has_moved
         self.new_pos = self.unit.position
         self.unit.position = self.old_pos
         game.arrive(self.unit)
-
+        self.unit.movement_left = self.prev_movement_left
 
 # Just another name for move
 class CantoMove(Move):
@@ -1318,6 +1318,8 @@ class TradeItem(Action):
         self.item_index1 = unit1.items.index(item1) if item1 else DB.constants.total_items() - 1
         self.item_index2 = unit2.items.index(item2) if item2 else DB.constants.total_items() - 1
 
+        self.subactions = []
+
     def swap(self, unit1, unit2, item1, item2, item_index1, item_index2):
         # Do the swap
         if item1:
@@ -1327,13 +1329,36 @@ class TradeItem(Action):
             unit2.remove_item(item2)
             unit1.insert_item(item_index1, item2)
 
+    def equip_items(self, unit):
+        all_items = item_funcs.get_all_items(unit)
+        for item in all_items:
+            if not item_system.is_accessory(unit, item):
+                if item_system.equippable(unit, item) and item_funcs.available(unit, item):
+                    self.subactions.append(EquipItem(unit, item))
+                    break
+        for item in all_items:
+            if item_system.is_accessory(unit, item):
+                if item_system.equippable(unit, item) and item_funcs.available(unit, item):
+                    self.subactions.append(EquipItem(unit, item))
+                    break
+        # keep accessories sorted after items
+        self.items = sorted(unit.items, key=lambda item: item_system.is_accessory(unit, item))
+
     def do(self):
+        self.subactions.clear()
+
         self.swap(self.unit1, self.unit2, self.item1, self.item2, self.item_index1, self.item_index2)
+
+        self.equip_items(self.unit1)
+        self.equip_items(self.unit2)
 
         if self.unit1.position and game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit1)
         if self.unit2.position and game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit2)
+
+        for act in self.subactions:
+            act.do()
 
     def reverse(self):
         self.swap(self.unit1, self.unit2, self.item2, self.item1, self.item_index2, self.item_index1)
@@ -1342,6 +1367,9 @@ class TradeItem(Action):
             game.boundary.recalculate_unit(self.unit1)
         if self.unit2.position and game.tilemap and game.boundary:
             game.boundary.recalculate_unit(self.unit2)
+
+        for act in self.subactions:
+            act.reverse()
 
 
 class RepairItem(Action):
@@ -1457,6 +1485,8 @@ class AddItemComponent(Action):
         self.item.__dict__[self.component_nid] = self.component
         # Assign parent to component
         self.component.item = self.item
+        if self.component.defines('init'):
+            self.component.init(self.item)
         self._did_add = True
 
     def reverse(self):
@@ -2291,6 +2321,17 @@ class ChangePortrait(Action):
     def reverse(self):
         self.unit.portrait_nid = self.old_portrait
 
+class ChangeUnitDesc(Action):
+    def __init__(self, unit, desc):
+        self.unit = unit
+        self.old_desc = unit.desc
+        self.new_desc = desc
+
+    def do(self):
+        self.unit.desc = self.new_desc
+
+    def reverse(self):
+        self.unit.desc = self.old_desc
 
 class AddTag(Action):
     def __init__(self, unit, tag):
@@ -2408,7 +2449,7 @@ class AddRegion(Action):
     def do(self):
         self.subactions.clear()
         if self.region.nid in game.level.regions:
-            logging.warning("AddRegion Action: Region with nid %s already in level", self.region.nid)
+            logging.warning("AddRegion Action: RegionObject with nid %s already in level", self.region.nid)
         else:
             game.get_region_under_pos.cache_clear()
             game.level.regions.append(self.region)
@@ -2795,10 +2836,12 @@ class RemoveInitiative(Action):
         self.initiative = game.initiative.get_initiative(self.unit)
 
     def do(self):
+        game.initiative.next()
         game.initiative.remove_unit(self.unit)
 
     def reverse(self):
         game.initiative.insert_at(self.unit, self.old_idx, self.initiative)
+        game.initiative.back()
 
 class MoveInInitiative(Action):
     def __init__(self, unit, offset):
@@ -2858,7 +2901,8 @@ class AddSkill(Action):
         self.unit.skills.append(self.skill_obj)
         skill_system.on_add(self.unit, self.skill_obj)
 
-        if self.skill_obj.aura and self.unit.position and game.board and game.tilemap:
+        if self.skill_obj.aura and self.skill_obj in self.unit.skills and \
+                self.unit.position and game.board and game.tilemap:
             aura_funcs.propagate_aura(self.unit, self.skill_obj, game)
             game.boundary.register_unit_auras(self.unit)
 
@@ -2883,9 +2927,8 @@ class AddSkill(Action):
         if self.skill_obj.aura and self.unit.position and game.board and game.tilemap:
             aura_funcs.release_aura(self.unit, self.skill_obj, game)
 
-
 class RemoveSkill(Action):
-    def __init__(self, unit, skill, count = -1):
+    def __init__(self, unit, skill, count=-1):
         self.unit = unit
         self.skill = skill  # Skill obj or skill nid str
         self.removed_skills = []

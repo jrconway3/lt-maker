@@ -1,7 +1,7 @@
 import logging
 
 import app.engine.config as cf
-from app.data.database import DB
+from app.data.database.database import DB
 from app.engine import action, engine, equations, skill_system
 from app.engine.game_state import game
 from app.engine.sound import get_sound_thread
@@ -9,13 +9,13 @@ from app.utilities import utils
 
 
 class MovementData():
-    def __init__(self, path, event, follow, muted=False, speed=cf.SETTINGS['unit_speed']):
+    def __init__(self, path, event, follow, muted=False, speed=0):
         self.path = path
         self.last_update = 0
         self.event = event
         self.follow = follow
         self.muted = muted
-        self.speed = speed
+        self.speed = speed or cf.SETTINGS['unit_speed']
 
 class MovementManager():
     def __init__(self):
@@ -24,10 +24,10 @@ class MovementManager():
 
         self.surprised = False
 
-    def add(self, unit, path, event=False, follow=True, speed=cf.SETTINGS['unit_speed']):
+    def add(self, unit, path, event=False, follow=True, speed=0):
         self.moving_units[unit.nid] = MovementData(path, event, follow, speed=speed)
 
-    def begin_move(self, unit, path, event=False, follow=True, speed=cf.SETTINGS['unit_speed']):
+    def begin_move(self, unit, path, event=False, follow=True, speed=0):
         logging.info("Unit %s begin move: %s", unit.nid, path)
         self.add(unit, path, event, follow, speed=speed)
         unit.sprite.set_speed(int(speed))
@@ -132,6 +132,9 @@ class MovementManager():
             if unit.team == 'player':
                 self.surprised = True
                 self.update_surprise()
+            # If unit is an ai unit, their turn is now complete
+            if game.ai.unit is unit:
+                game.ai.interrupt()
 
         del self.moving_units[unit_nid]
         game.arrive(unit)
@@ -184,9 +187,6 @@ class MovementManager():
                         else:  # Can only happen when not in an event
                             logging.debug("%s done moving", unit)
                             self.done_moving(unit_nid, data, unit, surprise=True)
-                            if unit.team == 'player':
-                                self.update_surprise()
-                                self.surprised = True
                             continue
 
                         mcost = self.get_mcost(unit, new_position)

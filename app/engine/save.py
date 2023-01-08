@@ -8,7 +8,7 @@ except ImportError:
     import pickle
 
 from app.utilities import str_utils
-from app.data.database import DB
+from app.data.database.database import DB
 
 import app.engine.config as cf
 from app.engine.objects.item import ItemObject
@@ -104,7 +104,7 @@ def save_io(s_dict, meta_dict, old_slot, slot, force_loc=None, name=None):
         elif old_slot is not None:
             old_name = 'saves/' + GAME_NID() + '-restart' + str(old_slot) + '.p'
             old_name_meta = old_name + 'meta'
-            if old_name != r_save:
+            if old_name != r_save and os.path.exists(old_name):
                 shutil.copy(old_name, r_save)
                 shutil.copy(old_name_meta, r_save_meta)
 

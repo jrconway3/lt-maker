@@ -1,8 +1,8 @@
 from typing import List, Tuple
 
 from app.constants import TILEHEIGHT, TILEWIDTH, WINHEIGHT, WINWIDTH
-# from app.resources.resources import RESOURCES
-from app.data.database import DB
+# from app.data.resources.resources import RESOURCES
+from app.data.database.database import DB
 from app.engine import action, background, banner, base_surf
 from app.engine import config as cf
 from app.engine import (convoy_funcs, engine, equations, gui, image_mods,
@@ -38,7 +38,7 @@ class PrepMainState(MapState):
         # initialize custom options and events
         events = [None for option in options]
         additional_options = game.game_vars.get('_prep_additional_options')
-        additional_ignore = game.game_vars.get('_prep_options_enabled')
+        additional_ignore = [not enabled for enabled in game.game_vars.get('_prep_options_enabled')]
         additional_events = game.game_vars.get('_prep_options_events')
 
         options = options + additional_options if additional_options else options
@@ -162,8 +162,8 @@ class PrepPickUnitsState(State):
         stuck_units = [unit for unit in player_units if unit.position and not game.check_for_region(unit.position, 'formation')]
         unstuck_units = [unit for unit in player_units if unit not in stuck_units]
 
-        units = stuck_units + sorted(unstuck_units, key=lambda unit: bool(unit.position), reverse=True)
-        self.menu = menus.Table(None, units, (6, 2), (110, 24))
+        self.units = stuck_units + sorted(unstuck_units, key=lambda unit: bool(unit.position), reverse=True)
+        self.menu = menus.Table(None, self.units, (6, 2), (110, 24))
         self.menu.set_mode('position')
 
         self.bg = background.create_background('rune_background')
@@ -171,6 +171,12 @@ class PrepPickUnitsState(State):
 
         game.state.change('transition_in')
         return 'repeat'
+
+    def order_party(self):
+        '''Run on exiting the prep menu. Saves the order for future levels with the party.
+        Saved order is unique to current party - will not effect other parties'''
+        party = game.parties[game.current_party]
+        party.party_prep_manage_sort_order = [u.nid for u in sorted(self.units, key=lambda unit: bool(unit.position), reverse=True)]
 
     def take_input(self, event):
         first_push = self.fluid.update()
@@ -218,6 +224,7 @@ class PrepPickUnitsState(State):
                     get_sound_thread().play_sfx('Select 4')
 
         elif event == 'BACK':
+            self.order_party()
             get_sound_thread().play_sfx('Select 4')
             game.state.change('transition_pop')
 
@@ -742,10 +749,21 @@ class PrepItemsState(State):
         self.state = 'free'
         self.sub_menu = None
 
+        self._proceed_with_targets_item = False
+
         game.state.change('transition_in')
         return 'repeat'
 
     def begin(self):
+        if self._proceed_with_targets_item:
+            self.state = 'free'
+            self._proceed_with_targets_item = False
+            if game.memory.get('item') and game.memory.get('item').data.get('target_item'):
+                item = game.memory.get('item')
+                action.do(action.HasTraded(self.unit))
+                interaction.start_combat(self.unit, None, item)
+                return 'repeat'
+
         self.menu.update_options()
         if self.name.startswith('base'):
             base_music = game.game_vars.get('_base_music')
@@ -850,9 +868,15 @@ class PrepItemsState(State):
                     self.menu.move_to_convoy()
                     self.menu.update_options()
                 elif current == 'Use':
-                    action.do(action.HasTraded(self.unit))
-                    interaction.start_combat(self.unit, None, item)
-                    self.state = 'free'
+                    if item_system.targets_items(self.unit, item):
+                        game.memory['target'] = self.unit
+                        game.memory['item'] = item
+                        self._proceed_with_targets_item = True
+                        game.state.change('item_targeting')
+                    else:
+                        action.do(action.HasTraded(self.unit))
+                        interaction.start_combat(self.unit, None, item)
+                        self.state = 'free'
                 elif current == 'Restock':
                     action.do(action.HasTraded(self.unit))
                     convoy_funcs.restock(item)
@@ -877,9 +901,15 @@ class PrepItemsState(State):
                     self.state = 'trade_inventory'
                     self.menu.move_to_inventory()
                 elif current == 'Use':
-                    action.do(action.HasTraded(self.unit))
-                    interaction.start_combat(self.unit, None, item)
-                    self.state = 'free'
+                    if item_system.targets_items(self.unit, item):
+                        game.memory['target'] = self.unit
+                        game.memory['item'] = item
+                        self._proceed_with_targets_item = True
+                        game.state.change('item_targeting')
+                    else:
+                        action.do(action.HasTraded(self.unit))
+                        interaction.start_combat(self.unit, None, item)
+                        self.state = 'free'
                 elif current == 'Nothing':
                     self.state = 'free'
                 self.sub_menu = None

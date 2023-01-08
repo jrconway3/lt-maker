@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import QVBoxLayout, \
 from PyQt5.QtGui import QImage, QPixmap, QPainter
 
 from app.constants import WINWIDTH, WINHEIGHT
-from app.resources import combat_anims
-from app.resources.resources import RESOURCES
+from app.data.resources import combat_anims
+from app.data.resources.resources import RESOURCES
 
 from app.editor.settings import MainSettingsController
 
@@ -305,7 +305,7 @@ class CombatEffectProperties(CombatAnimProperties):
                 continue
             # Store all of this in effect_nid.lteffect folder
             # Gather reference to images for this effect
-            RESOURCES.combat_effects.save_image(path, effect)
+            RESOURCES.combat_effects.save_image(path, effect, temp=True)
             # Serialize into json form
             serialized_data = effect.save()
             serialized_path = os.path.join(path, '%s_effect.json' % effect_nid)

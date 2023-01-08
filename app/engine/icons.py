@@ -1,8 +1,8 @@
 from app.utilities import utils
 
 from app.constants import COLORKEY
-from app.resources.resources import RESOURCES
-from app.data.database import DB
+from app.data.resources.resources import RESOURCES
+from app.data.database.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.fonts import FONT
@@ -180,7 +180,7 @@ def draw_chibi(surf, nid, topleft=None, bottomright=None):
 
     if not image.image:
         image.image = engine.image_load(image.full_path)
-    image = engine.subsurface(image.image, (96, 16, 32, 32))
+    image = engine.subsurface(image.image, (image.image.get_width() - 32, 16, 32, 32))
     image = image.convert()
     engine.set_colorkey(image, COLORKEY, rleaccel=True)
 

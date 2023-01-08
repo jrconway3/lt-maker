@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 from app.engine import engine
 from app.engine.fonts import FONT
@@ -125,7 +125,7 @@ def remove_tags(text_block: List[str]) -> List[str]:
         new_text_block.append(new_line)
     return new_text_block
 
-def render_text(surf: engine.Surface, fonts: List[NID], texts: List[str], colors: List[NID], topleft: Tuple[int, int], align: Alignments=Alignments.LEFT) -> engine.Surface:
+def render_text(surf: engine.Surface, fonts: List[NID], texts: List[str], colors: List[NID | None], topleft: Tuple[int, int], align: Alignments = Alignments.LEFT) -> engine.Surface:
     """An enhanced text render layer wrapper around BmpFont.
     Supports multiple fonts and multiple text sections, as well as
     embedded icons.

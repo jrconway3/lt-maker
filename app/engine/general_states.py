@@ -3,7 +3,8 @@ from app.editor.event_editor.event_inspector import EventInspectorEngine
 from collections import OrderedDict
 
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, TILEX
-from app.data.database import DB
+from app.data.database.database import DB
+from app.engine.objects.unit import UnitObject
 from app.events.regions import RegionType
 from app.events import triggers, event_commands
 from app.engine.objects.item import ItemObject
@@ -42,7 +43,7 @@ class LoadingState(State):
 
         # unload used assets
         # unload music
-        get_sound_thread().reset()
+        get_sound_thread().flush(False)
         get_sound_thread().set_music_volume(cf.SETTINGS['music_volume'])
         get_sound_thread().set_sfx_volume(cf.SETTINGS['sound_volume'])
 
@@ -67,6 +68,10 @@ class LoadingState(State):
             if engine.get_time() - self.completed_time > self.duration:
                 logging.debug("All loading threads complete for level %s" % self.level_nid)
                 game.state.change('turn_change')
+
+    def draw(self, surf):
+        surf.blit(SPRITES.get('bg_black'), (0, 0))
+        return surf
 
     def end(self):
         pass
@@ -126,13 +131,14 @@ class TurnChangeState(MapState):
                 game.state.change('status_upkeep')
                 game.state.change('phase_change')
                 # EVENTS TRIGGER HERE
-                # Update time regions
-                for region in game.level.regions.values()[:]:
-                    if region.region_type == RegionType.TIME:
-                        action.do(action.DecrementTimeRegion(region))
-                        if region.sub_nid <= 0:
-                            action.do(action.RemoveRegion(region))
-                            game.events.trigger(triggers.TimeRegionComplete(region))
+                # Update time regions after the first turn
+                if game.turncount > 1:
+                    for region in game.level.regions.values()[:]:
+                        if region.region_type == RegionType.TIME:
+                            action.do(action.DecrementTimeRegion(region))
+                            if region.sub_nid <= 0:
+                                action.do(action.RemoveRegion(region))
+                                game.events.trigger(triggers.TimeRegionComplete(region.position, region))
                 game.events.trigger(triggers.TurnChange())
                 if game.turncount - 1 <= 0:  # Beginning of the level
                     for unit in game.get_all_units_in_party():
@@ -383,7 +389,8 @@ class OptionMenuState(MapState):
             options.insert(2, 'Guide')
             info_desc.insert(2, 'Guide_desc')
             ignore.insert(2, False)
-        if DB.constants.get('turnwheel').value and (not game.level or not game.level.roam):
+        if DB.constants.get('turnwheel').value and game.game_vars.get('_turnwheel') and \
+                (not game.level or not game.level.roam):
             options.insert(1, 'Turnwheel')
             info_desc.insert(1, 'Turnwheel_desc')
             ignore.insert(1, False)
@@ -538,12 +545,8 @@ class OptionChildState(State):
                         elif self.menu.owner == 'Storage':
                             action.do(action.StoreItem(cur_unit, item))
                     if item_funcs.too_much_in_inventory(cur_unit):
-                        game.state.back()
-                    elif cur_unit.items:
-                        game.state.back()
-                        game.state.back()
-                    else:  # If the unit has no more items, head all the way back to menu
-                        game.state.back()
+                        game.state.back()  # You need to pick another item to discard
+                    else:
                         game.state.back()
                         game.state.back()
             else:
@@ -578,6 +581,11 @@ class MoveState(MapState):
             game.highlight.display_moves(self.valid_moves, light=False)
         else:
             self.valid_moves = game.highlight.display_highlights(cur_unit)
+
+        # Fade in phase music if the unit has canto
+        if cur_unit.has_attacked or cur_unit.has_traded:
+            phase.fade_in_phase_music()
+
         game.highlight.display_aura_highlights(cur_unit)
 
         game.cursor.show_arrows()
@@ -620,14 +628,15 @@ class MoveState(MapState):
                 if game.board.in_vision(game.cursor.position) and game.board.get_unit(game.cursor.position):
                     get_sound_thread().play_sfx('Error')
                 else:
+                    normal_moves = target_system.get_valid_moves(cur_unit, witch_warp=False)
                     witch_warp = set(skill_system.witch_warp(cur_unit))
                     if cur_unit.has_attacked or cur_unit.has_traded:
-                        if game.cursor.position in witch_warp:
+                        if game.cursor.position in witch_warp and game.cursor.position not in normal_moves:
                             cur_unit.current_move = action.Warp(cur_unit, game.cursor.position)
                         else:
                             cur_unit.current_move = action.CantoMove(cur_unit, game.cursor.position)
                         game.state.change('canto_wait')
-                    elif game.cursor.position in witch_warp:
+                    elif game.cursor.position in witch_warp and game.cursor.position not in normal_moves:
                         cur_unit.current_move = action.Warp(cur_unit, game.cursor.position)
                         game.state.change('menu')
                     else:
@@ -883,7 +892,7 @@ class MenuState(MapState):
                         game.cursor.cur_unit = u
                     if self.cur_unit.current_move:
                         logging.info("Reversing " + self.cur_unit.nid + "'s move")
-                        game.leave(self.cur_unit)
+                        # game.leave(self.cur_unit)
                         action.reverse(self.cur_unit.current_move)
                         self.cur_unit.current_move = None
                     game.state.change('move')
@@ -973,7 +982,11 @@ class MenuState(MapState):
                     else:
                         interaction.start_combat(self.cur_unit, self.cur_unit.position, item)
                 else:
+                    # equip if possible
+                    if item_system.equippable(self.cur_unit, item):
+                        action.do(action.EquipItem(self.cur_unit, item))
                     game.state.change('combat_targeting')
+
             # A combat art
             elif selection in self.combat_arts:
                 skill = self.combat_arts[selection][0]
@@ -1182,7 +1195,7 @@ class ItemChildState(MapState):
 
         self.item = self.parent_menu.get_current()
         item = self.item
-        self.cur_unit = game.cursor.cur_unit
+        self.cur_unit: UnitObject = game.cursor.cur_unit
 
         options = []
         if not game.memory['is_subitem_child_menu']:
@@ -1249,7 +1262,7 @@ class ItemChildState(MapState):
                 if not game.memory['is_subitem_child_menu']:
                     if item in self.cur_unit.items:
                         action.do(action.BringToTopItem(self.cur_unit, item))
-                        self.parent_menu.current_index = 0  # Reset selection
+                        self.parent_menu.current_index = self.cur_unit.items.index(item)  # Reset selection
                     game.state.back()
                 else:
                     # find ultimate parent item
@@ -1430,9 +1443,8 @@ class WeaponChoiceState(MapState):
                 get_sound_thread().play_sfx('Error')
                 return
             get_sound_thread().play_sfx('Select 1')
-            # Only bother to equip if it's a weapon
-            # We don't equip spells
-            if item_system.is_weapon(self.cur_unit, selection):
+            # equip if we can
+            if item_system.equippable(self.cur_unit, selection):
                 equip_action = action.EquipItem(self.cur_unit, selection)
                 # game.memory['equip_action'] = equip_action
                 action.do(equip_action)
@@ -1789,7 +1801,6 @@ class CombatTargetingState(MapState):
         self.prev_targets = game.memory.get('prev_targets', [])
 
         positions = target_system.get_valid_targets(self.cur_unit, self.item)
-
         # Remove previous targets if not allow_same_target
         if self.parent_item:
             allow_same_target = item_system.allow_same_target(self.cur_unit, self.parent_item)
@@ -2006,10 +2017,12 @@ class CombatTargetingState(MapState):
         game.highlight.remove_highlights()
         game.ui_view.reset_info()
 
-class ItemTargetingState(MapState):
+class ItemTargetingState(State):
     name = 'item_targeting'
+    transparent = True
 
     def start(self):
+        self.fluid = FluidScroll()
         self.cur_unit = game.cursor.cur_unit
         self.item = game.memory['item']
         self.target = game.memory['target']
@@ -2279,10 +2292,10 @@ class AIState(MapState):
 
             if not change and game.ai.is_done():
                 logging.info("Current AI %s is done with turn.", self.cur_unit.nid)
+                self.cur_unit.has_run_ai = True
                 if did_something:  # Don't turn grey if didn't actually do anything
                     self.cur_unit.wait()
                 game.ai.reset()
-                self.cur_unit.has_run_ai = True
                 self.cur_unit = None
         else:
             logging.info("AI Phase complete")

@@ -1,14 +1,14 @@
 from app.constants import WINWIDTH, WINHEIGHT, COLORKEY
 from app.utilities import utils
-from app.resources.resources import RESOURCES
-from app.data.database import DB
+from app.data.resources.resources import RESOURCES
+from app.data.database.database import DB
 
 from app.engine.sprites import SPRITES
 from app.engine.sound import get_sound_thread
 from app.engine import engine, image_mods, item_system, item_funcs, skill_system
 
-from app.resources.combat_anims import CombatAnimation, WeaponAnimation, EffectAnimation
-from app.resources.combat_palettes import Palette
+from app.data.resources.combat_anims import CombatAnimation, WeaponAnimation, EffectAnimation
+from app.data.resources.combat_palettes import Palette
 
 import logging
 
@@ -480,6 +480,7 @@ class BattleAnimation():
             self.processing = False
             self.owner.shake()
             self.owner.spell_hit()
+            self.owner.hit_modifiers()
 
         elif command.nid == 'effect':
             effect = values[0]

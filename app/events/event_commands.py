@@ -453,12 +453,15 @@ Automatically formats all `speak` commands with NID equal to the style's NID wit
 
 A style consists of all parameters that one can apply to individual speak commands, including flags.
 
-A style only applies to `speak` commands inside this event.
+NOTE: Speak styles persist through events. If you load your speak styles in the `on_title_screen` trigger, you will be able to use them
+throughout the entire game.
+
+NOTE: You can set the `__default` speak style, which will automatically apply to all speak commands thereafter.
 """
 
     keywords = ['Style']
-    optional_keywords = ['Speaker', 'TextPosition', 'Width', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail']
-    keyword_types = ['Nid', 'Speaker', 'TextPosition', 'Width', 'Float', 'FontColor', 'Font', 'DialogVariant', 'PositiveInteger', 'Bool', 'MessageTail']
+    optional_keywords = ['Speaker', 'TextPosition', 'Width', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail', 'Transparency', 'NameTagBg']
+    keyword_types = ['Nid', 'Speaker', 'AlignOrPosition', 'Width', 'Float', 'FontColor', 'Font', 'Sprite', 'PositiveInteger', 'Bool', 'MessageTail', 'Float', 'Sprite']
     _flags = ['low_priority', 'hold', 'no_popup', 'fit']
 
 class Speak(EventCommand):
@@ -495,8 +498,8 @@ Extra flags:
         """
 
     keywords = ['Speaker', 'Text']
-    optional_keywords = ['TextPosition', 'Width', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail']
-    keyword_types = ['Speaker', 'Text', 'TextPosition', 'Width', 'DialogVariant', 'Float', 'FontColor', 'Font', 'DialogVariant', 'PositiveInteger', 'Bool', 'MessageTail']
+    optional_keywords = ['TextPosition', 'Width', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail', 'Transparency', 'NameTagBg']
+    keyword_types = ['Speaker', 'Text', 'AlignOrPosition', 'Width', 'DialogVariant', 'Float', 'FontColor', 'Font', 'Sprite', 'PositiveInteger', 'Bool', 'MessageTail', 'Float', 'Sprite']
     _flags = ['low_priority', 'hold', 'no_popup', 'fit', 'no_block']
 
 class Unhold(EventCommand):
@@ -753,9 +756,22 @@ class EnableSupports(EventCommand):
     tag = Tags.GAME_VARS
 
     desc = \
-    """
+        """
 Activates or deactivates supports.
-    """
+        """
+
+    keywords = ["Activated"]
+    keyword_types = ['Bool']
+
+class EnableTurnwheel(EventCommand):
+    nid = 'enable_turnwheel'
+    tag = Tags.GAME_VARS
+
+    desc = \
+        """
+Activates or deactivates turnwheel. You will also need the Constant
+checked to see the turnwheel option in your menu.
+        """
 
     keywords = ["Activated"]
     keyword_types = ['Bool']
@@ -785,6 +801,30 @@ class MainMenu(EventCommand):
     desc = \
         """
 Returns the player to the main menu
+        """
+
+class ForceChapterCleanUp(EventCommand):
+    nid = 'force_chapter_clean_up'
+    tag = Tags.LEVEL_VARS
+
+    desc = \
+        """
+Cleans up the chapter as if the chapter were about to end
+What does it do?:
+    - Increments End Chapter Supports
+    - Resets all units, items, and skills
+    - Resurrects units if you are in casual mode
+    - Moves dead unit items to the convoy
+    - Resets the turnwheel
+    - Sets turncount to 1
+Unlike a true chapter clean up, it doesn't:
+    - Remove any units from the field
+    - Remove all generic units from memory
+    - Remove all now unused items and skills from memory
+    - Remove any regions or terrain statuses
+    - Reset level vars
+    - Reset talk options or base convos
+    - Actually remove the level
         """
 
 class SkipSave(EventCommand):
@@ -1541,13 +1581,33 @@ class RemoveSkill(EventCommand):
 
     desc = \
         """
-*GlobalUnit* loses *Skill*. If the *no_banner* flag is set, the player will not be informed of this.
+*GlobalUnit* loses *Skill* up to *Count* times. If *Count* is not set, all instances of skill are removed. If the *no_banner* flag is set, the player will not be informed of this.
         """
 
     keywords = ["GlobalUnit", "Skill"]
     optional_keywords = ['Count']
     keyword_types = ['GlobalUnit', 'Skill', 'Integer']
     _flags = ['no_banner']
+
+class SetSkillData(EventCommand):
+    nid = 'set_skill_data'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Finds the first matching *Skill* of *GlobalUnit*.
+Then, it sets the data field *Nid* of the *Skill* to *Expression*.
+
+
+As an example, you could change the number of charges a skill has using this.
+
+`set_skill_data;Eirika;Luna;charge;5`
+
+In general, you need to know how the innards of a given skill component
+interacts with the data of the skill to use this command.
+        """
+
+    keywords = ["GlobalUnit", "Skill", "Nid", "Expression"]
 
 class ChangeAI(EventCommand):
     nid = 'change_ai'
@@ -1605,6 +1665,16 @@ Changes *GlobalUnit*'s portrait to the one specified by *PortraitNid*.
 
     keywords = ["GlobalUnit", "PortraitNid"]
 
+class ChangeUnitDesc(EventCommand):
+    nid = 'change_unit_desc'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Changes *GlobalUnit*'s description to *String*.
+        """
+    keywords = ["GlobalUnit", "String"]
+
 class ChangeStats(EventCommand):
     nid = 'change_stats'
     tag = Tags.MODIFY_UNIT_PROPERTIES
@@ -1650,6 +1720,18 @@ Sets the growths (STR, SKL, etc.) of *GlobalUnit* to specific values defined in 
         """
 
     keywords = ["GlobalUnit", "StatList"]
+
+class SetUnitLevel(EventCommand):
+    nid = 'set_unit_level'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets *GlobalUnit*'s level to the specified value. Does not change stats like a levelup.
+        """
+
+    keywords = ["GlobalUnit", "Level"]
+    keyword_types = ["GlobalUnit", "Integer"]
 
 class AutolevelTo(EventCommand):
     nid = 'autolevel_to'
@@ -1912,6 +1994,17 @@ Removes the region specified by *Region*.
         """
 
     keywords = ["Region"]
+
+class RemoveGenericsFromRegion(EventCommand):
+    nid = 'remove_generics_from_region'
+    tag = Tags.REGION
+
+    desc = \
+        """
+Removes all generics in the given region.
+        """
+
+    keywords = ["Nid"]
 
 class ShowLayer(EventCommand):
     nid = 'show_layer'
@@ -2206,6 +2299,34 @@ class Unchoice(EventCommand):
     """
 If this event was called from a Choice, then prevents that Choice from ending once this event ends. Otherwise, does nothing.
     """
+
+class Textbox(EventCommand):
+    nid = 'textbox'
+    tag = Tags.MISCELLANEOUS
+
+    desc = """
+Displays a box on screen containing some text. This is distinct from dialogue and choice in that it is non-interactable. It shares many of its arguments with `speak`,
+and predictably, those args will function the same way as in `speak`.
+
+* *NID* is the name of this box.
+* *Text* is either string to be displayed, or a Python expression to be constantly evaluated, e.g. `game.get_money()`, which would keep the textbox updated with the current amount of money. (Requires the `expression` flag)
+
+* *BoxPosition* allows you to specify the location on screen of the textbox.
+* *Width* allows you to specify the width of the box. This defaults to full screen width.
+* *NumLines* allows you to specify the number of lines taken up by the textbox. This defaults to 1.
+* The *StyleNid* allows you to outsource all configuration to an existing speak style.
+* The *TextSpeed* keyword specifies how quickly the text is displayed. Lower is faster.
+* The *FontColor* keyword specifies the font color
+* The *FontType* keyword specifies the font type
+* The *BG* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
+
+* The *expression* flag indicates that the provided table data should be be continually parsed as a python expression and updated.
+    """
+
+    keywords = ['NID', 'Text']
+    optional_keywords = ['BoxPosition', 'Width', 'NumLines', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'BG']
+    keyword_types = ['Nid', 'String', 'AlignOrPosition', 'Width', 'PositiveInteger', 'Nid', 'Float', 'FontColor', 'Font', 'Sprite']
+    _flags = ['expression']
 
 class Table(EventCommand):
     nid = 'table'
@@ -2680,6 +2801,13 @@ class UpdateRecord(EventCommand):
 
     keywords = ['Nid', 'Expression']
 
+class ReplaceRecord(EventCommand):
+    nid = 'replace_record'
+    tag = Tags.PERSISTENT_RECORDS
+    desc = ("Updates a persistent record with a new value. Creates it first if it doesn't already exist")
+
+    keywords = ['Nid', 'Expression']
+
 class DeleteRecord(EventCommand):
     nid = 'delete_record'
     tag = Tags.PERSISTENT_RECORDS
@@ -2752,7 +2880,7 @@ def parse_text_to_command(text: str, strict: bool = False) -> Tuple[EventCommand
 
         for idx, arg in enumerate(cmd_args):
             # remove line break chars. speak has its own handling, so keep them
-            if command_info.nid != 'speak':
+            if command_info.nid not in ('speak', 'textbox'):
                 arg = arg.replace('\u2028', '')
 
             all_keywords = command_info.keywords + command_info.optional_keywords

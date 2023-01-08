@@ -1016,7 +1016,7 @@ def kill_unit(self: Event, unit, flags=None):
         unit.dead = True
     elif 'immediate' in flags:
         unit.dead = True
-        action.do(action.LeaveMap(unit))
+        action.do(action.Die(unit))
     else:
         self.game.death.should_die(unit)
         self.game.state.change('dying')

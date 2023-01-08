@@ -2017,10 +2017,12 @@ class CombatTargetingState(MapState):
         game.highlight.remove_highlights()
         game.ui_view.reset_info()
 
-class ItemTargetingState(MapState):
+class ItemTargetingState(State):
     name = 'item_targeting'
+    transparent = True
 
     def start(self):
+        self.fluid = FluidScroll()
         self.cur_unit = game.cursor.cur_unit
         self.item = game.memory['item']
         self.target = game.memory['target']

@@ -9,7 +9,6 @@ from app.map_maker.utilities import random_choice
 class GrassTerrain(Terrain):
     terrain_like = ('Grass', 'Light Grass')
     cliff_data = [(13, 9), (13, 10), (14, 9), (14, 10)]  # Topright, Bottomright, Bottomleft, Topleft
-    limit = 48
 
     def get_display_pixmap(self):
         if not self.display_pixmap:

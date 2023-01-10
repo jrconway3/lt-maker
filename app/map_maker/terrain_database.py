@@ -6,7 +6,7 @@ from app.map_maker.building_terrain import CastleTerrain, HouseTerrain, RuinsTer
 from app.map_maker.cliff_terrain import CliffTerrain
 from app.map_maker.sea_terrain import SeaTerrain
 from app.map_maker.grass_terrain import GrassTerrain, LightGrassTerrain
-from app.map_maker.advanced_mountain_terrain import MountainTerrain
+from app.map_maker.mountain_terrain import MountainTerrain
 
 
 class RandomTerrain(Terrain):
@@ -18,7 +18,7 @@ class RandomTerrain(Terrain):
         new_coord3 = random_choice([(p[0]*2 + 1, p[1]*2 + 1) for p in self.data], pos, offset=2)
         new_coord4 = random_choice([(p[0]*2, p[1]*2 + 1) for p in self.data], pos, offset=3)
 
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
         return pix
 
 class SandTerrain(WangCorner2Terrain):
@@ -138,7 +138,7 @@ class ForestTerrain(Terrain):
             new_coord3 = (index3, {0: 3, 2: 1, 4: 1, 6: 0}[index3])
             new_coord4 = (index4, {0: 2, 4: 0, 8: 1, 12: 0}[index4])
         
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
         return pix
 
 class HillTerrain(Terrain): 
@@ -175,7 +175,7 @@ class HillTerrain(Terrain):
         new_coords3 = (coord[0]*2 + 1, coord[1]*2 + 1)
         new_coords4 = (coord[0]*2, coord[1]*2 + 1)
 
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
         return pix
 
 class RiverTerrain(WangEdge2Terrain):
@@ -294,7 +294,7 @@ class RiverTerrain(WangEdge2Terrain):
             if index3 == 13:
                 new_coord3 = (index3, random_choice([0, 1, 2, 3, 4], pos)*2 + 1)
 
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
         return pix
                 
 original_palette = 'app/map_maker/palettes/westmarch'

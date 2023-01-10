@@ -35,7 +35,7 @@ def draw_tilemap(tilemap: MapPrefab, autotile_fps=29) -> QImage:
                 terrain.single_process(tilemap)
                 processed_nids.add(terrain_nid)
             sprite = terrain.determine_sprite(tilemap, pos, ms, autotile_fps)
-            terrain.tile_grid[pos] = sprite
+            tilemap.tile_grid[pos] = sprite
 
     # Draw the tile grid
     for pos, pix in tilemap.tile_grid.items():

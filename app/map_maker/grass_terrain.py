@@ -47,7 +47,7 @@ class GrassTerrain(Terrain):
         elif south and south == 'Sea' and west and west == 'Sea' and southwest and southwest == 'Sea':
             new_coord4 = self.cliff_data[2]
 
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
         return pix
 
 class LightGrassTerrain(WangCorner2Terrain):
@@ -153,5 +153,5 @@ class LightGrassTerrain(WangCorner2Terrain):
         elif south and south == 'Sea' and west and west == 'Sea' and southwest and southwest == 'Sea':
             new_coords4 = self.cliff_data[2]
 
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
         return pix

@@ -21,11 +21,11 @@ class Terrain(Prefab):
     autotiles: dict = None
     autotile_pixmap: QPixmap = None
 
-    def has_autotiles(self):
+    def has_autotiles(self) -> bool:
         return self.autotiles and self.autotile_pixmap
 
     @property
-    def check_flood_fill(self):
+    def check_flood_fill(self) -> bool:
         return False
 
     def set_tileset(self):
@@ -37,7 +37,7 @@ class Terrain(Prefab):
         self.display_pixmap = None
         self.get_display_pixmap()
 
-    def get_display_pixmap(self):
+    def get_display_pixmap(self) -> QPixmap:
         if not self.display_pixmap:
             pix = self.tileset_pixmap.copy(
                 self.display_tile_coord[0] * TILEWIDTH, 
@@ -53,12 +53,28 @@ class Terrain(Prefab):
             value = super().restore_attr(name, value)
         return value
 
-    def get_pixmap8(self, coord1: tuple, coord2: tuple, coord3: tuple, coord4: tuple) -> QPixmap:
+    def _subsurface8(self, coord: tuple, ms: float, autotile_fps: float) -> QPixmap:
+        if autotile_fps and self.has_autotiles() and coord in self.autotiles:
+            column = self.autotiles[coord]
+            autotile_wait = autotile_fps * 16.66
+            num = int(ms / autotile_wait) % AUTOTILE_FRAMES
+            pix = self.autotile_pixmap.copy(
+                column * TILEWIDTH//2, 
+                num * TILEHEIGHT//2, 
+                TILEWIDTH//2, TILEHEIGHT//2)
+        else:
+            pix = self.tileset_pixmap.copy(
+                coord[0] * TILEWIDTH//2, 
+                coord[1] * TILEHEIGHT//2, 
+                TILEWIDTH//2, TILEHEIGHT//2)
+        return pix
+
+    def get_pixmap8(self, coord1: tuple, coord2: tuple, coord3: tuple, coord4: tuple, ms: float, autotile_fps: float) -> QPixmap:
         base_pixmap = QPixmap((TILEWIDTH, TILEHEIGHT))
-        topleft = self.tileset_pixmap.copy(coord1[0] * TILEWIDTH//2, coord1[1] * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2)
-        topright = self.tileset_pixmap.copy(coord2[0] * TILEWIDTH//2, coord2[1] * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2)
-        bottomright = self.tileset_pixmap.copy(coord3[0] * TILEWIDTH//2, coord3[1] * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2)
-        bottomleft = self.tileset_pixmap.copy(coord4[0] * TILEWIDTH//2, coord4[1] * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2)
+        topleft = self._subsurface8(coord1, ms, autotile_fps)
+        topright = self._subsurface8(coord2, ms, autotile_fps)
+        bottomright = self._subsurface8(coord3, ms, autotile_fps)
+        bottomleft = self._subsurface8(coord4, ms, autotile_fps)
         base_pixmap.paste(topleft, (0, 0))
         base_pixmap.paste(topright, (TILEWIDTH//2, 0))
         base_pixmap.paste(bottomleft, (0, TILEHEIGHT//2))

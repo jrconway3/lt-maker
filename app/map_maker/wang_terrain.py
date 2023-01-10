@@ -10,7 +10,6 @@ class WangEdge2Terrain(Terrain):
     def set_tileset(self):
         super().set_tileset()
         self.limits = {k: self._find_limit(k) for k in range(16)}
-        print(self.nid, self.limits)
 
     def _find_limit(self, idx: int) -> int:
         bg_color = qRgb(0, 0, 0)
@@ -54,7 +53,7 @@ class WangEdge2Terrain(Terrain):
         new_coord3 = random_choice([(index3, k) for k in range(self.limits[index3])], pos, offset=2)      
         new_coord4 = random_choice([(index4, k) for k in range(self.limits[index4])], pos, offset=3)
 
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
         return pix
 
 class WangCorner2Terrain(WangEdge2Terrain):

@@ -8,15 +8,18 @@ from app.map_maker.sea_terrain import SeaTerrain
 from app.map_maker.grass_terrain import GrassTerrain, LightGrassTerrain
 from app.map_maker.advanced_mountain_terrain import MountainTerrain
 
+
 class RandomTerrain(Terrain):
     data = []
 
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
-        new_coords1 = [(p[0]*2, p[1]*2) for p in self.data]
-        new_coords2 = [(p[0]*2 + 1, p[1]*2) for p in self.data]
-        new_coords3 = [(p[0]*2 + 1, p[1]*2 + 1) for p in self.data]
-        new_coords4 = [(p[0]*2, p[1]*2 + 1) for p in self.data]
-        return new_coords1, new_coords2, new_coords3, new_coords4
+    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+        new_coord1 = random_choice([(p[0]*2, p[1]*2) for p in self.data], pos)
+        new_coord2 = random_choice([(p[0]*2 + 1, p[1]*2) for p in self.data], pos, offset=1)
+        new_coord3 = random_choice([(p[0]*2 + 1, p[1]*2 + 1) for p in self.data], pos, offset=2)
+        new_coord4 = random_choice([(p[0]*2, p[1]*2 + 1) for p in self.data], pos, offset=3)
+
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        return pix
 
 class SandTerrain(WangCorner2Terrain):
     terrain_like = ('Sand', 'Road', 'Sea', 'BridgeV', 'BridgeH')
@@ -92,7 +95,7 @@ class ForestTerrain(Terrain):
     def check_flood_fill(self):
         return True
 
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:    
+    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
         blob_positions = flood_fill(tilemap, pos)
         _, _, _, _, blob_width, blob_height, center_x, center_y = \
@@ -125,16 +128,18 @@ class ForestTerrain(Terrain):
         index3 = 4 * south_edge + 2 * east_edge
         index4 = 4 * south_edge + 8 * west_edge
         if total_index == 15 and random_choice([1, 2, 3], pos) != 3:  # When by itself
-            new_coords1 = [(14, 0)]
-            new_coords2 = [(15, 0)]
-            new_coords3 = [(15, 1)]
-            new_coords4 = [(14, 1)]
+            new_coord1 = (14, 0)
+            new_coord2 = (15, 0)
+            new_coord3 = (15, 1)
+            new_coord4 = (14, 1)
         else:
-            new_coords1 = [(index1, {0: 0, 1: 0, 8: 0, 9: 0}[index1])]
-            new_coords2 = [(index2, {0: 1, 1: 1, 2: 0, 3: 0}[index2])]
-            new_coords3 = [(index3, {0: 3, 2: 1, 4: 1, 6: 0}[index3])]
-            new_coords4 = [(index4, {0: 2, 4: 0, 8: 1, 12: 0}[index4])]
-        return new_coords1, new_coords2, new_coords3, new_coords4
+            new_coord1 = (index1, {0: 0, 1: 0, 8: 0, 9: 0}[index1])
+            new_coord2 = (index2, {0: 1, 1: 1, 2: 0, 3: 0}[index2])
+            new_coord3 = (index3, {0: 3, 2: 1, 4: 1, 6: 0}[index3])
+            new_coord4 = (index4, {0: 2, 4: 0, 8: 1, 12: 0}[index4])
+        
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        return pix
 
 class HillTerrain(Terrain): 
     data = {'main': (12, 21), 'pair1': (13, 20), 'pair2': (14, 20), 'alter1': (13, 21)}
@@ -143,7 +148,7 @@ class HillTerrain(Terrain):
     def check_flood_fill(self):
         return True
 
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
+    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
         _, east, _, west = tilemap.get_cardinal_terrain(pos)
         _, far_east, _, _ = tilemap.get_cardinal_terrain((pos[0] + 1, pos[1]))
         _, _, _, far_west = tilemap.get_cardinal_terrain((pos[0] - 1, pos[1]))
@@ -164,16 +169,19 @@ class HillTerrain(Terrain):
                 coord = self.data['pair1']
         else:
             coord = self.data['pair1']
-        new_coords1 = [(coord[0]*2, coord[1]*2)]
-        new_coords2 = [(coord[0]*2 + 1, coord[1]*2)]
-        new_coords3 = [(coord[0]*2 + 1, coord[1]*2 + 1)]
-        new_coords4 = [(coord[0]*2, coord[1]*2 + 1)]
-        return new_coords1, new_coords2, new_coords3, new_coords4
+
+        new_coords1 = (coord[0]*2, coord[1]*2)
+        new_coords2 = (coord[0]*2 + 1, coord[1]*2)
+        new_coords3 = (coord[0]*2 + 1, coord[1]*2 + 1)
+        new_coords4 = (coord[0]*2, coord[1]*2 + 1)
+
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        return pix
 
 class RiverTerrain(WangEdge2Terrain):
     terrain_like = ('River', 'Sea', 'BridgeH', 'BridgeV')
 
-    def determine_sprite_coords(self, tilemap, pos: tuple) -> tuple:
+    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
         northeast, southeast, southwest, northwest = tilemap.get_diagonal_terrain(pos)
         north_edge = bool(not north or north in self.terrain_like)
@@ -192,101 +200,102 @@ class RiverTerrain(WangEdge2Terrain):
         # Topleft
         if north_edge and west_edge and not south_edge and not east_edge:
             if use_top:
-                new_coords2 = [(9, 0)]
-                new_coords4 = [(9, 1)]
-                new_coords3 = [(8, 0)]
+                new_coord2 = (9, 0)
+                new_coord4 = (9, 1)
+                new_coord3 = (8, 0)
                 if northwest_edge:
-                    new_coords1 = [(2, 7)]
+                    new_coord1 = (2, 7)
                 else:
-                    new_coords1 = [(2, 5)]
+                    new_coord1 = (2, 5)
             else:
-                new_coords2 = [(9, 2)]
-                new_coords4 = [(9, 3)]
-                new_coords3 = [(8, 1)]
+                new_coord2 = (9, 2)
+                new_coord4 = (9, 3)
+                new_coord3 = (8, 1)
                 if northwest_edge:
-                    new_coords1 = [(2, 6)]
+                    new_coord1 = (2, 6)
                 else:
-                    new_coords1 = [(2, 4)]
+                    new_coord1 = (2, 4)
         # Topright
         elif north_edge and east_edge and not south_edge and not west_edge:
             if use_top:
-                new_coords1 = [(3, 0)]
-                new_coords3 = [(3, 1)]
-                new_coords4 = [(1, 0)]
+                new_coord1 = (3, 0)
+                new_coord3 = (3, 1)
+                new_coord4 = (1, 0)
                 if northeast_edge:
-                    new_coords2 = [(4, 6)]
+                    new_coord2 = (4, 6)
                 else:
-                    new_coords2 = [(4, 4)]
+                    new_coord2 = (4, 4)
             else:
-                new_coords1 = [(3, 2)]
-                new_coords3 = [(3, 3)]
-                new_coords4 = [(1, 1)]
+                new_coord1 = (3, 2)
+                new_coord3 = (3, 3)
+                new_coord4 = (1, 1)
                 if northeast_edge:
-                    new_coords2 = [(4, 7)]
+                    new_coord2 = (4, 7)
                 else:
-                    new_coords2 = [(4, 5)]
+                    new_coord2 = (4, 5)
         # Bottomleft
         elif south_edge and west_edge and not north_edge and not east_edge:
             if use_top:
-                new_coords1 = [(12, 0)]
-                new_coords3 = [(12, 1)]
-                new_coords2 = [(4, 1)]
+                new_coord1 = (12, 0)
+                new_coord3 = (12, 1)
+                new_coord2 = (4, 1)
                 if southwest_edge:
-                    new_coords4 = [(1, 7)]
+                    new_coord4 = (1, 7)
                 else:
-                    new_coords4 = [(1, 5)]
+                    new_coord4 = (1, 5)
             else:
-                new_coords1 = [(12, 2)]
-                new_coords3 = [(12, 3)]
-                new_coords2 = [(4, 0)]
+                new_coord1 = (12, 2)
+                new_coord3 = (12, 3)
+                new_coord2 = (4, 0)
                 if southwest_edge:
-                    new_coords4 = [(1, 6)]
+                    new_coord4 = (1, 6)
                 else:
-                    new_coords4 = [(1, 4)]
+                    new_coord4 = (1, 4)
         # Bottomright
         elif south_edge and east_edge and not north_edge and not west_edge:
             if use_top:
-                new_coords2 = [(6, 1)]
-                new_coords4 = [(6, 0)]
-                new_coords1 = [(2, 0)]
+                new_coord2 = (6, 1)
+                new_coord4 = (6, 0)
+                new_coord1 = (2, 0)
                 if southeast_edge:
-                    new_coords3 = [(8, 6)]
+                    new_coord3 = (8, 6)
                 else:
-                    new_coords3 = [(8, 4)]
+                    new_coord3 = (8, 4)
             else:
-                new_coords2 = [(6, 2)]
-                new_coords4 = [(6, 3)]
-                new_coords1 = [(2, 1)]
+                new_coord2 = (6, 2)
+                new_coord4 = (6, 3)
+                new_coord1 = (2, 1)
                 if southeast_edge:
-                    new_coords3 = [(8, 7)]
+                    new_coord3 = (8, 7)
                 else:
-                    new_coords3 = [(8, 5)]
+                    new_coord3 = (8, 5)
         # Waterfall -- TODO check the chirality of the cliff
         elif south_edge and north_edge and west and west.startswith('Cliff') and east and east.startswith('Cliff'):
-            new_coords1 = [(0, 8)]
-            new_coords2 = [(1, 8)]
-            new_coords3 = [(1, 9)]
-            new_coords4 = [(0, 9)]
+            new_coord1 = (0, 8)
+            new_coord2 = (1, 8)
+            new_coord3 = (1, 9)
+            new_coord4 = (0, 9)
         else:
             index1 = 6 + 1 * north_edge + 8 * west_edge
             index2 = 12 + 1 * north_edge + 2 * east_edge
             index3 = 9 + 4 * south_edge + 2 * east_edge
             index4 = 3 + 4 * south_edge + 8 * west_edge
-            new_coords1 = [(index1, k) for k in range(self.limits[index1])]
-            new_coords2 = [(index2, k) for k in range(self.limits[index2])]
-            new_coords3 = [(index3, k) for k in range(self.limits[index3])]
-            new_coords4 = [(index4, k) for k in range(self.limits[index4])]
+            new_coord1 = random_choice([(index1, k) for k in range(self.limits[index1])], pos)
+            new_coord2 = random_choice([(index2, k) for k in range(self.limits[index2])], pos, offset=1)
+            new_coord3 = random_choice([(index3, k) for k in range(self.limits[index3])], pos, offset=2)
+            new_coord4 = random_choice([(index4, k) for k in range(self.limits[index4])], pos, offset=3)
             # Handle using the same set for vertical edges
             if index1 == 7:
-                new_coords1 = [(index1, random_choice([0, 1, 2, 3, 4], pos)*2)]
+                new_coord1 = (index1, random_choice([0, 1, 2, 3, 4], pos)*2)
             if index4 == 7:
-                new_coords4 = [(index4, random_choice([0, 1, 2, 3, 4], pos)*2 + 1)]
+                new_coord4 = (index4, random_choice([0, 1, 2, 3, 4], pos)*2 + 1)
             if index2 == 13:
-                new_coords2 = [(index2, random_choice([0, 1, 2, 3, 4], pos)*2)]
+                new_coord2 = (index2, random_choice([0, 1, 2, 3, 4], pos)*2)
             if index3 == 13:
-                new_coords3 = [(index3, random_choice([0, 1, 2, 3, 4], pos)*2 + 1)]
+                new_coord3 = (index3, random_choice([0, 1, 2, 3, 4], pos)*2 + 1)
 
-        return new_coords1, new_coords2, new_coords3, new_coords4
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4)
+        return pix
                 
 original_palette = 'app/map_maker/palettes/westmarch'
 

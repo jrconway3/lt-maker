@@ -13,7 +13,7 @@ class MapPrefab(Prefab):
         
         self.terrain_grid = {}  # Key: Position, Value: Terrain Nids
         self.terrain_grid_to_update = set()  # Positions
-        self.tile_grid = {}  # Key: Position, Value: Tileset Coordinate (twice as large on each axis)
+        self.tile_grid = {}  # Key: Position, Value: Tileset Coordinate (same size as terrain_grid)
 
         self.cliff_markers = [(7, 5)]  # Markers for how to point cliffs
 
@@ -103,7 +103,7 @@ class MapPrefab(Prefab):
         self.terrain_grid_to_update.clear()
         self.tile_grid.clear()
 
-    def check_bounds(self, pos):
+    def check_bounds(self, pos: tuple):
         return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
 
     def get_all_terrain(self, terrain_nid: str) -> set:

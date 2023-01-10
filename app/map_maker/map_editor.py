@@ -460,7 +460,7 @@ class MapEditor(QMainWindow):
                           "<p>Check out <a href='https://lt-maker.readthedocs.io/'>https://lt-maker.readthedocs.io/</a> "
                           "for more information and helpful tutorials.</p>"
                           "<p>This program has been freely distributed under the MIT License.</p>"
-                          "<p>Copyright 2014-2022 rainlash.</p>")
+                          "<p>Copyright 2014-2023 rainlash.</p>")
 
     def display_help(self):
         QMessageBox.about(self, "Help for Lex Talionis Map Maker",

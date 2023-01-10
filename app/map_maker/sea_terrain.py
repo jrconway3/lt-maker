@@ -92,7 +92,7 @@ class SeaTerrain(WangEdge2Terrain):
                     min_distance = distance
         return min_distance
 
-    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         index = self._determine_index(tilemap, pos)
         index = self._modify_index(index, tilemap, pos)
         if index == 15:
@@ -109,5 +109,5 @@ class SeaTerrain(WangEdge2Terrain):
                 new_coords = [(index, k) for k in range(self.limits[index])]
 
         coord = random_choice(new_coords, pos)
-        pix = self.get_pixmap(coord, ms, autotile_fps)
+        pix = self.get_pixmap(coord, autotile_num)
         return pix

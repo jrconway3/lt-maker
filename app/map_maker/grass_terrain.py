@@ -20,7 +20,7 @@ class GrassTerrain(Terrain):
             self.display_pixmap = main_pix
         return self.display_pixmap
 
-    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         new_coord1 = random_choice([(0, k) for k in range(self.limits[0])], pos)
         new_coord2 = random_choice([(0, k) for k in range(self.limits[0])], pos, offset=1)
         new_coord3 = random_choice([(0, k) for k in range(self.limits[0])], pos, offset=2)
@@ -47,7 +47,7 @@ class GrassTerrain(Terrain):
         elif south and south == 'Sea' and west and west == 'Sea' and southwest and southwest == 'Sea':
             new_coord4 = self.cliff_data[2]
 
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, autotile_num)
         return pix
 
 class LightGrassTerrain(WangCorner2Terrain):
@@ -124,7 +124,7 @@ class LightGrassTerrain(WangCorner2Terrain):
             8 * left_edge
         return index1, index2, index3, index4
             
-    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         index1, index2, index3, index4 = self._determine_index(tilemap, pos)
 
         new_coord1 = random_choice([(index1, k) for k in range(self.limits[index1])], pos)
@@ -153,5 +153,5 @@ class LightGrassTerrain(WangCorner2Terrain):
         elif south and south == 'Sea' and west and west == 'Sea' and southwest and southwest == 'Sea':
             new_coords4 = self.cliff_data[2]
 
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, autotile_num)
         return pix

@@ -53,11 +53,9 @@ class Terrain(Prefab):
             value = super().restore_attr(name, value)
         return value
 
-    def _subsurface8(self, coord: tuple, ms: float, autotile_fps: float) -> QPixmap:
-        if autotile_fps and self.has_autotiles() and coord in self.autotiles:
+    def _subsurface8(self, coord: tuple, autotile_num: int) -> QPixmap:
+        if self.has_autotiles() and coord in self.autotiles:
             column = self.autotiles[coord]
-            autotile_wait = autotile_fps * 16.66
-            num = int(ms / autotile_wait) % AUTOTILE_FRAMES
             pix = self.autotile_pixmap.copy(
                 column * TILEWIDTH//2, 
                 num * TILEHEIGHT//2, 
@@ -69,23 +67,21 @@ class Terrain(Prefab):
                 TILEWIDTH//2, TILEHEIGHT//2)
         return pix
 
-    def get_pixmap8(self, coord1: tuple, coord2: tuple, coord3: tuple, coord4: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def get_pixmap8(self, coord1: tuple, coord2: tuple, coord3: tuple, coord4: tuple, autotile_num: int) -> QPixmap:
         base_pixmap = QPixmap((TILEWIDTH, TILEHEIGHT))
-        topleft = self._subsurface8(coord1, ms, autotile_fps)
-        topright = self._subsurface8(coord2, ms, autotile_fps)
-        bottomright = self._subsurface8(coord3, ms, autotile_fps)
-        bottomleft = self._subsurface8(coord4, ms, autotile_fps)
+        topleft = self._subsurface8(coord1, autotile_num)
+        topright = self._subsurface8(coord2, autotile_num)
+        bottomright = self._subsurface8(coord3, autotile_num)
+        bottomleft = self._subsurface8(coord4, autotile_num)
         base_pixmap.paste(topleft, (0, 0))
         base_pixmap.paste(topright, (TILEWIDTH//2, 0))
         base_pixmap.paste(bottomleft, (0, TILEHEIGHT//2))
         base_pixmap.paste(bottomright, (TILEWIDTH//2, TILEHEIGHT//2))
         return base_pixmap
 
-    def get_pixmap(self, tile_coord: tuple, ms: float, autotile_fps: float) -> QPixmap:
-        if autotile_fps and self.has_autotiles() and tile_coord in self.autotiles:
+    def get_pixmap(self, tile_coord: tuple, autotile_num: int) -> QPixmap:
+        if self.has_autotiles() and tile_coord in self.autotiles:
             column = self.autotiles[tile_coord]
-            autotile_wait = autotile_fps * 16.66
-            num = int(ms / autotile_wait) % AUTOTILE_FRAMES
             pix = self.autotile_pixmap.copy(
                 column * TILEWIDTH, 
                 num * TILEHEIGHT, 
@@ -100,9 +96,9 @@ class Terrain(Prefab):
     def single_process(self, tilemap):
         pass
 
-    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         coord = self.display_tile_coord
-        return self.get_pixmap(coord, ms, autotile_fps)
+        return self.get_pixmap(coord, autotile_num)
 
 class TerrainCatalog(Data[Terrain]):
     datatype = Terrain

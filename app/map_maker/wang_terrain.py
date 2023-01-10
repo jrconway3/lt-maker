@@ -46,14 +46,14 @@ class WangEdge2Terrain(Terrain):
         index4 = 3 + 4 * south_edge + 8 * west_edge
         return index1, index2, index3, index4
 
-    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         index1, index2, index3, index4 = self._determine_index(tilemap, pos)  
         new_coord1 = random_choice([(index1, k) for k in range(self.limits[index1])], pos)
         new_coord2 = random_choice([(index2, k) for k in range(self.limits[index2])], pos, offset=1)      
         new_coord3 = random_choice([(index3, k) for k in range(self.limits[index3])], pos, offset=2)      
         new_coord4 = random_choice([(index4, k) for k in range(self.limits[index4])], pos, offset=3)
 
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, autotile_num)
         return pix
 
 class WangCorner2Terrain(WangEdge2Terrain):
@@ -207,7 +207,7 @@ class WangEdge2Terrain16(WangEdge2Terrain):
         index = 1 * north_edge + 2 * east_edge + 4 * south_edge + 8 * west_edge
         return index
 
-    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         index = self._determine_index(tilemap, pos)
         coord = random_choice([(index, k) for k in range(self.limits[index])], pos)
-        return self.get_pixmap(tilemap, pos, ms, autotile_fps)
+        return self.get_pixmap(tilemap, pos, autotile_num)

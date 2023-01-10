@@ -12,13 +12,13 @@ from app.map_maker.mountain_terrain import MountainTerrain
 class RandomTerrain(Terrain):
     data = []
 
-    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         new_coord1 = random_choice([(p[0]*2, p[1]*2) for p in self.data], pos)
         new_coord2 = random_choice([(p[0]*2 + 1, p[1]*2) for p in self.data], pos, offset=1)
         new_coord3 = random_choice([(p[0]*2 + 1, p[1]*2 + 1) for p in self.data], pos, offset=2)
         new_coord4 = random_choice([(p[0]*2, p[1]*2 + 1) for p in self.data], pos, offset=3)
 
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, autotile_num)
         return pix
 
 class SandTerrain(WangCorner2Terrain):
@@ -95,7 +95,7 @@ class ForestTerrain(Terrain):
     def check_flood_fill(self):
         return True
 
-    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
         blob_positions = flood_fill(tilemap, pos)
         _, _, _, _, blob_width, blob_height, center_x, center_y = \
@@ -138,7 +138,7 @@ class ForestTerrain(Terrain):
             new_coord3 = (index3, {0: 3, 2: 1, 4: 1, 6: 0}[index3])
             new_coord4 = (index4, {0: 2, 4: 0, 8: 1, 12: 0}[index4])
         
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, autotile_num)
         return pix
 
 class HillTerrain(Terrain): 
@@ -148,7 +148,7 @@ class HillTerrain(Terrain):
     def check_flood_fill(self):
         return True
 
-    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         _, east, _, west = tilemap.get_cardinal_terrain(pos)
         _, far_east, _, _ = tilemap.get_cardinal_terrain((pos[0] + 1, pos[1]))
         _, _, _, far_west = tilemap.get_cardinal_terrain((pos[0] - 1, pos[1]))
@@ -175,13 +175,13 @@ class HillTerrain(Terrain):
         new_coords3 = (coord[0]*2 + 1, coord[1]*2 + 1)
         new_coords4 = (coord[0]*2, coord[1]*2 + 1)
 
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, autotile_num)
         return pix
 
 class RiverTerrain(WangEdge2Terrain):
     terrain_like = ('River', 'Sea', 'BridgeH', 'BridgeV')
 
-    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
         northeast, southeast, southwest, northwest = tilemap.get_diagonal_terrain(pos)
         north_edge = bool(not north or north in self.terrain_like)
@@ -294,7 +294,7 @@ class RiverTerrain(WangEdge2Terrain):
             if index3 == 13:
                 new_coord3 = (index3, random_choice([0, 1, 2, 3, 4], pos)*2 + 1)
 
-        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, ms, autotile_fps)
+        pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, autotile_num)
         return pix
                 
 original_palette = 'app/map_maker/palettes/westmarch'

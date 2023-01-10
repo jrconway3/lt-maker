@@ -50,7 +50,7 @@ class BuildingTerrain(Terrain):
             position in positions and \
             (position[0] + 1, position[1]) in positions
 
-    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         sprite_type, offset = self.organization[pos]
         coords = [(c[0] + offset[0], c[1] + offset[1]) for c in self.data[sprite_type]]
 
@@ -58,7 +58,7 @@ class BuildingTerrain(Terrain):
         base_pos = (pos[0] - offset[0], pos[1] - offset[1])
         coord = random_choice(coords, base_pos)
         
-        pix = self.get_pixmap(coord, ms, autotile_fps)
+        pix = self.get_pixmap(coord, autotile_num)
         return pix
 
 class CastleTerrain(BuildingTerrain):

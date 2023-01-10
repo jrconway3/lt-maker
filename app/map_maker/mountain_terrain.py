@@ -20,11 +20,11 @@ class MountainTerrain(Terrain):
     def check_flood_fill(self):
         return True
 
-     def determine_sprite(self, tilemap, pos: tuple, ms: float = 0, autotile_fps: float = 0) -> QPixmap:
+     def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         coord = self.organization[pos]  # Mountain Group Coord
         if coord == (12, 16):
             coord = random_choice([(12, 16), (11, 16)], pos)
-        pix = self.get_pixmap(coord, 0, 0)
+        pix = self.get_pixmap(coord, autotile_num)
         return pix
 
     def initial_process(self):
@@ -123,7 +123,7 @@ class MountainTerrain(Terrain):
             self.organization.update(thread.organization)
             # Update the image since the user may not have requested a change -- this does it manually
             for pos in thread.organization.keys():
-                sprite = self.determine_sprite(self.tilemap, pos)
+                sprite = self.determine_sprite(self.tilemap, pos, 0)
                 tilemap.tile_grid[pos] = sprite
         else:
             self.generic_fill(thread.group)

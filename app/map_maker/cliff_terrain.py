@@ -182,7 +182,7 @@ class CliffTerrain(WangCorner2Terrain):
             self.display_pixmap = main_pix
         return self.display_pixmap
 
-    def determine_sprite(self, tilemap, pos: tuple, ms: float, autotile_fps: float) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         index = self._determine_index(tilemap, pos)
         right, bottom, x_stronger = self._determine_cliff_vector(tilemap, pos)
         use_bottomright = True
@@ -206,7 +206,7 @@ class CliffTerrain(WangCorner2Terrain):
             new_coords = [(index, k + self.second_start_px//TILEHEIGHT) for k in range(self.second_limits[index])]
 
         coord = random_choice(new_coords, pos)
-        pix = self.get_pixmap(coord, ms, autotile_fps)
+        pix = self.get_pixmap(coord, autotile_num)
         return pix
 
     def _determine_cliff_vector(self, tilemap, pos: tuple) -> tuple:

@@ -20,6 +20,12 @@ def draw_tilemap(tilemap: MapPrefab, autotile_fps=29) -> QImage:
     painter.begin(image)
     ms = QDateTime.currentMSecsSinceEpoch()
 
+    if autotile_fps:
+        autotile_wait = autotile_fps * 16.66
+        autotile_num = int(ms / autotile_wait) % AUTOTILE_FRAMES
+    else:
+        autotile_num = 0
+
     # Process terrain
     processed_nids = set()
     for pos in sorted(tilemap.terrain_grid):
@@ -34,7 +40,7 @@ def draw_tilemap(tilemap: MapPrefab, autotile_fps=29) -> QImage:
             if terrain_nid not in processed_nids:
                 terrain.single_process(tilemap)
                 processed_nids.add(terrain_nid)
-            sprite = terrain.determine_sprite(tilemap, pos, ms, autotile_fps)
+            sprite = terrain.determine_sprite(tilemap, pos, autotile_num)
             tilemap.tile_grid[pos] = sprite
 
     # Draw the tile grid
@@ -49,4 +55,23 @@ def draw_tilemap(tilemap: MapPrefab, autotile_fps=29) -> QImage:
     # Make sure we don't need to update it anymore
     tilemap.terrain_grid_to_update.clear()
 
+    return image
+
+def simple_draw_tilemap(tilemap: MapPrefab) -> QImage:
+    image = QImage(tilemap.width * TILEWIDTH,
+                   tilemap.height * TILEHEIGHT,
+                   QImage.Format_ARGB32)
+    image.fill(QColor(0, 0, 0, 0))
+
+    painter = QPainter()
+    painter.begin(image)
+
+    # Draw the tile grid
+    for pos, pix in tilemap.tile_grid.items():
+        assert pix.width() == TILEWIDTH, pix.width()
+        assert pix.height() == TILEHEIGHT, pix.height()
+        painter.drawPixmap(pos[0] * TILEWIDTH,
+                           pos[1] * TILEHEIGHT,
+                           pix)
+    painter.end()
     return image

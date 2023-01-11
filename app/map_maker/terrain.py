@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from PyQt5.QtGui import QPixmap
 
-from app.constants import TILEWIDTH, TILEHEIGHT, AUTOTILE_FRAMES
+from app.constants import TILEWIDTH, TILEHEIGHT
 from app.utilities.data import Data, Prefab
 
 @dataclass
@@ -58,7 +58,7 @@ class Terrain(Prefab):
             column = self.autotiles[coord]
             pix = self.autotile_pixmap.copy(
                 column * TILEWIDTH//2, 
-                num * TILEHEIGHT//2, 
+                autotile_num * TILEHEIGHT//2, 
                 TILEWIDTH//2, TILEHEIGHT//2)
         else:
             pix = self.tileset_pixmap.copy(
@@ -68,7 +68,7 @@ class Terrain(Prefab):
         return pix
 
     def get_pixmap8(self, coord1: tuple, coord2: tuple, coord3: tuple, coord4: tuple, autotile_num: int) -> QPixmap:
-        base_pixmap = QPixmap((TILEWIDTH, TILEHEIGHT))
+        base_pixmap = QPixmap(TILEWIDTH, TILEHEIGHT)
         topleft = self._subsurface8(coord1, autotile_num)
         topright = self._subsurface8(coord2, autotile_num)
         bottomright = self._subsurface8(coord3, autotile_num)
@@ -84,7 +84,7 @@ class Terrain(Prefab):
             column = self.autotiles[tile_coord]
             pix = self.autotile_pixmap.copy(
                 column * TILEWIDTH, 
-                num * TILEHEIGHT, 
+                autotile_num * TILEHEIGHT, 
                 TILEWIDTH, TILEHEIGHT)
         else:
             pix = self.tileset_pixmap.copy(

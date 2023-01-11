@@ -1,3 +1,5 @@
+from PyQt5.QtGui import QPixmap
+
 import app.utilities as utils
 from app.map_maker.utilities import random_choice, edge_random, flood_fill, find_bounds
 from app.map_maker.terrain import Terrain, TerrainCatalog
@@ -170,10 +172,10 @@ class HillTerrain(Terrain):
         else:
             coord = self.data['pair1']
 
-        new_coords1 = (coord[0]*2, coord[1]*2)
-        new_coords2 = (coord[0]*2 + 1, coord[1]*2)
-        new_coords3 = (coord[0]*2 + 1, coord[1]*2 + 1)
-        new_coords4 = (coord[0]*2, coord[1]*2 + 1)
+        new_coord1 = (coord[0]*2, coord[1]*2)
+        new_coord2 = (coord[0]*2 + 1, coord[1]*2)
+        new_coord3 = (coord[0]*2 + 1, coord[1]*2 + 1)
+        new_coord4 = (coord[0]*2, coord[1]*2 + 1)
 
         pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, autotile_num)
         return pix

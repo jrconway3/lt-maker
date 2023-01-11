@@ -9,22 +9,26 @@ from app.map_maker.utilities import random_choice
 class GrassTerrain(Terrain):
     terrain_like = ('Grass', 'Light Grass')
     cliff_data = [(13, 9), (13, 10), (14, 9), (14, 10)]  # Topright, Bottomright, Bottomleft, Topleft
+    limit = 48
 
-    def get_display_pixmap(self):
+    def get_display_pixmap(self) -> QPixmap:
         if not self.display_pixmap:
             main_pix = QPixmap(16, 16)
             painter = QPainter()
             painter.begin(main_pix)
-            painter.drawPixmap(0, 0, self.tileset_pixmap.copy(0, 0, TILEWIDTH, TILEHEIGHT))
+            painter.drawPixmap(0, 0, self.tileset_pixmap.copy(0, 0, TILEWIDTH//2, TILEHEIGHT//2))
+            painter.drawPixmap(0, TILEHEIGHT//2, self.tileset_pixmap.copy(0, 1 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
+            painter.drawPixmap(TILEWIDTH//2, 0, self.tileset_pixmap.copy(0, 2 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
+            painter.drawPixmap(TILEWIDTH//2, TILEHEIGHT//2, self.tileset_pixmap.copy(0, 3 * TILEHEIGHT//2, TILEWIDTH//2, TILEHEIGHT//2))
             painter.end()
             self.display_pixmap = main_pix
         return self.display_pixmap
 
     def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
-        new_coord1 = random_choice([(0, k) for k in range(self.limits[0])], pos)
-        new_coord2 = random_choice([(0, k) for k in range(self.limits[0])], pos, offset=1)
-        new_coord3 = random_choice([(0, k) for k in range(self.limits[0])], pos, offset=2)
-        new_coord4 = random_choice([(0, k) for k in range(self.limits[0])], pos, offset=3)
+        new_coord1 = random_choice([(0, k) for k in range(self.limit)], pos)
+        new_coord2 = random_choice([(0, k) for k in range(self.limit)], pos, offset=1)
+        new_coord3 = random_choice([(0, k) for k in range(self.limit)], pos, offset=2)
+        new_coord4 = random_choice([(0, k) for k in range(self.limit)], pos, offset=3)
 
         # Handle cliffs
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
@@ -136,22 +140,22 @@ class LightGrassTerrain(WangCorner2Terrain):
         north, east, south, west = tilemap.get_cardinal_terrain(pos)
         northeast, southeast, southwest, northwest = tilemap.get_diagonal_terrain(pos)
         if north and north == 'Cliff' and east and east == 'Cliff' and not (northeast and northeast == 'Cliff'):
-            new_coords2 = self.cliff_data[1]
+            new_coord2 = self.cliff_data[1]
         elif north and north == 'Cliff' and west and west == 'Cliff' and not (northwest and northwest == 'Cliff'):
-            new_coords1 = self.cliff_data[3]
+            new_coord1 = self.cliff_data[3]
         elif south and south == 'Cliff' and east and east == 'Cliff' and not (southeast and southeast == 'Cliff'):
-            new_coords3 = self.cliff_data[0]
+            new_coord3 = self.cliff_data[0]
         elif south and south == 'Cliff' and west and west == 'Cliff' and not (southwest and southwest == 'Cliff'):
-            new_coords4 = self.cliff_data[2]
+            new_coord4 = self.cliff_data[2]
         # Handle seacliffs
         elif north and north == 'Sea' and east and east == 'Sea' and northeast and northeast == 'Sea':
-            new_coords2 = self.cliff_data[1]
+            new_coord2 = self.cliff_data[1]
         elif north and north == 'Sea' and west and west == 'Sea' and northwest and northwest == 'Sea':
-            new_coords1 = self.cliff_data[3]
+            new_coord1 = self.cliff_data[3]
         elif south and south == 'Sea' and east and east == 'Sea' and southeast and southeast == 'Sea':
-            new_coords3 = self.cliff_data[0]
+            new_coord3 = self.cliff_data[0]
         elif south and south == 'Sea' and west and west == 'Sea' and southwest and southwest == 'Sea':
-            new_coords4 = self.cliff_data[2]
+            new_coord4 = self.cliff_data[2]
 
         pix = self.get_pixmap8(new_coord1, new_coord2, new_coord3, new_coord4, autotile_num)
         return pix

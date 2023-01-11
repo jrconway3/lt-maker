@@ -1,11 +1,10 @@
 from PyQt5.QtCore import QDateTime
 from PyQt5.QtGui import QImage, QPainter, QPixmap, QColor
 
-from app.constants import TILEWIDTH, TILEHEIGHT
+from app.constants import TILEWIDTH, TILEHEIGHT, AUTOTILE_FRAMES
 
 from app.map_maker.map_prefab import MapPrefab
 from app.map_maker.terrain_database import DB_terrain
-from app.map_maker.utilities import random_choice
 
 def get_tilemap_pixmap(tilemap) -> QPixmap:
     return QPixmap.fromImage(draw_tilemap(tilemap))

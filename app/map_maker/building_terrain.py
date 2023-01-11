@@ -50,7 +50,7 @@ class BuildingTerrain(Terrain):
             position in positions and \
             (position[0] + 1, position[1]) in positions
 
-    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int):
         sprite_type, offset = self.organization[pos]
         coords = [(c[0] + offset[0], c[1] + offset[1]) for c in self.data[sprite_type]]
 

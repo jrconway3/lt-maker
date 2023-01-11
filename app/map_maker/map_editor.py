@@ -1,12 +1,15 @@
 import os
 import json
 
-from PyQt5.QtWidgets import QSplitter, QFrame, QVBoxLayout, \
+from PyQt5.QtWidgets import QLineEdit, QFrame, QVBoxLayout, \
     QToolBar, QSpinBox, QAction, QMenu, QDockWidget, \
     QActionGroup, QWidget, QMainWindow, QLabel, QSizePolicy, \
-    QDesktopWidget, QFileDialog, QHBoxLayout, QMessageBox
+    QDesktopWidget, QFileDialog, QHBoxLayout, QMessageBox, \
+    QDialogButtonBox, QDialog
 from PyQt5.QtCore import Qt, QDir
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QImage, QPainter, QColor
+
+from app.constants import TILEWIDTH, TILEHEIGHT, AUTOTILE_FRAMES
 
 from app.extensions.custom_gui import PropertyBox, ComboBox, Dialog
 from app.editor.settings import MainSettingsController
@@ -19,8 +22,6 @@ from app.map_maker.map_prefab import MapPrefab
 from app.map_maker import map_maker_palette
 from app.map_maker.terrain_database import DB_terrain
 import app.map_maker.utilities as map_utils
-
-from app.map_maker import meta_generation
 
 class NidDialog(Dialog):
     def __init__(self, parent=None):
@@ -399,7 +400,7 @@ class MapEditor(QMainWindow):
         QMessageBox.warning(self, self.title, "Do not select a .ltproj that's currently open in the LT Editor!\n"
                             "Doing so may cause corruption of your files!")
 
-        image = simple_draw_tilemap(self.current)
+        image: QImage = simple_draw_tilemap(self.current)
 
         starting_path = self.settings.get_last_open_path()
         fn, ok = QFileDialog.getSaveFileName(
@@ -428,9 +429,9 @@ class MapEditor(QMainWindow):
             # Build autotiles
             s_dict['autotiles'] = {}
             all_autotile_positions = []
-            for pos in sorted(self.current.terrain_grid)
+            for pos in sorted(self.current.terrain_grid):
                 # Determine what terrain is in this position
-                terrain_nid = tilemap.get_terrain(pos)
+                terrain_nid = self.current.get_terrain(pos)
                 if not terrain_nid:
                     continue
                 terrain = DB_terrain.get(terrain_nid)
@@ -442,13 +443,14 @@ class MapEditor(QMainWindow):
             autotile_image = QImage(width, height, QImage.Format_ARGB32)
             autotile_image.fill(QColor(255, 255, 255, 0))
 
+            painter = QPainter(autotile_image)
             for idx, (pos, terrain) in enumerate(all_autotile_positions):
                 str_coord = "%d,%d" % (pos[0], pos[1])
                 s_dict['autotiles'][str_coord] = idx
                 for pidx in range(AUTOTILE_FRAMES):
                     sprite = terrain.determine_sprite(self.current, pos, pidx)
-                    autotile_image.paste(sprite, (idx * TILEWIDTH, pidx * TILEHEIGHT))
-
+                    painter.drawPixmap(idx * TILEWIDTH, pidx * TILEHEIGHT, sprite)
+            painter.end()
             autotile_image.save(autotile_path)
             # Completed creating autotiles
 

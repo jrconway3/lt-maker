@@ -6,6 +6,7 @@ except ImportError:
     import pickle
 
 from PyQt5.QtCore import QThread
+from PyQt5.QtGui import QPixmap
 
 from app.map_maker.utilities import random_choice, flood_fill
 from app.map_maker.terrain import Terrain
@@ -20,7 +21,7 @@ class MountainTerrain(Terrain):
     def check_flood_fill(self):
         return True
 
-     def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
+    def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         coord = self.organization[pos]  # Mountain Group Coord
         if coord == (12, 16):
             coord = random_choice([(12, 16), (11, 16)], pos)
@@ -124,7 +125,7 @@ class MountainTerrain(Terrain):
             # Update the image since the user may not have requested a change -- this does it manually
             for pos in thread.organization.keys():
                 sprite = self.determine_sprite(self.tilemap, pos, 0)
-                tilemap.tile_grid[pos] = sprite
+                self.tilemap.tile_grid[pos] = sprite
         else:
             self.generic_fill(thread.group)
         if thread in self.current_threads:
@@ -134,5 +135,4 @@ class MountainTerrain(Terrain):
         print("Processing... %s" % id(thread))
         for pos, coord in thread.organization.items():
             sprite = self.get_pixmap(coord, 0, 0)
-            tilemap.tile_grid[pos] = sprite
-            
+            self.tilemap.tile_grid[pos] = sprite

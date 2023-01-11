@@ -3,7 +3,7 @@ from typing import Dict, Tuple
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.utilities import utils
 
-from app.data.database import DB
+from app.data.database.database import DB
 from app.engine.sprites import SPRITES
 from app.engine import engine, target_system, equations, image_mods, aura_funcs
 from app.engine.game_state import game
@@ -275,6 +275,10 @@ class BoundaryInterface():
 
                 for y in range(self.height):
                     for x in range(self.width):
+                        # Only make boundaries within game board bounds
+                        if not game.board.check_bounds((x, y)):
+                            continue
+                        
                         cell = new_grid[x * self.height + y]
                         if cell:
                             # Determine whether this tile should have a red display

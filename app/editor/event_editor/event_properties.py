@@ -8,7 +8,7 @@ import re
 from dataclasses import dataclass
 from app.extensions.markdown2 import Markdown
 
-from app.data.database import DB
+from app.data.database.database import DB
 from app.events.regions import RegionType
 from app.editor import table_model, timer
 from app.editor.base_database_gui import CollectionModel
@@ -20,7 +20,7 @@ from app.events import event_commands, event_prefab, event_validators
 from app.events.mock_event import IfStatementStrategy
 from app.extensions.custom_gui import (ComboBox, PropertyBox, PropertyCheckBox,
                                        QHLine, TableView)
-from app.resources.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
 from app.utilities import str_utils
 from PyQt5.QtCore import (QRect, QRegularExpression, QSize,
                           QSortFilterProxyModel, QStringListModel, Qt, pyqtSignal)
@@ -323,7 +323,7 @@ class CodeEditor(QPlainTextEdit):
                 arg_idx = line.count(';', 0, cursor_pos)
                 if arg_idx != len(hint_words) - 1:
                     hint_words[arg_idx] = '<b>' + hint_words[arg_idx] + '</b>'
-                    hint_desc = validator.__name__ + ' ' + validator().desc
+                    hint_desc = validator.__name__ + ' ' + str(validator().desc)
                 elif cursor_pos > 0 and command.flags:
                     hint_words[-1] = '<b>' + hint_words[-1] + '</b>'
                     hint_desc = 'Must be one of (`' + str.join('`,`', flags) + '`)'
@@ -336,7 +336,7 @@ class CodeEditor(QPlainTextEdit):
         # style both components
         hint_cmd = '<div class="command_text">' + hint_cmd + '</div>'
         hint_desc = '<div class="desc_text">' + hint_desc + '</div>'
-        hint_command_desc = '<div class="desc_text">' + self.markdown_converter.convert(command.desc) + '</div>'
+        hint_command_desc = '<div class="desc_text">' + self.markdown_converter.convert('\n'.join(command.desc.split('\n')[:3])) + '</div>'
 
         style = """
             <style>
@@ -757,6 +757,12 @@ class EventCollection(QWidget):
                 first_index = self.level_filtered_model.index(0, 0)
                 self.view.setCurrentIndex(first_index)
                 self.set_current_index(first_index)
+        elif self.display and not self.display.current:
+            # Change selection only if we need to!
+            first_index = self.level_filtered_model.index(0, 0)
+            self.view.setCurrentIndex(first_index)
+            self.set_current_index(first_index)
+
         self.update_list()
 
         if self.level_filtered_model.rowCount() > 0:
@@ -1210,13 +1216,13 @@ class ShowCommandsDialog(QDialog):
                     else:
                         already.append(keyword)
                     validator = event_validators.get(keyword)
-                    if validator and validator.desc:
-                        text += '_%s_ %s\n\n' % (keyword, validator.desc)
+                    if validator and validator().desc:
+                        text += '_%s_ %s\n\n' % (keyword, str(validator().desc))
                     else:
                         text += '_%s_ %s\n\n' % (keyword, "")
                 if command.desc:
                     text += " --- \n\n"
-                text += command.desc
+                text += str(command.desc)
                 self.desc_box.setMarkdown(text)
             else:
                 self.desc_box.setMarkdown(command + ' Section')
@@ -1230,7 +1236,7 @@ class EventCommandModel(CollectionModel):
 
     def get_text(self, command) -> str:
         full_text = command.nid + ';'.join(command.keywords) + ';'.join(command.optional_keywords) + \
-            ';'.join(command.flags) + ':' + command.desc
+            ';'.join(command.flags) + ':' + str(command.desc)
         return full_text
 
     def data(self, index, role):

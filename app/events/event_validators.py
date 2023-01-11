@@ -1,23 +1,24 @@
 from __future__ import annotations
-from app.data.items import ItemPrefab
-from app.data.levels import LevelPrefab
-from app.data.skills import SkillPrefab
+from app.data.database.items import ItemPrefab
+from app.data.database.levels import LevelPrefab
+from app.data.database.skills import SkillPrefab
 
 import re
 from typing import TYPE_CHECKING, Dict, List, Tuple, Type
 
-from app.data.database import Database
+from app.data.database.database import Database
 from app.editor.event_editor.event_inspector import EventInspectorEngine
 from app.engine.fonts import FONT
 from app.engine.graphics.ui_framework.ui_framework_layout import (HAlignment,
                                                                   VAlignment)
 from app.events import event_commands
 from app.events.screen_positions import horizontal_screen_positions, vertical_screen_positions
-from app.resources.resources import Resources
+from app.data.resources.resources import Resources
 from app.sprites import SPRITES
 from app.utilities import str_utils
 from app.utilities.enums import Alignments
 from app.utilities.typing import NID, Point
+from app.events.event_commands import CreateAchievement
 
 class Validator():
     desc = ""
@@ -235,6 +236,17 @@ class UnitField(Validator):
             all_keys.update(set([key for (key, _) in unit.fields]))
         return [(None, key) for key in all_keys]
 
+class Achievement(Validator):
+    desc = "can be any nid of an achievement"
+
+    def validate(self, text, level):
+        return text
+
+    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+        achs = EventInspectorEngine(self._db.events).find_all_calls_of_command(CreateAchievement)
+        slots = [(None, command.parameters['Nid']) for command in achs.values()]
+        return slots
+
 class GeneralVar(Validator):
     desc = "can be any nid"
 
@@ -302,7 +314,7 @@ class IntegerList(Validator):
         text = text.split(',')
         for t in text:
             if not str_utils.is_int(t):
-                return None
+                return None                
         return text
 
 class WholeNumber(Validator):
@@ -428,7 +440,7 @@ class TagList(Validator):
         tex = text.split(',')
         for t in tex:
             if t not in self._db.tags.keys():
-                return None
+                return None                
         return text
 
     def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
@@ -938,10 +950,20 @@ class RegionType(OptionValidator):
     valid = ['normal', 'event', 'status', 'formation', 'time']
 
 class Weather(OptionValidator):
-    valid = ["rain", "sand", "snow", "fire", "light", "dark", "smoke", "night", "sunset", "event_tile"]
+    valid = ["rain", "sand", "snow", "fire", "light", "purple", "dark", "smoke", "night", "sunset", "event_tile", "switch_tile"]
 
 class Align(OptionValidator):
     valid = [align.value for align in Alignments]
+
+class AlignOrPosition(OptionValidator):
+    valid = [align.value for align in Alignments]
+
+    def validate(self, text, level):
+        if text in self.valid:
+            return text
+        elif text and ',' in text and len(text.split(',')) == 2 and all(str_utils.is_int(t) for t in text.split(',')):
+            return text
+        return None
 
 class HAlign(OptionValidator):
     valid = [align.value for align in HAlignment]
@@ -1212,8 +1234,8 @@ class OverworldNID(Validator):
         return valids
 
 class OverworldLocation(Validator):
-    desc = "accepts the nid of an overworld location/node, or a coordinate x, y"
-    decimal_converter = re.compile(r'[^\d.]+')
+    desc = "accepts the nid of an overworld location/node, or a display coordinate x, y"
+    decimal_converter = re.compile(r'[^\d.-]+')
 
     def validate(self, text, level):
         try:

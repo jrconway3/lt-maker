@@ -1,58 +1,26 @@
-from typing import Dict
+from app.engine.objects.unit import UnitObject
+from typing import Any, Dict, List, Optional, Tuple
 
-from app.data.database import DB
+from app.data.database.database import DB
 from app.engine import line_of_sight, target_system
+from app.engine.pathfinding.node import Node
 from app.engine.game_state import game
 from app.utilities.typing import NID
-
-
-class Node():
-    __slots__ = ['reachable', 'cost', 'x', 'y', 'parent', 'g', 'h', 'f', 'true_f']
-
-    def __init__(self, x: int, y: int, reachable: bool, cost: float):
-        """
-        Initialize new cell
-        reachable - is cell reachable? is not a wall?
-        cost - how many movement points to reach
-        """
-        self.reachable = reachable
-        self.cost = cost
-        self.x = x
-        self.y = y
-        self.reset()
-
-    def reset(self):
-        self.parent = None
-        self.g = 0
-        self.h = 0
-        self.f = 0
-        self.true_f = 0
-
-    def __gt__(self, n):
-        return self.cost > n
-
-    def __lt__(self, n):
-        return self.cost < n
-
-    def __repr__(self):
-        return "Node(%d, %d): cost=%d, g=%d, h=%d, f=%f, %s" % (self.x, self.y, self.cost, self.g, self.h, self.f, self.reachable)
+from app.utilities import utils
 
 class GameBoard(object):
-    # __slots__ = ['width', 'height', 'grids', 'team_grid', 'unit_grid',
-    #              'aura_grid', 'known_auras']
-
     def __init__(self, tilemap):
-        self.width = tilemap.width
-        self.height = tilemap.height
-        self.bounds = (0, 0, self.width - 1, self.height - 1)
+        self.width: int = tilemap.width
+        self.height: int = tilemap.height
+        self.bounds:  Tuple[int, int, int, int] = (0, 0, self.width - 1, self.height - 1)
         self.mcost_grids = {}
 
         self.reset_grid(tilemap)
 
         # Keeps track of what team occupies which tile
-        self.team_grid = self.init_unit_grid()
+        self.team_grid: List[List[str]] = self.init_unit_grid()
         # Keeps track of which unit occupies which tile
-        self.unit_grid = self.init_unit_grid()
+        self.unit_grid: List[List[UnitObject]] = self.init_unit_grid()
 
         # Fog of War -- one for each team
         self.fog_of_war_grids = {}
@@ -107,25 +75,25 @@ class GameBoard(object):
     def get_grid(self, movement_group):
         return self.mcost_grids[movement_group]
 
-    def init_unit_grid(self):
-        cells = []
+    def init_unit_grid(self) -> List[List[Any]]:
+        cells: List[List[Any]] = []
         for x in range(self.width):
             for y in range(self.height):
                 cells.append([])
         return cells
 
-    def set_unit(self, pos, unit):
+    def set_unit(self, pos: Tuple[int, int], unit: UnitObject):
         idx = pos[0] * self.height + pos[1]
         self.unit_grid[idx].append(unit)
         self.team_grid[idx].append(unit.team)
 
-    def remove_unit(self, pos, unit):
+    def remove_unit(self, pos: Tuple[int, int], unit: UnitObject):
         idx = pos[0] * self.height + pos[1]
         if unit in self.unit_grid[idx]:
             self.unit_grid[idx].remove(unit)
             self.team_grid[idx].remove(unit.team)
 
-    def get_unit(self, pos):
+    def get_unit(self, pos: Tuple[int, int]) -> Optional[UnitObject]:
         if not pos:
             return None
         idx = pos[0] * self.height + pos[1]
@@ -145,6 +113,24 @@ class GameBoard(object):
         if self.team_grid[idx]:
             return self.team_grid[idx][0]
         return None
+
+    def can_move_through(self, team, adj) -> bool:
+        unit_team = self.get_team((adj.x, adj.y))
+        if not unit_team or utils.compare_teams(team, unit_team):
+            return True
+        if team == 'player' or DB.constants.value('ai_fog_of_war'):
+            if not self.in_vision((adj.x, adj.y), team):
+                return True  # Can always move through what you can't see
+        return False
+
+    def can_move_through_ally_block(self, team, adj) -> bool:
+        unit_team = self.get_team((adj.x, adj.y))
+        if not unit_team:
+            return True
+        if team == 'player' or DB.constants.value('ai_fog_of_war'):
+            if not self.in_vision((adj.x, adj.y), team):
+                return True
+        return False
 
     # Fog of war
     def update_fow(self, pos, unit, sight_range: int):

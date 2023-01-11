@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Any, ClassVar, Dict, Tuple
 if TYPE_CHECKING:
     from app.engine.objects.item import ItemObject
     from app.engine.objects.unit import UnitObject
+    from app.engine.objects.region import RegionObject
 
-from app.events.regions import Region
 from app.utilities.typing import NID
 
 
@@ -123,7 +123,7 @@ class OnRegionInteract(EventTrigger):
     nid: ClassVar[NID] = 'on_region_interact'
     unit1: UnitObject
     position: Tuple[int, int]
-    region: Region
+    region: RegionObject
 
 @dataclass(init=True)
 class UnitDeath(EventTrigger):
@@ -151,7 +151,7 @@ class UnitWait(EventTrigger):
     nid: ClassVar[NID] = 'unit_wait'
     unit1: UnitObject
     position: Tuple[int, int]
-    region: Region
+    region: RegionObject
 
 @dataclass(init=True)
 class UnitSelect(EventTrigger):
@@ -204,8 +204,8 @@ class CombatStart(EventTrigger):
     unit1: UnitObject
     unit2: UnitObject
     position: Tuple[int, int]
-    is_animation_combat: bool
     item: ItemObject
+    is_animation_combat: bool
 
 @dataclass(init=True)
 class CombatEnd(EventTrigger):
@@ -296,14 +296,22 @@ class OnTitleScreen(EventTrigger):
     nid: ClassVar[NID] = 'on_title_screen'
 
 @dataclass(init=True)
+class OnStartup(EventTrigger):
+    """
+    Occurs whenever the engine starts.
+    """
+    nid: ClassVar[NID] = 'on_startup'
+
+@dataclass(init=True)
 class TimeRegionComplete(EventTrigger):
     """
     Occurs when a time region runs out of time and would be removed.
-
-        region: the region that has run out of time..
+        position: the position of the region that has run out of time.
+        region: the region that has run out of time.
     """
     nid: ClassVar[NID] = 'time_region_complete'
-    region: Region
+    position: Tuple[int, int]
+    region: RegionObject
 
 @dataclass(init=True)
 class OnOverworldNodeSelect(EventTrigger):
@@ -357,7 +365,7 @@ class RoamingInterrupt(EventTrigger):
     nid: ClassVar[NID] = 'roaming_interrupt'
     unit1: UnitObject
     position: Tuple[int, int]
-    region: Region
+    region: RegionObject
 
 @dataclass(init=True)
 class RegionTrigger(EventTrigger):
@@ -374,7 +382,7 @@ class RegionTrigger(EventTrigger):
     nid: NID
     unit1: UnitObject
     position: Tuple[int, int]
-    region: Region
+    region: RegionObject
     item: ItemObject = None
 
 ALL_TRIGGERS = [tclass for tclass in EventTrigger.__subclasses__() if hasattr(tclass, 'nid')]

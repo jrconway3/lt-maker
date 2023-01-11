@@ -1,9 +1,11 @@
-import os
+import os, math
 
 from app import autoupdate
+
 from app.constants import TILEX, TILEY, WINHEIGHT, WINWIDTH
-from app.data.database import DB
-from app.data.difficulty_modes import GrowthOption, PermadeathOption
+from app.data.database.database import DB
+from app.data.database.difficulty_modes import GrowthOption, PermadeathOption
+
 from app.engine import banner, base_surf
 from app.engine import config as cf
 from app.engine import (dialog, engine, gui, image_mods, menus, particles,
@@ -18,7 +20,9 @@ from app.engine.sprites import SPRITES
 from app.engine.state import State
 from app.events.event import Event
 from app.events import triggers
-from app.resources.resources import RESOURCES
+
+from app.data.resources.resources import RESOURCES
+from app.utilities import utils
 
 import logging
 
@@ -28,7 +32,7 @@ class TitleStartState(State):
     show_map = False
 
     def start(self):
-        self.logo = SPRITES.get('logo')
+        logo = SPRITES.get('logo')
         imgs = RESOURCES.panoramas.get('title_background')
         self.bg = PanoramaBackground(imgs) if imgs else None
         game.memory['title_bg'] = self.bg
@@ -38,10 +42,18 @@ class TitleStartState(State):
         else:
             self.press_start = None
 
+        if logo:
+            num_frames = 1
+            speed = 64
+            height = utils.clamp(WINHEIGHT//2 - 40, logo.get_height()//2, WINHEIGHT//2)
+            self.logo = gui.Logo(logo, (WINWIDTH//2, height), num_frames, speed)
+        else:
+            self.logo = None
+
         self.particles = None
         if DB.constants.value('title_particles'):
             bounds = (-WINHEIGHT, WINWIDTH, WINHEIGHT, WINHEIGHT + 16)
-            self.particles = particles.ParticleSystem('title', particles.Smoke, .075, bounds, (TILEX, TILEY))
+            self.particles = particles.MapParticleSystem('title', particles.Smoke, .075, bounds, (TILEX, TILEY))
             self.particles.prefill()
         game.memory['title_particles'] = self.particles
         game.memory['transition_speed'] = 0.5
@@ -55,8 +67,23 @@ class TitleStartState(State):
             get_sound_thread().fade_in(DB.constants.value('music_main'), fade_in=50)
 
         game.state.refresh()
-        game.state.change('transition_in')
+
+        # Title Screen Intro Cinematic
+        if game.memory.get('title_intro_already_played'):
+            game.state.change('transition_in')
+        else:
+            game.sweep()
+            game.events.trigger(triggers.OnTitleScreen())
+            # On startup occurs before on title_screen
+            game.events.trigger(triggers.OnStartup()) 
+            game.memory['title_intro_already_played'] = True
+
         return 'repeat'
+
+    def begin(self):
+        if game.state.from_transition():
+            game.state.change('transition_in')
+            return 'repeat'
 
     def take_input(self, event):
         if event:
@@ -71,7 +98,8 @@ class TitleStartState(State):
             self.particles.update()
             self.particles.draw(surf)
         if self.logo:
-            engine.blit(surf, self.logo, (WINWIDTH//2 - self.logo.get_width()//2, WINHEIGHT//2 - self.logo.get_height()//2 - 20))
+            self.logo.update()
+            self.logo.draw(surf)
         if self.press_start:
             self.press_start.update()
             self.press_start.draw(surf)
@@ -449,7 +477,7 @@ class TitleLoadState(State):
                 if save_slot.kind == 'start':  # Restart
                     # Restart level
                     next_level_nid = game.game_vars['_next_level_nid']
-                    game.load_states(['turn_change'])
+                    game.load_states(['start_level_asset_loading'])
                     game.start_level(next_level_nid)
                 elif save_slot.kind == 'overworld': # load overworld
                     game.load_states(['overworld'])
@@ -551,15 +579,24 @@ def build_new_game(slot: int):
 
     game.state.clear()
     game.current_save_slot = slot
-    game.state.change('turn_change')
-    game.state.process_temp_state()
+    
+    if DB.constants.value('overworld_start'):
+        game.state.change('overworld')
+        game.state.process_temp_state()
 
-    first_level_nid = DB.levels[0].nid
-    # Skip DEBUG if it's the first level
-    if first_level_nid == 'DEBUG' and len(DB.levels) > 1:
-        first_level_nid = DB.levels[1].nid
-    game.start_level(first_level_nid)
-    game.game_vars['_next_level_nid'] = first_level_nid
+        first_overworld_nid = DB.overworlds[0].nid
+        game.game_vars['_next_overworld_nid'] = first_overworld_nid
+    else:
+        game.state.change('start_level_asset_loading')
+        game.state.process_temp_state()
+
+        first_level_nid = DB.levels[0].nid
+        # Skip DEBUG if it's the first level
+        if first_level_nid == 'DEBUG' and len(DB.levels) > 1:
+            first_level_nid = DB.levels[1].nid
+        game.start_level(first_level_nid)
+        # Just for displaying the correct information on the title menu
+        game.game_vars['_next_level_nid'] = first_level_nid
 
     save.suspend_game(game, 'start', slot)
     save.remove_suspend()
@@ -674,7 +711,7 @@ class TitleExtrasState(TitleLoadState):
         self.bg = game.memory['title_bg']
         self.particles = game.memory['title_particles']
 
-        options = ['Options', 'Credits', 'Sound Room']
+        options = ['Options', 'Achievements', 'Credits', 'Sound Room']
         if cf.SETTINGS['debug']:
             options.insert(0, 'All Saves')
         self.menu = menus.Main(options, 'title_menu_dark')
@@ -726,6 +763,10 @@ class TitleExtrasState(TitleLoadState):
                 game.state.change('transition_to')
             elif selection == 'Sound Room':
                 game.memory['next_state'] = 'extras_sound_room'
+                game.memory['base_bg'] = self.bg
+                game.state.change('transition_to')
+            elif selection == 'Achievements':
+                game.memory['next_state'] = 'base_achievement'
                 game.memory['base_bg'] = self.bg
                 game.state.change('transition_to')
 
@@ -792,6 +833,9 @@ class TitleSaveState(State):
     particles = None
     menu = None
 
+    wait_time = 0
+    fluid = None
+
     def start(self):
         if game.memory.get('_skip_save', False):
             game.memory['_skip_save'] = False
@@ -805,7 +849,7 @@ class TitleSaveState(State):
         self.particles = None
         if DB.constants.value('title_particles'):
             bounds = (-WINHEIGHT, WINWIDTH, WINHEIGHT, WINHEIGHT + 16)
-            self.particles = particles.ParticleSystem('title', particles.Smoke, .075, bounds, (TILEX, TILEY))
+            self.particles = particles.MapParticleSystem('title', particles.Smoke, .075, bounds, (TILEX, TILEY))
             self.particles.prefill()
         game.memory['title_particles'] = self.particles
 
@@ -827,7 +871,7 @@ class TitleSaveState(State):
         current_state = game.state.state[-1]
         next_level_nid = game.game_vars['_next_level_nid']
 
-        game.load_states(['turn_change'])
+        game.load_states(['start_level_asset_loading'])
         if make_save:
             save.suspend_game(game, game.memory['save_kind'], slot=self.menu.current_index)
 
@@ -850,6 +894,8 @@ class TitleSaveState(State):
         if self.wait_time > 0:
             return
 
+        if not self.fluid:
+            return
         first_push = self.fluid.update()
         directions = self.fluid.get_directions()
 

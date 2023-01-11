@@ -1,7 +1,8 @@
+import math
 from typing import Dict
-from app.data.skill_components import SkillComponent, SkillTags
-from app.data.components import Type
-from app.data.database import DB
+from app.data.database.skill_components import SkillComponent, SkillTags
+from app.data.database.components import ComponentType
+from app.data.database.database import DB
 
 from app.engine import action
 from app.engine.game_state import game
@@ -11,7 +12,7 @@ class Time(SkillComponent):
     desc = "Lasts for some number of turns (checked on upkeep)"
     tag = SkillTags.TIME
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 2
 
     def init(self, skill):
@@ -35,7 +36,7 @@ class EndTime(SkillComponent):
     desc = "Lasts for some number of turns (checked on endstep)"
     tag = SkillTags.TIME
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 2
 
     def init(self, skill):
@@ -59,7 +60,7 @@ class CombinedTime(SkillComponent):
     desc = "Lasts for twice the number of phases (counts both upkeep and endstep)"
     tag = SkillTags.TIME
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 1
 
     def init(self, skill):
@@ -79,7 +80,7 @@ class CombinedTime(SkillComponent):
             actions.append(action.RemoveSkill(unit, self.skill))
 
     def text(self) -> str:
-        return str(self.skill.data['turns'] // 2)
+        return str(math.ceil(self.skill.data['turns'] / 2))
 
     def on_end_chapter(self, unit, skill):
         action.do(action.RemoveSkill(unit, self.skill))
@@ -89,7 +90,7 @@ class UpkeepStatChange(SkillComponent):
     desc = "Gives changing stat bonuses"
     tag = SkillTags.TIME
 
-    expose = (Type.Dict, Type.Stat)
+    expose = (ComponentType.Dict, ComponentType.Stat)
     value = []
 
     def init(self, skill):
@@ -116,12 +117,23 @@ class LostOnEndstep(SkillComponent):
     def on_end_chapter(self, unit, skill):
         action.do(action.RemoveSkill(unit, self.skill))
 
+class LostOnUpkeep(SkillComponent):
+    nid = 'lost_on_upkeep'
+    desc = "Remove on next upkeep"
+    tag = SkillTags.TIME
+
+    def on_upkeep(self, actions, playback, unit):
+        actions.append(action.RemoveSkill(unit, self.skill))
+
+    def on_end_chapter(self, unit, skill):
+        action.do(action.RemoveSkill(unit, self.skill))
+
 class LostOnEndCombat(SkillComponent):
     nid = 'lost_on_end_combat'
     desc = "Remove after combat"
     tag = SkillTags.TIME
 
-    expose = (Type.MultipleOptions)
+    expose = (ComponentType.MultipleOptions)
 
     value = [["LostOnSelf (T/F)", "T", 'Lost after self combat (e.g. vulnerary)'],["LostOnAlly (T/F)", "T", 'Lost after combat with an ally'],["LostOnEnemy (T/F)", "T", 'Lost after combat with an enemy'],["LostOnSplash (T/F)", "T", 'Lost after combat if using an AOE item']]
 
@@ -149,6 +161,18 @@ class LostOnEndCombat(SkillComponent):
     def on_end_chapter(self, unit, skill):
         action.do(action.RemoveSkill(unit, self.skill))
 
+class LostOnKill(SkillComponent):
+    nid = 'lost_on_kill'
+    desc = "Remove after getting a kill"
+    tag = SkillTags.TIME
+
+    def post_combat(self, playback, unit, item, target, mode):
+        if target and target.get_hp() <= 0:
+            action.do(action.RemoveSkill(unit, self.skill))
+
+    def on_end_chapter(self, unit, skill):
+        action.do(action.RemoveSkill(unit, self.skill))
+
 class LostOnEndChapter(SkillComponent):
     nid = 'lost_on_end_chapter'
     desc = "Remove at end of chapter"
@@ -162,7 +186,7 @@ class EventOnRemove(SkillComponent):
     desc = "Calls event when removed"
     tag = SkillTags.TIME
 
-    expose = Type.Event
+    expose = ComponentType.Event
 
     def on_true_remove(self, unit, skill):
         event_prefab = DB.events.get_from_nid(self.value)

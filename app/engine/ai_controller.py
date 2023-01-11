@@ -1,10 +1,11 @@
 import logging
 import math
 
-from app.data.database import DB
+from app.data.database.database import DB
 from app.engine import (action, combat_calcs, engine, equations, evaluate,
-                        item_funcs, item_system, line_of_sight, pathfinding,
+                        item_funcs, item_system, line_of_sight,
                         skill_system, target_system)
+from app.engine.pathfinding import pathfinding
 from app.engine.combat import interaction
 from app.engine.game_state import game
 from app.engine.movement import MovementManager
@@ -65,14 +66,17 @@ class AIController():
     def get_behaviour(self):
         return self.behaviour
 
+    def interrupt(self):
+        self.move_ai_complete = True
+        self.attack_ai_complete = True
+        self.canto_ai_complete = True
+
     def act(self):
         logging.info("AI Act!")
 
         change = False
         if game.movement.check_region_interrupt(self.unit):
-            self.move_ai_complete = True
-            self.attack_ai_complete = True
-            self.canto_ai_complete = True
+            self.interrupt()
 
         if not self.move_ai_complete:
             if self.think():
@@ -91,8 +95,9 @@ class AIController():
 
     def move(self):
         if self.goal_position and self.goal_position != self.unit.position:
+            normal_moves = target_system.get_valid_moves(self.unit, witch_warp=False)
             witch_warp = set(skill_system.witch_warp(self.unit))
-            if self.goal_position in witch_warp:
+            if self.goal_position in witch_warp and self.goal_position not in normal_moves:
                 action.do(action.Warp(self.unit, self.goal_position))
             else:
                 path = target_system.get_path(self.unit, self.goal_position)
@@ -435,9 +440,13 @@ class PrimaryAI():
             # Check line of sight
             line_of_sight_flag = True
             if DB.constants.value('line_of_sight'):
-                max_item_range = max(item_funcs.get_range(self.unit, item))
-                valid_targets = line_of_sight.line_of_sight([move], [target], max_item_range)
-                if not valid_targets:
+                item_range = item_funcs.get_range(self.unit, item)
+                if item_range:
+                    max_item_range = max(item_range)
+                    valid_targets = line_of_sight.line_of_sight([move], [target], max_item_range)
+                    if not valid_targets:
+                        line_of_sight_flag = False
+                else:
                     line_of_sight_flag = False
 
             if line_of_sight_flag:
@@ -671,8 +680,7 @@ class SecondaryAI():
         self.pathfinder = \
             pathfinding.AStar(self.unit.position, None, self.grid,
                               game.board.bounds, game.tilemap.height,
-                              self.unit.team, skill_system.pass_through(self.unit),
-                              DB.constants.value('ai_fog_of_war'))
+                              self.unit.team)
 
         self.widen_flag = False  # Determines if we've widened our search
         self.reset()
@@ -741,11 +749,17 @@ class SecondaryAI():
 
         if self.behaviour.target == 'Event':
             adj_good_enough = False
+        elif self.behaviour.target == 'Position' and not game.board.get_unit(goal_pos):
+            adj_good_enough = False  # Don't move adjacent if it's not necessary
         else:
             adj_good_enough = True
 
         limit = self.get_limit()
-        path = self.pathfinder.process(game.board, adj_good_enough=adj_good_enough, ally_block=False, limit=limit)
+        if skill_system.pass_through(self.unit):
+            can_move_through = lambda team, adj: True
+        else:
+            can_move_through = game.board.can_move_through
+        path = self.pathfinder.process(can_move_through, adj_good_enough=adj_good_enough, limit=limit)
         self.pathfinder.reset()
         return path
 
@@ -803,6 +817,17 @@ class SecondaryAI():
                 terms += new_terms
             else:
                 return 0
+        elif self.behaviour.action == 'Support' and enemy:
+            ally = enemy
+            # Try to help others since we already checked ourself in Primary AI
+            if ally is self.unit:
+                return 0
+            else:
+                max_hp = ally.get_max_hp()
+                missing_health = max_hp - ally.get_hp()
+                help_term = utils.clamp(missing_health / float(max_hp), 0, 1)
+                terms.append((help_term, 100))
+
         elif self.behaviour.action == "Steal" and enemy:
             return 0  # TODO: For now, Steal just won't work with secondary AI
         else:

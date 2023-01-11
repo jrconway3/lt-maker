@@ -1,5 +1,5 @@
-from app.data.item_components import ItemComponent, ItemTags
-from app.data.components import Type
+from app.data.database.item_components import ItemComponent, ItemTags
+from app.data.database.components import ComponentType
 
 from app.utilities import utils
 from app.engine import action, combat_calcs, image_mods, engine, item_system, skill_system
@@ -12,7 +12,7 @@ class Effective(ItemComponent):
     paired_with = ('effective_tag',)
     tag = ItemTags.EXTRA
 
-    expose = Type.Int
+    expose = ComponentType.Int
     value = 0
 
     def init(self, item):
@@ -25,20 +25,18 @@ class EffectiveMultiplier(ItemComponent):
     paired_with = ('effective_tag',)
     tag = ItemTags.EXTRA
 
-    expose = Type.Float
+    expose = ComponentType.Float
     value = 1
 
     def init(self, item):
         item.data['effective_multiplier'] = self.value
 
-class EffectiveTag(ItemComponent):
-    nid = 'effective_tag'
-    desc = "Item will be considered effective if the targeted enemy has any of the tags listed in this component."
-    # requires = ['damage']
-    paired_with = ('effective_multiplier',)
-    tag = ItemTags.EXTRA
+class EffectiveIcon(ItemComponent):
+    nid = 'effective_icon'
+    desc = "Shows the effective icon when appropriate."
+    tag = ItemTags.CUSTOM
 
-    expose = (Type.List, Type.Tag)
+    expose = (ComponentType.List, ComponentType.Tag)
     value = []
 
     def _check_negate(self, target) -> bool:
@@ -53,18 +51,6 @@ class EffectiveTag(ItemComponent):
                 return True
         # No negation, so proceed with effective damage
         return False
-
-    def dynamic_damage(self, unit, item, target, mode, attack_info, base_value) -> int:
-        if any(tag in target.tags for tag in self.value):
-            if self._check_negate(target):
-                return 0
-            if item.data.get('effective_multiplier') is not None:
-                might = item_system.damage(unit, item)
-                if might is None:
-                    return 0
-                return int((item.data.get('effective_multiplier') - 1) * might)
-            return item.data.get('effective', 0)
-        return 0
 
     def item_icon_mod(self, unit, item, target, sprite):
         if any(tag in target.tags for tag in self.value):
@@ -81,6 +67,27 @@ class EffectiveTag(ItemComponent):
         if any(tag in target.tags for tag in self.value):
             return 'danger'
         return None
+
+class EffectiveTag(EffectiveIcon, ItemComponent):
+    nid = 'effective_tag'
+    desc = "Item will be considered effective if the targeted enemy has any of the tags listed in this component."
+    # requires = ['damage']
+    tag = ItemTags.EXTRA
+
+    expose = (ComponentType.List, ComponentType.Tag)
+    value = []
+
+    def dynamic_damage(self, unit, item, target, mode, attack_info, base_value) -> int:
+        if any(tag in target.tags for tag in self.value):
+            if self._check_negate(target):
+                return 0
+            if item.data.get('effective_multiplier') is not None:
+                might = item_system.damage(unit, item)
+                if might is None:
+                    return 0
+                return int((item.data.get('effective_multiplier') - 1) * might)
+            return item.data.get('effective', 0)
+        return 0
 
 class Brave(ItemComponent):
     nid = 'brave'
@@ -104,7 +111,7 @@ class Lifelink(ItemComponent):
     # requires = ['damage']
     tag = ItemTags.EXTRA
 
-    expose = Type.Float
+    expose = ComponentType.Float
     value = 0.5
 
     def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
@@ -124,7 +131,7 @@ class DamageOnMiss(ItemComponent):
     desc = "Item deals a percentage of it's normal damage on a miss."
     tag = ItemTags.EXTRA
 
-    expose = Type.Float
+    expose = ComponentType.Float
     value = 0.5
 
     def on_miss(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
@@ -208,7 +215,7 @@ class CustomTriangleMultiplier(ItemComponent):
     desc = "Weapon advantage effects are multiplied by the provided value."
     tag = ItemTags.EXTRA
 
-    expose = Type.Float
+    expose = ComponentType.Float
     value = 1.0
 
     def modify_weapon_triangle(self, unit, item):
@@ -219,7 +226,7 @@ class StatusOnEquip(ItemComponent):
     desc = "A unit with this item equipped will receive the specified status."
     tag = ItemTags.EXTRA
 
-    expose = Type.Skill  # Nid
+    expose = ComponentType.Skill  # Nid
 
     def on_equip_item(self, unit, item):
         if self.value not in [skill.nid for skill in unit.skills]:
@@ -234,7 +241,7 @@ class MultiStatusOnEquip(ItemComponent):
     desc = "Item gives these statuses while equipped"
     tag = ItemTags.EXTRA
 
-    expose = (Type.List, Type.Skill)  # Nid
+    expose = (ComponentType.List, ComponentType.Skill)  # Nid
 
     def on_equip_item(self, unit, item):
         for skl in self.value:
@@ -251,7 +258,7 @@ class StatusOnHold(ItemComponent):
     desc = "Item gives status while in unit's inventory"
     tag = ItemTags.EXTRA
 
-    expose = Type.Skill  # Nid
+    expose = ComponentType.Skill  # Nid
 
     def on_add_item(self, unit, item):
         action.do(action.AddSkill(unit, self.value))
@@ -259,13 +266,29 @@ class StatusOnHold(ItemComponent):
     def on_remove_item(self, unit, item):
         action.do(action.RemoveSkill(unit, self.value))
 
+class MultiStatusOnHold(ItemComponent):
+    nid = 'multi_status_on_hold'
+    desc = "Item gives these statuses while in unit's inventory"
+    tag = ItemTags.EXTRA
+
+    expose = (ComponentType.List, ComponentType.Skill)  # Nid
+
+    def on_add_item(self, unit, item):
+        for skl in self.value:
+            act = action.AddSkill(unit, skl)
+            action.do(act)
+
+    def on_remove_item(self, unit, item):
+        for skl in self.value:
+            action.do(action.RemoveSkill(unit, skl))
+
 class GainManaAfterCombat(ItemComponent):
     nid = 'gain_mana_after_combat'
     desc = "Takes a string that will be evaluated by python. At the end of combat the string is evaluated if the item was used and the result is translated into mana gained by the unit. If you want a flat gain of X mana, enter X, where X is an integer."
     tag = ItemTags.EXTRA
     author = 'KD'
 
-    expose = Type.String
+    expose = ComponentType.String
 
     def end_combat(self, playback, unit, item, target, mode):
         from app.engine import evaluate

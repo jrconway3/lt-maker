@@ -30,7 +30,7 @@ class MapPrefab(Prefab):
         self.terrain_grid_to_update.add(pos)
         self._update_adjacent(pos)
         self._update_diagonal(pos)
-        if new_terrain.check_flood_fill and pos not in self.terrain_grid_to_update:
+        if new_terrain.check_flood_fill:
             self._update_flood_fill(pos, new_terrain.check_flood_fill == 'diagonal')
 
     def _update_adjacent(self, pos):

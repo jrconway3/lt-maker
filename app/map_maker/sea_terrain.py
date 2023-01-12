@@ -109,5 +109,12 @@ class SeaTerrain(WangEdge2Terrain):
                 new_coords = [(index, k) for k in range(self.limits[index])]
 
         coord = random_choice(new_coords, pos)
-        pix = self.get_pixmap(coord, autotile_num)
+        # Even though this should be able to use the 16x16
+        # pixmaps, the sea autotiles are not set up to use 
+        # 16x16, but 8x8, so we need to do this
+        coord1 = (coord[0] * 2, coord[1] * 2)
+        coord2 = (coord[0] * 2 + 1, coord[1] * 2)
+        coord3 = (coord[0] * 2 + 1, coord[1] * 2 + 1)
+        coord4 = (coord[0] * 2, coord[1] * 2 + 1)
+        pix = self.get_pixmap8(coord1, coord2, coord3, coord4, autotile_num)
         return pix

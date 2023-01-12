@@ -378,7 +378,8 @@ class MapEditor(QMainWindow):
         for terrain in DB_terrain:
             terrain.palette_path = palette.palette_path
             terrain.set_tileset()
-        # self.current.reset_all()
+        self.current.reset_all()
+        self.terrain_painter_menu.reset()
 
     def export_as_png(self):
         if self.current:

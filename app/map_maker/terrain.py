@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QPainter
 
 from app.constants import TILEWIDTH, TILEHEIGHT
 from app.utilities.data import Data, Prefab
@@ -73,10 +73,13 @@ class Terrain(Prefab):
         topright = self._subsurface8(coord2, autotile_num)
         bottomright = self._subsurface8(coord3, autotile_num)
         bottomleft = self._subsurface8(coord4, autotile_num)
-        base_pixmap.paste(topleft, (0, 0))
-        base_pixmap.paste(topright, (TILEWIDTH//2, 0))
-        base_pixmap.paste(bottomleft, (0, TILEHEIGHT//2))
-        base_pixmap.paste(bottomright, (TILEWIDTH//2, TILEHEIGHT//2))
+        painter = QPainter()
+        painter.begin(base_pixmap)
+        painter.drawPixmap(0, 0, topleft)
+        painter.drawPixmap(TILEWIDTH//2, 0, topright)
+        painter.drawPixmap(0, TILEHEIGHT//2, bottomleft)
+        painter.drawPixmap(TILEWIDTH//2, TILEHEIGHT//2, bottomright)
+        painter.end()
         return base_pixmap
 
     def get_pixmap(self, tile_coord: tuple, autotile_num: int) -> QPixmap:

@@ -210,4 +210,4 @@ class WangEdge2Terrain16(WangEdge2Terrain):
     def determine_sprite(self, tilemap, pos: tuple, autotile_num: int) -> QPixmap:
         index = self._determine_index(tilemap, pos)
         coord = random_choice([(index, k) for k in range(self.limits[index])], pos)
-        return self.get_pixmap(tilemap, pos, autotile_num)
+        return self.get_pixmap(coord, autotile_num)

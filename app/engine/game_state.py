@@ -6,6 +6,8 @@ import time
 from collections import Counter
 from typing import TYPE_CHECKING, Dict, List, Tuple
 
+from app.engine.query_engine import GameQueryEngine
+
 if TYPE_CHECKING:
     from app.engine import (ai_controller, death,
         game_board, highlight, map_view, movement, phase,
@@ -25,7 +27,6 @@ if TYPE_CHECKING:
     from app.engine.objects.region import RegionObject
     from app.engine.dialog_log import DialogLog
     from app.events.event_manager import EventManager
-    from app.events.regions import Region
     from app.utilities.typing import NID, UID
 
 from app.constants import VERSION
@@ -74,6 +75,7 @@ class GameState():
         self.supports: supports.SupportController = None
         self.records: records.Recordkeeper = None
         self.speak_styles: speak_style.SpeakStyleLibrary = None
+        self.query_engine: GameQueryEngine = GameQueryEngine(logging.Logger('query_engine'), self)
 
         # 'current' state information, typically varies by level
         self.current_level: LevelObject = None
@@ -221,7 +223,6 @@ class GameState():
         # Build registries
         self.map_sprite_registry = {}
 
-        # caches
         self.get_region_under_pos.cache_clear()
 
     def level_setup(self):
@@ -249,9 +250,6 @@ class GameState():
         if DB.constants.value('initiative'):
             self.initiative = InitiativeTracker()
             self.initiative.start(self.get_all_units())
-
-        from app.events import triggers
-        game.events.trigger(triggers.OnStartup()) 
 
     def start_level(self, level_nid, with_party=None):
         """
@@ -395,8 +393,8 @@ class GameState():
         self.skill_registry = {skill['uid']: SkillObject.restore(skill) for skill in s_dict['skills']}
         save.set_next_uids(self)
         self.terrain_status_registry = s_dict.get('terrain_status_registry', {})
-        self.region_registry = {region['nid']: RegionObject.restore(region) for region in s_dict.get('regions', [])}
         self.unit_registry = {unit['nid']: UnitObject.restore(unit, self) for unit in s_dict['units']}
+        self.region_registry = {region['nid']: RegionObject.restore(region) for region in s_dict.get('regions', [])}
 
         # Handle subitems
         for item in self.item_registry.values():

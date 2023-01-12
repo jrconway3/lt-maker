@@ -233,7 +233,7 @@ class InfoMenuState(State):
         if self.scroll_units is None:
             self.scroll_units = [unit for unit in game.units if not unit.dead and unit.team == self.unit.team and unit.party == self.unit.party]
             if self.unit.position:
-                self.scroll_units = [unit for unit in self.scroll_units if unit.position and game.board.in_vision(unit.position)]
+                self.scroll_units = [unit for unit in self.scroll_units if unit.position and game.board.in_vision(game.board.rationalize_pos(unit.position))]
         self.scroll_units = [unit for unit in self.scroll_units if 'Tile' not in unit.tags]
         game.memory['scroll_units'] = None
 
@@ -752,13 +752,13 @@ class InfoMenuState(State):
                     render_text(surf, ['text'], [trav.name], ['blue'], (96, 16 * true_idx + 24))
                 else:
                     render_text(surf, ['text'], ['--'], ['blue'], (96, 16 * true_idx + 24))
-                render_text(surf, ['text'], ['Trv'], ['yellow'], (72, 16 * true_idx + 24))
+                render_text(surf, ['text'], [text_funcs.translate('Trv')], ['yellow'], (72, 16 * true_idx + 24))
                 self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'Trv_desc', state)
 
             elif stat == 'AID':
                 if growths:
                     icons.draw_growth(surf, 'HP', self.unit, (111, 16 * true_idx + 24))
-                    render_text(surf, ['text'], ['HP'], ['yellow'], (72, 16 * true_idx + 24))
+                    render_text(surf, ['text'], [text_funcs.translate('HP')], ['yellow'], (72, 16 * true_idx + 24))
                     self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'HP_desc', state)
                 else:
                     aid = equations.parser.rescue_aid(self.unit)
@@ -774,13 +774,13 @@ class InfoMenuState(State):
                     else:
                         aid_surf = engine.subsurface(SPRITES.get('aid_icons'), (0, 0, 16, 16))
                     surf.blit(aid_surf, (112, 16 * true_idx + 24))
-                    render_text(surf, ['text'], ['Aid'], ['yellow'], (72, 16 * true_idx + 24))
+                    render_text(surf, ['text'], [text_funcs.translate('Aid')], ['yellow'], (72, 16 * true_idx + 24))
                     self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'Aid_desc', state)
 
             elif stat == 'RAT':
                 rat = str(equations.parser.rating(self.unit))
                 render_text(surf, ['text'], [rat], ['blue'], (111, 16 * true_idx + 24), Alignments.RIGHT)
-                render_text(surf, ['text'], ['Rat'], ['yellow'], (72, 16 * true_idx + 24))
+                render_text(surf, ['text'], [text_funcs.translate('Rat')], ['yellow'], (72, 16 * true_idx + 24))
                 self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'Rating_desc', state)
 
             elif stat == 'MANA':
@@ -796,7 +796,7 @@ class InfoMenuState(State):
                 self.info_graph.register((96 + 72, 16 * true_idx + 24, 64, 16), 'GAUGE_desc', state)
 
             if DB.constants.value('lead'):
-                render_text(surf, ['text'], ['Lead'], ['yellow'], (72, 120))
+                render_text(surf, ['text'], [text_funcs.translate('Lead')], ['yellow'], (72, 120))
                 self.info_graph.register((96 + 72, 120, 64, 16), 'Lead_desc', state)
 
                 if growths:
@@ -909,19 +909,19 @@ class InfoMenuState(State):
         surf.blit(battle_surf, (left, top))
         # Populate battle info
         surf.blit(SPRITES.get('equipment_logo'), (14, top + 4))
-        render_text(surf, ['text'], ['Rng'], ['yellow'], (78, top))
+        render_text(surf, ['text'], [text_funcs.translate('Rng')], ['yellow'], (78, top))
         self.info_graph.register((96 + 78, top, 56, 16), 'Rng_desc', 'equipment')
-        render_text(surf, ['text'], ['Atk'], ['yellow'], (22, top + 16))
+        render_text(surf, ['text'], [text_funcs.translate('Atk')], ['yellow'], (22, top + 16))
         self.info_graph.register((96 + 14, top + 16, 64, 16), 'Atk_desc', 'equipment')
-        render_text(surf, ['text'], ['Hit'], ['yellow'], (22, top + 32))
+        render_text(surf, ['text'], [text_funcs.translate('Hit')], ['yellow'], (22, top + 32))
         self.info_graph.register((96 + 14, top + 32, 64, 16), 'Hit_desc', 'equipment')
         if DB.constants.value('crit'):
-            render_text(surf, ['text'], ['Crit'], ['yellow'], (78, top + 16))
+            render_text(surf, ['text'], [text_funcs.translate('Crit')], ['yellow'], (78, top + 16))
             self.info_graph.register((96 + 78, top + 16, 56, 16), 'Crit_desc', 'equipment')
         else:
-            render_text(surf, ['text'], ['AS'], ['yellow'], (78, top + 16))
+            render_text(surf, ['text'], [text_funcs.translate('AS')], ['yellow'], (78, top + 16))
             self.info_graph.register((96 + 78, top + 16, 56, 16), 'AS_desc', 'equipment')
-        render_text(surf, ['text'], ['Avoid'], ['yellow'], (78, top + 32))
+        render_text(surf, ['text'], [text_funcs.translate('Avoid')], ['yellow'], (78, top + 32))
         self.info_graph.register((96 + 78, top + 32, 56, 16), 'Avoid_desc', 'equipment')
 
         if weapon:
@@ -984,11 +984,22 @@ class InfoMenuState(State):
         surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)
         class_skills = [skill for skill in self.unit.skills if skill.class_skill and not skill_system.hidden(skill, self.unit)][:6]
 
-        for idx, skill in enumerate(class_skills):
+        # stacked skills appear multiple times, but should be drawn only once
+        skill_counter = {}
+        unique_skills = list()
+        for skill in class_skills:
+            if skill.nid not in skill_counter:
+                skill_counter[skill.nid] = 1
+                unique_skills.append(skill)
+            else:
+                skill_counter[skill.nid] += 1
+        for idx, skill in enumerate(unique_skills[:6]):
             left_pos = idx * 24
-            icons.draw_skill(surf, skill, (left_pos + 8, 4), grey=skill_system.is_grey(skill, self.unit))
+            icons.draw_skill(surf, skill, (left_pos + 8, 4), compact=False, grey=skill_system.is_grey(skill, self.unit))
+            if skill_counter[skill.nid] > 1:
+                render_text(surf, ['small'], [str(skill_counter[skill.nid])], ['white'], (left_pos + 20 - 4 * len(str(skill_counter[skill.nid])), 6))
             if skill.data.get('total_charge'):
-                charge = ' (%d/%d)' % (skill.data['charge'], skill.data['total_charge'])
+                charge = ' %d / %d' % (skill.data['charge'], skill.data['total_charge'])
             else:
                 charge = ''
             self.info_graph.register((96 + left_pos + 8, WINHEIGHT - 32, 16, 16), help_menu.HelpDialog(skill.desc, name=skill.name + charge), 'personal_data')

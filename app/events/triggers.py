@@ -306,8 +306,8 @@ class OnStartup(EventTrigger):
 class TimeRegionComplete(EventTrigger):
     """
     Occurs when a time region runs out of time and would be removed.
-        position: the position of the region that has run out of time
-        region: the region that has run out of time..
+        position: the position of the region that has run out of time.
+        region: the region that has run out of time.
     """
     nid: ClassVar[NID] = 'time_region_complete'
     position: Tuple[int, int]

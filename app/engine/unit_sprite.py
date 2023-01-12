@@ -84,7 +84,7 @@ class MapSprite():
 def load_map_sprite(unit: UnitObject | UnitPrefab, team='player'):
     klass = DB.classes.get(unit.klass)
     nid = klass.map_sprite_nid
-    variant =  unit.variant or (isinstance(unit, UnitObject) and skill_system.change_variant(unit))
+    variant = skill_system.change_variant(unit) if isinstance(unit, UnitObject) else unit.variant
     if variant:
         nid += variant
     res = RESOURCES.map_sprites.get(nid)
@@ -187,7 +187,7 @@ class UnitSprite():
             self.animations[nid + '_blend'] = anim_blend
 
     def add_warp_flowers(self, reverse=False):
-        ps = particles.ParticleSystem('warp_flower', particles.WarpFlower, -1, (-1, -1, -1, -1), (-1, -1))
+        ps = particles.SimpleParticleSystem('warp_flower', particles.WarpFlower, self.unit.position, (-1, -1, -1, -1), 0)
         angle_frac = math.pi / 8
         true_pos_x = self.unit.position[0] * TILEWIDTH + TILEWIDTH//2
         true_pos_y = self.unit.position[1] * TILEHEIGHT + TILEHEIGHT//2
@@ -195,9 +195,9 @@ class UnitSprite():
             for num in range(0, 16):
                 angle = num * angle_frac + (angle_frac / 2 if idx == 0 else 0)
                 if reverse:
-                    new_particle = particles.ReverseWarpFlower((true_pos_x, true_pos_y), speed, angle)
+                    new_particle = particles.ReverseWarpFlower().reset((true_pos_x, true_pos_y), speed, angle)
                 else:
-                    new_particle = particles.WarpFlower((true_pos_x, true_pos_y), speed, angle)
+                    new_particle = particles.WarpFlower().reset((true_pos_x, true_pos_y), speed, angle)
                 ps.particles.append(new_particle)
         self.particles.append(ps)
 

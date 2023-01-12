@@ -36,12 +36,13 @@ class Dialog():
     cursor = SPRITES.get('waiting_cursor')
     cursor_offset = [0]*20 + [1]*2 + [2]*8 + [1]*2
     transition_speed = 166  # 10 frames
-    pause_time = 150  # 9 frames
+    pause_before_wait_time = 150 # 9 frames
+    pause_time = 50  # 3 frames
     attempt_split: bool = True # Whether we attempt to split big chunks across multiple lines
 
     def __init__(self, text, portrait=None, background=None, position=None, width=None,
-                 speaker=None, style_nid=None, autosize=False, speed: float=1.0, font_color='black',
-                 font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail', 
+                 speaker=None, style_nid=None, autosize=False, speed: float = 1.0, font_color='black',
+                 font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail',
                  transparency=0.05, name_tag_bg='name_tag'):
         self.plain_text = text
         self.portrait = portrait
@@ -57,8 +58,8 @@ class Dialog():
         if '{sub_break}' in self.plain_text:
             self.attempt_split = False
 
-        # States: process, transition, pause, wait, done, new_line
-        self.state = 'transition'
+        # States: process, transition_in, pause, pause_before_wait, wait, done, new_line
+        self.state = 'transition_in'
 
         self.no_wait = False
         self.text_commands = self.format_text(text)
@@ -128,7 +129,7 @@ class Dialog():
         width = width if width is not None else style.width
         self = cls(text, portrait=portrait, background=style.dialog_box, position=style.text_position, width=width,
                    speaker=style.speaker, style_nid=style.nid, autosize=False, speed=style.text_speed, font_color=style.font_color,
-                   font_type=style.font_type, num_lines=style.num_lines, draw_cursor=style.draw_cursor, message_tail=style.message_tail, 
+                   font_type=style.font_type, num_lines=style.num_lines, draw_cursor=style.draw_cursor, message_tail=style.message_tail,
                    transparency=style.transparency, name_tag_bg=style.name_tag_bg)
         return self
 
@@ -241,13 +242,13 @@ class Dialog():
 
     def _next_char(self, sound=True):  # Add the next character to the text_lines list
         if self.text_index >= len(self.text_commands):
-            self.pause()
+            self.pause_before_wait()
             return
         command = self.text_commands[self.text_index]
         if command in ('{br}', '{break}', '{sub_break}'):
             self._next_line()
         elif command == '{w}' or command == '{wait}':
-            self.pause()
+            self.pause_before_wait()
         elif command == '{clear}':
             self.text_lines.clear()
             self._next_line()
@@ -263,6 +264,9 @@ class Dialog():
                 self._add_letter(' ')
                 if sound:
                     self.play_talk_boop()
+        elif command in ('.', ',', ';', '!', '?'):
+            self._add_letter(command)
+            self.pause()
         else:
             self._add_letter(command)
             if sound:
@@ -304,10 +308,19 @@ class Dialog():
         self.state = 'pause'
         self.last_update = engine.get_time()
 
+    def pause_before_wait(self):
+        if self.portrait:
+            self.portrait.stop_talking()
+        self.state = 'pause_before_wait'
+        self.last_update = engine.get_time()
+
     def hurry_up(self):
         if self.state == 'process':
             while self.state == 'process':
                 self._next_char(sound=False)
+                # Skip regular pauses because we want maximum velocity of speech
+                if self.state == 'pause':
+                    self.state = 'process'
         elif self.state == 'wait':
             if self.text_index >= len(self.text_commands):
                 self.state = 'done'
@@ -324,7 +337,7 @@ class Dialog():
     def update(self):
         current_time = engine.get_time()
 
-        if self.state == 'transition':
+        if self.state == 'transition_in':
             perc = (current_time - self.last_update) / self.transition_speed
             self.transition_progress = utils.clamp(perc, 0, 1)
             if self.transition_progress == 1:
@@ -341,13 +354,19 @@ class Dialog():
             else:
                 while self.state == 'process':
                     self._next_char(sound=False)
+                    # Skip regular pauses because we want MAXIMUM VELOCITY of characters
+                    if self.state == 'pause':
+                        self.state = 'process'
                 self.play_talk_boop()
-        elif self.state == 'pause':
-            if current_time - self.last_update > self.pause_time:
+        elif self.state == 'pause_before_wait':
+            if current_time - self.last_update > self.pause_before_wait_time:
                 if self.no_wait:
                     self.state = 'done'
                 else:
                     self.state = 'wait'
+        elif self.state == 'pause':  # Regular pause for periods
+            if current_time - self.last_update > self.pause_time:
+                self.state = 'process'
         elif self.state == 'new_line':
             # Update y_offset
             self.y_offset = max(0, self.y_offset - 2)
@@ -424,7 +443,7 @@ class Dialog():
 
     def draw(self, surf: engine.Surface) -> engine.Surface:
         if self.background:
-            if self.state == 'transition':
+            if self.state == 'transition_in':
                 # bg = image_mods.resize(self.background, (1, .5 + self.transition_progress/2.))
                 new_width = max(1, self.background.get_width() - 10 + int(10*self.transition_progress))
                 new_height = max(1, self.background.get_height() - 10 + int(10*self.transition_progress))
@@ -435,7 +454,7 @@ class Dialog():
                 bg = image_mods.make_translucent(self.background, self.dialog_transparency)
                 surf.blit(bg, self.position)
 
-        if self.state != 'transition':
+        if self.state != 'transition_in':
             # Draw message tail
             if self.portrait and self.background and self.tail:
                 self.draw_tail(surf, self.portrait)
@@ -455,10 +474,10 @@ class Dialog():
 class DynamicDialogWrapper():
     def __init__(self, text_func: Callable[[], str], portrait=None, background=None, position=None, width=None,
                  speaker=None, style_nid=None, autosize=False, speed: float=1.0, font_color='black',
-                 font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail', name_tag_bg='name_tag') -> None:
+                 font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail', transparency: float=0.05, name_tag_bg='name_tag') -> None:
         # eval trick
         self.resolve_text_func: Callable[[], str] = text_func
-        self.resolved_text = clean_newlines(self.resolve_text_func())
+        self.resolved_text = clean_newlines(self.resolve_text_func()).replace('{w}', '').replace('|', '{br}')
         # dialog props
         self.portrait = portrait
         self.background = background
@@ -473,19 +492,20 @@ class DynamicDialogWrapper():
         self.num_lines = num_lines
         self.draw_cursor = draw_cursor
         self.message_tail = message_tail
+        self.transparency = transparency
         self.name_tag_bg = name_tag_bg
 
         self.dialog = Dialog(self.resolved_text, portrait, background, position, width, speaker, style_nid, autosize, speed, font_color,
-                             font_type, num_lines, draw_cursor, message_tail, name_tag_bg)
+                             font_type, num_lines, draw_cursor, message_tail, transparency, name_tag_bg)
 
     def update(self):
-        new_text = clean_newlines(self.resolve_text_func())
+        new_text = clean_newlines(self.resolve_text_func()).replace('{w}', '').replace('|', '{br}')
         if new_text != self.resolved_text:
             self.resolved_text = new_text
             self.dialog = Dialog(self.resolved_text, self.portrait, self.background,
                                  self.position, self.width, self.speaker, self.style_nid,
                                  self.autosize, self.speed, self.font_color, self.font_type,
-                                 self.num_lines, self.draw_cursor, self.message_tail,self.name_tag_bg)
+                                 self.num_lines, self.draw_cursor, self.message_tail, self.transparency, self.name_tag_bg)
             self.dialog.last_update = engine.get_time() - 10000
         return self.dialog.update()
 
@@ -552,7 +572,7 @@ class LocationCard():
             self.font.blit_center(line, bg, (bg.get_width()//2, idx * self.font.height + 4))
 
         if self.transition == 'start':
-            # when the location would enter, it's transparency changes from 
+            # when the location would enter, it's transparency changes from
             # 1.0 (100% transprenct) to .1 (Which is 90% opaque).
             transparency = 1.0 - (0.9 * self.transition_progress)
             bg = image_mods.make_translucent(bg, transparency)

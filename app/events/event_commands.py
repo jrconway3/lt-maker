@@ -756,9 +756,22 @@ class EnableSupports(EventCommand):
     tag = Tags.GAME_VARS
 
     desc = \
-    """
+        """
 Activates or deactivates supports.
-    """
+        """
+
+    keywords = ["Activated"]
+    keyword_types = ['Bool']
+
+class EnableTurnwheel(EventCommand):
+    nid = 'enable_turnwheel'
+    tag = Tags.GAME_VARS
+
+    desc = \
+        """
+Activates or deactivates turnwheel. You will also need the Constant
+checked to see the turnwheel option in your menu.
+        """
 
     keywords = ["Activated"]
     keyword_types = ['Bool']
@@ -1568,13 +1581,33 @@ class RemoveSkill(EventCommand):
 
     desc = \
         """
-*GlobalUnit* loses *Skill*. If the *no_banner* flag is set, the player will not be informed of this.
+*GlobalUnit* loses *Skill* up to *Count* times. If *Count* is not set, all instances of skill are removed. If the *no_banner* flag is set, the player will not be informed of this.
         """
 
     keywords = ["GlobalUnit", "Skill"]
     optional_keywords = ['Count']
     keyword_types = ['GlobalUnit', 'Skill', 'Integer']
     _flags = ['no_banner']
+
+class SetSkillData(EventCommand):
+    nid = 'set_skill_data'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Finds the first matching *Skill* of *GlobalUnit*.
+Then, it sets the data field *Nid* of the *Skill* to *Expression*.
+
+
+As an example, you could change the number of charges a skill has using this.
+
+`set_skill_data;Eirika;Luna;charge;5`
+
+In general, you need to know how the innards of a given skill component
+interacts with the data of the skill to use this command.
+        """
+
+    keywords = ["GlobalUnit", "Skill", "Nid", "Expression"]
 
 class ChangeAI(EventCommand):
     nid = 'change_ai'
@@ -2271,7 +2304,24 @@ class Textbox(EventCommand):
     nid = 'textbox'
     tag = Tags.MISCELLANEOUS
 
-    desc = ""
+    desc = """
+Displays a box on screen containing some text. This is distinct from dialogue and choice in that it is non-interactable. It shares many of its arguments with `speak`,
+and predictably, those args will function the same way as in `speak`.
+
+* *NID* is the name of this box.
+* *Text* is either string to be displayed, or a Python expression to be constantly evaluated, e.g. `game.get_money()`, which would keep the textbox updated with the current amount of money. (Requires the `expression` flag)
+
+* *BoxPosition* allows you to specify the location on screen of the textbox.
+* *Width* allows you to specify the width of the box. This defaults to full screen width.
+* *NumLines* allows you to specify the number of lines taken up by the textbox. This defaults to 1.
+* The *StyleNid* allows you to outsource all configuration to an existing speak style.
+* The *TextSpeed* keyword specifies how quickly the text is displayed. Lower is faster.
+* The *FontColor* keyword specifies the font color
+* The *FontType* keyword specifies the font type
+* The *BG* keyword specifies what base image to use as background. menu_bg images will be tiled, while other sprites will not.
+
+* The *expression* flag indicates that the provided table data should be be continually parsed as a python expression and updated.
+    """
 
     keywords = ['NID', 'Text']
     optional_keywords = ['BoxPosition', 'Width', 'NumLines', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'BG']

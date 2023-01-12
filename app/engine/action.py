@@ -105,6 +105,7 @@ def recalculate_unit(func):
         func(*args, **kwargs)
         self = args[0]
         if self.unit.position and game.tilemap and game.boundary:
+            self.unit.autoequip()
             game.boundary.recalculate_unit(self.unit)
     return wrapper
 
@@ -113,7 +114,7 @@ class Move(Action):
     A basic, user-directed move
     """
 
-    def __init__(self, unit, new_pos, path=None, event=False, follow=True, speed=cf.SETTINGS['unit_speed']):
+    def __init__(self, unit, new_pos, path=None, event=False, follow=True, speed=0):
         self.unit = unit
         self.old_pos = self.unit.position
         self.new_pos = new_pos
@@ -125,7 +126,7 @@ class Move(Action):
         self.has_moved = self.unit.has_moved
         self.event = event
         self.follow = follow
-        self.speed = speed
+        self.speed = speed or cf.SETTINGS['unit_speed']
 
     def do(self):
         if self.path is None:
@@ -144,12 +145,11 @@ class Move(Action):
     def reverse(self):
         game.leave(self.unit)
         self.new_movement_left = self.unit.movement_left
-        self.unit.movement_left = self.prev_movement_left
         self.unit.has_moved = self.has_moved
         self.new_pos = self.unit.position
         self.unit.position = self.old_pos
         game.arrive(self.unit)
-
+        self.unit.movement_left = self.prev_movement_left
 
 # Just another name for move
 class CantoMove(Move):
@@ -1330,18 +1330,19 @@ class TradeItem(Action):
             unit1.insert_item(item_index1, item2)
 
     def equip_items(self, unit):
-        for item in unit.nonaccessories:
-            available = item_system.available(unit, item)
-            equippable = item_system.equippable(unit, item)
-            if available and equippable:
-                self.subactions.append(EquipItem(unit, item))
-                break
-        for item in unit.accessories:
-            available = item_system.available(unit, item)
-            equippable = item_system.equippable(unit, item)
-            if available and equippable:
-                self.subactions.append(EquipItem(unit, item))
-                break
+        all_items = item_funcs.get_all_items(unit)
+        for item in all_items:
+            if not item_system.is_accessory(unit, item):
+                if item_system.equippable(unit, item) and item_funcs.available(unit, item):
+                    self.subactions.append(EquipItem(unit, item))
+                    break
+        for item in all_items:
+            if item_system.is_accessory(unit, item):
+                if item_system.equippable(unit, item) and item_funcs.available(unit, item):
+                    self.subactions.append(EquipItem(unit, item))
+                    break
+        # keep accessories sorted after items
+        self.items = sorted(unit.items, key=lambda item: item_system.is_accessory(unit, item))
 
     def do(self):
         self.subactions.clear()
@@ -1484,6 +1485,8 @@ class AddItemComponent(Action):
         self.item.__dict__[self.component_nid] = self.component
         # Assign parent to component
         self.component.item = self.item
+        if self.component.defines('init'):
+            self.component.init(self.item)
         self._did_add = True
 
     def reverse(self):
@@ -2898,7 +2901,8 @@ class AddSkill(Action):
         self.unit.skills.append(self.skill_obj)
         skill_system.on_add(self.unit, self.skill_obj)
 
-        if self.skill_obj.aura and self.unit.position and game.board and game.tilemap:
+        if self.skill_obj.aura and self.skill_obj in self.unit.skills and \
+                self.unit.position and game.board and game.tilemap:
             aura_funcs.propagate_aura(self.unit, self.skill_obj, game)
             game.boundary.register_unit_auras(self.unit)
 
@@ -2923,9 +2927,8 @@ class AddSkill(Action):
         if self.skill_obj.aura and self.unit.position and game.board and game.tilemap:
             aura_funcs.release_aura(self.unit, self.skill_obj, game)
 
-
 class RemoveSkill(Action):
-    def __init__(self, unit, skill, count = -1):
+    def __init__(self, unit, skill, count=-1):
         self.unit = unit
         self.skill = skill  # Skill obj or skill nid str
         self.removed_skills = []

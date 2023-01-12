@@ -265,7 +265,7 @@ def expression(self: Event, portrait, expression_list, flags=None):
     _portrait.set_expression(expression_list)
 
 def speak_style(self: Event, style, speaker=None, text_position=None, width=None, text_speed=None,
-                font_color=None, font_type=None, dialog_box=None, num_lines=None, draw_cursor=None, 
+                font_color=None, font_type=None, dialog_box=None, num_lines=None, draw_cursor=None,
                 message_tail=None, transparency=None, name_tag_bg=None, flags=None):
     flags = flags or set()
     style_nid = style
@@ -416,7 +416,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
         dialog.Dialog(text, portrait, bg, position, box_width, speaker=speaker,
                       style_nid=style_nid, autosize=autosize, speed=speed,
                       font_color=fcolor, font_type=ftype, num_lines=lines,
-                      draw_cursor=cursor, message_tail=tail, transparency=transparency, 
+                      draw_cursor=cursor, message_tail=tail, transparency=transparency,
                       name_tag_bg=nametag)
     new_dialog.hold = 'hold' in flags
     if 'no_popup' in flags:
@@ -619,6 +619,10 @@ def set_next_chapter(self: Event, chapter, flags=None):
 def enable_supports(self: Event, activated: str, flags=None):
     state = activated.lower() in self.true_vals
     action.do(action.SetGameVar("_supports", state))
+
+def enable_turnwheel(self: Event, activated: str, flags=None):
+    state = activated.lower() in self.true_vals
+    action.do(action.SetGameVar("_turnwheel", state))
 
 def set_fog_of_war(self: Event, fog_of_war_type, radius, ai_radius=None, other_radius=None, flags=None):
     fowt = fog_of_war_type.lower()
@@ -1012,7 +1016,7 @@ def kill_unit(self: Event, unit, flags=None):
         unit.dead = True
     elif 'immediate' in flags:
         unit.dead = True
-        action.do(action.LeaveMap(unit))
+        action.do(action.Die(unit))
     else:
         self.game.death.should_die(unit)
         self.game.state.change('dying')
@@ -1774,6 +1778,25 @@ def remove_skill(self: Event, global_unit, skill, count='-1', flags=None):
         self.game.state.change('alert')
         self.state = 'paused'
 
+def set_skill_data(self: Event, global_unit, skill, nid, expression, flags=None):
+    flags = flags or set()
+
+    unit = self._get_unit(global_unit)
+    if not unit:
+        self.logger.error("set_skill_data: Couldn't find unit with nid %s" % global_unit)
+        return
+    found_skill = unit.get_skill(skill)
+    if not found_skill:
+        self.logger.error("set_skill_data: Couldn't find skill with nid %s on unit selected" % skill)
+        return
+    try:
+        data_value = self.text_evaluator.direct_eval(expression)
+    except Exception as e:
+        self.logger.error("set_skill_data: %s: Could not evaluate {%s}" % (e, expression))
+        return
+
+    action.do(action.SetObjData(found_skill, nid, data_value))
+
 def change_ai(self: Event, global_unit, ai, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
@@ -2201,7 +2224,7 @@ def add_region(self: Event, region, position, size, region_type, string=None, fl
     flags = flags or set()
 
     if region in self.game.level.regions.keys():
-        self.logger.error("add_region: RegionObjet nid %s already present!" % region)
+        self.logger.error("add_region: RegionObject nid %s already present!" % region)
         return
     position = self._parse_pos(position)
     size = self._parse_pos(size)
@@ -2691,12 +2714,18 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
     else:
         box_bg = default_textbox_style.dialog_box
 
+    if textbox_style and textbox_style.transparency is not None:
+        transparency = textbox_style.transparency
+    else:
+        transparency = 0.05
+
     if num_lines:
         lines = int(num_lines)
     elif textbox_style and textbox_style.num_lines:
         lines = textbox_style.num_lines
     else:
-        lines = default_textbox_style.num_lines
+        # let's not default to 0 please
+        lines = default_textbox_style.num_lines or 1
 
     if textbox_style and textbox_style.flags:
         flags = textbox_style.flags.union(flags)
@@ -2718,7 +2747,7 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
         textbox = dialog.DynamicDialogWrapper(expr, background=box_bg, position=position, width=box_width,
                       style_nid=style_nid, speed=speed,
                       font_color=fcolor, font_type=ftype, num_lines=lines,
-                      draw_cursor=False)
+                      draw_cursor=False, transparency=transparency)
     else:
         text = self.text_evaluator._evaluate_all(text)
         text = dialog.clean_newlines(text)
@@ -2728,7 +2757,7 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
             dialog.Dialog(text, background=box_bg, position=position, width=box_width,
                         style_nid=style_nid, speed=speed,
                         font_color=fcolor, font_type=ftype, num_lines=lines,
-                        draw_cursor=False)
+                        draw_cursor=False, transparency=transparency)
     self.other_boxes.append((nid, textbox))
 
 def table(self: Event, nid: NID, table_data: str, title: str = None,

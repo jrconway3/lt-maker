@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 from app.constants import TILEWIDTH, TILEHEIGHT, WINWIDTH, WINHEIGHT, TILEX
 from app.data.database.database import DB
+from app.engine.objects.unit import UnitObject
 from app.events.regions import RegionType
 from app.events import triggers, event_commands
 from app.engine.objects.item import ItemObject
@@ -388,7 +389,8 @@ class OptionMenuState(MapState):
             options.insert(2, 'Guide')
             info_desc.insert(2, 'Guide_desc')
             ignore.insert(2, False)
-        if DB.constants.get('turnwheel').value and (not game.level or not game.level.roam):
+        if DB.constants.get('turnwheel').value and game.game_vars.get('_turnwheel') and \
+                (not game.level or not game.level.roam):
             options.insert(1, 'Turnwheel')
             info_desc.insert(1, 'Turnwheel_desc')
             ignore.insert(1, False)
@@ -543,12 +545,8 @@ class OptionChildState(State):
                         elif self.menu.owner == 'Storage':
                             action.do(action.StoreItem(cur_unit, item))
                     if item_funcs.too_much_in_inventory(cur_unit):
-                        game.state.back()
-                    elif cur_unit.items:
-                        game.state.back()
-                        game.state.back()
-                    else:  # If the unit has no more items, head all the way back to menu
-                        game.state.back()
+                        game.state.back()  # You need to pick another item to discard
+                    else:
                         game.state.back()
                         game.state.back()
             else:
@@ -583,9 +581,9 @@ class MoveState(MapState):
             game.highlight.display_moves(self.valid_moves, light=False)
         else:
             self.valid_moves = game.highlight.display_highlights(cur_unit)
-        
+
         # Fade in phase music if the unit has canto
-        if cur_unit.has_attacked or cur_unit.has_traded:  
+        if cur_unit.has_attacked or cur_unit.has_traded:
             phase.fade_in_phase_music()
 
         game.highlight.display_aura_highlights(cur_unit)
@@ -894,7 +892,7 @@ class MenuState(MapState):
                         game.cursor.cur_unit = u
                     if self.cur_unit.current_move:
                         logging.info("Reversing " + self.cur_unit.nid + "'s move")
-                        game.leave(self.cur_unit)
+                        # game.leave(self.cur_unit)
                         action.reverse(self.cur_unit.current_move)
                         self.cur_unit.current_move = None
                     game.state.change('move')
@@ -984,7 +982,11 @@ class MenuState(MapState):
                     else:
                         interaction.start_combat(self.cur_unit, self.cur_unit.position, item)
                 else:
+                    # equip if possible
+                    if item_system.equippable(self.cur_unit, item):
+                        action.do(action.EquipItem(self.cur_unit, item))
                     game.state.change('combat_targeting')
+
             # A combat art
             elif selection in self.combat_arts:
                 skill = self.combat_arts[selection][0]
@@ -1193,7 +1195,7 @@ class ItemChildState(MapState):
 
         self.item = self.parent_menu.get_current()
         item = self.item
-        self.cur_unit = game.cursor.cur_unit
+        self.cur_unit: UnitObject = game.cursor.cur_unit
 
         options = []
         if not game.memory['is_subitem_child_menu']:
@@ -1260,7 +1262,7 @@ class ItemChildState(MapState):
                 if not game.memory['is_subitem_child_menu']:
                     if item in self.cur_unit.items:
                         action.do(action.BringToTopItem(self.cur_unit, item))
-                        self.parent_menu.current_index = 0  # Reset selection
+                        self.parent_menu.current_index = self.cur_unit.items.index(item)  # Reset selection
                     game.state.back()
                 else:
                     # find ultimate parent item
@@ -1441,9 +1443,8 @@ class WeaponChoiceState(MapState):
                 get_sound_thread().play_sfx('Error')
                 return
             get_sound_thread().play_sfx('Select 1')
-            # Only bother to equip if it's a weapon
-            # We don't equip spells
-            if item_system.is_weapon(self.cur_unit, selection):
+            # equip if we can
+            if item_system.equippable(self.cur_unit, selection):
                 equip_action = action.EquipItem(self.cur_unit, selection)
                 # game.memory['equip_action'] = equip_action
                 action.do(equip_action)
@@ -2016,10 +2017,12 @@ class CombatTargetingState(MapState):
         game.highlight.remove_highlights()
         game.ui_view.reset_info()
 
-class ItemTargetingState(MapState):
+class ItemTargetingState(State):
     name = 'item_targeting'
+    transparent = True
 
     def start(self):
+        self.fluid = FluidScroll()
         self.cur_unit = game.cursor.cur_unit
         self.item = game.memory['item']
         self.target = game.memory['target']

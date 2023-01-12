@@ -72,7 +72,6 @@ class EffectiveTag(EffectiveIcon, ItemComponent):
     nid = 'effective_tag'
     desc = "Item will be considered effective if the targeted enemy has any of the tags listed in this component."
     # requires = ['damage']
-    paired_with = ('effective_multiplier',)
     tag = ItemTags.EXTRA
 
     expose = (ComponentType.List, ComponentType.Tag)
@@ -266,6 +265,22 @@ class StatusOnHold(ItemComponent):
 
     def on_remove_item(self, unit, item):
         action.do(action.RemoveSkill(unit, self.value))
+
+class MultiStatusOnHold(ItemComponent):
+    nid = 'multi_status_on_hold'
+    desc = "Item gives these statuses while in unit's inventory"
+    tag = ItemTags.EXTRA
+
+    expose = (ComponentType.List, ComponentType.Skill)  # Nid
+
+    def on_add_item(self, unit, item):
+        for skl in self.value:
+            act = action.AddSkill(unit, skl)
+            action.do(act)
+
+    def on_remove_item(self, unit, item):
+        for skl in self.value:
+            action.do(action.RemoveSkill(unit, skl))
 
 class GainManaAfterCombat(ItemComponent):
     nid = 'gain_mana_after_combat'

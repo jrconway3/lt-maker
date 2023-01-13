@@ -404,11 +404,10 @@ class MapEditor(QMainWindow):
         image: QImage = simple_draw_tilemap(self.current)
 
         starting_path = self.settings.get_last_open_path()
-        fn, ok = QFileDialog.getSaveFileName(
-            self, "Select LT Project", starting_path,
-            "LT Projects (*.ltproj),All Files (*)")
+        fn = QFileDialog.getExistingDirectory(
+            self, "Select LT Project", starting_path)
 
-        if fn and ok:
+        if fn:
             parent_dir = os.path.split(fn)[0]
             self.settings.set_last_open_path(parent_dir)
             
@@ -546,8 +545,13 @@ class MapEditor(QMainWindow):
             with open(self.current_map_save_location) as load_file:
                 s_dict = json.load(load_file)
                 self.current = MapPrefab.restore(s_dict)
-            self.current.reset_all()
-            self.set_current(self.current)
+        if self.current.current_palette:
+            idx = map_maker_palette.PALETTES.index(self.current.current_palette)
+            self.palette_selector.edit.setCurrentIndex(idx)
+            self.palette_changed(idx)
+        else:
+            self.palette_changed(0)  # Apply it for the current palette
+        self.set_current(self.current)
 
     def closeEvent(self, event):
         if self.maybe_save():

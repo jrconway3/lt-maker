@@ -80,7 +80,7 @@ class MountainTerrain(Terrain):
 
             # Quit out of threads that are already operating on this group
             for thread in self.current_threads[:]:
-                if thread.group | group:
+                if thread.group & group:
                     self.quit_thread(thread)
             # Now we can process this group
             self.process_group(tilemap, group)

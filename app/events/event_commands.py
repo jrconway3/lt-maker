@@ -512,6 +512,18 @@ This will 'unhold' the speak command with the specified NID.
 
     keywords = ['Nid']
 
+class Unpause(EventCommand):
+    nid = "unpause"
+    tag = Tags.DIALOGUE_TEXT
+
+    desc = """
+Unpauses a previously paused text box. Has no effect if text box was not paused using `{p}` before.
+
+This will 'unpause' the text box with the specified speaker NID.
+    """
+
+    keywords = ['Nid']
+
 class Narrate(EventCommand):
     nid = "narrate"
     tag = Tags.DIALOGUE_TEXT

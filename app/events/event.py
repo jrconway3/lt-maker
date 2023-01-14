@@ -160,12 +160,6 @@ class Event():
                 else:
                     break
 
-            elif self.state == 'waiting_from_dialog':
-                if current_time > self.wait_time:
-                    self.state = 'dialog'
-                else:
-                    break
-
             elif self.state == 'processing':
                 if self.command_idx >= len(self.commands):
                     self.end()
@@ -185,9 +179,6 @@ class Event():
 
             elif self.state == 'paused':
                 self.state = 'processing'
-
-            elif self.state == 'paused_from_dialog':
-                self.state = 'dialog'
 
             elif self.state == 'almost_complete':
                 if not self.game.movement or len(self.game.movement) <= 0:
@@ -270,9 +261,7 @@ class Event():
                 if dialog_box.solo_flag:
                     break
             for dialog_box in to_draw:
-                # Don't update if we really want to be paused
-                if self.state not in ('paused_from_dialog', 'waiting_from_dialog'):
-                    dialog_box.update()
+                dialog_box.update()
                 dialog_box.draw(surf)
 
         # Fade to black
@@ -475,7 +464,20 @@ class Event():
     def _evaluate_all(self, text: str) -> str:
         return self.text_evaluator._evaluate_all(text)
 
-    def _place_unit(self, unit, position, entry_type, entry_direc = None):
+    def _queue_dialog_command(self, speaker: str, command: str, header='{command:'):
+        event_command_str = command[len(header):-1]
+        try:
+            event_command, _ = event_commands.parse_text_to_command(event_command_str, strict=True)
+            if not event_command:
+                raise SyntaxError("Unable to parse command", ("event.py", 0, 0, event_command_str))
+            # Done backwards to preserve order
+            self.commands.insert(self.command_idx + 1, event_commands.Unpause({'Nid': speaker}))
+            self.commands.insert(self.command_idx + 1, event_command)
+            print(self.commands)
+        except Exception as e:
+            logging.error('Unable to parse command "%s" within dialog. %s', event_command_str, e)
+
+    def _place_unit(self, unit, position, entry_type, entry_direc=None):
         position = tuple(position)
         if self.do_skip:
             action.do(action.ArriveOnMap(unit, position))

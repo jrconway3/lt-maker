@@ -150,8 +150,7 @@ class Dialog():
         # obligatory regex explanation: turns "A line.{w} With some <red>text</>."
         # into ["A line.", "{w}", " With some ", "<red>", "text", "</>", "."]
         # and then decomposes the non-command/tag elements into individual chars.
-        # text_split_by_commands: List[str] = re.split(MATCH_DIALOG_COMMAND_RE, text)
-        text_split_by_commands: List[str] = str_utils.matched_block_expr(text, '{', '}')
+        text_split_by_commands: List[str] = re.split(MATCH_DIALOG_COMMAND_RE, text)
         text_split_by_commands_and_tags: List[str] = []
         for block in text_split_by_commands:
             text_split_by_commands_and_tags += re.split(MATCH_CAPTURE_TAG_RE, block)
@@ -231,24 +230,6 @@ class Dialog():
         lines = text_funcs.split(self.font_type, block, num_lines, WINWIDTH - 16)
         return lines
 
-    def _run_command(self, command: str, header='{command:'):
-        event_command_str = command[len(header):-1]
-        if self.event:
-            try:
-                event_command, _ = event_commands.parse_text_to_command(event_command_str, strict=True)
-                if not event_command:
-                    raise SyntaxError("Unable to parse command", ("dialog.py", 0, 0, event_command_str))
-                self.event.run_command(event_command)
-                self.pause()
-                if self.event.state == 'waiting':
-                    self.event.state = 'waiting_from_dialog'
-                else:
-                    self.event.state = 'paused_from_dialog'
-            except Exception as e:
-                logging.error('Unable to parse command "%s" within dialog. %s', event_command_str, e)
-        else:
-            logging.error("No parent event available to run command %s", event_command_str)
-
     def _next_line(self):
         # Don't do this for the first line
         if len(self.text_lines) > self.num_lines - 1:
@@ -275,10 +256,8 @@ class Dialog():
         elif command == '{clear}':
             self.text_lines.clear()
             self._next_line()
-        elif command.startswith('{command:') and command.endswith('}'):
-            self._run_command(command)
-        elif command.startswith('{c:') and command.endswith('}'):
-            self._run_command(command, '{c:')
+        elif command == '{p}':
+            self.command_pause()
         elif command == ' ':  # Check to see if we should move to next line
             current_line = self.text_lines[-1]
             # Remove any commands from line
@@ -340,6 +319,17 @@ class Dialog():
             self.portrait.stop_talking()
         self.state = 'pause_before_wait'
         self.last_update = engine.get_time()
+
+    def command_pause(self):
+        print("Command Pause")
+        if self.portrait:
+            self.portrait.stop_talking()
+        self.state = 'command_pause'
+
+    def command_unpause(self):
+        print("Command Unpause")
+        if self.state == 'command_pause':
+            self.state = 'process'
 
     def hurry_up(self):
         if self.state == 'process':

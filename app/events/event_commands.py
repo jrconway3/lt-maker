@@ -2862,7 +2862,6 @@ def determine_command_type(text: str) -> EventCommand:
         return Comment(display_values=[text])
     if text.startswith('comment;'):
         return Comment(display_values=[text[8:]])
-    # arguments = text.split(';')
     arguments = get_command_arguments(text)
     command_nid = arguments[0]
     subclasses = EventCommand.__subclasses__()
@@ -2962,7 +2961,6 @@ def parse_text_to_command(text: str, strict: bool = False) -> Tuple[EventCommand
     if text.endswith(';'):
         text = text[:-1]
 
-    # arguments = text.split(';')
     arguments = get_command_arguments(text)
 
     command_nid = arguments[0]

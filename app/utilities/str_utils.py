@@ -140,8 +140,9 @@ def matched_expr(s: str, opener: str, closer: str):
             unclosed += 1
     return all_strs
 
-def find_blocks(s: str, opener: str, closer: str):
-    # returns all strings bounded by balanced openers, closers
+def matched_block_expr(s: str, opener: str, closer: str):
+    # returns all strings bounded by balanced openers, closers 
+    # inclduding content not found within the openers and closers
     # e.g. "Hi{bac{def}jk}Waffle{lmno}" would return "[Hi, {bac{def}jk}, Waffle, {lmno}]""
     assert opener != closer
     assert len(opener) == 1
@@ -179,11 +180,6 @@ def remove_all_matched(s: str, opener: str, closer: str):
     while n:
         s, n = re.subn(rstr, '', s)  # remove non-nested/flat balanced parts
     return s
-
-# def parse_all(self, text: str) -> List[str]:
-#     def recursive_parse(parse_list) -> List[str]:
-#         pass
-#     to_evaluate = matched_expr
 
 if __name__ == '__main__':
     # print(camel_to_snake("Direction"))

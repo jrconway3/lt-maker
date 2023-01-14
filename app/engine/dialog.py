@@ -151,7 +151,7 @@ class Dialog():
         # into ["A line.", "{w}", " With some ", "<red>", "text", "</>", "."]
         # and then decomposes the non-command/tag elements into individual chars.
         # text_split_by_commands: List[str] = re.split(MATCH_DIALOG_COMMAND_RE, text)
-        text_split_by_commands: List[str] = str_utils.find_blocks(text, '{', '}')
+        text_split_by_commands: List[str] = str_utils.matched_block_expr(text, '{', '}')
         text_split_by_commands_and_tags: List[str] = []
         for block in text_split_by_commands:
             text_split_by_commands_and_tags += re.split(MATCH_CAPTURE_TAG_RE, block)

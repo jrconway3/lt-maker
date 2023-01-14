@@ -133,7 +133,6 @@ class Highlighter(QSyntaxHighlighter):
             line = line.split('#', 1)[0]
             if not line:
                 continue
-            # sections = line.split(';')
             sections = event_commands.get_command_arguments(line)
             # handle eval and vars
             for idx, section in enumerate(sections):

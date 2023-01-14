@@ -555,7 +555,7 @@ class Event():
         return position
 
     def _check_placement(self, unit, position, placement):
-        if not self.game.board.check_bounds(position):
+        if not self.game.tilemap.check_bounds(position):
             self.logger.error("%s: position out of bounds %s", 'check_placement', position)
             return None
         current_occupant = self.game.board.get_unit(position)

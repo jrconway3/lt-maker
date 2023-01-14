@@ -85,7 +85,7 @@ def change_music(self: Event, phase, music, flags=None):
     else:
         action.do(action.ChangePhaseMusic(phase, music))
 
-def add_portrait(self: Event, portrait, screen_position, slide=None, expression_list=None, flags=None):
+def add_portrait(self: Event, portrait, screen_position, slide=None, expression_list=None, speed_mult=1, flags=None):
     flags = flags or set()
 
     name = portrait
@@ -119,7 +119,10 @@ def add_portrait(self: Event, portrait, screen_position, slide=None, expression_
     if 'immediate' in flags or self.do_skip:
         transition = False
 
-    new_portrait = EventPortrait(portrait, position, priority, transition, slide, mirror)
+    speed_mult = 1 / max(speed_mult, 0.001)
+
+    new_portrait = EventPortrait(portrait, position, priority, transition, 
+                                 slide, mirror, speed_mult=speed_mult)
     self.portraits[name] = new_portrait
 
     if expression_list:
@@ -151,7 +154,7 @@ def multi_add_portrait(self: Event, portrait1, screen_position1, portrait2, scre
         # Done backwards to preserve order upon insertion
         self.commands.insert(self.command_idx + 1, command)
 
-def remove_portrait(self: Event, portrait, flags=None):
+def remove_portrait(self: Event, portrait, speed_mult=1, flags=None):
     flags = flags or set()
 
     name = portrait
@@ -161,11 +164,13 @@ def remove_portrait(self: Event, portrait, flags=None):
     if name not in self.portraits:
         return False
 
+    speed_mult = 1 / max(speed_mult, 0.001)
+
     if 'immediate' in flags or self.do_skip:
         portrait = self.portraits.pop(name)
     else:
         portrait = self.portraits[name]
-        portrait.end()
+        portrait.end(float(speed_mult))
 
     if 'immediate' in flags or 'no_block' in flags or self.do_skip:
         pass
@@ -188,7 +193,7 @@ def multi_remove_portrait(self: Event, portrait1, portrait2, portrait3=None, por
         # Done backwards to preserve order upon insertion
         self.commands.insert(self.command_idx + 1, command)
 
-def move_portrait(self: Event, portrait, screen_position, flags=None):
+def move_portrait(self: Event, portrait, screen_position, speed_mult=1, flags=None):
     flags = flags or set()
 
     name = portrait
@@ -204,7 +209,7 @@ def move_portrait(self: Event, portrait, screen_position, flags=None):
     if 'immediate' in flags or self.do_skip:
         portrait.quick_move(position)
     else:
-        portrait.move(position)
+        portrait.move(position, float(speed_mult))
 
     if 'immediate' in flags or 'no_block' in flags or self.do_skip:
         pass

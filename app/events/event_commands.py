@@ -237,8 +237,6 @@ class Endf(EventCommand):
 Ends a for block. Refer to the **for** command for more information.
         """
 
-
-
 class Finish(EventCommand):
     nid = "finish"
     nickname = "break"
@@ -338,7 +336,8 @@ Extra flags:
         """
 
     keywords = ['Portrait', 'ScreenPosition']
-    optional_keywords = ['Slide', 'ExpressionList']
+    optional_keywords = ['Slide', 'ExpressionList', 'SpeedMult']
+    keyword_types = ['Portrait', 'ScreenPosition', 'Slide', 'ExpressionList', 'Float']
     _flags = ["mirror", "low_priority", "immediate", "no_block"]
 
 class MultiAddPortrait(EventCommand):
@@ -371,6 +370,8 @@ Extra flags:
         """
 
     keywords = ['Portrait']
+    optional_keywords = ['SpeedMult']
+    keyword_types = ['Portrait', 'Float']
     _flags = ["immediate", "no_block"]
 
 class MultiRemovePortrait(EventCommand):
@@ -393,7 +394,7 @@ class MovePortrait(EventCommand):
 
     desc = \
         """
-Causes a portrait to "walk" from one screen position to another.
+Causes a portrait to "walk" from one screen position to another. Default *SpeedMult* is 1. Higher speeds are faster.
 
 Extra flags:
 
@@ -402,6 +403,8 @@ Extra flags:
         """
 
     keywords = ['Portrait', 'ScreenPosition']
+    optional_keywords = ['SpeedMult']
+    keyword_types = ['Portrait', 'ScreenPosition', 'Float']
     _flags = ["immediate", "no_block"]
 
 class BopPortrait(EventCommand):

@@ -140,6 +140,32 @@ def matched_expr(s: str, opener: str, closer: str):
             unclosed += 1
     return all_strs
 
+def find_blocks(s: str, opener: str, closer: str):
+    # returns all strings bounded by balanced openers, closers
+    # e.g. "Hi{bac{def}jk}Waffle{lmno}" would return "[Hi, {bac{def}jk}, Waffle, {lmno}]""
+    assert opener != closer
+    assert len(opener) == 1
+    assert len(closer) == 1
+    all_strs = []
+    curr = ""
+    unclosed = 0
+    for character in s:
+        if character == closer and unclosed > 0:
+            unclosed -= 1
+            curr += character
+            if unclosed == 0:
+                all_strs.append(curr)
+                curr = ""
+        elif character == opener:
+            if unclosed == 0:
+                all_strs.append(curr)
+                curr = ""
+            curr += character
+            unclosed += 1
+        else:
+            curr += character
+    return all_strs
+
 def remove_all_matched(s: str, opener: str, closer: str):
     """
     usage: `{d:{eval:f}.{eval:y}.` becomes `{d:..` - useful for determining which level of a nested eval we're in
@@ -153,6 +179,11 @@ def remove_all_matched(s: str, opener: str, closer: str):
     while n:
         s, n = re.subn(rstr, '', s)  # remove non-nested/flat balanced parts
     return s
+
+# def parse_all(self, text: str) -> List[str]:
+#     def recursive_parse(parse_list) -> List[str]:
+#         pass
+#     to_evaluate = matched_expr
 
 if __name__ == '__main__':
     # print(camel_to_snake("Direction"))

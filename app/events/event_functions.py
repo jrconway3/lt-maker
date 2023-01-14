@@ -417,7 +417,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
                       style_nid=style_nid, autosize=autosize, speed=speed,
                       font_color=fcolor, font_type=ftype, num_lines=lines,
                       draw_cursor=cursor, message_tail=tail, transparency=transparency,
-                      name_tag_bg=nametag)
+                      name_tag_bg=nametag, event=self)
     new_dialog.hold = 'hold' in flags
     if 'no_popup' in flags:
         new_dialog.last_update = engine.get_time() - 10000
@@ -2747,7 +2747,7 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
         textbox = dialog.DynamicDialogWrapper(expr, background=box_bg, position=position, width=box_width,
                       style_nid=style_nid, speed=speed,
                       font_color=fcolor, font_type=ftype, num_lines=lines,
-                      draw_cursor=False, transparency=transparency)
+                      draw_cursor=False, transparency=transparency, event=self)
     else:
         text = self.text_evaluator._evaluate_all(text)
         text = dialog.clean_newlines(text)
@@ -2757,7 +2757,7 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
             dialog.Dialog(text, background=box_bg, position=position, width=box_width,
                         style_nid=style_nid, speed=speed,
                         font_color=fcolor, font_type=ftype, num_lines=lines,
-                        draw_cursor=False, transparency=transparency)
+                        draw_cursor=False, transparency=transparency, event=self)
     self.other_boxes.append((nid, textbox))
 
 def table(self: Event, nid: NID, table_data: str, title: str = None,

@@ -329,7 +329,6 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
     portrait = self.portraits.get(speaker)
 
     # Process text for commands
-    print(text)
     blocks = str_utils.matched_block_expr(text, '{', '}')
     for block in reversed(blocks):  # reversed to preserve order upon insertion
         if block.startswith('{command:') and block.endswith('}'):
@@ -338,7 +337,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
         elif block.startswith('{c:') and block.endswith('}'):
             text = text.replace(block, '{p}', 1)  # Replace first instance
             self._queue_dialog_command(speaker, block, '{c:')
-    print(text)
+
     if text_position:
         try:
             position = Alignments(text_position)
@@ -446,10 +445,13 @@ def unhold(self: Event, nid, flags=None):
             box.hold = False
 
 def unpause(self: Event, nid, flags=None):
-    print("UNPAUSE", nid)
-    for box in self.text_boxes:
+    for box in reversed(self.text_boxes):
         if box.speaker == nid:
             box.command_unpause()
+            break
+    else:
+        self.logger.warning("Did not find any text box with speaker: %s", nid)
+    self.state = 'dialog'
 
 def transition(self: Event, direction=None, speed=None, color3=None, flags=None):
     flags = flags or set()

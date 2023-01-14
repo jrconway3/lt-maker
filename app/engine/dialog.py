@@ -321,13 +321,11 @@ class Dialog():
         self.last_update = engine.get_time()
 
     def command_pause(self):
-        print("Command Pause")
         if self.portrait:
             self.portrait.stop_talking()
         self.state = 'command_pause'
 
     def command_unpause(self):
-        print("Command Unpause")
         if self.state == 'command_pause':
             self.state = 'process'
 

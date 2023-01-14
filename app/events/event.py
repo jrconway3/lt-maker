@@ -174,6 +174,10 @@ class Event():
                         if dialog_log:
                             action.do(action.LogDialog(self.text_boxes[-1]))
                         self.state = 'processing'
+                        if self.text_boxes[-1].is_complete():
+                            self.text_boxes.pop()
+                    elif self.text_boxes[-1].state == 'command_pause':
+                        self.state = 'processing'
                 else:
                     self.state = 'processing'
 
@@ -473,7 +477,6 @@ class Event():
             # Done backwards to preserve order
             self.commands.insert(self.command_idx + 1, event_commands.Unpause({'Nid': speaker}))
             self.commands.insert(self.command_idx + 1, event_command)
-            print(self.commands)
         except Exception as e:
             logging.error('Unable to parse command "%s" within dialog. %s', event_command_str, e)
 

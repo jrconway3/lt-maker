@@ -2763,10 +2763,11 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
             expr = lambda: tryexcept(text)
         except:
             self.logger.error('textbox: %s is not a valid python expression' % text)
-        textbox = dialog.DynamicDialogWrapper(expr, background=box_bg, position=position, width=box_width,
-                      style_nid=style_nid, speed=speed,
-                      font_color=fcolor, font_type=ftype, num_lines=lines,
-                      draw_cursor=False, transparency=transparency, event=self)
+        textbox = dialog.DynamicDialogWrapper(
+            expr, background=box_bg, position=position, width=box_width,
+            style_nid=style_nid, speed=speed,
+            font_color=fcolor, font_type=ftype, num_lines=lines,
+            draw_cursor=False, transparency=transparency)
     else:
         text = self.text_evaluator._evaluate_all(text)
         text = dialog.clean_newlines(text)
@@ -2774,9 +2775,9 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
         text = text.replace('{w}', '').replace('|', '{br}')
         textbox = \
             dialog.Dialog(text, background=box_bg, position=position, width=box_width,
-                        style_nid=style_nid, speed=speed,
-                        font_color=fcolor, font_type=ftype, num_lines=lines,
-                        draw_cursor=False, transparency=transparency, event=self)
+                          style_nid=style_nid, speed=speed,
+                          font_color=fcolor, font_type=ftype, num_lines=lines,
+                          draw_cursor=False, transparency=transparency)
     self.other_boxes.append((nid, textbox))
 
 def table(self: Event, nid: NID, table_data: str, title: str = None,

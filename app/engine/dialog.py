@@ -4,7 +4,6 @@ from typing import Callable, List
 from app.constants import WINHEIGHT, WINWIDTH
 from app.engine import config as cf
 from app.events import event_portrait, screen_positions, event_commands
-from app.events.triggers import GenericTrigger
 from app.engine import engine, image_mods, text_funcs
 from app.engine.base_surf import create_base_surf
 from app.engine.fonts import FONT
@@ -15,7 +14,7 @@ from app.engine.graphics.text.text_renderer import (MATCH_CAPTURE_TAG_RE,
                                                     text_width)
 from app.engine.sound import get_sound_thread
 from app.engine.sprites import SPRITES
-from app.utilities import utils, str_utils
+from app.utilities import utils
 from app.utilities.enums import Alignments
 
 import logging
@@ -46,8 +45,7 @@ class Dialog():
     def __init__(self, text, portrait=None, background=None, position=None, width=None,
                  speaker=None, style_nid=None, autosize=False, speed: float = 1.0, font_color='black',
                  font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail',
-                 transparency=0.05, name_tag_bg='name_tag', event=None):
-        self.event = event
+                 transparency=0.05, name_tag_bg='name_tag'):
         self.plain_text = text
         self.portrait = portrait
         self.speaker = speaker
@@ -134,7 +132,7 @@ class Dialog():
         self = cls(text, portrait=portrait, background=style.dialog_box, position=style.text_position, width=width,
                    speaker=style.speaker, style_nid=style.nid, autosize=False, speed=style.text_speed, font_color=style.font_color,
                    font_type=style.font_type, num_lines=style.num_lines, draw_cursor=style.draw_cursor, message_tail=style.message_tail,
-                   transparency=style.transparency, name_tag_bg=style.name_tag_bg, event=None)
+                   transparency=style.transparency, name_tag_bg=style.name_tag_bg)
         return self
 
     def format_text(self, text):
@@ -490,7 +488,7 @@ class DynamicDialogWrapper():
     def __init__(self, text_func: Callable[[], str], portrait=None, background=None, position=None, width=None,
                  speaker=None, style_nid=None, autosize=False, speed: float=1.0, font_color='black',
                  font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail', transparency: float=0.05, 
-                 name_tag_bg='name_tag', event=None) -> None:
+                 name_tag_bg='name_tag') -> None:
         # eval trick
         self.resolve_text_func: Callable[[], str] = text_func
         self.resolved_text = clean_newlines(self.resolve_text_func()).replace('{w}', '').replace('|', '{br}')
@@ -510,10 +508,9 @@ class DynamicDialogWrapper():
         self.message_tail = message_tail
         self.transparency = transparency
         self.name_tag_bg = name_tag_bg
-        self.event = event
 
         self.dialog = Dialog(self.resolved_text, portrait, background, position, width, speaker, style_nid, autosize, speed, font_color,
-                             font_type, num_lines, draw_cursor, message_tail, transparency, name_tag_bg, event)
+                             font_type, num_lines, draw_cursor, message_tail, transparency, name_tag_bg)
 
     def update(self):
         new_text = clean_newlines(self.resolve_text_func()).replace('{w}', '').replace('|', '{br}')
@@ -523,7 +520,7 @@ class DynamicDialogWrapper():
                                  self.position, self.width, self.speaker, self.style_nid,
                                  self.autosize, self.speed, self.font_color, self.font_type,
                                  self.num_lines, self.draw_cursor, self.message_tail, self.transparency, 
-                                 self.name_tag_bg, self.event)
+                                 self.name_tag_bg)
             self.dialog.last_update = engine.get_time() - 10000
         return self.dialog.update()
 

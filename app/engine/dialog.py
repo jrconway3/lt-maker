@@ -3,7 +3,8 @@ from typing import Callable, List
 
 from app.constants import WINHEIGHT, WINWIDTH
 from app.engine import config as cf
-from app.events import event_portrait, screen_positions
+from app.events import event_portrait, screen_positions, event_commands
+from app.events.triggers import GenericTrigger
 from app.engine import engine, image_mods, text_funcs
 from app.engine.base_surf import create_base_surf
 from app.engine.fonts import FONT
@@ -14,8 +15,10 @@ from app.engine.graphics.text.text_renderer import (MATCH_CAPTURE_TAG_RE,
                                                     text_width)
 from app.engine.sound import get_sound_thread
 from app.engine.sprites import SPRITES
-from app.utilities import utils
+from app.utilities import utils, str_utils
 from app.utilities.enums import Alignments
+
+import logging
 
 MATCH_DIALOG_COMMAND_RE = re.compile('(\{[^\{]*?\})')
 
@@ -43,7 +46,8 @@ class Dialog():
     def __init__(self, text, portrait=None, background=None, position=None, width=None,
                  speaker=None, style_nid=None, autosize=False, speed: float = 1.0, font_color='black',
                  font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail',
-                 transparency=0.05, name_tag_bg='name_tag'):
+                 transparency=0.05, name_tag_bg='name_tag', event=None):
+        self.event = event
         self.plain_text = text
         self.portrait = portrait
         self.speaker = speaker
@@ -130,7 +134,7 @@ class Dialog():
         self = cls(text, portrait=portrait, background=style.dialog_box, position=style.text_position, width=width,
                    speaker=style.speaker, style_nid=style.nid, autosize=False, speed=style.text_speed, font_color=style.font_color,
                    font_type=style.font_type, num_lines=style.num_lines, draw_cursor=style.draw_cursor, message_tail=style.message_tail,
-                   transparency=style.transparency, name_tag_bg=style.name_tag_bg)
+                   transparency=style.transparency, name_tag_bg=style.name_tag_bg, event=None)
         return self
 
     def format_text(self, text):
@@ -146,7 +150,8 @@ class Dialog():
         # obligatory regex explanation: turns "A line.{w} With some <red>text</>."
         # into ["A line.", "{w}", " With some ", "<red>", "text", "</>", "."]
         # and then decomposes the non-command/tag elements into individual chars.
-        text_split_by_commands: List[str] = re.split(MATCH_DIALOG_COMMAND_RE, text)
+        # text_split_by_commands: List[str] = re.split(MATCH_DIALOG_COMMAND_RE, text)
+        text_split_by_commands: List[str] = str_utils.find_blocks(text, '{', '}')
         text_split_by_commands_and_tags: List[str] = []
         for block in text_split_by_commands:
             text_split_by_commands_and_tags += re.split(MATCH_CAPTURE_TAG_RE, block)
@@ -226,6 +231,24 @@ class Dialog():
         lines = text_funcs.split(self.font_type, block, num_lines, WINWIDTH - 16)
         return lines
 
+    def _run_command(self, command: str, header='{command:'):
+        event_command_str = command[len(header):-1]
+        if self.event:
+            try:
+                event_command, _ = event_commands.parse_text_to_command(event_command_str, strict=True)
+                if not event_command:
+                    raise SyntaxError("Unable to parse command", ("dialog.py", 0, 0, event_command_str))
+                self.event.run_command(event_command)
+                self.pause()
+                if self.event.state == 'waiting':
+                    self.event.state = 'waiting_from_dialog'
+                else:
+                    self.event.state = 'paused_from_dialog'
+            except Exception as e:
+                logging.error('Unable to parse command "%s" within dialog. %s', event_command_str, e)
+        else:
+            logging.error("No parent event available to run command %s", event_command_str)
+
     def _next_line(self):
         # Don't do this for the first line
         if len(self.text_lines) > self.num_lines - 1:
@@ -252,6 +275,10 @@ class Dialog():
         elif command == '{clear}':
             self.text_lines.clear()
             self._next_line()
+        elif command.startswith('{command:') and command.endswith('}'):
+            self._run_command(command)
+        elif command.startswith('{c:') and command.endswith('}'):
+            self._run_command(command, '{c:')
         elif command == ' ':  # Check to see if we should move to next line
             current_line = self.text_lines[-1]
             # Remove any commands from line
@@ -474,7 +501,8 @@ class Dialog():
 class DynamicDialogWrapper():
     def __init__(self, text_func: Callable[[], str], portrait=None, background=None, position=None, width=None,
                  speaker=None, style_nid=None, autosize=False, speed: float=1.0, font_color='black',
-                 font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail', transparency: float=0.05, name_tag_bg='name_tag') -> None:
+                 font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail', transparency: float=0.05, 
+                 name_tag_bg='name_tag', event=None) -> None:
         # eval trick
         self.resolve_text_func: Callable[[], str] = text_func
         self.resolved_text = clean_newlines(self.resolve_text_func()).replace('{w}', '').replace('|', '{br}')
@@ -494,9 +522,10 @@ class DynamicDialogWrapper():
         self.message_tail = message_tail
         self.transparency = transparency
         self.name_tag_bg = name_tag_bg
+        self.event = event
 
         self.dialog = Dialog(self.resolved_text, portrait, background, position, width, speaker, style_nid, autosize, speed, font_color,
-                             font_type, num_lines, draw_cursor, message_tail, transparency, name_tag_bg)
+                             font_type, num_lines, draw_cursor, message_tail, transparency, name_tag_bg, event)
 
     def update(self):
         new_text = clean_newlines(self.resolve_text_func()).replace('{w}', '').replace('|', '{br}')
@@ -505,7 +534,8 @@ class DynamicDialogWrapper():
             self.dialog = Dialog(self.resolved_text, self.portrait, self.background,
                                  self.position, self.width, self.speaker, self.style_nid,
                                  self.autosize, self.speed, self.font_color, self.font_type,
-                                 self.num_lines, self.draw_cursor, self.message_tail, self.transparency, self.name_tag_bg)
+                                 self.num_lines, self.draw_cursor, self.message_tail, self.transparency, 
+                                 self.name_tag_bg, self.event)
             self.dialog.last_update = engine.get_time() - 10000
         return self.dialog.update()
 

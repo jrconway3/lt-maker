@@ -237,8 +237,6 @@ class Endf(EventCommand):
 Ends a for block. Refer to the **for** command for more information.
         """
 
-
-
 class Finish(EventCommand):
     nid = "finish"
     nickname = "break"
@@ -2836,13 +2834,36 @@ def restore_command(dat) -> EventCommand:
 
 evaluables = ('Expression', 'String', 'StringList', 'PointList', 'DashList', 'Nid')
 
+def get_command_arguments(text: str) -> List[str]:
+    # Replacement for text.split(';') 
+    # that ignores any semicolons
+    # found within '{}' brackets
+    arguments = []
+    curr = ""
+    level = 0
+    for t in text:
+        if t == ';' and level == 0:
+            arguments.append(curr)
+            curr = ""
+        elif t == '{':
+            level += 1
+            curr += t
+        elif t == '}':
+            level -= 1
+            curr += t
+        else:
+            curr += t
+    arguments.append(curr)
+    return arguments
+
 def determine_command_type(text: str) -> EventCommand:
     text = text.lstrip()
     if text.startswith('#'):
         return Comment(display_values=[text])
     if text.startswith('comment;'):
         return Comment(display_values=[text[8:]])
-    arguments = text.split(';')
+    # arguments = text.split(';')
+    arguments = get_command_arguments(text)
     command_nid = arguments[0]
     subclasses = EventCommand.__subclasses__()
     for command_type in subclasses:
@@ -2862,6 +2883,7 @@ def parse_text_to_command(text: str, strict: bool = False) -> Tuple[EventCommand
 
     Returns:
         EventCommand: parsed command
+        int: Index of the character the command failed to parse at (only if strict)
     """
     def _process_arg(cmd_keyword: str, arg: str) -> str:
         # if parentheses exists, then they contain the "true" arg, with everything outside parens essentially as comments
@@ -2940,7 +2962,9 @@ def parse_text_to_command(text: str, strict: bool = False) -> Tuple[EventCommand
     if text.endswith(';'):
         text = text[:-1]
 
-    arguments = text.split(';')
+    # arguments = text.split(';')
+    arguments = get_command_arguments(text)
+
     command_nid = arguments[0]
     subclasses = EventCommand.__subclasses__()
     bad_idx = None

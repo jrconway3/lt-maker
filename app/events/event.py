@@ -160,6 +160,12 @@ class Event():
                 else:
                     break
 
+            elif self.state == 'waiting_from_dialog':
+                if current_time > self.wait_time:
+                    self.state = 'dialog'
+                else:
+                    break
+
             elif self.state == 'processing':
                 if self.command_idx >= len(self.commands):
                     self.end()
@@ -179,6 +185,9 @@ class Event():
 
             elif self.state == 'paused':
                 self.state = 'processing'
+
+            elif self.state == 'paused_from_dialog':
+                self.state = 'dialog'
 
             elif self.state == 'almost_complete':
                 if not self.game.movement or len(self.game.movement) <= 0:
@@ -261,7 +270,9 @@ class Event():
                 if dialog_box.solo_flag:
                     break
             for dialog_box in to_draw:
-                dialog_box.update()
+                # Don't update if we really want to be paused
+                if self.state not in ('paused_from_dialog', 'waiting_from_dialog'):
+                    dialog_box.update()
                 dialog_box.draw(surf)
 
         # Fade to black

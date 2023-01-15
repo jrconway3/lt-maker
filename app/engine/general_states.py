@@ -1452,6 +1452,13 @@ class WeaponChoiceState(MapState):
             # If the item is in our inventory, bring it to the top
             if selection in self.cur_unit.items:
                 action.do(action.BringToTopItem(self.cur_unit, selection))
+            # find ultimate parent item
+            elif selection.parent_item:
+                parent_item = selection.parent_item
+                while parent_item.parent_item:
+                    parent_item = parent_item.parent_item
+                if parent_item in self.cur_unit.items:
+                    action.do(action.BringToTopItem(self.cur_unit, parent_item))
 
             game.memory['item'] = selection
             game.state.change('combat_targeting')
@@ -1539,6 +1546,13 @@ class SpellChoiceState(WeaponChoiceState):
             # If the item is in our inventory, bring it to the top
             if selection in self.cur_unit.items:
                 action.do(action.BringToTopItem(self.cur_unit, selection))
+            # find ultimate parent item
+            elif selection.parent_item:
+                parent_item = selection.parent_item
+                while parent_item.parent_item:
+                    parent_item = parent_item.parent_item
+                if parent_item in self.cur_unit.items:
+                    action.do(action.BringToTopItem(self.cur_unit, parent_item))
             game.memory['item'] = selection
             game.state.change('combat_targeting')
 

@@ -8,7 +8,15 @@ from app import constants
 
 remote_repo = r"https://gitlab.com/rainlash/lt-maker/-/releases/permalink/latest/downloads/lex_talionis_maker"
 remote_latest = r"https://gitlab.com/rainlash/lt-maker/-/releases/permalink/latest"
-remote_latest_evidence = r"https://gitlab.com/rainlash/lt-maker/-/releases/permalink/latest/evidence"
+metadata = "version.txt"
+
+def check_version(a: str, b: str) -> bool:
+    """
+    Returns True if a > b, False otherwise
+    """
+    a = a.replace('.', '').replace('-', '')
+    b = b.replace('.', '').replace('-', '')
+    return a != b
 
 def download_url(url, save_path):
     with urllib.request.urlopen(url) as dl_file:
@@ -26,28 +34,22 @@ def check_for_update() -> bool:
     new_version = version_url[version_num:]
     print(new_version, version_url)
 
-    # Determine what date the release was released
-    # According to Gitlab documentation,
-    # this should work
-    # However, it always 404s
-    # Maybe one day Gitlab will fix their bugs
-    resp = urllib.request.urlopen(remote_latest_evidence)
-    content = resp.read()
-    data = json.loads(content)
-    release = data.get('release')
-    created_at_date = release.get('created_at')
-    released_at = datetime.fromisoformat(created_at_date)
+    if os.path.exists(metadata):
+        with open(metadata) as fp:
+            lines = [l.strip() for l in fp.readlines()]
+            cur_version = lines[0]
 
-    # Determine what date the current version of the engine was released
-    current_year, current_month, current_day = constants.VERSION.split('.')
-    current_day = current_day[:2]
-
-    if released_at.year != int(current_year) or released_at.month != int(current_month) or released_at.day != int(current_day):
-        print("Needs update! %s %s" % (released_at.date(), constants.VERSION[:-1]))
-        return True
+        print(new_version)
+        print(cur_version)
+        if check_version(new_version, cur_version):
+            print("Needs update! %s %s" % (new_version, cur_version))
+            return True
+        else:
+            print("Does not need update! %s %s" % (new_version, cur_version))
+            return False
     else:
-        print("Does not need update! %s %s" % (released_at.date(), constants.VERSION[:-1]))
-        return False
+        print("Cannot find version.txt, so needs update: %s!" % metadata)
+        return True
 
 def copy_and_overwrite(src, dst):
     if os.path.exists(dst):

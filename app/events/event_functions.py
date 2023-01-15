@@ -314,7 +314,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
     text = dialog.clean_newlines(text)
 
     if 'no_block' in flags:
-        text += '{no_wait}'
+        text += '{no_wait}'    
 
     speak_style = None
     if style_nid and style_nid in self.game.speak_styles:
@@ -327,6 +327,20 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
     if unit:
         speaker = unit.nid
     portrait = self.portraits.get(speaker)
+
+    # Process text for commands
+    blocks = str_utils.matched_block_expr(text, '{', '}')
+    for block in reversed(blocks):  # reversed to preserve order upon insertion
+        if block.startswith('{command:') and block.endswith('}'):
+            event_command_str = block[len('{command:'):-1]
+        elif block.startswith('{c:') and block.endswith('}'):
+            event_command_str = block[len('{c:'):-1]
+        else:
+            continue
+        text = text.replace(block, '{p}', 1)  # Replace first instance
+        # Done backwards to preserve order
+        self._queue_command('unpause;%s' % speaker)
+        self._queue_command(event_command_str)
 
     if text_position:
         try:
@@ -433,6 +447,15 @@ def unhold(self: Event, nid, flags=None):
     for box in self.text_boxes:
         if box.style_nid == nid:
             box.hold = False
+
+def unpause(self: Event, nid, flags=None):
+    for box in reversed(self.text_boxes):
+        if box.speaker == nid:
+            box.command_unpause()
+            break
+    else:
+        self.logger.warning("Did not find any text box with speaker: %s", nid)
+    self.state = 'dialog'
 
 def transition(self: Event, direction=None, speed=None, color3=None, flags=None):
     flags = flags or set()
@@ -2744,10 +2767,11 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
             expr = lambda: tryexcept(text)
         except:
             self.logger.error('textbox: %s is not a valid python expression' % text)
-        textbox = dialog.DynamicDialogWrapper(expr, background=box_bg, position=position, width=box_width,
-                      style_nid=style_nid, speed=speed,
-                      font_color=fcolor, font_type=ftype, num_lines=lines,
-                      draw_cursor=False, transparency=transparency)
+        textbox = dialog.DynamicDialogWrapper(
+            expr, background=box_bg, position=position, width=box_width,
+            style_nid=style_nid, speed=speed,
+            font_color=fcolor, font_type=ftype, num_lines=lines,
+            draw_cursor=False, transparency=transparency)
     else:
         text = self.text_evaluator._evaluate_all(text)
         text = dialog.clean_newlines(text)
@@ -2755,9 +2779,9 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
         text = text.replace('{w}', '').replace('|', '{br}')
         textbox = \
             dialog.Dialog(text, background=box_bg, position=position, width=box_width,
-                        style_nid=style_nid, speed=speed,
-                        font_color=fcolor, font_type=ftype, num_lines=lines,
-                        draw_cursor=False, transparency=transparency)
+                          style_nid=style_nid, speed=speed,
+                          font_color=fcolor, font_type=ftype, num_lines=lines,
+                          draw_cursor=False, transparency=transparency)
     self.other_boxes.append((nid, textbox))
 
 def table(self: Event, nid: NID, table_data: str, title: str = None,

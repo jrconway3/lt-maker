@@ -332,11 +332,15 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
     blocks = str_utils.matched_block_expr(text, '{', '}')
     for block in reversed(blocks):  # reversed to preserve order upon insertion
         if block.startswith('{command:') and block.endswith('}'):
-            text = text.replace(block, '{p}', 1)  # Replace first instance
-            self._queue_dialog_command(speaker, block)
+            event_command_str = block[len('{command:'):-1]
         elif block.startswith('{c:') and block.endswith('}'):
-            text = text.replace(block, '{p}', 1)  # Replace first instance
-            self._queue_dialog_command(speaker, block, '{c:')
+            event_command_str = block[len('{c:'):-1]
+        else:
+            continue
+        text = text.replace(block, '{p}', 1)  # Replace first instance
+        # Done backwards to preserve order
+        self._queue_command('unpause;%s' % speaker)
+        self._queue_command(event_command_str)
 
     if text_position:
         try:

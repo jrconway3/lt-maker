@@ -291,20 +291,26 @@ class Dialog():
                 word += letter
         return word
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """
         Should no longer be drawn
         """
         return self.state == 'done' and not self.hold
 
-    def is_done(self):
+    def is_done(self) -> bool:
         """
         Can move onto processing other commands
         """
         return self.state == 'done'
 
-    def is_done_or_wait(self):
+    def is_done_or_wait(self) -> bool:
         return self.state in ('done', 'wait')
+
+    def is_paused(self) -> bool:
+        """
+        Waiting for the event to finish processing it's {p} command
+        """
+        return self.state == 'command_pause'
 
     def pause(self):
         if self.portrait:
@@ -742,17 +748,20 @@ class Ending():
 
         return self.bg
 
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """
         Should stop being drawn
         """
         return False
 
-    def is_done(self):
+    def is_done(self) -> bool:
         return self.dialog.is_done()
 
-    def is_done_or_wait(self):
+    def is_done_or_wait(self) -> bool:
         return self.dialog.is_done_or_wait()
+
+    def is_paused(self) -> bool:
+        return self.dialog.is_paused()
 
     def hurry_up(self):
         self.dialog.hurry_up()

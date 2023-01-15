@@ -176,7 +176,7 @@ class Event():
                         self.state = 'processing'
                         if self.text_boxes[-1].is_complete():
                             self.text_boxes.pop()
-                    elif self.text_boxes[-1].state == 'command_pause':
+                    elif self.text_boxes[-1].is_paused():
                         self.state = 'processing'
                 else:
                     self.state = 'processing'
@@ -468,17 +468,14 @@ class Event():
     def _evaluate_all(self, text: str) -> str:
         return self.text_evaluator._evaluate_all(text)
 
-    def _queue_dialog_command(self, speaker: str, command: str, header='{command:'):
-        event_command_str = command[len(header):-1]
+    def _queue_command(self, event_command_str: str):
         try:
             event_command, _ = event_commands.parse_text_to_command(event_command_str, strict=True)
             if not event_command:
                 raise SyntaxError("Unable to parse command", ("event.py", 0, 0, event_command_str))
-            # Done backwards to preserve order
-            self.commands.insert(self.command_idx + 1, event_commands.Unpause({'Nid': speaker}))
             self.commands.insert(self.command_idx + 1, event_command)
         except Exception as e:
-            logging.error('Unable to parse command "%s" within dialog. %s', event_command_str, e)
+            logging.error('_queue_command: Unable to parse command "%s". %s', event_command_str, e)
 
     def _place_unit(self, unit, position, entry_type, entry_direc=None):
         position = tuple(position)

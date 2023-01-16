@@ -598,7 +598,8 @@ class MainEditor(QMainWindow):
         if hasattr(sys, 'frozen'):
             if autoupdate.check_for_update():
                 ret = QMessageBox.information(self, "Update Available", "A new update to LT-maker is available!\n"
-                                              "Do you want to download and install now?",
+                                              "Do you want to download and install now?\n"
+                                              "This will close the current editor.",
                                               QMessageBox.Yes | QMessageBox.No)
                 if ret == QMessageBox.Yes:
                     if self.project_save_load_handler.maybe_save():

@@ -1,10 +1,6 @@
 import shutil, sys, os
-from datetime import datetime
-import json
 import urllib.request
 from zipfile import ZipFile
-
-from app import constants
 
 remote_repo = r"https://gitlab.com/rainlash/lt-maker/-/releases/permalink/latest/downloads/lex_talionis_maker"
 remote_latest = r"https://gitlab.com/rainlash/lt-maker/-/releases/permalink/latest"
@@ -57,48 +53,82 @@ def copy_and_overwrite(src, dst):
     shutil.copytree(src, dst)
 
 # Update all files -- probably buggy as hell
-# TODO test once `check_for_update` works
 def update() -> bool:
-    print("Starting Process! %s" % remote_repo)
-    remote_zip = r"remote_tmp.zip"
-    download_url(remote_repo, remote_zip)
-    print(remote_zip)
-    remote_dir = remote_zip.replace('.zip', '/')
-    print(remote_dir)
-    try:
-        with ZipFile(remote_zip, 'r') as z:
-            print("Extracting...")
-            z.extractall(remote_dir)
-        print("Done extracting to %s" % remote_dir)
-    except OSError as e:
-        print("Failed to fully unzip remote %s to %s! %s" % (remote_zip, remote_dir, e))
-        return False
-
-    try:
-        os.remove(remote_zip)
-    except OSError as e:
-        print("Failed to delete zip %s! %s" % (remote_zip, e))
-        return False
-
     print("Executable: %s" % sys.executable)
     local = os.path.dirname(sys.executable)
     print("Local: %s %s" % (local, os.path.abspath(local)))
     cwd = os.path.abspath(os.getcwd())
     print("Current working directory: %s" % cwd)
     # Make backup of current working directory
+    print("Making backup of current working directory...")
     current_backup = cwd + '.tmp'
     shutil.copytree(cwd, current_backup)
 
+    print("Starting Process! %s" % remote_repo)
+    remote_zip = r"remote_tmp.zip"
+    download_url(remote_repo, remote_zip)
+    print(os.path.abspath(remote_zip))
+    remote_dir = os.path.abspath(remote_zip.replace('.zip', '/'))
+    print(remote_dir)
     try:
-        copy_and_overwrite(remote_dir, cwd)
+        with ZipFile(remote_zip, 'r') as z:
+            print("Extracting...")
+            z.extractall(remote_dir)
+        print("Done extracting to %s" % os.path.abspath(remote_dir))
     except OSError as e:
-        print("Failed to completely upgrade files when copying %s to %s! %s" % (remote_dir, cwd, e))
-        copy_and_overwrite(current_backup, cwd)
+        print("Failed to fully unzip remote %s to %s! %s" % (remote_zip, remote_dir, e))
         return False
+
+    print("Deleting zip")
+    try:
+        os.remove(remote_zip)
+    except OSError as e:
+        print("Failed to delete zip %s! %s" % (remote_zip, e))
+        return False
+
+    true_remote_dir = os.path.join(remote_dir, 'lt_editor', 'lt_editor')
+    potential_changes = [
+        'lt_editor.exe',
+        'VCRunTIME.dll',
+        'base_library.zip',
+        'app/',
+        'default.ltproj/',
+        'icons/',
+        'locale/',
+        'resources/',
+        'sprites/'
+    ]
+
+    try:
+        # diff current_backup and remote_dir
+        # import filecmp
+        # new = os.path.join(remote_dir, 'lt_editor', 'lt_editor')
+        # print(new)
+        # diff = filecmp.dircmp(new, current_backup)
+        # print("*** Diff Report ***")
+        # diff.report()
+        # print("*** Diff Full Report ***")
+        # diff.report_full_closure()
+        
+        for fn in potential_changes:
+            new_path = os.path.join(true_remote_dir, fn)
+            old_path = os.path.join(cwd, fn)
+            print("Copying %s to %s..." % (new_path, old_path))
+            copy_and_overwrite(new_path, old_path)
+
+    except OSError as e:
+        print("Failed to completely upgrade files when copying %s to %s! %s" % (true_remote_dir, cwd, e))
+        print("Replacing with backup...")
+        for fn in potential_changes:
+            backup_path = os.path.join(current_backup, fn)
+            your_path = os.path.join(cwd, fn)
+            print("Copying %s to %s..." % (backup_path, your_path))
+            copy_and_overwrite(backup_path, your_path)
+        return False
+
     finally:
         shutil.rmtree(remote_dir)
         shutil.rmtree(current_backup)
-
     return True
     
 if __name__ == '__main__':

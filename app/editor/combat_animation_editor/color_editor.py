@@ -1,12 +1,13 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, \
-    QLabel, QSizePolicy, QSpinBox, QLineEdit
-from PyQt5.QtCore import pyqtSignal, QObject, QTimer, Qt, QRect
-from PyQt5.QtGui import QColor, QEvent, QMouseEvent, QCursor, QGuiApplication, QWindow
+    QLineEdit, QPushButton
+from PyQt5.QtCore import pyqtSignal, QObject, QTimer, Qt, QRect, \
+    QPoint, QEvent
+from PyQt5.QtGui import QColor, QCursor, QMouseEvent, \
+    QGuiApplication, QWindow, QScreen
 
 from app.utilities import utils
 from app.extensions.custom_gui import PropertyBox
 from app.extensions.color_icon import ColorIcon
-from app.extensions.color_slider import RGBSlider, HSVSlider
 from app.editor.combat_animation_editor.channel_box import ChannelBox
 
 from typing import Tuple
@@ -64,7 +65,7 @@ class ColorEditorWidget(QWidget):
         When the user presses the "Pick Screen Color" button
         """
         self.installEventFilter(self.color_picker_event_filter)
-        self.grabMouse(Qt::CrossCursor)
+        self.grabMouse(Qt.CrossCursor)
         
         if utils.is_windows():
             # Windows only hack
@@ -75,9 +76,8 @@ class ColorEditorWidget(QWidget):
 
         self.setMouseTracking(True)
         global_pos = QCursor.pos()
-        self.set_current(self.grab_screen_color(global_pos))
-        for widget in self.all_widgets:
-            widget.setDisabled(True)
+        color = self.grab_screen_color(global_pos)
+        self.set_current(color)
 
     def on_release_screen_color(self):
         """
@@ -91,17 +91,15 @@ class ColorEditorWidget(QWidget):
             self.dummy_transparent_window.setVisible(False)
 
         self.setMouseTracking(False)
-        for widget in self.all_widgets:
-            widget.setDisabled(False)
 
     def grab_screen_color(self, point: QPoint) -> QColor:
         screen: QScreen = QGuiApplication.screenAt(point)
         if not screen:
             screen = QGuiApplication.primaryScreen()
         screen_rect: QRect = screen.geometry()
-        pixmap = screen.grabWindow(0, point.x() - screenRect.x(), point.y() - screenRect.y(), 1, 1)
+        pixmap = screen.grabWindow(0, point.x() - screen_rect.x(), point.y() - screen_rect.y(), 1, 1)
         im = pixmap.toImage()
-        return im.pixel(0, 0)
+        return im.pixelColor(0, 0)
 
     def force_mouse_tracking(self):
         """
@@ -113,23 +111,24 @@ class ColorEditorWidget(QWidget):
             self.update_color_picking(new_global_pos)
             self.dummy_transparent_window.setPosition(new_global_pos)
         
-    def update_color_picking(self, point: QPoint)
+    def update_color_picking(self, point: QPoint):
         color = self.grab_screen_color(point)
-        # allow color change to propagate briefly
-        for widget in self.all_widgets:
-            widget.setDisabled(False)
-        # actually change color
         self.set_current(color)
-        # Back to no clicky clicky
-        for widget in self.all_widgets:
-            widget.setDisabled(True)
 
-    def handle_color_picking_mouse_move(e: QMouseEvent):
-        self.update_color_picking(e.globalPosition().toPoint())
+    def handle_color_picking_mouse_move(self, e: QMouseEvent) -> bool:
+        self.update_color_picking(e.globalPos())
+        # Note: The above is deprecated but the below doesn't work in PyQt
+        # self.update_color_picking(e.globalPosition().toPoint())
 
-    def handle_color_picking_mouse_release(e: QMouseEvent):
-        self.set_current(self.grab_screen_color(e.globalPosition().toPoint()))
+        return True
+
+    def handle_color_picking_mouse_release(self, e: QMouseEvent) -> bool:
+        self.set_current(self.grab_screen_color(e.globalPos()))
+        # Note: The above is deprecated but the below doesn't work in PyQt
+        # self.set_current(self.grab_screen_color(e.globalPosition().toPoint()))
+
         self.on_release_screen_color()
+        return True
     # Screen color picking ends here
 
     def on_hex_edited(self, text: str):
@@ -156,8 +155,9 @@ class QColorPickingEventFilter(QObject):
         super().__init__(color_dialog)
         self.color_dialog = color_dialog
 
-    def eventFilter(self, event: QEvent):
+    def eventFilter(self, obj, event: QEvent) -> bool:
         if event.type() == QEvent.MouseMove:
             return self.color_dialog.handle_color_picking_mouse_move(event)
         elif event.type() == QEvent.MouseButtonRelease:
             return self.color_dialog.handle_color_picking_mouse_release(event)
+        return False

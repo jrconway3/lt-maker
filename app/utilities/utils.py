@@ -226,7 +226,7 @@ def flatten_list(initial_list) -> list:
 def rationalize(p: Tuple[float, float]) -> Tuple[int, int]:
     return (int(round(p[0])), int(round(p[1])))
 
-def is_windows(self) -> bool:
+def is_windows() -> bool:
     return sys.platform.startswith('win')
 
 # Testing

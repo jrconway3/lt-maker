@@ -1,11 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, \
-    QLabel, QSizePolicy, QSpinBox, QLineEdit
-from PyQt5.QtCore import pyqtSignal, QObject
-from PyQt5.QtGui import QColor, QEvent, QMouseEvent, QCursor, QGuiApplication
+    QLabel, QSizePolicy, QSpinBox
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QColor
 
-from app.utilities import utils
-from app.extensions.custom_gui import PropertyBox
-from app.extensions.color_icon import ColorIcon
 from app.extensions.color_slider import RGBSlider, HSVSlider
 
 class ChannelBox(QWidget):

@@ -2561,6 +2561,46 @@ class RemoveRegion(Action):
             for act in self.subactions:
                 act.reverse()
 
+class AddFogRegion(Action):
+    def __init__(self, region):
+        self.region = region
+
+    def do(self):
+        game.board.add_fog_region(self.region)
+
+    def reverse(self):
+        game.board.remove_fog_region(self.region)
+
+class RemoveFogRegion(Action):
+    def __init__(self, region):
+        self.region = region
+
+    def do(self):
+        game.board.remove_fog_region(self.region)
+
+    def reverse(self):
+        game.board.add_fog_region(self.region)
+
+class AddVisionRegion(Action):
+    def __init__(self, region):
+        self.region = region
+
+    def do(self):
+        game.board.add_vision_region(self.region)
+
+    def reverse(self):
+        game.board.remove_vision_region(self.region)
+
+class RemoveVisionRegion(Action):
+    def __init__(self, region):
+        self.region = region
+
+    def do(self):
+        game.board.remove_vision_region(self.region)
+
+    def reverse(self):
+        game.board.add_vision_region(self.region)
+
 def _leave(layer):
     # Force all affected units to leave
     layer_positions = layer.terrain.keys()

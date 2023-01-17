@@ -136,6 +136,9 @@ class Database(object):
         return to_save
 
     def serialize(self, proj_dir):
+        from app.editor.settings import MainSettingsController
+        main_settings = MainSettingsController()
+
         data_dir = os.path.join(proj_dir, 'game_data')
         if not os.path.exists(data_dir):
             os.mkdir(data_dir)
@@ -147,11 +150,8 @@ class Database(object):
         to_save = self.save()
         # This section is what takes so long!
         for key, value in to_save.items():
-            if key not in self.save_as_chunks:
-                save_loc = os.path.join(data_dir, key + '.json')
-                logging.info("Serializing %s to %s" % (key, save_loc))
-                self.json_save(save_loc, value)
-            else: # divide save data into chunks based on key value
+            # divide save data into chunks based on key value
+            if key in self.save_as_chunks and main_settings.get_should_save_as_chunks():
                 save_dir = os.path.join(data_dir, key)
                 if os.path.exists(save_dir):
                     shutil.rmtree(save_dir)
@@ -176,6 +176,10 @@ class Database(object):
                     logging.info("Serializing %s to %s" % ('%s/%s.json' % (key, name), save_loc))
                     self.json_save(save_loc, [subvalue])
                 self.json_save(os.path.join(save_dir, '.orderkeys'), orderkeys)
+            else:  # Save as a single file
+                save_loc = os.path.join(data_dir, key + '.json')
+                logging.info("Serializing %s to %s" % (key, save_loc))
+                self.json_save(save_loc, value)
 
         for key in self.save_data_types:
             catalog = getattr(self, key)

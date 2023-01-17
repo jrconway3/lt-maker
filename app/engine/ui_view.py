@@ -568,6 +568,8 @@ class UIView():
             surf.blit(SPRITES.get('x3'), x2_pos_player)
         elif my_num == 4:
             surf.blit(SPRITES.get('x4'), x2_pos_player)
+        elif my_num == 5:
+            surf.blit(SPRITES.get('x5'), x2_pos_player)
 
         if a_assist:
             if skill_system.attack_stance_double(a_assist):
@@ -589,6 +591,8 @@ class UIView():
                 surf.blit(SPRITES.get('x3'), x2_pos_enemy)
             elif e_num == 4:
                 surf.blit(SPRITES.get('x4'), x2_pos_enemy)
+            elif e_num == 5:
+                surf.blit(SPRITES.get('x5'), x2_pos_enemy)
 
             if d_assist:
                 if skill_system.attack_stance_double(d_assist):

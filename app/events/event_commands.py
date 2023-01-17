@@ -766,6 +766,18 @@ Sets the fog of war state for the current level.
     optional_keywords = ["AIRadius", "OtherRadius"]
     keyword_types = ["FogOfWarType", "PositiveInteger", "PositiveInteger", "PositiveInteger"]
 
+class EnableFogOfWar(EventCommand):
+    nid = 'enable_fog_of_war'
+    tag = Tags.LEVEL_VARS
+
+    desc = \
+        """
+Activates or deactivates base level of fog of war. Does not affect presence of fog or vision regions
+        """
+
+    keywords = ["Activated"]
+    keyword_types = ['Bool']
+
 class EnableSupports(EventCommand):
     nid = 'enable_supports'
     tag = Tags.GAME_VARS

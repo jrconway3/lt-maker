@@ -184,9 +184,11 @@ class GameBoard(object):
             cell.discard(region.nid)
 
     def in_vision(self, pos, team='player') -> bool:
-        if not game.level_vars.get('_fog_of_war') and not self.fog_region_set:
-            return True  # Always in vision if not in fog of war and there are no fog regions
         idx = pos[0] * self.height + pos[1]
+
+        # Anybody can see things in vision regions no matter what
+        if self.vision_regions[idx]:
+            return True
 
         if game.level_vars.get('_fog_of_war') or self.fog_regions[idx]:
             if team == 'player':
@@ -212,12 +214,9 @@ class GameBoard(object):
                 grid = self.fog_of_war_grids[team]
                 if grid[idx]:
                     return True
-
-        # Anybody can see things in vision regions
-        if self.vision_regions[idx]:
+            return False
+        else:
             return True
-
-        return False
 
     def get_fog_of_war_radius(self, team: str) -> int:
         ai_fog_of_war_radius = game.level_vars.get('_ai_fog_of_war_radius', game.level_vars.get('_fog_of_war_radius', 0))

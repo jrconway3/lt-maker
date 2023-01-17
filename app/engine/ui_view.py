@@ -563,7 +563,7 @@ class UIView():
         my_num = min(my_num, weapon.data.get('uses', 100))
 
         if my_num != 1:
-            surf.blit(SPRITES.get('x'+str(my_num)), x2_pos_player)
+            surf.blit(SPRITES.get("x%d" % (my_num)), x2_pos_player)
 
         if a_assist:
             if skill_system.attack_stance_double(a_assist):
@@ -580,7 +580,7 @@ class UIView():
             e_num = min(e_num, eweapon.data.get('uses', 100))
 
             if e_num != 1:
-                surf.blit(SPRITES.get('x'+str(e_num)), x2_pos_enemy)
+                surf.blit(SPRITES.get("x%d" % (e_num)), x2_pos_enemy)
 
             if d_assist:
                 if skill_system.attack_stance_double(d_assist):

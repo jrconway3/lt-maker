@@ -187,6 +187,7 @@ class GameBoard(object):
         idx = pos[0] * self.height + pos[1]
 
         # Anybody can see things in vision regions no matter what
+        # So don't use vision regions with fog line of sight
         if self.vision_regions[idx]:
             return True
 

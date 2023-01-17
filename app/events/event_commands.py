@@ -1981,7 +1981,7 @@ Adds a new region to the map that can be referenced by events. *Nid* will be the
 
 The optional *String* keyword can be used to specify the sub-region type.
 
-When set, the *only_once* flag prevents multiples of the same region from being created. The *interrupt_move* flag halts a unit's movement once they move into the region.
+When set, the *only_once* flag applies only to event region, preventing them from being used more than once. The *interrupt_move* flag halts a unit's movement once they move into the region.
         """
 
     keywords = ["Region", "Position", "Size", "RegionType"]

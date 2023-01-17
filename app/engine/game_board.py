@@ -27,6 +27,9 @@ class GameBoard(object):
         for team in DB.teams:
             self.fog_of_war_grids[team] = self.init_aura_grid()
         self.fow_vantage_point = {}  # Unit: Position where the unit is that's looking
+        self.fog_regions = self.init_aura_grid()
+        self.fog_region_set = set()  # Set of Fog region nids so we can tell how many fog regions exist at all times
+        self.vision_regions = self.init_aura_grid()
 
         # For Auras
         self.aura_grid = self.init_aura_grid()
@@ -149,8 +152,8 @@ class GameBoard(object):
                 grid[idx].add(unit.nid)
 
     def in_vision(self, pos, team='player') -> bool:
-        if not game.level_vars.get('_fog_of_war'):
-            return True  # Always in vision if not in fog of war
+        if not game.level_vars.get('_fog_of_war') and not self.fog_region_set:
+            return True  # Always in vision if not in fog of war and there are no fog regions
         idx = pos[0] * self.height + pos[1]
         if team == 'player':
             if DB.constants.value('fog_los'):

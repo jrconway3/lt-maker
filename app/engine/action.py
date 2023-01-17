@@ -2477,9 +2477,20 @@ class AddRegion(Action):
             if self.region.region_type == RegionType.STATUS:
                 for unit in game.units:
                     if unit.position and self.region.contains(unit.position):
+                        # add region status does the action, we just need to remember it here
                         add_skill_action = game.add_region_status(unit, self.region, False)
                         if add_skill_action:
                             self.subactions.append(add_skill_action)
+
+            # Update fog of war if appropriate
+            elif self.region.region_type == RegionType.FOG:
+                update_fow_action = AddFogRegion(self.region)
+                update_fow_action.do()
+                self.subactions.append(update_fow_action)
+            elif self.region.region_type == RegionType.VISION:
+                update_fow_action = AddVisionRegion(self.region)
+                update_fow_action.do()
+                self.subactions.append(update_fow_action)
 
     def reverse(self):
         if self.did_add:
@@ -2487,7 +2498,6 @@ class AddRegion(Action):
                 act.reverse()
             game.get_region_under_pos.cache_clear()
             game.level.regions.delete(self.region)
-
 
 class ChangeRegionCondition(Action):
     def __init__(self, region, condition):
@@ -2525,6 +2535,14 @@ class RemoveRegion(Action):
                 for unit in game.units:
                     if unit.position and self.region.contains(unit.position):
                         self.subactions.append(RemoveSkill(unit, self.region.sub_nid))
+
+            # Update fog of war if appropriate
+            elif self.region.region_type == RegionType.FOG:
+                update_fow_action = RemoveFogRegion(self.region)
+                self.subactions.append(update_fow_action)
+            elif self.region.region_type == RegionType.VISION:
+                update_fow_action = RemoveVisionRegion(self.region)
+                self.subactions.append(update_fow_action)
 
             for act in self.subactions:
                 act.do()

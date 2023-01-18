@@ -57,8 +57,8 @@ class AIController():
     def set_next_behaviour(self):
         behaviours = DB.ai.get(self.unit.get_ai()).behaviours
         while self.behaviour_idx < len(behaviours):
-            self.behaviour_idx += 1
             next_behaviour = behaviours[self.behaviour_idx]
+            self.behaviour_idx += 1
             if not next_behaviour.condition or \
                     evaluate.evaluate(next_behaviour.condition, self.unit, position=self.unit.position):
                 self.behaviour = next_behaviour

@@ -154,10 +154,10 @@ class GameBoard(object):
     def add_fog_region(self, region):
         if region.position:
             self.fog_region_set.add(region.nid)
-            fog_range = int(region.sub_nid)
+            fog_range = int(region.sub_nid) if region.sub_nid else 0
             positions = set()
             for pos in region.get_all_positions():
-                positions += target_system.find_manhattan_spheres(range(fog_range + 1), pos[0], pos[1])
+                positions |= target_system.find_manhattan_spheres(range(fog_range + 1), pos[0], pos[1])
             positions = {pos for pos in positions if 0 <= pos[0] < self.width and 0 <= pos[1] < self.height}
             for position in positions:
                 idx = position[0] * self.height + position[1]
@@ -170,10 +170,10 @@ class GameBoard(object):
 
     def add_vision_region(self, region):
         if region.position:
-            vision_range = int(region.sub_nid)
+            vision_range = int(region.sub_nid) if region.sub_nid else 0
             positions = set()
             for pos in region.get_all_positions():
-                positions += target_system.find_manhattan_spheres(range(vision_range + 1), pos[0], pos[1])
+                positions |= target_system.find_manhattan_spheres(range(vision_range + 1), pos[0], pos[1])
             positions = {pos for pos in positions if 0 <= pos[0] < self.width and 0 <= pos[1] < self.height}
             for position in positions:
                 idx = position[0] * self.height + position[1]

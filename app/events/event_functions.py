@@ -653,7 +653,7 @@ def enable_turnwheel(self: Event, activated: str, flags=None):
     action.do(action.SetGameVar("_turnwheel", state))
 
 def enable_fog_of_war(self: Event, activated: str, flags=None):
-    state = activated.lower() in self.tue_vals
+    state = activated.lower() in self.true_vals
     action.do(action.SetLevelVar("_fog_of_war", state))
 
 def set_fog_of_war(self: Event, fog_of_war_type, radius, ai_radius=None, other_radius=None, flags=None):

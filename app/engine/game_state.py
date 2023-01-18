@@ -227,6 +227,7 @@ class GameState():
 
     def level_setup(self):
         from app.engine.initiative import InitiativeTracker
+        from app.engine import action
 
         # Build party object for new parties
         if self.current_party not in self.parties:

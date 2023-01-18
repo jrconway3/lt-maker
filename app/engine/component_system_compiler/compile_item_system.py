@@ -15,7 +15,7 @@ default_hooks = ('full_price', 'buy_price', 'sell_price', 'special_sort', 'num_t
                  'weapon_type', 'weapon_rank', 'modify_weapon_triangle', 'damage', 'hit', 'crit', 'effect_animation', 'text_color')
 default_hooks += formula
 
-target_hooks = ('wexp', 'exp')
+target_hooks = ('wexp',)
 simple_target_hooks = ('target_icon', )
 
 dynamic_hooks = ('dynamic_damage', 'dynamic_accuracy', 'dynamic_crit_accuracy',

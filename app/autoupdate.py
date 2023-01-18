@@ -111,10 +111,13 @@ def update() -> bool:
         # diff.report_full_closure()
         
         for fn in potential_changes:
-            new_path = os.path.join(true_remote_dir, fn)
+            zip_path = os.path.join(true_remote_dir, fn)
             old_path = os.path.join(cwd, fn)
-            print("Copying %s to %s..." % (new_path, old_path))
-            copy_and_overwrite(new_path, old_path)
+            print("Copying %s to %s..." % (zip_path, old_path))
+            if os.path.isdir(old_path):
+                copy_and_overwrite(zip_path, old_path)
+            else:
+                shutil.copy(zip_path, old_path)
 
     except OSError as e:
         print("Failed to completely upgrade files when copying %s to %s! %s" % (true_remote_dir, cwd, e))
@@ -123,7 +126,10 @@ def update() -> bool:
             backup_path = os.path.join(current_backup, fn)
             your_path = os.path.join(cwd, fn)
             print("Copying %s to %s..." % (backup_path, your_path))
-            copy_and_overwrite(backup_path, your_path)
+            if os.path.isdir(your_path):
+                copy_and_overwrite(backup_path, your_path)
+            else:
+                shutil.copy(backup_path, your_path)
         return False
 
     finally:

@@ -116,6 +116,7 @@ class PreferencesDialog(Dialog):
         self.layout.addWidget(self.autocomplete_desc)
         self.layout.addWidget(self.crashlog)
         self.layout.addWidget(self.savebackup)
+        self.layout.addWidget(self.savechunks)
         self.layout.addWidget(self.autosave)
         self.layout.addWidget(self.buttonbox)
 

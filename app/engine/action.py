@@ -2480,6 +2480,11 @@ class AddRegion(Action):
                         if add_skill_action:
                             self.subactions.append(add_skill_action)
 
+            # Reset movement and opacity grids
+            elif self.region.region_type == RegionType.TERRAIN:
+                game.board.reset_grid(game.level.tilemap)
+                game.boundary.reset()
+
             # Update fog of war if appropriate
             elif self.region.region_type == RegionType.FOG:
                 update_fow_action = AddFogRegion(self.region)
@@ -2496,6 +2501,11 @@ class AddRegion(Action):
                 act.reverse()
             game.get_region_under_pos.cache_clear()
             game.level.regions.delete(self.region)
+
+            # Reset movement and opacity grids
+            if self.region.region_type == RegionType.TERRAIN:
+                game.board.reset_grid(game.level.tilemap)
+                game.boundary.reset()
 
 class ChangeRegionCondition(Action):
     def __init__(self, region, condition):
@@ -2548,6 +2558,11 @@ class RemoveRegion(Action):
             game.get_region_under_pos.cache_clear()
             game.level.regions.delete(self.region)
             self.did_remove = True
+
+            # Reset movement and opacity grids
+            if self.region.region_type == RegionType.TERRAIN:
+                game.board.reset_grid(game.level.tilemap)
+                game.boundary.reset()
         else:
             logging.error("RemoveRegion Action: Could not find region with nid %s", self.region.nid)
 
@@ -2558,6 +2573,11 @@ class RemoveRegion(Action):
 
             for act in self.subactions:
                 act.reverse()
+
+            # Reset movement and opacity girds
+            if self.region.region_type == RegionType.TERRAIN:
+                game.board.reset_grid(game.level.tilemap)
+                game.boundary.reset()
 
 class AddFogRegion(Action):
     def __init__(self, region):

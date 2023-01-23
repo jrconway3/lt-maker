@@ -768,10 +768,14 @@ class GameState():
         return region
 
     @lru_cache(128)
-    def get_region_under_pos(self, pos: Tuple[int, int]) -> RegionObject:
+    def get_region_under_pos(self, pos: Tuple[int, int], region_type: RegionType = None) -> RegionObject:
+        """
+        if region_type arguments is None, all region types are accepted and available to be returned
+        """
         if pos:
+            regions = []
             for region in self.level.regions.values():
-                if region.contains(pos):
+                if (not region_type or region.region_type == region_type) and region.contains(pos):
                     return region
 
     def get_all_units(self) -> List[UnitObject]:

@@ -132,7 +132,7 @@ class RegionModel(DragDropCollectionModel):
         if role == Qt.DisplayRole:
             reg = self._data[index.row()]
             text = reg.nid + ': ' + reg.region_type
-            if reg.region_type in (RegionType.STATUS, RegionType.TIME, RegionType.FOG, RegionType.VISION):
+            if reg.region_type in (RegionType.STATUS, RegionType.TIME, RegionType.FOG, RegionType.VISION, RegionType.TERRAIN):
                 if reg.sub_nid:
                     text += ' ' + reg.sub_nid
             elif reg.region_type == RegionType.EVENT:
@@ -214,11 +214,16 @@ class ModifyRegionWidget(QWidget):
         self.status_box.edit.currentIndexChanged.connect(self.status_changed)
         layout.addWidget(self.status_box)
 
+        self.terrain_box = TerrainBox(self)
+        self.terrain_box.edit.currentIndexChanged.connect(self.terrain_changed)
+        layout.addWidget(self.terrain_box)
+
         self.sub_nid_box.hide()
         self.condition_box.hide()
         self.only_once_box.hide()
         self.interrupt_move_box.hide()
         self.status_box.hide()
+        self.terrain_box.hide()
 
     def nid_changed(self, text):
         if self.current:
@@ -249,10 +254,13 @@ class ModifyRegionWidget(QWidget):
         self.only_once_box.hide()
         self.interrupt_move_box.hide()
         self.status_box.hide()
+        self.terrain_box.hide()
         if self.current.region_type in (RegionType.NORMAL, RegionType.FORMATION):
             pass
         elif self.current.region_type == RegionType.STATUS:
             self.status_box.show()
+        elif self.current.region_type == RegionType.TERRAIN:
+            self.terrain_box.show()
         elif self.current.region_type == RegionType.EVENT:
             self.sub_nid_box.label.setText("Event Name")
             self.sub_nid_box.show()
@@ -284,6 +292,10 @@ class ModifyRegionWidget(QWidget):
         self.current.sub_nid = self.status_box.edit.currentText()
         self.window.update_list()
 
+    def terrain_changed(self, index):
+        self.current.sub_nid = self.terrain_box.edit.currentText()
+        self.window.update_list()
+
     def set_current(self, current):
         self.current = current
         self.nid_box.edit.setText(current.nid)
@@ -293,6 +305,8 @@ class ModifyRegionWidget(QWidget):
         self.interrupt_move_box.edit.setChecked(bool(current.interrupt_move))
         if current.region_type == RegionType.STATUS:
             self.status_box.edit.setValue(str(current.sub_nid))
+        elif current.region_type == RegionType.TERRAIN:
+            self.terrain_box.edit.setValue(str(current.sub_nid))
         elif current.region_type in (RegionType.EVENT, RegionType.TIME, RegionType.FOG, RegionType.VISION):
             self.sub_nid_box.edit.setText(str(current.sub_nid))
         else:

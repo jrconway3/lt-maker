@@ -51,6 +51,11 @@ class GameBoard(object):
         for x in range(self.width):
             for y in range(self.height):
                 if DB.terrain:
+                    terrain_region = game.get_region_under_pos((x, y), RegionType.TERRAIN)
+                    if terrain_region:
+                        terrain_nid = terrain_region.sub_nid
+                    else:
+                        terrain_nid = tilemap.get_terrain((x, y))
                     terrain_type = DB.terrain.get(tilemap.get_terrain((x, y)))
                     if not terrain_type:
                         terrain_type = DB.terrain[0]
@@ -234,8 +239,12 @@ class GameBoard(object):
         cells = []
         for x in range(self.width):
             for y in range(self.height):
-                terrain = tilemap.get_terrain((x, y))
-                t = DB.terrain.get(terrain)
+                terrain_region = game.get_region_under_pos((x, y), RegionType.TERRAIN)
+                if terrain_region:
+                    terrain_nid = terrain_region.sub_nid
+                else:
+                    terrain_nid = tilemap.get_terrain((x, y))
+                t = DB.terrain.get(terrain_nid)
                 if t:
                     cells.append(t.opaque)
                 else:

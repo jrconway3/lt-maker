@@ -45,7 +45,7 @@ class Dialog():
     def __init__(self, text, portrait=None, background=None, position=None, width=None,
                  speaker=None, style_nid=None, autosize=False, speed: float = 1.0, font_color='black',
                  font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail',
-                 transparency=0.05, name_tag_bg='name_tag'):
+                 transparency=0.05, name_tag_bg='name_tag', should_talk=True):
         self.plain_text = text
         self.portrait = portrait
         self.speaker = speaker
@@ -56,6 +56,7 @@ class Dialog():
         self.speed = speed
         self.num_lines = num_lines
         self.draw_cursor_flag = draw_cursor
+        self.should_talk = should_talk
         self.font = FONT[self.font_type]
         if '{sub_break}' in self.plain_text:
             self.attempt_split = False
@@ -132,7 +133,7 @@ class Dialog():
         self = cls(text, portrait=portrait, background=style.dialog_box, position=style.text_position, width=width,
                    speaker=style.speaker, style_nid=style.nid, autosize=False, speed=style.text_speed, font_color=style.font_color,
                    font_type=style.font_type, num_lines=style.num_lines, draw_cursor=style.draw_cursor, message_tail=style.message_tail,
-                   transparency=style.transparency, name_tag_bg=style.name_tag_bg)
+                   transparency=style.transparency, name_tag_bg=style.name_tag_bg, should_talk=style.should_talk)
         return self
 
     def format_text(self, text):
@@ -235,7 +236,7 @@ class Dialog():
             self.y_offset = 16
         else:
             self.state = 'process'
-            if self.portrait:
+            if self.portrait and self.should_talk:
                 self.portrait.talk()
         self.text_lines.append("")
 
@@ -345,7 +346,7 @@ class Dialog():
                 self.state = 'done'
             else:
                 self.state = 'process'
-                if self.portrait:
+                if self.portrait and self.should_talk:
                     self.portrait.talk()
 
     def play_talk_boop(self):
@@ -391,7 +392,7 @@ class Dialog():
             self.y_offset = max(0, self.y_offset - 2)
             if self.y_offset == 0:
                 self.state = 'process'
-                if self.portrait:
+                if self.portrait and self.should_talk:
                     self.portrait.talk()
 
         self.cursor_offset_index = (self.cursor_offset_index + 1) % len(self.cursor_offset)
@@ -494,7 +495,7 @@ class DynamicDialogWrapper():
     def __init__(self, text_func: Callable[[], str], portrait=None, background=None, position=None, width=None,
                  speaker=None, style_nid=None, autosize=False, speed: float=1.0, font_color='black',
                  font_type='convo', num_lines=2, draw_cursor=True, message_tail='message_bg_tail', transparency: float=0.05, 
-                 name_tag_bg='name_tag') -> None:
+                 name_tag_bg='name_tag', should_talk=True) -> None:
         # eval trick
         self.resolve_text_func: Callable[[], str] = text_func
         self.resolved_text = clean_newlines(self.resolve_text_func()).replace('{w}', '').replace('|', '{br}')
@@ -514,9 +515,10 @@ class DynamicDialogWrapper():
         self.message_tail = message_tail
         self.transparency = transparency
         self.name_tag_bg = name_tag_bg
+        self.should_talk = should_talk
 
         self.dialog = Dialog(self.resolved_text, portrait, background, position, width, speaker, style_nid, autosize, speed, font_color,
-                             font_type, num_lines, draw_cursor, message_tail, transparency, name_tag_bg)
+                             font_type, num_lines, draw_cursor, message_tail, transparency, name_tag_bg, should_talk)
 
     def update(self):
         new_text = clean_newlines(self.resolve_text_func()).replace('{w}', '').replace('|', '{br}')
@@ -526,7 +528,7 @@ class DynamicDialogWrapper():
                                  self.position, self.width, self.speaker, self.style_nid,
                                  self.autosize, self.speed, self.font_color, self.font_type,
                                  self.num_lines, self.draw_cursor, self.message_tail, self.transparency, 
-                                 self.name_tag_bg)
+                                 self.name_tag_bg, self.should_talk)
             self.dialog.last_update = engine.get_time() - 10000
         return self.dialog.update()
 

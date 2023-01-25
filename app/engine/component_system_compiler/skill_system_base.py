@@ -231,7 +231,7 @@ def stat_change_contribution(unit, stat_nid) -> dict:
     contribution = {}
     for skill in unit.skills:
         for component in skill.components:
-            if component.defines('stat_change'):
+            if component.defines('stat_change') and not component.defines('subtle_stat_change'):
                 if component.ignore_conditional or condition(skill, unit):
                     d = component.stat_change(unit)
                     val = d.get(stat_nid, 0)

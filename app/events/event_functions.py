@@ -271,7 +271,7 @@ def expression(self: Event, portrait, expression_list, flags=None):
 
 def speak_style(self: Event, style, speaker=None, text_position=None, width=None, text_speed=None,
                 font_color=None, font_type=None, dialog_box=None, num_lines=None, draw_cursor=None,
-                message_tail=None, transparency=None, name_tag_bg=None, should_talk=None, flags=None):
+                message_tail=None, transparency=None, name_tag_bg=None, flags=None):
     flags = flags or set()
     style_nid = style
     if style_nid in self.game.speak_styles:
@@ -308,15 +308,13 @@ def speak_style(self: Event, style, speaker=None, text_position=None, width=None
         style.transparency = transparency
     if name_tag_bg:
         style.name_tag_bg = name_tag_bg
-    if should_talk:
-        style.should_talk = should_talk.lower() in self.true_vals
     if flags:
         style.flags = flags
     self.game.speak_styles[style.nid] = style
 
 def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=None, text_speed=None,
           font_color=None, font_type=None, dialog_box=None, num_lines=None, draw_cursor=None,
-          message_tail=None, transparency=None, name_tag_bg=None, should_talk=None, flags=None):
+          message_tail=None, transparency=None, name_tag_bg=None, flags=None):
     flags = flags or set()
     text = dialog.clean_newlines(text)
 
@@ -402,7 +400,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
         lines = default_speak_style.num_lines
 
     if draw_cursor:
-        cursor = draw_cursor.lower() in self.ture_vals
+        cursor = draw_cursor.lower() in self.true_vals
     elif speak_style and speak_style.draw_cursor is not None:
         cursor = speak_style.draw_cursor
     else:
@@ -429,13 +427,6 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
     else:
         nametag = default_speak_style.name_tag_bg
 
-    if should_talk:
-        talk = should_talk.lower() in self.true_vals
-    elif speak_style and speak_style.should_talk is not None:
-        talk = speak_style.should_talk
-    else:
-        talk = default_speak_style.should_talk
-
     if speak_style and speak_style.flags:
         flags = speak_style.flags.union(flags)
 
@@ -445,10 +436,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
                       style_nid=style_nid, autosize=autosize, speed=speed,
                       font_color=fcolor, font_type=ftype, num_lines=lines,
                       draw_cursor=cursor, message_tail=tail, transparency=transparency,
-                      name_tag_bg=nametag, should_talk=talk)
-    new_dialog.hold = 'hold' in flags
-    if 'no_popup' in flags:
-        new_dialog.last_update = engine.get_time() - 10000
+                      name_tag_bg=nametag, flags=flags)
     self.text_boxes.append(new_dialog)
     if 'no_block' not in flags:
         self.state = 'dialog'

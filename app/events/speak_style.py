@@ -13,7 +13,7 @@ class SpeakStyle(Prefab):
                  width: int = None, text_speed: float = None, font_color: str = None,
                  font_type: str = None, dialog_box: str = None, num_lines: int = None,
                  draw_cursor: bool = None, message_tail: str = None, transparency: float = None, 
-                 name_tag_bg: str = None, should_talk: bool = None, flags: Set[str] = None):
+                 name_tag_bg: str = None, flags: Set[str] = None):
         self.nid: NID = nid
         self.speaker: NID = speaker
         self.text_position: Alignments | Tuple[int, int] = text_position
@@ -27,7 +27,6 @@ class SpeakStyle(Prefab):
         self.message_tail: str = message_tail
         self.transparency: float = transparency
         self.name_tag_bg: str = name_tag_bg
-        self.should_talk: bool = should_talk
         self.flags: Set[str] = flags
 
 class SpeakStyleLibrary(Dict[NID, SpeakStyle]):
@@ -35,7 +34,7 @@ class SpeakStyleLibrary(Dict[NID, SpeakStyle]):
         # Built in speak styles for backwards compatibility
         self.update(
             {'__default': SpeakStyle(text_speed=1, font_type='convo', dialog_box='message_bg_base', num_lines=2, draw_cursor=True,
-                                     message_tail='message_bg_tail', name_tag_bg='name_tag', should_talk=True),
+                                     message_tail='message_bg_tail', name_tag_bg='name_tag'),
              '__default_text': SpeakStyle(text_speed=0.5, font_type='text', dialog_box='menu_bg_base', num_lines=0, name_tag_bg='menu_bg_base'),
              '__default_help': SpeakStyle(text_speed=0.5, font_type='convo', dialog_box='None', draw_cursor=False, num_lines=8, name_tag_bg='name_tag'),
              'noir': SpeakStyle(dialog_box='menu_bg_dark', font_color='white', message_tail='None'),
@@ -47,7 +46,7 @@ class SpeakStyleLibrary(Dict[NID, SpeakStyle]):
              'narration_top': SpeakStyle(dialog_box='menu_bg_base', text_position=(4, 2), width=WINWIDTH - 8, 
                                          font_color='white', message_tail='None'),
              'clear': SpeakStyle(dialog_box='None', font_color='white', draw_cursor=False, message_tail='None'),
-             'thought_bubble': SpeakStyle(message_tail='message_bg_thought_tail', should_talk=False),
+             'thought_bubble': SpeakStyle(message_tail='message_bg_thought_tail', flags={'no_talk'}),
              }
         )
 

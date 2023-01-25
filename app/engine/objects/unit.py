@@ -356,7 +356,7 @@ class UnitObject(Prefab):
         return bonus
 
     def subtle_stat_bonus(self, stat_nid: str) -> int:
-        bonus = skill_system.subtle_stat_bonus(self, stat_nid)
+        bonus = skill_system.subtle_stat_change(self, stat_nid)
         return bonus
 
     def stat_contribution(self, stat_nid: str) -> list:

@@ -238,7 +238,7 @@ class DefenderState(SolverState):
                 elif solver.allow_counterattack() and \
                         solver.defender_has_desperation() and \
                         solver.num_defends < defender_outspeed:
-                    soler.num_subdefends = 0
+                    solver.num_subdefends = 0
                     return 'defender'
                 elif solver.item_has_uses() and \
                         solver.num_attacks < attacker_outspeed:

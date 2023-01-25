@@ -403,7 +403,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
 
     if draw_cursor:
         cursor = draw_cursor.lower() in self.ture_vals
-    elif speak_style and speak_style.draw_cursor:
+    elif speak_style and speak_style.draw_cursor is not None:
         cursor = speak_style.draw_cursor
     else:
         cursor = default_speak_style.draw_cursor
@@ -431,7 +431,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
 
     if should_talk:
         talk = should_talk.lower() in self.true_vals
-    elif speak_style and speak_style.should_talk:
+    elif speak_style and speak_style.should_talk is not None:
         talk = speak_style.should_talk
     else:
         talk = default_speak_style.should_talk

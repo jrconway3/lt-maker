@@ -35,7 +35,7 @@ class SpeakStyleLibrary(Dict[NID, SpeakStyle]):
         # Built in speak styles for backwards compatibility
         self.update(
             {'__default': SpeakStyle(text_speed=1, font_type='convo', dialog_box='message_bg_base', num_lines=2, draw_cursor=True,
-                                     message_tail='message_bg_tail', name_tag_bg='name_tag'),
+                                     message_tail='message_bg_tail', name_tag_bg='name_tag', should_talk=True),
              '__default_text': SpeakStyle(text_speed=0.5, font_type='text', dialog_box='menu_bg_base', num_lines=0, name_tag_bg='menu_bg_base'),
              '__default_help': SpeakStyle(text_speed=0.5, font_type='convo', dialog_box='None', draw_cursor=False, num_lines=8, name_tag_bg='name_tag'),
              'noir': SpeakStyle(dialog_box='menu_bg_dark', font_color='white', message_tail='None'),

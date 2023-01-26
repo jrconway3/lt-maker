@@ -47,7 +47,6 @@ class GameBoard(object):
         return self.bounds[0] <= pos[0] <= self.bounds[2] and self.bounds[1] <= pos[1] <= self.bounds[3]
 
     def reset_grid(self, tilemap):
-        print("reset grid")
         # For each movement type
         mtype_grid = [[None for j in range(self.height)] for i in range(self.width)]
         for x in range(self.width):

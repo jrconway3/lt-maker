@@ -5,7 +5,6 @@ from app.data.database.database import DB
 from app.engine import line_of_sight, target_system
 from app.engine.pathfinding.node import Node
 from app.engine.game_state import game
-from app.events.regions import RegionType
 from app.utilities.typing import NID
 from app.utilities import utils
 
@@ -52,11 +51,7 @@ class GameBoard(object):
         for x in range(self.width):
             for y in range(self.height):
                 if DB.terrain:
-                    terrain_region = game.get_region_under_pos((x, y), RegionType.TERRAIN)
-                    if terrain_region:
-                        terrain_nid = terrain_region.sub_nid
-                    else:
-                        terrain_nid = tilemap.get_terrain((x, y))
+                    terrain_nid = game.get_terrain_nid(tilemap, (x, y))
                     terrain_type = DB.terrain.get(terrain_nid)
                     if not terrain_type:
                         terrain_type = DB.terrain[0]
@@ -240,11 +235,7 @@ class GameBoard(object):
         cells = []
         for x in range(self.width):
             for y in range(self.height):
-                terrain_region = game.get_region_under_pos((x, y), RegionType.TERRAIN)
-                if terrain_region:
-                    terrain_nid = terrain_region.sub_nid
-                else:
-                    terrain_nid = tilemap.get_terrain((x, y))
+                terrain_nid = game.get_terrain_nid(tilemap, (x, y))
                 t = DB.terrain.get(terrain_nid)
                 if t:
                     cells.append(t.opaque)

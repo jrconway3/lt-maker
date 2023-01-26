@@ -990,6 +990,14 @@ class GameState():
                     return region
         return None
 
+    def get_terrain_nid(self, tilemap, position) -> NID:
+        terrain_region = self.get_region_under_pos(position, RegionType.TERRAIN)
+        if terrain_region:
+            terrain_nid = terrain_region.sub_nid
+        else:
+            terrain_nid = tilemap.get_terrain(position)
+        return terrain_nid
+
     def get_all_formation_spots(self) -> list:
         legal_spots = set()
         for region in game.level.regions:

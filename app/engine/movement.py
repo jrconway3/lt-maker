@@ -5,7 +5,6 @@ from app.data.database.database import DB
 from app.engine import action, engine, equations, skill_system
 from app.engine.game_state import game
 from app.engine.sound import get_sound_thread
-from app.events.regions import RegionType
 from app.utilities import utils
 
 
@@ -68,11 +67,7 @@ class MovementManager():
 
     def get_mcost(self, unit_to_move, pos) -> int:
         if DB.terrain:
-            terrain_region = game.get_region_under_pos(pos, RegionType.TERRAIN)
-            if terrain_region:
-                terrain_nid = terrain_region.sub_nid
-            else:
-                terrain_nid = game.tilemap.get_terrain(pos)
+            terrain_nid = game.get_terrain_nid(game.tilemap, pos)
             terrain = DB.terrain.get(terrain_nid)
             if not terrain:
                 terrain = DB.terrain[0]

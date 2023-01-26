@@ -5,6 +5,7 @@ from app.data.database.database import DB
 from app.engine import line_of_sight, target_system
 from app.engine.pathfinding.node import Node
 from app.engine.game_state import game
+from app.events.regions import RegionType
 from app.utilities.typing import NID
 from app.utilities import utils
 
@@ -12,7 +13,7 @@ class GameBoard(object):
     def __init__(self, tilemap):
         self.width: int = tilemap.width
         self.height: int = tilemap.height
-        self.bounds:  Tuple[int, int, int, int] = (0, 0, self.width - 1, self.height - 1)
+        self.bounds: Tuple[int, int, int, int] = (0, 0, self.width - 1, self.height - 1)
         self.mcost_grids = {}
 
         self.reset_grid(tilemap)
@@ -46,6 +47,7 @@ class GameBoard(object):
         return self.bounds[0] <= pos[0] <= self.bounds[2] and self.bounds[1] <= pos[1] <= self.bounds[3]
 
     def reset_grid(self, tilemap):
+        print("reset grid")
         # For each movement type
         mtype_grid = [[None for j in range(self.height)] for i in range(self.width)]
         for x in range(self.width):
@@ -56,7 +58,7 @@ class GameBoard(object):
                         terrain_nid = terrain_region.sub_nid
                     else:
                         terrain_nid = tilemap.get_terrain((x, y))
-                    terrain_type = DB.terrain.get(tilemap.get_terrain((x, y)))
+                    terrain_type = DB.terrain.get(terrain_nid)
                     if not terrain_type:
                         terrain_type = DB.terrain[0]
                     mtype_grid[x][y] = terrain_type.mtype

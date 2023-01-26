@@ -11,7 +11,7 @@ from app.utilities.data import Data
 
 from app.extensions.custom_gui import PropertyBox, PropertyCheckBox, ComboBox, RightClickListView
 from app.editor.base_database_gui import DragDropCollectionModel
-from app.editor.custom_widgets import SkillBox
+from app.editor.custom_widgets import SkillBox, TerrainBox
 from app.editor.lib.components.validated_line_edit import NidLineEdit
 from app.events import regions
 
@@ -67,6 +67,8 @@ class RegionMenu(QWidget):
     def tick(self):
         status_box = self.modify_region_widget.status_box
         status_box.model.layoutChanged.emit()
+        terrain_box = self.modify_region_widget.terrain_box
+        terrain_box.model.layoutChanged.emit()
 
     def _refresh_view(self, _=None):
         self.model.layoutChanged.emit()
@@ -293,7 +295,8 @@ class ModifyRegionWidget(QWidget):
         self.window.update_list()
 
     def terrain_changed(self, index):
-        self.current.sub_nid = self.terrain_box.edit.currentText()
+        terrain = DB.terrain[index]
+        self.current.sub_nid = terrain.nid
         self.window.update_list()
 
     def set_current(self, current):

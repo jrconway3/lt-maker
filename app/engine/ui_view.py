@@ -12,6 +12,7 @@ from app.engine.fonts import FONT
 from app.engine.game_counters import ANIMATION_COUNTERS
 from app.engine.game_state import game
 from app.engine.sprites import SPRITES
+from app.events.regions import RegionType
 from app.utilities import utils
 
 from typing import List
@@ -261,7 +262,11 @@ class UIView():
         return surf
 
     def create_tile_info(self, coord):
-        terrain_nid = game.tilemap.get_terrain(coord)
+        terrain_region = game.get_region_under_pos(coord, RegionType.TERRAIN)
+        if terrain_region:
+            terrain_nid = terrain_region.sub_nid
+        else:
+            terrain_nid = game.tilemap.get_terrain(coord)
         terrain = DB.terrain.get(terrain_nid)
         current_unit = game.board.get_unit(coord)
         if current_unit and 'Tile' in current_unit.tags:

@@ -862,9 +862,13 @@ class GameState():
                         else:
                             act = action.RemoveSkill(unit, skill_obj)
                             action.do(act)
-            # Tiles
-            layer = self.tilemap.get_layer(unit.position)
-            terrain_key = (*unit.position, layer)  # Terrain position and layer
+            # Tiles and terrain regions
+            terrain_region = self.get_region_under_pos(unit.position, RegionType.TERRAIN)
+            if terrain_region:
+                terrain_key = (*unit.position, 'region', terrain_region.nid)
+            else:
+                layer = self.tilemap.get_layer(unit.position)
+                terrain_key = (*unit.position, layer)  # Terrain position and layer
             skill_uid = self.get_terrain_status(terrain_key)
             skill_obj = self.get_skill(skill_uid)
             if skill_obj and skill_obj in unit.skills:
@@ -900,10 +904,10 @@ class GameState():
             logging.debug("Arrive %s %s", unit.nid, unit.position)
             if not test:
                 self.board.set_unit(unit.position, unit)
-            # Tiles
+            # Tiles and Terrain Regions
             if not skill_system.ignore_terrain(unit):
                 self.add_terrain_status(unit, test)
-            # Regions
+            # Status Regions
             if not skill_system.ignore_region_status(unit):
                 for region in game.level.regions:
                     if region.region_type == RegionType.STATUS and region.contains(unit.position):
@@ -921,13 +925,22 @@ class GameState():
 
     def add_terrain_status(self, unit, test):
         from app.engine import action, item_funcs
-        layer = self.tilemap.get_layer(unit.position)
-        terrain_key = (*unit.position, layer)  # Terrain position and layer
+
+        terrain_region = self.get_region_under_pos(unit.position, RegionType.TERRAIN)
+        if terrain_region:
+            terrain_key = (*unit.position, 'region', terrain_region.nid)
+        else:
+            layer = self.tilemap.get_layer(unit.position)
+            terrain_key = (*unit.position, layer)  # Terrain position and layer
+
         skill_uid = self.get_terrain_status(terrain_key)
         skill_obj = self.get_skill(skill_uid)
 
         if not skill_obj:
-            terrain_nid = self.tilemap.get_terrain(unit.position)
+            if terrain_region:
+                terrain_nid = terrain_region.sub_nid
+            else:
+                terrain_nid = self.tilemap.get_terrain(unit.position)
             terrain = DB.terrain.get(terrain_nid)
             if terrain and terrain.status:
                 skill_obj = item_funcs.create_skill(unit, terrain.status)

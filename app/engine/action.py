@@ -2457,6 +2457,20 @@ class SetGameBoardBounds(Action):
     def reverse(self):
         game.board.set_bounds(*self.old_bounds)
 
+def _region_leave(region):
+    # Force all affected units to leave
+    region_positions = region.get_all_positions()
+    for unit in game.units:
+        if unit.position in region_positions:
+            game.leave(unit)
+
+def _region_arrive(region):
+    # Force all affected units to arrive
+    region_positions = region.get_all_positions()
+    for unit in game.units:
+        if unit.position in region_positions:
+            game.arrive(unit)
+
 class AddRegion(Action):
     def __init__(self, region):
         self.region = region
@@ -2468,6 +2482,9 @@ class AddRegion(Action):
         if self.region.nid in game.level.regions:
             logging.warning("AddRegion Action: RegionObject with nid %s already in level", self.region.nid)
         else:
+            if self.region.region_type == RegionType.TERRAIN:
+                _region_leave(self.region)
+
             game.get_region_under_pos.cache_clear()
             game.level.regions.append(self.region)
             self.did_add = True
@@ -2484,6 +2501,7 @@ class AddRegion(Action):
             elif self.region.region_type == RegionType.TERRAIN:
                 game.board.reset_grid(game.level.tilemap)
                 game.boundary.reset()
+                _region_arrive(self.region)
 
             # Update fog of war if appropriate
             elif self.region.region_type == RegionType.FOG:
@@ -2497,6 +2515,9 @@ class AddRegion(Action):
 
     def reverse(self):
         if self.did_add:
+            if self.region.region_type == RegionType.TERRAIN:
+                _region_leave(self.region)
+
             for act in self.subactions:
                 act.reverse()
             game.get_region_under_pos.cache_clear()
@@ -2506,6 +2527,7 @@ class AddRegion(Action):
             if self.region.region_type == RegionType.TERRAIN:
                 game.board.reset_grid(game.level.tilemap)
                 game.boundary.reset()
+                _region_arrive(self.region)
 
 class ChangeRegionCondition(Action):
     def __init__(self, region, condition):
@@ -2552,6 +2574,9 @@ class RemoveRegion(Action):
                 update_fow_action = RemoveVisionRegion(self.region)
                 self.subactions.append(update_fow_action)
 
+            if self.region.region_type == RegionType.TERRAIN:
+                _region_leave(self.region)
+
             for act in self.subactions:
                 act.do()
 
@@ -2563,11 +2588,15 @@ class RemoveRegion(Action):
             if self.region.region_type == RegionType.TERRAIN:
                 game.board.reset_grid(game.level.tilemap)
                 game.boundary.reset()
+                _region_arrive(self.region)
         else:
             logging.error("RemoveRegion Action: Could not find region with nid %s", self.region.nid)
 
     def reverse(self):
         if self.did_remove:
+            if self.region.region_type == RegionType.TERRAIN:
+                _region_leave(self.region)
+
             game.get_region_under_pos.cache_clear()
             game.level.regions.append(self.region)
 
@@ -2578,6 +2607,7 @@ class RemoveRegion(Action):
             if self.region.region_type == RegionType.TERRAIN:
                 game.board.reset_grid(game.level.tilemap)
                 game.boundary.reset()
+                _region_arrive(self.region)
 
 class AddFogRegion(Action):
     def __init__(self, region):

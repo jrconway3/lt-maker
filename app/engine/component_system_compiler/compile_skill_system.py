@@ -15,7 +15,7 @@ exclusive_behaviours += formula
 # Takes in unit and item, returns default value
 item_behaviours = ('modify_buy_price', 'modify_sell_price', 'limit_maximum_range', 'modify_maximum_range', 'wexp_usable_skill', 'wexp_unusable_skill')
 # Takes in unit and target, returns default value
-targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier', 'wexp_multiplier', 'enemy_wexp_multiplier', 'has_canto', 'empower_heal', 'empower_heal_received')
+targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier', 'wexp_multiplier', 'enemy_wexp_multiplier', 'has_canto', 'empower_heal', 'empower_heal_received', 'canto_movement')
 # Takes in unit, item returns bonus
 modify_hooks = (
     'modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid',

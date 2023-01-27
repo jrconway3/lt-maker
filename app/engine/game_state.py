@@ -62,7 +62,7 @@ class GameState():
         self.unit_registry: Dict[NID, UnitObject] = {}
         self.item_registry: Dict[UID, ItemObject] = {}
         self.skill_registry: Dict[UID, SkillObject] = {}
-        self.terrain_status_registry: Dict[NID, NID] = {}
+        self.terrain_status_registry: Dict[Tuple[int, int, NID], UID] = {}
         self.region_registry: Dict[NID, RegionObject] = {}
         self.overworld_registry: Dict[NID, OverworldObject] = {}
         self.parties: Dict[NID, PartyObject] = {}
@@ -717,7 +717,7 @@ class GameState():
         if skill.subskill:
             del self.skill_registry[skill.subskill.uid]
 
-    def register_terrain_status(self, key, skill_uid):
+    def register_terrain_status(self, key: Tuple[int, int, NID], skill_uid: UID):
         logging.debug("Registering terrain status %s", skill_uid)
         self.terrain_status_registry[key] = skill_uid
 
@@ -759,7 +759,7 @@ class GameState():
         skill = self.skill_registry.get(skill_uid)
         return skill
 
-    def get_terrain_status(self, key):
+    def get_terrain_status(self, key: Tuple[int, int, NID]) -> UID:
         skill_uid = self.terrain_status_registry.get(key)
         return skill_uid
 
@@ -773,7 +773,6 @@ class GameState():
         if region_type arguments is None, all region types are accepted and available to be returned
         """
         if pos:
-            regions = []
             for region in self.level.regions.values():
                 if (not region_type or region.region_type == region_type) and region.contains(pos):
                     return region
@@ -851,10 +850,10 @@ class GameState():
                     if skill.aura:
                         aura_funcs.release_aura(unit, skill, self)
                 self.boundary.unregister_unit_auras(unit)
-            # Regions
+            # Status Regions
             for region in game.level.regions:
                 if region.region_type == RegionType.STATUS and region.contains(unit.position):
-                    skill_uid = self.get_terrain_status(region.nid)
+                    skill_uid = self.get_terrain_status((*region.position, region.sub_nid))
                     skill_obj = self.get_skill(skill_uid)
                     if skill_obj and skill_obj in unit.skills:
                         if test:
@@ -863,12 +862,10 @@ class GameState():
                             act = action.RemoveSkill(unit, skill_obj)
                             action.do(act)
             # Tiles and terrain regions
-            terrain_region = self.get_region_under_pos(unit.position, RegionType.TERRAIN)
-            if terrain_region:
-                terrain_key = (*unit.position, 'region', terrain_region.nid)
-            else:
-                layer = self.tilemap.get_layer(unit.position)
-                terrain_key = (*unit.position, layer)  # Terrain position and layer
+            terrain_nid = self.get_terrain_nid(self.tilemap, unit.position)
+            terrain = DB.terrain.get(terrain_nid)
+            terrain_key = (*unit.position, terrain.status)
+            
             skill_uid = self.get_terrain_status(terrain_key)
             skill_obj = self.get_skill(skill_uid)
             if skill_obj and skill_obj in unit.skills:
@@ -926,22 +923,14 @@ class GameState():
     def add_terrain_status(self, unit, test):
         from app.engine import action, item_funcs
 
-        terrain_region = self.get_region_under_pos(unit.position, RegionType.TERRAIN)
-        if terrain_region:
-            terrain_key = (*unit.position, 'region', terrain_region.nid)
-        else:
-            layer = self.tilemap.get_layer(unit.position)
-            terrain_key = (*unit.position, layer)  # Terrain position and layer
+        terrain_nid = self.get_terrain_nid(self.tilemap, unit.position)
+        terrain = DB.terrain.get(terrain_nid)
+        terrain_key = (*unit.position, terrain.status)
 
         skill_uid = self.get_terrain_status(terrain_key)
         skill_obj = self.get_skill(skill_uid)
 
         if not skill_obj:
-            if terrain_region:
-                terrain_nid = terrain_region.sub_nid
-            else:
-                terrain_nid = self.tilemap.get_terrain(unit.position)
-            terrain = DB.terrain.get(terrain_nid)
             if terrain and terrain.status:
                 skill_obj = item_funcs.create_skill(unit, terrain.status)
                 if skill_obj:
@@ -962,13 +951,14 @@ class GameState():
 
     def add_region_status(self, unit: UnitObject, region: RegionObject, test: bool):
         from app.engine import action, item_funcs
-        skill_uid = self.get_terrain_status(region.nid)
+        terrain_key = (*region.position, region.sub_nid)
+        skill_uid = self.get_terrain_status(terrain_key)
         skill_obj = self.get_skill(skill_uid)
 
         if not skill_obj:
             skill_obj = item_funcs.create_skill(unit, region.sub_nid)
             self.register_skill(skill_obj)
-            self.register_terrain_status(region.nid, skill_obj.uid)
+            self.register_terrain_status(terrain_key, skill_obj.uid)
 
         if skill_obj:
             # Only bother adding if not already present

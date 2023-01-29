@@ -104,8 +104,8 @@ def recalculate_unit(func):
     def wrapper(*args, **kwargs):
         func(*args, **kwargs)
         self = args[0]
+        self.unit.autoequip()
         if self.unit.position and game.tilemap and game.boundary:
-            self.unit.autoequip()
             game.boundary.recalculate_unit(self.unit)
     return wrapper
 

@@ -74,6 +74,7 @@ constants = ConstantCatalog([
     Constant('glancing_hit', "Chance (%) to score a glancing hit", ConstantType.INT, 0, 'features'),
     Constant('backpropagate_difficulty_growths', "Apply difficulty bonus growths to past levels", ConstantType.BOOL, True, 'features'),
     Constant('traveler_time_decrement', "Timed skills applied to traveler units will decrease.", ConstantType.BOOL, False, 'features'),
+    Constant('break_supports_on_death', "Break supports on death", ConstantType.BOOL, True, 'features'),
     Constant('line_of_sight', "Force items and abilities to obey line of sight rules", ConstantType.BOOL, False, 'line_of_sight'),
     Constant('aura_los', "Force auras to obey line of sight rules", ConstantType.BOOL, False, 'line_of_sight'),
     Constant('fog_los', "Fog of War will also be affected by line of sight", ConstantType.BOOL, False, 'line_of_sight'),

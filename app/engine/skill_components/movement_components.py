@@ -50,29 +50,7 @@ class Canter(SkillComponent):
         """
         Can move again after any action, has exactly the number of movement that was determined in the component
         """
-        return True
-        
-class CanterExpression(SkillComponent):
-    nid = 'canter_expression'
-    desc = "Unit can move a specified number of spaces after any action using evaluate"
-    tag = SkillTags.MOVEMENT
-    
-    expose = ComponentType.String
-    
-    def canto_movement(self, unit, unit2) -> int:
-        from app.engine import evaluate
-        try:
-            return int(evaluate.evaluate(self.value, unit))
-        except Exception as e:
-            logging.error("Couldn't evaluate %s conditional (%s)", self.value, e)
-        return 0
-
-    def has_canto(self, unit, unit2) -> bool:
-        """
-        Can move again after any action, has exactly the number of movement that was determined in the component
-        """
-        return True
-        
+        return True        
 
 class MovementType(SkillComponent):
     nid = 'movement_type'

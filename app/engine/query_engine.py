@@ -346,6 +346,35 @@ Example usage:
         """
         return self._resolve_to_unit(unit)
 
+    @categorize(QueryType.UNIT)
+    def get_support_rank(self, unit1, unit2) -> Optional[NID]:
+        """Returns the most recently obtained support rank between two units.
+
+        Args:
+            unit1: nid of one of the units in the support pair
+            unit2: nid of the other unit in the support pair
+
+        Returns:
+            Rank nid: if the two units have achieved a support rank.
+            none: if the support pair is invalid or no rank has been obtained
+        """
+        
+        if "%s | %s" % (unit1, unit2) in self.game.supports.support_pairs:
+            pair_nid = "%s | %s" % (unit1, unit2)        
+        # Try the pair in the reverse order.
+        elif "%s | %s" % (unit2, unit1) in self.game.supports.support_pairs:
+            pair_nid = "%s | %s" % (unit2, unit1)        
+        # No pair found.
+        else:
+            return None
+
+        support_pair = self.game.supports.support_pairs.get(pair_nid)
+        if support_pair.unlocked_ranks:
+            most_recent_rank = support_pair.unlocked_ranks[-1]
+            return most_recent_rank
+        else: # Something went wrong.
+            return None
+
     @categorize(QueryType.VARIABLES)
     def v(self, varname, fallback=None) -> Any:
         """shorthand for game.game_vars.get. Fetches the variable

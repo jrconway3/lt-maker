@@ -348,7 +348,9 @@ Example usage:
 
     @categorize(QueryType.VARIABLES)
     def v(self, varname, fallback=None) -> Any:
-        """shorthand for game.game_vars.get. Fetches the variable
+        """shorthand for game.level_vars.get and game.game_vars.get. Fetches the variable
+        if game.level_vars and game.game_vars share an identical name,
+        game.level_vars takes priority
 
         Args:
             varname: name of the variable
@@ -357,7 +359,10 @@ Example usage:
         Returns:
             Any: the value of the variable
         """
-        return self.game.game_vars.get(varname, fallback)
+        var = self.game.level_vars.get(varname, None)
+        if var is None:
+            var = self.game.game_vars.get(varname, fallback)
+        return var
 
     @categorize(QueryType.ACHIEVEMENT)
     def has_achievement(self, nid) -> bool:

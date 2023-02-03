@@ -358,8 +358,8 @@ Example usage:
             Rank nid: if the two units have achieved a support rank.
             none: if the support pair is invalid or no rank has been obtained
         """
-        unit1 = self._resolve_to_unit(unit1).nid
-        unit2 = self._resolve_to_unit(unit2).nid
+        unit1 = self._resolve_to_nid(unit1)
+        unit2 = self._resolve_to_nid(unit2)
         
         support_pair = self.game.supports.get(unit1, unit2)
         if support_pair and support_pair.unlocked_ranks:

@@ -43,7 +43,7 @@ class SimpleCombat():
                     s.append(unit)
             self.splashes.append(s)
 
-        # All splash is the flattened version of self.splashes
+        # All splash is the flattened version of self.splashes with no duplicates
         all_splash = [a for sublist in self.splashes for a in sublist]  # Flatten list
         self.all_splash = list(set([s for s in all_splash if s]))
 

@@ -91,6 +91,7 @@ class AIController():
             self.attack_ai_complete = True
         elif not self.canto_ai_complete:
             if self.unit.has_attacked and skill_system.has_canto(self.unit, None):
+                action.do(action.SetMovementLeft(self.unit, skill_system.canto_movement(self.unit, None)))
                 self.canto_retreat()
                 change = self.move()
             self.canto_ai_complete = True

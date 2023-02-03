@@ -784,10 +784,11 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
                 act.execute()
 
         for region_nid, pos in self.game.level_vars['_prev_region_%s' % reload_map_nid].items():
-            region = self.game.get_unit(region_nid)
-            region.position = pos[0] + position_offset[0], pos[1] + position_offset[1]
-            act = action.AddRegion(region)
-            act.execute()
+            region = self.game.get_region(region_nid)
+            if region:
+                region.position = pos[0] + position_offset[0], pos[1] + position_offset[1]
+                act = action.AddRegion(region)
+                act.execute()
 
     # Can't use turnwheel to go any further back
     self.game.action_log.set_first_free_action()

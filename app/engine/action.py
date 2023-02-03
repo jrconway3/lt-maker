@@ -505,6 +505,18 @@ class SetLevelVar(Action):
     def reverse(self):
         game.level_vars[self.nid] = self.old_val
         self._update_fog_of_war()
+        
+class SetMovementLeft(Action):
+    def __init__(self, unit, val):
+        self.unit = unit
+        self.val = val
+        self.old_val = unit.movement_left
+
+    def do(self):
+        self.unit.movement_left = self.val
+
+    def reverse(self):
+        self.unit.movement_left = self.old_val
 
 class Wait(Action):
     def __init__(self, unit):

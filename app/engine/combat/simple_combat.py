@@ -321,6 +321,7 @@ class SimpleCombat():
             elif skill_system.has_canto(self.attacker, self.defender):
                 game.cursor.set_pos(self.attacker.position)
                 game.state.change('move')
+                action.do(action.SetMovementLeft(self.attacker, skill_system.canto_movement(self.attacker, self.defender)))
                 game.cursor.place_arrows()
 
             else:

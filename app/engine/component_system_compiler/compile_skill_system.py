@@ -152,7 +152,7 @@ def %s(unit, item, target, mode, attack_info, base_value):
     for hook in simple_event_hooks:
         func = """
 def %s(unit):
-    for skill in unit.skills:
+    for skill in unit.skills[:]:
         for component in skill.components:
             if component.defines('%s'):
                 if component.ignore_conditional or condition(skill, unit):
@@ -164,7 +164,7 @@ def %s(unit):
     for hook in combat_event_hooks:
         func = """
 def %s(playback, unit, item, target, mode):
-    for skill in unit.skills:
+    for skill in unit.skills[:]:
         for component in skill.components:
             if component.defines('%s'):
                 if component.ignore_conditional or condition(skill, unit, item):
@@ -188,7 +188,7 @@ def %s(playback, unit, item, target, mode):
     for hook in subcombat_event_hooks:
         func = """
 def %s(actions, playback, unit, item, target, mode, attack_info):
-    for skill in unit.skills:
+    for skill in unit.skills[:]:
         for component in skill.components:
             if component.defines('%s'):
                 if component.ignore_conditional or condition(skill, unit, item):
@@ -200,7 +200,7 @@ def %s(actions, playback, unit, item, target, mode, attack_info):
     for hook in item_event_hooks:
         func = """
 def %s(unit, item):
-    for skill in unit.skills:
+    for skill in unit.skills[:]:
         for component in skill.components:
             if component.defines('%s'):
                 if component.ignore_conditional or condition(skill, unit, item):

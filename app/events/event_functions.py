@@ -756,7 +756,7 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
     # Remove all regions from the map
     # But remember their original positions for later
     previous_region_pos = {}
-    for region in self.game.level.regions:
+    for region in list(self.game.level.regions):
         if region.position:
             previous_region_pos[region.nid] = region.position
             act = action.RemoveRegion(region)

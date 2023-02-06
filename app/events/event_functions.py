@@ -2265,7 +2265,7 @@ def remove_market_item(self: Event, item, stock=None, flags=None):
 def clear_market_items(self: Event, flags=None):
     self.game.market_items.clear()
 
-def add_region(self: Event, region, position, size, region_type, string=None, flags=None):
+def add_region(self: Event, region, position, size, region_type, string=None, time_left=None, flags=None):
     flags = flags or set()
 
     if region in self.game.level.regions.keys():
@@ -2282,6 +2282,7 @@ def add_region(self: Event, region, position, size, region_type, string=None, fl
     new_region.position = position
     new_region.size = size
     new_region.sub_nid = sub_region_type
+    new_region.time_left = time_left
 
     if 'only_once' in flags:
         new_region.only_once = True

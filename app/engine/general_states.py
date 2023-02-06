@@ -134,9 +134,9 @@ class TurnChangeState(MapState):
                 # Update time regions after the first turn
                 if game.turncount > 1:
                     for region in game.level.regions.values()[:]:
-                        if region.region_type == RegionType.TIME:
+                        if region.time_left is not None:
                             action.do(action.DecrementTimeRegion(region))
-                            if region.sub_nid <= 0:
+                            if region.time_left <= 0:
                                 action.do(action.RemoveRegion(region))
                                 game.events.trigger(triggers.TimeRegionComplete(region.position, region))
                 game.events.trigger(triggers.TurnChange())

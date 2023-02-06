@@ -1426,21 +1426,16 @@ def equip_item(self: Event, global_unit, item, flags=None):
         return
     if item.multi_item:
         for subitem in item.subitems:
-            if item_system.equippable(unit, subitem) and item_system.available(unit, subitem):
+            if unit.can_equip(subitem):
                 equip_action = action.EquipItem(unit, subitem)
                 action.do(equip_action)
                 return
         self.logger.error("equip_item: No valid subitem to equip in %s" % item.nid)
+    elif unit.can_equip(item):
+        equip_action = action.EquipItem(unit, item)
+        action.do(equip_action)
     else:
-        if not item_system.equippable(unit, item):
-            self.logger.error("equip_item: %s is not an item that can be equipped" % item.nid)
-            return
-        if not item_system.available(unit, item):
-            self.logger.error("equip_item: %s is unable to equip %s" % (unit.nid, item.nid))
-            return
-    equip_action = action.EquipItem(unit, item)
-    action.do(equip_action)
-
+        self.logger.error("equip_item: %s is not an item that can be equipped" % item.nid)
 
 def remove_item(self: Event, global_unit_or_convoy, item, flags=None):
     flags = flags or set()
@@ -1619,7 +1614,10 @@ def add_item_to_multiitem(self: Event, global_unit_or_convoy, multi_item, child_
         owner_nid = unit.nid
     action.do(action.AddItemToMultiItem(owner_nid, item, subitem))
     if 'equip' in flags and owner_nid:
-        action.do(action.EquipItem(unit, subitem))
+        if unit.can_equip(subitem):
+            action.do(action.EquipItem(unit, subitem))
+        else:
+            self.logger.error("add_item_to_multiitem: Subitem %s could not be equipped" % subitem)
 
 def remove_item_from_multiitem(self: Event, global_unit_or_convoy, multi_item, child_item=None, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, multi_item)

@@ -209,6 +209,8 @@ def move_portrait(self: Event, portrait, screen_position, speed_mult=1, flags=No
     if 'immediate' in flags or self.do_skip:
         portrait.quick_move(position)
     else:
+        if not speed_mult:
+            speed_mult = 1
         portrait.move(position, float(speed_mult))
 
     if 'immediate' in flags or 'no_block' in flags or self.do_skip:

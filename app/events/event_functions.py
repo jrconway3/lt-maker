@@ -1831,7 +1831,7 @@ def give_skill(self: Event, global_unit, skill, initiator=None, flags=None):
 
 def remove_skill(self: Event, global_unit, skill, count='-1', flags=None):
     flags = flags or set()
-    count = int(count)
+    count = int(count) if count else -1
 
     unit = self._get_unit(global_unit)
     if not unit:

@@ -1000,7 +1000,7 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
         self.logger.error("move_unit: Couldn't get a good position %s %s %s" % (position, movement_type, placement))
         return None
 
-    if movement_type == 'immediate' or self.do_skip:
+    if movement_type == 'immediate':
         action.do(action.Teleport(unit, position))
     elif movement_type == 'warp':
         action.do(action.Warp(unit, position))
@@ -1010,10 +1010,16 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
         action.do(action.FadeMove(unit, position))
     elif movement_type == 'normal':
         path = target_system.get_path(unit, position)
-        if speed:
-            action.do(action.Move(unit, position, path, event=True, follow=follow, speed=speed))
+        if path:
+            if self.do_skip:
+                action.do(action.Teleport(unit, position))
+            elif speed:
+                action.do(action.Move(unit, position, path, event=True, follow=follow, speed=speed))
+            else:
+                action.do(action.Move(unit, position, path, event=True, follow=follow))
         else:
-            action.do(action.Move(unit, position, path, event=True, follow=follow))
+            self.logger.error("move_unit: no valid path for %s from %s to %s" % (unit, unit.position, position))
+            return None
 
     if 'no_block' in flags or self.do_skip:
         pass

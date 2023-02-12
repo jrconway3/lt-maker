@@ -121,7 +121,7 @@ def add_portrait(self: Event, portrait, screen_position, slide=None, expression_
 
     speed_mult = 1 / max(speed_mult, 0.001)
 
-    new_portrait = EventPortrait(portrait, position, priority, transition, 
+    new_portrait = EventPortrait(portrait, position, priority, transition,
                                  slide, mirror, speed_mult=speed_mult)
     self.portraits[name] = new_portrait
 
@@ -321,7 +321,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
     text = dialog.clean_newlines(text)
 
     if 'no_block' in flags:
-        text += '{no_wait}'    
+        text += '{no_wait}'
 
     speak_style = None
     if style_nid and style_nid in self.game.speak_styles:
@@ -785,6 +785,7 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
                 act = action.ArriveOnMap(unit, final_pos)
                 act.execute()
 
+    if reload_map and self.game.level_vars.get('_prev_region_%s' % reload_map_nid):
         for region_nid, pos in self.game.level_vars['_prev_region_%s' % reload_map_nid].items():
             region = self.game.get_region(region_nid)
             if region:
@@ -1573,11 +1574,11 @@ def set_item_data(self: Event, global_unit_or_convoy, item, nid, expression, fla
         return
 
     action.do(action.SetObjData(item, nid, data_value))
-    
+
 def break_item(self: Event, global_unit_or_convoy, item, flags=None):
     flags = flags or set()
     global_unit = global_unit_or_convoy
-    
+
     banner_flag = 'no_banner' not in flags
 
     unit, item = self._get_item_in_inventory(global_unit, item)
@@ -1592,7 +1593,7 @@ def break_item(self: Event, global_unit_or_convoy, item, flags=None):
     else:
         self.logger.error("break_item: Item %s does not have uses!" % item.nid)
         return
-        
+
     alert = item_system.on_broken(unit, item)
     if alert and unit.team == 'player' and banner_flag:
         self.game.alerts.append(banner.BrokenItem(unit, item))

@@ -1,4 +1,6 @@
 from functools import partial
+from typing import Any, Dict
+from app.editor.component_editors import get_editor_widget
 
 from app.utilities import utils
 from app.data.database.components import ComponentType
@@ -15,7 +17,7 @@ from app.extensions.widget_list import WidgetList
 from app.data.resources.resources import RESOURCES
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QIcon
-from PyQt5.QtWidgets import (QDoubleSpinBox, QHBoxLayout,
+from PyQt5.QtWidgets import (QDoubleSpinBox, QHBoxLayout, QVBoxLayout,
                              QItemDelegate, QLabel, QLineEdit, QListWidgetItem,
                              QSpinBox, QToolButton, QWidget)
 
@@ -29,6 +31,8 @@ class ComponentList(WidgetList):
         item.setSizeHint(component.sizeHint())
         self.addItem(item)
         self.setItemWidget(item, component)
+        if len(self.index_list) % 2 == 0:
+            item.setBackground(QColor(230, 230, 225))
         self.index_list.append(component.data.nid)
         return item
 
@@ -149,7 +153,7 @@ class DropDownItemComponent(BoolItemComponent):
     def on_value_changed(self, val):
         self._data.value = self.options[val]
 
-class OptionsItemComponent(BoolItemComponent):
+class DeprecatedOptionsItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         if not self._data.value:
             self._data.value = []
@@ -171,6 +175,15 @@ class OptionsItemComponent(BoolItemComponent):
                 return editor
             else:
                 return super().createEditor(parent, option, index)
+
+class BetterOptionsItemComponent(BoolItemComponent):
+    def create_editor(self, hbox):
+        options: Dict[str, ComponentType] = self._data.options
+        vbox = QVBoxLayout()
+        for field_name, component_type in options.items():
+            editor = get_editor_widget(field_name, component_type, self._data.value)
+            vbox.addWidget(editor)
+        hbox.addLayout(vbox)
 
 class WeaponTypeItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
@@ -569,7 +582,9 @@ def get_display_widget(component, parent):
     elif component.expose == ComponentType.MovementType:
         c = MovementTypeItemComponent(component, parent)
     elif component.expose == ComponentType.MultipleOptions:
-        c = OptionsItemComponent(component, parent)
+        c = DeprecatedOptionsItemComponent(component, parent)
+    elif component.expose == ComponentType.NewMultipleOptions:
+        c = BetterOptionsItemComponent(component, parent)
 
     elif isinstance(component.expose, tuple):
         delegate = None

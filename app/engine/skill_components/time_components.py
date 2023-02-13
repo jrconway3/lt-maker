@@ -135,7 +135,12 @@ class LostOnEndCombat(SkillComponent):
 
     expose = (ComponentType.MultipleOptions)
 
-    value = [["LostOnSelf (T/F)", "T", 'Lost after self combat (e.g. vulnerary)'],["LostOnAlly (T/F)", "T", 'Lost after combat with an ally'],["LostOnEnemy (T/F)", "T", 'Lost after combat with an enemy'],["LostOnSplash (T/F)", "T", 'Lost after combat if using an AOE item']]
+    value = [
+            ["LostOnSelf (T/F)", "T", 'Lost after self combat (e.g. vulnerary)'],
+            ["LostOnAlly (T/F)", "T", 'Lost after combat with an ally'],
+            ["LostOnEnemy (T/F)", "T", 'Lost after combat with an enemy'],
+            ["LostOnSplash (T/F)", "T", 'Lost after combat if using an AOE item']
+        ]
 
     @property
     def values(self) -> Dict[str, str]:
@@ -156,6 +161,54 @@ class LostOnEndCombat(SkillComponent):
                 if skill_system.check_enemy(unit, target):
                     remove_skill = True
         if self.values.get('LostOnSplash (T/F)', 'T') == 'T':
+            if not target:
+                remove_skill = True
+
+        if remove_skill:
+            action.do(action.RemoveSkill(unit, self.skill))
+
+    def on_end_chapter(self, unit, skill):
+        action.do(action.RemoveSkill(unit, self.skill))
+
+class LostOnEndCombat2(SkillComponent):
+    nid = 'lost_on_end_combat2'
+    desc = "Remove after combat"
+    tag = SkillTags.TIME
+
+    expose = (ComponentType.NewMultipleOptions)
+
+    options = {
+        "lost_on_self": ComponentType.Bool,
+        "lost_on_ally": ComponentType.Bool,
+        "lost_on_enemy": ComponentType.Bool,
+        "lost_on_splash": ComponentType.Bool,
+    }
+    value = {
+        "lost_on_self": True,
+        "lost_on_ally": True,
+        "lost_on_enemy": True,
+        "lost_on_splash": True,
+    }
+
+    @property
+    def values(self) -> Dict[str, str]:
+        return {value[0]: value[1] for value in self.value}
+
+    def post_combat(self, playback, unit, item, target, mode):
+        from app.engine import skill_system
+        remove_skill = False
+        if self.value.get('lost_on_self', True):
+            if unit == target:
+                remove_skill = True
+        if self.value.get('lost_on_ally', True):
+            if target:
+                if skill_system.check_ally(unit, target):
+                    remove_skill = True
+        if self.value.get('lost_on_enemy', True):
+            if target:
+                if skill_system.check_enemy(unit, target):
+                    remove_skill = True
+        if self.value.get('lost_on_splash', True):
             if not target:
                 remove_skill = True
 

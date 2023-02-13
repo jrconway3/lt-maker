@@ -1,6 +1,6 @@
 from functools import partial
 from typing import Any, Dict
-from app.editor.component_editors import get_editor_widget
+from app.editor.component_subcomponent_editors import get_editor_widget
 
 from app.utilities import utils
 from app.data.database.components import ComponentType
@@ -16,8 +16,8 @@ from app.extensions.list_widgets import (AppendMultiListWidget,
 from app.extensions.widget_list import WidgetList
 from app.data.resources.resources import RESOURCES
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QIcon
-from PyQt5.QtWidgets import (QDoubleSpinBox, QHBoxLayout, QVBoxLayout,
+from PyQt5.QtGui import QColor, QIcon, QPalette
+from PyQt5.QtWidgets import (QApplication, QDoubleSpinBox, QHBoxLayout, QVBoxLayout,
                              QItemDelegate, QLabel, QLineEdit, QListWidgetItem,
                              QSpinBox, QToolButton, QWidget)
 
@@ -29,6 +29,9 @@ class ComponentList(WidgetList):
     def __init__(self, parent):
         super().__init__(parent)
         self.order_swapped.connect(self.rerender)
+        palette = QApplication.palette()
+        self.bg_color = palette.color(QPalette.Base)
+        self.highlight_color = palette.color(QPalette.AlternateBase)
 
     def add_component(self, component):
         item = QListWidgetItem()
@@ -37,7 +40,9 @@ class ComponentList(WidgetList):
         self.setItemWidget(item, component)
         self.index_list.append(component.data.nid)
         if len(self.index_list) % 2 == 0:
-            item.setBackground(QColor(230, 230, 225))
+            item.setBackground(self.highlight_color)
+        else:
+            item.setBackground(self.bg_color)
         return item
 
     def remove_component(self, component):
@@ -51,9 +56,9 @@ class ComponentList(WidgetList):
         for idx in range(self.count()):
             item = self.item(idx)
             if idx % 2 == 0:
-                item.setBackground(QColor(230, 230, 225))
+                item.setBackground(self.highlight_color)
             else:
-                item.setBackground(QColor(255, 255, 255))
+                item.setBackground(self.bg_color)
 
 class BoolItemComponent(QWidget):
     delegate = None

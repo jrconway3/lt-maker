@@ -148,10 +148,6 @@ class LostOnEndCombat2(SkillComponent):
         "lost_on_splash": True,
     }
 
-    @property
-    def values(self) -> Dict[str, str]:
-        return {value[0]: value[1] for value in self.value}
-
     def post_combat(self, playback, unit, item, target, mode):
         from app.engine import skill_system
         remove_skill = False

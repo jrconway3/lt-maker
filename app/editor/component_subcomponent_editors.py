@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QWidget
 from app.data.database.components import ComponentType
 
 
-class BoolComponentEditor(QWidget):
+class BoolSubcomponentEditor(QWidget):
     def __init__(self, editor_name: str, option_dict: Dict[str, Any]) -> None:
         super().__init__()
         hbox = QHBoxLayout()
@@ -30,4 +30,4 @@ class BoolComponentEditor(QWidget):
 
 def get_editor_widget(editor_name: str, ctype: ComponentType, option_dict: Dict[str, Any]):
     if ctype == ComponentType.Bool:
-        return BoolComponentEditor(editor_name, option_dict)
+        return BoolSubcomponentEditor(editor_name, option_dict)

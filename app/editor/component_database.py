@@ -26,14 +26,18 @@ MAX_DROP_DOWN_WIDTH = 640
 DROP_DOWN_BUFFER = 24
 
 class ComponentList(WidgetList):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.order_swapped.connect(self.rerender)
+
     def add_component(self, component):
         item = QListWidgetItem()
         item.setSizeHint(component.sizeHint())
         self.addItem(item)
         self.setItemWidget(item, component)
+        self.index_list.append(component.data.nid)
         if len(self.index_list) % 2 == 0:
             item.setBackground(QColor(230, 230, 225))
-        self.index_list.append(component.data.nid)
         return item
 
     def remove_component(self, component):
@@ -42,6 +46,14 @@ class ComponentList(WidgetList):
             self.index_list.remove(component.data.nid)
             return self.takeItem(idx)
         return None
+
+    def rerender(self, start, row):
+        for idx in range(self.count()):
+            item = self.item(idx)
+            if idx % 2 == 0:
+                item.setBackground(QColor(230, 230, 225))
+            else:
+                item.setBackground(QColor(255, 255, 255))
 
 class BoolItemComponent(QWidget):
     delegate = None

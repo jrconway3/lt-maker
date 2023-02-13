@@ -26,7 +26,7 @@ class BoolComponentEditor(QWidget):
         hbox.addWidget(editor)
 
     def on_value_changed(self, val):
-        self.option_dict[self.editor_name] = bool(val),
+        self.option_dict[self.editor_name] = bool(val)
 
 def get_editor_widget(editor_name: str, ctype: ComponentType, option_dict: Dict[str, Any]):
     if ctype == ComponentType.Bool:

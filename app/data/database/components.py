@@ -62,12 +62,12 @@ class Component():
     @property
     def name(self):
         name = self.__class__.__name__
-        return str_utils.camel_case(name)
+        return str_utils.ignore_numbers(str_utils.camel_case(name))
 
     @classmethod
     def class_name(cls):
         name = cls.__name__
-        return str_utils.camel_case(name)
+        return str_utils.ignore_numbers(str_utils.camel_case(name))
 
     def defines(self, function_name):
         return hasattr(self, function_name)

@@ -1,11 +1,12 @@
 from __future__ import annotations
+from app.data.database.item_components import ItemComponent
 from app.utilities.typing import NID
 
 import functools
 import logging
 import sys
 import app.engine.config as cf
-from typing import Tuple
+from typing import Any, Optional, Tuple
 
 from app.constants import TILEHEIGHT, TILEWIDTH
 from app.data.database.database import DB
@@ -1524,6 +1525,40 @@ class AddItemComponent(Action):
             self.item.components.remove_key(self.component_nid)
             del self.item.__dict__[self.component_nid]
             self._did_add = False
+
+class ModifyItemComponent(Action):
+    def __init__(self, item, component_nid, new_component_value, component_property = None, additive: bool = False):
+        self.item: ItemObject = item
+        self.component: Optional[ItemComponent] = None
+        self.property_name: Optional[NID] = None
+        self.prev_component_value = None
+        self.component_value = None
+        if component_nid in self.item.components.keys():
+            self.component = self.item.components.get(component_nid)
+            # @TODO(mag): add validation for this with the cool new validators
+            if isinstance(self.component.value, dict):
+                self.property_name = component_property
+                self.prev_component_value = self.component.value[self.property_name]
+            else:
+                self.prev_component_value = self.component.value
+            if not additive:
+                self.component_value = new_component_value
+            else:
+                self.component_value = self.prev_component_value + new_component_value
+
+    def do(self):
+        if self.component:
+            if self.property_name and isinstance(self.component.value, dict):
+                self.component.value[self.property_name] = self.component_value
+            else:
+                self.component.value = self.component_value
+
+    def reverse(self):
+        if self.component:
+            if self.property_name and isinstance(self.component.value, dict):
+                self.component.value[self.property_name] = self.prev_component_value
+            else:
+                self.component.value = self.prev_component_value
 
 class RemoveItemComponent(Action):
     def __init__(self, item, component_nid):

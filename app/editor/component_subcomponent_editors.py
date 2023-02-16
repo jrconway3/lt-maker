@@ -150,17 +150,17 @@ class SoundSubcomponentEditor(BoolSubcomponentEditor):
 def get_editor_widget(editor_name: str, ctype: ComponentType, option_dict: Dict[str, Any]):
     if ctype == ComponentType.Bool:
         return BoolSubcomponentEditor(editor_name, option_dict)
-    if ctype == ComponentType.Skill:
+    elif ctype == ComponentType.Skill:
         return SkillSubcomponentEditor(editor_name, option_dict)
-    if ctype == ComponentType.Int:
+    elif ctype == ComponentType.Int:
         return IntSubcomponentEditor(editor_name, option_dict)
-    if ctype == ComponentType.String:
+    elif ctype == ComponentType.String:
         return StringSubcomponentEditor(editor_name, option_dict)
-    if ctype == ComponentType.Float:
+    elif ctype == ComponentType.Float:
         return FloatSubcomponentEditor(editor_name, option_dict)
-    if ctype == ComponentType.Item:
+    elif ctype == ComponentType.Item:
         return ItemSubcomponentEditor(editor_name, option_dict)
-    if ctype == ComponentType.Event:
+    elif ctype == ComponentType.Event:
         return EventSubcomponentEditor(editor_name, option_dict)
-    if ctype == ComponentType.Sound:
+    elif ctype == ComponentType.Sound:
         return SoundSubcomponentEditor(editor_name, option_dict)

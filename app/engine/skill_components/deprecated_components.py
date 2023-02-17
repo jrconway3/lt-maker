@@ -1,11 +1,8 @@
-import math
 from typing import Dict
 from app.data.database.skill_components import SkillComponent, SkillTags
 from app.data.database.components import ComponentType
-from app.data.database.database import DB
 
 from app.engine import action
-from app.engine.game_state import game
 
 class LostOnEndCombat(SkillComponent):
     nid = 'lost_on_end_combat'
@@ -19,7 +16,7 @@ class LostOnEndCombat(SkillComponent):
             ["LostOnAlly (T/F)", "T", 'Lost after combat with an ally'],
             ["LostOnEnemy (T/F)", "T", 'Lost after combat with an enemy'],
             ["LostOnSplash (T/F)", "T", 'Lost after combat if using an AOE item']
-        ]
+    ]
 
     @property
     def values(self) -> Dict[str, str]:
@@ -48,3 +45,25 @@ class LostOnEndCombat(SkillComponent):
 
     def on_end_chapter(self, unit, skill):
         action.do(action.RemoveSkill(unit, self.skill))
+
+class CombatArtSetMaxRange(SkillComponent):
+    nid = 'combat_art_set_max_range'
+    desc = "Defines what unit's max range is for testing combat art. Combine with 'Limit Max Range' component on subskill."
+    tag = SkillTags.HIDDEN
+    paired_with = ('combat_art', )
+
+    expose = ComponentType.Int
+
+    def combat_art_set_max_range(self, unit) -> int:
+        return max(0, self.value)
+
+class CombatArtModifyMaxRange(SkillComponent):
+    nid = 'combat_art_modify_max_range'
+    desc = "Modifies unit's max range when testing combat art. Combine with 'Modify Max Range' component on subskill."
+    tag = SkillTags.HIDDEN
+    paired_with = ('combat_art', )
+
+    expose = ComponentType.Int
+
+    def combat_art_modify_max_range(self, unit) -> int:
+        return self.value

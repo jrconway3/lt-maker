@@ -714,6 +714,8 @@ class InfoMenuState(State):
             name = curr_stat.name
             render_text(surf, ['text'], [name], ['yellow'], (8, 16 * idx + 24))
             base_value = self.unit.stats.get(stat_nid, 0)
+            subtle_stat_bonus = self.unit.subtle_stat_bonus(stat_nid)
+            base_value += subtle_stat_bonus
             contribution = self.unit.stat_contribution(stat_nid)
             contribution['Base Value'] = base_value
             desc_text = curr_stat.desc
@@ -736,10 +738,15 @@ class InfoMenuState(State):
             help_box = help_menu.StatDialog(desc_text or ('%s_desc' % stat_nid), contribution)
             self.info_graph.register((96 + 72, 16 * idx + 24, 64, 16), help_box, state)
 
-        other_stats = ['TRV', 'AID', 'RAT']
+        other_stats = ['RAT']
+        if DB.constants.value('pairup') and DB.constants.value('attack_stance_only'):
+            pass
+        else:
+            other_stats.insert(0, 'AID')
+            other_stats.insert(0, 'TRV')
         if self.unit.get_max_mana() > 0:
             other_stats.insert(0, 'MANA')
-        if DB.constants.value('pairup'):
+        if DB.constants.value('pairup') and not DB.constants.value('attack_stance_only'):
             other_stats.insert(2, 'GAUGE')
         other_stats = other_stats[:6 - len(right_stats)]
 

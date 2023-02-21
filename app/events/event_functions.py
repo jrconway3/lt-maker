@@ -121,7 +121,7 @@ def add_portrait(self: Event, portrait, screen_position, slide=None, expression_
 
     speed_mult = 1 / max(speed_mult, 0.001)
 
-    new_portrait = EventPortrait(portrait, position, priority, transition, 
+    new_portrait = EventPortrait(portrait, position, priority, transition,
                                  slide, mirror, speed_mult=speed_mult)
     self.portraits[name] = new_portrait
 
@@ -209,6 +209,8 @@ def move_portrait(self: Event, portrait, screen_position, speed_mult=1, flags=No
     if 'immediate' in flags or self.do_skip:
         portrait.quick_move(position)
     else:
+        if not speed_mult:
+            speed_mult = 1
         portrait.move(position, float(speed_mult))
 
     if 'immediate' in flags or 'no_block' in flags or self.do_skip:
@@ -301,7 +303,7 @@ def speak_style(self: Event, style, speaker=None, text_position=None, width=None
     if num_lines:
         style.num_lines = int(num_lines)
     if draw_cursor:
-        style.draw_cursor = bool(draw_cursor)
+        style.draw_cursor = draw_cursor.lower() in self.true_vals
     if message_tail:
         style.message_tail = message_tail
     if transparency is not None:
@@ -319,7 +321,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
     text = dialog.clean_newlines(text)
 
     if 'no_block' in flags:
-        text += '{no_wait}'    
+        text += '{no_wait}'
 
     speak_style = None
     if style_nid and style_nid in self.game.speak_styles:
@@ -400,8 +402,8 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
         lines = default_speak_style.num_lines
 
     if draw_cursor:
-        cursor = bool(draw_cursor)
-    elif speak_style and speak_style.draw_cursor:
+        cursor = draw_cursor.lower() in self.true_vals
+    elif speak_style and speak_style.draw_cursor is not None:
         cursor = speak_style.draw_cursor
     else:
         cursor = default_speak_style.draw_cursor
@@ -436,10 +438,7 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
                       style_nid=style_nid, autosize=autosize, speed=speed,
                       font_color=fcolor, font_type=ftype, num_lines=lines,
                       draw_cursor=cursor, message_tail=tail, transparency=transparency,
-                      name_tag_bg=nametag)
-    new_dialog.hold = 'hold' in flags
-    if 'no_popup' in flags:
-        new_dialog.last_update = engine.get_time() - 10000
+                      name_tag_bg=nametag, flags=flags)
     self.text_boxes.append(new_dialog)
     if 'no_block' not in flags:
         self.state = 'dialog'
@@ -724,6 +723,7 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
         reload_map_nid = tilemap_nid
 
     reload_map = 'reload' in flags
+    # For Overworld
     if reload_map and self.game.is_displaying_overworld(): # just go back to the level
         from app.engine import level_cursor, map_view, movement
         self.game.cursor = level_cursor.LevelCursor(self.game)
@@ -755,6 +755,16 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
     current_tilemap_nid = self.game.level.tilemap.nid
     self.game.level_vars['_prev_pos_%s' % current_tilemap_nid] = previous_unit_pos
 
+    # Remove all regions from the map
+    # But remember their original positions for later
+    previous_region_pos = {}
+    for region in list(self.game.level.regions):
+        if region.position:
+            previous_region_pos[region.nid] = region.position
+            act = action.RemoveRegion(region)
+            act.execute()
+    self.game.level_vars['_prev_region_%s' % current_tilemap_nid] = previous_region_pos
+
     tilemap = TileMapObject.from_prefab(tilemap_prefab)
     self.game.level.tilemap = tilemap
     if self.game.is_displaying_overworld():
@@ -773,6 +783,14 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
             if self.game.tilemap.check_bounds(final_pos):
                 unit = self.game.get_unit(unit_nid)
                 act = action.ArriveOnMap(unit, final_pos)
+                act.execute()
+
+    if reload_map and self.game.level_vars.get('_prev_region_%s' % reload_map_nid):
+        for region_nid, pos in self.game.level_vars['_prev_region_%s' % reload_map_nid].items():
+            region = self.game.get_region(region_nid)
+            if region:
+                region.position = pos[0] + position_offset[0], pos[1] + position_offset[1]
+                act = action.AddRegion(region)
                 act.execute()
 
     # Can't use turnwheel to go any further back
@@ -983,7 +1001,7 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
         self.logger.error("move_unit: Couldn't get a good position %s %s %s" % (position, movement_type, placement))
         return None
 
-    if movement_type == 'immediate' or self.do_skip:
+    if movement_type == 'immediate':
         action.do(action.Teleport(unit, position))
     elif movement_type == 'warp':
         action.do(action.Warp(unit, position))
@@ -993,10 +1011,16 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
         action.do(action.FadeMove(unit, position))
     elif movement_type == 'normal':
         path = target_system.get_path(unit, position)
-        if speed:
-            action.do(action.Move(unit, position, path, event=True, follow=follow, speed=speed))
+        if path:
+            if self.do_skip:
+                action.do(action.Teleport(unit, position))
+            elif speed:
+                action.do(action.Move(unit, position, path, event=True, follow=follow, speed=speed))
+            else:
+                action.do(action.Move(unit, position, path, event=True, follow=follow))
         else:
-            action.do(action.Move(unit, position, path, event=True, follow=follow))
+            self.logger.error("move_unit: no valid path for %s from %s to %s" % (unit, unit.position, position))
+            return None
 
     if 'no_block' in flags or self.do_skip:
         pass
@@ -1411,21 +1435,16 @@ def equip_item(self: Event, global_unit, item, flags=None):
         return
     if item.multi_item:
         for subitem in item.subitems:
-            if item_system.equippable(unit, subitem) and item_system.available(unit, subitem):
+            if unit.can_equip(subitem):
                 equip_action = action.EquipItem(unit, subitem)
                 action.do(equip_action)
                 return
         self.logger.error("equip_item: No valid subitem to equip in %s" % item.nid)
+    elif unit.can_equip(item):
+        equip_action = action.EquipItem(unit, item)
+        action.do(equip_action)
     else:
-        if not item_system.equippable(unit, item):
-            self.logger.error("equip_item: %s is not an item that can be equipped" % item.nid)
-            return
-        if not item_system.available(unit, item):
-            self.logger.error("equip_item: %s is unable to equip %s" % (unit.nid, item.nid))
-            return
-    equip_action = action.EquipItem(unit, item)
-    action.do(equip_action)
-
+        self.logger.error("equip_item: %s is not an item that can be equipped" % item.nid)
 
 def remove_item(self: Event, global_unit_or_convoy, item, flags=None):
     flags = flags or set()
@@ -1562,6 +1581,32 @@ def set_item_data(self: Event, global_unit_or_convoy, item, nid, expression, fla
 
     action.do(action.SetObjData(item, nid, data_value))
 
+def break_item(self: Event, global_unit_or_convoy, item, flags=None):
+    flags = flags or set()
+    global_unit = global_unit_or_convoy
+
+    banner_flag = 'no_banner' not in flags
+
+    unit, item = self._get_item_in_inventory(global_unit, item)
+    if not unit or not item:
+        self.logger.error("break_item: Either unit or item was invalid, see above")
+        return
+
+    if 'starting_uses' in item.data:
+        action.do(action.SetObjData(item, 'uses', 0))
+    elif 'starting_c_uses' in item.data:
+        action.do(action.SetObjData(item, 'c_uses', 0))
+    else:
+        self.logger.error("break_item: Item %s does not have uses!" % item.nid)
+        return
+
+    alert = item_system.on_broken(unit, item)
+    if alert and unit.team == 'player' and banner_flag:
+        self.game.alerts.append(banner.BrokenItem(unit, item))
+        self.game.state.change('alert')
+        self.state = 'paused'
+
+
 def change_item_name(self: Event, global_unit_or_convoy, item, string, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, item)
     if not unit or not item:
@@ -1604,7 +1649,10 @@ def add_item_to_multiitem(self: Event, global_unit_or_convoy, multi_item, child_
         owner_nid = unit.nid
     action.do(action.AddItemToMultiItem(owner_nid, item, subitem))
     if 'equip' in flags and owner_nid:
-        action.do(action.EquipItem(unit, subitem))
+        if unit.can_equip(subitem):
+            action.do(action.EquipItem(unit, subitem))
+        else:
+            self.logger.error("add_item_to_multiitem: Subitem %s could not be equipped" % subitem)
 
 def remove_item_from_multiitem(self: Event, global_unit_or_convoy, multi_item, child_item=None, flags=None):
     unit, item = self._get_item_in_inventory(global_unit_or_convoy, multi_item)
@@ -1790,7 +1838,7 @@ def give_skill(self: Event, global_unit, skill, initiator=None, flags=None):
 
 def remove_skill(self: Event, global_unit, skill, count='-1', flags=None):
     flags = flags or set()
-    count = int(count)
+    count = int(count) if count else -1
 
     unit = self._get_unit(global_unit)
     if not unit:
@@ -2252,7 +2300,7 @@ def remove_market_item(self: Event, item, stock=None, flags=None):
 def clear_market_items(self: Event, flags=None):
     self.game.market_items.clear()
 
-def add_region(self: Event, region, position, size, region_type, string=None, flags=None):
+def add_region(self: Event, region, position, size, region_type, string=None, time_left=None, flags=None):
     flags = flags or set()
 
     if region in self.game.level.regions.keys():
@@ -2269,6 +2317,7 @@ def add_region(self: Event, region, position, size, region_type, string=None, fl
     new_region.position = position
     new_region.size = size
     new_region.sub_nid = sub_region_type
+    new_region.time_left = time_left
 
     if 'only_once' in flags:
         new_region.only_once = True

@@ -465,7 +465,7 @@ NOTE: You can set the `__default` speak style, which will automatically apply to
     keywords = ['Style']
     optional_keywords = ['Speaker', 'TextPosition', 'Width', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail', 'Transparency', 'NameTagBg']
     keyword_types = ['Nid', 'Speaker', 'AlignOrPosition', 'Width', 'Float', 'FontColor', 'Font', 'Sprite', 'PositiveInteger', 'Bool', 'MessageTail', 'Float', 'Sprite']
-    _flags = ['low_priority', 'hold', 'no_popup', 'fit']
+    _flags = ['low_priority', 'hold', 'no_popup', 'fit', 'no_talk', 'no_sound']
 
 class Speak(EventCommand):
     nid = "speak"
@@ -498,12 +498,14 @@ Extra flags:
 3. *no_popup*: The dialog box will not transition in, but rather will appear immediately.
 4. *fit*: The dialog box will shrink to fit the text. (not needed if there is an associated portrait).
 5. *no_block*: the speak command will not block event execution.
+6. *no_talk*: The speaker's portrait will not "talk".
+7. *no_sound*: The normal boop sound of dialog will be turned off
         """
 
     keywords = ['Speaker', 'Text']
     optional_keywords = ['TextPosition', 'Width', 'StyleNid', 'TextSpeed', 'FontColor', 'FontType', 'DialogBox', 'NumLines', 'DrawCursor', 'MessageTail', 'Transparency', 'NameTagBg']
     keyword_types = ['Speaker', 'Text', 'AlignOrPosition', 'Width', 'DialogVariant', 'Float', 'FontColor', 'Font', 'Sprite', 'PositiveInteger', 'Bool', 'MessageTail', 'Float', 'Sprite']
-    _flags = ['low_priority', 'hold', 'no_popup', 'fit', 'no_block']
+    _flags = ['low_priority', 'hold', 'no_popup', 'fit', 'no_block', 'no_talk', 'no_sound']
 
 class Unhold(EventCommand):
     nid = "unhold"
@@ -911,21 +913,22 @@ class ChangeTilemap(EventCommand):
         """
 Changes the current map to a different layout (*Tilemap*).
 If the *reload* flag is set, the currently deployed units
-will be placed at their same positions on the new tilemap.
-If a *PositionOffset* is given, the units will be reloaded but shifted by +x,+y.
+and currently extant regions will be placed at their same positions
+on the new tilemap.
+If a *PositionOffset* is given, the units and regions will be reloaded but shifted by +x,+y.
 
-Instead of reloading the units from their current positions,
+Instead of reloading the units/regions from their current positions,
 a second *Tilemap* optional keyword can be specified.
-In this case, unit deployment will be loaded from that tilemap's data instead of from the current map.
+In this case, unit deployment will be loaded from that tilemap's previous data instead of from the current map.
 
 Note that this command cannot be turnwheel'ed.
 Players attempting to use the turnwheel will find that
 they cannot turn time back past the point when this command was executed.
         """
 
-    # How much to offset placed units by
     # Which tilemap to load the unit positions from
     keywords = ["Tilemap"]
+    # How much to offset placed units by
     optional_keywords = ["PositionOffset", "LoadTilemap"]
     keyword_types = ["Tilemap", "PositionOffset", "Tilemap"]
     _flags = ["reload"]  # Should place units in previously recorded positions
@@ -1425,6 +1428,22 @@ Sets the uses of an *Item* to *Uses* in the inventory of *GlobalUnitOrConvoy*.
     keyword_types = ["GlobalUnitOrConvoy", "Item", "Integer"]
 
     _flags = ["additive"]
+    
+class BreakItem(EventCommand):
+    nid = 'break_item'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+    
+    desc = \
+        """
+Breaks *Item* in inventory of *GlobalUnitOrConvoy*, setting uses to 0.
+Will behave as if the item had been broken in combat,
+including notifying the player.
+If the *no_banner* flag is set, there will not be a banner announcing that the item has been broken.
+        """
+        
+    keywords = ["GlobalUnitOrConvoy", "Item"]
+    _flags = ['no_banner']
+
 
 class SetItemData(EventCommand):
     nid = 'set_item_data'
@@ -1997,7 +2016,8 @@ When set, the *only_once* flag applies only to event region, preventing them fro
         """
 
     keywords = ["Region", "Position", "Size", "RegionType"]
-    optional_keywords = ["String"]
+    optional_keywords = ["String", "TimeLeft"]
+    keyword_types = ["Region", "Position", "Size", "RegionType", "String", "PositiveInteger"]
     _flags = ["only_once", "interrupt_move"]
 
 class RegionCondition(EventCommand):

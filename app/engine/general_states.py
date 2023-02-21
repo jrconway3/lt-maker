@@ -134,9 +134,9 @@ class TurnChangeState(MapState):
                 # Update time regions after the first turn
                 if game.turncount > 1:
                     for region in game.level.regions.values()[:]:
-                        if region.region_type == RegionType.TIME:
+                        if region.time_left is not None:
                             action.do(action.DecrementTimeRegion(region))
-                            if region.sub_nid <= 0:
+                            if region.time_left <= 0:
                                 action.do(action.RemoveRegion(region))
                                 game.events.trigger(triggers.TimeRegionComplete(region.position, region))
                 game.events.trigger(triggers.TurnChange())
@@ -843,6 +843,7 @@ class MenuState(MapState):
                     break
         if skill_system.has_canto(self.cur_unit, self.cur_unit):
             # Shows the canto moves in the menu
+            action.do(action.SetMovementLeft(self.cur_unit, skill_system.canto_movement(self.cur_unit, self.cur_unit)))
             moves = target_system.get_valid_moves(self.cur_unit)
             game.highlight.display_moves(moves)
         game.highlight.display_aura_highlights(self.cur_unit)
@@ -958,7 +959,7 @@ class MenuState(MapState):
                 # Handle abilities that are multi-items, you sick fuck
                 if item.multi_item:
                     all_weapons = [subitem for subitem in item.subitems if item_funcs.is_weapon_recursive(self.cur_unit, subitem) and
-                                        target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
+                                   target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                     if all_weapons:
                         if item.multi_item_hides_unavailable:
                             game.memory['valid_weapons'] = [subitem for subitem in all_weapons if item_funcs.available(self.cur_unit, subitem)]
@@ -967,7 +968,7 @@ class MenuState(MapState):
                         game.state.change('weapon_choice')
                     else: # multi item of spells?
                         all_spells = [subitem for subitem in item.subitems if item_funcs.is_spell_recursive(self.cur_unit, subitem) and
-                                        target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
+                                      target_system.get_valid_targets_recursive_with_availability_check(self.cur_unit, subitem)]
                         if item.multi_item_hides_unavailable:
                             game.memory['valid_spells'] = [subitem for subitem in all_spells if item_funcs.available(self.cur_unit, subitem)]
                         else:
@@ -983,7 +984,7 @@ class MenuState(MapState):
                         interaction.start_combat(self.cur_unit, self.cur_unit.position, item)
                 else:
                     # equip if possible
-                    if item_system.equippable(self.cur_unit, item):
+                    if self.cur_unit.can_equip(item):
                         action.do(action.EquipItem(self.cur_unit, item))
                     game.state.change('combat_targeting')
 
@@ -1070,11 +1071,13 @@ class ItemState(MapState):
         elif event == 'SELECT':
             if self.menu.info_flag:
                 pass
-            else:
+            elif self.menu.get_current():  # Need to have an item
                 get_sound_thread().play_sfx('Select 1')
                 game.memory['is_subitem_child_menu'] = False
                 game.memory['parent_menu'] = self.menu
                 game.state.change('item_child')
+            else:
+                get_sound_thread().play_sfx('Error')
 
         elif event == 'INFO':
             self.menu.toggle_info()
@@ -1199,9 +1202,7 @@ class ItemChildState(MapState):
 
         options = []
         if not game.memory['is_subitem_child_menu']:
-            if item_system.equippable(self.cur_unit, item) and \
-                    item_funcs.available(self.cur_unit, item) and \
-                    item in self.cur_unit.items:
+            if item in self.cur_unit.items and self.cur_unit.can_equip(item):
                 options.append("Equip")
             if item.multi_item and \
                     item in self.cur_unit.items:
@@ -1216,7 +1217,7 @@ class ItemChildState(MapState):
             if not options:
                 options.append('Nothing')
         else:
-            if item_system.equippable(self.cur_unit, item) and item_funcs.available(self.cur_unit, item):
+            if self.cur_unit.can_equip(item):
                 options.append("Equip")
             if item.multi_item:
                 options.append("Expand")
@@ -1444,7 +1445,7 @@ class WeaponChoiceState(MapState):
                 return
             get_sound_thread().play_sfx('Select 1')
             # equip if we can
-            if item_system.equippable(self.cur_unit, selection):
+            if self.cur_unit.can_equip(selection):
                 equip_action = action.EquipItem(self.cur_unit, selection)
                 # game.memory['equip_action'] = equip_action
                 action.do(equip_action)

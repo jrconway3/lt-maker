@@ -355,6 +355,10 @@ class UnitObject(Prefab):
             bonus += item_system.stat_change(self, accessory, stat_nid)
         return bonus
 
+    def subtle_stat_bonus(self, stat_nid: str) -> int:
+        bonus = skill_system.subtle_stat_change(self, stat_nid)
+        return bonus
+
     def stat_contribution(self, stat_nid: str) -> list:
         contribution = skill_system.stat_change_contribution(self, stat_nid)
         weapon = self.equipped_weapon
@@ -456,18 +460,21 @@ class UnitObject(Prefab):
     def get_accessory(self) -> Optional[ItemObject]:
         return self.equipped_accessory
 
+    def can_equip(self, item: ItemObject) -> bool:
+        return item_system.equippable(self, item) and item_funcs.available(self, item)
+
     def autoequip(self):
         all_items = item_funcs.get_all_items(self)
         if not self.equipped_weapon:
             for item in all_items:
                 if not item_system.is_accessory(self, item):
-                    if item_system.equippable(self, item) and item_funcs.available(self, item):
+                    if self.can_equip(item):
                         self.equip(item)
                         break
         if not self.equipped_accessory:
             for item in all_items:
                 if item_system.is_accessory(self, item):
-                    if item_system.equippable(self, item) and item_funcs.available(self, item):
+                    if self.can_equip(item):
                         self.equip(item)
                         break
         # keep accessories sorted after items
@@ -478,17 +485,16 @@ class UnitObject(Prefab):
             return  # Don't need to do anything
         elif item is self.equipped_weapon:
             return  # Don't need to do anything
-        if item_system.equippable(self, item) and item_funcs.available(self, item):
-            if item_system.is_accessory(self, item):
-                if self.equipped_accessory:
-                    self.unequip(self.equipped_accessory)
-                self.equipped_accessory = item
-            else:
-                if self.equipped_weapon:
-                    self.unequip(self.equipped_weapon)
-                self.equipped_weapon = item
-            item_system.on_equip_item(self, item)
-            skill_system.on_equip_item(self, item)
+        if item_system.is_accessory(self, item):
+            if self.equipped_accessory:
+                self.unequip(self.equipped_accessory)
+            self.equipped_accessory = item
+        else:
+            if self.equipped_weapon:
+                self.unequip(self.equipped_weapon)
+            self.equipped_weapon = item
+        item_system.on_equip_item(self, item)
+        skill_system.on_equip_item(self, item)
 
     def unequip(self, item):
         skill_system.on_unequip_item(self, item)

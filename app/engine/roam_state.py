@@ -187,6 +187,8 @@ class FreeRoamState(MapState):
 
         elif event == 'AUX':
             game.state.change('option_menu')
+            self.rationalize()  # Forced rationalization when pressing AUX
+            # so this if you win_game or something your position is valid int
 
         elif event == 'INFO':
             other_unit = self.can_talk()
@@ -252,6 +254,8 @@ class FreeRoamState(MapState):
     def no_bumps(self, x: int, y: int) -> bool:
         '''Used to detect if the space is occupied by an impassable unit'''
         new_pos = (x, y)
+        if not game.movement.check_traversable(self.roam_unit, new_pos):
+            return False
         if game.board.get_unit(new_pos):
             other_team = game.board.get_team(new_pos)
             if not other_team or utils.compare_teams(self.roam_unit.team, other_team):

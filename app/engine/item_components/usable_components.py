@@ -112,6 +112,8 @@ class ChapterUses(ItemComponent):
         if self.is_broken(unit, item):
             if unit.equipped_weapon is item:
                 action.do(action.UnequipItem(unit, item))
+            elif unit.equipped_accessory is item:
+                action.do(action.UnequipItem(unit, item))
             return True
         return False
 
@@ -204,6 +206,8 @@ class ManaCost(ItemComponent):
     def on_broken(self, unit, item) -> bool:
         if unit.equipped_weapon is item:
             action.do(action.UnequipItem(unit, item))
+        elif unit.equipped_accessory is item:
+            action.do(action.UnequipItem(unit, item))
         return False
 
     def on_hit(self, actions, playback, unit, item, target, target_pos, mode, attack_info):
@@ -282,6 +286,8 @@ class Cooldown(ItemComponent):
     def on_broken(self, unit, item):
         if unit.equipped_weapon is item:
             action.do(action.UnequipItem(unit, item))
+        elif unit.equipped_accessory is item:
+            action.do(action.UnequipItem(unit, item))
         return False
 
     def on_upkeep(self, actions, playback, unit, item):
@@ -352,3 +358,18 @@ class Unstealable(ItemComponent):
 
     def unstealable(self, unit, item) -> bool:
         return True
+
+class EvalAvailable(ItemComponent):
+    nid = 'eval_available'
+    desc = 'Item is only available while condition is true'
+    tag = ItemTags.USES
+
+    expose = ComponentType.String
+
+    def available(self, unit, item) -> bool:
+        from app.engine import evaluate
+        try:
+            return int(evaluate.evaluate(self.value, unit, local_args={'item': item}))
+        except:
+            logging.error("EvalAvailable: Couldn't evaluate %s conditional" % self.value)
+        return False

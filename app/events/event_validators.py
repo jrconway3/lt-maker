@@ -4,7 +4,7 @@ from app.data.database.levels import LevelPrefab
 from app.data.database.skills import SkillPrefab
 
 import re
-from typing import TYPE_CHECKING, Dict, List, Tuple, Type
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type
 
 from app.data.database.database import Database
 from app.editor.event_editor.event_inspector import EventInspectorEngine
@@ -18,24 +18,24 @@ from app.sprites import SPRITES
 from app.utilities import str_utils
 from app.utilities.enums import Alignments
 from app.utilities.typing import NID, Point
-from app.events.event_commands import CreateAchievement
+from app.events.regions import RegionType as RegionTypeEnum
 
 class Validator():
     desc = ""
 
-    def __init__(self, db: Database=None, resources: Resources=None):
+    def __init__(self, db: Optional[Database]=None, resources: Optional[Resources]=None):
         self._db = db or Database()
         self._resources = resources or Resources()
 
     def validate(self, text, level):
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         """Return a list of all known valid options for this validator
         in tuple (name, nid) format.
 
         Returns:
-            List[Tuple[str, NID]]: A list of (name, nid) tuples that are valid for this type.
+            List[Tuple[Optional[str], NID]]: A list of (name, nid) tuples that are valid for this type.
         """
         return []
 
@@ -43,7 +43,7 @@ class Validator():
         return text
 
 class OptionValidator(Validator):
-    valid = []
+    valid: List[str] = []
 
     @property
     def desc(self) -> str:
@@ -54,9 +54,8 @@ class OptionValidator(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
-        valids = [(None, option) for option in self.valid]
-        return valids
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
+        return [(None, option) for option in self.valid]
 
 class EvalValidator(Validator):
     """exists as a special subclass of validators"""
@@ -77,12 +76,14 @@ class RawDataValidator(EvalValidator):
     def validate(self, text, level):
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
+        if not text:
+            return []
         text = self.process_arg_text(text)
-        level = text.count('.')
-        if level == 0:
+        nlevel = text.count('.')
+        if nlevel == 0:
             return [(None, key) for key in self._db.raw_data.keys()]
-        elif level == 1:
+        elif nlevel == 1:
             # we already have a raw data NID
             args = text.split('.')
             data_nid = args[0]
@@ -102,7 +103,7 @@ class RawDataValidator(EvalValidator):
                 return [(None, oattr) for oattr in raw_data_prefab.oattrs]
             elif raw_data_prefab and raw_data_prefab.dtype in ['list', 'kv']: # searching for specific row nid
                 return [(None, key) for key in raw_data_prefab.value.keys()]
-        elif level == 2:
+        elif nlevel == 2:
             # this is a list type
             data_nid = text.split('.')[0]
             raw_data_prefab = self._db.raw_data.get_prefab(data_nid)
@@ -119,15 +120,15 @@ class UnitFieldValidator(EvalValidator):
     def validate(self, text, level):
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         text = self.process_arg_text(text)
-        level = text.count('.')
-        if level == 0: # we want to select a specific unit
+        nlevel = text.count('.')
+        if nlevel == 0: # we want to select a specific unit
             all_keys = set()
             all_keys.update(set(self._db.units.keys()))
             all_keys.update(set(self._db.classes.keys()))
             return [(None, key) for key in all_keys] + [(None, '_unit'), (None, '_unit2')]
-        elif level == 1:
+        elif nlevel == 1:
             # we already have unit nid
             unit_nid = text.split('.')[0]
             if unit_nid in ['_unit', '_unit2']:
@@ -155,11 +156,10 @@ class VarValidator(EvalValidator):
     def validate(self, text, level):
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
-        slots = [(None, var_name) for var_name in self._db.game_var_slots.keys()]
-        vars_in_level = EventInspectorEngine(self._db.events).find_all_variables_in_level(level)
-        slots += [(None, var_name) for var_name in vars_in_level]
-        return slots
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
+        vars_in_level = set(self._db.game_var_slots.keys())
+        vars_in_level = vars_in_level | EventInspectorEngine(self._db.events).find_all_variables_in_level(level)
+        return [(None, var_name) for var_name in vars_in_level]
 
 class SkillAttrValidator(EvalValidator):
     desc = "expression to evaluate skill field"
@@ -177,7 +177,7 @@ class SkillAttrValidator(EvalValidator):
             return None
         return text
 
-    def valid_entries(self, level: NID, text: str) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: NID, text: str) -> List[Tuple[Optional[str], NID]]:
         text = self.process_arg_text(text)
         level = text.count('.')
         if level == 0: # we want to select a specific skill
@@ -208,12 +208,12 @@ class ItemAttrValidator(EvalValidator):
             return None
         return text
 
-    def valid_entries(self, level: NID, text: str) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: NID, text: str) -> List[Tuple[Optional[str], NID]]:
         text = self.process_arg_text(text)
-        level = text.count('.')
-        if level == 0: # we want to select a specific item
+        nlevel = text.count('.')
+        if nlevel == 0: # we want to select a specific item
             return [(None, key) for key in self._db.items.keys()]
-        elif level == 1:
+        elif nlevel == 1:
             # we already have item nid
             item_nid = text.split('.')[0]
             item_prefab = self._db.items.get(item_nid)
@@ -230,7 +230,7 @@ class UnitField(Validator):
     def validate(self, text, level):
         return text
 
-    def valid_entries(self, level: NID, text: str) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: NID, text: str) -> List[Tuple[Optional[str], NID]]:
         all_keys = set()
         for unit in self._db.units:
             all_keys.update(set([key for (key, _) in unit.fields]))
@@ -242,8 +242,8 @@ class Achievement(Validator):
     def validate(self, text, level):
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
-        achs = EventInspectorEngine(self._db.events).find_all_calls_of_command(CreateAchievement)
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
+        achs = EventInspectorEngine(self._db.events).find_all_calls_of_command(event_commands.CreateAchievement())
         slots = [(None, command.parameters['Nid']) for command in achs.values()]
         return slots
 
@@ -253,11 +253,10 @@ class GeneralVar(Validator):
     def validate(self, text, level):
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
-        slots = [(None, var_name) for var_name in self._db.game_var_slots.keys()]
-        vars_in_level = EventInspectorEngine(self._db.events).find_all_variables_in_level(level)
-        slots += [(None, var_name) for var_name in vars_in_level]
-        return slots
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
+        vars_in_level = set(self._db.game_var_slots.keys())
+        vars_in_level = vars_in_level | EventInspectorEngine(self._db.events).find_all_variables_in_level(level)
+        return [(None, var_name) for var_name in vars_in_level]
 
 class EventFunction(Validator):
     desc = "must be a valid event function"
@@ -268,7 +267,7 @@ class EventFunction(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, command.nid) for command in event_commands.get_commands()]
         return valids
 
@@ -314,7 +313,7 @@ class IntegerList(Validator):
         text = text.split(',')
         for t in text:
             if not str_utils.is_int(t):
-                return None                
+                return None
         return text
 
 class WholeNumber(Validator):
@@ -348,7 +347,7 @@ class Music(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, music.nid) for music in self._resources.music.values()]
         return valids
 
@@ -358,7 +357,7 @@ class Sound(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, sfx.nid) for sfx in self._resources.sfx.values()]
         return valids
 
@@ -383,7 +382,7 @@ class PortraitNid(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, portrait.nid) for portrait in self._resources.portraits.values()]
         return valids
 
@@ -399,7 +398,7 @@ class Portrait(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, portrait.nid) for portrait in self._resources.portraits.values()]
         other_valids = [(unit.name, unit.nid) for unit in self._db.units.values()]
         valids.append((None, "{unit}"))
@@ -419,7 +418,7 @@ class Team(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, team_nid) for team_nid in self._db.teams]
         return valids
 
@@ -429,7 +428,7 @@ class Tag(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, tag.nid) for tag in self._db.tags.values()]
         return valids
 
@@ -440,10 +439,10 @@ class TagList(Validator):
         tex = text.split(',')
         for t in tex:
             if t not in self._db.tags.keys():
-                return None                
+                return None
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, tag.nid) for tag in self._db.tags.values()]
         return valids
 
@@ -461,7 +460,7 @@ Determines position to place text. Supports either pixels (`x,y`) or the `center
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, option) for option in self.valid_positions]
         return valids
 
@@ -496,7 +495,7 @@ it will be facing right, and vice versa.
                 return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, option) for option in horizontal_screen_positions]
         return valids
 
@@ -523,7 +522,7 @@ class ExpressionList(Validator):
                 return None
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, option) for option in self.valid_expressions]
         return valids
 
@@ -538,7 +537,7 @@ class IllegalCharacterList(Validator):
                 return None
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, option) for option in self.valid_sets]
         return valids
 
@@ -553,7 +552,7 @@ class DialogVariant(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         slots = [(None, style) for style in self.built_in]
         text = text.split(',')
         predefined_variants = EventInspectorEngine(self._db.events).find_all_calls_of_command(event_commands.SpeakStyle())
@@ -614,7 +613,7 @@ class Panorama(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, pan.nid) for pan in self._resources.panoramas.values()]
         return valids
 
@@ -654,7 +653,7 @@ class ShopFlavor(Validator):
     # Any string will do
     desc = "defaults to `armory`"
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = []
         valids.append((None, "vendor"))
         valids.append((None, "armory"))
@@ -671,7 +670,7 @@ class Chapter(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, n) for n in self._db.levels.keys()]
         return valids
 
@@ -713,7 +712,7 @@ class Position(Validator):
         else:
             return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         level_prefab = self._db.levels.get(level)
         if level_prefab:
             valids = [(unit.name, unit.nid) for unit in level_prefab.units.values()]
@@ -808,7 +807,7 @@ class Unit(Validator):
             return True
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         level_prefab = self._db.levels.get(level)
         if not level_prefab:
             return []
@@ -827,7 +826,7 @@ class Group(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         level_prefab = self._db.levels.get(level)
         if level_prefab:
             valids = [(None, group.nid) for group in level_prefab.unit_groups.values()]
@@ -853,7 +852,7 @@ class StartingGroup(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         level_prefab = self._db.levels.get(level)
         if level_prefab:
             valids = [(None, group.nid) for group in level_prefab.unit_groups.values()]
@@ -868,7 +867,7 @@ class UniqueUnit(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(unit.name, unit.nid) for unit in self._db.units.values()]
         return valids
 
@@ -886,7 +885,7 @@ class GlobalUnit(Validator):
             return True
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(unit.name, unit.nid) for unit in self._db.units.values()]
         valids.append((None, "{unit}"))
         valids.append((None, "{unit1}"))
@@ -909,7 +908,7 @@ class GlobalUnitOrConvoy(Validator):
             return True
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(unit.name, unit.nid) for unit in self._db.units.values()]
         valids.append((None, "{unit}"))
         valids.append((None, "{unit1}"))
@@ -923,7 +922,7 @@ class Region(Validator):
     def validate(self, text, level):
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = []
         level_obj = self._db.levels.get(level)
         if level_obj:
@@ -947,7 +946,7 @@ class RemoveType(OptionValidator):
     valid = ['fade', 'immediate', 'warp', 'swoosh']
 
 class RegionType(OptionValidator):
-    valid = ['normal', 'event', 'status', 'formation', 'time', 'fog', 'vision']
+    valid = [r.value for r in RegionTypeEnum]
 
 class Weather(OptionValidator):
     valid = ["rain", "sand", "snow", "fire", "light", "purple", "dark", "smoke", "night", "sunset", "event_tile", "switch_tile"]
@@ -984,7 +983,7 @@ class CombatScript(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, option) for option in self.valid_commands]
         return valids
 
@@ -996,7 +995,7 @@ class Ability(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(item.name, item.nid) for item in self._db.items.values()]
         svalids = [(skill.name, skill.nid) for skill in self._db.skills.values()]
         return valids + svalids
@@ -1009,7 +1008,7 @@ class Item(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(item.name, item.nid) for item in self._db.items.values()]
         return valids
 
@@ -1022,7 +1021,7 @@ class ItemList(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, item.nid) for item in self._db.items.values()]
         return valids
 
@@ -1035,7 +1034,7 @@ class ItemComponent(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         from app.engine import item_component_access as ICA
         valids = [(None, component.nid) for component in ICA.get_item_components()]
         return valids
@@ -1056,7 +1055,7 @@ class StatList(Validator):
                 return None
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, stat.nid) for stat in self._db.stats.values()]
         return valids
 
@@ -1071,7 +1070,7 @@ class KlassList(Validator):
                 return None
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, klass.nid) for klass in self._db.classes.values()]
         return valids
 
@@ -1090,7 +1089,7 @@ class Skill(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         svalids = [(skill.name, skill.nid) for skill in self._db.skills.values()]
         return svalids
 
@@ -1104,7 +1103,7 @@ class Icon(Validator):
     def validate(self, text, level):
         return text in self.get_all_icons()
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         return [(None, alias) for alias in self.get_all_icons()]
 
 class Party(Validator):
@@ -1115,7 +1114,7 @@ class Party(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(party.name, party.nid) for party in self._db.parties.values()]
         return valids
 
@@ -1125,7 +1124,7 @@ class Faction(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(fac.name, fac.nid) for fac in self._db.factions.values()]
         return valids
 
@@ -1135,7 +1134,7 @@ class Klass(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(klass.name, klass.nid) for klass in self._db.classes.values()]
         return valids
 
@@ -1145,7 +1144,7 @@ class Lore(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(lore.name, lore.nid) for lore in self._db.lore.values()]
         return valids
 
@@ -1155,7 +1154,7 @@ class WeaponType(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(weapon.name, weapon.nid) for weapon in self._db.weapons.values()]
         return valids
 
@@ -1165,7 +1164,7 @@ class SupportRank(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, rank.nid) for rank in self._db.support_ranks.values()]
         return valids
 
@@ -1177,7 +1176,7 @@ class Layer(Validator):
                 return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         level = self._db.levels.get(level)
         if level:
             tilemap_prefab = self._resources.tilemaps.get(level.tilemap)
@@ -1194,7 +1193,7 @@ class MapAnim(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, anim.nid) for anim in self._resources.animations.values()]
         return valids
 
@@ -1204,7 +1203,7 @@ class Tilemap(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, tilemap.nid) for tilemap in self._resources.tilemaps.values()]
         return valids
 
@@ -1217,7 +1216,7 @@ class Event(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(event.name, event.nid) for event in self._db.events.get_by_level(level)]
         return valids
 
@@ -1229,7 +1228,7 @@ class OverworldNID(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(overworld.name, overworld.nid) for overworld in self._db.overworlds.values()]
         return valids
 
@@ -1250,7 +1249,7 @@ class OverworldLocation(Validator):
             pass
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = []
         for overworld in self._db.overworlds.values():
             valids = valids + [(node.name, node.nid) for node in overworld.overworld_nodes.values()]
@@ -1278,7 +1277,7 @@ class OverworldNodeNID(Validator):
                     return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = []
         for overworld in self._db.overworlds.values():
             valids = valids + [(node.name, node.nid) for node in overworld.overworld_nodes.values()]
@@ -1294,7 +1293,7 @@ class OverworldNodeMenuOption(Validator):
                     return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = []
         for overworld in self._db.overworlds.values():
             for node in overworld.overworld_nodes:
@@ -1307,7 +1306,7 @@ class OverworldEntity(Validator):
     def validate(self, text, level):
         return text
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(party.name, party.nid) for party in self._db.parties.values()]
         return valids
 
@@ -1319,7 +1318,7 @@ class Sprite(Validator):
             return text
         return None
 
-    def valid_entries(self, level: NID = None, text: str = None) -> List[Tuple[str, NID]]:
+    def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(sprite_name, sprite_name) for sprite_name in SPRITES.keys()]
         return valids
 

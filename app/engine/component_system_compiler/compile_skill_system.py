@@ -4,7 +4,7 @@ formula = ('damage_formula', 'resist_formula', 'accuracy_formula', 'avoid_formul
            'crit_accuracy_formula', 'crit_avoid_formula', 'attack_speed_formula', 'defense_speed_formula',
            'critical_multiplier_formula', 'critical_addition_formula', 'thracia_critical_multiplier_formula')
 default_behaviours = (
-    'pass_through', 'vantage', 'ignore_terrain', 'crit_anyway',
+    'pass_through', 'vantage', 'desperation', 'ignore_terrain', 'crit_anyway',
     'ignore_region_status', 'no_double', 'def_double', 'alternate_splash',
     'ignore_rescue_penalty', 'ignore_forced_movement', 'distant_counter',
     'ignore_fatigue', 'no_attack_after_move', 'has_dynamic_range', 'disvantage', 'close_counter', 'attack_stance_double')
@@ -15,7 +15,7 @@ exclusive_behaviours += formula
 # Takes in unit and item, returns default value
 item_behaviours = ('modify_buy_price', 'modify_sell_price', 'limit_maximum_range', 'modify_maximum_range', 'wexp_usable_skill', 'wexp_unusable_skill')
 # Takes in unit and target, returns default value
-targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier', 'wexp_multiplier', 'enemy_wexp_multiplier', 'has_canto', 'empower_heal', 'empower_heal_received')
+targeted_behaviours = ('check_ally', 'check_enemy', 'can_trade', 'exp_multiplier', 'enemy_exp_multiplier', 'wexp_multiplier', 'enemy_wexp_multiplier', 'has_canto', 'empower_heal', 'empower_heal_received', 'canto_movement')
 # Takes in unit, item returns bonus
 modify_hooks = (
     'modify_damage', 'modify_resist', 'modify_accuracy', 'modify_avoid',
@@ -152,7 +152,7 @@ def %s(unit, item, target, mode, attack_info, base_value):
     for hook in simple_event_hooks:
         func = """
 def %s(unit):
-    for skill in unit.skills:
+    for skill in unit.skills[:]:
         for component in skill.components:
             if component.defines('%s'):
                 if component.ignore_conditional or condition(skill, unit):
@@ -164,7 +164,7 @@ def %s(unit):
     for hook in combat_event_hooks:
         func = """
 def %s(playback, unit, item, target, mode):
-    for skill in unit.skills:
+    for skill in unit.skills[:]:
         for component in skill.components:
             if component.defines('%s'):
                 if component.ignore_conditional or condition(skill, unit, item):
@@ -188,7 +188,7 @@ def %s(playback, unit, item, target, mode):
     for hook in subcombat_event_hooks:
         func = """
 def %s(actions, playback, unit, item, target, mode, attack_info):
-    for skill in unit.skills:
+    for skill in unit.skills[:]:
         for component in skill.components:
             if component.defines('%s'):
                 if component.ignore_conditional or condition(skill, unit, item):
@@ -200,7 +200,7 @@ def %s(actions, playback, unit, item, target, mode, attack_info):
     for hook in item_event_hooks:
         func = """
 def %s(unit, item):
-    for skill in unit.skills:
+    for skill in unit.skills[:]:
         for component in skill.components:
             if component.defines('%s'):
                 if component.ignore_conditional or condition(skill, unit, item):

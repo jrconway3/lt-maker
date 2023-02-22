@@ -1,16 +1,16 @@
 from typing import Any, Dict
 
-from PyQt5.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QHBoxLayout, QVBoxLayout,
-                             QItemDelegate, QLabel, QLineEdit, QListWidgetItem,
-                             QSpinBox, QToolButton, QWidget)
+from PyQt5.QtWidgets import (QCheckBox, QDoubleSpinBox, QHBoxLayout,
+                             QLabel, QLineEdit, QSpinBox, QWidget)
 from app.utilities import utils
 from app.extensions.custom_gui import ComboBox
 from app.data.database.components import ComponentType
 from app.data.database.database import DB
 from app.data.resources.resources import RESOURCES
-MIN_DROP_DOWN_WIDTH = 120
-MAX_DROP_DOWN_WIDTH = 640
-DROP_DOWN_BUFFER = 24
+
+from app.editor.editor_constants import MIN_DROP_DOWN_WIDTH, MAX_DROP_DOWN_WIDTH, DROP_DOWN_BUFFER
+
+import logging
 
 class BoolSubcomponentEditor(QWidget):
     def __init__(self, editor_name: str, option_dict: Dict[str, Any]) -> None:
@@ -20,7 +20,6 @@ class BoolSubcomponentEditor(QWidget):
         self.setLayout(hbox)
         self.editor_name = editor_name
         self.option_dict = option_dict
-
 
         name_label = QLabel(editor_name)
         hbox.addWidget(name_label)
@@ -164,3 +163,6 @@ def get_editor_widget(editor_name: str, ctype: ComponentType, option_dict: Dict[
         return EventSubcomponentEditor(editor_name, option_dict)
     elif ctype == ComponentType.Sound:
         return SoundSubcomponentEditor(editor_name, option_dict)
+    else:
+        logging.error("No valid ctype %s available for subcomponent. Defaulting to bool")
+        return BoolSubcomponentEditor(editor_name, option_dict)

@@ -448,6 +448,9 @@ class UnitObject(Prefab):
     def movement_left(self, val):
         self._movement_left = val
 
+    def consume_movement(self, val):
+        self._movement_left -= val
+
     def calculate_needed_wexp_from_items(self):
         for item in item_funcs.get_all_items(self):
             weapon_rank_required = item_system.weapon_rank(self, item)

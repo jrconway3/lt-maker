@@ -190,7 +190,8 @@ class ListSubcomponentEditor(BaseContainerSubcomponentEditor):
             self.option_dict[self.field_name] = []
         self.editor = AppendSingleListWidget(self.option_dict[self.field_name], str_utils.snake_to_readable(self.field_name), self.delegate, self)
         self.editor.view.setColumnWidth(0, 100)
-        self.editor.view.setMaximumHeight(75)
+        self.editor.view.setMinimumHeight(100)
+        self.editor.view.setMaximumHeight(150)
         self.editor.model.nid_column = 0
         hbox.addWidget(self.editor)
 

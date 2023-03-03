@@ -77,7 +77,7 @@ class EffectiveDamage(ItemComponent):
     def dynamic_damage(self, unit, item, target, mode, attack_info, base_value) -> int:
         if self._check_effective(target):
             might = item_system.damage(unit, item) or 0
-            return int(self.multiplier * might + self.bonus_damage)
+            return int((self.multiplier - 1.0) * might + self.bonus_damage)
         return 0
 
 class Brave(ItemComponent):

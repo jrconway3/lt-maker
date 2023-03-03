@@ -47,6 +47,7 @@ class FrameLayout(QWidget):
     def enabled(self):
         return not self._is_collapsed
 
+
     ############################
     #           TITLE          #
     ############################

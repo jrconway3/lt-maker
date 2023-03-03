@@ -1,3 +1,4 @@
+from __future__ import annotations
 from functools import partial
 from typing import Any, Dict
 
@@ -41,7 +42,7 @@ class ComponentList(WidgetList):
         self.bg_color = palette.color(QPalette.Base)
         self.highlight_color = palette.color(QPalette.AlternateBase)
 
-    def add_component(self, component):
+    def add_component(self, component: BoolItemComponent):
         item = QListWidgetItem()
         item.setSizeHint(component.sizeHint())
         self.addItem(item)
@@ -469,7 +470,6 @@ class ListItemComponent(BoolItemComponent):
         self.editor.model.nid_column = 0
 
         hbox.addWidget(self.editor)
-
 class DictItemComponent(BoolItemComponent):
     delegate = None
 

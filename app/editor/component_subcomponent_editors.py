@@ -4,7 +4,6 @@ from typing import Any, Dict, Tuple
 
 from PyQt5.QtWidgets import (QCheckBox, QDoubleSpinBox, QHBoxLayout, QLabel,
                              QLineEdit, QSpinBox, QWidget)
-from typing_extensions import override
 
 from app.data.database.components import ComponentType
 from app.data.database.database import DB
@@ -22,6 +21,7 @@ from app.editor.editor_constants import (DROP_DOWN_BUFFER, MAX_DROP_DOWN_WIDTH,
 from app.extensions.custom_gui import ComboBox
 from app.extensions.list_widgets import AppendSingleListWidget
 from app.utilities import str_utils, utils
+from app.utilities.typing import override
 
 
 class BaseSubcomponentEditor(QWidget):

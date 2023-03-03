@@ -2,7 +2,7 @@ from __future__ import annotations
 from functools import partial
 from typing import Any, Dict
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QColor, QIcon, QPalette
 from PyQt5.QtWidgets import (QApplication, QDoubleSpinBox, QHBoxLayout,
                              QItemDelegate, QLabel, QLineEdit, QListWidgetItem,
@@ -60,6 +60,13 @@ class ComponentList(WidgetList):
             self.index_list.remove(component.data.nid)
             return self.takeItem(idx)
         return None
+
+    def updateGeometry(self):
+        for idx in range(self.count()):
+            item = self.item(idx)
+            component = self.itemWidget(item)
+            item.setSizeHint(component.sizeHint())
+        super().updateGeometry()
 
     def rerender(self, start, row):
         for idx in range(self.count()):
@@ -205,9 +212,9 @@ class DeprecatedOptionsItemComponent(BoolItemComponent):
 class BetterOptionsItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         options: Dict[str, ComponentType] = self._data.options
-        collapsible_frame_layout = FrameLayout(self, "Component Options")
-        editors_widget = QWidget(self)
-        vbox = QVBoxLayout(editors_widget)
+        self.collapsible_frame_layout = FrameLayout(self, "Component Options")
+        self.editors_widget = QWidget(self)
+        vbox = QVBoxLayout(self.editors_widget)
         # backwards compatability update
         value = self._data.__class__.value.copy()
         value.update(self._data.value)
@@ -215,8 +222,23 @@ class BetterOptionsItemComponent(BoolItemComponent):
         for field_name, component_type in options.items():
             editor = get_editor_widget(field_name, component_type, self._data.value)
             vbox.addWidget(editor)
-        collapsible_frame_layout.addWidget(editors_widget)
-        hbox.addWidget(collapsible_frame_layout)
+        self.collapsible_frame_layout.addWidget(self.editors_widget)
+        self.collapsible_frame_layout.clicked.connect(self.updateGeometry)
+        self.orig_height = self.height()
+        hbox.addWidget(self.collapsible_frame_layout)
+
+    def sizeHint(self):
+        if self.collapsible_frame_layout.enabled():
+            h = self.editors_widget.sizeHint().height()
+            return QSize(self.width(), h)
+        else:
+            return QSize(self.width(), self.orig_height)
+
+    def updateGeometry(self):
+        size = self.sizeHint()
+        self.setFixedSize(size)
+        super().updateGeometry()
+        self.window.component_list.updateGeometry()
 
 class WeaponTypeItemComponent(BoolItemComponent):
     def create_editor(self, hbox):

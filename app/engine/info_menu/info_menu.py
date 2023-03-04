@@ -1,11 +1,7 @@
 from app.engine.sprites import SPRITES
 from app.engine.sound import get_sound_thread
-from app.engine import engine, skill_system
+from app.engine import engine
 from app.engine.game_state import game
-
-def to_info_menu():
-    game.memory['next_state'] = 'info_menu'
-    game.state.change('transition_to')
 
 def handle_info():
     if game.cursor.get_hover():
@@ -16,30 +12,6 @@ def handle_info():
     else:
         get_sound_thread().play_sfx('Select 3')
         game.boundary.toggle_all_enemy_attacks()
-
-def handle_aux():
-    avail_units = [
-        u for u in game.units
-        if u.team == 'player' and
-        u.position and
-        not u.finished and
-        skill_system.can_select(u) and
-        'Tile' not in u.tags]
-
-    if avail_units:
-        cur_unit = game.cursor.get_hover()
-        if not cur_unit or cur_unit not in avail_units:
-            cur_unit = game.memory.get('aux_unit')
-        if not cur_unit or cur_unit not in avail_units:
-            cur_unit = avail_units[0]
-
-        if cur_unit in avail_units:
-            idx = avail_units.index(cur_unit)
-            idx = (idx + 1) % len(avail_units)
-            new_pos = avail_units[idx].position
-            game.memory['aux_unit'] = cur_unit
-            get_sound_thread().play_sfx('Select 4')
-            game.cursor.set_pos(new_pos)
 
 def build_groove(surf, topleft, width, fill):
     bg = SPRITES.get('groove_back')

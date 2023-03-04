@@ -233,7 +233,8 @@ class PrepPickUnitsState(State):
             get_sound_thread().play_sfx('Select 1')
             game.memory['scroll_units'] = game.get_units_in_party()
             game.memory['current_unit'] = self.menu.get_current()
-            info_menu.to_info_menu()
+            game.memory['next_state'] = 'info_menu'
+            game.state.change('transition_to')
 
     def update(self):
         self.menu.update()
@@ -498,7 +499,8 @@ class PrepManageState(State):
             get_sound_thread().play_sfx('Select 1')
             game.memory['scroll_units'] = game.get_units_in_party()
             game.memory['current_unit'] = self.menu.get_current()
-            info_menu.to_info_menu()
+            game.memory['next_state'] = 'info_menu'
+            game.state.change('transition_to')
         elif event == 'START':
             get_sound_thread().play_sfx('Select 1')
             # convoy_funcs.optimize_all()
@@ -713,7 +715,8 @@ class PrepTradeSelectState(State):
             get_sound_thread().play_sfx('Select 1')
             game.memory['scroll_units'] = game.get_units_in_party()
             game.memory['current_unit'] = self.menu.get_current()
-            info_menu.to_info_menu()
+            game.memory['next_state'] = 'info_menu'
+            game.state.change('transition_to')
 
     def update(self):
         self.menu.update()

@@ -200,7 +200,6 @@ class FrameSelector(Dialog):
                     my_palette = palette
                     break
             else:
-                print("Generating new palette...")
                 nid = utilities.get_next_name("New Palette", RESOURCES.combat_palettes.keys())
                 my_palette = combat_palettes.Palette(nid)
                 RESOURCES.combat_palettes.append(my_palette)
@@ -209,7 +208,6 @@ class FrameSelector(Dialog):
                 my_palette.assign_colors(all_palette_colors)
 
             convert_dict = editor_utilities.get_color_conversion(my_palette)
-            print(editor_utilities.human_readable(convert_dict))
             for idx, pix in enumerate(pixmaps):
                 im = pix.toImage()
                 im = editor_utilities.color_convert(im, convert_dict)

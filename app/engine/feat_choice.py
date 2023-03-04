@@ -7,7 +7,6 @@ from app.engine.state import MapState
 
 from app.engine import engine, text_funcs, menus, action, \
     menu_options, icons, help_menu, banner, base_surf
-from app.engine.info_menu import info_menu
 from app.engine.game_state import game
 
 class SkillOption(menu_options.BasicOption):
@@ -106,7 +105,8 @@ class FeatChoiceState(MapState):
         elif event == 'INFO':
             get_sound_thread().play_sfx('Select 2')
             game.memory['current_unit'] = self.unit
-            info_menu.to_info_menu()
+            game.memory['next_state'] = 'info_menu'
+            game.state.change('transition_to')
 
         elif event == 'SELECT':
             get_sound_thread().play_sfx('Select 1')

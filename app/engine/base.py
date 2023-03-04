@@ -22,7 +22,6 @@ from app.engine import menus, base_surf, background, text_funcs, \
     image_mods, gui, icons, prep, record_book, unit_sprite, action, \
     engine
 from app.engine.fluid_scroll import FluidScroll
-from app.engine.info_menu import info_menu
 import app.engine.config as cf
 from app.events import triggers
 
@@ -238,7 +237,8 @@ class BaseMarketSelectState(prep.PrepManageState):
             get_sound_thread().play_sfx('Select 1')
             game.memory['scroll_units'] = game.get_units_in_party()
             game.memory['current_unit'] = self.menu.get_current()
-            info_menu.to_info_menu()
+            game.memory['next_state'] = 'info_menu'
+            game.state.change('transition_to')
 
 
 class BaseConvosChildState(State):
@@ -637,7 +637,8 @@ class BaseSupportsState(State):
             get_sound_thread().play_sfx('Select 1')
             game.memory['scroll_units'] = self.units
             game.memory['current_unit'] = self.menu.get_current()
-            info_menu.to_info_menu()
+            game.memory['next_state'] = 'info_menu'
+            game.state.change('transition_to')
 
     def update(self):
         if self.menu and not self.display.draw_cursor:
@@ -1196,7 +1197,8 @@ class BaseBEXPSelectState(prep.PrepManageState):
             get_sound_thread().play_sfx('Select 1')
             game.memory['scroll_units'] = game.get_units_in_party()
             game.memory['current_unit'] = self.menu.get_current()
-            info_menu.to_info_menu()
+            game.memory['next_state'] = 'info_menu'
+            game.state.change('transition_to')
 
 
 class BaseBEXPAllocateState(State):

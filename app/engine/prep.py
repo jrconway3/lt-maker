@@ -6,13 +6,14 @@ from app.data.database.database import DB
 from app.engine import action, background, banner, base_surf
 from app.engine import config as cf
 from app.engine import (convoy_funcs, engine, equations, gui, image_mods,
-                        info_menu, item_funcs, item_system, menus, text_funcs,
+                        item_funcs, item_system, menus, text_funcs,
                         trade)
 from app.engine.background import SpriteBackground
 from app.engine.combat import interaction
 from app.engine.fluid_scroll import FluidScroll
 from app.engine.fonts import FONT
 from app.engine.game_state import game
+from app.engine.info_menu import info_menu
 from app.engine.sound import get_sound_thread
 from app.engine.sprites import SPRITES
 from app.engine.state import MapState, State
@@ -229,10 +230,10 @@ class PrepPickUnitsState(State):
             game.state.change('transition_pop')
 
         elif event == 'INFO':
+            get_sound_thread().play_sfx('Select 1')
             game.memory['scroll_units'] = game.get_units_in_party()
-            game.memory['next_state'] = 'info_menu'
             game.memory['current_unit'] = self.menu.get_current()
-            game.state.change('transition_to')
+            info_menu.to_info_menu()
 
     def update(self):
         self.menu.update()
@@ -496,9 +497,8 @@ class PrepManageState(State):
         elif event == 'INFO':
             get_sound_thread().play_sfx('Select 1')
             game.memory['scroll_units'] = game.get_units_in_party()
-            game.memory['next_state'] = 'info_menu'
             game.memory['current_unit'] = self.menu.get_current()
-            game.state.change('transition_to')
+            info_menu.to_info_menu()
         elif event == 'START':
             get_sound_thread().play_sfx('Select 1')
             # convoy_funcs.optimize_all()
@@ -710,10 +710,10 @@ class PrepTradeSelectState(State):
             game.state.change('transition_pop')
 
         elif event == 'INFO':
+            get_sound_thread().play_sfx('Select 1')
             game.memory['scroll_units'] = game.get_units_in_party()
-            game.memory['next_state'] = 'info_menu'
             game.memory['current_unit'] = self.menu.get_current()
-            game.state.change('transition_to')
+            info_menu.to_info_menu()
 
     def update(self):
         self.menu.update()

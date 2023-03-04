@@ -492,6 +492,7 @@ class CombatPhaseSolver():
                 skill_system.after_take_hit(actions, playback, defender, def_item, attacker, mode, attack_info)
         else:
             item_system.on_miss(actions, playback, attacker, item, defender, def_pos, mode, attack_info, first_item)
+            item_system.after_miss(actions, playback, attacker, item, defender, mode, attack_info)
             skill_system.after_take_miss(actions, playback, defender, def_item, attacker, mode, attack_info)
             if defender:
                 playback.append(pb.MarkMiss(attacker, defender, self.attacker, item))
@@ -514,10 +515,10 @@ class CombatPhaseSolver():
             playback.append(pb.MarkHit(attacker, defender, self.attacker, item, False))
 
     def attacker_alive(self):
-        return self.attacker.get_hp() > 0
+        return self.attacker.get_hp() > 0 or skill_system.ignore_dying_in_combat(self.attacker)
 
     def defender_alive(self):
-        return self.defender and self.defender.get_hp() > 0
+        return self.defender and (self.defender.get_hp() > 0 or skill_system.ignore_dying_in_combat(self.defender))
 
     def defender_has_vantage(self) -> bool:
         return self.allow_counterattack() and \

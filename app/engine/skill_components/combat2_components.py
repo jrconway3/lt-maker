@@ -2,7 +2,7 @@ from app.data.database.skill_components import SkillComponent, SkillTags
 from app.data.database.components import ComponentType
 
 from app.utilities import utils
-from app.engine import action, skill_system, target_system
+from app.engine import action, item_system, skill_system, target_system
 from app.engine.game_state import game
 from app.engine.combat import playback as pb
 
@@ -135,7 +135,9 @@ class Armsthrift(SkillComponent):
     expose = ComponentType.Int
     value = 1
 
-    def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
+    def _after_hit(self, actions, playback, unit, item, target, mode, attack_info):
+        if item_system.unrepairable(unit, item):
+            return  # Don't restore for unrepairable items
         # Handles Uses
         if item.data.get('uses', None) and item.data.get('starting_uses', None):
             curr_uses = item.data.get('uses')
@@ -146,6 +148,17 @@ class Armsthrift(SkillComponent):
             curr_uses = item.data.get('c_uses')
             max_uses = item.data.get('starting_c_uses')
             actions.append(action.SetObjData(item, 'c_uses', min(curr_uses + self.value - 1, max_uses)))
+
+    def after_hit(self, actions, playback, unit, item, target, mode, attack_info):
+        if item.parent_item:
+            self.after_hit(actions, playback, unit, item.parent_item, target, mode, attack_info)
+        self._after_hit(actions, playback, unit, item, target, mode, attack_info)
+
+    def after_miss(self, actions, playback, unit, item, target, mode, attack_info):
+        if item and item.parent_item:
+            self.after_miss(actions, playback, unit, item.parent_item, target, mode, attack_info)
+        if item and item.uses_options and item.uses_options.lose_uses_on_miss():
+            self._after_hit(actions, playback, unit, item, target, mode, attack_info)
 
 class LimitMaximumRange(SkillComponent):
     nid = 'limit_maximum_range'

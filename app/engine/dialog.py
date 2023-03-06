@@ -107,8 +107,10 @@ class Dialog():
 
         if background and background not in ('None', 'clear'):
             self.background = self.make_background(background)
-            if message_tail and message_tail != 'None':
-                self.tail = SPRITES.get(message_tail)
+        else:
+            self.background = engine.create_surface((self.width, self.height), True)
+        if message_tail and message_tail != 'None':
+            self.tail = SPRITES.get(message_tail)
 
         self.name_tag_surf = create_base_surf(64, 16, name_tag_bg)
 
@@ -506,7 +508,7 @@ class Dialog():
 
         if self.state != 'transition_in':
             # Draw message tail
-            if self.portrait and self.background and self.tail:
+            if self.portrait and self.tail:
                 self.draw_tail(surf, self.portrait)
             # Draw nametag
             if not self.portrait and self.speaker and self.speaker != 'Narrator':

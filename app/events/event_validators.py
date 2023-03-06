@@ -497,6 +497,7 @@ it will be facing right, and vice versa.
 
     def valid_entries(self, level: Optional[NID] = None, text: Optional[str] = None) -> List[Tuple[Optional[str], NID]]:
         valids = [(None, option) for option in horizontal_screen_positions]
+        valids += [(None, option) for option in vertical_screen_positions]
         return valids
 
 class Slide(OptionValidator):

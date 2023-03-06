@@ -20,7 +20,6 @@ from app.engine import engine, action, menus, image_mods, \
     item_funcs, ui_view, base_surf, gui, background, dialog, \
     text_funcs, equations, evaluate, supports
 from app.engine.combat import interaction
-from app.engine.info_menu import info_menu
 from app.engine.selection_helper import SelectionHelper
 from app.engine.abilities import ABILITIES, PRIMARY_ABILITIES, OTHER_ABILITIES
 from app.engine.input_manager import get_input_manager
@@ -255,6 +254,16 @@ class PhaseChangeState(MapState):
             name = GAME_NID + '-enemy_turn_change-' + game.level.nid + '-' + str(game.turncount)
             save.suspend_game(game, 'enemy_turn_change', name=name)
 
+def _handle_info():
+    if game.cursor.get_hover():
+        get_sound_thread().play_sfx('Select 1')
+        game.memory['next_state'] = 'info_menu'
+        game.memory['current_unit'] = game.cursor.get_hover()
+        game.state.change('transition_to')
+    else:
+        get_sound_thread().play_sfx('Select 3')
+        game.boundary.toggle_all_enemy_attacks()
+
 class FreeState(MapState):
     name = 'free'
 
@@ -299,7 +308,7 @@ class FreeState(MapState):
         game.cursor.take_input()
 
         if event == 'INFO':
-            info_menu.handle_info()
+            _handle_info()
 
         elif event == 'AUX':
             self._select_next_available_unit()
@@ -620,7 +629,7 @@ class MoveState(MapState):
         cur_unit = game.cursor.cur_unit
 
         if event == 'INFO':
-            info_menu.handle_info()
+            _handle_info()
         elif event == 'AUX':
             pass
 
@@ -932,7 +941,7 @@ class MenuState(MapState):
                 selection = self.menu.get_current()
                 # Show info menu for the basic stuff
                 if selection in ('Attack', 'Spells', 'Item', 'Wait'):
-                    info_menu.handle_info()
+                    _handle_info()
                 else:  # Show description for everything else.
                     get_sound_thread().play_sfx('Info In')
                     self.menu.info_flag = True
@@ -2007,7 +2016,7 @@ class CombatTargetingState(MapState):
             game.cursor.set_pos(mouse_position)
 
         if event == 'INFO':
-            info_menu.handle_info()
+            _handle_info()
 
         elif event == 'AUX':
             adj_allies = target_system.get_adj_allies(self.cur_unit)

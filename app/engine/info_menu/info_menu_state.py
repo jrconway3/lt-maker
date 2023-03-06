@@ -16,9 +16,9 @@ from app.engine import engine, background, menu_options, help_menu, gui, \
     icons, image_mods, item_funcs, equations, \
     combat_calcs, skill_system, text_funcs
 from app.engine.info_menu.info_graph import info_states, InfoGraph
-from app.engine.info_menu import info_menu
 from app.engine.game_state import game
 from app.engine.fluid_scroll import FluidScroll
+from app.engine.graphics.ingame_ui.build_groove import build_groove
 from app.utilities.enums import Alignments
 
 class InfoMenuState(State):
@@ -511,7 +511,7 @@ class InfoMenuState(State):
                 if max_stat > 0:
                     total_length = int(max_stat / highest_stat * 42)
                     frac = utils.clamp(self.unit.stats.get(stat_nid) / max_stat, 0, 1)
-                    info_menu.build_groove(surf, (27, 16 * idx + 32), total_length, frac)
+                    build_groove(surf, (27, 16 * idx + 32), total_length, frac)
                 icons.draw_stat(surf, stat_nid, self.unit, (47, 16 * idx + 24))
             # Name
             name = curr_stat.name
@@ -654,7 +654,7 @@ class InfoMenuState(State):
                 icons.draw_weapon(surf, weapon, (offset, 4 + y))
 
                 # Build groove
-                info_menu.build_groove(surf, (offset + 18, 10 + y), width - 24, perc)
+                build_groove(surf, (offset + 18, 10 + y), width - 24, perc)
                 # Add text
                 pos = (offset + 7 + width//2, 4 + y)
                 render_text(surf, ['text'], [weapon_rank.nid], ['blue'], pos, Alignments.CENTER)
@@ -858,7 +858,7 @@ class InfoMenuState(State):
         surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT), transparent=True)
         max_fatigue = max(1, equations.parser.max_fatigue(self.unit))
         fatigue = self.unit.get_fatigue()
-        info_menu.build_groove(surf, (27, WINHEIGHT - 9), 88, utils.clamp(fatigue / max_fatigue, 0, 1))
+        build_groove(surf, (27, WINHEIGHT - 9), 88, utils.clamp(fatigue / max_fatigue, 0, 1))
         x_pos = 27 + 88 // 2
         text = str(fatigue) + '/' + str(max_fatigue)
         x_pos -= text_width('text', text)//2

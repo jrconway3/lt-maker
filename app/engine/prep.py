@@ -13,7 +13,6 @@ from app.engine.combat import interaction
 from app.engine.fluid_scroll import FluidScroll
 from app.engine.fonts import FONT
 from app.engine.game_state import game
-from app.engine.info_menu import info_menu
 from app.engine.sound import get_sound_thread
 from app.engine.sprites import SPRITES
 from app.engine.state import MapState, State
@@ -282,6 +281,16 @@ class PrepPickUnitsState(State):
         self.menu.draw(surf)
         return surf
 
+def _handle_info():
+    if game.cursor.get_hover():
+        get_sound_thread().play_sfx('Select 1')
+        game.memory['next_state'] = 'info_menu'
+        game.memory['current_unit'] = game.cursor.get_hover()
+        game.state.change('transition_to')
+    else:
+        get_sound_thread().play_sfx('Select 3')
+        game.boundary.toggle_all_enemy_attacks()
+
 class PrepFormationState(MapState):
     name = 'prep_formation'
 
@@ -296,7 +305,7 @@ class PrepFormationState(MapState):
         game.cursor.take_input()
 
         if event == 'INFO':
-            info_menu.handle_info()
+            _handle_info()
 
         elif event == 'AUX':
             pass
@@ -383,7 +392,7 @@ class PrepFormationSelectState(MapState):
             game.cursor.set_pos(self.unit.position)
 
         elif event == 'INFO':
-            info_menu.handle_info()
+            _handle_info()
 
     def draw(self, surf):
         surf = super().draw(surf)

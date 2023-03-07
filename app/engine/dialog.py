@@ -14,6 +14,7 @@ from app.engine.graphics.text.text_renderer import (MATCH_CAPTURE_TAG_RE,
                                                     text_width)
 from app.engine.sound import get_sound_thread
 from app.engine.sprites import SPRITES
+from app.events.speak_style import SpeakStyle
 from app.utilities import utils
 from app.utilities.enums import Alignments
 
@@ -136,12 +137,11 @@ class Dialog():
             self.last_update = engine.get_time() - 10000
 
     @classmethod
-    def from_style(cls, style, text, portrait=None, width=None):
-        width = width if width is not None else style.width
-        self = cls(text, portrait=portrait, background=style.dialog_box, position=style.text_position, width=width,
-                   speaker=style.speaker, style_nid=style.nid, autosize=False, speed=style.text_speed, font_color=style.font_color,
-                   font_type=style.font_type, num_lines=style.num_lines, draw_cursor=style.draw_cursor, message_tail=style.message_tail,
-                   transparency=style.transparency, name_tag_bg=style.name_tag_bg, flags=style.flags)
+    def from_style(cls, style: SpeakStyle, text, portrait=None, width=None):
+        style_as_dict = style.as_dict()
+        if width:
+            style_as_dict['width'] = width
+        self = cls(text, portrait=portrait, autosize=False, **style_as_dict)
         return self
 
     def format_text(self, text):

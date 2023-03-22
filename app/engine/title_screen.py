@@ -22,6 +22,7 @@ from app.events.event import Event
 from app.events import triggers
 
 from app.engine.achievements import ACHIEVEMENTS
+from app.engine.persistent_records import RECORDS
 
 from app.data.resources.resources import RESOURCES
 from app.utilities import utils
@@ -213,15 +214,25 @@ class TitleMainState(State):
                 elif self.selection == 'Extras':
                     game.state.change('title_extras')
                 elif self.selection == 'New Game':
+                    available_difficulties = [difficulty for difficulty in DB.difficulty_modes if not RECORDS.get(difficulty.nid + '_locked')]
                     # Check if more than one mode or the only mode requires a choice
-                    if len(DB.difficulty_modes) > 1 or \
-                            (DB.difficulty_modes and
-                             (DB.difficulty_modes[0].permadeath_choice == PermadeathOption.PLAYER_CHOICE or
-                              DB.difficulty_modes[0].growths_choice == GrowthOption.PLAYER_CHOICE)):
+                    if len(available_difficulties) == 0:
+                        logging.error("All difficulties are locked. Using default Difficulty Level.")
+                        mode = DB.difficulty_modes[0]
+                        if mode.permadeath_choice == PermadeathOption.PLAYER_CHOICE or mode.growths_choice == GrowthOption.PLAYER_CHOICE:
+                            game.memory['next_state'] = 'title_mode'
+                            game.state.change('transition_to')
+                        else:
+                            game.current_mode = DifficultyModeObject.from_prefab(mode)
+                            game.state.change('title_new')
+                    elif len(available_difficulties) > 1 or \
+                            (available_difficulties and
+                             (available_difficulties[0].permadeath_choice == PermadeathOption.PLAYER_CHOICE or
+                              available_difficulties[0].growths_choice == GrowthOption.PLAYER_CHOICE)):
                         game.memory['next_state'] = 'title_mode'
                         game.state.change('transition_to')
                     else:  # Wow, no need for choice
-                        mode = DB.difficulty_modes[0]
+                        mode = available_difficulties[0]
                         game.current_mode = DifficultyModeObject.from_prefab(mode)
                         game.state.change('title_new')
                 self.state = 'transition_in'
@@ -262,9 +273,10 @@ class TitleModeState(State):
     bg = None
     dialog = None
     label = None
+    available_difficulties = [difficulty for difficulty in DB.difficulty_modes if not RECORDS.get(difficulty.nid + '_locked')]
 
     def difficulty_choice(self):
-        return len(DB.difficulty_modes) > 1
+        return len(self.available_difficulties) > 1
 
     def start(self):
         self.fluid = FluidScroll(128)
@@ -283,12 +295,15 @@ class TitleModeState(State):
     def begin(self):
         if self.state == 'difficulty_setup':
             if self.difficulty_choice():
-                options = [mode.name for mode in DB.difficulty_modes]
+                options = [mode.name for mode in self.available_difficulties]
                 self.menu = menus.ModeSelect(options)
                 self.state = 'difficulty_wait'
                 game.state.change('transition_in')
             else:
-                mode = DB.difficulty_modes[0]
+                if len(self.available_difficulties) == 0:
+                    mode = DB.difficulty_modes[0]
+                else:
+                    mode = self.available_difficulties[0]
                 game.current_mode = DifficultyModeObject.from_prefab(mode)
                 self.permadeath_choice = mode.permadeath_choice == PermadeathOption.PLAYER_CHOICE
                 self.growths_choice = mode.growths_choice == GrowthOption.PLAYER_CHOICE
@@ -385,7 +400,7 @@ class TitleModeState(State):
                     game.memory['next_state'] = 'title_new'
                     game.state.change('transition_to')
             elif self.state == 'difficulty_wait':
-                mode = DB.difficulty_modes[self.menu.get_current_index()]
+                mode = self.available_difficulties[self.menu.get_current_index()]
                 game.current_mode = DifficultyModeObject.from_prefab(mode)
                 self.permadeath_choice = mode.permadeath_choice == PermadeathOption.PLAYER_CHOICE
                 self.growths_choice = mode.growths_choice == GrowthOption.PLAYER_CHOICE

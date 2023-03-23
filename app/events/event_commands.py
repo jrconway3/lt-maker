@@ -2863,22 +2863,14 @@ class DeleteRecord(EventCommand):
     desc = ('Remove a persistent record. Does nothing if nid is not present')
 
     keywords = ['Nid']
-    
-class LockDifficulty(EventCommand):
-    nid = 'lock_difficulty'
-    tag = Tags.PERSISTENT_RECORDS
-    desc = ("Locks the specified difficulty. Locked difficulties cannot be selected by the player when creating a new game.")
-
-    keywords = ['DifficultyModeNID']
-    keyword_types = ['DifficultyNid']
 
 class UnlockDifficulty(EventCommand):
     nid = 'unlock_difficulty'
     tag = Tags.PERSISTENT_RECORDS
     desc = ("Unlocks the specified difficulty. Locked difficulties cannot be selected by the player when creating a new game.")
 
-    keywords = ['DifficultyModeNID']
-    keyword_types = ['DifficultyNid']
+    keywords = ['DifficultyMode']
+    keyword_types = ['DifficultyMode']
 
 def get_commands():
     return EventCommand.__subclasses__()

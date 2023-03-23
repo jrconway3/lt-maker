@@ -214,21 +214,15 @@ class TitleMainState(State):
                 elif self.selection == 'Extras':
                     game.state.change('title_extras')
                 elif self.selection == 'New Game':
-                    available_difficulties = [difficulty for difficulty in DB.difficulty_modes if not RECORDS.get(difficulty.nid + '_locked')]
-                    # Check if more than one mode or the only mode requires a choice
-                    if len(available_difficulties) == 0:
+                    available_difficulties = [difficulty for difficulty in DB.difficulty_modes if (not difficulty.start_locked or RECORDS.check_difficulty_unlocked(difficulty.nid))]
+                    if not available_difficulties:
                         logging.error("All difficulties are locked. Using default Difficulty Level.")
-                        mode = DB.difficulty_modes[0]
-                        if mode.permadeath_choice == PermadeathOption.PLAYER_CHOICE or mode.growths_choice == GrowthOption.PLAYER_CHOICE:
-                            game.memory['next_state'] = 'title_mode'
-                            game.state.change('transition_to')
-                        else:
-                            game.current_mode = DifficultyModeObject.from_prefab(mode)
-                            game.state.change('title_new')
-                    elif len(available_difficulties) > 1 or \
-                            (available_difficulties and
-                             (available_difficulties[0].permadeath_choice == PermadeathOption.PLAYER_CHOICE or
-                              available_difficulties[0].growths_choice == GrowthOption.PLAYER_CHOICE)):
+                        available_difficulties = [DB.difficulty_modes[0]]
+                    # Check if more than one mode or the only mode requires a choice
+                    if len(available_difficulties) > 1 or \
+                        (available_difficulties and
+                         (available_difficulties[0].permadeath_choice == PermadeathOption.PLAYER_CHOICE or
+                          available_difficulties[0].growths_choice == GrowthOption.PLAYER_CHOICE)):
                         game.memory['next_state'] = 'title_mode'
                         game.state.change('transition_to')
                     else:  # Wow, no need for choice
@@ -273,7 +267,6 @@ class TitleModeState(State):
     bg = None
     dialog = None
     label = None
-    available_difficulties = [difficulty for difficulty in DB.difficulty_modes if not RECORDS.get(difficulty.nid + '_locked')]
 
     def difficulty_choice(self):
         return len(self.available_difficulties) > 1
@@ -291,6 +284,8 @@ class TitleModeState(State):
         shimmer = SPRITES.get('menu_shimmer2')
         self.label.blit(shimmer, (95 - shimmer.get_width(), 83 - shimmer.get_height()))
         self.label = image_mods.make_translucent(self.label, .1)
+        
+        self.available_difficulties = [difficulty for difficulty in DB.difficulty_modes if (not difficulty.start_locked or RECORDS.check_difficulty_unlocked(difficulty.nid))]
 
     def begin(self):
         if self.state == 'difficulty_setup':

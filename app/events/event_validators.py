@@ -1341,7 +1341,7 @@ class MaybeSprite(Validator):
         valids += [(None, "None")]
         return valids
 
-class DifficultyNid(Validator):
+class DifficultyMode(Validator):
     desc = 'accepts the nid of a difficulty mode.'
     
     def validate(self, text, level):

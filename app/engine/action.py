@@ -115,14 +115,14 @@ def recalculate_unit_sprite(func):
         self = args[0]
 
         old_sprite = self.unit.sprite
-        animations = list(old_sprite.animations.keys())
+        animations = list((k, v) for k, v in old_sprite.animations.items())
         self.unit.reset_sprite()
 
         func(*args, **kwargs)
 
         new_sprite = self.unit.sprite
-        for anim_nid in animations:
-            new_sprite.add_animation(anim_nid)
+        for anim_nid, animation in animations:
+            new_sprite.add_animation(anim_nid, contingent=animation.contingent)
 
     return wrapper
 
@@ -505,7 +505,7 @@ class SetLevelVar(Action):
     def reverse(self):
         game.level_vars[self.nid] = self.old_val
         self._update_fog_of_war()
-        
+
 class SetMovementLeft(Action):
     def __init__(self, unit, val):
         self.unit = unit
@@ -584,20 +584,14 @@ class ResetUnitVars(Action):
         self.unit = unit
         self.old_current_hp = self.unit.get_hp()
         self.old_current_mana = self.unit.get_mana()
-        self.old_movement_left = self.unit.movement_left
-        self.old_possible_movement = equations.parser.movement(self.unit)
 
     def do(self):
         self.unit.set_hp(min(self.unit.get_hp(), equations.parser.hitpoints(self.unit)))
         self.unit.set_mana(min(self.unit.get_mana(), equations.parser.get_mana(self.unit)))
-        new_possible_movement = equations.parser.movement(self.unit)
-        movement_diff = new_possible_movement - self.old_possible_movement
-        self.unit.movement_left = min(self.unit.movement_left + movement_diff, new_possible_movement)
 
     def reverse(self):
         self.unit.set_hp(self.old_current_hp)
         self.unit.set_mana(self.old_current_mana)
-        self.unit.movement_left = self.old_movement_left
 
 
 class SetPreviousPosition(Action):
@@ -3030,7 +3024,7 @@ class AddSkill(Action):
             skill_system.init(skill_obj)
             if skill_obj.uid not in game.skill_registry:
                 game.register_skill(skill_obj)
-        self.skill_obj = skill_obj
+        self.skill_obj: SkillObject = skill_obj
         self.subactions = []
         self.reset_action = ResetUnitVars(self.unit)
 

@@ -236,8 +236,8 @@ class BaseMarketSelectState(prep.PrepManageState):
         elif event == 'INFO':
             get_sound_thread().play_sfx('Select 1')
             game.memory['scroll_units'] = game.get_units_in_party()
-            game.memory['next_state'] = 'info_menu'
             game.memory['current_unit'] = self.menu.get_current()
+            game.memory['next_state'] = 'info_menu'
             game.state.change('transition_to')
 
 
@@ -636,8 +636,8 @@ class BaseSupportsState(State):
         elif event == 'INFO':
             get_sound_thread().play_sfx('Select 1')
             game.memory['scroll_units'] = self.units
-            game.memory['next_state'] = 'info_menu'
             game.memory['current_unit'] = self.menu.get_current()
+            game.memory['next_state'] = 'info_menu'
             game.state.change('transition_to')
 
     def update(self):
@@ -1196,8 +1196,8 @@ class BaseBEXPSelectState(prep.PrepManageState):
         elif event == 'INFO':
             get_sound_thread().play_sfx('Select 1')
             game.memory['scroll_units'] = game.get_units_in_party()
-            game.memory['next_state'] = 'info_menu'
             game.memory['current_unit'] = self.menu.get_current()
+            game.memory['next_state'] = 'info_menu'
             game.state.change('transition_to')
 
 

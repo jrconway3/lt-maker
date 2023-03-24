@@ -107,7 +107,7 @@ class Database(object):
                 if not fname.endswith('.json'): # ignore other files
                     continue
                 save_loc = os.path.join(data_dir, key, fname)
-                logging.info("Deserializing %s from %s" % (key, save_loc))
+                # logging.info("Deserializing %s from %s" % (key, save_loc))
                 with open(save_loc) as load_file:
                     for data in json.load(load_file):
                         data['fname'] = os.path.basename(fname)
@@ -121,7 +121,7 @@ class Database(object):
         else:
             save_loc = os.path.join(data_dir, key + '.json')
             if os.path.exists(save_loc):
-                logging.info("Deserializing %s from %s" % (key, save_loc))
+                # logging.info("Deserializing %s from %s" % (key, save_loc))
                 with open(save_loc) as load_file:
                     try:
                         return json.load(load_file)
@@ -156,7 +156,7 @@ class Database(object):
         data_dir = os.path.join(proj_dir, 'game_data')
         if not os.path.exists(data_dir):
             os.mkdir(data_dir)
-        logging.warning("Serializing data in %s..." % data_dir)
+        logging.info("Serializing data in %s..." % data_dir)
 
         import time
         start = time.perf_counter() * 1000
@@ -187,7 +187,7 @@ class Database(object):
                     fname = name + '.json'
                     orderkeys[fname] = idx
                     save_loc = os.path.join(save_dir, name + '.json')
-                    logging.info("Serializing %s to %s" % ('%s/%s.json' % (key, name), save_loc))
+                    # logging.info("Serializing %s to %s" % ('%s/%s.json' % (key, name), save_loc))
                     self.json_save(save_loc, [subvalue])
                 self.json_save(os.path.join(save_dir, '.orderkeys'), orderkeys)
             else:  # Save as a single file
@@ -196,7 +196,7 @@ class Database(object):
                 if os.path.exists(save_dir):
                     shutil.rmtree(save_dir)
                 save_loc = os.path.join(data_dir, key + '.json')
-                logging.info("Serializing %s to %s" % (key, save_loc))
+                # logging.info("Serializing %s to %s" % (key, save_loc))
                 self.json_save(save_loc, value)
 
         for key in self.save_data_types:
@@ -207,13 +207,13 @@ class Database(object):
                 else:
                     self.json_save(os.path.join(data_dir, '.%s_categories' % key), catalog.categories.save())
         end = time.perf_counter() * 1000
-        logging.warning("Total Time Taken for Database: %s ms" % (end - start))
-        logging.warning("Done serializing!")
+        logging.info("Total Time Taken for Database: %s ms" % (end - start))
+        logging.info("Done serializing!")
 
     def load(self, proj_dir):
         self.current_proj_dir = proj_dir
         data_dir = os.path.join(proj_dir, 'game_data')
-        logging.warning("Deserializing data from %s..." % data_dir)
+        logging.info("Deserializing data from %s..." % data_dir)
 
         import time
         start = time.perf_counter() * 1000
@@ -231,14 +231,18 @@ class Database(object):
             if hasattr(catalog, 'categories'):
                 getattr(self, key).categories = key_categories
 
-        # TODO -- This is a shitty fix that will be superseded
+        # TODO -- This is a shitty fix that should be superseded
         from app.engine import equations
         equations.clear()
+        from app.engine import achievements, persistent_records
+        achievements.reset()
+        persistent_records.reset()
+        # -- End shitty fix
 
         end = time.perf_counter() * 1000
 
-        logging.warning("Total Time Taken for Database: %s ms" % (end - start))
-        logging.warning("Done deserializing!")
+        logging.info("Total Time Taken for Database: %s ms" % (end - start))
+        logging.info("Done deserializing!")
 
 DB = Database()
 

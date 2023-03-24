@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import ast
 import random
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any
 
 from app.constants import WINHEIGHT, WINWIDTH
 from app.data.database.database import DB
@@ -40,6 +40,7 @@ from app.events.speak_style import SpeakStyle
 from app.sprites import SPRITES
 from app.utilities import str_utils, utils
 from app.utilities.enums import Alignments
+from app.utilities.type_checking import check_valid_type
 from app.utilities.typing import NID
 
 if TYPE_CHECKING:
@@ -271,8 +272,8 @@ def expression(self: Event, portrait, expression_list, flags=None):
     expression_list = expression_list.split(',')
     _portrait.set_expression(expression_list)
 
-def speak_style(self: Event, style, speaker=None, text_position=None, width=None, text_speed=None,
-                font_color=None, font_type=None, dialog_box=None, num_lines=None, draw_cursor=None,
+def speak_style(self: Event, style, speaker=None, position=None, width=None, speed=None,
+                font_color=None, font_type=None, background=None, num_lines=None, draw_cursor=None,
                 message_tail=None, transparency=None, name_tag_bg=None, flags=None):
     flags = flags or set()
     style_nid = style
@@ -283,23 +284,23 @@ def speak_style(self: Event, style, speaker=None, text_position=None, width=None
     # parse everything
     if speaker:
         style.speaker = speaker
-    if text_position:
+    if position:
         try:
-            align = Alignments(text_position)
-            style.text_position = align
+            align = Alignments(position)
+            style.position = align
         except:
-            style.text_position = self._parse_pos(text_position)
+            style.position = self._parse_pos(position)
 
     if width:
         style.width = int(width)
-    if text_speed:
-        style.text_speed = float(text_speed)
+    if speed:
+        style.speed = float(speed)
     if font_color:
         style.font_color = font_color
     if font_type:
         style.font_type = font_type
-    if dialog_box:
-        style.dialog_box = dialog_box
+    if background:
+        style.background = background
     if num_lines:
         style.num_lines = int(num_lines)
     if draw_cursor:
@@ -354,10 +355,10 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
             position = Alignments(text_position)
         except:
             position = self._parse_pos(text_position)
-    elif speak_style and speak_style.text_position:
-        position = speak_style.text_position
+    elif speak_style and speak_style.position:
+        position = speak_style.position
     else:
-        position = default_speak_style.text_position
+        position = default_speak_style.position
 
     if width:
         box_width = int(width)
@@ -368,10 +369,10 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
 
     if text_speed:
         speed = float(text_speed)
-    elif speak_style and speak_style.text_speed:
-        speed = speak_style.text_speed
+    elif speak_style and speak_style.speed:
+        speed = speak_style.speed
     else:
-        speed = default_speak_style.text_speed
+        speed = default_speak_style.speed
 
     if font_color:
         fcolor = font_color
@@ -389,10 +390,10 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
 
     if dialog_box:
         bg = dialog_box
-    elif speak_style and speak_style.dialog_box:
-        bg = speak_style.dialog_box
+    elif speak_style and speak_style.background:
+        bg = speak_style.background
     else:
-        bg = default_speak_style.dialog_box
+        bg = default_speak_style.background
 
     if num_lines:
         lines = int(num_lines)
@@ -605,7 +606,10 @@ def screen_shake_end(self: Event, flags=None):
 def game_var(self: Event, nid, expression, flags=None):
     try:
         val = self.text_evaluator.direct_eval(expression)
-        action.do(action.SetGameVar(nid, val))
+        if check_valid_type(val):
+            action.do(action.SetGameVar(nid, val))
+        else:
+            self.logger.error("game_var: %s is not a valid variable", val)
     except Exception as e:
         self.logger.error("game_var: Could not evaluate %s (%s)" % (expression, e))
 
@@ -613,7 +617,10 @@ def inc_game_var(self: Event, nid, expression=None, flags=None):
     if expression:
         try:
             val = self.text_evaluator.direct_eval(expression)
-            action.do(action.SetGameVar(nid, self.game.game_vars.get(nid, 0) + val))
+            if check_valid_type(val):
+                action.do(action.SetGameVar(nid, self.game.game_vars.get(nid, 0) + val))
+            else:
+                self.logger.error("inc_game_var: %s is not a valid variable", val)
         except Exception as e:
             self.logger.error("inc_game_var: Could not evaluate %s (%s)" % (expression, e))
     else:
@@ -622,7 +629,10 @@ def inc_game_var(self: Event, nid, expression=None, flags=None):
 def level_var(self: Event, nid, expression, flags=None):
     try:
         val = self.text_evaluator.direct_eval(expression)
-        action.do(action.SetLevelVar(nid, val))
+        if check_valid_type(val):
+            action.do(action.SetLevelVar(nid, val))
+        else:
+            self.logger.error("level_var: %s is not a valid variable", val)
     except Exception as e:
         self.logger.error("level_var: Could not evaluate %s (%s)" % (expression, e))
         return
@@ -631,7 +641,10 @@ def inc_level_var(self: Event, nid, expression=None, flags=None):
     if expression:
         try:
             val = self.text_evaluator.direct_eval(expression)
-            action.do(action.SetLevelVar(nid, self.game.level_vars.get(nid, 0) + val))
+            if check_valid_type(val):
+                action.do(action.SetLevelVar(nid, self.game.level_vars.get(nid, 0) + val))
+            else:
+                self.logger.error("inc_level_var: %s is not a valid variable", val)
         except Exception as e:
             self.logger.error("inc_level_var: Could not evaluate %s (%s)" % (expression, e))
     else:
@@ -1545,8 +1558,8 @@ def move_item_between_convoys(self: Event, item, party1, party2, flags=None):
 def set_item_uses(self: Event, global_unit_or_convoy, item, uses, flags=None):
     flags = flags or set()
     global_unit = global_unit_or_convoy
-
-    unit, item = self._get_item_in_inventory(global_unit, item)
+    recursive_flag = 'recursive' in flags
+    unit, item = self._get_item_in_inventory(global_unit, item, recursive=recursive_flag)
     if not unit or not item:
         self.logger.error("set_item_uses: Either unit or item was invalid, see above")
         return
@@ -2755,10 +2768,10 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
             position = Alignments(box_position)
         except:
             position = self._parse_pos(box_position)
-    elif textbox_style and textbox_style.text_position:
-        position = textbox_style.text_position
+    elif textbox_style and textbox_style.position:
+        position = textbox_style.position
     else:
-        position = default_textbox_style.text_position
+        position = default_textbox_style.position
 
     if width:
         box_width = int(width)
@@ -2769,10 +2782,10 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
 
     if text_speed:
         speed = float(text_speed)
-    elif textbox_style and textbox_style.text_speed:
-        speed = textbox_style.text_speed
+    elif textbox_style and textbox_style.speed:
+        speed = textbox_style.speed
     else:
-        speed = default_textbox_style.text_speed
+        speed = default_textbox_style.speed
 
     if font_color:
         fcolor = font_color
@@ -2790,10 +2803,10 @@ def textbox(self: Event, nid: str, text: str, box_position=None,
 
     if bg:
         box_bg = bg
-    elif textbox_style and textbox_style.dialog_box:
-        box_bg = textbox_style.dialog_box
+    elif textbox_style and textbox_style.background:
+        box_bg = textbox_style.background
     else:
-        box_bg = default_textbox_style.dialog_box
+        box_bg = default_textbox_style.background
 
     if textbox_style and textbox_style.transparency is not None:
         transparency = textbox_style.transparency

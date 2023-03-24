@@ -316,13 +316,19 @@ class AnimationCombat(BaseCombat, MockCombat):
                 self.state = 'pre_proc'
 
         elif self.state == 'pre_proc':
-            if self.left_battle_anim.done() and self.right_battle_anim.done():
+            if self.left_battle_anim.done() and self.right_battle_anim.done() and \
+                    not self.proc_icons:
                 # These would have happened from pre_combat and start_combat
                 if self.get_from_full_playback('attack_pre_proc'):
                     self.set_up_pre_proc_animation('attack_pre_proc')
                 elif self.get_from_full_playback('defense_pre_proc'):
                     self.set_up_pre_proc_animation('defense_pre_proc')
+                elif self.set_up_other_proc_icons(self.attacker):
+                    pass  # Processing is done in the if check above
+                elif self.set_up_other_proc_icons(self.defender):
+                    pass  # Processing is done in the if check above
                 else:
+                    self.add_proc_icon.memory.clear()
                     self.state = 'begin_phase'
 
         elif self.state == 'begin_phase':
@@ -789,6 +795,16 @@ class AnimationCombat(BaseCombat, MockCombat):
         self.playback.remove(mark)
         self.mark_proc(mark)
 
+    def set_up_other_proc_icons(self, unit) -> bool:
+        """
+        Returns whether it added a proc icon
+        """
+        for skill in unit.skills:
+            if skill_system.get_show_skill_icon(unit, skill):
+                if self.add_proc_icon(unit, skill):
+                    return True
+        return False
+
     def mark_proc(self, mark):
         skill = mark.skill
         unit = mark.unit
@@ -801,12 +817,37 @@ class AnimationCombat(BaseCombat, MockCombat):
             if effect:
                 self.left_battle_anim.add_effect(effect)
 
-        self.add_proc_icon(mark)
+        self.add_proc_icon(unit, skill)
+
+    def add_proc_icon(self, unit, skill) -> bool:
+        """
+        Returns whether it successfully added the proc icon
+        """
+        if skill_system.get_hide_skill_icon(unit, skill):
+            return False
+        if skill.nid in self.add_proc_icon.memory.get(unit.nid, []):
+            return False
+
+        c = False
+        if (unit is self.right or unit is self.right.strike_partner) and self.rp_battle_anim:
+            c = True
+        elif (unit is self.left or unit is self.left.strike_partner) and self.lp_battle_anim:
+            c = True
+        new_icon = gui.SkillIcon(skill, unit is self.right, center=c)
+        self.proc_icons.append(new_icon)
+
+        # Make sure the same proc icon never shows up twice in the same phase
+        if unit.nid not in self.add_proc_icon.memory:
+            self.add_proc_icon.memory[unit.nid] = []
+        self.add_proc_icon.memory[unit.nid].append(skill.nid)
+
         if unit == self.right:
             self.focus_right = True
         else:
             self.focus_right = False
         self.move_camera()
+        return True
+    add_proc_icon.memory = {}
 
     def special_boss_crit(self, defender):
         return DB.constants.value('boss_crit') and \
@@ -863,17 +904,6 @@ class AnimationCombat(BaseCombat, MockCombat):
             for idx, num in enumerate(str_damage):
                 d = gui.DamageNumber(int(num), idx, len(str_damage), left, 'cyan')
                 self.damage_numbers.append(d)
-
-    def add_proc_icon(self, mark):
-        unit = mark.unit
-        skill = mark.skill
-        c = False
-        if (unit is self.right or unit is self.right.strike_partner) and self.rp_battle_anim:
-            c = True
-        elif (unit is self.left or unit is self.left.strike_partner) and self.lp_battle_anim:
-            c = True
-        new_icon = gui.SkillIcon(skill, unit is self.right, center=c)
-        self.proc_icons.append(new_icon)
 
     def get_damage(self) -> int:
         damage_hit_marks = self.get_from_playback('damage_hit')

@@ -2,8 +2,8 @@ import logging
 import math
 
 from app.data.database.database import DB
-from app.engine import (action, ai_controller, engine, equations, evaluate,
-                        info_menu, roam_ai, skill_system, target_system)
+from app.engine import (action, engine, evaluate,
+                        roam_ai, target_system)
 from app.engine.game_state import game
 from app.engine.input_manager import get_input_manager
 from app.engine.sound import get_sound_thread
@@ -196,7 +196,10 @@ class FreeRoamState(MapState):
             if did_trigger:
                 self.rationalize()
             else:
-                info_menu.handle_info()
+                get_sound_thread().play_sfx('Select 1')
+                game.memory['next_state'] = 'info_menu'
+                game.memory['current_unit'] = self.roam_unit
+                game.state.change('transition_to')
 
         elif event == 'START':
             did_trigger = game.events.trigger(triggers.RoamPressStart(self.roam_unit))

@@ -2451,7 +2451,7 @@ def map_anim(self: Event, map_anim, float_position, speed=None, flags=None):
 
 def remove_map_anim(self: Event, map_anim, position, flags=None):
     pos = self._parse_pos(position, True)
-    action.do(action.RemoveMapAnim(map_anim, pos))
+    action.do(action.RemoveMapAnim(map_anim, pos, 'overlay' in flags))
 
 def add_unit_map_anim(self: Event, map_anim: NID, unit: NID, speed=None, flags=None):
     flags = flags or set()

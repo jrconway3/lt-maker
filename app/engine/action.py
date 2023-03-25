@@ -1501,21 +1501,22 @@ class AddItemComponent(Action):
         self.item = item
         self.component_nid = component_nid
         self.component_value = component_value
+        self.component = None
         self._did_add = False
 
     def do(self):
         import app.engine.item_component_access as ICA
         self._did_add = False
-        component = ICA.restore_component((self.component_nid, self.component_value))
-        if not component:
+        self.component = ICA.restore_component((self.component_nid, self.component_value))
+        if not self.component:
             logging.error("AddItemComponent: Couldn't find item component with nid %s", self.component_nid)
             return
-        self.item.components.append(component)
-        self.item.__dict__[self.component_nid] = component
+        self.item.components.append(self.component)
+        self.item.__dict__[self.component_nid] = self.component
         # Assign parent to component
-        component.item = self.item
-        if component.defines('init'):
-            component.init(self.item)
+        self.component.item = self.item
+        if self.component.defines('init'):
+            self.component.init(self.item)
         self._did_add = True
 
     def reverse(self):
@@ -1528,14 +1529,13 @@ class RemoveItemComponent(Action):
     def __init__(self, item, component_nid):
         self.item = item
         self.component_nid = component_nid
-        self.component_value = None
+        self.component = None
         self._did_remove = False
 
     def do(self):
         self._did_remove = False
         if self.component_nid in self.item.components.keys():
-            component = self.item.components.get(self.component_nid)
-            self.component_value = component.value
+            self.component = self.item.components.get(self.component_nid)
             self.item.components.remove_key(self.component_nid)
             del self.item.__dict__[self.component_nid]
             self._did_remove = True
@@ -1543,13 +1543,11 @@ class RemoveItemComponent(Action):
             logging.warning("remove_item_component: component with nid %s not found for item %s", self.component_nid, self.item)
 
     def reverse(self):
-        import app.engine.item_component_access as ICA
         if self._did_remove:
-            component = ICA.restore_component((self.component_nid, self.component_value))
-            self.item.components.append(component)
-            self.item.__dict__[self.component_nid] = component
+            self.item.components.append(self.component)
+            self.item.__dict__[self.component_nid] = self.component
             # Assign parent to component
-            component.item = self.item
+            self.component.item = self.item
             self._did_remove = False
 
 class SetObjData(Action):

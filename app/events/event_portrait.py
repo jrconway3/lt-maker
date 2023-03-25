@@ -27,11 +27,10 @@ class EventPortrait():
     base_transition_speed = utils.frames2ms(14)
     travel_time = utils.frames2ms(15)
     bop_time = utils.frames2ms(8)
-    saturation_time = utils.frames2ms(10)
     travel_speed_mult = 1
 
     def __init__(self, portrait: Portrait, position: Point, priority, 
-                 transition=False, slide=None, mirror=False, name='', expressions=None,
+                 transition=False, slide=None, mirror=False, expressions=None,
                  speed_mult=1):
         self.portrait = portrait
         if not self.portrait.image:
@@ -47,7 +46,6 @@ class EventPortrait():
         self.transition_update = engine.get_time()
         self.slide = slide
         self.mirror = mirror
-        self.name = name
         self.expressions = expressions or set()
 
         self.transition_progress = 0
@@ -79,10 +77,6 @@ class EventPortrait():
         self.bop_height = 2
         self.last_bop = None
 
-        # For saturation
-        self.saturation = 1.
-        self.saturation_direction = 0
-
     def get_width(self):
         return 96
 
@@ -91,12 +85,6 @@ class EventPortrait():
 
     def set_expression(self, expression_list):
         self.expressions = expression_list
-
-    def saturate(self):
-        self.saturation_direction = 1
-
-    def desaturate(self):
-        self.saturation_direction = -1
 
     def bop(self, num=2, height=2):
         self.bops_remaining = num
@@ -217,16 +205,8 @@ class EventPortrait():
 
     def update(self) -> bool:
         current_time = engine.get_time()
-        delta_time = engine.get_delta()
         self.update_talk(current_time)
         self.blink_counter.update(current_time)
-
-        if self.saturation_direction != 0:
-            self.saturation += self.saturation_direction * delta_time / self.saturation_time
-            self.saturation = utils.clamp(self.saturation, 0, 1)
-            # If reached one of the two extremes
-            if self.saturation == 0 or self.saturation == 1:
-                self.saturation_direction = 0
 
         if self.transition:
             # 14 frames for unit face to appear
@@ -280,10 +260,6 @@ class EventPortrait():
         image = self.create_image()
         if self.mirror:
             image = engine.flip_horiz(image)
-
-        if self.saturation < 1:
-            blackness = 0.5 * (1 - self.saturation)
-            image = image_mods.make_black_colorkey(image, blackness)
 
         if self.transition:
             if self.slide:

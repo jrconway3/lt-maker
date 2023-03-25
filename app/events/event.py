@@ -692,8 +692,3 @@ class Event():
                 if node_at_nid:
                     return node_at_nid
         return None
-
-    def _saturate_portrait(self, portrait):
-        for port in self.portraits.values():
-            port.desaturate()
-        portrait.saturate()

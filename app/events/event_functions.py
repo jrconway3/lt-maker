@@ -123,7 +123,7 @@ def add_portrait(self: Event, portrait, screen_position, slide=None, expression_
     speed_mult = 1 / max(speed_mult, 0.001)
 
     new_portrait = EventPortrait(portrait, position, priority, transition,
-                                 slide, mirror, speed_mult=speed_mult)
+                                 slide, mirror, name, speed_mult=speed_mult)
     self.portraits[name] = new_portrait
 
     if expression_list:
@@ -236,7 +236,7 @@ def mirror_portrait(self: Event, portrait, flags=None):
             self.portraits[name].portrait,
             self.portraits[name].position,
             self.portraits[name].priority,
-            False, None, not self.portraits[name].mirror)
+            False, None, not self.portraits[name].mirror, name)
 
     if 'no_block' in flags or self.do_skip:
         pass
@@ -1743,6 +1743,7 @@ def give_money(self: Event, money, party=None, flags=None):
     banner_flag = 'no_banner' not in flags
 
     action.do(action.GainMoney(party_nid, money))
+    action.do(action.UpdateRecords('money', (party_nid, money)))
     if banner_flag:
         if money >= 0:
             b = banner.Advanced('Got <blue>{money}</> gold.'.format(money = str(money)), 'Item')

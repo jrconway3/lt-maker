@@ -431,7 +431,8 @@ class InfoMenuState(State):
         page = str(info_states.index(self.state) + 1) + '/' + str(num_states)
         render_text(top_surf, ['small'], [page], [], (235, 12), Alignments.RIGHT)
 
-        self.draw_top_arrows(top_surf)
+        if num_states > 1:
+            self.draw_top_arrows(top_surf)
 
         if self.state == 'personal_data':
             if self.growth_flag:

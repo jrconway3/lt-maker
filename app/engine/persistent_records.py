@@ -55,7 +55,6 @@ class PersistentRecordManager(Data):
 def reset():
     game_id = str(DB.constants.value('game_nid'))
     location = 'saves/' + game_id + '-persistent_records.p'
-    print("reset records: %s" % location)
     RECORDS.location = location
     data = persistent_data.deserialize(location)
     if data:

@@ -123,7 +123,7 @@ def add_portrait(self: Event, portrait, screen_position, slide=None, expression_
     speed_mult = 1 / max(speed_mult, 0.001)
 
     new_portrait = EventPortrait(portrait, position, priority, transition,
-                                 slide, mirror, speed_mult=speed_mult)
+                                 slide, mirror, name, speed_mult=speed_mult)
     self.portraits[name] = new_portrait
 
     if expression_list:
@@ -236,7 +236,7 @@ def mirror_portrait(self: Event, portrait, flags=None):
             self.portraits[name].portrait,
             self.portraits[name].position,
             self.portraits[name].priority,
-            False, None, not self.portraits[name].mirror)
+            False, None, not self.portraits[name].mirror, name)
 
     if 'no_block' in flags or self.do_skip:
         pass
@@ -1558,8 +1558,8 @@ def move_item_between_convoys(self: Event, item, party1, party2, flags=None):
 def set_item_uses(self: Event, global_unit_or_convoy, item, uses, flags=None):
     flags = flags or set()
     global_unit = global_unit_or_convoy
-
-    unit, item = self._get_item_in_inventory(global_unit, item)
+    recursive_flag = 'recursive' in flags
+    unit, item = self._get_item_in_inventory(global_unit, item, recursive=recursive_flag)
     if not unit or not item:
         self.logger.error("set_item_uses: Either unit or item was invalid, see above")
         return
@@ -1761,6 +1761,7 @@ def give_money(self: Event, money, party=None, flags=None):
     banner_flag = 'no_banner' not in flags
 
     action.do(action.GainMoney(party_nid, money))
+    action.do(action.UpdateRecords('money', (party_nid, money)))
     if banner_flag:
         if money >= 0:
             b = banner.Advanced('Got <blue>{money}</> gold.'.format(money = str(money)), 'Item')
@@ -2468,8 +2469,9 @@ def map_anim(self: Event, map_anim, float_position, speed=None, flags=None):
         self.state = 'waiting'
 
 def remove_map_anim(self: Event, map_anim, position, flags=None):
+    flags = flags or set()
     pos = self._parse_pos(position, True)
-    action.do(action.RemoveMapAnim(map_anim, pos))
+    action.do(action.RemoveMapAnim(map_anim, pos, 'overlay' in flags))
 
 def add_unit_map_anim(self: Event, map_anim: NID, unit: NID, speed=None, flags=None):
     flags = flags or set()

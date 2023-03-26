@@ -1536,7 +1536,7 @@ class ModifyItemComponent(EventCommand):
 Sets the value of an *ItemComponent* to *Expression* for an *Item* in the inventory of *GlobalUnitOrConvoy*.
 Can be used to modify a specific item within your game, such as for forging.
 
-Use **ComponentProperty*
+Use **ComponentProperty* to change a specific value if the ItemComponent has more than one option available.
 
 Use the *additive* flag to add rather than set the value.
         """

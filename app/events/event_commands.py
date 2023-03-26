@@ -1527,6 +1527,25 @@ Can be used to modify a specific item within your game, such as for forging.
     keywords = ["GlobalUnitOrConvoy", "Item", "ItemComponent"]
     optional_keywords = ["Expression"]
 
+class ModifyItemComponent(EventCommand):
+    nid = 'modify_item_component'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Sets the value of an *ItemComponent* to *Expression* for an *Item* in the inventory of *GlobalUnitOrConvoy*.
+Can be used to modify a specific item within your game, such as for forging.
+
+Use **ComponentProperty* to change a specific value if the ItemComponent has more than one option available.
+
+Use the *additive* flag to add rather than set the value.
+        """
+
+    keywords = ["UnitOrConvoy", "Item", "ItemComponent", "Expression"]
+    optional_keywords = ["ComponentProperty"]
+    keyword_types = ["GlobalUnitOrConvoy", "Item", "ItemComponent", "Expression", "String"]
+    _flags = ['additive']
+
 class RemoveItemComponent(EventCommand):
     nid = 'remove_item_component'
     tag = Tags.MODIFY_ITEM_PROPERTIES

@@ -1719,6 +1719,24 @@ def add_item_component(self: Event, global_unit_or_convoy, item, item_component,
 
     action.do(action.AddItemComponent(item, component_nid, component_value))
 
+def modify_item_component(self: Event, unit_or_convoy, item, item_component, expression, component_property=None, flags=None):
+    flags = flags or set()
+    global_unit = unit_or_convoy
+    component_nid = item_component
+    is_additive = 'additive' in flags
+
+    unit, item = self._get_item_in_inventory(global_unit, item)
+    if not unit or not item:
+        self.logger.error("add_item_component: Either unit or item was invalid, see above")
+        return
+
+    try:
+        component_value = self.text_evaluator.direct_eval(expression)
+    except Exception as e:
+        self.logger.error("add_item_component: %s: Could not evalute {%s}" % (e, expression))
+        return
+
+    action.do(action.ModifyItemComponent(item, component_nid, component_value, component_property, is_additive))
 
 def remove_item_component(self: Event, global_unit_or_convoy, item, item_component, flags=None):
     flags = flags or set()

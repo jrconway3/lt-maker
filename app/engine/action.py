@@ -2834,27 +2834,44 @@ class AddMapAnim(Action):
                     break
 
 class RemoveMapAnim(Action):
-    def __init__(self, nid, pos):
+    def __init__(self, nid, pos, upper_layer: bool = False):
         self.nid = nid
         self.pos = pos
         self.speed_mult = 1
         self.blend = False
         self.did_remove = False
+        self.is_upper_layer = upper_layer
 
     def do(self):
-        for anim in game.tilemap.animations[:]:
-            if anim.nid == self.nid and anim.xy_pos == self.pos:
-                self.speed_mult = anim.speed_adj
-                self.blend = anim.tint
-                game.tilemap.animations.remove(anim)
-                self.did_remove = True
+        if self.is_upper_layer:
+            for anim in game.tilemap.high_animations[:]:
+                if anim.nid == self.nid and anim.xy_pos == self.pos:
+                    self.speed_mult = anim.speed_adj
+                    self.blend = anim.tint
+                    game.tilemap.high_animations.remove(anim)
+                    self.did_remove = True
+        else:
+            for anim in game.tilemap.animations[:]:
+                if anim.nid == self.nid and anim.xy_pos == self.pos:
+                    self.speed_mult = anim.speed_adj
+                    self.blend = anim.tint
+                    game.tilemap.animations.remove(anim)
+                    self.did_remove = True
+
 
     def reverse(self):
         if self.did_remove:
-            anim = RESOURCES.animations.get(self.nid)
-            anim = animations.MapAnimation(anim, self.pos, loop=True, speed_adj=self.speed_mult)
-            anim.set_tint(self.blend)
-            game.tilemap.animations.append(anim)
+            if self.is_upper_layer:
+                anim = RESOURCES.animations.get(self.nid)
+                anim = animations.MapAnimation(anim, self.pos, loop=True, speed_adj=self.speed_mult)
+                anim.set_tint(self.blend)
+                game.tilemap.high_animations.append(anim)
+
+            else:
+                anim = RESOURCES.animations.get(self.nid)
+                anim = animations.MapAnimation(anim, self.pos, loop=True, speed_adj=self.speed_mult)
+                anim.set_tint(self.blend)
+                game.tilemap.animations.append(anim)
 
 class AddAnimToUnit(Action):
     def __init__(self, nid, unit: UnitObject, speed_mult, blend):

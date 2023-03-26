@@ -2175,6 +2175,7 @@ class RemoveMapAnim(EventCommand):
     desc = ('Removes a map animation denoted by the nid *MapAnim* at *Position*. Only removes MapAnims that were created using'
             ' the "permanent" flag')
     keywords = ["MapAnim", "Position"]
+    _flags = ['overlay']
 
 class AddUnitMapAnim(EventCommand):
     nid = 'add_unit_map_anim'

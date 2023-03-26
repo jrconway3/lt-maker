@@ -3386,3 +3386,6 @@ def replace_record(self: Event, nid: str, expression: str, flags=None):
 
 def delete_record(self: Event, nid: str, flags=None):
     RECORDS.delete(nid)
+
+def unlock_difficulty(self: Event, difficulty_mode: str, flags=None):
+    RECORDS.unlock_difficulty(difficulty_mode)

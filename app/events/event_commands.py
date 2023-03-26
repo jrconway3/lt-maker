@@ -2886,6 +2886,14 @@ class DeleteRecord(EventCommand):
 
     keywords = ['Nid']
 
+class UnlockDifficulty(EventCommand):
+    nid = 'unlock_difficulty'
+    tag = Tags.PERSISTENT_RECORDS
+    desc = ("Unlocks the specified difficulty. Locked difficulties cannot be selected by the player when creating a new game.")
+
+    keywords = ['DifficultyMode']
+    keyword_types = ['DifficultyMode']
+
 def get_commands():
     return EventCommand.__subclasses__()
 

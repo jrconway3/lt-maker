@@ -628,11 +628,12 @@ Moves the cursor to the map coordinate given by *Position*. The optional *Speed*
 Extra flags:
 
 1. *immediate*: Causes the cursor to immediately jump to the target coordinates.
+2. *no_block*: Event script will continue while cursor moves in background.
         """
 
     keywords = ["Position"]
     optional_keywords = ['Speed']
-    _flags = ["immediate"]
+    _flags = ["immediate", "no_block"]
 
 
 class CenterCursor(EventCommand):
@@ -642,11 +643,16 @@ class CenterCursor(EventCommand):
     desc = \
         """
 Similar to **move_cursor** except that it attempts to center the screen on the new cursor position to the greatest extent possible.
+
+Extra flags:
+
+1. *immediate*: Causes the cursor to immediately jump to the target coordinates.
+2. *no_block*: Event script will continue while cursor moves in background.
         """
 
     keywords = ["Position"]
     optional_keywords = ['Speed']
-    _flags = ["immediate"]
+    _flags = ["immediate", "no_block"]
 
 class FlickerCursor(EventCommand):
     nid = 'flicker_cursor'

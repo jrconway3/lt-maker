@@ -532,8 +532,11 @@ def move_cursor(self: Event, position, speed=None, flags=None):
             duration = int(speed)
             self.game.camera.do_slow_pan(duration)
         self.game.camera.set_xy(*position)
-        self.game.state.change('move_camera')
-        self.state = 'paused'  # So that the message will leave the update loop
+        if 'no_block' in flags:
+            pass
+        else:
+            self.game.state.change('move_camera')
+            self.state = 'paused'  # So that the message will leave the update loop
 
 def center_cursor(self: Event, position, speed=None, flags=None):
     flags = flags or set()
@@ -553,8 +556,11 @@ def center_cursor(self: Event, position, speed=None, flags=None):
             duration = int(speed)
             self.game.camera.do_slow_pan(duration)
         self.game.camera.set_center(*position)
-        self.game.state.change('move_camera')
-        self.state = 'paused'  # So that the message will leave the update loop
+        if 'no_block' in flags:
+            pass
+        else:
+            self.game.state.change('move_camera')
+            self.state = 'paused'  # So that the message will leave the update loop
 
 def flicker_cursor(self: Event, position, flags=None):
     # This is a macro that just adds new commands to command list

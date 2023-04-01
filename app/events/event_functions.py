@@ -2155,15 +2155,20 @@ def promote(self: Event, global_unit, klass_list=None, flags=None):
         self.game.state.change('transition_out')
         self.state = 'paused'
 
-def change_class(self: Event, global_unit, klass=None, flags=None):
+def change_class(self: Event, global_unit, klass_list=None, flags=None):
     flags = flags or set()
 
     unit = self._get_unit(global_unit)
     if not unit:
         self.logger.error("change_class: Couldn't find unit %s" % global_unit)
         return
-    if klass:
-        new_klass = klass
+    if klass_list:
+        s_klass = klass_list.split(',')
+        if len(s_klass) == 1:
+            new_klass = s_klass[0]
+        else:
+            self.game.memory['promo_options'] = s_klass
+            new_klass = None
     elif not unit.generic:
         unit_prefab = DB.units.get(unit.nid)
         if not unit_prefab.alternate_classes:
@@ -2171,8 +2176,11 @@ def change_class(self: Event, global_unit, klass=None, flags=None):
             return
         elif len(unit_prefab.alternate_classes) == 1:
             new_klass = unit_prefab.alternate_classes[0]
-        else:
+        else:  # Has many alternate classes
             new_klass = None
+    else:
+        self.logger.error("change_class: No available alternate classes for %s" % unit)
+        return
 
     if new_klass == unit.klass:
         self.logger.error("change_class: No need to change classes")

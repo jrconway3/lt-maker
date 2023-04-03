@@ -1,3 +1,4 @@
+from app.data.database.levels import LevelPrefab
 from app.editor.custom_widgets import TilemapBox
 from app.editor.lib.components.validated_line_edit import NoParentheticalLineEdit
 from app.events.triggers import ALL_TRIGGERS
@@ -1060,7 +1061,7 @@ class EventProperties(QWidget):
         self.close_commands()
 
 class ShowMapDialog(QDialog):
-    def __init__(self, current_level, parent=None):
+    def __init__(self, current_level: LevelPrefab, parent=None):
         super().__init__(parent)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle("Level Map View")
@@ -1069,6 +1070,8 @@ class ShowMapDialog(QDialog):
 
         self.map_selector = TilemapBox(self)
         self.map_selector.edit.activated.connect(self.select_current)
+        if self.current_level and self.current_level.tilemap:
+            self.map_selector.edit.setCurrentIndex(self.map_selector.edit.findText(self.current_level.tilemap))
 
         self.map_view = SimpleMapView(self)
         self.map_view.position_clicked.connect(self.position_clicked)
@@ -1089,9 +1092,12 @@ class ShowMapDialog(QDialog):
 
     def select_current(self):
         tilemap_nid = self.map_selector.edit.currentText()
-        tilemap = RESOURCES.tilemaps.get(tilemap_nid)
-        if tilemap:
-            self.map_view.set_current_map(tilemap)
+        if tilemap_nid == self.current_level.tilemap:
+            self.map_view.set_current_level(self.current_level)
+        else:
+            tilemap = RESOURCES.tilemaps.get(tilemap_nid)
+            if tilemap:
+                self.map_view.set_current_map(tilemap)
 
     def position_clicked(self, x, y):
         self.window.insert_text("%d,%d" % (x, y))

@@ -13,7 +13,7 @@ class CustomQtRoles():
     # Therefore, for custom roles, we must use 15+
     FilterRole = 15
 
-class ObjBox(PropertyBox):
+class ObjBox(PropertyBox[ComboBox]):
     def __init__(self, title, model, database, parent=None, button=False):
         super().__init__(title, ComboBox, parent)
         self.model = model(database, parent)

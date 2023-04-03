@@ -136,7 +136,7 @@ def get_attacks(unit: UnitObject, item: ItemObject = None, force=False) -> set:
 def _get_possible_attacks(unit, valid_moves, items):
     attacks = set()
     max_range = 0
-    for item in items:
+    for item in items if not item_system.ignore_line_of_sight(unit, item):
         no_attack_after_move = item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit)
         if no_attack_after_move and unit.has_moved_any_distance:
             continue
@@ -153,8 +153,25 @@ def _get_possible_attacks(unit, valid_moves, items):
             else:
                 attacks |= get_shell(valid_moves, item_range, game.board.bounds, manhattan_restriction)
 
-    if DB.constants.value('line_of_sight') and not item_system.ignore_line_of_sight(unit, item):
+    if DB.constants.value('line_of_sight'):
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))
+        
+    for item in items if item_system.ignore_line_of_sight(unit, item):
+        no_attack_after_move = item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit)
+        if no_attack_after_move and unit.has_moved_any_distance:
+            continue
+        item_range = item_funcs.get_range(unit, item)
+        if not item_range:  # Possible if you have a weapon with say range 2-3 but your maximum range is limited to 1
+            continue
+        max_range = max(max_range, max(item_range))
+        if max_range >= 99:
+            attacks = {(x, y) for x in range(game.tilemap.width) for y in range(game.tilemap.height)}
+        else:
+            manhattan_restriction = item_system.range_restrict(unit, item)
+            if no_attack_after_move:
+                attacks |= get_shell({unit.position}, item_range, game.board.bounds, manhattan_restriction)
+            else:
+                attacks |= get_shell(valid_moves, item_range, game.board.bounds, manhattan_restriction)
     return attacks
 
 def get_possible_attacks(unit, valid_moves) -> set:

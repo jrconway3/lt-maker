@@ -153,7 +153,7 @@ def _get_possible_attacks(unit, valid_moves, items):
             else:
                 attacks |= get_shell(valid_moves, item_range, game.board.bounds, manhattan_restriction)
 
-    if DB.constants.value('line_of_sight'):
+    if DB.constants.value('line_of_sight') and not item_system.ignore_line_of_sight(unit, item):
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))
     return attacks
 
@@ -300,7 +300,7 @@ def get_valid_targets(unit, item=None) -> set:
     if unit.team == 'player' or DB.constants.value('ai_fog_of_war'):
         valid_targets = {position for position in valid_targets if game.board.in_vision(position, unit.team)}
     # Line of Sight
-    if DB.constants.value('line_of_sight'):
+    if DB.constants.value('line_of_sight') and not item_system.ignore_line_of_sight(unit, item):
         item_range = item_funcs.get_range(unit, item)
         if item_range:
             max_item_range = max(item_range)

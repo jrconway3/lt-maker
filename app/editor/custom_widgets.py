@@ -11,6 +11,7 @@ class CustomQtRoles():
     # PyQt uses ints 0-14 for its roles.
     # Therefore, for custom roles, we must use 15+
     FilterRole = 15
+    UnderlyingDataRole = 16
 
 class ObjBox(PropertyBox):
     def __init__(self, title, model, database, parent=None, button=False):

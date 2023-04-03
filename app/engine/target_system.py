@@ -136,7 +136,9 @@ def get_attacks(unit: UnitObject, item: ItemObject = None, force=False) -> set:
 def _get_possible_attacks(unit, valid_moves, items):
     attacks = set()
     max_range = 0
-    for item in items if not item_system.ignore_line_of_sight(unit, item):
+    items_std = [item for item in items if not item_system.ignore_line_of_sight(unit, item)]
+    items_ignore_los = [item for item in items if item_system.ignore_line_of_sight(unit, item)]
+    for item in items_std:
         no_attack_after_move = item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit)
         if no_attack_after_move and unit.has_moved_any_distance:
             continue
@@ -156,7 +158,7 @@ def _get_possible_attacks(unit, valid_moves, items):
     if DB.constants.value('line_of_sight'):
         attacks = set(line_of_sight.line_of_sight(valid_moves, attacks, max_range))
         
-    for item in items if item_system.ignore_line_of_sight(unit, item):
+    for item in items_ignore_los:
         no_attack_after_move = item_system.no_attack_after_move(unit, item) or skill_system.no_attack_after_move(unit)
         if no_attack_after_move and unit.has_moved_any_distance:
             continue

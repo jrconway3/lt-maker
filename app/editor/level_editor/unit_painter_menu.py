@@ -174,8 +174,10 @@ class UnitPainterMenu(QWidget):
 
 
 class LevelUnitModel(DragDropCollectionModel):
+    allow_delete_last_obj = True
+
     def data(self, index, role):
-        if not index.isValid() or not index.row() < len(self._data):
+        if not index.isValid() or index.row() >= len(self._data):
             return None
         if role == Qt.DisplayRole:
             unit = self._data[index.row()]

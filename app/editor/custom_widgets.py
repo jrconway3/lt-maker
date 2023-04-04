@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtCore import QSize
+from app.data.resources.resources import RESOURCES
 
 # Custom Widgets
 from app.utilities.data import Data
@@ -13,7 +14,7 @@ class CustomQtRoles():
     FilterRole = 15
     UnderlyingDataRole = 16
 
-class ObjBox(PropertyBox):
+class ObjBox(PropertyBox[ComboBox]):
     def __init__(self, title, model, database, parent=None, button=False):
         super().__init__(title, ComboBox, parent)
         self.model = model(database, parent)
@@ -135,3 +136,9 @@ class TerrainBox(ObjBox):
         if exclude:
             database = Data([d for d in DB.terrain if d is not exclude])
         super().__init__("Terrain Type", TerrainModel, database, parent, button)
+
+class TilemapBox(ObjBox):
+    def __init__(self, parent=None, button=False):
+        from app.editor.tile_editor.tile_model import TileMapModel
+        database = RESOURCES.tilemaps
+        super().__init__("Tilemap", TileMapModel, database, parent, button)

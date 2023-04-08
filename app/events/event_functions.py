@@ -964,6 +964,12 @@ def add_unit(self: Event, unit, position=None, entry_type=None, placement=None, 
     if unit.dead:
         self.logger.error("add_unit: Unit is dead!")
         return
+    # If the unit is already on the map as a traveler
+    for u in self.game.get_all_units():
+        if u.traveler == unit.nid:
+            self.logger.error("add_unit: Unit is already traveling with %s", u.nid)
+            return
+
     if position:
         position = self._parse_pos(position)
     else:

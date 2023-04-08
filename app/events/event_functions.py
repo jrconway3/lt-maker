@@ -123,7 +123,7 @@ def add_portrait(self: Event, portrait, screen_position, slide=None, expression_
     speed_mult = 1 / max(speed_mult, 0.001)
 
     new_portrait = EventPortrait(portrait, position, priority, transition,
-                                 slide, mirror, speed_mult=speed_mult)
+                                 slide, mirror, name, speed_mult=speed_mult)
     self.portraits[name] = new_portrait
 
     if expression_list:
@@ -236,7 +236,7 @@ def mirror_portrait(self: Event, portrait, flags=None):
             self.portraits[name].portrait,
             self.portraits[name].position,
             self.portraits[name].priority,
-            False, None, not self.portraits[name].mirror)
+            False, None, not self.portraits[name].mirror, name)
 
     if 'no_block' in flags or self.do_skip:
         pass
@@ -532,8 +532,11 @@ def move_cursor(self: Event, position, speed=None, flags=None):
             duration = int(speed)
             self.game.camera.do_slow_pan(duration)
         self.game.camera.set_xy(*position)
-        self.game.state.change('move_camera')
-        self.state = 'paused'  # So that the message will leave the update loop
+        if 'no_block' in flags:
+            pass
+        else:
+            self.game.state.change('move_camera')
+            self.state = 'paused'  # So that the message will leave the update loop
 
 def center_cursor(self: Event, position, speed=None, flags=None):
     flags = flags or set()
@@ -553,8 +556,11 @@ def center_cursor(self: Event, position, speed=None, flags=None):
             duration = int(speed)
             self.game.camera.do_slow_pan(duration)
         self.game.camera.set_center(*position)
-        self.game.state.change('move_camera')
-        self.state = 'paused'  # So that the message will leave the update loop
+        if 'no_block' in flags:
+            pass
+        else:
+            self.game.state.change('move_camera')
+            self.state = 'paused'  # So that the message will leave the update loop
 
 def flicker_cursor(self: Event, position, flags=None):
     # This is a macro that just adds new commands to command list
@@ -958,6 +964,12 @@ def add_unit(self: Event, unit, position=None, entry_type=None, placement=None, 
     if unit.dead:
         self.logger.error("add_unit: Unit is dead!")
         return
+    # If the unit is already on the map as a traveler
+    for u in self.game.get_all_units():
+        if u.traveler == unit.nid:
+            self.logger.error("add_unit: Unit is already traveling with %s", u.nid)
+            return
+
     if position:
         position = self._parse_pos(position)
     else:
@@ -1719,6 +1731,24 @@ def add_item_component(self: Event, global_unit_or_convoy, item, item_component,
 
     action.do(action.AddItemComponent(item, component_nid, component_value))
 
+def modify_item_component(self: Event, unit_or_convoy, item, item_component, expression, component_property=None, flags=None):
+    flags = flags or set()
+    global_unit = unit_or_convoy
+    component_nid = item_component
+    is_additive = 'additive' in flags
+
+    unit, item = self._get_item_in_inventory(global_unit, item)
+    if not unit or not item:
+        self.logger.error("add_item_component: Either unit or item was invalid, see above")
+        return
+
+    try:
+        component_value = self.text_evaluator.direct_eval(expression)
+    except Exception as e:
+        self.logger.error("add_item_component: %s: Could not evalute {%s}" % (e, expression))
+        return
+
+    action.do(action.ModifyItemComponent(item, component_nid, component_value, component_property, is_additive))
 
 def remove_item_component(self: Event, global_unit_or_convoy, item, item_component, flags=None):
     flags = flags or set()
@@ -1743,6 +1773,7 @@ def give_money(self: Event, money, party=None, flags=None):
     banner_flag = 'no_banner' not in flags
 
     action.do(action.GainMoney(party_nid, money))
+    action.do(action.UpdateRecords('money', (party_nid, money)))
     if banner_flag:
         if money >= 0:
             b = banner.Advanced('Got <blue>{money}</> gold.'.format(money = str(money)), 'Item')
@@ -2136,15 +2167,20 @@ def promote(self: Event, global_unit, klass_list=None, flags=None):
         self.game.state.change('transition_out')
         self.state = 'paused'
 
-def change_class(self: Event, global_unit, klass=None, flags=None):
+def change_class(self: Event, global_unit, klass_list=None, flags=None):
     flags = flags or set()
 
     unit = self._get_unit(global_unit)
     if not unit:
         self.logger.error("change_class: Couldn't find unit %s" % global_unit)
         return
-    if klass:
-        new_klass = klass
+    if klass_list:
+        s_klass = klass_list.split(',')
+        if len(s_klass) == 1:
+            new_klass = s_klass[0]
+        else:
+            self.game.memory['promo_options'] = s_klass
+            new_klass = None
     elif not unit.generic:
         unit_prefab = DB.units.get(unit.nid)
         if not unit_prefab.alternate_classes:
@@ -2152,8 +2188,11 @@ def change_class(self: Event, global_unit, klass=None, flags=None):
             return
         elif len(unit_prefab.alternate_classes) == 1:
             new_klass = unit_prefab.alternate_classes[0]
-        else:
+        else:  # Has many alternate classes
             new_klass = None
+    else:
+        self.logger.error("change_class: No available alternate classes for %s" % unit)
+        return
 
     if new_klass == unit.klass:
         self.logger.error("change_class: No need to change classes")
@@ -2450,8 +2489,9 @@ def map_anim(self: Event, map_anim, float_position, speed=None, flags=None):
         self.state = 'waiting'
 
 def remove_map_anim(self: Event, map_anim, position, flags=None):
+    flags = flags or set()
     pos = self._parse_pos(position, True)
-    action.do(action.RemoveMapAnim(map_anim, pos))
+    action.do(action.RemoveMapAnim(map_anim, pos, 'overlay' in flags))
 
 def add_unit_map_anim(self: Event, map_anim: NID, unit: NID, speed=None, flags=None):
     flags = flags or set()
@@ -2929,7 +2969,6 @@ def text_entry(self: Event, nid, string, positive_integer=None, illegal_characte
     header = string
     limit = 16
     illegal_characters = []
-    force_entry = False
     if positive_integer:
         limit = int(positive_integer)
     if illegal_character_list:
@@ -3366,3 +3405,6 @@ def replace_record(self: Event, nid: str, expression: str, flags=None):
 
 def delete_record(self: Event, nid: str, flags=None):
     RECORDS.delete(nid)
+
+def unlock_difficulty(self: Event, difficulty_mode: str, flags=None):
+    RECORDS.unlock_difficulty(difficulty_mode)

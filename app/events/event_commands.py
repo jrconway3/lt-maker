@@ -628,11 +628,12 @@ Moves the cursor to the map coordinate given by *Position*. The optional *Speed*
 Extra flags:
 
 1. *immediate*: Causes the cursor to immediately jump to the target coordinates.
+2. *no_block*: Event script will continue while cursor moves in background.
         """
 
     keywords = ["Position"]
     optional_keywords = ['Speed']
-    _flags = ["immediate"]
+    _flags = ["immediate", "no_block"]
 
 
 class CenterCursor(EventCommand):
@@ -642,11 +643,16 @@ class CenterCursor(EventCommand):
     desc = \
         """
 Similar to **move_cursor** except that it attempts to center the screen on the new cursor position to the greatest extent possible.
+
+Extra flags:
+
+1. *immediate*: Causes the cursor to immediately jump to the target coordinates.
+2. *no_block*: Event script will continue while cursor moves in background.
         """
 
     keywords = ["Position"]
     optional_keywords = ['Speed']
-    _flags = ["immediate"]
+    _flags = ["immediate", "no_block"]
 
 class FlickerCursor(EventCommand):
     nid = 'flicker_cursor'
@@ -1527,6 +1533,25 @@ Can be used to modify a specific item within your game, such as for forging.
     keywords = ["GlobalUnitOrConvoy", "Item", "ItemComponent"]
     optional_keywords = ["Expression"]
 
+class ModifyItemComponent(EventCommand):
+    nid = 'modify_item_component'
+    tag = Tags.MODIFY_ITEM_PROPERTIES
+
+    desc = \
+        """
+Sets the value of an *ItemComponent* to *Expression* for an *Item* in the inventory of *GlobalUnitOrConvoy*.
+Can be used to modify a specific item within your game, such as for forging.
+
+Use **ComponentProperty* to change a specific value if the ItemComponent has more than one option available.
+
+Use the *additive* flag to add rather than set the value.
+        """
+
+    keywords = ["UnitOrConvoy", "Item", "ItemComponent", "Expression"]
+    optional_keywords = ["ComponentProperty"]
+    keyword_types = ["GlobalUnitOrConvoy", "Item", "ItemComponent", "Expression", "String"]
+    _flags = ['additive']
+
 class RemoveItemComponent(EventCommand):
     nid = 'remove_item_component'
     tag = Tags.MODIFY_ITEM_PROPERTIES
@@ -1839,7 +1864,7 @@ If the *silent* flag is given, the unit will change class immediately into the s
         """
 
     keywords = ["GlobalUnit"]
-    optional_keywords = ["Klass"]
+    optional_keywords = ["KlassList"]
     _flags = ["silent"]
 
 class AddTag(EventCommand):
@@ -2175,6 +2200,7 @@ class RemoveMapAnim(EventCommand):
     desc = ('Removes a map animation denoted by the nid *MapAnim* at *Position*. Only removes MapAnims that were created using'
             ' the "permanent" flag')
     keywords = ["MapAnim", "Position"]
+    _flags = ['overlay']
 
 class AddUnitMapAnim(EventCommand):
     nid = 'add_unit_map_anim'
@@ -2427,9 +2453,9 @@ class RemoveTable(EventCommand):
 
     desc = \
     """
-    Remove a table created by the `Table` command.
+    Removes a GUI object created by the `Table` or `Textbox` command.
 
-    * *Nid* is the name of the table to be removed.
+    * *Nid* is the name of the object to be removed.
     """
 
     keywords = ['Nid']
@@ -2865,6 +2891,28 @@ class DeleteRecord(EventCommand):
     desc = ('Remove a persistent record. Does nothing if nid is not present')
 
     keywords = ['Nid']
+
+class UnlockDifficulty(EventCommand):
+    nid = 'unlock_difficulty'
+    tag = Tags.PERSISTENT_RECORDS
+    desc = ("Unlocks the specified difficulty. Locked difficulties cannot be selected by the player when creating a new game.")
+
+    keywords = ['DifficultyMode']
+    keyword_types = ['DifficultyMode']
+
+class Python(EventCommand):
+    nid = 'python'
+    tag = Tags.HIDDEN
+    special_handling = True
+
+    desc = "Executes the following lines in python. End with `end_python`"
+
+class EndPython(EventCommand):
+    nid = 'end_python'
+    tag = Tags.HIDDEN
+    special_handling = True
+
+    desc = "Ends a block of python code."
 
 def get_commands():
     return EventCommand.__subclasses__()

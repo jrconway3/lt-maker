@@ -5,6 +5,7 @@ from app.constants import TILEHEIGHT, TILEWIDTH, WINHEIGHT, WINWIDTH
 from app.data.database.database import DB
 from app.data.database.level_units import UniqueUnit
 from app.data.database.levels import LevelPrefab
+from app.data.resources.tiles import TileMapPrefab
 from app.editor import tilemap_editor, timer
 from app.editor.class_editor import class_model
 from app.editor.overworld_editor.road_sprite_wrapper import RoadSpriteWrapper
@@ -60,6 +61,11 @@ class SimpleMapView(QGraphicsView):
             self.current_map = RESOURCES.tilemaps.get(level.tilemap)
         self.update_view()
 
+    def set_current_map(self, tilemap: TileMapPrefab):
+        self.current_level = None
+        self.current_map = tilemap
+        self.update_view()
+
     def clear_scene(self):
         self.scene.clear()
 
@@ -73,7 +79,8 @@ class SimpleMapView(QGraphicsView):
         else:
             self.clear_scene()
             return
-        self.paint_units(self.current_level)
+        if self.current_level:
+            self.paint_units(self.current_level)
         self.show_map()
 
     def draw_unit(self, painter, unit, position, opacity=False):
@@ -403,14 +410,15 @@ class NewMapView(SimpleMapView):
                 current_unit = self.main_editor.group_painter_menu.get_current_unit()
                 if current_unit and current_unit.nid in current_group.positions:
                     coord = current_group.positions.get(current_unit.nid)
-                    cursor_sprite = SPRITES['cursor']
-                    if cursor_sprite:
-                        if not cursor_sprite.pixmap:
-                            cursor_sprite.pixmap = QPixmap(
-                                cursor_sprite.full_path)
-                        cursor_image = cursor_sprite.pixmap.toImage().copy(0, 64, 32, 32)
-                        painter.drawImage(
-                            coord[0] * TILEWIDTH - 8, coord[1] * TILEHEIGHT - 5, cursor_image)
+                    if coord:
+                        cursor_sprite = SPRITES['cursor']
+                        if cursor_sprite:
+                            if not cursor_sprite.pixmap:
+                                cursor_sprite.pixmap = QPixmap(
+                                    cursor_sprite.full_path)
+                            cursor_image = cursor_sprite.pixmap.toImage().copy(0, 64, 32, 32)
+                            painter.drawImage(
+                                coord[0] * TILEWIDTH - 8, coord[1] * TILEHEIGHT - 5, cursor_image)
             painter.end()
 
     def paint_regions(self):

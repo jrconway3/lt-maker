@@ -231,30 +231,37 @@ def mirror_portrait(self: Event, portrait, flags=None):
     if not portrait:
         return False
 
-    flipped_portrait = EventPortrait(
-                self.portraits[name].portrait,
-                self.portraits[name].position,
-                self.portraits[name].priority,
+    flipped_portrait = \
+        EventPortrait(
+            self.portraits[name].portrait,
+            self.portraits[name].position,
+            self.portraits[name].priority,
             False, None, not self.portraits[name].mirror, name)
 
-    if 'no_block' in flags or self.do_skip:
+    if self.do_skip:
         self.portraits[name] = flipped_portrait
     else:
         if 'fade' in flags:
+            # Removal of portrait also happens
             commands = []
             commands.append(event_commands.RemovePortrait({'Portrait': name}, {'no_block'}))
-            flags = set()
+            command_flags = set()
             if not self.portraits[name].mirror:
-                flags.add("mirror")
-            print(self.portraits[name].position)
-            commands.append(event_commands.AddPortrait({'Portrait': name, 'ScreenPosition': str(self.portraits[name].position)}, flags))
+                command_flags.add("mirror")
+            if 'no_block' in flags:
+                command_flags.add("no_block")
+            commands.append(event_commands.AddPortrait({'Portrait': name, 'ScreenPosition': str(self.portraits[name].position)}, command_flags))
             for command in reversed(commands):
                 # Done backwards to preserve order upon insertion
                 self.commands.insert(self.command_idx + 1, command)
         else:
+            # Immediate removal followed by a transition in
             self.portraits[name] = flipped_portrait
-            self.wait_time = engine.get_time() + portrait.transition_speed + 33
-            self.state = 'waiting'
+            if 'no_block' in flags:
+                pass
+            else:
+                self.wait_time = engine.get_time() + portrait.transition_speed + 33
+                self.state = 'waiting'
 
 def bop_portrait(self: Event, portrait, flags=None):
     flags = flags or set()

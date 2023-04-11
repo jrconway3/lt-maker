@@ -231,18 +231,30 @@ def mirror_portrait(self: Event, portrait, flags=None):
     if not portrait:
         return False
 
-    self.portraits[name] = \
-        EventPortrait(
-            self.portraits[name].portrait,
-            self.portraits[name].position,
-            self.portraits[name].priority,
+    flipped_portrait = EventPortrait(
+                self.portraits[name].portrait,
+                self.portraits[name].position,
+                self.portraits[name].priority,
             False, None, not self.portraits[name].mirror, name)
 
     if 'no_block' in flags or self.do_skip:
-        pass
+        self.portraits[name] = flipped_portrait
     else:
-        self.wait_time = engine.get_time() + portrait.transition_speed + 33
-        self.state = 'waiting'
+        if 'fade' in flags:
+            commands = []
+            commands.append(event_commands.RemovePortrait({'Portrait': name}, {'no_block'}))
+            flags = set()
+            if not self.portraits[name].mirror:
+                flags.add("mirror")
+            print(self.portraits[name].position)
+            commands.append(event_commands.AddPortrait({'Portrait': name, 'ScreenPosition': str(self.portraits[name].position)}, flags))
+            for command in reversed(commands):
+                # Done backwards to preserve order upon insertion
+                self.commands.insert(self.command_idx + 1, command)
+        else:
+            self.portraits[name] = flipped_portrait
+            self.wait_time = engine.get_time() + portrait.transition_speed + 33
+            self.state = 'waiting'
 
 def bop_portrait(self: Event, portrait, flags=None):
     flags = flags or set()

@@ -432,7 +432,7 @@ The direction of the portrait is flipped across the Y axis.
         """
 
     keywords = ['Portrait']
-    _flags = ["no_block"]
+    _flags = ["no_block", "fade"]
 
 class Expression(EventCommand):
     nid = "expression"

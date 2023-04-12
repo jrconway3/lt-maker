@@ -2989,7 +2989,7 @@ def chapter_title(self: Event, music=None, string=None, flags=None):
     self.game.state.change('chapter_title')
     self.state = 'paused'
 
-def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None, animation=None, flags=None):
+def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None, animation=None, speed=None, flags=None):
     flags = flags or set()
 
     name = nid
@@ -3002,6 +3002,10 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
         z = int(z_level)
     anim_dir = animation
 
+    anim_speed = 1000
+    if speed:
+        anim_speed = int(speed)
+
     sprite = SPRITES.get(sprite_nid)
     component = UIComponent.from_existing_surf(sprite)
     component.name = name
@@ -3009,10 +3013,10 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
     x, y = pos
     if anim_dir:
         if anim_dir == 'fade':
-            enter_anim = fade_anim(0, 1, 1000)
-            exit_anim = fade_anim(1, 0, 1000)
+            enter_anim = fade_anim(0, 1, anim_speed)
             component.margin = (x, 0, y, 0)
         else:
+            start_x, start_y = 0, 0
             if anim_dir == 'west':
                 start_x = -component.width
                 start_y = y
@@ -3025,10 +3029,8 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
             elif anim_dir == 'south':
                 start_x = x
                 start_y = WINHEIGHT
-            enter_anim = translate_anim((start_x, start_y), (x, y), 750, interp_mode=InterpolationType.CUBIC)
-            exit_anim = translate_anim((x, y), (start_x, start_y), 750, disable_after=True, interp_mode=InterpolationType.CUBIC)
+            enter_anim = translate_anim((start_x, start_y), (x, y), anim_speed, interp_mode=InterpolationType.CUBIC)
         component.save_animation(enter_anim, '!enter')
-        component.save_animation(exit_anim, '!exit')
     else:
         component.margin = (x, 0, y, 0)
     self.overlay_ui.add_child(component)
@@ -3039,22 +3041,49 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
         component.enter()
 
     if anim_dir and 'no_block' not in flags:
-        self.wait_time = engine.get_time() + 750
+        self.wait_time = engine.get_time() + anim_speed
         self.state = 'waiting'
 
-def remove_overlay_sprite(self: Event, nid, flags=None):
+def remove_overlay_sprite(self: Event, nid, animation=None, speed=None, flags=None):
     flags = flags or set()
     component = self.overlay_ui.get_child(nid)
-    if component:
-        if self.do_skip:
-            self.overlay_ui._should_redraw = True
-            component.disable()
+    if not component:
+        return
+
+    anim_speed = 1000
+    if speed:
+        anim_speed = int(speed)
+
+    if animation:
+        if animation == 'fade':
+            exit_anim = fade_anim(1, 0, anim_speed)
         else:
-            self.overlay_ui._should_redraw = True
-            component.exit()
-            if component.is_animating() and 'no_block' not in flags:
-                self.wait_time = engine.get_time() + 750
-                self.state = 'waiting'
+            curr_x, curr_y = component.offset
+            end_x, end_y = 0, 0
+            if animation == 'west':
+                end_x = -component.width
+                end_y = curr_y
+            elif animation == 'east':
+                end_x = WINWIDTH
+                end_y = curr_y
+            elif animation == 'north':
+                end_x = curr_x
+                end_y = -component.height
+            elif animation == 'south':
+                end_x = curr_x
+                end_y = WINHEIGHT
+            exit_anim = translate_anim((curr_x, curr_y), (end_x, end_y), anim_speed, disable_after=True, interp_mode=InterpolationType.CUBIC)
+        component.save_animation(exit_anim, '!exit')
+
+    if self.do_skip:
+        self.overlay_ui._should_redraw = True
+        component.disable()
+    else:
+        self.overlay_ui._should_redraw = True
+        component.exit()
+        if component.is_animating() and 'no_block' not in flags:
+            self.wait_time = engine.get_time() + anim_speed
+            self.state = 'waiting'
 
 def alert(self: Event, string, item=None, skill=None, icon=None, flags=None):
     if item and item in DB.items.keys():

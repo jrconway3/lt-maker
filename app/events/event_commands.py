@@ -2512,6 +2512,7 @@ Can choose to animate the sprite in and out.
     keywords = ["Nid", "SpriteID"]
     optional_keywords = ["Position", "ZLevel", "Animation", "Speed"]
     keyword_types = ["Nid", "Sprite", "PositionOffset", "Integer", "AnimationType", "Speed"]
+    _flags = ["no_block"]
 
 class RemoveOverlaySprite(EventCommand):
     nid = 'remove_overlay_sprite'
@@ -2530,6 +2531,7 @@ Can choose to animate the sprite in and out.
     keywords = ['Nid']
     optional_keywords = ['Animation', 'Speed']
     keyword_types = ["Nid", "AnimationType", "Speed"]
+    _flags = ["no_block"]
 
 class Alert(EventCommand):
     nid = 'alert'

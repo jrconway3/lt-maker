@@ -3052,7 +3052,10 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
         component.save_animation(enter_anim, '!enter')
     else:
         component.margin = (x, 0, y, 0)
-    self.overlay_ui.add_child(component)
+    if 'foreground' in self.overlay_ui:
+        self.foreground_overlay_ui.add_child(component)
+    else:
+        self.overlay_ui.add_child(component)
     if self.do_skip:
         component.enable()
         return
@@ -3065,7 +3068,10 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
 
 def remove_overlay_sprite(self: Event, nid, animation=None, speed=None, flags=None):
     flags = flags or set()
-    component = self.overlay_ui.get_child(nid)
+    if 'foreground' in flags:
+        component = self.foreground_overlay_ui.get_child(nid)
+    else:
+        component = self.overlay_ui.get_child(nid)
     if not component:
         return
 
@@ -3094,11 +3100,16 @@ def remove_overlay_sprite(self: Event, nid, animation=None, speed=None, flags=No
             exit_anim = translate_anim((curr_x, curr_y), (end_x, end_y), anim_speed, disable_after=True, interp_mode=InterpolationType.CUBIC)
         component.save_animation(exit_anim, '!exit')
 
+    if 'foreground' in flags:
+        overlay_ui = self.foreground_overlay_ui
+    else:
+        overlay_ui = self.overlay_ui
+
     if self.do_skip:
-        self.overlay_ui._should_redraw = True
+        overlay_ui._should_redraw = True
         component.disable()
     else:
-        self.overlay_ui._should_redraw = True
+        overlay_ui._should_redraw = True
         component.exit()
         if component.is_animating() and 'no_block' not in flags:
             self.wait_time = engine.get_time() + anim_speed
@@ -3406,7 +3417,7 @@ def complete_achievement(self: Event, achievement: str, completed: str, flags=No
 
         get_sound_thread().play_sfx("Item", volume=0.5)
 
-        self.overlay_ui.add_child(component)
+        self.foreground_overlay_ui.add_child(component)
         if self.do_skip:
             component.enable()
             return
@@ -3420,11 +3431,11 @@ def complete_achievement(self: Event, achievement: str, completed: str, flags=No
         # Remember to remove the command eventually
         anim_nid = 'achievement_notification_' + nid
         if self.do_skip:
-            remove_overlay_sprite(self, anim_nid)
+            remove_overlay_sprite(self, anim_nid, flags={'foreground'})
         else:
             self.wait_time = engine.get_time() + 2000
             self.state = 'waiting'
-            remove_overlay_sprite_command = event_commands.RemoveOverlaySprite({'Nid': anim_nid})
+            remove_overlay_sprite_command = event_commands.RemoveOverlaySprite({'Nid': anim_nid}, flags={'foreground'})
             self.commands.insert(self.command_idx + 1, remove_overlay_sprite_command)
 
 def clear_achievements(self: Event, flags=None):

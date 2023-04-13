@@ -2507,12 +2507,14 @@ Higher z-level sprites will cover lower z-level sprites occupying the same posit
 *Speed* indicates the duration of the transition.
 
 Can choose to animate the sprite in and out.
+
+*foreground* flag indicates the overlay sprite will be placed above EVERY other drawable in the event
 """
 
     keywords = ["Nid", "SpriteID"]
     optional_keywords = ["Position", "ZLevel", "Animation", "Speed"]
     keyword_types = ["Nid", "Sprite", "PositionOffset", "Integer", "AnimationType", "Speed"]
-    _flags = ["no_block"]
+    _flags = ["no_block", "foreground"]
 
 class RemoveOverlaySprite(EventCommand):
     nid = 'remove_overlay_sprite'
@@ -2531,7 +2533,7 @@ Can choose to animate the sprite in and out.
     keywords = ['Nid']
     optional_keywords = ['Animation', 'Speed']
     keyword_types = ["Nid", "AnimationType", "Speed"]
-    _flags = ["no_block"]
+    _flags = ["no_block", "foreground"]
 
 class Alert(EventCommand):
     nid = 'alert'

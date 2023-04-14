@@ -3052,7 +3052,7 @@ def draw_overlay_sprite(self: Event, nid, sprite_id, position=None, z_level=None
         component.save_animation(enter_anim, '!enter')
     else:
         component.margin = (x, 0, y, 0)
-    if 'foreground' in self.overlay_ui:
+    if 'foreground' in flags:
         self.foreground_overlay_ui.add_child(component)
     else:
         self.overlay_ui.add_child(component)

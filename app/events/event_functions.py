@@ -86,7 +86,7 @@ def change_music(self: Event, phase, music, flags=None):
     else:
         action.do(action.ChangePhaseMusic(phase, music))
 
-def add_portrait(self: Event, portrait, screen_position, slide=None, expression_list=None, speed_mult=1, flags=None):
+def add_portrait(self: Event, portrait, screen_position, slide=None, expression_list=None, speed_mult=None, flags=None):
     flags = flags or set()
 
     name = portrait
@@ -119,7 +119,7 @@ def add_portrait(self: Event, portrait, screen_position, slide=None, expression_
     transition = True
     if 'immediate' in flags or self.do_skip:
         transition = False
-
+    speed_mult = speed_mult or 1
     speed_mult = 1 / max(speed_mult, 0.001)
 
     new_portrait = EventPortrait(portrait, position, priority, transition,

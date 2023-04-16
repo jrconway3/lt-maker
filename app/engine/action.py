@@ -668,6 +668,7 @@ class Rescue(Action):
         self.unit = unit
         self.rescuee = rescuee
         self.old_pos = self.rescuee.position
+        self.update_fow_rescuee = UpdateFogOfWar(self.rescuee)
         self.subactions = []
 
     def do(self):
@@ -684,6 +685,7 @@ class Rescue(Action):
 
         for action in self.subactions:
             action.do()
+        self.update_fow_rescuee.do()
 
     def execute(self):
         self.unit.traveler = self.rescuee.nid
@@ -694,6 +696,7 @@ class Rescue(Action):
 
         for action in self.subactions:
             action.execute()
+        self.update_fow_rescuee.execute()
 
     def reverse(self):
         self.rescuee.position = self.old_pos
@@ -701,6 +704,7 @@ class Rescue(Action):
         self.unit.traveler = None
         self.unit.has_rescued = False
 
+        self.update_fow_rescuee.reverse()
         for action in self.subactions:
             action.reverse()
 
@@ -823,6 +827,7 @@ class PairUp(Action):
         self.old_pos = self.unit.position
         self.unit_gauge = self.unit.get_guard_gauge()
         self.target_gauge = self.target.get_guard_gauge()
+        self.update_fow_unit = UpdateFogOfWar(self.unit)
         self.subactions = []
 
     def do(self):
@@ -844,6 +849,7 @@ class PairUp(Action):
 
         for action in self.subactions:
             action.do()
+        self.update_fow_unit.do()
 
     def execute(self):
         self.target.traveler = self.unit.nid
@@ -859,6 +865,7 @@ class PairUp(Action):
 
         for action in self.subactions:
             action.execute()
+        self.update_fow_unit.execute()
 
     def reverse(self):
         self.unit.position = self.old_pos
@@ -874,8 +881,10 @@ class PairUp(Action):
         self.unit.set_guard_gauge(self.unit_gauge)
         self.target.set_guard_gauge(self.target_gauge)
 
+        self.update_fow_unit.reverse()
         for action in self.subactions:
             action.reverse()
+        self.unit.sprite.change_state('normal')
 
 
 class SwapPaired(Action):
@@ -3104,14 +3113,18 @@ class AddSkill(Action):
                     break
         for action in self.subactions:
             action.execute()
+        
+        # Actually add skill
+        skill_system.before_add(self.unit, self.skill_obj)
         self.skill_obj.owner_nid = self.unit.nid
         self.unit.skills.append(self.skill_obj)
-        skill_system.on_add(self.unit, self.skill_obj)
 
         if self.skill_obj.aura and self.skill_obj in self.unit.skills and \
                 self.unit.position and game.board and game.tilemap:
             aura_funcs.propagate_aura(self.unit, self.skill_obj, game)
             game.boundary.register_unit_auras(self.unit)
+
+        skill_system.after_add(self.unit, self.skill_obj)
 
         # Handle affects movement
         self.reset_action.execute()
@@ -3123,16 +3136,17 @@ class AddSkill(Action):
             return
         game.boundary.unregister_unit_auras(self.unit)
         if self.skill_obj in self.unit.skills:
+            # Actually remove skill
+            skill_system.before_remove(self.unit, self.skill_obj)
             self.unit.skills.remove(self.skill_obj)
-            skill_system.on_remove(self.unit, self.skill_obj)
             self.skill_obj.owner_nid = None
+            if self.skill_obj.aura and self.unit.position and game.board and game.tilemap:
+                aura_funcs.release_aura(self.unit, self.skill_obj, game)
+            skill_system.after_remove(self.unit, self.skill_obj)
         else:
             logging.error("Skill %s not in %s's skills", self.skill_obj.nid, self.unit)
         for action in self.subactions:
             action.reverse()
-
-        if self.skill_obj.aura and self.unit.position and game.board and game.tilemap:
-            aura_funcs.release_aura(self.unit, self.skill_obj, game)
 
 class RemoveSkill(Action):
     def __init__(self, unit, skill, count=-1):
@@ -3144,29 +3158,30 @@ class RemoveSkill(Action):
         self.reset_action = ResetUnitVars(self.unit)
 
     def _remove_skill(self, skill, true_remove):
-        skill_system.on_remove(self.unit, skill)
+        skill_system.before_remove(self.unit, skill)
         if true_remove:
-            skill_system.on_true_remove(self.unit, skill)
+            skill_system.before_true_remove(self.unit, skill)
         skill.owner_nid = None
         self.removed_skills.append(skill)
         if skill.aura and self.unit.position and game.board and game.tilemap:
             aura_funcs.release_aura(self.unit, skill, game)
+        self.unit.skills.remove(skill)
+        skill_system.after_remove(self.unit, skill)
+        if true_remove:
+            skill_system.after_true_remove(self.unit, skill)
 
     def _remove(self, true_remove=True):
         self.removed_skills.clear()
         to_remove = self.count
         if isinstance(self.skill, str):
-            new_skills = []
-            for skill in self.unit.skills:
+            for skill in self.unit.skills[:]:
                 if skill.nid == self.skill and to_remove != 0:
                     self._remove_skill(skill, true_remove)
                     to_remove -= 1
-                else:
-                    new_skills.append(skill)
-            self.unit.skills = new_skills
+            if to_remove > 0:
+                logging.warning("%d instances of Skill %s not found in %s's skills", to_remove, self.skill, self.unit)
         else:
             if self.skill in self.unit.skills:
-                self.unit.skills.remove(self.skill)
                 self._remove_skill(self.skill, true_remove)
             else:
                 logging.warning("Skill %s not in %s's skills", self.skill.nid, self.unit)
@@ -3188,11 +3203,12 @@ class RemoveSkill(Action):
     def reverse(self):
         self.reset_action.reverse()
         for skill in self.removed_skills:
+            skill_system.before_add(self.unit, skill)
             skill.owner_nid = self.unit.nid
             self.unit.skills.append(skill)
-            skill_system.on_add(self.unit, skill)
             if skill.aura and self.unit.position and game.board and game.tilemap:
                 aura_funcs.propagate_aura(self.unit, skill, game)
+            skill_system.after_add(self.unit, skill)
 
 
 # === Master Functions for adding to the action log ===

@@ -65,10 +65,6 @@ class TitleStartState(State):
         if save.SAVE_THREAD:
             save.SAVE_THREAD.join()
 
-        get_sound_thread().clear()
-        if DB.constants.value('music_main'):
-            get_sound_thread().fade_in(DB.constants.value('music_main'), fade_in=50)
-
         game.state.refresh()
 
         # Title Screen Intro Cinematic
@@ -80,6 +76,10 @@ class TitleStartState(State):
             # On startup occurs before on title_screen
             game.events.trigger(triggers.OnStartup()) 
             game.memory['title_intro_already_played'] = True
+
+        get_sound_thread().clear()
+        if DB.constants.value('music_main'):
+            get_sound_thread().fade_in(DB.constants.value('music_main'), fade_in=50)
 
         return 'repeat'
 
@@ -164,8 +164,9 @@ class TitleMainState(State):
 
             if event == 'BACK':
                 get_sound_thread().play_sfx('Select 4')
-                game.memory['next_state'] = 'title_start'
-                game.state.change('transition_to')
+                # game.memory['next_state'] = 'title_start'
+                # game.state.change('transition_to')
+                game.state.change('transition_pop')
 
             elif event == 'SELECT':
                 get_sound_thread().play_sfx('Select 1')
@@ -243,6 +244,7 @@ class TitleMainState(State):
         suspend = save.SaveSlot(save.SUSPEND_LOC, None)
         logging.info("Loading suspend...")
         save.load_game(game, suspend)
+        save.remove_suspend()
 
     def draw(self, surf):
         if self.bg:
@@ -723,7 +725,9 @@ class TitleExtrasState(TitleLoadState):
         self.bg = game.memory['title_bg']
         self.particles = game.memory['title_particles']
 
-        options = ['Options', 'Credits', 'Sound Room']
+        options = ['Options', 'Credits']
+        if DB.constants.value('title_sound'):
+            options.append('Sound Room')
         if ACHIEVEMENTS:
             options.insert(1, 'Achievements')
         if cf.SETTINGS['debug']:

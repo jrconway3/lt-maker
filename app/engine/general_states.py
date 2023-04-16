@@ -1379,6 +1379,7 @@ class ItemDiscardState(MapState):
                 game.alerts.append(banner.LostItem(locked_accessories[-1]))
                 action.do(action.RemoveItem(self.cur_unit, locked_accessories[-1]))
             return True
+        return False
 
     def take_input(self, event):
         first_push = self.fluid.update()

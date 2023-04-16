@@ -244,6 +244,7 @@ class TitleMainState(State):
         suspend = save.SaveSlot(save.SUSPEND_LOC, None)
         logging.info("Loading suspend...")
         save.load_game(game, suspend)
+        save.remove_suspend()
 
     def draw(self, surf):
         if self.bg:

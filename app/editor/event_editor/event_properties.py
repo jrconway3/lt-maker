@@ -4,6 +4,7 @@ import math
 import os
 import re
 from dataclasses import dataclass
+from typing import List
 
 from PyQt5.QtCore import (QRect, QRegularExpression, QSize,
                           QSortFilterProxyModel, Qt,
@@ -48,47 +49,119 @@ class Rule():
     pattern: QRegularExpression
     _format: QTextCharFormat
 
+@dataclass
+class LineToFormat():
+    start: int
+    length: int
+    format: QTextCharFormat
+
 class HighlighterState():
     EVENT_CODE = -1
     PYTHON_CODE = 0
     TRIPLE_SINGLE_QUOTES = 1
     TRIPLE_DOUBLE_QUOTES = 2
 
+class EventSyntaxRuleHighlighter():
+    def __init__(self, window) -> None:
+        self.window = window
+        theme = dark_theme.get_theme()
+        syntax_colors = theme.event_syntax_highlighting()
+        function_match = QRegularExpression("^[^;]*")
+        function_format = self.create_text_format(syntax_colors.func_color, font_weight=QFont.Bold)
+
+        comment_match = QRegularExpression("#[^\n]*")
+        comment_format = self.create_text_format(syntax_colors.comment_color, italic=True)
+
+        self.rules: List[Rule] = [
+            Rule(function_match, function_format),
+            Rule(comment_match, comment_format)
+        ]
+
+        self.lint_format = QTextCharFormat()
+        self.lint_format.setUnderlineStyle(QTextCharFormat.SpellCheckUnderline)
+        self.lint_format.setUnderlineColor(syntax_colors.error_underline_color)
+        self.text_format = self.create_text_format(syntax_colors.text_color)
+        self.special_text_format = self.create_text_format(syntax_colors.special_text_color)
+
+    def create_text_format(self, color: QColor, font_weight=None, italic=False):
+        text_format = QTextCharFormat()
+        text_format.setForeground(color)
+        if font_weight:
+            text_format.setFontWeight(font_weight)
+        text_format.setFontItalic(italic)
+        return text_format
+
+    def match_line(self, line: str) -> List[LineToFormat]:
+        format_lines: List[LineToFormat] = []
+        for rule in self.rules:
+            match_iterator = rule.pattern.globalMatch(line)
+            while match_iterator.hasNext():
+                match = match_iterator.next()
+                format_lines.append(LineToFormat(match.capturedStart(), match.capturedLength(), rule._format))
+        as_tokens = event_commands.get_command_arguments(line)
+        # speak formatting
+        if as_tokens[0].string.strip() in ("s", "speak"):
+            if len(as_tokens) >= 3:
+                dialog_token = as_tokens[2]
+                format_lines.append(LineToFormat(dialog_token.index, len(dialog_token.string), self.text_format))
+                for idx, char in enumerate(dialog_token.string):
+                    if char in '|':
+                        format_lines.append(LineToFormat(dialog_token.index + idx, 1, self.special_text_format))
+        # brace formatting
+        brace_mode = 0
+        special_start = 0
+        for idx, char in enumerate(line):
+            if char == '{':
+                if brace_mode == 0:
+                    special_start = idx
+                brace_mode += 1
+            if char == '}':
+                if brace_mode > 0:
+                    format_lines.append(LineToFormat(special_start, idx - special_start + 1, self.special_text_format))
+                    brace_mode -= 1
+
+        # error checking
+        broken_args = self.validate_tokens(line)
+        if broken_args == 'all':
+            for token in as_tokens:
+                format_lines.append(LineToFormat(token.index, len(token.string), self.lint_format))
+        else:
+            for idx in broken_args:
+                format_lines.append(LineToFormat(as_tokens[idx].index, len(as_tokens[idx].string), self.lint_format))
+        return format_lines
+
+    def validate_tokens(self, line: str):
+        try:
+            command, error_loc = event_commands.parse_text_to_command(line, strict=True)
+            if command:
+                parameters, flags = event_commands.parse(command)
+                for keyword in command.keywords:
+                    if keyword not in parameters:
+                        return 'all'
+                broken_args = []
+                for keyword, value in parameters.items():
+                    validator = command.get_validator_from_keyword(keyword)
+                    level = DB.levels.get(self.window.current.level_nid if self.window.current else None)
+                    text = event_validators.validate(validator, value, level, DB, RESOURCES)
+                    if text is None:
+                        broken_args.append(command.get_index_from_keyword(keyword) + 1)
+                return broken_args
+            elif error_loc:
+                return [error_loc + 1]  # Integer that points to the first idx that is broken
+            else:
+                return [0]  # First arg is broken
+        except Exception as e:
+            logging.error("Error while validating %s %s", line, e)
+            return 'all'
+
+
 class Highlighter(QSyntaxHighlighter):
     def __init__(self, parent, window):
         super().__init__(parent)
         self.window = window
         self.highlight_rules = []
-
-        settings = MainSettingsController()
-        theme = dark_theme.get_theme()
-        self.syntax_colors = theme.event_syntax_highlighting()
-
-        function_head_format = QTextCharFormat()
-        function_head_format.setForeground(self.syntax_colors.func_color)
-        function_head_format.setFontWeight(QFont.Bold)
-        # First part of line with semicolon
-        self.function_head_rule1 = Rule(
-            QRegularExpression("^(.*?);"), function_head_format)
-        # Any line without a semicolon
-        self.function_head_rule2 = Rule(
-            QRegularExpression("^[^;]+$"), function_head_format)
-        self.highlight_rules.append(self.function_head_rule1)
-        self.highlight_rules.append(self.function_head_rule2)
-
-        self.text_format = QTextCharFormat()
-        self.text_format.setForeground(self.syntax_colors.text_color)
-        self.special_text_format = QTextCharFormat()
-        self.special_text_format.setForeground(self.syntax_colors.special_text_color)
-
-        comment_format = QTextCharFormat()
-        comment_format.setForeground(self.syntax_colors.comment_color)
-        comment_format.setFontItalic(True)
-        self.comment_rule = Rule(
-            QRegularExpression("#[^\n]*"), comment_format)
-        self.highlight_rules.append(self.comment_rule)
-
         self.setCurrentBlockState(HighlighterState.EVENT_CODE)
+        self.event_syntax_formatter = EventSyntaxRuleHighlighter(self.window)
 
     def highlightBlock(self, text: str):
         if text.startswith("python"):
@@ -108,109 +181,9 @@ class Highlighter(QSyntaxHighlighter):
         pass
 
     def highlightEventCode(self, text):
-        text = text.replace('\u2028', ' ')
-        for rule in self.highlight_rules:
-            match_iterator = rule.pattern.globalMatch(text)
-            while match_iterator.hasNext():
-                match = match_iterator.next()
-                self.setFormat(match.capturedStart(), match.capturedLength(), rule._format)
-
-        lint_format = QTextCharFormat()
-        lint_format.setUnderlineStyle(QTextCharFormat.SpellCheckUnderline)
-        lint_format.setUnderlineColor(self.syntax_colors.error_underline_color)
-        lines = text.splitlines()
-
-        for line in lines:
-            # Don't consider tabs when formatting
-            num_tabs = 0
-            while line.startswith('    '):
-                line = line[4:]
-                num_tabs += 1
-            # Don't process comments
-            line = line.split('#', 1)[0]
-            if not line:
-                continue
-            broken_sections = self.validate_line(line)
-            if broken_sections == 'all':
-                self.setFormat(num_tabs * 4, len(line), lint_format)
-            else:
-                sections = line.split(';')
-                running_length = num_tabs * 4
-                for idx, section in enumerate(sections):
-                    if idx in broken_sections:
-                        self.setFormat(running_length, len(section), lint_format)
-                    running_length += len(section) + 1
-
-        # Extra formatting
-        for line in lines:
-            # Don't consider tabs
-            num_tabs = 0
-            while line.startswith('    '):
-                line = line[4:]
-                num_tabs += 1
-
-            line = line.split('#', 1)[0]
-            if not line:
-                continue
-            sections = event_commands.get_command_arguments(line)
-            # handle eval, vars, commands, etc.
-            for idx, section in enumerate(sections):
-                start = num_tabs * 4 + len(';'.join(sections[:idx])) + 1
-                if '{' in section and '}' in section:
-                    brace_mode = 0
-                    for idx, char in enumerate(section):
-                        if char == '{':
-                            if brace_mode == 0:
-                                special_start = start + idx
-                            brace_mode += 1
-                        if char == '}':
-                            if brace_mode > 0:
-                                self.setFormat(special_start, start + idx - special_start + 1, self.special_text_format)
-                                brace_mode -= 1
-
-            # Handle text format
-            if sections[0] in ('s', 'speak') and len(sections) >= 3:
-                start = num_tabs * 4 + len(';'.join(sections[:2])) + 1
-                self.setFormat(start, len(sections[2]), self.text_format)
-                # Handle special text format
-                special_start = 0
-                brace_mode = 0
-                for idx, char in enumerate(sections[2]):
-                    if char == '|':
-                        self.setFormat(start + idx, 1, self.special_text_format)
-                    elif char == '{':
-                        if brace_mode == 0:
-                            special_start = start + idx
-                        brace_mode += 1
-                    elif char == '}':
-                        if brace_mode > 0:
-                            self.setFormat(special_start, start + idx - special_start + 1, self.special_text_format)
-                            brace_mode -= 1
-
-    def validate_line(self, line: str) -> list:
-        try:
-            command, error_loc = event_commands.parse_text_to_command(line, strict=True)
-            if command:
-                parameters, flags = event_commands.parse(command)
-                for keyword in command.keywords:
-                    if keyword not in parameters:
-                        return 'all'
-                broken_args = []
-                for keyword, value in parameters.items():
-                    validator = command.get_validator_from_keyword(keyword)
-                    level_nid = self.window.current.level_nid
-                    level = DB.levels.get(level_nid)
-                    text = event_validators.validate(validator, value, level, DB, RESOURCES)
-                    if text is None:
-                        broken_args.append(command.get_index_from_keyword(keyword) + 1)
-                return broken_args
-            elif error_loc:
-                return [error_loc + 1]  # Integer that points to the first idx that is broken
-            else:
-                return [0]  # First arg is broken
-        except Exception as e:
-            logging.error("Error while validating %s %s", line, e)
-            return 'all'
+        to_format = self.event_syntax_formatter.match_line(text)
+        for piece_to_format in to_format:
+            self.setFormat(piece_to_format.start, piece_to_format.length, piece_to_format.format)
 
 class LineNumberArea(QWidget):
     def __init__(self, parent):

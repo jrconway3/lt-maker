@@ -117,7 +117,7 @@ def detect_type_under_cursor(line: str, cursor_pos: int, arg_under_cursor: str =
             eval_tag = arg_under_cursor[eval_bracket+1:eval_colon]
             return (event_validators.get(eval_tag), [])
 
-    args = event_commands.get_command_arguments(line)
+    args = [arg.string for arg in event_commands.get_command_arguments(line)]
     arg_idx = -1
     while cursor_pos > 0:
         current_arg = args.pop()

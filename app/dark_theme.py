@@ -9,6 +9,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QPalette
 
 from app.editor.settings.main_settings_controller import MainSettingsController
+from app.engine.item_system import text_color
 
 WHITE = QColor(255, 255, 255)
 BLACK = QColor(0, 0, 0)
@@ -53,6 +54,15 @@ base_palette = QPalette()
 def css_rgb(color, a=False):
     """Get a CSS `rgb` or `rgba` string from a `QtGui.QColor`."""
     return ("rgba({}, {}, {}, {})" if a else "rgb({}, {}, {})").format(*color.getRgb())
+
+class EventSyntaxHighlightingPalette():
+    line_number_color: QColor
+    func_color: QColor
+    comment_color: QColor
+    error_underline_color: QColor
+    text_color: QColor
+    special_text_color: QColor
+    special_func_color: QColor
 
 class QLightPalette(QPalette):
     """Dark palette for a Qt application meant to be used with the Fusion theme."""
@@ -123,6 +133,17 @@ class QLightPalette(QPalette):
     def icon_dir(self) -> str:
         return 'icons/icons'
 
+    def event_syntax_highlighting(self) -> EventSyntaxHighlightingPalette:
+        palette = EventSyntaxHighlightingPalette()
+        palette.line_number_color = Qt.darkGray
+        palette.func_color = QColor(52, 103, 174)
+        palette.comment_color = Qt.darkGray
+        palette.error_underline_color = Qt.red
+        palette.text_color = QColor(63, 109, 58)
+        palette.special_text_color = Qt.darkMagenta
+        palette.special_func_color = Qt.red
+        return palette
+
 class QDarkPalette(QLightPalette):
     """Dark palette for a Qt application meant to be used with the Fusion theme."""
     def __init__(self, *__args):
@@ -156,6 +177,17 @@ class QDarkPalette(QLightPalette):
 
     def icon_dir(self) -> str:
         return 'icons/dark_icons'
+
+    def event_syntax_highlighting(self) -> EventSyntaxHighlightingPalette:
+        palette = EventSyntaxHighlightingPalette()
+        palette.line_number_color = QColor(144, 144, 138)
+        palette.func_color = QColor(102, 217, 239)
+        palette.comment_color = QColor(117, 113, 94)
+        palette.error_underline_color = QColor(249, 38, 114)
+        palette.text_color = QColor(230, 219, 116)
+        palette.special_text_color = QColor(174, 129, 255)
+        palette.special_func_color = (249, 38, 114)
+        return palette
 
 class QDiscordPalette(QDarkPalette):
     def __init__(self, *__args):

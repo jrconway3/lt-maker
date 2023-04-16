@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QAction, QApplication,
                              QPlainTextEdit, QPushButton, QSizePolicy,
                              QSpinBox, QSplitter, QStyle, QStyledItemDelegate,
                              QTextEdit, QToolBar, QVBoxLayout, QWidget)
+from app import dark_theme
 
 import app.editor.game_actions.game_actions as GAME_ACTIONS
 from app.data.database.database import DB
@@ -60,24 +61,11 @@ class Highlighter(QSyntaxHighlighter):
         self.highlight_rules = []
 
         settings = MainSettingsController()
-        theme = settings.get_theme()
-        if theme == 0:
-            self.func_color = QColor(52, 103, 174)
-            self.comment_color = Qt.darkGray
-            self.bad_color = Qt.red
-            self.text_color = QColor(63, 109, 58)
-            self.special_text_color = Qt.darkMagenta
-            self.special_func_color = Qt.red
-        else:
-            self.func_color = QColor(102, 217, 239)
-            self.comment_color = QColor(117, 113, 94)
-            self.bad_color = QColor(249, 38, 114)
-            self.text_color = QColor(230, 219, 116)
-            self.special_text_color = QColor(174, 129, 255)
-            self.special_func_color = (249, 38, 114)
+        theme = dark_theme.get_theme()
+        self.syntax_colors = theme.event_syntax_highlighting()
 
         function_head_format = QTextCharFormat()
-        function_head_format.setForeground(self.func_color)
+        function_head_format.setForeground(self.syntax_colors.func_color)
         function_head_format.setFontWeight(QFont.Bold)
         # First part of line with semicolon
         self.function_head_rule1 = Rule(
@@ -89,12 +77,12 @@ class Highlighter(QSyntaxHighlighter):
         self.highlight_rules.append(self.function_head_rule2)
 
         self.text_format = QTextCharFormat()
-        self.text_format.setForeground(self.text_color)
+        self.text_format.setForeground(self.syntax_colors.text_color)
         self.special_text_format = QTextCharFormat()
-        self.special_text_format.setForeground(self.special_text_color)
+        self.special_text_format.setForeground(self.syntax_colors.special_text_color)
 
         comment_format = QTextCharFormat()
-        comment_format.setForeground(self.comment_color)
+        comment_format.setForeground(self.syntax_colors.comment_color)
         comment_format.setFontItalic(True)
         self.comment_rule = Rule(
             QRegularExpression("#[^\n]*"), comment_format)
@@ -129,7 +117,7 @@ class Highlighter(QSyntaxHighlighter):
 
         lint_format = QTextCharFormat()
         lint_format.setUnderlineStyle(QTextCharFormat.SpellCheckUnderline)
-        lint_format.setUnderlineColor(self.bad_color)
+        lint_format.setUnderlineColor(self.syntax_colors.error_underline_color)
         lines = text.splitlines()
 
         for line in lines:
@@ -248,11 +236,8 @@ class CodeEditor(QPlainTextEdit):
         self.line_number_area = LineNumberArea(self)
 
         self.settings = MainSettingsController()
-        theme = self.settings.get_theme()
-        if theme == 0:
-            self.line_number_color = Qt.darkGray
-        else:
-            self.line_number_color = QColor(144, 144, 138)
+        theme = dark_theme.get_theme()
+        self.line_number_color = theme.event_syntax_highlighting().line_number_color
 
         self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
         self.updateRequest.connect(self.updateLineNumberArea)
@@ -619,11 +604,8 @@ class EventCollection(QWidget):
             self.level_filter_box.edit.setValue("All")
 
     def create_actions(self):
-        theme = self.settings.get_theme()
-        if theme == 0:
-            icon_folder = 'icons/icons'
-        else:
-            icon_folder = 'icons/dark_icons'
+        theme = dark_theme.get_theme()
+        icon_folder = theme.icon_dir()
 
         self.new_action = QAction(QIcon(f"{icon_folder}/file-plus.png"), "New Event", triggered=self.new)
         self.new_action.setShortcut("Ctrl+N")

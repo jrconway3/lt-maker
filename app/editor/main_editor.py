@@ -2,13 +2,14 @@ import logging
 import os
 import sys
 import functools
+from typing import Optional
 
 from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QMessageBox, \
     QDesktopWidget, \
     QToolButton, QWidgetAction, QStackedWidget
 from PyQt5.QtGui import QIcon
 
-from app import autoupdate
+from app import autoupdate, dark_theme
 
 from app.editor.settings import MainSettingsController
 
@@ -161,15 +162,9 @@ class MainEditor(QMainWindow):
             self.window_title = title + ' -- LT Maker %s' % (__version__)
         self.setWindowTitle(self.window_title)
 
-    def set_icons(self, force_theme=None):
-        if force_theme is None:
-            theme = self.settings.get_theme(0)
-        else:
-            theme = force_theme
-        if theme == 0:
-            icon_folder = 'icons/icons'
-        else:
-            icon_folder = 'icons/dark_icons'
+    def set_icons(self, force_theme: Optional[dark_theme.ThemeType] = None):
+        theme = dark_theme.get_theme(force_theme)
+        icon_folder = theme.icon_dir()
 
         self.new_act.setIcon(QIcon(f'{icon_folder}/file-plus.png'))
         self.open_act.setIcon(QIcon(f'{icon_folder}/folder.png'))

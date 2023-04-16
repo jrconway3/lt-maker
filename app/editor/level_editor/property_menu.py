@@ -244,7 +244,7 @@ class PropertiesMenu(QWidget):
         if ok and res:
             nid = res.nid
             self.current.tilemap = nid
-            self.check_positions()
+            self.check_positions(res)
             self.state_manager.change_and_broadcast('ui_refresh_signal', None)
 
     def select_bg_tilemap(self):

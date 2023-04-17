@@ -1,4 +1,4 @@
-from typing import List
+from typing import Callable, List
 from app.editor.event_editor.event_inspector import EventInspectorEngine
 from collections import OrderedDict
 
@@ -1729,34 +1729,32 @@ class TargetingState(MapState):
         self.fluid.update()
         directions = self.fluid.get_directions()
 
-        if 'DOWN' in directions:
-            get_sound_thread().play_sfx('Select 6')
+        def _handle_direction(next_func: Callable):
             if self.ability.name == 'Trade':
                 current_target = game.cursor.get_hover()
                 traveler = current_target.traveler
                 if traveler and game.get_unit(traveler).team == self.cur_unit.team:
                     self.traveler_mode = not self.traveler_mode
                 else:
-                    new_position = self.selection.get_down(game.cursor.position)
+                    new_position = next_func(game.cursor.position)
                     game.cursor.set_pos(new_position)
+                    return
             if not self.traveler_mode:
-                new_position = self.selection.get_down(game.cursor.position)
+                new_position = next_func(game.cursor.position)
                 game.cursor.set_pos(new_position)
+
+        if 'DOWN' in directions:
+            get_sound_thread().play_sfx('Select 6')
+            _handle_direction(self.selection.get_down)
         elif 'UP' in directions:
             get_sound_thread().play_sfx('Select 6')
-            self.traveler_mode = False
-            new_position = self.selection.get_up(game.cursor.position)
-            game.cursor.set_pos(new_position)
+            _handle_direction(self.selection.get_up)
         if 'LEFT' in directions:
             get_sound_thread().play_sfx('Select 6')
-            self.traveler_mode = False
-            new_position = self.selection.get_left(game.cursor.position)
-            game.cursor.set_pos(new_position)
+            _handle_direction(self.selection.get_left)
         elif 'RIGHT' in directions:
             get_sound_thread().play_sfx('Select 6')
-            self.traveler_mode = False
-            new_position = self.selection.get_right(game.cursor.position)
-            game.cursor.set_pos(new_position)
+            _handle_direction(self.selection.get_right)
 
         new_position = self.selection.handle_mouse()
         if new_position:
@@ -1780,11 +1778,10 @@ class TargetingState(MapState):
                 else:
                     game.memory['trade_partner'] = unit
             self.ability.do(self.cur_unit)
+
         elif event == 'AUX':
             get_sound_thread().play_sfx('Select 6')
-            self.traveler_mode = False
-            new_position = self.selection.get_next(game.cursor.position)
-            game.cursor.set_pos(new_position)
+            _handle_direction(self.selection.get_next)            
 
     def draw_rescue_preview(self, rescuee, surf):
         window = SPRITES.get('rescue_window').copy()

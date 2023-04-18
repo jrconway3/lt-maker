@@ -527,9 +527,11 @@ class Unpause(EventCommand):
 Unpauses a previously paused text box. Has no effect if text box was not paused using `{p}` before.
 
 This will 'unpause' the text box with the specified speaker NID.
+
+If no speaker NID is specified, the most recent text box is unpaused.
     """
 
-    keywords = ['Nid']
+    optional_keywords = ['Nid']
 
 class Narrate(EventCommand):
     nid = "narrate"

@@ -748,6 +748,12 @@ def battle_save(self: Event, flags=None):
 def clear_turnwheel(self: Event, flags=None):
     self.game.action_log.set_first_free_action()
 
+def stop_turnwheel_recording(self: Event, flags=None):
+    self.game.action_log.stop_recording()
+
+def start_turnwheel_recording(self: Event, flags=None):
+    self.game.action_log.start_recording()
+
 def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None, flags=None):
     """
     Cannot be turnwheeled

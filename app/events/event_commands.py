@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import logging
 from enum import Enum
-from typing import Callable, List, Dict, Set, Tuple
+from typing import Callable, List, Dict, Set, Tuple, Type
 
 from app.utilities.data import Prefab
 
@@ -2979,19 +2979,19 @@ def get_command_arguments(text: str) -> List[ArgToken]:
     arguments.append(ArgToken(curr, curr_idx))
     return arguments
 
-def determine_command_type(text: str) -> EventCommand:
+def determine_command_type(text: str) -> Type[EventCommand]:
     text = text.lstrip()
     if text.startswith('#'):
-        return Comment(display_values=[text])
+        return Comment
     if text.startswith('comment;'):
-        return Comment(display_values=[text[8:]])
+        return Comment
     arguments = [arg.string for arg in get_command_arguments(text)]
     command_nid = arguments[0]
     subclasses = EventCommand.__subclasses__()
     for command_type in subclasses:
         if command_type.nid == command_nid or command_type.nickname == command_nid:
-            return command_type()
-    return Comment()
+            return command_type
+    return Comment
 
 def parse_text_to_command(text: str, strict: bool = False) -> Tuple[EventCommand, int]:
     """parses a line into a command

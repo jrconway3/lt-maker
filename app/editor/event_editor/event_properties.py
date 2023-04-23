@@ -53,7 +53,7 @@ class Rule():
 class LineToFormat():
     start: int
     length: int
-    format: QTextCharFormat
+    _format: QTextCharFormat
 
 class HighlighterState():
     EVENT_CODE = -1
@@ -100,7 +100,8 @@ class EventSyntaxRuleHighlighter():
                 format_lines.append(LineToFormat(match.capturedStart(), match.capturedLength(), rule._format))
         as_tokens = event_commands.get_command_arguments(line)
         # speak formatting
-        if as_tokens[0].string.strip() in ("s", "speak"):
+        command_type = event_commands.determine_command_type(as_tokens[0].string.strip())
+        if command_type == event_commands.Speak:
             if len(as_tokens) >= 3:
                 dialog_token = as_tokens[2]
                 format_lines.append(LineToFormat(dialog_token.index, len(dialog_token.string), self.text_format))
@@ -183,7 +184,7 @@ class Highlighter(QSyntaxHighlighter):
     def highlightEventCode(self, text):
         to_format = self.event_syntax_formatter.match_line(text)
         for piece_to_format in to_format:
-            self.setFormat(piece_to_format.start, piece_to_format.length, piece_to_format.format)
+            self.setFormat(piece_to_format.start, piece_to_format.length, piece_to_format._format)
 
 class LineNumberArea(QWidget):
     def __init__(self, parent):

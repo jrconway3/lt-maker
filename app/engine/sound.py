@@ -189,6 +189,8 @@ class Channel():
             self._channel.unpause()
         elif self.last_state == "stopped":
             self._play()
+        elif not self.is_playing():  # Sometimes possible with weird timings
+            self._play()
         self.last_state = "playing"
         self.state = "fade_in"
         self.last_update = engine.get_time()
@@ -226,6 +228,9 @@ class Channel():
         self.played_intro = False
         self.last_state = "stopped"
         self.state = "stopped"
+
+    def is_playing(self) -> bool:
+        return self._channel.get_busy()
 
     def set_volume(self, volume):
         self.global_volume = volume

@@ -309,9 +309,15 @@ class CodeEditor(QPlainTextEdit):
         for idx, keyword in enumerate(all_keywords):
             if command.keyword_types:
                 keyword_type = command.keyword_types[idx]
-                hint_words.append(keyword + "=" + keyword_type)
+                hint_str = "%s=%s" % (keyword, keyword_type)
+                if validator and event_validators.get(keyword_type) == validator:
+                    hint_str = "<b>%s</b>" % hint_str
+                hint_words.append(hint_str)
             else:
-                hint_words.append(keyword)
+                hint_str = keyword
+                if validator and event_validators.get(keyword) == validator:
+                    hint_str = "<b>%s</b>" % hint_str
+                hint_words.append(hint_str)
         if command.flags:
             hint_words.append('FLAGS')
         hint_cmd = ""
@@ -324,10 +330,8 @@ class CodeEditor(QPlainTextEdit):
             try:
                 arg_idx = line.count(';', 0, cursor_pos)
                 if arg_idx != len(hint_words) - 1:
-                    hint_words[arg_idx] = '<b>' + hint_words[arg_idx] + '</b>'
                     hint_desc = validator.__name__ + ' ' + str(validator().desc)
                 elif cursor_pos > 0 and command.flags:
-                    hint_words[-1] = '<b>' + hint_words[-1] + '</b>'
                     hint_desc = 'Must be one of (`' + str.join('`,`', flags) + '`)'
             except:
                 if cursor_pos > 0 and command.flags:

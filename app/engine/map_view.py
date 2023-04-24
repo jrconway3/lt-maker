@@ -189,20 +189,14 @@ class MapView():
             bounds[2] == game.tilemap.width - 1 and \
             bounds[3] == game.tilemap.height - 1
 
-        # Don't bother showing bounds if they are just normal bounds
-        if regular_bounds and not cf.SETTINGS['show_bounds']:
-            return surf
-
         left = bounds[0] * TILEWIDTH - cull_rect[0]
         right = (bounds[2] + 1) * TILEWIDTH - cull_rect[0]
         top = bounds[1] * TILEHEIGHT - cull_rect[1]
         bottom = (bounds[3] + 1) * TILEHEIGHT - cull_rect[1]
 
         opacity = cf.SETTINGS['grid_opacity']  # Higher numbers show more grid
-        if opacity == 0:
-            return surf
         outside_opacity = min(255, opacity + 56)
-
+        # Draw small lines (grid)
         if opacity > 30:
             # Draw vertical lines
             for x in range(left, right, TILEWIDTH):
@@ -210,11 +204,15 @@ class MapView():
             # Draw horizontal lines
             for y in range(top, bottom, TILEHEIGHT):
                 engine.draw_line(line_surf, (0, 0, 0, opacity), (left, y), (right, y))
-        # Draw big lines
-        engine.draw_line(line_surf, (0, 0, 0, outside_opacity), (left - 2, top - 1), (right + 1, top - 1), width=3)
-        engine.draw_line(line_surf, (0, 0, 0, outside_opacity), (left - 1, top - 1), (left - 1, bottom), width=3)
-        engine.draw_line(line_surf, (0, 0, 0, outside_opacity), (right, top - 1), (right, bottom), width=3)
-        engine.draw_line(line_surf, (0, 0, 0, outside_opacity), (left - 2, bottom), (right + 1, bottom), width=3)
+
+        # Draw big lines (bounds)
+        # Don't bother showing bounds if they are just normal bounds
+        if not regular_bounds and cf.SETTINGS['show_bounds']:
+            engine.draw_line(line_surf, (0, 0, 0, outside_opacity), (left - 2, top - 1), (right + 1, top - 1), width=3)
+            engine.draw_line(line_surf, (0, 0, 0, outside_opacity), (left - 1, top - 1), (left - 1, bottom), width=3)
+            engine.draw_line(line_surf, (0, 0, 0, outside_opacity), (right, top - 1), (right, bottom), width=3)
+            engine.draw_line(line_surf, (0, 0, 0, outside_opacity), (left - 2, bottom), (right + 1, bottom), width=3)
+        # Draw to map
         surf.blit(line_surf, (0, 0))
 
         return surf

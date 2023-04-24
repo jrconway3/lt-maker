@@ -141,15 +141,11 @@
     },
     {
         "nid": "show_bounds_desc",
-        "text": "Whether grid displays with normal bounds."
+        "text": "Display playable area bounds?"
     },
     {
         "nid": "grid_opacity_desc",
         "text": "Change grid opacity."
-    },
-    {
-        "nid": "talk_boop_desc",
-        "text": "Whether text should make a sound."
     },
     {
         "nid": "keymap_desc",

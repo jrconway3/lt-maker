@@ -182,13 +182,15 @@ class MapView():
         line_surf = engine.copy_surface(self._line_surf)
 
         bounds = game.board.bounds
+        
+        regular_bounds = \
+            bounds[0] == 0 and \
+            bounds[1] == 0 and \
+            bounds[2] == game.tilemap.width - 1 and \
+            bounds[3] == game.tilemap.height - 1
 
-        # Don't bother showing bounds if there just normal bounds
-        if not cf.SETTINGS['show_bounds'] and \
-                bounds[0] == 0 and \
-                bounds[1] == 0 and \
-                bounds[2] == game.tilemap.width - 1 and \
-                bounds[3] == game.tilemap.height - 1:
+        # Don't bother showing bounds if they are just normal bounds
+        if regular_bounds and not cf.SETTINGS['show_bounds']:
             return surf
 
         left = bounds[0] * TILEWIDTH - cull_rect[0]

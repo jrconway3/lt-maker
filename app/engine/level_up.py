@@ -16,7 +16,7 @@ from app.engine.state_machine import SimpleStateMachine
 from app.engine.animations import Animation
 from app.engine.game_state import game
 from app.engine.graphics.text.text_renderer import render_text
-from app.utilities.enums import Alignments
+from app.utilities.enums import HAlignment
 
 class ExpState(State):
     name = 'exp'
@@ -614,7 +614,7 @@ class LevelUpScreen():
 
         for font, color, text, pos, time in self.simple_nums:
             if engine.get_time() - time > 80:
-                render_text(surf, [font], [text], [color], pos, align=Alignments.RIGHT)
+                render_text(surf, [font], [text], [color], pos, align=HAlignment.RIGHT)
 
         return surf
 

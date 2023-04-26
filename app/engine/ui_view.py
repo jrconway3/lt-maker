@@ -7,8 +7,9 @@ from app.data.database.database import DB
 from app.data.database.difficulty_modes import RNGOption
 from app.engine import (base_surf, combat_calcs, engine, equations, evaluate,
                         icons, image_mods, item_funcs, item_system,
-                        menu_options, skill_system, text_funcs)
+                        skill_system, text_funcs)
 from app.engine.fonts import FONT
+from app.engine.game_menus import menu_options
 from app.engine.game_counters import ANIMATION_COUNTERS
 from app.engine.game_state import game
 from app.engine.sprites import SPRITES

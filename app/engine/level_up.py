@@ -79,6 +79,16 @@ class ExpState(State):
             game.state.back()
             return 'repeat'
 
+        # determine source for trigger later
+        # purposefully explicit here
+        self.source = 'exp_gain'
+        if self.starting_state == 'stat_booster':
+            self.source = 'stat_change'
+        elif self.starting_state == 'class_change':
+            self.source = 'class_change'
+        elif self.starting_state == 'promote':
+            self.source = 'promote'
+
         self.level_up_sound_played = False
 
     def begin(self):
@@ -259,7 +269,7 @@ class ExpState(State):
                     self, self.unit, self.stat_changes, self.old_level, self.unit.level)
             if self.level_up_screen.update(current_time):
                 game.state.back()
-                game.events.trigger(triggers.UnitLevelUp(self.unit, self.stat_changes))
+                game.events.trigger(triggers.UnitLevelUp(self.unit, self.stat_changes, self.source))
                 if self.combat_object:
                     self.combat_object.lighten_ui()
 
@@ -489,7 +499,7 @@ class LevelUpScreen():
         elif self.state == 'get_next_spark':
             done = self.inc_spark()
             if done:
-                game.events.trigger(triggers.DuringUnitLevelUp(self.unit, self.parent.stat_changes))
+                game.events.trigger(triggers.DuringUnitLevelUp(self.unit, self.parent.stat_changes, self.parent.source))
                 self.state = 'level_up_wait'
                 self.start_time = current_time
             else:

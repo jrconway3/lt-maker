@@ -193,7 +193,7 @@ def get_map_icon_editor():
     else:
         return None, False
 
-def get(width, icon_nid = None):
+def get(width, icon_nid=None):
     if width == 16:
         resource_type = 'icons16'
         database = Icon16Database

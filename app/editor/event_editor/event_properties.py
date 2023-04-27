@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import functools
 import logging
 import math
@@ -131,7 +133,7 @@ class EventSyntaxRuleHighlighter():
                 format_lines.append(LineToFormat(as_tokens[idx].index, len(as_tokens[idx].string), self.lint_format))
         return format_lines
 
-    def validate_tokens(self, line: str):
+    def validate_tokens(self, line: str) -> str | List[int]:
         try:
             command, error_loc = event_commands.parse_text_to_command(line, strict=True)
             if command:

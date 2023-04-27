@@ -108,6 +108,14 @@ class EventSyntaxRuleHighlighter():
                 for idx, char in enumerate(dialog_token.string):
                     if char in '|':
                         format_lines.append(LineToFormat(dialog_token.index + idx, 1, self.special_text_format))
+        # error checking
+        broken_args = self.validate_tokens(line)
+        if broken_args == 'all':
+            for token in as_tokens:
+                format_lines.append(LineToFormat(token.index, len(token.string), self.lint_format))
+        else:
+            for idx in broken_args:
+                format_lines.append(LineToFormat(as_tokens[idx].index, len(as_tokens[idx].string), self.lint_format))
         # brace formatting
         brace_mode = 0
         special_start = 0
@@ -120,15 +128,6 @@ class EventSyntaxRuleHighlighter():
                 if brace_mode > 0:
                     format_lines.append(LineToFormat(special_start, idx - special_start + 1, self.special_text_format))
                     brace_mode -= 1
-
-        # error checking
-        broken_args = self.validate_tokens(line)
-        if broken_args == 'all':
-            for token in as_tokens:
-                format_lines.append(LineToFormat(token.index, len(token.string), self.lint_format))
-        else:
-            for idx in broken_args:
-                format_lines.append(LineToFormat(as_tokens[idx].index, len(as_tokens[idx].string), self.lint_format))
         return format_lines
 
     def validate_tokens(self, line: str):

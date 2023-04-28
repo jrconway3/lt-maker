@@ -1,4 +1,5 @@
 from typing import List, Tuple
+from app.engine.game_menus.string_options import BasicItemOption, ItemOptionModes
 from app.engine.graphics.text.text_renderer import render_text, text_width
 from app.engine.objects.unit import UnitObject
 
@@ -673,6 +674,9 @@ class InfoMenuState(State):
         surf.blit(self.wexp_surf, (96, 24))
 
     def create_equipment_surf(self):
+        def create_item_option(idx, item):
+            return BasicItemOption.from_item(idx, item, width=120, mode=ItemOptionModes.FULL_USES)
+
         surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT), transparent=True)
 
         weapon = self.unit.get_weapon()
@@ -684,14 +688,14 @@ class InfoMenuState(State):
                 surf.blit(SPRITES.get('equipment_highlight'), (8, idx * 16 + 24 + 8))
                 for subitem in item.subitems:
                     if subitem is weapon:
-                        item_option = menu_options.FullItemOption(idx, subitem)
+                        item_option = create_item_option(idx, subitem)
                         break
                 else:  # Shouldn't happen
-                    item_option = menu_options.FullItemOption(idx, item)
+                    item_option = create_item_option(idx, item)
             else:
                 if item is weapon:
                     surf.blit(SPRITES.get('equipment_highlight'), (8, idx * 16 + 24 + 8))
-                item_option = menu_options.FullItemOption(idx, item)
+                item_option = create_item_option(idx, item)
             item_option.draw(surf, 8, idx * 16 + 24)
             self.info_graph.register((96 + 8, idx * 16 + 24, 120, 16), item_option.get_help_box(), 'equipment', first=(idx == 0))
 
@@ -703,14 +707,14 @@ class InfoMenuState(State):
                 surf.blit(SPRITES.get('equipment_highlight'), (8, y_pos + 8))
                 for subitem in item.subitems:
                     if subitem is accessory:
-                        item_option = menu_options.FullItemOption(aidx, subitem)
+                        item_option = create_item_option(aidx, subitem)
                         break
                 else:  # Shouldn't happen
-                    item_option = menu_options.FullItemOption(aidx, item)
+                    item_option = create_item_option(aidx, item)
             else:
                 if item is accessory:
                     surf.blit(SPRITES.get('equipment_highlight'), (8, y_pos + 8))
-                item_option = menu_options.FullItemOption(aidx, item)
+                item_option = create_item_option(aidx, item)
             item_option.draw(surf, 8, y_pos)
             first = (idx == 0 and not self.unit.nonaccessories)
             self.info_graph.register((96 + 8, y_pos, 120, 16), item_option.get_help_box(), 'equipment', first=first)

@@ -3,14 +3,19 @@ from __future__ import annotations
 from enum import Enum
 from functools import lru_cache
 from typing import Callable, Generic, Optional, TypeVar
+from app.constants import COLORKEY
 
 from app.data.database.database import DB
+from app.data.resources.resources import RESOURCES
 from app.engine import (engine, help_menu, icons, image_mods, item_funcs,
                         item_system, text_funcs)
 from app.engine.game_state import game
 from app.engine.graphics.text.text_renderer import (anchor_align, render_text,
                                                     text_width)
 from app.engine.objects.item import ItemObject
+from app.engine.objects.skill import SkillObject
+from app.engine.objects.unit import UnitObject
+from app.engine.unit_sprite import UnitSprite
 from app.sprites import SPRITES
 from app.utilities.enums import HAlignment
 from app.utilities.str_utils import is_int
@@ -37,6 +42,7 @@ class IMenuOption(Protocol, Generic[T]):
         pass
     draw: Callable[[engine.Surface, int, int], None]
     draw_highlight: Callable[[engine.Surface, int, int, int], None]
+    is_oversize: Callable[[], bool]
 
 class BaseOption(IMenuOption[T]):
     def __init__(self, idx: int, value: T, display_value: Optional[str] = None, width: int = 0,
@@ -93,6 +99,10 @@ class BaseOption(IMenuOption[T]):
     @ignore.setter
     def ignore(self, ig: bool):
         self.set_ignore(ig)
+
+    @staticmethod
+    def is_oversize():
+        return False
 
     def draw(self, surf, x, y):
         raise NotImplementedError()
@@ -172,8 +182,7 @@ class ItemOptionUtils():
         if text_width(font, display_text) > width - 20:
             font = 'narrow'
         blit_loc = anchor_align(x, width, align, (20, 5)), y
-
-        render_text(surf, [font], [display_text], [color], blit_loc)
+        render_text(surf, [font], [display_text], [color], blit_loc, align)
 
     @staticmethod
     def draw_with_uses(surf, x, y, item: ItemObject, font: NID, color: NID, uses_color: NID,
@@ -326,3 +335,298 @@ class BasicItemOption(BaseOption[ItemObject]):
             ItemOptionUtils.draw_with_uses(surf, x, y, self._value, self._font, main_color, uses_color, self.width(), self._align, self._disp_value)
         elif self._mode == ItemOptionModes.FULL_USES:
             ItemOptionUtils.draw_with_full_uses(surf, x, y, self._value, self._font, main_color, uses_color, self.width(), self._align, self._disp_value)
+
+class BasicSkillOption(BaseOption[SkillObject]):
+    def __init__(self, idx: int, skill: SkillObject, display_value: str | None = None,  width: int = 0,
+                 height: int = 0, ignore: bool = False, font: NID = 'text', text_color: NID = 'white',
+                 align: HAlignment = HAlignment.LEFT):
+        super().__init__(idx, skill, display_value, width, height, ignore)
+        self._disp_value = text_funcs.translate(display_value or self._value.name)
+        self._align = align
+        self._color = text_color
+        self._font = font
+
+    @classmethod
+    def from_nid(cls, idx, skill_nid: NID, display_value: str | None = None, width: int = 0,
+                 height: int = 0, ignore: bool = False, font: NID = 'text', text_color: NID = 'white',
+                 align: HAlignment = HAlignment.LEFT):
+        skill_prefab = DB.skills.get(skill_nid, None)
+        if not skill_prefab:
+            raise ValueError("%s is not a skill" % skill_nid)
+        as_skill = SkillObject.from_prefab(skill_prefab)
+        return cls(idx, as_skill, display_value, width, height, ignore, font, text_color, align)
+
+    @classmethod
+    def from_uid(cls, idx, skill_uid: int, display_value: str | None = None, width: int = 0,
+                 height: int = 0, ignore: bool = False, font: NID = 'text', text_color: NID = 'white',
+                 align: HAlignment = HAlignment.LEFT):
+        skill_object = game.skill_registry.get(skill_uid)
+        if not skill_object:
+            raise ValueError("%s is not a valid skill uid" % skill_uid)
+        return cls(idx, skill_object, display_value, width, height, ignore, font, text_color, align)
+
+    @classmethod
+    def from_skill(cls, idx, value: SkillObject, display_value: str | None = None, width: int = 0,
+                 height: int = 0, ignore: bool = False, font: NID = 'text', text_color: NID = 'white',
+                 align: HAlignment = HAlignment.LEFT):
+        return cls(idx, value, display_value, width, height, ignore, font, text_color, align)
+
+    def width(self):
+        return self._width or 104
+
+    def set(self, val: SkillObject, disp_val: Optional[str]=None):
+        self._value = val
+        self._disp_value = text_funcs.translate(disp_val or self._value.name)
+
+    def get_color(self):
+        if self.get_ignore():
+            return 'grey'
+        return 'white'
+
+    def get_help_box(self):
+        if not self._help_box:
+            self._help_box = help_menu.HelpDialog(self._value.desc, name=self._value.name)
+        return self._help_box
+
+    def draw(self, surf, x, y):
+        icon = icons.get_icon(self._value)
+        if icon:
+            surf.blit(icon, (x + 2, y))
+        display_text = self._disp_value or self._value.name
+        font = self._font
+        if text_width(font, display_text) > self.width() - 20:
+            font = 'narrow'
+        blit_loc = anchor_align(x, self.width(), self._align, (20, 5)), y
+        color = self.get_color()
+        render_text(surf, [font], [display_text], [color], blit_loc)
+
+class MapSpriteOptionUtils():
+    @staticmethod
+    def draw_map_sprite(surf, sprite: UnitSprite, x: int, y: int, active=False):
+        if active:
+            map_sprite = sprite.create_image('active')
+        else:
+            map_sprite = sprite.create_image('passive')
+        surf.blit(map_sprite, (x - 20, y - 24 - 1))
+
+class BasicUnitOption(BaseOption[UnitObject]):
+    def __init__(self, idx: int, unit: UnitObject, display_value: str | None = None,  width: int = 0,
+                 height: int = 0, ignore: bool = False, font: NID = 'text', text_color: NID = 'white',
+                 align: HAlignment = HAlignment.LEFT):
+        super().__init__(idx, unit, display_value, width, height, ignore)
+        self._disp_value = text_funcs.translate(display_value or self._value.name)
+        self._align = align
+        self._color = text_color
+        self._font = font
+
+    @classmethod
+    def from_nid(cls, idx, unit_nid: NID, display_value: str | None = None, width: int = 0,
+                 height: int = 0, ignore: bool = False, font: NID = 'text', text_color: NID = 'white',
+                 align: HAlignment = HAlignment.LEFT):
+        unit_prefab = DB.units.get(unit_nid, None)
+        if not unit_prefab:
+            raise ValueError("%s is not a unit" % unit_nid)
+        as_unit = UnitObject.from_prefab(unit_prefab)
+        return cls(idx, as_unit, display_value, width, height, ignore, font, text_color, align)
+
+    @classmethod
+    def from_uid(cls, idx, unit_uid: int, display_value: str | None = None, width: int = 0,
+                 height: int = 0, ignore: bool = False, font: NID = 'text', text_color: NID = 'white',
+                 align: HAlignment = HAlignment.LEFT):
+        unit_object = game.unit_registry.get(unit_uid)
+        if not unit_object:
+            raise ValueError("%s is not a valid unit uid" % unit_uid)
+        return cls(idx, unit_object, display_value, width, height, ignore, font, text_color, align)
+
+    @classmethod
+    def from_unit(cls, idx, value: UnitObject, display_value: str | None = None, width: int = 0,
+                 height: int = 0, ignore: bool = False, font: NID = 'text', text_color: NID = 'white',
+                 align: HAlignment = HAlignment.LEFT):
+        return cls(idx, value, display_value, width, height, ignore, font, text_color, align)
+
+    def width(self):
+        return self._width or 104
+
+    def set(self, val: UnitObject, disp_val: Optional[str]=None):
+        self._value = val
+        self._disp_value = text_funcs.translate(disp_val or self._value.name)
+
+    def get_color(self):
+        if self.get_ignore():
+            return 'grey'
+        return 'white'
+
+    @staticmethod
+    def is_oversize():
+        return True
+
+    def get_help_box(self):
+        if not self._help_box:
+            self._help_box = help_menu.HelpDialog(self._value.desc, name=self._value.name)
+        return self._help_box
+
+    def draw_option(self, surf, x, y, active=False):
+        display_text = self._disp_value or self._value.name
+        font = self._font
+        if text_width(font, display_text) > self.width() - 20:
+            font = 'narrow'
+        blit_loc = anchor_align(x, self.width(), self._align, (20, 5)), y
+        color = self.get_color()
+        MapSpriteOptionUtils.draw_map_sprite(surf, self._value.sprite, x, y, active)
+        render_text(surf, [font], [display_text], [color], blit_loc)
+
+    def draw(self, surf, x, y):
+        self.draw_option(surf, x, y, False)
+
+    def draw_highlight(self, surf, x, y, menu_width):
+        # Draw actual highlight surf
+        highlight_surf = SPRITES.get('menu_highlight')
+        width = highlight_surf.get_width()
+        for slot in range((menu_width - 10)//width):
+            left = x + 5 + slot*width
+            top = y + 9
+            surf.blit(highlight_surf, (left, top))
+        self.draw_option(surf, x, y, True)
+
+class BasicKlassOption(BaseOption[str]):
+    def __init__(self, idx: int, klass: str, display_value: str | None = None,  width: int = 0,
+                 height: int = 0, ignore: bool = False, font: NID = 'text', text_color: NID = 'white',
+                 align: HAlignment = HAlignment.LEFT):
+        super().__init__(idx, klass, display_value, width, height, ignore)
+        self._disp_value = text_funcs.translate(display_value or self._value)
+        self._align = align
+        self._color = text_color
+        self._font = font
+
+    def width(self):
+        return self._width or 104
+
+    def set(self, val: str, disp_val: Optional[str]=None):
+        self._value = val
+        self._disp_value = text_funcs.translate(disp_val or self._value)
+
+    def get_color(self):
+        if self.get_ignore():
+            return 'grey'
+        return 'white'
+
+    @staticmethod
+    def is_oversize():
+        return True
+
+    def get_help_box(self):
+        db_class = DB.classes.get(self._value)
+        if not self._help_box and db_class:
+            self._help_box = help_menu.HelpDialog(db_class.desc, name=db_class.name)
+        return self._help_box
+
+    def draw_option(self, surf, x, y, active=False):
+        display_text = self._disp_value or self._value
+        font = self._font
+        if text_width(font, display_text) > self.width() - 20:
+            font = 'narrow'
+        blit_loc = anchor_align(x, self.width(), self._align, (20, 5)), y
+        color = self.get_color()
+        # TODO find out how to get sprite from klass
+        # MapSpriteOptionUtils.draw_map_sprite(surf, self._value.sprite, x, y, active)
+        render_text(surf, [font], [display_text], [color], blit_loc)
+
+    def draw(self, surf, x, y):
+        self.draw_option(surf, x, y, False)
+
+    def draw_highlight(self, surf, x, y, menu_width):
+        # Draw actual highlight surf
+        highlight_surf = SPRITES.get('menu_highlight')
+        width = highlight_surf.get_width()
+        for slot in range((menu_width - 10)//width):
+            left = x + 5 + slot*width
+            top = y + 9
+            surf.blit(highlight_surf, (left, top))
+        self.draw_option(surf, x, y, True)
+
+
+class BasicIconOption(BaseOption[str]):
+    def __init__(self, idx: int, value: str, icon_name: str, width: int = 0,
+                 height: int = 0, ignore: bool = False, font: NID = 'text', text_color: NID = 'white',
+                 align: HAlignment = HAlignment.LEFT):
+        super().__init__(idx, value, value, width, height, ignore)
+        self._disp_value = text_funcs.translate(value)
+        self._icon_name = icon_name
+        self._align = align
+        self._color = text_color
+        self._font = font
+
+    def width(self):
+        return self._width or 104
+
+    def set(self, val: str, icon_name: Optional[str]=None):
+        self._value = val
+        self._disp_value = text_funcs.translate(val)
+        self._icon_name = icon_name
+
+    def get_color(self):
+        if self.get_ignore():
+            return 'grey'
+        return 'white'
+
+    def draw(self, surf, x, y):
+        icon = icons.get_icon_by_name(self._icon_name)
+        if icon:
+            surf.blit(icon, (x + 2, y))
+        display_text = self._value
+        font = self._font
+        if text_width(font, display_text) > self.width() - 20:
+            font = 'narrow'
+        blit_loc = anchor_align(x, self.width(), self._align, (20, 5)), y
+        color = self.get_color()
+        render_text(surf, [font], [display_text], [color], blit_loc)
+
+class BasicPortraitOption(BaseOption[str]):
+    def __init__(self, idx: int, portrait_nid: str, width: int = 0,
+                 height: int = 0, ignore: bool = False):
+        super().__init__(idx, portrait_nid, portrait_nid, width, height, ignore)
+
+    def width(self):
+        return self._width or 96
+
+    def height(self):
+        return self._height or 80
+
+    def set(self, portrait_nid: str, _: Optional[str]=None):
+        self._value = portrait_nid
+
+    def draw(self, surf, x, y):
+        portrait = RESOURCES.portraits.get(self._value)
+        if portrait:
+            main_portrait_coords = (0, 0, 96, 80)
+            if not portrait.image:
+                portrait.image = engine.image_load(portrait.full_path)
+            portrait.image = portrait.image.convert()
+            engine.set_colorkey(portrait.image, COLORKEY, rleaccel=True)
+            main_portrait = engine.subsurface(portrait.image, main_portrait_coords)
+            surf.blit(main_portrait, (x, y))
+
+    def draw_highlight(self, surf, x, y, menu_width):
+        self.draw(surf, x, y)
+
+class BasicChibiOption(BaseOption[str]):
+    def __init__(self, idx: int, portrait_nid: str, width: int = 0,
+                 height: int = 0, ignore: bool = False):
+        super().__init__(idx, portrait_nid, portrait_nid, width, height, ignore)
+
+    def width(self):
+        return self._width or 32
+
+    def height(self):
+        return self._height or 32
+
+    def set(self, portrait_nid: str, _: Optional[str]=None):
+        self._value = portrait_nid
+
+    def draw(self, surf, x, y):
+        chibi_surf = engine.create_surface((32, 32), True)
+        chibi = icons.draw_chibi(chibi_surf, self._value, (0, 0))
+        surf.blit(chibi, (x, y))
+
+    def draw_highlight(self, surf, x, y, menu_width):
+        self.draw(surf, x, y)

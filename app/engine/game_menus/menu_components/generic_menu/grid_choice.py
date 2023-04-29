@@ -1,6 +1,6 @@
 from __future__ import annotations
-from math import ceil, floor
 
+from math import ceil, floor
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from app.constants import WINHEIGHT, WINWIDTH
@@ -8,9 +8,17 @@ from app.data.database.database import DB
 from app.editor.lib.math.math_utils import float_eq
 from app.engine import engine
 from app.engine.base_surf import create_base_surf
+from app.engine.game_menus.animated_options import (BasicKlassOption,
+                                                    BasicUnitOption)
+from app.engine.game_menus.icon_options import (BasicIconOption,
+                                                BasicItemOption,
+                                                BasicSkillOption)
 from app.engine.game_menus.menu_components.generic_menu.cursor_hand import (
     CursorDrawMode, CursorHand)
-from app.engine.game_menus.string_options import BasicChibiOption, BasicIconOption, BasicItemOption, BasicKlassOption, BasicPortraitOption, BasicSkillOption, BasicUnitOption, IMenuOption, TextOption
+from app.engine.game_menus.string_options import (BasicChibiOption,
+                                                  BasicPortraitOption,
+                                                  IMenuOption, TextOption)
+from app.engine.game_state import game
 from app.engine.graphics.text.text_renderer import (font_height, render_text,
                                                     text_width)
 from app.engine.graphics.ui_framework.ui_framework_layout import convert_align
@@ -18,12 +26,10 @@ from app.engine.gui import ScrollArrow, ScrollBar
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
 from app.engine.objects.unit import UnitObject
-from app.utilities.enums import Alignments, Orientation
+from app.utilities.enums import Alignments, HAlignment, Orientation, VAlignment
 from app.utilities.str_utils import is_int
 from app.utilities.typing import NID
 from app.utilities.utils import clamp, sign, tuple_add, tuple_sub
-from app.utilities.enums import HAlignment, VAlignment
-from app.engine.game_state import game
 
 CHOICE_TYPES: Dict[str, Type[IMenuOption]] = {
   'type_skill': BasicSkillOption,

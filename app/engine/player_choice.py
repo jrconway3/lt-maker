@@ -139,7 +139,8 @@ class PlayerChoiceState(MapState):
         if self.is_callable:
             data = self.data()
             if data != self._resolved_data:
-                values, display_values = self.process_data(data)
+                self._resolved_data = data
+                values, display_values = self.process_data(self._resolved_data)
                 self.menu.set_data(values, display_values)
                 self.create_help_boxes(self._resolved_data)
 

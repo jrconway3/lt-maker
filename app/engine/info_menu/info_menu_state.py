@@ -1,27 +1,26 @@
 from typing import List, Tuple
-from app.engine.game_menus.string_options import BasicItemOption, ItemOptionModes
-from app.engine.graphics.text.text_renderer import render_text, text_width
-from app.engine.objects.unit import UnitObject
 
-from app.constants import WINWIDTH, WINHEIGHT
-from app.utilities import utils
-
-from app.data.resources.resources import RESOURCES
+from app.constants import WINHEIGHT, WINWIDTH
 from app.data.database.database import DB
-
-from app.engine.sprites import SPRITES
-from app.engine.sound import get_sound_thread
-from app.engine.input_manager import get_input_manager
-from app.engine.state import State
-from app.engine import engine, background, help_menu, gui, \
-    icons, image_mods, item_funcs, equations, \
-    combat_calcs, skill_system, text_funcs
-from app.engine.info_menu.info_graph import info_states, InfoGraph
-from app.engine.game_menus import menu_options
-from app.engine.game_state import game
+from app.data.resources.resources import RESOURCES
+from app.engine import (background, combat_calcs, engine, equations, gui,
+                        help_menu, icons, image_mods, item_funcs, skill_system,
+                        text_funcs)
 from app.engine.fluid_scroll import FluidScroll
+from app.engine.game_menus import menu_options
+from app.engine.game_menus.icon_options import BasicItemOption, ItemOptionModes
+from app.engine.game_state import game
 from app.engine.graphics.ingame_ui.build_groove import build_groove
+from app.engine.graphics.text.text_renderer import render_text, text_width
+from app.engine.info_menu.info_graph import InfoGraph, info_states
+from app.engine.input_manager import get_input_manager
+from app.engine.objects.unit import UnitObject
+from app.engine.sound import get_sound_thread
+from app.engine.sprites import SPRITES
+from app.engine.state import State
+from app.utilities import utils
 from app.utilities.enums import HAlignment
+
 
 class InfoMenuState(State):
     name = 'info_menu'

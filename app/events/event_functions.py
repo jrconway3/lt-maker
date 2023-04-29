@@ -2788,7 +2788,8 @@ def choice(self: Event, nid: NID, title: str, choices: str, row_width: str = Non
 
     size = None
     if dimensions:
-        size = tuple([int(x) for x in dimensions.split(',')])
+        rows, columns = tuple([int(x) for x in dimensions.split(',')])
+        size = (columns, rows)
 
     should_persist = 'persist' in flags
     no_cursor = 'no_cursor' in flags

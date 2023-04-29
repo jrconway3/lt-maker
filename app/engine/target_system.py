@@ -5,6 +5,7 @@ from functools import lru_cache
 from app.data.database.database import DB
 from app.engine import (combat_calcs, equations, item_funcs, item_system,
                         line_of_sight, skill_system)
+from app.engine.movement import movement_funcs
 from app.engine.pathfinding import pathfinding
 from app.engine.game_state import game
 from app.utilities import utils
@@ -59,9 +60,9 @@ def get_nearest_open_tile(unit, position):
             magn = _abs(x)
             n1 = position[0] + x, position[1] + r - magn
             n2 = position[0] + x, position[1] - r + magn
-            if game.movement.check_weakly_traversable(unit, n1) and not game.board.get_unit(n1) and not game.movement.check_if_occupied_in_future(n1):
+            if movement_funcs.check_weakly_traversable(unit, n1) and not game.board.get_unit(n1) and not movement_funcs.check_if_occupied_in_future(n1):
                 return n1
-            elif game.movement.check_weakly_traversable(unit, n2) and not game.board.get_unit(n2) and not game.movement.check_if_occupied_in_future(n2):
+            elif movement_funcs.check_weakly_traversable(unit, n2) and not game.board.get_unit(n2) and not movement_funcs.check_if_occupied_in_future(n2):
                 return n2
         r += 1
     return None
@@ -74,9 +75,9 @@ def get_nearest_open_tile_rationalization(unit, position, taken_positions):
             magn = _abs(x)
             n1 = position[0] + x, position[1] + r - magn
             n2 = position[0] + x, position[1] - r + magn
-            if game.movement.check_weakly_traversable(unit, n1) and not game.board.get_unit(n1) and not n1 in taken_positions:
+            if movement_funcs.check_weakly_traversable(unit, n1) and not game.board.get_unit(n1) and not n1 in taken_positions:
                 return n1
-            elif game.movement.check_weakly_traversable(unit, n2) and not game.board.get_unit(n2) and not n2 in taken_positions:
+            elif movement_funcs.check_weakly_traversable(unit, n2) and not game.board.get_unit(n2) and not n2 in taken_positions:
                 return n2
         r += 1
     return None
@@ -196,8 +197,7 @@ def get_valid_moves(unit, force=False, witch_warp=True) -> set:
     # Assumes unit is on the map
     if not force and unit.finished:
         return set()
-    from app.engine.movement import MovementManager
-    mtype = MovementManager.get_movement_group(unit)
+    mtype = movement_funcs.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
     bounds = game.board.bounds
     height = game.board.height
@@ -217,12 +217,11 @@ def get_valid_moves(unit, force=False, witch_warp=True) -> set:
     return valid_moves
 
 def get_path(unit, position, ally_block=False, use_limit=False, free_movement=False) -> list:
-    from app.engine.movement import MovementManager
-    mtype = MovementManager.get_movement_group(unit)
+    mtype = movement_funcs.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
     start_pos = unit.position
     if free_movement:
-        start_pos = game.board.rationalize_pos(start_pos)
+        start_pos = utils.round_pos(start_pos)
 
     bounds = game.board.bounds
     height = game.board.height
@@ -249,7 +248,7 @@ def check_path(unit, path) -> bool:
     for pos in path[:-1]:  # Don't need to count the starting position
         if prev_pos and pos not in get_adjacent_positions(prev_pos):
             return False
-        mcost = game.movement.get_mcost(unit, pos)
+        mcost = movement_funcs.get_mcost(unit, pos)
         movement -= mcost
         if movement < 0:
             return False

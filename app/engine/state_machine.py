@@ -44,6 +44,7 @@ class StateMachine():
         from app.engine.game_menus.menu_states import unit_menu_state
         from app.engine.info_menu import info_menu_state
         from app.engine.overworld import overworld_states
+        from app.engine.roam import free_roam_state, free_roam_rationalize
         from app.events import event_state
         self.all_states = \
             {'title_start': title_screen.TitleStartState,
@@ -146,8 +147,8 @@ class StateMachine():
              'base_sound_room': base.BaseSoundRoomState,
              'base_achievement': base.BaseAchievementState,
              'extras_sound_room': base.BaseSoundRoomState,
-             'free_roam': roam_state.FreeRoamState,
-             'rationalize': roam_state.RationalizeState,
+             'free_roam': free_roam_state.FreeRoamState,
+             'free_roam_rationalize': free_roam_rationalize.RationalizeState,
              'debug': debug_mode.DebugState,
              'overworld': overworld_states.OverworldFreeState,
              'overworld_movement': overworld_states.OverworldMovementState,

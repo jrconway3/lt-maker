@@ -8,7 +8,7 @@ from app.engine import (action, combat_calcs, engine, equations, evaluate,
 from app.engine.pathfinding import pathfinding
 from app.engine.combat import interaction
 from app.engine.game_state import game
-from app.engine.movement import MovementManager
+from app.engine.movement import movement_funcs
 from app.events import triggers
 from app.events.regions import RegionType
 from app.utilities import utils
@@ -79,7 +79,7 @@ class AIController():
         logging.info("AI Act!")
 
         change = False
-        if game.movement.check_region_interrupt(self.unit):
+        if movement_funcs.check_region_interrupt(self.unit):
             self.interrupt()
 
         if not self.move_ai_complete:
@@ -685,7 +685,7 @@ class SecondaryAI():
         self.single_move = self.zero_move + equations.parser.movement(self.unit)
         self.double_move = self.single_move + equations.parser.movement(self.unit)
 
-        movement_group = MovementManager.get_movement_group(self.unit)
+        movement_group = movement_funcs.get_movement_group(self.unit)
         self.grid = game.board.get_grid(movement_group)
         self.pathfinder = \
             pathfinding.AStar(self.unit.position, None, self.grid,

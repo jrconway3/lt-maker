@@ -10,10 +10,11 @@ from app.engine.query_engine import GameQueryEngine
 
 if TYPE_CHECKING:
     from app.engine import (ai_controller, death,
-        game_board, highlight, map_view, movement, phase,
+        game_board, highlight, map_view, phase,
         promotion, ui_view, banner, boundary, camera, cursor,
         initiative, records, supports, turnwheel, unit_sprite)
     from app.engine.combat.simple_combat import SimpleCombat
+    from app.engine.movement import movement_system
     from app.engine.overworld.overworld_movement_manager import \
         OverworldMovementManager
     from app.engine.overworld.overworld_manager import OverworldManager
@@ -96,7 +97,7 @@ class GameState():
         self.highlight: highlight.HighlightController = None
         self.initiative: initiative.InitiativeTracker = None
         self.map_view: map_view.MapView = None
-        self.movement: movement.MovementManager | OverworldMovementManager = None
+        self.movement: movement_system.MovementSystem | OverworldMovementManager = None
         self.death: death.DeathManager = None
         self.ui_view: ui_view.UIView = None
         self.combat_instance: List[SimpleCombat] = []
@@ -203,14 +204,15 @@ class GameState():
         Done on loading a level, whether from overworld, last level, save_state, etc.
         """
         from app.engine import (ai_controller, camera, death, highlight,
-                                map_view, movement, phase, ui_view)
+                                map_view, phase, ui_view)
+        from app.engine.movement import movement_system
 
         # Systems
         self.camera = camera.Camera(self)
         self.phase = phase.PhaseController()
         self.highlight = highlight.HighlightController()
         self.map_view = map_view.MapView()
-        self.movement = movement.MovementManager()
+        self.movement = movement_system.MovementSystem()
         self.death = death.DeathManager()
         self.ui_view = ui_view.UIView()
         self.combat_instance = []

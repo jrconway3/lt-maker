@@ -778,9 +778,10 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
     reload_map = 'reload' in flags
     # For Overworld
     if reload_map and self.game.is_displaying_overworld(): # just go back to the level
-        from app.engine import level_cursor, map_view, movement
+        from app.engine import level_cursor, map_view
+        from app.engine.movement import movement_system
         self.game.cursor = level_cursor.LevelCursor(self.game)
-        self.game.movement = movement.MovementManager()
+        self.game.movement = movement_system.MovementSystem()
         self.game.map_view = map_view.MapView()
         self.game.boundary = self.prev_game_boundary
         self.game.board = self.prev_board
@@ -822,9 +823,10 @@ def change_tilemap(self: Event, tilemap, position_offset=None, load_tilemap=None
     self.game.level.tilemap = tilemap
     if self.game.is_displaying_overworld():
         # we were in the overworld before this, so we should probably reset cursor and such
-        from app.engine import level_cursor, map_view, movement
+        from app.engine import level_cursor, map_view
+        from app.engine.movement import movement_system
         self.game.cursor = level_cursor.LevelCursor(self.game)
-        self.game.movement = movement.MovementManager()
+        self.game.movement = movement_system.MovementSystem()
         self.game.map_view = map_view.MapView()
     self.game.set_up_game_board(self.game.level.tilemap)
 

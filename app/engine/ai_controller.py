@@ -1,6 +1,7 @@
 import logging
 import math
 
+from app.constants import FRAMERATE
 from app.data.database.database import DB
 from app.engine import (action, combat_calcs, engine, equations, evaluate,
                         item_funcs, item_system, line_of_sight,
@@ -227,7 +228,7 @@ class AIController():
 
         while True:
             # Can spend up to half a frame thinking
-            over_time = engine.get_true_time() - time >= 8
+            over_time: bool = engine.get_true_time() - time >= FRAMERATE/2
             logging.info("Current State: %s", self.state)
 
             if self.state == 'Init':

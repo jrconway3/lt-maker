@@ -15,7 +15,7 @@ from app.utilities import utils
 class FreeRoamState(MapState):
     name = 'free_roam'
 
-    TALK_RANGE = 1
+    TALK_RANGE = 1.0
 
     def start(self):
         self.roam_unit = None
@@ -30,7 +30,6 @@ class FreeRoamState(MapState):
             roam_unit_nid = game.level.roam_unit
 
             if self.roam_unit and self.roam_unit.nid != roam_unit_nid:
-                self.rationalize_all_units()
                 # Now get the new unit
                 unit = game.get_unit(roam_unit_nid)
                 self._assign_unit(unit)
@@ -44,9 +43,10 @@ class FreeRoamState(MapState):
                 logging.error("Unable to find roaming unit %s", roam_unit_nid)
 
         elif self.roam_unit:  # Have a roam unit and we shouldn't...
-            self.rationalize_all_units()
+            self.roam_unit = None
 
         if not self.roam_unit or not self.roam_unit.position:
+            self.rationalize_all_units()
             self.leave()
 
     def leave(self):
@@ -62,8 +62,6 @@ class FreeRoamState(MapState):
         self.movement_component = RoamPlayerMovementComponent(unit)
         game.movement.add(self.movement_component)
         game.cursor.cur_unit = self.roam_unit
-        # Roam unit is no longer considered to be on the board
-        game.leave(self.roam_unit)
 
     def rationalize_all_units(self):
         """
@@ -86,7 +84,7 @@ class FreeRoamState(MapState):
         units = []
         for unit in game.get_all_units():
             if unit is not self.roam_unit and \
-                    utils.calculate_distance(self.roam_unit.position, unit.position) < self.TALK_RANGE and \
+                    utils.calculate_distance(self.roam_unit.sprite.fake_position, unit.position) < self.TALK_RANGE and \
                     (self.roam_unit.nid, unit.nid) in game.talk_options:
                 units.append(unit)
         units = list(sorted(units, key=lambda unit: utils.calculate_distance(self.roam_unit.position, unit.position)))
@@ -100,7 +98,7 @@ class FreeRoamState(MapState):
         """
         if not self.roam_unit:
             return None
-        region = game.get_region_under_pos(utils.round_pos(self.roam_unit.position))
+        region = game.get_region_under_pos(self.roam_unit.position)
         if region and region.region_type == RegionType.EVENT:
             try:
                 truth = evaluate.evaluate(region.condition, self.roam_unit, 
@@ -113,13 +111,11 @@ class FreeRoamState(MapState):
         return None
 
     def check_region_interrupt(self):
-        region = movement_funcs.check_region_interrupt(utils.round_pos(self.roam_unit.position))
+        region = movement_funcs.check_region_interrupt(self.roam_unit.position)
         if region:
             did_trigger = game.events.trigger(triggers.RoamingInterrupt(self.roam_unit, self.roam_unit.position, region))
-            if did_trigger:
-                self.rationalize_all_units()
-                if region.only_once:
-                    action.do(action.RemoveRegion())
+            if did_trigger and region.only_once:
+                action.do(action.RemoveRegion())
 
     def check_select(self):
         """
@@ -133,14 +129,11 @@ class FreeRoamState(MapState):
             did_trigger = game.events.trigger(triggers.OnTalk(self.roam_unit, other_unit, None))
             if did_trigger:
                 action.do(action.RemoveTalk(self.roam_unit.nid, other_unit.nid))
-                self.rationalize_all_units()
         elif region:
             get_sound_thread().play_sfx('Select 2')
             did_trigger = game.events.trigger(triggers.RegionTrigger(region.sub_nid, self.roam_unit, self.roam_unit.position, region))
-            if did_trigger:
-                self.rationalize_all_units()
-                if region.only_once:
-                    action.do(action.RemoveRegion(region))
+            if did_trigger and region.only_once:
+                action.do(action.RemoveRegion(region))
         else:
             get_sound_thread().play_sfx('Error')
 
@@ -151,7 +144,7 @@ class FreeRoamState(MapState):
         other_unit = self.get_talk_partner()
         did_trigger = game.events.trigger(triggers.RoamPressInfo(self.roam_unit, other_unit))
         if did_trigger:
-            self.rationalize_all_units()
+            pass
         else:
             get_sound_thread().play_sfx('Select 1')
             game.memory['next_state'] = 'info_menu'
@@ -182,9 +175,6 @@ class FreeRoamState(MapState):
 
         elif event == 'AUX':
             game.state.change('option_menu')
-            # Forced rationalization when pressing AUX, so this is if you win_game
-            # or something your position is still valid
-            self.rationalize_all_units()
 
         elif event == 'INFO':
             self.check_info()
@@ -193,7 +183,6 @@ class FreeRoamState(MapState):
             did_trigger = game.events.trigger(triggers.RoamPressStart(self.roam_unit))
             if did_trigger:
                 get_sound_thread().play_sfx('Select 2')
-                self.rationalize_all_units()
             else:
                 get_sound_thread().play_sfx('Error')
 

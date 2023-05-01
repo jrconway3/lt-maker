@@ -201,7 +201,7 @@ def get_valid_moves(unit, force=False, witch_warp=True) -> set:
     grid = game.board.get_grid(mtype)
     bounds = game.board.bounds
     height = game.board.height
-    start_pos = game.board.rationalize_pos(unit.position)
+    start_pos = unit.position
     pathfinder = pathfinding.Djikstra(start_pos, grid, bounds, height, unit.team)
     movement_left = equations.parser.movement(unit) if force else unit.movement_left
 
@@ -220,13 +220,11 @@ def get_path(unit, position, ally_block=False, use_limit=False, free_movement=Fa
     mtype = movement_funcs.get_movement_group(unit)
     grid = game.board.get_grid(mtype)
     start_pos = unit.position
-    if free_movement:
-        start_pos = utils.round_pos(start_pos)
 
     bounds = game.board.bounds
     height = game.board.height
 
-    if skill_system.pass_through(unit):
+    if skill_system.pass_through(unit) or free_movement:
         can_move_through = lambda team, adj: True
     else:
         if ally_block:
@@ -234,7 +232,10 @@ def get_path(unit, position, ally_block=False, use_limit=False, free_movement=Fa
         else:
             can_move_through = game.board.can_move_through
 
-    pathfinder = pathfinding.AStar(start_pos, position, grid, bounds, height, unit.team, free_movement)
+    if free_movement:
+        pathfinder = pathfinding.ThetaStar(start_pos, position, grid, bounds, height, unit.team)
+    else:
+        pathfinder = pathfinding.AStar(start_pos, position, grid, bounds, height, unit.team)
 
     limit = unit.movement_left if use_limit else None
     path = pathfinder.process(can_move_through, limit=limit)

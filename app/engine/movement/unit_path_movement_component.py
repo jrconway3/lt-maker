@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List, Tuple
 
+from app.constant import TILEWIDTH, TILEHEIGHT
 from app.game_state import game
 from app.engine import action
 from app.engine.movement.movement_component import MovementComponent
@@ -36,12 +37,28 @@ class UnitPathMovementComponent(MovementComponent):
     def start(self):
         self.unit.sprite.set_speed(self.speed)
         self.unit.sprite.change_state('moving')
+        if self.path:
+            next_position = self.path[-1]
+            net_position = (next_position[0] - self.unit.position[0], next_position[1] - self.unit.position[1])
+            self.unit.sprite.handle_net_position(net_position)
         game.leave(self.unit)
         if not self.muted:
             self.unit.sound.play()
 
     def update(self, current_time: int):
-        if self.active and current_time - self._last_update > self.speed:
+        if not self.active:
+            return
+
+        # Handle unit sprite
+        if self.path:
+            next_position = self.path[-1]
+            net_position = (next_position[0] - self.unit.position[0], next_position[1] - self.unit.position[1])
+            self.unit.sprite.handle_net_position(net_position)
+            dt = current_time - self._last_update
+            self.unit.sprite.offset[0] = int(TILEWIDTH * dt / max(self.speed, 1) * net_position[0])
+            self.unit.sprite.offset[1] = int(TILEHEIGHT * dt / max(self.speed, 1) * net_position[1])
+
+        if current_time - self._last_update > self.speed:
             self._last_update = current_time
 
             if not self.unit.position:

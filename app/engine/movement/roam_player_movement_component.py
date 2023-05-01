@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import List, Tuple
 
 from app.game_state import game
-from app.engine import action
 from app.engine.movement.movement_component import MovementComponent
+from app.engine.movement import movement_funcs
 from app.utilities import utils
 
 import logging
@@ -22,6 +22,8 @@ class RoamPlayerMovementComponent(MovementComponent):
     def __init__(self, unit):
         super().__init__(follow=True, muted=False)
         self.unit = unit
+        # This is the copy we will work with
+        self.position = self.unit.position
         self.max_speed: float = game.game_vars.get("_roam_speed", 1) * self.base_max_speed
         self.sprint = False
 
@@ -41,7 +43,7 @@ class RoamPlayerMovementComponent(MovementComponent):
         self.inputs = inputs
 
     def get_position(self) -> Tuple[int, int]:
-        return utils.round_pos(self.unit.position)
+        return self.unit.position
 
     def get_accel(self):
         if self.sprint:
@@ -87,7 +89,8 @@ class RoamPlayerMovementComponent(MovementComponent):
             self.unit.sprite.change_state('normal')
             self.unit.sprite.sound.stop()
 
-        game.camera.force_center(*self.unit.position)
+        if self.follow:
+            game.camera.force_center(*self.unit.position)
 
     def _kinematics(self, delta_time):
         """
@@ -103,9 +106,13 @@ class RoamPlayerMovementComponent(MovementComponent):
             self.y_mag = 1
 
         # Modify velocity
-        if self.x_mag > 0:
+        self._accelerate(delta_time, self.x_mag, self.y_mag)
+
+    def _accelerate(self, delta_time, x_mag: float, y_mag: float):
+        # Modify velocity
+        if x_mag > 0:
             self.x_vel += (self.get_accel() * delta_time)
-        elif self.x_mag < 0:
+        elif x_mag < 0:
             self.x_vel -= (self.get_accel() * delta_time)
         else:
             if self.x_vel > 0:
@@ -116,9 +123,9 @@ class RoamPlayerMovementComponent(MovementComponent):
                 self.x_vel = min(0, self.x_vel)
         self.x_vel = utils.clamp(self.x_vel, -self.max_speed, self.max_speed)
 
-        if self.y_mag > 0:
+        if y_mag > 0:
             self.y_vel += (self.get_accel() * delta_time)
-        elif self.y_mag < 0:
+        elif y_mag < 0:
             self.y_vel -= (self.get_accel() * delta_time)
         else:
             if self.y_vel > 0:
@@ -129,19 +136,33 @@ class RoamPlayerMovementComponent(MovementComponent):
                 self.y_vel = min(0, self.y_vel)
         self.y_vel = utils.clamp(self.x_vel, -self.max_speed, self.max_speed)
 
+    def _can_move(self, pos: Tuple[int, int]) -> bool:
+        traversable = movement_funcs.check_traversable(pos)
+        if not traversable:
+            return False
+        if game.board.get_unit(pos):
+            other_team = game.board.get_team(pos)
+            if not other_team or utils.compare_teams(self.unit.team, other_team):
+                return True # Allies, this is fine
+            else:  # Enemies
+                return False
+        return True
+
     def move(self, delta_time):
-        x, y = self.unit.position
+        x, y = self.position
         dx = self.x_vel * delta_time
         dy = self.y_vel * delta_time
-        self.unit.position = x + dx, y + dy
+        next_position = (x + dx, y + dy)
 
-        # Update fog of war!
-        # This is necessary because the roaming unit has been
-        # game.leave() off the map
-        rounded_pos = utils.round_pos(self.unit.position)
-        if game.board.fow_vantage_point.get(self.unit.nid) != rounded_pos:
-            true_pos = self.unit.position
-            # Inject the rounded position into UpdateFogOfWar
+        rounded_pos = utils.rounded_pos(next_position)
+        if self._can_move(rounded_pos):
+            self.position = next_position
+
+        # Assign the position to the image
+        self.unit.sprite.fake_position = self.position
+
+        # Move the unit's true position if necessary
+        if rounded_pos != self.unit.position:
+            game.leave(self.unit)
             self.unit.position = rounded_pos
-            action.UpdateFogOfWar(self.unit).do()
-            self.unit.position = true_pos  # Reset the position to its unrounded self
+            game.arrive(self.unit)

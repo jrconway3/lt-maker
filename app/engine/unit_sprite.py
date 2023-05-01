@@ -361,17 +361,18 @@ class UnitSprite():
             else:
                 self.image_state = 'down'
         elif self.state == 'moving':
-            next_position = game.movement.get_next_position(self.unit.nid)
-            if not next_position or not self.unit.position:
-                self.set_transition('normal')
-                return
-            self.net_position = (next_position[0] - self.unit.position[0], next_position[1] - self.unit.position[1])
-            last_update = game.movement.get_last_update(self.unit.nid)
-            current_time = engine.get_time()
-            dt = current_time - last_update
-            self.offset[0] = int(TILEWIDTH * dt / max(self.speed, 1) * self.net_position[0])
-            self.offset[1] = int(TILEHEIGHT * dt / max(self.speed, 1) * self.net_position[1])
-            self.handle_net_position(self.net_position)
+            # next_position = game.movement.get_next_position(self.unit.nid)
+            # if not next_position or not self.unit.position:
+            #     self.set_transition('normal')
+            #     return
+            # self.net_position = (next_position[0] - self.unit.position[0], next_position[1] - self.unit.position[1])
+            # last_update = game.movement.get_last_update(self.unit.nid)
+            # current_time = engine.get_time()
+            # dt = current_time - last_update
+            # self.offset[0] = int(TILEWIDTH * dt / max(self.speed, 1) * self.net_position[0])
+            # self.offset[1] = int(TILEHEIGHT * dt / max(self.speed, 1) * self.net_position[1])
+            # self.handle_net_position(self.net_position)
+            pass # Handled in movement system
         elif self.state == 'fake_transition_in':
             if self.offset[0] > 0:
                 self.offset[0] -= 2

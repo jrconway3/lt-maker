@@ -24,9 +24,12 @@ class Wait(AIStruct):
 class MoveTo(AIStruct):
     unit: UnitObject
     target: Tuple[int, int]
+    desired_proximity: float
     mtype: AIAction = AIAction.MOVE
 
 @dataclass
 class Interact(AIStruct):
     unit: UnitObject
+    region: RegionObject
+    desired_proximity: float
     mtype: AIAction = AIAction.INTERACT

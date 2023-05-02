@@ -657,8 +657,6 @@ def get_targets(unit, behaviour):
         if behaviour.target_spec == "Starting":
             if unit.starting_position:
                 all_targets = [unit.starting_position]
-            else:
-                all_targets = []
         else:
             all_targets = [tuple(behaviour.target_spec)]
     if behaviour.target in ('Unit', 'Enemy', 'Ally'):

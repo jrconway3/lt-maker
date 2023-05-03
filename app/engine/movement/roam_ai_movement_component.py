@@ -55,11 +55,11 @@ class RoamAIMovementComponent(RoamPlayerMovementComponent):
         """
         # Updates the velocity of the current unit
         """
-        desired_vector = self.get_desired_vector()
-        self.x_mag, self.y_mag = desired_vector
-        self.x_vel = self.desired_vector[0] * self.speed_modifier
-        self.y_vel = self.desired_vector[1] * self.speed_modifier
-
+        if self.path:
+            desired_vector = self.get_desired_vector()
+            self.x_mag, self.y_mag = desired_vector
+        else:
+            self.x_mag, self.y_mag = (0, 0)
         # Modify velocity
         self._accelerate(delta_time, self.x_mag, self.y_mag)
 
@@ -69,9 +69,12 @@ class RoamAIMovementComponent(RoamPlayerMovementComponent):
         dy = self.y_vel * delta_time
         next_position = (x + dx, y + dy)
 
-        rounded_pos = utils.rounded_pos(next_position)
+        rounded_pos = utils.round_pos(next_position)
         if self._can_move(rounded_pos):
             self.position = next_position
+        else:
+            self.path.clear()
+            return
 
         # Assign the position to the image
         self.unit.sprite.fake_position = self.position
@@ -81,3 +84,6 @@ class RoamAIMovementComponent(RoamPlayerMovementComponent):
             game.leave(self.unit)
             self.unit.position = rounded_pos
             game.arrive(self.unit)
+
+        if self.path and self.unit.position == self.path[-1]:
+            self.path.pop()

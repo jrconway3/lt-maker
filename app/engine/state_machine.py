@@ -37,7 +37,7 @@ class StateMachine():
         from app.engine import (base, chapter_title, debug_mode, dialog_log,
                                 feat_choice, game_over, general_states,
                                 level_up, minimap, objective_menu,
-                                player_choice, prep, promotion, roam_state,
+                                player_choice, prep, promotion,
                                 settings, status_upkeep, text_entry,
                                 title_screen, trade, transitions, turnwheel,
                                 victory_screen)

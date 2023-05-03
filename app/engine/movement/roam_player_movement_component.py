@@ -154,7 +154,7 @@ class RoamPlayerMovementComponent(MovementComponent):
         dy = self.y_vel * delta_time
         next_position = (x + dx, y + dy)
 
-        rounded_pos = utils.rounded_pos(next_position)
+        rounded_pos = utils.round_pos(next_position)
         if self._can_move(rounded_pos):
             self.position = next_position
 

@@ -11,11 +11,7 @@ from app.engine.movement.unit_path_movement_component import UnitPathMovementCom
 import logging
 
 # TODO()
-# Unit Sprite has some old functions that use MovementSystem
 # Make sure roaming state cannot go out of bounds
-# Reimplement remaining funcs (get_next_location, can_move, no_bumps) from roam_state
-# Roam AI movement
-# Replace rationalize everywhere with utils.round_pos()
 
 class MovementSystem:
     """

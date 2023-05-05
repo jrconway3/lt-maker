@@ -9,7 +9,7 @@ from app.engine.movement import movement_funcs
 from app.engine.sound import get_sound_thread
 from app.engine.state import MapState
 from app.events import triggers
-from app.events.region import RegionType
+from app.events.regions import RegionType
 from app.utilities import utils
 
 class FreeRoamState(MapState):

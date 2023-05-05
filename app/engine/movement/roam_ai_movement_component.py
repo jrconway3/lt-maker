@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import List, Tuple
 
-from app.game_state import game
+from app.engine.game_state import game
 from app.engine.movement.roam_player_movement_component import RoamPlayerMovementComponent
-from app.engine.movement import movement_funcs
 from app.utilities import utils
 
 import logging
@@ -21,8 +20,6 @@ class RoamAIMovementComponent(RoamPlayerMovementComponent):
         self.speed_modifier: float = 1.0
         self.path = []
         self.start()
-
-        self._last_update = 0
 
     def set_speed(self, mult: float = 1):
         self.speed_modifier = mult

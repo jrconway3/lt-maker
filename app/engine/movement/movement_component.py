@@ -7,7 +7,6 @@ class MovementComponent:
         self.active = True
         self.follow: bool = follow
         self.muted: bool = muted
-        self.start()
 
         self._last_update = 0
 

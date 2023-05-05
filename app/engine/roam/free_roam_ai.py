@@ -3,13 +3,14 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Tuple
 from app.utilities.typing import NID
 
-from app.data.database import DB
+from app.data.database.database import DB
 from app.engine.game_state import game
-from app.engine import action, ai_controller, engine, equations, evaluate, target_system, triggers
+from app.engine import action, ai_controller, engine, equations, evaluate, target_system
 from app.engine.roam import roam_ai_state
 from app.engine.movement.roam_ai_movement_component import RoamAIMovementComponent
 from app.engine.objects.region import RegionObject
 from app.events.regions import RegionType
+from app.events import triggers
 from app.utilities import utils
 
 import logging

@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import List, Tuple
 
-from app.constant import TILEWIDTH, TILEHEIGHT
-from app.game_state import game
-from app.engine import action
+from app.constants import TILEWIDTH, TILEHEIGHT
+from app.engine.game_state import game
+from app.engine import action, engine
 from app.engine.movement.movement_component import MovementComponent
 from app.engine.movement import movement_funcs
 from app.engine.sound import get_sound_thread
+from app.utilities import utils
 
 import logging
 
@@ -26,8 +27,6 @@ class UnitPathMovementComponent(MovementComponent):
         self.speed = int(speed)
         self.start()
 
-        self._last_update = 0
-
     def get_position(self):
         return self.unit.position
 
@@ -35,8 +34,9 @@ class UnitPathMovementComponent(MovementComponent):
         return self.goal
 
     def start(self):
-        self.unit.sprite.set_speed(self.speed)
         self.unit.sprite.change_state('moving')
+        if self.path and self.path[-1] == self.unit.position:
+            self.path.pop()  # Pop off the current position
         if self.path:
             next_position = self.path[-1]
             net_position = (next_position[0] - self.unit.position[0], next_position[1] - self.unit.position[1])
@@ -44,21 +44,27 @@ class UnitPathMovementComponent(MovementComponent):
         game.leave(self.unit)
         if not self.muted:
             self.unit.sound.play()
+        self._last_update = engine.get_time()
 
     def update(self, current_time: int):
         if not self.active:
             return
 
-        # Handle unit sprite
+        dt = current_time - self._last_update
+        progress: float = utils.clamp(dt / max(self.speed, 1), 0, 1)
+
+        # Update sprite
         if self.path:
             next_position = self.path[-1]
             net_position = (next_position[0] - self.unit.position[0], next_position[1] - self.unit.position[1])
-            self.unit.sprite.handle_net_position(net_position)
-            dt = current_time - self._last_update
-            self.unit.sprite.offset[0] = int(TILEWIDTH * dt / max(self.speed, 1) * net_position[0])
-            self.unit.sprite.offset[1] = int(TILEHEIGHT * dt / max(self.speed, 1) * net_position[1])
+            self.unit.sprite.handle_net_position(net_position)   
+            if progress >= 1:
+                self.unit.sprite.reset()
+            else: 
+                self.unit.sprite.offset[0] = int(TILEWIDTH * progress * net_position[0])
+                self.unit.sprite.offset[1] = int(TILEHEIGHT * progress * net_position[1])
 
-        if current_time - self._last_update > self.speed:
+        if progress >= 1:
             self._last_update = current_time
 
             if not self.unit.position:
@@ -68,7 +74,7 @@ class UnitPathMovementComponent(MovementComponent):
 
             if self.path:
                 self._handle_path()
-            else:  # Path is empty, we are done
+            if not self.path:  # Path is empty, we are done
                 surprise = movement_funcs.check_region_interrupt(self.unit.position)
                 self.finish(surprise=surprise)
 

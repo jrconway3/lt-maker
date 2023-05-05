@@ -124,8 +124,6 @@ class UnitSprite():
         self.particles = []
         self.damage_numbers = []
 
-        self.speed = cf.SETTINGS['unit_speed']
-
         self.map_sprite = load_map_sprite(self.unit, self.unit.team)
 
         self.health_bar = health_bar.MapHealthBar(self.unit)
@@ -139,12 +137,8 @@ class UnitSprite():
         return self.transition_state != 'normal' or self.particles
 
     def reset(self):
-        self.speed = cf.SETTINGS['unit_speed']
         self.offset = [0, 0]
         ANIMATION_COUNTERS.attack_movement_counter.reset()
-
-    def set_speed(self, speed):
-        self.speed = speed
 
     def get_round_fake_pos(self):
         if self.fake_position:
@@ -304,6 +298,7 @@ class UnitSprite():
             self.set_transition('normal')
 
     def handle_net_position(self, pos):
+        self.net_position = pos
         if abs(pos[0]) >= abs(pos[1]):
             if pos[0] > 0:
                 self.image_state = 'right'

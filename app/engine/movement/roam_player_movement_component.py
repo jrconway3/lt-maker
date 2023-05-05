@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Tuple
 
-from app.game_state import game
+from app.engine.game_state import game
 from app.engine.movement.movement_component import MovementComponent
 from app.engine.movement import movement_funcs
 from app.utilities import utils
@@ -29,8 +29,6 @@ class RoamPlayerMovementComponent(MovementComponent):
 
         self.inputs = []
         self.start()
-
-        self._last_update = 0
 
     def set_sprint(self, b: bool):
         self.sprint = b

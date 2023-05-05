@@ -23,8 +23,6 @@ class RationalizeMovementComponent(MovementComponent):
         self.goal = self.unit.position
         self.start()
 
-        self._last_update = 0
-
     def get_position(self) -> Tuple[int, int]:
         return self.unit.position
 

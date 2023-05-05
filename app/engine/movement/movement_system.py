@@ -3,15 +3,12 @@ from __future__ import annotations
 from typing import List, Tuple
 
 import app.engine.config as cf
-from app.game_state import game
+from app.engine.game_state import game
 from app.engine import engine
 from app.engine.movement.movement_component import MovementComponent
 from app.engine.movement.unit_path_movement_component import UnitPathMovementComponent
 
 import logging
-
-# TODO()
-# Make sure roaming state cannot go out of bounds
 
 class MovementSystem:
     """

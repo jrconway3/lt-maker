@@ -150,7 +150,7 @@ def hsv2rgb(h: float, s: float, v: float) -> tuple:
 def rgb2hsv(r: int, g: int, b: int) -> tuple:
     return tuple(colorsys.rgb_to_hsv(r, g, b))
 
-def round_pos(self, pos: Tuple[float, float]) -> Tuple[int, int]:
+def round_pos(pos: Tuple[float, float]) -> Tuple[int, int]:
     """
     # Convert position to integer form
     """

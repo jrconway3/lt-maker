@@ -19,25 +19,28 @@ class RationalizeMovementComponent(MovementComponent):
         super().__init__(follow=False, muted=True)
         self.unit = unit
         # This is the copy we will work with
-        self.position = self.unit.sprite.fake_position
+        self.position = self.unit.sprite.get_roam_position()
         self.goal = self.unit.position
         self.start()
 
-    def get_position(self) -> Tuple[int, int]:
-        return self.unit.position
+    def get_camera_position(self) -> Tuple[float, float]:
+        return self.position
 
     def get_end_goal(self):
         return self.goal
 
     def start(self):
         # What the unit's velocity is
-        x_vector = self.unit.position[0] - self.unit.sprite.fake_position[0]
-        y_vector = self.unit.position[1] - self.unit.sprite.fake_position[1]
+        x_vector = self.unit.position[0] - self.unit.sprite.get_roam_position()[0]
+        y_vector = self.unit.position[1] - self.unit.sprite.get_roam_position()[1]
         x_vector, y_vector = utils.normalize((x_vector, y_vector))
         self.x_vel = self.speed * x_vector
         self.y_vel = self.speed * y_vector
 
     def finish(self, surprise=False):
+        self.unit.sprite.change_state('normal')
+        self.unit.sprite.set_roam_position(None)
+        self.unit.sprite.reset()
         self.active = False
 
     def update(self, current_time: int):
@@ -71,11 +74,10 @@ class RationalizeMovementComponent(MovementComponent):
         self.position = (next_x, next_y)
 
         # Assign the position to the image
-        self.unit.sprite.fake_position = self.position
+        self.unit.sprite.set_roam_position(self.position)
 
         # If we are really close to our goal position
         # Just finish up
         if (abs(self.position[0] - self.goal[0]) < self.epsilon) or \
                 (abs(self.position[1] - self.goal[1]) < self.epsilon):
-            self.unit.sprite.fake_position = None
             self.finish()

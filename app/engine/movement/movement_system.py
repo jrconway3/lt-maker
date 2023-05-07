@@ -7,6 +7,7 @@ from app.engine.game_state import game
 from app.engine import engine
 from app.engine.movement.movement_component import MovementComponent
 from app.engine.movement.unit_path_movement_component import UnitPathMovementComponent
+from app.utilities import utils
 
 import logging
 
@@ -25,11 +26,25 @@ class MovementSystem:
     def add(self, mc: MovementComponent):
         self.moving_entities.append(mc)
 
-    def check_if_occupied_in_future(self, pos):
+    def check_if_occupied_in_future(self, pos: Tuple[int, int]):
         for movement_component in self.moving_entities:
             if movement_component.get_end_goal() == pos:
                 return movement_component.unit
         return None
+
+    def is_moving(self, unit) -> bool:
+        for movement_component in self.moving_entities:
+            if movement_component.unit == unit:
+                return True
+        return False
+
+    def stop(self, unit):
+        """
+        # Stop all movement components associated with the given unit
+        """
+        for movement_component in self.moving_entities:
+            if movement_component.unit == unit:
+                movement_component.finish()
 
     def begin_move(self, unit, path: List[Tuple[int, int]], 
                    event=False, follow=True, speed=0):
@@ -50,8 +65,8 @@ class MovementSystem:
         # Update all remaining entities
         for entity in self.moving_entities[:]:
             entity.update(current_time)
-            if not self.camera_follow and entity.follow:
-                self.camera_follow = entity.get_position()
+            if entity.follow:
+                self.camera_follow = entity.get_camera_position()
                 self.camera_center = entity.should_camera_center()
             # Remove inactive entities
             if not entity.active:
@@ -59,6 +74,6 @@ class MovementSystem:
 
         # Update camera follow only if it's changed
         if self.camera_follow and old_follow != self.camera_follow:
-            game.cursor.set_pos(self.camera_follow)
+            game.cursor.set_pos(utils.round_pos(self.camera_follow))
             if self.camera_center:
                 game.camera.set_center(*self.camera_follow)

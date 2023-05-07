@@ -1074,6 +1074,10 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
         path = target_system.get_path(unit, position)
         if path:
             if self.do_skip:
+                # In case the unit is currently still moving
+                if self.game.movement.is_moving(unit):
+                    self.game.movement.stop(unit)
+                    unit.sprite.reset()
                 action.do(action.Teleport(unit, position))
             elif speed:
                 action.do(action.Move(unit, position, path, event=True, follow=follow, speed=speed))

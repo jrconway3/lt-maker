@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from typing import List, Tuple
 
+from app.engine import action
 from app.engine.game_state import game
 from app.engine.movement.roam_player_movement_component import RoamPlayerMovementComponent
 from app.utilities import utils
+
 
 import logging
 
@@ -74,13 +76,14 @@ class RoamAIMovementComponent(RoamPlayerMovementComponent):
             return
 
         # Assign the position to the image
-        self.unit.sprite.fake_position = self.position
+        self.unit.sprite.set_roam_position(self.position)
 
         # Move the unit's true position if necessary
         if rounded_pos != self.unit.position:
             game.leave(self.unit)
             self.unit.position = rounded_pos
             game.arrive(self.unit)
+            action.UpdateFogOfWar(self.unit).do()
 
         if self.path and self.unit.position == self.path[-1]:
             self.path.pop()

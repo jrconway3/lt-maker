@@ -27,7 +27,7 @@ class UnitPathMovementComponent(MovementComponent):
         self.speed = int(speed)
         self.start()
 
-    def get_position(self):
+    def get_camera_position(self):
         return self.unit.position
 
     def get_end_goal(self):

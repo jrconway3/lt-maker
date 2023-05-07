@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List, Tuple
 
 from app.engine.game_state import game
+from app.engine import action
 from app.engine.movement.movement_component import MovementComponent
 from app.engine.movement import movement_funcs
 from app.utilities import utils
@@ -40,8 +41,8 @@ class RoamPlayerMovementComponent(MovementComponent):
     def set_inputs(self, inputs: List[str]):
         self.inputs = inputs
 
-    def get_position(self) -> Tuple[int, int]:
-        return self.unit.position
+    def get_camera_position(self) -> Tuple[float, float]:
+        return self.position
 
     def get_accel(self):
         if self.sprint:
@@ -54,7 +55,7 @@ class RoamPlayerMovementComponent(MovementComponent):
         # What the unit's velocity is
         self.x_vel, self.y_vel = 0.0, 0.0
         # What the player is inputting
-        self.x, self.y = 0.0, 0.0
+        self.x_mag, self.y_mag = 0.0, 0.0
 
     def finish(self, surprise=False):
         self.active = False
@@ -77,23 +78,22 @@ class RoamPlayerMovementComponent(MovementComponent):
         # === Process inputs ===
         self._kinematics(delta_time)
 
-        # Actually move the unit if it's to move fast enough
+        # Actually move the unit if it's above the minimum speed
         if utils.magnitude((self.x_vel, self.y_vel)) > self.min_speed:
             self.move(delta_time)
             self.unit.sprite.change_state('moving')
             self.unit.sprite.handle_net_position((self.x_vel, self.y_vel))
-            self.unit.sprite.sound.play()
+            if not self.muted:
+                self.unit.sound.play()
         else:
             self.unit.sprite.change_state('normal')
-            self.unit.sprite.sound.stop()
-
-        if self.follow:
-            game.camera.force_center(*self.unit.position)
+            self.unit.sound.stop()
 
     def _kinematics(self, delta_time):
         """
         # Updates the velocity of the current unit
         """
+        self.x_mag, self.y_mag = 0, 0
         if 'LEFT' in self.inputs:
             self.x_mag = -1
         elif 'RIGHT' in self.inputs:
@@ -132,10 +132,15 @@ class RoamPlayerMovementComponent(MovementComponent):
             elif self.y_vel < 0:
                 self.y_vel += (self.deceleration * delta_time)
                 self.y_vel = min(0, self.y_vel)
-        self.y_vel = utils.clamp(self.x_vel, -self.max_speed, self.max_speed)
+        self.y_vel = utils.clamp(self.y_vel, -self.max_speed, self.max_speed)
+        # Diagonal movement shouldn't be faster than single-axis
+        full_mag = utils.magnitude((self.x_vel, self.y_vel))
+        if full_mag > self.max_speed:
+            self.x_vel *= self.max_speed / full_mag
+            self.y_vel *= self.max_speed / full_mag
 
     def _can_move(self, pos: Tuple[int, int]) -> bool:
-        traversable = movement_funcs.check_traversable(pos)
+        traversable = movement_funcs.check_traversable(self.unit, pos)
         if not traversable:
             return False
         if game.board.get_unit(pos):
@@ -156,11 +161,14 @@ class RoamPlayerMovementComponent(MovementComponent):
         if self._can_move(rounded_pos):
             self.position = next_position
 
-        # Assign the position to the image
-        self.unit.sprite.fake_position = self.position
+            # Assign the position to the sprite
+            self.unit.sprite.set_roam_position(self.position)
 
-        # Move the unit's true position if necessary
-        if rounded_pos != self.unit.position:
-            game.leave(self.unit)
-            self.unit.position = rounded_pos
-            game.arrive(self.unit)
+            # Move the unit's true position if necessary
+            if rounded_pos != self.unit.position:
+                game.leave(self.unit)
+                self.unit.position = rounded_pos
+                game.arrive(self.unit)
+                action.UpdateFogOfWar(self.unit).do()
+        else:
+            pass

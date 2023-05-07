@@ -19,14 +19,14 @@ class MovementComponent:
     def finish(self, surprise=False):
         raise NotImplementedError
 
-    def get_position(self) -> Tuple[int, int]:
-        return None
-
     def get_end_goal(self) -> Tuple[int, int]:
         """
         # Returns what the final goal of this
         # movement is as a position
         """
+        return None
+
+    def get_camera_position(self) -> Tuple[float, float]:
         return None
 
     def should_camera_center(self) -> bool:

@@ -1,7 +1,6 @@
 from app.engine.game_state import game
 from app.engine.state import MapState
 from app.engine.movement.rationalize_movement_component import RationalizeMovementComponent
-from app.utilities import utils
 
 class FreeRoamRationalizeState(MapState):
     name = 'free_roam_rationalize'
@@ -14,9 +13,10 @@ class FreeRoamRationalizeState(MapState):
     def _get_units_to_rationalize(self):
         movement_components = []
         for unit in game.get_all_units():
-            if utils.round_pos(unit.sprite.fake_position) != unit.position:
+            if unit.sprite.get_roam_position():
                 new_movement_component = RationalizeMovementComponent(unit)
                 movement_components.append(new_movement_component)
+        return movement_components
 
     def update(self):
         super().update()

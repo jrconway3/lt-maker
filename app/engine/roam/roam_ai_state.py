@@ -4,7 +4,7 @@ from enum import Enum, auto
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.region import RegionObject
 
-class AIAction(Enum):
+class RoamAIAction(Enum):
     NONE = auto()
     MOVE = auto()
     WAIT = auto()
@@ -13,24 +13,24 @@ class AIAction(Enum):
 @dataclass
 class AIStruct():
     unit: UnitObject
-    mtype: ClassVar[AIAction] = AIAction.NONE
+    action_type: ClassVar[RoamAIAction] = RoamAIAction.NONE
 
 @dataclass
 class Wait(AIStruct):
     unit: UnitObject
     time: int
-    mtype: ClassVar[AIAction] = AIAction.WAIT
+    action_type: ClassVar[RoamAIAction] = RoamAIAction.WAIT
 
 @dataclass
 class MoveTo(AIStruct):
     unit: UnitObject
     target: Tuple[int, int]
     desired_proximity: float
-    mtype: ClassVar[AIAction] = AIAction.MOVE
+    action_type: ClassVar[RoamAIAction] = RoamAIAction.MOVE
 
 @dataclass
 class Interact(AIStruct):
     unit: UnitObject
     region: RegionObject
     desired_proximity: float
-    mtype: ClassVar[AIAction] = AIAction.INTERACT
+    action_type: ClassVar[RoamAIAction] = RoamAIAction.INTERACT

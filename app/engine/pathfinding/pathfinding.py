@@ -216,7 +216,7 @@ class ThetaStar(AStar):
         # f is simply them added together
         # If line of sight is valid, we can just use the parent
         # of the current cell rather than the current cell
-        if self.line_of_sight(cell.parent, adj):
+        if cell.parent and self.line_of_sight(cell.parent, adj):
             adj.g = cell.parent.g + adj.cost
             adj.parent = cell.parent
         else:
@@ -227,11 +227,11 @@ class ThetaStar(AStar):
         adj.true_f = self.get_simple_heuristic(adj) + adj.g
 
     def line_of_sight(self, cell1, cell2) -> bool:
-        def can_move_through(pos: Tuple[int, int]) -> bool:
+        def cannot_move_through(pos: Tuple[int, int]) -> bool:
             cell = self.get_cell(*pos)
-            return cell.reachable
+            return not cell.reachable
 
         pos1 = cell1.x, cell1.y
         pos2 = cell2.x, cell2.y
-        valid = bresenham_line_algorithm.get_line(pos1, pos2, can_move_through)
+        valid = bresenham_line_algorithm.get_line(pos1, pos2, cannot_move_through)
         return valid

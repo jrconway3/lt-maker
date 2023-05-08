@@ -15,6 +15,8 @@ from app.utilities import utils
 
 import logging
 
+BASE_SPEED_DENOMINATOR = 100.
+
 class FreeRoamAIHandler:
     def __init__(self):
         self.active: bool = True
@@ -29,7 +31,7 @@ class FreeRoamAIHandler:
                 self.roam_ais.append(RoamAI(unit))
                 mc = RoamAIMovementComponent(unit)
                 self.components[unit.nid] = mc
-                game.movement_system.add(mc)
+                game.movement.add(mc)
 
     def update(self):
         if not self.active:
@@ -37,8 +39,11 @@ class FreeRoamAIHandler:
         for roam_ai in self.roam_ais:
             if not roam_ai.state:
                 roam_ai.think()
+            print("update")
+            print(roam_ai.state)
             roam_ai.act()
             # Every frame, make sure our movement component has the right path
+            print(roam_ai.path)
             if roam_ai.path:
                 self.components[roam_ai.unit.nid].set_path(roam_ai.path)
 
@@ -51,7 +56,6 @@ class RoamAI:
     def __init__(self, unit):
         self.unit = unit
         self.reset()
-        self.clean_up()
 
     def reset(self):
         self.state = None
@@ -66,38 +70,41 @@ class RoamAI:
         self.state = None
         self.path.clear()
 
-    def clean_up(self):
-        self.goal_item = None
-        self.goal_target = None
-
     def set_next_behaviour(self):
-        behaviours = DB.ai.get(self.unit.get_roam_ai()).behaviours
-        while self.behaviour_idx < len(behaviours):
-            next_behaviour = behaviours[self.behaviour_idx]
-            self.behaviour_idx += 1
+        def check_condition(next_behaviour) -> bool:
             if not next_behaviour.condition or \
                     evaluate.evaluate(next_behaviour.condition, self.unit, position=self.unit.position):
                 self.behaviour = next_behaviour
+                return True
+            return False
+
+        counter = 0  # To make sure we don't have an infinite loop
+        behaviours = DB.ai.get(self.unit.get_roam_ai()).behaviours
+        while self.behaviour_idx < len(behaviours) and counter < 99:
+            counter += 1
+            next_behaviour = behaviours[self.behaviour_idx]
+            self.behaviour_idx += 1
+            # Turn back to the beginning
+            if self.behaviour_idx >= len(behaviours):
+                self.behaviour_idx = 0
+            if check_condition(next_behaviour):
                 break            
         else:
+            logging.error("No AI behaviour of %s with a valid condition was found", self.unit.get_roam_ai())
             self.behaviour_idx = 0
-            self.behaviour = None
+            next_behaviour = None
 
     def get_path(self, pos) -> List[Tuple[int, int]]:
         return target_system.get_path(self.unit, pos, free_movement=True)
 
-    def get_target(self) -> Tuple[int, int]:
-        return target_system.get_nearest_open_tile(self.unit, self.goal_target)
-
     def think(self):
         start_time = engine.get_time()
         while True:
-            self.clean_up()
-
             self.set_next_behaviour()
-
+            print(self.behaviour.action, self.behaviour.roam_speed)
             if self.behaviour:
-                self.speed_mult = self.behaviour.roam_speed
+
+                self.speed_mult = self.behaviour.roam_speed / BASE_SPEED_DENOMINATOR
 
                 if self.behaviour.action == 'None':
                     pass  # Try again
@@ -125,7 +132,7 @@ class RoamAI:
                 return
 
     def get_filtered_target_positions(self) -> List[Tuple[Tuple[int, int], float]]:
-        target_positions = ai_controller.get_targets()
+        target_positions = ai_controller.get_targets(self.unit, self.behaviour)
 
         zero_move = max(target_system.find_potential_range(self.unit, True, True), default=0)
         single_move = zero_move + equations.parser.movement(self.unit)
@@ -194,11 +201,11 @@ class RoamAI:
 
     def act(self):
         if self.state.action_type == roam_ai_state.RoamAIAction.MOVE:
-            self.move(self.state.target)
+            self.move(self.state.target, self.state.desired_proximity)
         elif self.state.action_type == roam_ai_state.RoamAIAction.WAIT:
             self.wait(self.state.time)
         elif self.state.action_type == roam_ai_state.RoamAIAction.INTERACT:
-            self.move(self.state.region.center)
+            self.move(self.state.region.center, self.state.desired_proximity)
             # Then try to interact (will probably fail unless we are close enough)
             self.interact(self.state.region, self.state.desired_proximity)
 
@@ -207,7 +214,9 @@ class RoamAI:
             self.reset_for_next_behaviour()
 
     def interact(self, region: RegionObject, proximity: float):
-        if any(utils.calculate_distance(self.unit.position, pos) <= proximity for pos in region.get_all_positions()):
+        positions = [pos for pos in region.get_all_positions() if utils.calculate_distance(self.unit.position, pos) <= proximity]
+        if positions:
+            pos = list(sorted(positions, lambda pos: utils.calculate_distance(self.unit.position, pos)))[0]
             did_trigger = game.events.trigger(triggers.RegionTrigger(region.sub_nid, self.state.unit, pos, region))
             if not did_trigger:  # Just in case we need the generic one
                 did_trigger = game.events.trigger(triggers.OnRegionInteract(self.state.unit, pos, region))

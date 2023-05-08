@@ -20,8 +20,8 @@ class RoamPlayerMovementComponent(MovementComponent):
     running_accel = 36.0  # acceleration to maximum speed while sprinting (tiles per second^2)
     deceleration = 72.0  # deceleration to 0 (tiles per second^2)
 
-    def __init__(self, unit):
-        super().__init__(follow=True, muted=False)
+    def __init__(self, unit, follow=True, muted=False):
+        super().__init__(follow=follow, muted=muted)
         self.unit = unit
         # This is the copy we will work with
         self.position = self.unit.position
@@ -77,6 +77,7 @@ class RoamPlayerMovementComponent(MovementComponent):
 
         # === Process inputs ===
         self._kinematics(delta_time)
+        print("after_kinematics", self.x_vel, self.y_vel)
 
         # Actually move the unit if it's above the minimum speed
         if utils.magnitude((self.x_vel, self.y_vel)) > self.min_speed:

@@ -7,15 +7,14 @@ from app.engine.game_state import game
 from app.engine.movement.roam_player_movement_component import RoamPlayerMovementComponent
 from app.utilities import utils
 
-
 import logging
 
 class RoamAIMovementComponent(RoamPlayerMovementComponent):
     """
     # Used for moving the ai roaming unit according to a path given to it
     """
-    def __init__(self, unit):
-        super().__init__(follow=False, muted=False)
+    def __init__(self, unit, follow=False, muted=False):
+        super().__init__(unit, follow=follow, muted=muted)
         self.unit = unit
         # This is the copy we will work with
         self.position = self.unit.position
@@ -30,6 +29,9 @@ class RoamAIMovementComponent(RoamPlayerMovementComponent):
         """
         # How I should get to my goal
         """
+        # Get rid of my current position
+        if path and path[-1] == self.unit.position:
+            path.pop()
         self.path = path
 
     def get_end_goal(self) -> Tuple[int, int]:
@@ -54,18 +56,21 @@ class RoamAIMovementComponent(RoamPlayerMovementComponent):
         """
         # Updates the velocity of the current unit
         """
+        print("_kinematics", self.path)
         if self.path:
             desired_vector = self.get_desired_vector()
             self.x_mag, self.y_mag = desired_vector
         else:
             self.x_mag, self.y_mag = (0, 0)
+        print(self.x_mag, self.y_mag)
         # Modify velocity
         self._accelerate(delta_time, self.x_mag, self.y_mag)
 
     def move(self, delta_time):
+        print("actually move")
         x, y = self.position
-        dx = self.x_vel * delta_time
-        dy = self.y_vel * delta_time
+        dx = self.x_vel * delta_time * self.speed_modifier
+        dy = self.y_vel * delta_time * self.speed_modifier
         next_position = (x + dx, y + dy)
 
         rounded_pos = utils.round_pos(next_position)

@@ -16,6 +16,7 @@ from app.utilities import utils
 import logging
 
 BASE_SPEED_DENOMINATOR = 100.
+RECALCULATE_TIME = 333  # ms
 
 class FreeRoamAIHandler:
     def __init__(self):
@@ -39,11 +40,8 @@ class FreeRoamAIHandler:
         for roam_ai in self.roam_ais:
             if not roam_ai.state:
                 roam_ai.think()
-            print("update")
-            print(roam_ai.state)
             roam_ai.act()
             # Every frame, make sure our movement component has the right path
-            print(roam_ai.path)
             if roam_ai.path:
                 self.components[roam_ai.unit.nid].set_path(roam_ai.path)
 
@@ -65,6 +63,8 @@ class RoamAI:
         self.behaviour = None
         self.desired_proximity = 0
         self.speed_mult: float = 1.
+
+        self._last_recalculate = engine.get_time()
 
     def reset_for_next_behaviour(self):
         self.state = None
@@ -97,39 +97,47 @@ class RoamAI:
     def get_path(self, pos) -> List[Tuple[int, int]]:
         return target_system.get_path(self.unit, pos, free_movement=True)
 
+    def _calc_state(self) -> bool:
+        # Returns whether we should try again
+        if self.behaviour.action == 'None':
+            return True  # Try again
+        elif self.behaviour.action == "Wait":
+            start_time = engine.get_time()
+            self.state = roam_ai_state.Wait(self.unit, start_time + self.behaviour.target_spec)
+            return False
+        elif self.behaviour.action == "Move_to":
+            target: Optional[Tuple[int, int]] = self.approach()
+            if target:
+                self.state = roam_ai_state.MoveTo(self.unit, target, self.behaviour.desired_proximity)
+                return False
+        elif self.behaviour.action == "Interact":
+            region: Optional[RegionObject] = self.find_region()
+            if region:
+                self.state = roam_ai_state.Interact(self.unit, region, self.behaviour.desired_proximity)
+                return False
+        elif self.behaviour.action == "Move_away_from":
+            target: Optional[Tuple[int, int]] = self.retreat()
+            if target:
+                self.state = roam_ai_state.MoveTo(self.unit, target, self.behaviour.desired_proximity)
+                return False
+        # Some behaviour that is currently not supported for roaming
+        return True
+
     def think(self):
-        start_time = engine.get_time()
-        while True:
+        counter = 0
+        while counter < 99:
+            counter += 1
             self.set_next_behaviour()
-            print(self.behaviour.action, self.behaviour.roam_speed)
             if self.behaviour:
 
                 self.speed_mult = self.behaviour.roam_speed / BASE_SPEED_DENOMINATOR
 
-                if self.behaviour.action == 'None':
-                    pass  # Try again
-                elif self.behaviour.action == "Wait":
-                    self.state = roam_ai_state.Wait(self.unit, start_time + self.behaviour.target_spec)
+                try_again = self._calc_state()
+                if not try_again:
                     return
-                elif self.behaviour.action == "Move_to":
-                    target: Optional[Tuple[int, int]] = self.approach()
-                    if target:
-                        self.state = roam_ai_state.MoveTo(self.unit, target, self.behaviour.desired_proximity)
-                        return
-                elif self.behaviour.action == "Interact":
-                    region: Optional[RegionObject] = self.find_region()
-                    if region:
-                        self.state = roam_ai_state.Interact(self.unit, region, self.behaviour.desired_proximity)
-                        return
-                elif self.behaviour.action == "Move_away_from":
-                    target: Optional[Tuple[int, int]] = self.retreat()
-                    if target:
-                        self.state = roam_ai_state.MoveTo(self.unit, target, self.behaviour.desired_proximity)
-                        return
-                else:  # Some behaviour that is currently not supported for roaming
-                    pass
             else:  # No behaviour
                 return
+        logging.error("Infinite loop detected in %s's %s AI", self.unit, self.unit.get_roam_ai())
 
     def get_filtered_target_positions(self) -> List[Tuple[Tuple[int, int], float]]:
         target_positions = ai_controller.get_targets(self.unit, self.behaviour)
@@ -150,7 +158,7 @@ class RoamAI:
         elif self.behaviour.view_range == -1:
             target_positions = [(pos, mag) for pos, mag in target_positions if mag < zero_move]
         else:
-            target_positions = [(pos, mag) for pos, mag in target_positions if mag < self.view_range]
+            target_positions = [(pos, mag) for pos, mag in target_positions if mag < self.behaviour.view_range]
         return target_positions
 
     def approach(self) -> Optional[Tuple[int, int]]:
@@ -201,6 +209,11 @@ class RoamAI:
 
     def act(self):
         if self.state.action_type == roam_ai_state.RoamAIAction.MOVE:
+            # Can recalculate the path because it's been a while
+            if self.path and engine.get_time() - self._last_recalculate >= RECALCULATE_TIME:
+                self._calc_state()
+                self.path = self.get_path(self.state.target)
+                self._last_recalculate = engine.get_time()
             self.move(self.state.target, self.state.desired_proximity)
         elif self.state.action_type == roam_ai_state.RoamAIAction.WAIT:
             self.wait(self.state.time)
@@ -234,10 +247,12 @@ class RoamAI:
         if not target:
             self.reset_for_next_behaviour()
             return
-        if utils.calculate_distance(self.unit.position, target) <= proximity:
-            # We've arrived
+        position = self.unit.sprite.position
+        if utils.calculate_distance(position, target) <= proximity:
+            # Turns out we really are close
             self.reset_for_next_behaviour()
             return
+            
         # Check whether the path has diverged too much
         if self.path and self.path[0] != target:
             self.path = self.get_path(target)

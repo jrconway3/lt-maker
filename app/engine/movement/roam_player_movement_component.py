@@ -25,7 +25,6 @@ class RoamPlayerMovementComponent(MovementComponent):
         self.unit = unit
         # This is the copy we will work with
         self.position = self.unit.position
-        self.max_speed: float = game.game_vars.get("_roam_speed", 1) * self.base_max_speed
         self.sprint = False
 
         self.inputs = []
@@ -33,10 +32,6 @@ class RoamPlayerMovementComponent(MovementComponent):
 
     def set_sprint(self, b: bool):
         self.sprint = b
-        if b:
-            self.max_speed = 1.5 * game.game_vars.get("_roam_speed", 1) * self.base_max_speed
-        else:
-            self.max_speed = 1.0 * game.game_vars.get("_roam_speed", 1) * self.base_max_speed
 
     def set_inputs(self, inputs: List[str]):
         self.inputs = inputs
@@ -49,6 +44,16 @@ class RoamPlayerMovementComponent(MovementComponent):
             return self.running_accel
         else:
             return self.base_accel
+
+    def get_max_speed(self) -> float:
+        if self.sprint:
+            max_speed = 1.5 * game.game_vars.get("_roam_speed", 1) * self.base_max_speed
+        else:
+            max_speed = 1.0 * game.game_vars.get("_roam_speed", 1) * self.base_max_speed
+        # Lower speed when walking through difficult terrain
+        mcost = movement_funcs.get_mcost(self.unit, self.unit.position)
+        max_speed /= mcost
+        return max_speed
 
     def start(self):
         # The unit's position is self.unit.position
@@ -77,7 +82,6 @@ class RoamPlayerMovementComponent(MovementComponent):
 
         # === Process inputs ===
         self._kinematics(delta_time)
-        print("after_kinematics", self.x_vel, self.y_vel)
 
         # Actually move the unit if it's above the minimum speed
         if utils.magnitude((self.x_vel, self.y_vel)) > self.min_speed:
@@ -108,6 +112,7 @@ class RoamPlayerMovementComponent(MovementComponent):
         self._accelerate(delta_time, self.x_mag, self.y_mag)
 
     def _accelerate(self, delta_time, x_mag: float, y_mag: float):
+        max_speed: float = self.get_max_speed()
         # Modify velocity
         if x_mag > 0:
             self.x_vel += (self.get_accel() * delta_time)
@@ -120,7 +125,7 @@ class RoamPlayerMovementComponent(MovementComponent):
             elif self.x_vel < 0:
                 self.x_vel += (self.deceleration * delta_time)
                 self.x_vel = min(0, self.x_vel)
-        self.x_vel = utils.clamp(self.x_vel, -self.max_speed, self.max_speed)
+        self.x_vel = utils.clamp(self.x_vel, -max_speed, max_speed)
 
         if y_mag > 0:
             self.y_vel += (self.get_accel() * delta_time)
@@ -133,12 +138,12 @@ class RoamPlayerMovementComponent(MovementComponent):
             elif self.y_vel < 0:
                 self.y_vel += (self.deceleration * delta_time)
                 self.y_vel = min(0, self.y_vel)
-        self.y_vel = utils.clamp(self.y_vel, -self.max_speed, self.max_speed)
+        self.y_vel = utils.clamp(self.y_vel, -max_speed, max_speed)
         # Diagonal movement shouldn't be faster than single-axis
         full_mag = utils.magnitude((self.x_vel, self.y_vel))
-        if full_mag > self.max_speed:
-            self.x_vel *= self.max_speed / full_mag
-            self.y_vel *= self.max_speed / full_mag
+        if full_mag > max_speed:
+            self.x_vel *= max_speed / full_mag
+            self.y_vel *= max_speed / full_mag
 
     def _can_move(self, pos: Tuple[int, int]) -> bool:
         traversable = movement_funcs.check_traversable(self.unit, pos)
@@ -159,7 +164,8 @@ class RoamPlayerMovementComponent(MovementComponent):
         next_position = (x + dx, y + dy)
 
         rounded_pos = utils.round_pos(next_position)
-        if self._can_move(rounded_pos):
+        # Can always move within current position
+        if rounded_pos == self.unit.position or self._can_move(rounded_pos):
             self.position = next_position
 
             # Assign the position to the sprite

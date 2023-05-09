@@ -56,25 +56,22 @@ class RoamAIMovementComponent(RoamPlayerMovementComponent):
         """
         # Updates the velocity of the current unit
         """
-        print("_kinematics", self.path)
         if self.path:
             desired_vector = self.get_desired_vector()
             self.x_mag, self.y_mag = desired_vector
         else:
             self.x_mag, self.y_mag = (0, 0)
-        print(self.x_mag, self.y_mag)
         # Modify velocity
         self._accelerate(delta_time, self.x_mag, self.y_mag)
 
     def move(self, delta_time):
-        print("actually move")
         x, y = self.position
         dx = self.x_vel * delta_time * self.speed_modifier
         dy = self.y_vel * delta_time * self.speed_modifier
         next_position = (x + dx, y + dy)
 
         rounded_pos = utils.round_pos(next_position)
-        if self._can_move(rounded_pos):
+        if rounded_pos == self.unit.position or self._can_move(rounded_pos):
             self.position = next_position
         else:
             self.path.clear()

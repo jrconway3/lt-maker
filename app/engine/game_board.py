@@ -105,6 +105,12 @@ class GameBoard(object):
             return self.unit_grid[idx][0]
         return None
 
+    def get_units(self, pos: Tuple[int, int]) -> List[UnitObject]:
+        if not pos:
+            return []
+        idx = pos[0] * self.height + pos[1]
+        return self.unit_grid[idx]
+
     def get_team(self, pos):
         if not pos:
             return None

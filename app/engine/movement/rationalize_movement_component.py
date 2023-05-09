@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Tuple
 
+from app.engine import target_system
+from app.engine.game_state import game
 from app.engine.movement.movement_component import MovementComponent
 from app.utilities import utils
 
@@ -20,7 +22,21 @@ class RationalizeMovementComponent(MovementComponent):
         self.unit = unit
         # This is the copy we will work with
         self.position = self.unit.sprite.get_roam_position()
-        self.goal = self.unit.position
+        # This is where we shall go
+        if game.board.get_unit(self.unit.position) is self.unit:
+            self.goal = self.unit.position
+        else:  # Somebody else is occupying your position
+            # Find a new nearby position to call home
+            position = target_system.get_nearest_open_tile(self.unit, self.unit.position)
+            if position:
+                self.goal = position
+            else:
+                logging.warning("Somehow wasn't able to find a nearby open tile")
+                self.goal = target_system.get_nearest_open_tile(self.unit, (0, 0))
+                if self.goal is None:
+                    logging.error("Really couldn't find a valid position to rationalize unit to")
+                    self.goal = (0, 0)
+
         self.start()
 
     def get_camera_position(self) -> Tuple[float, float]:

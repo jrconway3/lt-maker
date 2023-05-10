@@ -18,8 +18,7 @@ class UnitPathMovementComponent(MovementComponent):
     """
     def __init__(self, unit, path: List[Tuple[int, int]], event=False, 
                  follow=True, muted=False, speed: int = 0):
-        super().__init__(follow, muted)
-        self.unit = unit
+        super().__init__(unit, follow, muted)
         self.path = path
         self.goal = self.path[0] if self.path else None
         self.event: bool = event

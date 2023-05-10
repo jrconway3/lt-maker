@@ -175,8 +175,18 @@ class FreeRoamState(MapState):
         for button in ['LEFT', 'RIGHT', 'UP', 'DOWN']:
             if get_input_manager().is_pressed(button) or get_input_manager().just_pressed(button):
                 inputs.append(button)
+        # Convert inputs to vector
+        x, y = 0, 0
+        if 'LEFT' in inputs:
+            x = -1
+        elif 'RIGHT' in inputs:
+            x = 1
+        if 'UP' in inputs:
+            y = -1
+        elif 'DOWN' in inputs:
+            y = 1
 
-        self.movement_component.set_inputs(inputs)
+        self.movement_component.set_acceleration((x, y))
 
         # Now check regular events
         if event == 'SELECT':

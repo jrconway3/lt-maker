@@ -21,25 +21,23 @@ class RoamPlayerMovementComponent(MovementComponent):
     deceleration = 72.0  # deceleration to 0 (tiles per second^2)
 
     def __init__(self, unit, follow=True, muted=False):
-        super().__init__(follow=follow, muted=muted)
-        self.unit = unit
+        super().__init__(unit, follow=follow, muted=muted)
         # This is the copy we will work with
         self.position = self.unit.position
         self.sprint = False
 
-        self.inputs = []
         self.start()
 
     def set_sprint(self, b: bool):
         self.sprint = b
 
-    def set_inputs(self, inputs: List[str]):
-        self.inputs = inputs
-
     def get_camera_position(self) -> Tuple[float, float]:
         return self.position
 
-    def get_accel(self):
+    def set_acceleration(self, vec: Tuple[float, float]):
+        self.x_mag, self.y_mag = vec
+
+    def get_acceleration(self):
         if self.sprint:
             return self.running_accel
         else:
@@ -98,16 +96,6 @@ class RoamPlayerMovementComponent(MovementComponent):
         """
         # Updates the velocity of the current unit
         """
-        self.x_mag, self.y_mag = 0, 0
-        if 'LEFT' in self.inputs:
-            self.x_mag = -1
-        elif 'RIGHT' in self.inputs:
-            self.x_mag = 1
-        if 'UP' in self.inputs:
-            self.y_mag = -1
-        elif 'DOWN' in self.inputs:
-            self.y_mag = 1
-
         # Modify velocity
         self._accelerate(delta_time, self.x_mag, self.y_mag)
 
@@ -115,9 +103,9 @@ class RoamPlayerMovementComponent(MovementComponent):
         max_speed: float = self.get_max_speed()
         # Modify velocity
         if x_mag > 0:
-            self.x_vel += (self.get_accel() * delta_time)
+            self.x_vel += (self.get_acceleration() * delta_time)
         elif x_mag < 0:
-            self.x_vel -= (self.get_accel() * delta_time)
+            self.x_vel -= (self.get_acceleration() * delta_time)
         else:
             if self.x_vel > 0:
                 self.x_vel -= (self.deceleration * delta_time)
@@ -128,9 +116,9 @@ class RoamPlayerMovementComponent(MovementComponent):
         self.x_vel = utils.clamp(self.x_vel, -max_speed, max_speed)
 
         if y_mag > 0:
-            self.y_vel += (self.get_accel() * delta_time)
+            self.y_vel += (self.get_acceleration() * delta_time)
         elif y_mag < 0:
-            self.y_vel -= (self.get_accel() * delta_time)
+            self.y_vel -= (self.get_acceleration() * delta_time)
         else:
             if self.y_vel > 0:
                 self.y_vel -= (self.deceleration * delta_time)

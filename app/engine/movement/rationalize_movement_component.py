@@ -18,8 +18,7 @@ class RationalizeMovementComponent(MovementComponent):
     epsilon = 0.01  # In tiles -- when the unit is close enough
 
     def __init__(self, unit):
-        super().__init__(follow=False, muted=True)
-        self.unit = unit
+        super().__init__(unit, follow=False, muted=True)
         # This is the copy we will work with
         self.position = self.unit.sprite.get_roam_position()
         # This is where we shall go

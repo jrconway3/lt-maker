@@ -212,7 +212,7 @@ class GameState():
         self.phase = phase.PhaseController()
         self.highlight = highlight.HighlightController()
         self.map_view = map_view.MapView()
-        self.movement = movement_system.MovementSystem()
+        self.movement = movement_system.MovementSystem(self.cursor, self.camera)
         self.death = death.DeathManager()
         self.ui_view = ui_view.UIView()
         self.combat_instance = []

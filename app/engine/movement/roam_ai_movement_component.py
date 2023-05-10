@@ -15,7 +15,6 @@ class RoamAIMovementComponent(RoamPlayerMovementComponent):
     """
     def __init__(self, unit, follow=False, muted=False):
         super().__init__(unit, follow=follow, muted=muted)
-        self.unit = unit
         # This is the copy we will work with
         self.position = self.unit.position
         self.speed_modifier: float = 1.0
@@ -41,7 +40,7 @@ class RoamAIMovementComponent(RoamPlayerMovementComponent):
         """
         return utils.round_pos(self.path[0]) if self.path else self.unit.position
 
-    def get_accel(self):
+    def get_acceleration(self):
         return self.base_accel
 
     def get_desired_vector(self) -> Tuple[float, float]:

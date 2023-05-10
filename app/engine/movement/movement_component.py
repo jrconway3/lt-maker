@@ -3,12 +3,17 @@ from __future__ import annotations
 from typing import Tuple
 
 class MovementComponent:
-    def __init__(self, follow=True, muted=False):
+    def __init__(self, unit, follow=True, muted=False):
         self.active = True
+        self._unit = unit
         self.follow: bool = follow
         self.muted: bool = muted
 
         self._last_update = 0
+
+    @property
+    def unit(self):
+        return self._unit  
 
     def start(self):
         raise NotImplementedError

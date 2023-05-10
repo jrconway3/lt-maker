@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import List, Tuple
+from typing import Optional, List, Tuple, TYPE_CHECKING
 
 import app.engine.config as cf
-from app.engine.game_state import game
 from app.engine import engine
 from app.engine.movement.movement_component import MovementComponent
 from app.engine.movement.unit_path_movement_component import UnitPathMovementComponent
 from app.utilities import utils
+
+if TYPE_CHECKING:
+    from app.engine import camera, cursor
 
 import logging
 
@@ -15,7 +17,10 @@ class MovementSystem:
     """
     Operates upon MovementComponents and handles moving the camera around
     """
-    def __init__(self):
+    def __init__(self, cursor: Optional[cursor.BaseCursor], camera: Optional[camera.Camera]):
+        self.cursor = cursor
+        self.camera = camera
+
         self.moving_entities: List[MovementComponent] = []
         self.camera_follow: Tuple[int, int] = None  # What position to be over
         self.camera_center: bool = False  # Whether to center on the position
@@ -74,6 +79,7 @@ class MovementSystem:
 
         # Update camera follow only if it's changed
         if self.camera_follow and old_follow != self.camera_follow:
-            game.cursor.set_pos(utils.round_pos(self.camera_follow))
-            if self.camera_center:
-                game.camera.set_center(*self.camera_follow)
+            if self.cursor:
+                self.cursor.set_pos(utils.round_pos(self.camera_follow))
+            if self.camera and self.camera_center:
+                self.camera.set_center(*self.camera_follow)

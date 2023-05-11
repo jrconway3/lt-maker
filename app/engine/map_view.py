@@ -46,7 +46,7 @@ class MapView():
         # Update all units
         update_units = [unit for unit in game.units if unit.sprite.position]
         for unit in update_units:
-            if game.level and game.level.roam:
+            if game.is_roam():
                 if unit.position:
                     norm_dist_from_center = max(1.0 - magnitude(tuple_sub(unit.position, cull_rect_center_in_tiles)) / ((TILEX + TILEY) / 2), 0)
                 else:

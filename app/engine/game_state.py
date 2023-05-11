@@ -37,6 +37,7 @@ from app.events.regions import RegionType
 from app.events import speak_style
 from app.engine import config as cf
 from app.engine import state_machine
+from app.engine.roam.roam_info import RoamInfo
 from app.utilities import static_random
 from app.data.resources.resources import RESOURCES
 
@@ -82,6 +83,7 @@ class GameState():
         self.current_level: LevelObject = None
         self._current_party: NID = None
         self.turncount: int = 0
+        self.roam_info: RoamInfo = RoamInfo()
         self.talk_options: List[Tuple[NID, NID]] = []
         self.base_convos: Dict[NID, bool] = {}
         self.action_log: turnwheel.ActionLog = None
@@ -127,6 +129,7 @@ class GameState():
 
         self.current_save_slot = None
         self.current_level = None
+        self.roam_info.clear()
 
         self.speak_styles = speak_style.SpeakStyleLibrary()
 
@@ -151,6 +154,7 @@ class GameState():
         self.parties = {}
         self.current_party = None
         self.current_level = None
+        self.roam_info.clear()
         self.game_vars.clear()
 
         # Set up random seed
@@ -291,6 +295,8 @@ class GameState():
         else:
             self.current_party = self.current_level.party
 
+        self.roam_info = RoamInfo(level_prefab.roam, level_prefab.roam_unit)
+
         self.level_setup()
 
     def build_level_from_scratch(self, level_nid, tilemap):
@@ -308,6 +314,7 @@ class GameState():
         party = DB.parties.keys()[0]
         self.current_level = LevelObject.from_scratch(level_nid, tilemap, None, party, self.unit_registry, self.current_mode)
         self.current_party = self.current_level.party
+        self.roam_info.clear()
 
         self.level_setup()
 
@@ -356,6 +363,7 @@ class GameState():
                   'base_convos': self.base_convos,
                   'current_random_state': static_random.get_combat_random_state(),
                   'bounds': self.board.bounds,
+                  'roam_info': self.roam_info,
                   }
         meta_dict = {'playtime': self.playtime,
                      'realtime': time.time(),
@@ -460,6 +468,8 @@ class GameState():
 
         if 'current_random_state' in s_dict:
             static_random.set_combat_random_state(s_dict['current_random_state'])
+
+        self.roam_info = s_dict.get('roam_info', RoamInfo())
 
         if s_dict['level']:
             logging.info("Loading Level...")
@@ -602,6 +612,7 @@ class GameState():
         if full:
             self.sweep()
             self.current_level = None
+            self.roam_info.clear()
         else:
             self.turncount = 1
             self.action_log.set_first_free_action()
@@ -821,6 +832,24 @@ class GameState():
         party_units = [unit for unit in game.get_all_units_in_party(party) if not unit.dead]
         party_units = sorted(party_units, key=lambda unit: party_order.index(unit.nid) if unit.nid in party_order else 999999)
         return party_units
+
+    # For working with roaming
+    def is_roam(self) -> bool:
+        return self.roam_info.roam
+
+    def set_roam(self, b: bool):
+        self.roam_info.roam = b
+
+    def get_roam_unit(self) -> UnitObject:
+        if self.roam_info.roam_unit_nid:
+            return game.get_unit(self.roam_info.roam_unit_nid)
+        return None
+
+    def set_roam_unit(self, unit: UnitObject):
+        self.roam_info.roam_unit_nid = unit.nid
+
+    def clear_roam_unit(self):
+        self.roam_info.roam_unit_nid = None
 
     def check_dead(self, nid):
         unit = self.get_unit(nid)

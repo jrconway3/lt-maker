@@ -186,7 +186,7 @@ class PhaseChangeState(MapState):
     name = 'phase_change'
 
     def is_roam(self):
-        return game.level.roam and game.level.roam_unit
+        return game.is_roam() and game.get_roam_unit()
 
     def refresh_fatigue(self):
         refresh_these = [unit for unit in game.get_all_units_in_party() if not unit.position]
@@ -268,7 +268,7 @@ class FreeState(MapState):
     name = 'free'
 
     def begin(self):
-        if game.level.roam and game.level.roam_unit:
+        if game.is_roam() and game.get_roam_unit():
             game.state.change('free_roam')
             return 'repeat'
 
@@ -414,7 +414,7 @@ class OptionMenuState(MapState):
             options.append('Quit Game')
             info_desc.append('Quit_Game_desc')
             ignore.append(False)
-        if not game.level or not game.level.roam:
+        if not game.is_roam():
             options.append('End')
             info_desc.append('End_desc')
             ignore.append(False)
@@ -424,7 +424,7 @@ class OptionMenuState(MapState):
             info_desc.insert(2, 'Guide_desc')
             ignore.insert(2, False)
         if DB.constants.get('turnwheel').value and game.game_vars.get('_turnwheel') and \
-                (not game.level or not game.level.roam):
+                not game.is_roam():
             options.insert(1, 'Turnwheel')
             info_desc.insert(1, 'Turnwheel_desc')
             ignore.insert(1, False)

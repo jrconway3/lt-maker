@@ -26,21 +26,18 @@ class FreeRoamState(MapState):
     def begin(self):
         game.cursor.hide()
 
-        if game.level.roam and game.level.roam_unit:
-            roam_unit_nid = game.level.roam_unit
-
-            if self.roam_unit and self.roam_unit.nid != roam_unit_nid:
+        if game.is_roam() and game.get_roam_unit():
+            roam_unit = game.get_roam_unit()
+            if self.roam_unit and self.roam_unit != roam_unit:
                 # Now get the new unit
-                unit = game.get_unit(roam_unit_nid)
-                self._assign_unit(unit)
+                self._assign_unit(roam_unit)
             elif self.roam_unit:
                 # Don't need to do anything -- just reusing the same unit
                 pass
-            elif game.get_unit(roam_unit_nid):
-                unit = game.get_unit(roam_unit_nid)
-                self._assign_unit(unit)
+            elif roam_unit:  # Make a new self.roam_unit
+                self._assign_unit(roam_unit)
             else:
-                logging.error("Unable to find roaming unit %s", roam_unit_nid)
+                logging.error("Unable to find roaming unit %s", game.roam_info.roam_unit_nid)
 
         elif self.roam_unit:  # Have a roam unit and we shouldn't...
             self.roam_unit = None
@@ -51,7 +48,7 @@ class FreeRoamState(MapState):
     def leave(self):
         game.state.back()
         self.rationalize_all_units()
-        game.level.roam = False
+        game.set_roam(False)
         # Leave this state
         return 'repeat'
 

@@ -355,11 +355,11 @@ class UnitSprite():
             if self.unit.finished and not self.unit.is_dying:
                 self.image_state = 'gray'
             elif DB.constants.value('initiative') and game.initiative.get_current_unit() != self.unit \
-                    and not game.level.roam and self.unit.team == 'player':
+                    and not game.is_roam() and self.unit.team == 'player':
                 self.image_state = 'gray'
             elif game.cursor.draw_state and game.cursor.position == self.unit.position and self.unit.team == 'player':
                 self.image_state = 'active'
-            elif game.level and game.level.roam and game.level.roam_unit == self.unit.nid:
+            elif game.is_roam() and game.get_roam_unit() == self.unit:
                 self.image_state = 'passive'
             else:
                 self.image_state = 'passive'
@@ -582,7 +582,7 @@ class UnitSprite():
                                       'combat_targeting', 'item_targeting'):
             cur_unit = game.cursor.cur_unit
         elif game.state.current() == 'free_roam':
-            cur_unit = game.get_unit(game.level.roam_unit)
+            cur_unit = game.get_roam_unit()
         if not cur_unit:
             return surf
 
@@ -592,12 +592,12 @@ class UnitSprite():
         frame = (engine.get_time() // 100) % 8
         offset = [0, 0, 0, 1, 2, 2, 2, 1][frame]
         markers = []
-        if game.level.roam and game.state.current() == 'free_roam' and game.state.state[-1].get_talk_partner() and \
+        if game.is_roam() and game.state.current() == 'free_roam' and game.state.state[-1].get_talk_partner() and \
                 (self.unit.nid, cur_unit.nid) in game.talk_options:
             markers.append('talk')
         elif (cur_unit.nid, self.unit.nid) in game.talk_options:
             markers.append('talk')
-        if (game.level.roam and game.state.current() == 'free_roam' and
+        if (game.is_roam() and game.state.current() == 'free_roam' and
                 game.state.state[-1].get_visit_region() and
                 game.state.state[-1].roam_unit and
                 game.state.state[-1].roam_unit.nid == self.unit.nid):
@@ -614,7 +614,7 @@ class UnitSprite():
         return surf
 
     def check_draw_hp(self) -> bool:
-        if game.level.roam and DB.constants.value('roam_hide_hp'):
+        if game.is_roam() and DB.constants.value('roam_hide_hp'):
             return False
         if self.unit.is_dying or self.unit.dead:
             return False

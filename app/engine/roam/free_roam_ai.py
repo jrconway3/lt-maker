@@ -6,7 +6,7 @@ from app.utilities.typing import NID
 from app.data.database.database import DB
 from app.engine.game_state import game
 from app.engine import action, ai_controller, engine, equations, evaluate, target_system
-from app.engine.roam import roam_ai_state
+from app.engine.roam import roam_ai_action
 from app.engine.movement.roam_ai_movement_component import RoamAIMovementComponent
 from app.engine.objects.region import RegionObject
 from app.events.regions import RegionType
@@ -103,22 +103,22 @@ class RoamAI:
             return True  # Try again
         elif self.behaviour.action == "Wait":
             start_time = engine.get_time()
-            self.state = roam_ai_state.Wait(self.unit, start_time + self.behaviour.target_spec)
+            self.state = roam_ai_action.Wait(self.unit, start_time + self.behaviour.target_spec)
             return False
         elif self.behaviour.action == "Move_to":
             target: Optional[Tuple[int, int]] = self.approach()
             if target:
-                self.state = roam_ai_state.MoveTo(self.unit, target, self.behaviour.desired_proximity)
+                self.state = roam_ai_action.MoveTo(self.unit, target, self.behaviour.desired_proximity)
                 return False
         elif self.behaviour.action == "Interact":
             region: Optional[RegionObject] = self.find_region()
             if region:
-                self.state = roam_ai_state.Interact(self.unit, region, self.behaviour.desired_proximity)
+                self.state = roam_ai_action.Interact(self.unit, region, self.behaviour.desired_proximity)
                 return False
         elif self.behaviour.action == "Move_away_from":
             target: Optional[Tuple[int, int]] = self.retreat()
             if target:
-                self.state = roam_ai_state.MoveTo(self.unit, target, self.behaviour.desired_proximity)
+                self.state = roam_ai_action.MoveTo(self.unit, target, self.behaviour.desired_proximity)
                 return False
         # Some behaviour that is currently not supported for roaming
         return True
@@ -208,16 +208,16 @@ class RoamAI:
             return None
 
     def act(self):
-        if self.state.action_type == roam_ai_state.RoamAIAction.MOVE:
+        if self.state.action_type == roam_ai_action.RoamAIAction.MOVE:
             # Can recalculate the path because it's been a while
             if self.path and engine.get_time() - self._last_recalculate >= RECALCULATE_TIME:
                 self._calc_state()
                 self.path = self.get_path(self.state.target)
                 self._last_recalculate = engine.get_time()
             self.move(self.state.target, self.state.desired_proximity)
-        elif self.state.action_type == roam_ai_state.RoamAIAction.WAIT:
+        elif self.state.action_type == roam_ai_action.RoamAIAction.WAIT:
             self.wait(self.state.time)
-        elif self.state.action_type == roam_ai_state.RoamAIAction.INTERACT:
+        elif self.state.action_type == roam_ai_action.RoamAIAction.INTERACT:
             self.move(self.state.region.center, self.state.desired_proximity)
             # Then try to interact (will probably fail unless we are close enough)
             self.interact(self.state.region, self.state.desired_proximity)

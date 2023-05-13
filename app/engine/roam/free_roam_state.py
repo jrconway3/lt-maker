@@ -49,6 +49,7 @@ class FreeRoamState(MapState):
         game.state.back()
         self.rationalize_all_units()
         game.set_roam(False)
+        game.cursor.autocursor(immediate=True)
         # Leave this state
         return 'repeat'
 
@@ -69,7 +70,7 @@ class FreeRoamState(MapState):
             self.movement_component.finish()
         game.state.change('free_roam_rationalize')
 
-    def get_talk_partner(self):
+    def get_closest_unit(self, must_have_talk=False):
         """
         # Returns a unit that roam unit can talk to.
         # Returns the closest unit if more than one is available.
@@ -83,9 +84,10 @@ class FreeRoamState(MapState):
             logging.warning("Roam unit does not have a position")
             return None
         for unit in game.get_all_units():
+            has_talk = (self.roam_unit.nid, unit.nid) in game.talk_options
             if unit is not self.roam_unit and \
                     utils.calculate_distance(my_pos, unit.position) < self.TALK_RANGE and \
-                    (self.roam_unit.nid, unit.nid) in game.talk_options:
+                    (has_talk if must_have_talk else True):
                 units.append(unit)
         units = list(sorted(units, key=lambda unit: utils.calculate_distance(my_pos, unit.position)))
         if units:
@@ -125,7 +127,7 @@ class FreeRoamState(MapState):
         """
         # Called whenever the player presses SELECT
         """
-        other_unit = self.get_talk_partner()
+        other_unit = self.get_closest_unit(must_have_talk=True)
         region = self.get_visit_region()
 
         if other_unit:
@@ -147,7 +149,7 @@ class FreeRoamState(MapState):
         """
         # Called whenever the player presses INFO
         """
-        other_unit = self.get_talk_partner()
+        other_unit = self.get_closest_unit()
         did_trigger = game.events.trigger(triggers.RoamPressInfo(self.roam_unit, other_unit))
         if did_trigger:
             self.rationalize_all_units()

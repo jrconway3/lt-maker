@@ -208,6 +208,9 @@ class RoamAI:
             return None
 
     def act(self):
+        if not self.state:
+            logging.warning("Free Roam AI for %s could not determine an action to perform", self.unit)
+            return
         if self.state.action_type == roam_ai_action.RoamAIAction.MOVE:
             # Can recalculate the path because it's been a while
             if engine.get_time() - self._last_recalculate >= RECALCULATE_TIME:

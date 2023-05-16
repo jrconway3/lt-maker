@@ -210,7 +210,7 @@ class RoamAI:
     def act(self):
         if self.state.action_type == roam_ai_action.RoamAIAction.MOVE:
             # Can recalculate the path because it's been a while
-            if self.path and engine.get_time() - self._last_recalculate >= RECALCULATE_TIME:
+            if engine.get_time() - self._last_recalculate >= RECALCULATE_TIME:
                 self._calc_state()
                 self.path = self.get_path(self.state.target)
                 self._last_recalculate = engine.get_time()

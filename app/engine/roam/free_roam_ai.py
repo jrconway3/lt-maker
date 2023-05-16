@@ -100,26 +100,27 @@ class RoamAI:
     def _calc_state(self) -> bool:
         # Returns whether we should try again
         if self.behaviour.action == 'None':
-            return True  # Try again
+            return False
         elif self.behaviour.action == "Wait":
             start_time = engine.get_time()
-            self.state = roam_ai_action.Wait(self.unit, start_time + self.behaviour.target_spec)
+            to_wait = self.behaviour.target_spec or 0
+            self.state = roam_ai_action.Wait(self.unit, start_time + to_wait)
             return False
         elif self.behaviour.action == "Move_to":
             target: Optional[Tuple[int, int]] = self.approach()
             if target:
                 self.state = roam_ai_action.MoveTo(self.unit, target, self.behaviour.desired_proximity)
-                return False
+            return False
         elif self.behaviour.action == "Interact":
             region: Optional[RegionObject] = self.find_region()
             if region:
                 self.state = roam_ai_action.Interact(self.unit, region, self.behaviour.desired_proximity)
-                return False
+            return False
         elif self.behaviour.action == "Move_away_from":
             target: Optional[Tuple[int, int]] = self.retreat()
             if target:
                 self.state = roam_ai_action.MoveTo(self.unit, target, self.behaviour.desired_proximity)
-                return False
+            return False
         # Some behaviour that is currently not supported for roaming
         return True
 
@@ -209,7 +210,7 @@ class RoamAI:
 
     def act(self):
         if not self.state:
-            logging.warning("Free Roam AI for %s could not determine an action to perform", self.unit)
+            # Don't act if we don't have a state to act with
             return
         if self.state.action_type == roam_ai_action.RoamAIAction.MOVE:
             # Can recalculate the path because it's been a while

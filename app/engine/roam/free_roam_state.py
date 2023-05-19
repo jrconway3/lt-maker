@@ -119,9 +119,9 @@ class FreeRoamState(MapState):
         if region:
             did_trigger = game.events.trigger(triggers.RoamingInterrupt(self.roam_unit, self.roam_unit.position, region))
             if did_trigger:
-                self.rationalize_all_units()
                 if region.only_once:
                     action.do(action.RemoveRegion(region))
+                self.rationalize_all_units()
 
     def check_select(self):
         """
@@ -134,14 +134,14 @@ class FreeRoamState(MapState):
             get_sound_thread().play_sfx('Select 2')
             did_trigger = game.events.trigger(triggers.OnTalk(self.roam_unit, other_unit, None))
             if did_trigger:
-                self.rationalize_all_units()
                 action.do(action.RemoveTalk(self.roam_unit.nid, other_unit.nid))
+                self.rationalize_all_units()
         elif region:
             get_sound_thread().play_sfx('Select 2')
             did_trigger = game.events.trigger(triggers.RegionTrigger(region.sub_nid, self.roam_unit, self.roam_unit.position, region))
             if did_trigger and region.only_once:
-                self.rationalize_all_units()
                 action.do(action.RemoveRegion(region))
+                self.rationalize_all_units()
         else:
             get_sound_thread().play_sfx('Error')
 

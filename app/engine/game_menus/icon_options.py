@@ -183,7 +183,6 @@ class BasicItemOption(BaseOption[ItemObject]):
 
     def draw(self, surf, x, y):
         main_color, uses_color = self.get_color()
-        print(self.get_color(), self._value, self._value.droppable)
         if self._mode == ItemOptionModes.NO_USES:
             ItemOptionUtils.draw_without_uses(
                 surf, x, y, self._value, self._font, main_color, self.width(), self._align, self._disp_value)

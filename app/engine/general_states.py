@@ -1453,7 +1453,7 @@ class WeaponChoiceState(MapState):
     def _test_equip(self):
         current = self.menu.get_current()
         if self.cur_unit.can_equip(current):
-            action.EquipItem(self.cur_unit, current).execute()
+            action.do(action.EquipItem(self.cur_unit, current))
 
     def _item_desc_update(self):
         current = self.menu.get_current()

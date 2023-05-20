@@ -57,7 +57,7 @@ class MovementSystem:
         # Used for simple movement of a unit in the normal way
         """
 
-        logging.info("Unit %s to begin moving")
+        logging.info("Unit %s to begin moving", unit)
         speed = speed or cf.SETTINGS['unit_speed']
         movement_component = \
             UnitPathMovementComponent(unit, path, event, follow, speed=speed)

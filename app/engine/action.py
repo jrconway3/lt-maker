@@ -2502,9 +2502,9 @@ class RemoveLore(Action):
 
 
 class LogDialog(Action):
-    def __init__(self, dialog):
-        self.speaker = dialog.speaker
-        self.plain_text = dialog.plain_text
+    def __init__(self, speaker: str, plain_text: str):
+        self.speaker = speaker
+        self.plain_text = plain_text
 
     def do(self):
         game.dialog_log.append((self.speaker, self.plain_text))

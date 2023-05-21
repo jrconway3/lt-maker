@@ -28,7 +28,8 @@ class DialogLogState(State):
             game.dialog_log.ui.scroll_up()
         elif 'DOWN' in directions:
             game.dialog_log.ui.scroll_down()
-        elif event == 'INFO' or event == 'BACK':
+        
+        if event == 'INFO' or event == 'BACK':
             game.state.back()
 
     def draw(self, surf):
@@ -42,7 +43,7 @@ class DialogLog():
         self.last_entry = None
 
     def append(self, dialog_tuple: Tuple[str, str]):
-        speaker, text = dialog_tuple[0], dialog_tuple[1]
+        speaker, text = dialog_tuple
         text = DialogLog.clean_speak_text(text)
         self.last_entry = self.ui.add_entry(speaker, text)
         self.entries.append((speaker, text))
@@ -66,15 +67,22 @@ class DialogLog():
 
     @staticmethod
     def clean_speak_text(s):
-        """Returns a copy of the "speak" command text without any commands
+        """
+        Returns a copy of the "speak" command text without any commands
+        besides {br}, which is kept to force new-lines where appropraite
 
         >>> s = 'This is a test| with{w}{br} commands.'
         >>> clean_text(s)
-        >>> 'This is a test with commands.'
+        >>> 'This is a test{br} with{br} commands.'
         """
-        x = re.sub(r'({\w*})|(\|)|(;)/', ' ', s)
-        # Get rid of extra spaces
-        return re.sub(r' +', ' ', x)
+        # x = re.sub(r'({\w*})|(\|)|(;)/', ' ', s)
+        s = s.replace('{semicolon}', ';')
+        s = s.replace('|', '{br}')
+        s = s.replace('{br}', '<br>')  # So we don't remove it
+        s = re.sub(r'(\{[^\{]*?\})', '', s)  # remove all commands
+        s = s.replace('<br>', '{br}')
+        # Get rid of extra spaces beyond length of 1
+        return re.sub(r' +', ' ', s)
 
     @classmethod
     def restore(cls, entries: List[Tuple[str, str]]):

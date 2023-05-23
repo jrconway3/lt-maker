@@ -498,8 +498,9 @@ def unpause(self: Event, nid=None, flags=None):
             if box.speaker == nid:
                 box.command_unpause()
                 break
-        elif not self.do_skip:  # Don't bother warning if we are skipping
-            self.logger.warning("Did not find any text box with speaker: %s", nid)
+        else:
+            if not self.do_skip:  # Don't bother warning if we are skipping
+                self.logger.warning("Did not find any text box with speaker: %s", nid)
     if self.do_skip:
         pass
     else:

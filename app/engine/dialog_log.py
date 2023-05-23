@@ -4,16 +4,14 @@ import re
 
 from typing import List, Optional, Tuple
 
-from app.data.database import DB
-from app.data.resources import RESOURCES
+from app.data.resources.resources import RESOURCES
+from app.data.database.database import DB
 
-from app.engine import engine
+from app.engine import engine, icons
 from app.engine.graphics.dialog.dialog_log_ui import DialogLogUI
 from app.engine.state import State
 from app.engine.fluid_scroll import FluidScroll
 from app.engine.game_state import game
-
-from app.events.event_portrait import EventPortrait
 
 
 class DialogLogState(State):
@@ -58,7 +56,7 @@ class DialogLog():
         self.entries.pop()
 
     def clear(self):
-        while self.last_entry:
+        while self.entries:
             self.pop()
         self.entries.clear()
 
@@ -76,7 +74,8 @@ class DialogLog():
         # Get chibi
         chibi = None
         if portrait:
-            chibi = engine.subsurface(portrait, EventPortrait.chibi_coords)
+            chibi = icons.get_chibi(portrait)
+            
         return chibi
 
     def save(self) -> List[Tuple[str, str]]:

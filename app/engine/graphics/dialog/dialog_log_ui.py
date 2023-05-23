@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional, Tuple
 
 from app.constants import WINWIDTH, WINHEIGHT
-
-if TYPE_CHECKING:
-    from app.engine import engine
+from app.engine import engine
+from app.engine.text_funcs import line_wrap
+from app.engine.graphics.text.text_renderer import render_text
     
 class DialogLogEntry:
     FONT_HEIGHT = 16
@@ -39,8 +39,8 @@ class DialogLogEntry:
         render_text(surf, [self.FONT], [self.name], ['yellow'], (x + self.CHIBI_SIZE, y))
 
         # Draw text
-        for line in self.text_lines:
-            render_text(surf, [self.FONT], [line], ['white'], (x + self.CHIBI_SIZE, y + self.FONT_HEIGHT))
+        for idx, line in enumerate(self.text_lines):
+            render_text(surf, [self.FONT], [line], ['white'], (x + self.CHIBI_SIZE, y + self.FONT_HEIGHT + (idx * self.FONT_HEIGHT)))
 
         # Draw chibi
         if self.chibi:
@@ -50,7 +50,7 @@ class DialogLogEntry:
 
 class DialogLogUI:
     SCROLL_DISTANCE = 16
-    BG_COLOR = (33, 33, 33, 225)
+    BG_COLOR = (33, 33, 33, 128)
 
     def __init__(self):
         self.entries: List[DialogLogEntry] = []

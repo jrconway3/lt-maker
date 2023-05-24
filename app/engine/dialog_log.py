@@ -19,7 +19,7 @@ class DialogLogState(State):
     transparent = True
 
     def start(self):
-        self.fluid = FluidScroll()
+        self.fluid = FluidScroll(speed=16)
 
     def begin(self):
         game.dialog_log.ui.scroll_to_bottom() # Set scroll to bottom.

@@ -49,8 +49,8 @@ class DialogLogEntry:
         return surf
 
 class DialogLogUI:
-    SCROLL_DISTANCE = 16
-    BG_COLOR = (33, 33, 33, 128)
+    SCROLL_DISTANCE = 4
+    BG_COLOR = (33, 33, 33, 192)
 
     def __init__(self):
         self.entries: List[DialogLogEntry] = []
@@ -97,7 +97,9 @@ class DialogLogUI:
 
     def draw(self, surf: engine.Surface) -> engine.Surface:
         # Draw fuzzy black background
-        engine.fill(surf, self.BG_COLOR)
+        new_surf = engine.create_surface((WINWIDTH, WINHEIGHT), True)
+        engine.fill(new_surf, self.BG_COLOR)
+        surf.blit(new_surf, (0, 0))
 
         total_entry_height = sum(entry.height for entry in self.entries)
 

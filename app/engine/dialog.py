@@ -38,7 +38,7 @@ class DialogState(Enum):
     PROCESS = 'process'  # Normal display of characters one at a time
     TRANSITION_IN = 'transition_in'  # Dialog is fading in
     PAUSE = 'pause'  # Pause processing for some amount of time
-    PAUSE_BEFORE_WAIT = 'pause_before_wait'  # Pause processing before we wait for user input, so that user input cannot come to fast
+    PAUSE_BEFORE_WAIT = 'pause_before_wait'  # Pause processing before we wait for user input, so that user input cannot skip too quickly
     WAIT = 'wait'  # Wait for user input
     DONE = 'done'  # Dialog has nothing else to do and can be removed
     NEW_LINE = 'new_line'  # Pause while we move to a new line

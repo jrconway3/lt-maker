@@ -148,11 +148,13 @@ class AttackProc(SkillComponent):
             if static_random.get_combat() < proc_rate:
                 act = action.AddSkill(unit, self.value)
                 action.do(act)
-                playback.append(pb.AttackProc(unit, act.skill_obj))
+                if act.skill_obj:
+                    playback.append(pb.AttackProc(unit, act.skill_obj))
                 self._did_action = True
 
     def end_sub_combat(self, actions, playback, unit, item, target, mode, attack_info):
         if self._did_action:
+            action.do(action.TriggerCharge(unit, self.skill))
             action.do(action.RemoveSkill(unit, self.value))
         self._did_action = False
 
@@ -172,11 +174,13 @@ class DefenseProc(SkillComponent):
             if static_random.get_combat() < proc_rate:
                 act = action.AddSkill(unit, self.value)
                 action.do(act)
-                playback.append(pb.DefenseProc(unit, act.skill_obj))
+                if act.skill_obj:
+                    playback.append(pb.DefenseProc(unit, act.skill_obj))
                 self._did_action = True
 
     def end_sub_combat(self, actions, playback, unit, item, target, mode, attack_info):
         if self._did_action:
+            action.do(action.TriggerCharge(unit, self.skill))
             action.do(action.RemoveSkill(unit, self.value))
         self._did_action = False
 
@@ -196,11 +200,13 @@ class AttackPreProc(SkillComponent):
             if static_random.get_combat() < proc_rate:
                 act = action.AddSkill(unit, self.value)
                 action.do(act)
-                playback.append(pb.AttackPreProc(unit, act.skill_obj))
+                if act.skill_obj:
+                    playback.append(pb.AttackPreProc(unit, act.skill_obj))
                 self._did_action = True
 
     def end_combat(self, playback, unit, item, target, mode):
         if self._did_action:
+            action.do(action.TriggerCharge(unit, self.skill))
             action.do(action.RemoveSkill(unit, self.value))
             self._did_action = False
 
@@ -220,11 +226,13 @@ class DefensePreProc(SkillComponent):
             if static_random.get_combat() < proc_rate:
                 act = action.AddSkill(unit, self.value)
                 action.do(act)
-                playback.append(pb.DefensePreProc(unit, act.skill_obj))
+                if act.skill_obj:
+                    playback.append(pb.DefensePreProc(unit, act.skill_obj))
                 self._did_action = True
 
     def end_combat(self, playback, unit, item, target, mode):
         if self._did_action:
+            action.do(action.TriggerCharge(unit, self.skill))
             action.do(action.RemoveSkill(unit, self.value))
             self._did_action = False
 

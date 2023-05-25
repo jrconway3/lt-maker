@@ -370,99 +370,113 @@ def speak(self: Event, speaker, text, text_position=None, width=None, style_nid=
             self._queue_command('unpause')
         self._queue_command(event_command_str)
 
-    if text_position:
-        try:
-            position = Alignments(text_position)
-        except:
-            position = self._parse_pos(text_position)
-    elif speak_style and speak_style.position:
-        position = speak_style.position
+    # Determine whether this should be skipped
+    # Hold speaks are not skipped
+    if self.do_skip and 'hold' not in flags:
+        pass  # Skip me!
     else:
-        position = default_speak_style.position
+        if text_position:
+            try:
+                position = Alignments(text_position)
+            except:
+                position = self._parse_pos(text_position)
+        elif speak_style and speak_style.position:
+            position = speak_style.position
+        else:
+            position = default_speak_style.position
 
-    if width:
-        box_width = int(width)
-    elif speak_style and speak_style.width:
-        box_width = speak_style.width
-    else:
-        box_width = default_speak_style.width
+        if width:
+            box_width = int(width)
+        elif speak_style and speak_style.width:
+            box_width = speak_style.width
+        else:
+            box_width = default_speak_style.width
 
-    if text_speed:
-        speed = float(text_speed)
-    elif speak_style and speak_style.speed:
-        speed = speak_style.speed
-    else:
-        speed = default_speak_style.speed
+        if text_speed:
+            speed = float(text_speed)
+        elif speak_style and speak_style.speed:
+            speed = speak_style.speed
+        else:
+            speed = default_speak_style.speed
 
-    if font_color:
-        fcolor = font_color
-    elif speak_style and speak_style.font_color:
-        fcolor = speak_style.font_color
-    else:
-        fcolor = default_speak_style.font_color
+        if font_color:
+            fcolor = font_color
+        elif speak_style and speak_style.font_color:
+            fcolor = speak_style.font_color
+        else:
+            fcolor = default_speak_style.font_color
 
-    if font_type:
-        ftype = font_type
-    elif speak_style and speak_style.font_type:
-        ftype = speak_style.font_type
-    else:
-        ftype = default_speak_style.font_type
+        if font_type:
+            ftype = font_type
+        elif speak_style and speak_style.font_type:
+            ftype = speak_style.font_type
+        else:
+            ftype = default_speak_style.font_type
 
-    if dialog_box:
-        bg = dialog_box
-    elif speak_style and speak_style.background:
-        bg = speak_style.background
-    else:
-        bg = default_speak_style.background
+        if dialog_box:
+            bg = dialog_box
+        elif speak_style and speak_style.background:
+            bg = speak_style.background
+        else:
+            bg = default_speak_style.background
 
-    if num_lines:
-        lines = int(num_lines)
-    elif speak_style and speak_style.num_lines:
-        lines = speak_style.num_lines
-    else:
-        lines = default_speak_style.num_lines
+        if num_lines:
+            lines = int(num_lines)
+        elif speak_style and speak_style.num_lines:
+            lines = speak_style.num_lines
+        else:
+            lines = default_speak_style.num_lines
 
-    if draw_cursor:
-        cursor = draw_cursor.lower() in self.true_vals
-    elif speak_style and speak_style.draw_cursor is not None:
-        cursor = speak_style.draw_cursor
-    else:
-        cursor = default_speak_style.draw_cursor
+        if draw_cursor:
+            cursor = draw_cursor.lower() in self.true_vals
+        elif speak_style and speak_style.draw_cursor is not None:
+            cursor = speak_style.draw_cursor
+        else:
+            cursor = default_speak_style.draw_cursor
 
-    if message_tail:
-        tail = message_tail
-    elif speak_style and speak_style.message_tail:
-        tail = speak_style.message_tail
-    else:
-        tail = default_speak_style.message_tail
+        if message_tail:
+            tail = message_tail
+        elif speak_style and speak_style.message_tail:
+            tail = speak_style.message_tail
+        else:
+            tail = default_speak_style.message_tail
 
-    if transparency:
-        transparency = float(transparency)
-    elif speak_style and speak_style.transparency is not None:
-        transparency = speak_style.transparency
-    else:
-        transparency = 0.05
+        if transparency:
+            transparency = float(transparency)
+        elif speak_style and speak_style.transparency is not None:
+            transparency = speak_style.transparency
+        else:
+            transparency = 0.05
 
-    if name_tag_bg:
-        nametag = name_tag_bg
-    elif speak_style and speak_style.name_tag_bg:
-        nametag = speak_style.name_tag_bg
-    else:
-        nametag = default_speak_style.name_tag_bg
+        if name_tag_bg:
+            nametag = name_tag_bg
+        elif speak_style and speak_style.name_tag_bg:
+            nametag = speak_style.name_tag_bg
+        else:
+            nametag = default_speak_style.name_tag_bg
 
-    if speak_style and speak_style.flags:
-        flags = speak_style.flags.union(flags)
+        if speak_style and speak_style.flags:
+            flags = speak_style.flags.union(flags)
 
-    autosize = 'fit' in flags
-    new_dialog = \
-        dialog.Dialog(text, portrait, bg, position, box_width, speaker=speaker,
-                      style_nid=style_nid, autosize=autosize, speed=speed,
-                      font_color=fcolor, font_type=ftype, num_lines=lines,
-                      draw_cursor=cursor, message_tail=tail, transparency=transparency,
-                      name_tag_bg=nametag, flags=flags)
-    self.text_boxes.append(new_dialog)
-    if 'no_block' not in flags:
-        self.state = 'dialog'
+        autosize = 'fit' in flags
+        new_dialog = \
+            dialog.Dialog(text, portrait, bg, position, box_width, speaker=speaker,
+                          style_nid=style_nid, autosize=autosize, speed=speed,
+                          font_color=fcolor, font_type=ftype, num_lines=lines,
+                          draw_cursor=cursor, message_tail=tail, transparency=transparency,
+                          name_tag_bg=nametag, flags=flags)
+        self.text_boxes.append(new_dialog)
+
+        if self.do_skip:
+            # Which means we must have held, so just process the whole dialog immediately
+            new_dialog.warp_speed()
+            action.do(action.LogDialog(new_dialog.speaker, new_dialog.plain_text))
+        elif 'no_block' in flags:
+            pass
+        else:  # Usually we go to a dialog state
+            self.state = 'dialog'
+    # End else
+
     # Bring portrait to forefront
     if portrait and 'low_priority' not in flags:
         portrait.priority = self.priority_counter
@@ -475,7 +489,7 @@ def unhold(self: Event, nid, flags=None):
 
 def unpause(self: Event, nid=None, flags=None):
     if nid is None and self.text_boxes:
-        # Just remove the most recent text box
+        # Just unpause the most recent text box
         box = self.text_boxes[-1]
         box.command_unpause()
 
@@ -485,8 +499,12 @@ def unpause(self: Event, nid=None, flags=None):
                 box.command_unpause()
                 break
         else:
-            self.logger.warning("Did not find any text box with speaker: %s", nid)
-    self.state = 'dialog'
+            if not self.do_skip:  # Don't bother warning if we are skipping
+                self.logger.warning("Did not find any text box with speaker: %s", nid)
+    if self.do_skip:
+        pass
+    else:
+        self.state = 'dialog'
 
 def transition(self: Event, direction=None, speed=None, color3=None, flags=None):
     flags = flags or set()

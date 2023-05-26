@@ -33,6 +33,7 @@ class Ability(SkillComponent):
         if item and item.nid == self.value:
             action.do(action.TriggerCharge(unit, self.skill))
 
+
 class CombatArt(SkillComponent):
     nid = 'combat_art'
     desc = "Unit has the ability to apply an extra effect to next attack"
@@ -71,6 +72,7 @@ class CombatArt(SkillComponent):
             action.do(action.TriggerCharge(unit, self.skill))
         self.skill.data['active'] = False
 
+
 class AutomaticCombatArt(SkillComponent):
     nid = 'automatic_combat_art'
     desc = "Unit will be given skill on upkeep and removed on endstep"
@@ -101,17 +103,20 @@ class AllowedWeapons(SkillComponent):
             print("Couldn't evaluate conditional {%s} %s" % (self.value, e))
         return False
 
+
 def get_proc_rate(unit, skill) -> int:
     for component in skill.components:
         if component.defines('proc_rate'):
             return component.proc_rate(unit)
     return 100  # 100 is default
 
+
 def get_weapon_filter(skill, unit, item) -> bool:
     for component in skill.components:
         if component.defines('weapon_filter'):
             return component.weapon_filter(unit, item)
     return True
+
 
 class ProcGainSkillForTurn(SkillComponent):
     nid = 'proc_turn_skill'
@@ -131,6 +136,7 @@ class ProcGainSkillForTurn(SkillComponent):
     def on_endstep(self, actions, playback, unit):
         if self._did_action:
             actions.append(action.RemoveSkill(unit, self.value))
+
 
 class AttackProc(SkillComponent):
     nid = 'attack_proc'
@@ -156,6 +162,7 @@ class AttackProc(SkillComponent):
             action.do(action.RemoveSkill(unit, self.value))
         self._did_action = False
 
+
 class DefenseProc(SkillComponent):
     nid = 'defense_proc'
     desc = "Allows skill to proc when defending a single strike"
@@ -180,6 +187,7 @@ class DefenseProc(SkillComponent):
             action.do(action.RemoveSkill(unit, self.value))
         self._did_action = False
 
+
 class AttackPreProc(SkillComponent):
     nid = 'attack_pre_proc'
     desc = "Allows skill to proc when initiating combat. Lasts entire combat."
@@ -199,10 +207,11 @@ class AttackPreProc(SkillComponent):
                 playback.append(pb.AttackPreProc(unit, act.skill_obj))
                 self._did_action = True
 
-    def end_combat(self, playback, unit, item, target, mode):
+    def end_combat_unconditional(self, playback, unit, item, target, mode):
         if self._did_action:
             action.do(action.RemoveSkill(unit, self.value))
             self._did_action = False
+
 
 class DefensePreProc(SkillComponent):
     nid = 'defense_pre_proc'
@@ -223,10 +232,11 @@ class DefensePreProc(SkillComponent):
                 playback.append(pb.DefensePreProc(unit, act.skill_obj))
                 self._did_action = True
 
-    def end_combat(self, playback, unit, item, target, mode):
+    def end_combat_unconditional(self, playback, unit, item, target, mode):
         if self._did_action:
             action.do(action.RemoveSkill(unit, self.value))
             self._did_action = False
+
 
 class ProcRate(SkillComponent):
     nid = 'proc_rate'
@@ -237,6 +247,7 @@ class ProcRate(SkillComponent):
 
     def proc_rate(self, unit):
         return equations.parser.get(self.value, unit)
+
 
 class ItemOverride(SkillComponent):
     nid = 'item_override'

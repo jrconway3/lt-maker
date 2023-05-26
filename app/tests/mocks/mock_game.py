@@ -7,6 +7,7 @@ def get_mock_game() -> GameState:
 
     game.movement = MagicMock()
     game.speak_styles = {}
+    game.overworld_controller = MagicMock()
     
     game.get_item = MagicMock()
     game.get_skill = MagicMock()

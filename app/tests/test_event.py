@@ -166,14 +166,18 @@ class EventUnitTests(unittest.TestCase):
         dialog_patch.stop()
 
     def test_overworld_menu_commands(self):
-        from app.events import event_functions
+        from app.events import overworld_event_functions
         self.game.overworld_controller._overworld.enabled_menu_options["1"]["Battle"] = False
         self.game.overworld_controller._overworld.visible_menu_options["1"]["Battle"] = False
+        test_commands = [
+            ""
+        ]
+        event = self.create_event(test_commands)
 
-        event_functions.set_overworld_menu_option_visible("1", "Battle", "t")
+        overworld_event_functions.set_overworld_menu_option_visible(event, "1", "Battle", "t")
         self.assertEqual(self.game.overworld_controller._overworld.visible_menu_options["1"]["Battle"], True)
 
-        event_functions.set_overworld_menu_option_enabled("1", "Battle", "t")
+        overworld_event_functions.set_overworld_menu_option_enabled(event, "1", "Battle", "t")
         self.assertEqual(self.game.overworld_controller._overworld.enabled_menu_options["1"]["Battle"], True)
 
     def test_textbox_command(self):

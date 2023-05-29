@@ -29,7 +29,7 @@ class Ability(SkillComponent):
             game.register_item(new_item)
             return new_item
 
-    def end_combat(self, playback, unit, item, target, mode):
+    def end_combat_unconditional(self, playback, unit, item, target, mode):
         if item and item.nid == self.value:
             action.do(action.TriggerCharge(unit, self.skill))
 
@@ -67,7 +67,7 @@ class CombatArt(SkillComponent):
             action.do(action.RemoveSkill(unit, self._action.skill_obj))
         self._action = None
 
-    def end_combat(self, playback, unit, item, target, mode):
+    def end_combat_unconditional(self, playback, unit, item, target, mode):
         if self.skill.data.get('active'):
             action.do(action.TriggerCharge(unit, self.skill))
         self.skill.data['active'] = False

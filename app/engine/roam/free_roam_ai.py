@@ -32,7 +32,7 @@ class FreeRoamAIHandler:
                 self.roam_ais.append(RoamAI(unit))
                 mc = RoamAIMovementComponent(unit)
                 self.components[unit.nid] = mc
-                game.movement.add(mc)
+        self.start_all_units()
 
     def update(self):
         if not self.active:
@@ -49,6 +49,13 @@ class FreeRoamAIHandler:
         self.active = False
         for mc in self.components.values():
             mc.finish()
+
+    def start_all_units(self):
+        self.active = True
+        for mc in self.components.values():
+            mc.start()
+            game.movement.add(mc)
+
 
 class RoamAI:
     def __init__(self, unit):

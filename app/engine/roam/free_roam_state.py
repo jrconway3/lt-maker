@@ -25,6 +25,8 @@ class FreeRoamState(MapState):
 
     def begin(self):
         game.cursor.hide()
+        if not self.ai_handler.active:
+            self.ai_handler.start_all_units()
 
         if game.is_roam() and game.get_roam_unit():
             roam_unit = game.get_roam_unit()

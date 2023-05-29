@@ -17,22 +17,22 @@ from app.utilities.algorithms.ltgraph import LTGraph
 
 class OverworldManagerInterface():
     def enable_node(self, node: OverworldNodeObject | NID):
-        NotImplementedError
+        raise NotImplementedError
 
     def enable_road(self, road: RoadObject | NID):
-        NotImplementedError
+        raise NotImplementedError
 
     def toggle_menu_option_enabled(self, node: NID, menu_option: NID, setting: bool):
-        NotImplementedError
+        raise NotImplementedError
 
     def menu_option_enabled(self, node: NID, menu_option: NID) -> bool:
-        NotImplementedError
+        raise NotImplementedError
 
     def toggle_menu_option_visible(self, node: NID, menu_option: NID, setting: bool):
-        NotImplementedError
+        raise NotImplementedError
 
     def menu_option_visible(self, node: NID, menu_option: NID) -> bool:
-        NotImplementedError
+        raise NotImplementedError
 
 class OverworldManager(OverworldManagerInterface):
     """A wrapper class that contains various functionality for manipulating

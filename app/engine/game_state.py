@@ -812,6 +812,9 @@ class GameState():
     def get_other_units(self) -> List[UnitObject]:
         return [unit for unit in self.get_all_units() if unit.team == 'other']
 
+    def get_team_units(self, team: str) -> List[UnitObject]:
+        return [unit for unit in self.get_all_units() if unit.team == team]
+
     def get_travelers(self) -> List[UnitObject]:
         return [self.get_unit(unit.traveler) for unit in self.get_all_units() if unit.traveler]
 

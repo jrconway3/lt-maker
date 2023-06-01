@@ -126,6 +126,7 @@ class GameState():
         self.cursor = None
         self.camera = None
         self.boundary = None
+        self.movement = None
 
         self.current_save_slot = None
         self.current_level = None

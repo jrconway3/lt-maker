@@ -448,15 +448,17 @@ class OptionMenuState(MapState):
 
         # initialize custom options and events
         events = [None for option in options]
-        additional_options = game.game_vars.get('_custom_additional_options')
-        additional_ignore = game.game_vars.get('_custom_options_disabled')
-        additional_info_desc = game.game_vars.get('_custom_info_desc')
-        additional_events = game.game_vars.get('_custom_options_events')
+        additional_options = game.game_vars.get('_custom_additional_options', [])
+        additional_ignore = game.game_vars.get('_custom_options_disabled', [])
+        additional_info_desc = game.game_vars.get('_custom_info_desc', [])
+        additional_events = game.game_vars.get('_custom_options_events', [])
 
-        options = options + additional_options if additional_options else options
-        info_desc = info_desc + additional_info_desc if additional_info_desc else info_desc
-        ignore = ignore + additional_ignore if additional_options else ignore
-        events = events + additional_events if additional_events else events
+        suspend_idx = options.index('Suspend') if game.current_mode.permadeath else options.index('Save')
+        
+        options = options[:suspend_idx] + additional_options + options[suspend_idx:]
+        info_desc = info_desc[:suspend_idx] + additional_info_desc + info_desc[suspend_idx:]
+        ignore = ignore[:suspend_idx] + additional_ignore + ignore[suspend_idx:]
+        events = events[:suspend_idx] + additional_events + events[suspend_idx:]
 
         return options, info_desc, ignore, events
 

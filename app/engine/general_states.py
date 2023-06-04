@@ -453,12 +453,12 @@ class OptionMenuState(MapState):
         additional_info_desc = game.game_vars.get('_custom_info_desc', [])
         additional_events = game.game_vars.get('_custom_options_events', [])
 
-        suspend_idx = options.index('Suspend') if game.current_mode.permadeath else options.index('Save')
+        option_idx = options.index('Options')
         
-        options = options[:suspend_idx] + additional_options + options[suspend_idx:]
-        info_desc = info_desc[:suspend_idx] + additional_info_desc + info_desc[suspend_idx:]
-        ignore = ignore[:suspend_idx] + additional_ignore + ignore[suspend_idx:]
-        events = events[:suspend_idx] + additional_events + events[suspend_idx:]
+        options = options[:option_idx] + additional_options + options[option_idx:]
+        info_desc = info_desc[:option_idx] + additional_info_desc + info_desc[option_idx:]
+        ignore = ignore[:option_idx] + additional_ignore + ignore[option_idx:]
+        events = events[:option_idx] + additional_events + events[option_idx:]
 
         return options, info_desc, ignore, events
 
@@ -469,6 +469,7 @@ class OptionMenuState(MapState):
         self.events_on_option_select = events
         
         self.menu = menus.Choice(None, options, info=info_desc)
+        self.menu.set_limit(9)
         self.menu.set_ignore(ignore)
 
     def begin(self):

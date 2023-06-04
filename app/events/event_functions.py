@@ -2762,7 +2762,6 @@ def base(self: Event, background: str, music: str = None, other_options: str = N
         action.do(action.SetGameVar('_base_options_events', []))
         action.do(action.SetGameVar('_base_additional_options', []))
 
-
     if 'show_map' in flags:
         action.do(action.SetGameVar('_base_transparent', True))
     else:
@@ -2794,7 +2793,7 @@ def set_custom_options(self: Event, custom_options: str, custom_options_enabled:
     if len(info_descs) <= len(options_events):
         for idx, desc in enumerate(info_descs):
             options_desc[idx] = desc
-        action.do(action.SetGameVar('_custom_info_desc', info_descs))
+        action.do(action.SetGameVar('_custom_info_desc', options_desc))
     else:
         self.logger.error("set_custom_options: too many descriptions in option description list: ", custom_options_desc)
         return

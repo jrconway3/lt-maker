@@ -1756,6 +1756,7 @@ interacts with the data of the skill to use this command.
 
 class ChangeAI(EventCommand):
     nid = 'change_ai'
+    nickname = 'set_ai'
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
     desc = \
@@ -1764,6 +1765,19 @@ Sets the *AI* used by *GlobalUnit*.
         """
 
     keywords = ["GlobalUnit", "AI"]
+
+class ChangeAIGroup(EventCommand):
+    nid = 'change_ai_group'
+    nickname = 'set_ai_group'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets the *AIGroup* used by *GlobalUnit*.
+        """
+
+    keywords = ["GlobalUnit", "AIGroup"]
+    keyword_types = ["GlobalUnit", "String"]
 
 class ChangeParty(EventCommand):
     nid = 'change_party'

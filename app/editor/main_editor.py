@@ -74,6 +74,8 @@ from app.editor.map_animation_editor.map_animation_tab import MapAnimationDataba
 
 __version__ = VERSION
 
+NUM_RECENT_PROJECTS_DISPLAYED = 5
+
 class MainEditor(QMainWindow):
     def initialize_state_subscriptions(self):
         self.app_state_manager.subscribe_to_key(
@@ -169,6 +171,7 @@ class MainEditor(QMainWindow):
 
         self.new_act.setIcon(QIcon(f'{icon_folder}/file-plus.png'))
         self.open_act.setIcon(QIcon(f'{icon_folder}/folder.png'))
+        self.open_recent_act.setIcon(QIcon(f'{icon_folder}/folder.png'))
         self.save_act.setIcon(QIcon(f'{icon_folder}/save.png'))
         self.save_as_act.setIcon(QIcon(f'{icon_folder}/save.png'))
         self.quit_act.setIcon(QIcon(f'{icon_folder}/x.png'))
@@ -185,11 +188,18 @@ class MainEditor(QMainWindow):
 
     # === Create Menu ===
     def create_actions(self):
-        self.new_act = QAction(_("&New Project..."), self,
+        self.new_act = QAction(_("New Project..."), self,
                                shortcut="Ctrl+N", triggered=self.new)
-        self.open_act = QAction(_("&Open Project..."), self,
+        self.open_act = QAction(_("Open Project..."), self,
                                 shortcut="Ctrl+O", triggered=self.open)
-        self.save_act = QAction(_("&Save Project"), self,
+
+        recent_projects = self.settings.get_recent_projects()[-NUM_RECENT_PROJECTS_DISPLAYED:]
+        self.recent_project_acts = []
+        for project in recent_projects:
+            act = QAction(project, self, triggered=functools.partial(self.recent_open, project))
+            self.recent_project_acts.append(act)
+
+        self.save_act = QAction(_("Save Project"), self,
                                 shortcut="Ctrl+S", triggered=self.save)
         self.save_as_act = QAction(
             _("Save Project As..."), self, shortcut="Ctrl+Shift+S", triggered=self.save_as)
@@ -283,6 +293,13 @@ class MainEditor(QMainWindow):
         file_menu = QMenu(_("File"), self)
         file_menu.addAction(self.new_act)
         file_menu.addAction(self.open_act)
+        recent_project_menu = QMenu(_("Open Recent..."), self)
+        if self.recent_project_acts:
+            for action in self.recent_project_acts:
+                recent_project_menu.addAction(action)
+        else:  # Set to disabled when there are no recent projects
+            recent_project_menu.setEnabled(False)
+        file_menu.addMenu(recent_project_menu)
         file_menu.addSeparator()
         file_menu.addAction(self.save_act)
         file_menu.addAction(self.save_as_act)
@@ -451,29 +468,11 @@ class MainEditor(QMainWindow):
             self.app_state_manager.change_and_broadcast(
                 'ui_refresh_signal', None)
 
-    def open(self):
-        if self.project_save_load_handler.open():
-            title = os.path.split(self.settings.get_current_project())[-1]
-            self.set_window_title(title)
-            logging.info("Loaded project from %s" %
-                         self.settings.get_current_project())
-            self.status_bar.showMessage(
-                "Loaded project from %s" % self.settings.get_current_project())
-            # Return to global
-            if not self.mode.GLOBAL_EDITOR:
-                self.app_state_manager.change_and_broadcast(
-                    'main_editor_mode', MainEditorScreenStates.GLOBAL_EDITOR)
-            self.app_state_manager.change_and_broadcast(
-                'selected_level', DB.levels[0].nid)  # Needed in order to update map view
-            self.app_state_manager.change_and_broadcast(
-                'ui_refresh_signal', None)
-
-    def auto_open(self):
-        self.project_save_load_handler.auto_open()
+    def _open(self):
         title = os.path.split(self.settings.get_current_project())[-1]
         self.set_window_title(title)
         logging.info("Loaded project from %s" %
-                     self.settings.get_current_project())
+                        self.settings.get_current_project())
         self.status_bar.showMessage(
             "Loaded project from %s" % self.settings.get_current_project())
         # Return to global
@@ -484,6 +483,18 @@ class MainEditor(QMainWindow):
             'selected_level', DB.levels[0].nid)  # Needed in order to update map view
         self.app_state_manager.change_and_broadcast(
             'ui_refresh_signal', None)
+
+    def open(self):
+        if self.project_save_load_handler.open():
+            self._open()
+            
+    def recent_open(self, path: str):
+        if self.project_save_load_handler.recent_open():
+            self._open()
+
+    def auto_open(self):
+        self.project_save_load_handler.auto_open()
+        self._open()
 
     def save(self):
         if self.project_save_load_handler.save():

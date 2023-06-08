@@ -33,6 +33,17 @@ class MainSettingsController():
             fallback = QDir.currentPath()
         return str(self.state.value("last_open_path", fallback, type=str))
 
+    def set_recent_project(self, value: str):
+        recent_projects = self.state.value("recent_projects", [], type=str)
+        # always append to the end
+        if value in recent_projects:
+            recent_projects.remove(value)
+        recent_projects.append(value)
+        self.state.setValue("recent_projects", recent_projects)
+
+    def get_recent_projects(self):
+        return self.state.value("recent_projects", [], type=str)
+
     """========== General UI Settings =========="""
 
     def set_theme(self, value):

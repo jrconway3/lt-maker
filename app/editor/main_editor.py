@@ -171,7 +171,7 @@ class MainEditor(QMainWindow):
 
         self.new_act.setIcon(QIcon(f'{icon_folder}/file-plus.png'))
         self.open_act.setIcon(QIcon(f'{icon_folder}/folder.png'))
-        self.open_recent_act.setIcon(QIcon(f'{icon_folder}/folder.png'))
+        self.recent_project_menu.setIcon(QIcon(f'{icon_folder}/folder.png'))
         self.save_act.setIcon(QIcon(f'{icon_folder}/save.png'))
         self.save_as_act.setIcon(QIcon(f'{icon_folder}/save.png'))
         self.quit_act.setIcon(QIcon(f'{icon_folder}/x.png'))
@@ -293,13 +293,13 @@ class MainEditor(QMainWindow):
         file_menu = QMenu(_("File"), self)
         file_menu.addAction(self.new_act)
         file_menu.addAction(self.open_act)
-        recent_project_menu = QMenu(_("Open Recent..."), self)
+        self.recent_project_menu = QMenu(_("Open Recent..."), self)
         if self.recent_project_acts:
             for action in self.recent_project_acts:
-                recent_project_menu.addAction(action)
+                self.recent_project_menu.addAction(action)
         else:  # Set to disabled when there are no recent projects
-            recent_project_menu.setEnabled(False)
-        file_menu.addMenu(recent_project_menu)
+            self.recent_project_menu.setEnabled(False)
+        file_menu.addMenu(self.recent_project_menu)
         file_menu.addSeparator()
         file_menu.addAction(self.save_act)
         file_menu.addAction(self.save_as_act)

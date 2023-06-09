@@ -129,7 +129,7 @@ class Resources():
         if not os.path.exists(module_path):
             self.loaded_custom_components_path = None
 
-    def save(self, proj_dir, specific=None, progress=None) > bool:
+    def save(self, proj_dir, specific=None, progress=None) -> bool:
         """
         # Returns whether it was successful in saving
         """

@@ -178,8 +178,7 @@ Example usage:
             return klass
         return None
     # Gives get_klass an alternate name
-    self.get_class = get_klass
-
+    get_class = get_klass
 
     @categorize(QueryType.MAP)
     def get_closest_allies(self, position, num: int = 1) -> List[Tuple[UnitObject, int]]:

@@ -1,4 +1,6 @@
-import os, sys
+import os
+import sys
+from app.editor.recent_project_dialog import RecentProjectDialog
 
 from app.editor.settings import MainSettingsController
 from app.editor.editor_locale import init_locale
@@ -14,7 +16,7 @@ if __name__ == '__main__':
     # Hack to get a Windows icon to show up
     try:
         import ctypes
-        myappid = u'rainlash.lextalionis.ltmaker.current' # arbitrary string
+        myappid = u'rainlash.lextalionis.ltmaker.current'  # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     except:
         print("Maybe not Windows? But that's OK")
@@ -39,8 +41,14 @@ if __name__ == '__main__':
         from app import dark_theme
         theme = dark_theme.get_theme()
         dark_theme.set(ap, theme)
+        settings = MainSettingsController()
+
+        project_opener_dialog = RecentProjectDialog(
+            settings.get_last_ten_projects())
+        project_opener_dialog.exec_()
+        selected_path = project_opener_dialog.get_selected()
         from app.editor.main_editor import MainEditor
-        window = MainEditor()
+        window = MainEditor(selected_path)
         window.show()
         ap.exec_()
     else:

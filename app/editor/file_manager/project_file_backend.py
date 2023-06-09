@@ -5,6 +5,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 from time import time_ns
+from typing import Optional
 
 from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
@@ -192,10 +193,9 @@ class ProjectFileBackend():
         self.settings.set_current_project(self.current_proj)
         self.load()
 
-    def auto_open(self):
-        path = self.settings.get_current_project()
+    def auto_open(self, project_path: Optional[str] = None):
+        path = project_path or self.settings.get_current_project()
         logging.info("Auto Open: %s" % path)
-
         if path and os.path.exists(path):
             try:
                 self.current_proj = path
@@ -254,6 +254,10 @@ class ProjectFileBackend():
         if os.path.exists(self.current_proj):
             RESOURCES.load(self.current_proj)
             DB.load(self.current_proj)
+            proj_name = os.path.basename(self.current_proj)
+            if proj_name not in RESERVED_PROJECT_PATHS:
+                self.settings.append_or_bump_project(
+                    DB.constants.value('title') or os.path.basename(self.current_proj), self.current_proj)
 
     def autosave(self):
         project_nid = DB.constants.value('game_nid').replace(' ', '_')

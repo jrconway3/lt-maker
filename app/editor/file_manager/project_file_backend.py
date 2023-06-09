@@ -202,19 +202,6 @@ class ProjectFileBackend():
                 return False
         return False
 
-    def recent_open(self, path: str) -> bool:
-        if self.maybe_save():
-            logging.info("Open recent project: %s" % path)
-
-            if path and os.path.exists(path):
-                self.current_proj = path
-                self.settings.set_current_project(self.current_proj)
-                self.load()
-                return True
-            else:
-                return False
-        return False
-
     def auto_open_fallback(self):
         self.current_proj = "default.ltproj"
         self.settings.set_current_project(self.current_proj)

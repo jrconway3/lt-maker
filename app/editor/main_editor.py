@@ -74,8 +74,6 @@ from app.editor.map_animation_editor.map_animation_tab import MapAnimationDataba
 
 __version__ = VERSION
 
-NUM_RECENT_PROJECTS_DISPLAYED = 5
-
 class MainEditor(QMainWindow):
     def initialize_state_subscriptions(self):
         self.app_state_manager.subscribe_to_key(
@@ -171,7 +169,6 @@ class MainEditor(QMainWindow):
 
         self.new_act.setIcon(QIcon(f'{icon_folder}/file-plus.png'))
         self.open_act.setIcon(QIcon(f'{icon_folder}/folder.png'))
-        self.recent_project_menu.setIcon(QIcon(f'{icon_folder}/folder.png'))
         self.save_act.setIcon(QIcon(f'{icon_folder}/save.png'))
         self.save_as_act.setIcon(QIcon(f'{icon_folder}/save.png'))
         self.quit_act.setIcon(QIcon(f'{icon_folder}/x.png'))
@@ -192,13 +189,6 @@ class MainEditor(QMainWindow):
                                shortcut="Ctrl+N", triggered=self.new)
         self.open_act = QAction(_("Open Project..."), self,
                                 shortcut="Ctrl+O", triggered=self.open)
-
-        recent_projects = self.settings.get_recent_projects()[-NUM_RECENT_PROJECTS_DISPLAYED:]
-        self.recent_project_acts = []
-        for project in recent_projects:
-            act = QAction(project, self, triggered=functools.partial(self.recent_open, project))
-            self.recent_project_acts.append(act)
-
         self.save_act = QAction(_("Save Project"), self,
                                 shortcut="Ctrl+S", triggered=self.save)
         self.save_as_act = QAction(
@@ -293,13 +283,6 @@ class MainEditor(QMainWindow):
         file_menu = QMenu(_("File"), self)
         file_menu.addAction(self.new_act)
         file_menu.addAction(self.open_act)
-        self.recent_project_menu = QMenu(_("Open Recent..."), self)
-        if self.recent_project_acts:
-            for action in self.recent_project_acts:
-                self.recent_project_menu.addAction(action)
-        else:  # Set to disabled when there are no recent projects
-            self.recent_project_menu.setEnabled(False)
-        file_menu.addMenu(self.recent_project_menu)
         file_menu.addSeparator()
         file_menu.addAction(self.save_act)
         file_menu.addAction(self.save_as_act)
@@ -486,10 +469,6 @@ class MainEditor(QMainWindow):
 
     def open(self):
         if self.project_save_load_handler.open():
-            self._open()
-            
-    def recent_open(self, path: str):
-        if self.project_save_load_handler.recent_open():
             self._open()
 
     def auto_open(self):

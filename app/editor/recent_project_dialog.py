@@ -2,6 +2,7 @@ from functools import partial
 import os
 from typing import List, Optional, Tuple
 from app.editor.file_manager.project_initializer import ProjectInitializer
+from app.editor.settings.main_settings_controller import MainSettingsController
 from app.editor.settings.project_history_controller import ProjectHistoryEntry
 
 from app.extensions.custom_gui import SimpleDialog
@@ -22,12 +23,9 @@ class RecentProjectsModel(QAbstractTableModel):
     def data(self, index, role):
         if role == Qt.DisplayRole:
             return self.getColumnProperty(index, self._data[index.row()])
-        # elif role == Qt.TextAlignmentRole:
-        #     return Qt.AlignRight
         return None
 
     def rowCount(self, index: QModelIndex):
-        # The length of the outer list.
         return len(self._data)
 
     def columnCount(self, index: QModelIndex):
@@ -48,7 +46,7 @@ class RecentProjectsModel(QAbstractTableModel):
 
 
 class RecentProjectDialog(SimpleDialog):
-    def __init__(self, recent_projects: List[ProjectHistoryEntry]):
+    def __init__(self, recent_projects: List[ProjectHistoryEntry], load_only):
         super().__init__()
         self.setWindowTitle("Recent Projects")
         self.projects = recent_projects
@@ -79,7 +77,8 @@ class RecentProjectDialog(SimpleDialog):
         button_layout.addWidget(self.open_other_button)
         self.new_button = QPushButton("Create New...", self)
         self.new_button.clicked.connect(self.on_click_new)
-        button_layout.addWidget(self.new_button)
+        if not load_only:
+            button_layout.addWidget(self.new_button)
 
         layout.addWidget(self.project_table)
         layout.addLayout(button_layout)
@@ -119,3 +118,11 @@ class RecentProjectDialog(SimpleDialog):
 
     def get_selected(self) -> Optional[ProjectHistoryEntry]:
         return self._selected_path
+
+
+def choose_recent_project(load_only=False) -> str:
+    settings = MainSettingsController()
+    dialog = RecentProjectDialog(
+        settings.get_last_ten_projects(), load_only)
+    dialog.exec_()
+    return dialog.get_selected()

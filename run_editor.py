@@ -1,8 +1,7 @@
 import os
 import sys
-from app.editor.recent_project_dialog import RecentProjectDialog
+from app.editor.recent_project_dialog import choose_recent_project
 
-from app.editor.settings import MainSettingsController
 from app.editor.editor_locale import init_locale
 from app.engine.component_system_compiler import source_generator
 
@@ -41,12 +40,7 @@ if __name__ == '__main__':
         from app import dark_theme
         theme = dark_theme.get_theme()
         dark_theme.set(ap, theme)
-        settings = MainSettingsController()
-
-        project_opener_dialog = RecentProjectDialog(
-            settings.get_last_ten_projects())
-        project_opener_dialog.exec_()
-        selected_path = project_opener_dialog.get_selected()
+        selected_path = choose_recent_project()
         from app.editor.main_editor import MainEditor
         window = MainEditor(selected_path)
         window.show()

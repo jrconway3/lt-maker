@@ -17,6 +17,7 @@ from app.editor import timer
 from app.editor.file_manager.project_initializer import ProjectInitializer
 from app.editor.lib.csv import csv_data_exporter, text_data_exporter
 from app.editor.new_game_dialog import NewGameDialog
+from app.editor.recent_project_dialog import choose_recent_project
 from app.editor.settings import MainSettingsController
 from app.utilities import exceptions
 
@@ -168,12 +169,7 @@ class ProjectFileBackend():
     def open(self):
         if self.maybe_save():
             # Go up one directory when starting
-            if self.current_proj:
-                starting_path = os.path.join(self.current_proj, '..')
-            else:
-                starting_path = QDir.currentPath()
-            fn = QFileDialog.getExistingDirectory(
-                self.parent, "Open Project Directory", starting_path)
+            fn = choose_recent_project(load_only=True)
             if fn:
                 if not fn.endswith('.ltproj'):
                     QMessageBox.warning(self.parent, "Incorrect directory type",

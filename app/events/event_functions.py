@@ -2821,13 +2821,14 @@ def set_custom_options(self: Event, custom_options: str, custom_options_enabled:
 
     action.do(action.SetGameVar('_custom_additional_options', options_list))
 
-def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, flags=None):
+def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, shop_id=None, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:
         self.logger.error("shop: Must have a unit visit the shop!")
         return
     unit = new_unit
-    shop_id = self.nid
+    if shop_id is None:
+        shop_id = self.nid
     self.game.memory['shop_id'] = shop_id
     self.game.memory['current_unit'] = unit
     item_list = item_list.split(',') if item_list else []
@@ -2845,8 +2846,8 @@ def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, flags=
         # Remember which items have already been bought for this shop...
         for idx, item in enumerate(item_list):
             item_history = '__shop_%s_%s' % (shop_id, item)
-            if item_history in self.game.level_vars:
-                stock_list[idx] -= self.game.level_vars[item_history]
+            if item_history in self.game.game_vars:
+                stock_list[idx] -= self.game.game_vars[item_history]
         self.game.memory['shop_stock'] = stock_list
     else:
         self.game.memory['shop_stock'] = None

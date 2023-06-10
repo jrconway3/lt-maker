@@ -3393,7 +3393,8 @@ def trigger_script(self: Event, event, unit1=None, unit2=None, flags=None):
     else:
         unit2 = self.unit2
 
-    valid_events = DB.events.get_by_nid_or_name(event, self.game.level.nid)
+    level_nid = self.game.level.nid if self.game.level else None
+    valid_events = DB.events.get_by_nid_or_name(event, level_nid)
     for event_prefab in valid_events:
         self.game.events.trigger_specific_event(event_prefab.nid, unit, unit2, self.position, self.local_args)
         self.state = 'paused'

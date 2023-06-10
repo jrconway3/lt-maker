@@ -37,7 +37,7 @@ class RecentProjectsModel(QAbstractTableModel):
         elif index.column() == 1:
             return entry.path
         elif index.column() == 2:
-            return entry.get_last_open_time().isoformat() if entry.get_last_open_time() else "Unknown"
+            return entry.get_last_open_time().strftime('%Y-%m-%d %a %H:%M:%S') if entry.get_last_open_time() else "Unknown"
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:

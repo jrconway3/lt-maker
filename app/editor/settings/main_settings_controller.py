@@ -5,7 +5,7 @@ from typing import List, Tuple
 from PyQt5.QtCore import QSettings, QDir
 from PyQt5.QtCore import Qt
 
-from .project_history_controller import ProjectHistoryController
+from .project_history_controller import ProjectHistoryController, ProjectHistoryEntry
 from .component_settings_controller import ComponentSettingsController
 
 
@@ -47,7 +47,7 @@ class MainSettingsController():
         self.project_history_controller.append_or_bump_project(
             project_name, project_path)
 
-    def get_last_ten_projects(self) -> List[Tuple[str, str]]:
+    def get_last_ten_projects(self) -> List[ProjectHistoryEntry]:
         return self.project_history_controller.get_last_ten_projects()
 
     """========== General UI Settings =========="""

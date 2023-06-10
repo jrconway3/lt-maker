@@ -102,7 +102,7 @@ class RecentProjectDialog(SimpleDialog):
             self, "Open Project Directory", starting_path)
         if fn:
             if not fn.endswith('.ltproj'):
-                QMessageBox.warning(self.parent, "Incorrect directory type",
+                QMessageBox.warning(self, "Incorrect directory type",
                                     "%s is not an .ltproj." % fn)
             else:
                 self._selected_path = fn
@@ -116,12 +116,15 @@ class RecentProjectDialog(SimpleDialog):
             self._selected_path = path
             self.accept()
 
-    def get_selected(self) -> Optional[ProjectHistoryEntry]:
+    def get_selected(self) -> Optional[str]:
         return self._selected_path
 
 
-def choose_recent_project(load_only=False) -> str:
+def choose_recent_project(load_only=False) -> Optional[str]:
     settings = MainSettingsController()
+    recent_projects = settings.get_last_ten_projects()
+    if not recent_projects:
+        return None
     dialog = RecentProjectDialog(
         settings.get_last_ten_projects(), load_only)
     dialog.exec_()

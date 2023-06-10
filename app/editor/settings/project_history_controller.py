@@ -58,7 +58,7 @@ class ProjectHistoryController():
         self.state.setValue('most_recent_projects',
                             json.dumps(serializable_list))
 
-    def get_last_ten_projects(self) -> List[Tuple[str, str]]:
+    def get_last_ten_projects(self) -> List[ProjectHistoryEntry]:
         current_list = json.loads(self.state.value(
             'most_recent_projects', "[]", type=str))
         filtered_list: List[ProjectHistoryEntry] = []

@@ -74,12 +74,13 @@ from app.editor.map_animation_editor.map_animation_tab import MapAnimationDataba
 
 __version__ = VERSION
 
+
 class MainEditor(QMainWindow):
     def initialize_state_subscriptions(self):
         self.app_state_manager.subscribe_to_key(
             MainEditor.__name__, 'main_editor_mode', self.render_editor)
 
-    def __init__(self):
+    def __init__(self, project_path: Optional[str] = None):
         super().__init__()
         self.window_title = _('LT Maker')
         self.setWindowTitle(self.window_title)
@@ -133,20 +134,15 @@ class MainEditor(QMainWindow):
         self.render_editor(MainEditorScreenStates.GLOBAL_EDITOR)
 
         # Actually load data
-        # DB.deserialize()
-        # DB.init_load()
-
-        self.auto_open()
-        # if not result:
-        #     DB.load('default.ltproj')
-        #     self.set_window_title('default.ltproj')
+        self.auto_open(project_path)
 
         if len(DB.levels) == 0:
             self.level_menu.create_initial_level()
 
         # initialize to first level
         first_level_nid = DB.levels[0].nid
-        self.app_state_manager.change_and_broadcast('selected_level', first_level_nid)
+        self.app_state_manager.change_and_broadcast(
+            'selected_level', first_level_nid)
 
     def on_clean_changed(self, clean):
         # Change Title
@@ -455,7 +451,7 @@ class MainEditor(QMainWindow):
         title = os.path.split(self.settings.get_current_project())[-1]
         self.set_window_title(title)
         logging.info("Loaded project from %s" %
-                        self.settings.get_current_project())
+                     self.settings.get_current_project())
         self.status_bar.showMessage(
             "Loaded project from %s" % self.settings.get_current_project())
         # Return to global
@@ -471,38 +467,37 @@ class MainEditor(QMainWindow):
         if self.project_save_load_handler.open():
             self._open()
 
-    def auto_open(self):
-        self.project_save_load_handler.auto_open()
+    def auto_open(self, project_path: Optional[str]):
+        self.project_save_load_handler.auto_open(project_path)
         self._open()
+
+    def _save(self):
+        current_proj = self.settings.get_current_project()
+        title = os.path.split(current_proj)[-1]
+        self.set_window_title(title)
+        # Remove asterisk on window title
+        if self.window_title.startswith('*'):
+            self.window_title = self.window_title[1:]
+        self.status_bar.showMessage('Saved project to %s' % current_proj)
 
     def save(self):
         if self.project_save_load_handler.save():
-            current_proj = self.settings.get_current_project()
-            title = os.path.split(current_proj)[-1]
-            self.set_window_title(title)
-            # Remove asterisk on window title
-            if self.window_title.startswith('*'):
-                self.window_title = self.window_title[1:]
-            self.status_bar.showMessage('Saved project to %s' % current_proj)
+            self._save()           
 
     def save_as(self):
         if self.project_save_load_handler.save(True):
-            current_proj = self.settings.get_current_project()
-            title = os.path.split(current_proj)[-1]
-            self.set_window_title(title)
-            # Remove asterisk on window title
-            if self.window_title.startswith('*'):
-                self.window_title = self.window_title[1:]
-            self.status_bar.showMessage('Saved project to %s' % current_proj)
+            self._save()
 
     def remove_unused_resources(self):
         # Need to save first before cleaning
         if self.project_save_load_handler.save():
             self.project_save_load_handler.clean()
             current_proj = self.settings.get_current_project()
-            self.status_bar.showMessage('All unused resources removed from %s' % current_proj)
+            self.status_bar.showMessage(
+                'All unused resources removed from %s' % current_proj)
         else:
-            QMessageBox.warning(self, "Save Error", "Must save project before removing unused resources!")
+            QMessageBox.warning(
+                self, "Save Error", "Must save project before removing unused resources!")
 
     def edit_tags(self, parent=None):
         dialog = TagDialog.create()

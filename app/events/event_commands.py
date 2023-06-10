@@ -2080,6 +2080,18 @@ Unlocks the specific *SupportRank* between the two specified units.
     keywords = ['Unit1', 'Unit2', 'SupportRank']
     keyword_types = ['GlobalUnit', 'GlobalUnit', 'SupportRank']
 
+class DisableSupportRank(EventCommand):
+    nid = 'disable_support_rank'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+"""
+Removes the provided *SupportRank* between two units.
+"""
+
+    keywords = ['Unit1', 'Unit2', 'SupportRank']
+    keyword_types = ['GlobalUnit', 'GlobalUnit', 'SupportRank']
+
 class AddMarketItem(EventCommand):
     nid = 'add_market_item'
     tag = Tags.GAME_VARS

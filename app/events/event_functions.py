@@ -2443,6 +2443,32 @@ def unlock_support_rank(self: Event, unit1, unit2, support_rank, flags=None):
         self.logger.error("unlock_support_rank: Couldn't find prefab for units %s and %s" % (_unit1.nid, _unit2.nid))
         return
 
+def disable_support_rank(self: Event, unit1, unit2, support_rank, flags=None):
+    _unit1 = self._get_unit(unit1)
+    if not _unit1:
+        _unit1 = DB.units.get(unit1)
+    if not _unit1:
+        self.logger.error("disable_support_rank: Couldn't find unit %s" % unit1)
+        return
+    _unit2 = self._get_unit(unit2)
+    if not _unit2:
+        _unit2 = DB.units.get(unit2)
+    if not _unit2:
+        self.logger.error("disable_support_rank: Couldn't find unit %s" % unit2)
+        return
+    rank = support_rank
+    if rank not in DB.support_ranks.keys():
+        self.logger.error("disable_support_rank: Support rank %s not a valid rank!" % rank)
+        return
+    prefabs = DB.support_pairs.get_pairs(_unit1.nid, _unit2.nid)
+    if prefabs:
+        prefab = prefabs[0]
+        action.do(action.DisableSupportRank(prefab.nid, rank))
+    else:
+        self.logger.error("disable_support_rank: Couldn't find prefab for units %s and %s" % (_unit1.nid, _unit2.nid))
+        return
+
+
 def add_market_item(self: Event, item, stock=None, flags=None):
     if item not in DB.items.keys():
         self.logger.warning("add_market_item: %s is not a legal item nid", item)
@@ -3401,7 +3427,8 @@ def trigger_script(self: Event, event, unit1=None, unit2=None, flags=None):
     else:
         unit2 = self.unit2
 
-    valid_events = DB.events.get_by_nid_or_name(event, self.game.level.nid)
+    level_nid = self.game.level.nid if self.game.level else None
+    valid_events = DB.events.get_by_nid_or_name(event, level_nid)
     for event_prefab in valid_events:
         self.game.events.trigger_specific_event(event_prefab.nid, unit, unit2, self.position, self.local_args)
         self.state = 'paused'

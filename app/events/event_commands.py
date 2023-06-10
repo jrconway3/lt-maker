@@ -1591,7 +1591,7 @@ Removes *ItemComponent* from *Item* in the inventory of *GlobalUnitOrConvoy*.
         """
 
     keywords = ["GlobalUnitOrConvoy", "Item", "ItemComponent"]
-
+    
 class AddSkillComponent(EventCommand):
     nid = 'add_skill_component'
     tag = Tags.MODIFY_SKILL_PROPERTIES
@@ -1603,7 +1603,7 @@ Adds a *SkillComponent* with optional value of *Expression* to *Skill* belonging
 
     keywords = ["GlobalUnit", "Skill", "SkillComponent"]
     optional_keywords = ["Expression"]
-
+    
 class ModifySkillComponent(EventCommand):
     nid = 'modify_skill_component'
     tag = Tags.MODIFY_SKILL_PROPERTIES
@@ -1621,7 +1621,7 @@ Use the *additive* flag to add rather than set the value.
     optional_keywords = ["ComponentProperty"]
     keyword_types = ["GlobalUnit", "Skill", "SkillComponent", "Expression", "String"]
     _flags = ['additive']
-
+    
 class RemoveSkillComponent(EventCommand):
     nid = 'remove_skill_component'
     tag = Tags.MODIFY_SKILL_PROPERTIES
@@ -1756,6 +1756,7 @@ interacts with the data of the skill to use this command.
 
 class ChangeAI(EventCommand):
     nid = 'change_ai'
+    nickname = 'set_ai'
     tag = Tags.MODIFY_UNIT_PROPERTIES
 
     desc = \
@@ -1764,6 +1765,19 @@ Sets the *AI* used by *GlobalUnit*.
         """
 
     keywords = ["GlobalUnit", "AI"]
+
+class ChangeAIGroup(EventCommand):
+    nid = 'change_ai_group'
+    nickname = 'set_ai_group'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+        """
+Sets the *AIGroup* used by *GlobalUnit*.
+        """
+
+    keywords = ["GlobalUnit", "AIGroup"]
+    keyword_types = ["GlobalUnit", "String"]
 
 class ChangeParty(EventCommand):
     nid = 'change_party'
@@ -2398,12 +2412,15 @@ class Shop(EventCommand):
 
     desc = \
         """
-Causes *Unit* to enter a shop that sells *ItemList* items. The optional *ShopFlavor* keyword determines whether the shop appears as a vendor or an armory. The optional *StockList* keyword determines if an item should have a limited stock. The order will be the same as ItemList. Use -1 for unlimited stock.
+Causes *Unit* to enter a shop that sells *ItemList* items. 
+The optional *ShopFlavor* keyword determines whether the shop appears as a vendor, armory, or your own custom flavor. 
+The optional *StockList* keyword determines if an item should have a limited stock. The order will be the same as ItemList. Use -1 for unlimited stock.
+The optional *ShopId* keyword is available if you want to save what was bought from the shop in future shops. Memory will be preserved across shops with the same *ShopId*.
         """
 
     keywords = ["Unit", "ItemList"]
-    optional_keywords = ["ShopFlavor", "StockList"]
-    keyword_types = ["Unit", "ItemList", "ShopFlavor", "IntegerList"]
+    optional_keywords = ["ShopFlavor", "StockList", "ShopId"]
+    keyword_types = ["Unit", "ItemList", "ShopFlavor", "IntegerList", "Nid"]
 
 class Choice(EventCommand):
     nid = 'choice'

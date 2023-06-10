@@ -1591,7 +1591,7 @@ Removes *ItemComponent* from *Item* in the inventory of *GlobalUnitOrConvoy*.
         """
 
     keywords = ["GlobalUnitOrConvoy", "Item", "ItemComponent"]
-    
+
 class AddSkillComponent(EventCommand):
     nid = 'add_skill_component'
     tag = Tags.MODIFY_SKILL_PROPERTIES
@@ -1603,7 +1603,7 @@ Adds a *SkillComponent* with optional value of *Expression* to *Skill* belonging
 
     keywords = ["GlobalUnit", "Skill", "SkillComponent"]
     optional_keywords = ["Expression"]
-    
+
 class ModifySkillComponent(EventCommand):
     nid = 'modify_skill_component'
     tag = Tags.MODIFY_SKILL_PROPERTIES
@@ -1621,7 +1621,7 @@ Use the *additive* flag to add rather than set the value.
     optional_keywords = ["ComponentProperty"]
     keyword_types = ["GlobalUnit", "Skill", "SkillComponent", "Expression", "String"]
     _flags = ['additive']
-    
+
 class RemoveSkillComponent(EventCommand):
     nid = 'remove_skill_component'
     tag = Tags.MODIFY_SKILL_PROPERTIES
@@ -2062,6 +2062,18 @@ class UnlockSupportRank(EventCommand):
         """
 Unlocks the specific *SupportRank* between the two specified units.
         """
+
+    keywords = ['Unit1', 'Unit2', 'SupportRank']
+    keyword_types = ['GlobalUnit', 'GlobalUnit', 'SupportRank']
+
+class DisableSupportRank(EventCommand):
+    nid = 'disable_support_rank'
+    tag = Tags.MODIFY_UNIT_PROPERTIES
+
+    desc = \
+"""
+Removes the provided *SupportRank* between two units.
+"""
 
     keywords = ['Unit1', 'Unit2', 'SupportRank']
     keyword_types = ['GlobalUnit', 'GlobalUnit', 'SupportRank']

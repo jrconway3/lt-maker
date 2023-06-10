@@ -250,10 +250,8 @@ class ProjectFileBackend():
         if os.path.exists(self.current_proj):
             RESOURCES.load(self.current_proj)
             DB.load(self.current_proj)
-            proj_name = os.path.basename(self.current_proj)
-            if proj_name not in RESERVED_PROJECT_PATHS:
-                self.settings.append_or_bump_project(
-                    DB.constants.value('title') or os.path.basename(self.current_proj), self.current_proj)
+            self.settings.append_or_bump_project(
+                DB.constants.value('title') or os.path.basename(self.current_proj), self.current_proj)
 
     def autosave(self):
         project_nid = DB.constants.value('game_nid').replace(' ', '_')

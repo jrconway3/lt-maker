@@ -45,9 +45,8 @@ class ProjectHistoryController():
             "most_recent_projects", "[]", type=str))
         filtered_list: List[ProjectHistoryEntry] = []
         for project_entry in current_list:
-            name = project_entry[0]
             path = project_entry[1]
-            if not name == project_name and not path == project_path:
+            if not path == project_path:
                 filtered_list.append(ProjectHistoryEntry(*project_entry))
         filtered_list.insert(0, ProjectHistoryEntry(
             project_name, project_path, datetime.now().timestamp()))

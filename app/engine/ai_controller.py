@@ -63,7 +63,7 @@ class AIController():
             if not next_behaviour.condition or \
                     evaluate.evaluate(next_behaviour.condition, self.unit, position=self.unit.position):
                 self.behaviour = next_behaviour
-                break            
+                break
         else:
             self.behaviour_idx = 0
             self.behaviour = None
@@ -500,11 +500,13 @@ class PrimaryAI():
         # Only count main target if it's one of the legal targets
         if main_target and main_target_pos in self.behaviour_targets:
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
+            ai_priority_multiplier = skill_system.ai_priority_multiplier(main_target)
             # If no ai priority hook defined
             if ai_priority is None:
                 pass
             else:
-                tp += ai_priority
+                total_priority = ai_priority * ai_priority_multiplier
+                tp += total_priority
 
             if item_system.damage(self.unit, item) is not None and \
                     skill_system.check_enemy(self.unit, main_target):
@@ -517,10 +519,12 @@ class PrimaryAI():
             if not target or splash_pos not in self.behaviour_targets:
                 continue
             ai_priority = item_system.ai_priority(self.unit, item, main_target, move)
+            ai_priority_multiplier = skill_system.ai_priority_multiplier(main_target)
             if ai_priority is None:
                 pass
             else:
-                tp += ai_priority
+                total_priority = ai_priority * ai_priority_multiplier
+                tp += total_priority
 
             if item_system.damage(self.unit, item):
                 accuracy = utils.clamp(combat_calcs.compute_hit(self.unit, target, item, target.get_weapon(), "attack", (0, 0))/100., 0, 1)

@@ -21,8 +21,7 @@ from app.editor.recent_project_dialog import choose_recent_project
 from app.editor.settings import MainSettingsController
 from app.utilities import exceptions
 
-RESERVED_PROJECT_PATHS = ("default.ltproj", "testing_proj.ltproj",
-                          'autosave.ltproj', 'default.ltproj', 'autosave', 'default')
+RESERVED_PROJECT_PATHS = ("default.ltproj", 'autosave.ltproj', 'autosave', 'default')
 
 
 class ProjectFileBackend():

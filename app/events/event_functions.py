@@ -1819,7 +1819,7 @@ def remove_item_component(self: Event, global_unit_or_convoy, item, item_compone
         return
 
     action.do(action.RemoveItemComponent(item, component_nid))
-    
+
 def add_skill_component(self: Event, global_unit, skill, skill_component, expression=None, flags=None):
     flags = flags or set()
     component_nid = skill_component
@@ -1839,7 +1839,7 @@ def add_skill_component(self: Event, global_unit, skill, skill_component, expres
         component_value = None
 
     action.do(action.AddSkillComponent(skill, component_nid, component_value))
-    
+
 def modify_skill_component(self: Event, global_unit, skill, skill_component, expression, component_property=None, flags=None):
     flags = flags or set()
     component_nid = skill_component
@@ -1857,7 +1857,7 @@ def modify_skill_component(self: Event, global_unit, skill, skill_component, exp
         return
 
     action.do(action.ModifySkillComponent(skill, component_nid, component_value, component_property, is_additive))
-    
+
 def remove_skill_component(self: Event, global_unit, skill, skill_component, flags=None):
     flags = flags or set()
     component_nid = skill_component
@@ -2436,6 +2436,32 @@ def unlock_support_rank(self: Event, unit1, unit2, support_rank, flags=None):
         self.logger.error("unlock_support_rank: Couldn't find prefab for units %s and %s" % (_unit1.nid, _unit2.nid))
         return
 
+def disable_support_rank(self: Event, unit1, unit2, support_rank, flags=None):
+    _unit1 = self._get_unit(unit1)
+    if not _unit1:
+        _unit1 = DB.units.get(unit1)
+    if not _unit1:
+        self.logger.error("disable_support_rank: Couldn't find unit %s" % unit1)
+        return
+    _unit2 = self._get_unit(unit2)
+    if not _unit2:
+        _unit2 = DB.units.get(unit2)
+    if not _unit2:
+        self.logger.error("disable_support_rank: Couldn't find unit %s" % unit2)
+        return
+    rank = support_rank
+    if rank not in DB.support_ranks.keys():
+        self.logger.error("disable_support_rank: Support rank %s not a valid rank!" % rank)
+        return
+    prefabs = DB.support_pairs.get_pairs(_unit1.nid, _unit2.nid)
+    if prefabs:
+        prefab = prefabs[0]
+        action.do(action.DisableSupportRank(prefab.nid, rank))
+    else:
+        self.logger.error("disable_support_rank: Couldn't find prefab for units %s and %s" % (_unit1.nid, _unit2.nid))
+        return
+
+
 def add_market_item(self: Event, item, stock=None, flags=None):
     if item not in DB.items.keys():
         self.logger.warning("add_market_item: %s is not a legal item nid", item)
@@ -2775,7 +2801,7 @@ def base(self: Event, background: str, music: str = None, other_options: str = N
     self.game.state.change('base_main')
     self.state = 'paused'
 
-def set_custom_options(self: Event, custom_options: str, custom_options_enabled: str = None, 
+def set_custom_options(self: Event, custom_options: str, custom_options_enabled: str = None,
                        custom_options_desc: str = None, custom_options_on_select: str = None, flags=None):
     flags = flags or set()
 

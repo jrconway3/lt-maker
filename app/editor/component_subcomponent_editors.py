@@ -256,6 +256,7 @@ class MultipleChoiceSubcomponentEditor(BaseSubcomponentEditor):
         self.editor.setMaximumWidth(width)
         if not self.option_dict.get(self.field_name):
             self.option_dict[self.field_name] = self.choices[0]
+        self.editor.setValue(self.option_dict[self.field_name])
         self.editor.currentTextChanged.connect(self.on_value_changed)
         hbox.addWidget(self.editor)
 
@@ -269,7 +270,6 @@ def get_editor_widget(field_name: str, ctype: ComponentType | Tuple[ComponentTyp
     elif isinstance(ctype, tuple):  # tuple
         container_type, stype = ctype
         if container_type == ComponentType.MultipleChoice:
-            print(stype)
             if not isinstance(stype, tuple):
                 raise ValueError("Multiple choice has no list arg")
             choices = stype

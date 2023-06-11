@@ -158,8 +158,14 @@ class LostOnEndCombat2(SkillComponent):
         }
         if value:
             self.value.update(value)
+        self.marked_for_delete = False
+
+    def cleanup_combat_unconditional(self, playback, unit, item, target, mode):
+        self.marked_for_delete = True
 
     def post_combat_unconditional(self, playback, unit, item, target, mode):
+        if not self.marked_for_delete:
+            return
         from app.engine import skill_system
         remove_skill = False
         if self.value.get('lost_on_self', True):
@@ -179,9 +185,11 @@ class LostOnEndCombat2(SkillComponent):
 
         if remove_skill:
             action.do(action.RemoveSkill(unit, self.skill))
+        self.marked_for_delete = False
 
     def on_end_chapter(self, unit, skill):
         action.do(action.RemoveSkill(unit, self.skill))
+        self.marked_for_delete = False
 
 
 class LostOnKill(SkillComponent):

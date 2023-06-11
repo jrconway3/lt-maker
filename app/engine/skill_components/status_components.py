@@ -32,7 +32,8 @@ class AuraTarget(SkillComponent):
     tag = SkillTags.STATUS
     paired_with = ('aura', 'aura_range')
 
-    expose = ComponentType.String
+    # expose = ComponentType.String
+    expose = (ComponentType.MultipleChoice, ('ally', 'enemy', 'unit'))
     value = 'unit'
 
 class AuraShow(SkillComponent):

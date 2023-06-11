@@ -33,6 +33,7 @@ class TrueMiracle(SkillComponent):
             if isinstance(act, action.ChangeHP) and -act.num >= act.old_hp and act.unit == unit:
                 act.num = -act.old_hp + 1
                 did_something = True
+                playback.append(pb.DefenseHitProc(unit, self.skill))
 
         if did_something:
             actions.append(action.TriggerCharge(unit, self.skill))
@@ -192,12 +193,14 @@ class Armsthrift(SkillComponent):
             curr_uses = item.data.get('uses')
             max_uses = item.data.get('starting_uses')
             # No -1 for post combat since action.do has already happened
-            action.do(action.SetObjData(item, 'uses', min(curr_uses + self.value, max_uses)))
+            action.do(action.SetObjData(item, 'uses', min(
+                curr_uses + self.value, max_uses)))
         # Handles Chapter Uses
         if item.data.get('c_uses', None) and item.data.get('starting_c_uses', None):
             curr_uses = item.data.get('c_uses')
             max_uses = item.data.get('starting_c_uses')
-            action.do(action.SetObjData(item, 'c_uses', min(curr_uses + self.value, max_uses)))
+            action.do(action.SetObjData(item, 'c_uses',
+                                        min(curr_uses + self.value, max_uses)))
 
     def after_strike(self, actions, playback, unit, item, target, mode, attack_info, strike):
         if not item:
@@ -217,7 +220,8 @@ class Armsthrift(SkillComponent):
 
         if self._did_something:
             if item.parent_item:
-                self.post_combat(playback, unit, item.parent_item, target, mode)
+                self.post_combat(
+                    playback, unit, item.parent_item, target, mode)
             if (item.uses_options and item.uses_options.one_loss_per_combat()):
                 self._post_combat(unit, item)
 
@@ -414,6 +418,56 @@ class GiveStatusAfterHit(SkillComponent):
         if target and any(p.attacker == unit for p in mark_playbacks):
             actions.append(action.AddSkill(target, self.value, unit))
             actions.append(action.TriggerCharge(unit, self.skill))
+
+
+class SkillBeforeCombat(SkillComponent):
+    nid = 'skill_before_combat'
+    desc = 'Grants a skill before combat'
+    tag = SkillTags.COMBAT2
+
+    expose = ComponentType.NewMultipleOptions
+
+    options = {
+        "skill": ComponentType.Skill,
+        "recipient": (ComponentType.MultipleChoice, ("self", "target", "both")),
+        "allegiance": (ComponentType.MultipleChoice, ("ally", "enemy", "both")),
+    }
+
+    def __init__(self, value=None):
+        self.value = {
+            "skill": None,
+            "recipient": "target",
+            "allegiance": "enemy"
+        }
+        if value:
+            self.value.update(value)
+
+    def get_skill_nid(self):
+        return self.value['skill']
+
+    def _resolve_targets(self, unit, target):
+        recipient = self.value['recipient']
+        allegiance = self.value['allegiance']
+        is_ally = skill_system.check_ally(unit, target)
+        if recipient == 'self':
+            return [unit]
+        if recipient == 'target':
+            if allegiance == 'enemy' and is_ally:
+                return []
+            if allegiance == 'ally' and not is_ally:
+                return []
+            return [target]
+        return [unit, target]
+
+    def start_combat(self, playback, unit, item, target, mode):
+        skill_nid = self.get_skill_nid()
+        if not skill_nid:
+            return
+        targets = self._resolve_targets(unit, target)
+        for skill_gainer in targets:
+            action.do(action.AddSkill(skill_gainer, skill_nid))
+        if targets:
+            action.do(action.TriggerCharge(unit, self.skill))
 
 
 class GainSkillAfterKill(SkillComponent):

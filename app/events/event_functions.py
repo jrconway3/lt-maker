@@ -2044,6 +2044,13 @@ def change_ai(self: Event, global_unit, ai, flags=None):
         self.logger.error("change_ai: Couldn't find AI %s" % ai)
         return
 
+def change_ai_group(self: Event, global_unit, ai_group, flags=None):
+    unit = self._get_unit(global_unit)
+    if not unit:
+        self.logger.error("change_ai_group: Couldn't find unit %s" % global_unit)
+        return
+    action.do(action.ChangeAIGroup(unit, ai_group))
+
 def change_party(self: Event, global_unit, party, flags=None):
     unit = self._get_unit(global_unit)
     if not unit:
@@ -2436,6 +2443,32 @@ def unlock_support_rank(self: Event, unit1, unit2, support_rank, flags=None):
         self.logger.error("unlock_support_rank: Couldn't find prefab for units %s and %s" % (_unit1.nid, _unit2.nid))
         return
 
+def disable_support_rank(self: Event, unit1, unit2, support_rank, flags=None):
+    _unit1 = self._get_unit(unit1)
+    if not _unit1:
+        _unit1 = DB.units.get(unit1)
+    if not _unit1:
+        self.logger.error("disable_support_rank: Couldn't find unit %s" % unit1)
+        return
+    _unit2 = self._get_unit(unit2)
+    if not _unit2:
+        _unit2 = DB.units.get(unit2)
+    if not _unit2:
+        self.logger.error("disable_support_rank: Couldn't find unit %s" % unit2)
+        return
+    rank = support_rank
+    if rank not in DB.support_ranks.keys():
+        self.logger.error("disable_support_rank: Support rank %s not a valid rank!" % rank)
+        return
+    prefabs = DB.support_pairs.get_pairs(_unit1.nid, _unit2.nid)
+    if prefabs:
+        prefab = prefabs[0]
+        action.do(action.DisableSupportRank(prefab.nid, rank))
+    else:
+        self.logger.error("disable_support_rank: Couldn't find prefab for units %s and %s" % (_unit1.nid, _unit2.nid))
+        return
+
+
 def add_market_item(self: Event, item, stock=None, flags=None):
     if item not in DB.items.keys():
         self.logger.warning("add_market_item: %s is not a legal item nid", item)
@@ -2814,13 +2847,14 @@ def set_custom_options(self: Event, custom_options: str, custom_options_enabled:
 
     action.do(action.SetGameVar('_custom_additional_options', options_list))
 
-def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, flags=None):
+def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, shop_id=None, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:
         self.logger.error("shop: Must have a unit visit the shop!")
         return
     unit = new_unit
-    shop_id = self.nid
+    if shop_id is None:
+        shop_id = self.nid
     self.game.memory['shop_id'] = shop_id
     self.game.memory['current_unit'] = unit
     item_list = item_list.split(',') if item_list else []
@@ -2838,8 +2872,8 @@ def shop(self: Event, unit, item_list, shop_flavor=None, stock_list=None, flags=
         # Remember which items have already been bought for this shop...
         for idx, item in enumerate(item_list):
             item_history = '__shop_%s_%s' % (shop_id, item)
-            if item_history in self.game.level_vars:
-                stock_list[idx] -= self.game.level_vars[item_history]
+            if item_history in self.game.game_vars:
+                stock_list[idx] -= self.game.game_vars[item_history]
         self.game.memory['shop_stock'] = stock_list
     else:
         self.game.memory['shop_stock'] = None
@@ -3365,11 +3399,11 @@ def spend_unlock(self: Event, unit, flags=None):
 
     actions, playback = [], []
     # In order to proc uses, c_uses etc.
-    item_system.start_combat(playback, unit, chosen_item, None, None)
-    item_system.on_hit(actions, playback, unit, chosen_item, None, self.position, None, (0, 0), True)
+    item_system.start_combat(playback, unit, chosen_item, unit, None)
+    item_system.on_hit(actions, playback, unit, chosen_item, unit, self.position, None, (0, 0), True)
     for act in actions:
         action.do(act)
-    item_system.end_combat(playback, unit, chosen_item, None, None)
+    item_system.end_combat(playback, unit, chosen_item, unit, None)
 
     if unit.get_hp() <= 0:
         # Force can't die unlocking stuff, because I don't want to deal with that nonsense
@@ -3393,7 +3427,8 @@ def trigger_script(self: Event, event, unit1=None, unit2=None, flags=None):
     else:
         unit2 = self.unit2
 
-    valid_events = DB.events.get_by_nid_or_name(event, self.game.level.nid)
+    level_nid = self.game.level.nid if self.game.level else None
+    valid_events = DB.events.get_by_nid_or_name(event, level_nid)
     for event_prefab in valid_events:
         self.game.events.trigger_specific_event(event_prefab.nid, unit, unit2, self.position, self.local_args)
         self.state = 'paused'

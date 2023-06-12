@@ -29,7 +29,7 @@ class UnitObject(Prefab):
     generic: bool = False
     persistent: bool = True
     ai: str = None
-    ai_group: str = None
+    ai_group: NID = None
     roam_ai: str = None
     faction: NID = None
     team: str = "player"
@@ -85,7 +85,6 @@ class UnitObject(Prefab):
     has_dropped: bool = False
 
     has_run_ai: bool = False
-    ai_group_active: bool = False
 
     _sprite = None
     _sound = None
@@ -182,7 +181,6 @@ class UnitObject(Prefab):
         self.has_dropped = False
 
         self.has_run_ai = False
-        self.ai_group_active = False
 
         self._sprite = None
         self._sound = None
@@ -741,7 +739,6 @@ class UnitObject(Prefab):
                   'built_guard': self.built_guard,
                   'dead': self.dead,
                   'action_state': self.get_action_state(),
-                  'ai_group_active': self.ai_group_active,
                   '_fields': self._fields,
                   'equipped_weapon': self.equipped_weapon.uid if self.equipped_weapon else None,
                   'equipped_accessory': self.equipped_accessory.uid if self.equipped_accessory else None,
@@ -827,7 +824,6 @@ class UnitObject(Prefab):
         else:
             self.reset()
         self.has_run_ai = False
-        self.ai_group_active = s_dict.get('ai_group_active')
 
         self._sprite = None
         self._sound = None

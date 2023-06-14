@@ -453,7 +453,8 @@ def ai_priority_multiplier(unit) -> float:
 def get_combat_arts(unit):
     from app.engine import item_funcs, target_system, action
     combat_arts = {}
-    for skill in unit.skills:
+    unit_skills = unit.skills[:]
+    for skill in unit_skills:
         if not condition(skill, unit):
             continue
         combat_art = None

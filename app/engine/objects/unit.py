@@ -21,6 +21,8 @@ if TYPE_CHECKING:
     from app.engine.unit_sound import UnitSound
     from app.engine.unit_sprite import UnitSprite
 
+import logging
+
 # Main unit object used by engine
 @dataclass
 class UnitObject(Prefab):
@@ -526,6 +528,7 @@ class UnitObject(Prefab):
         return item_system.equippable(self, item) and item_funcs.available(self, item)
 
     def autoequip(self):
+        logging.debug("Autoequipping")
         all_items = item_funcs.get_all_items(self)
         # Do an an initial check that the weapon is still good
         if self.equipped_weapon and not self.can_equip(self.equipped_weapon):
@@ -552,24 +555,27 @@ class UnitObject(Prefab):
             return  # Don't need to do anything
         elif item is self.equipped_weapon:
             return  # Don't need to do anything
+        logging.debug("Equipping %s" % item)
         if item_system.is_accessory(self, item):
             if self.equipped_accessory:
-                self.unequip(self.equipped_accessory)
+                self.unequip(self.equipped_accessory, item)
             self.equipped_accessory = item
         else:
             if self.equipped_weapon:
-                self.unequip(self.equipped_weapon)
+                self.unequip(self.equipped_weapon, item)
             self.equipped_weapon = item
         item_system.on_equip_item(self, item)
         skill_system.on_equip_item(self, item)
 
-    def unequip(self, item):
-        skill_system.on_unequip_item(self, item)
-        item_system.on_unequip_item(self, item)
-        if item_system.is_accessory(self, item):
-            self.equipped_accessory = None
-        else:
-            self.equipped_weapon = None
+    def unequip(self, item, swap_to=None):
+        if item is self.equipped_weapon or item is self.equipped_accessory:
+            logging.debug("Unequipping %s" % item)
+            if item_system.is_accessory(self, item):
+                self.equipped_accessory = swap_to
+            else:
+                self.equipped_weapon = swap_to
+            skill_system.on_unequip_item(self, item)
+            item_system.on_unequip_item(self, item)
 
     def add_item(self, item):
         index = len(self.items)
@@ -607,9 +613,6 @@ class UnitObject(Prefab):
         # Status effects
         skill_system.on_remove_item(self, item)
         item_system.on_remove_item(self, item)
-        # There may be a new item equipped
-        self.get_weapon()
-        self.get_accessory()
 
     def get_internal_level(self) -> int:
         klass = DB.classes.get(self.klass)

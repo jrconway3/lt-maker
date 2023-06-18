@@ -601,6 +601,9 @@ class UnitObject(Prefab):
             skill_system.on_add_item(self, item)
 
     def remove_item(self, item):
+        # Remove item before we unequip, so that the autoequip does not
+        # re-equip the item
+        self.items.remove(item)
         if self.equipped_weapon is item or self.equipped_accessory is item:
             self.unequip(item)
         if item.multi_item:
@@ -608,7 +611,6 @@ class UnitObject(Prefab):
                 self.unequip(self.equipped_weapon)
             elif self.equipped_accessory in item_funcs.get_all_items_from_multi_item(self, item):
                 self.unequip(self.equipped_accessory)
-        self.items.remove(item)
         item.change_owner(None)
         # Status effects
         skill_system.on_remove_item(self, item)

@@ -1078,6 +1078,11 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
         self.logger.error("move_unit: Couldn't get a good position %s %s %s" % (position, movement_type, placement))
         return None
 
+    # In case the unit is currently still moving
+    if self.game.movement.is_moving(unit):
+        self.game.movement.stop(unit)
+        unit.sprite.reset()
+
     if movement_type == 'immediate':
         action.do(action.Teleport(unit, position))
     elif movement_type == 'warp':
@@ -1090,10 +1095,6 @@ def move_unit(self: Event, unit, position=None, movement_type=None, placement=No
         path = target_system.get_path(unit, position)
         if path:
             if self.do_skip:
-                # In case the unit is currently still moving
-                if self.game.movement.is_moving(unit):
-                    self.game.movement.stop(unit)
-                    unit.sprite.reset()
                 action.do(action.Teleport(unit, position))
             elif speed:
                 action.do(action.Move(unit, position, path, event=True, follow=follow, speed=speed))

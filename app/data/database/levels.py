@@ -4,6 +4,7 @@ from collections import OrderedDict
 from typing import Optional, Union
 
 from app.data.database.level_units import GenericUnit, UniqueUnit, UnitGroup
+from app.data.database.ai_groups import AIGroup
 from app.events.regions import Region
 from app.utilities.data import Data, Prefab
 
@@ -28,6 +29,7 @@ class LevelPrefab(Prefab):
         self.units = Data[Union[UniqueUnit, GenericUnit]]()
         self.regions = Data[Region]()
         self.unit_groups = Data()
+        self.ai_groups = Data[AIGroup]()  # Each AI Group is Level Specific
 
     def save_attr(self, name, value):
         if name == 'units':
@@ -38,6 +40,8 @@ class LevelPrefab(Prefab):
             value = [region.save() for region in value]
         elif name == 'objective':
             value = value.copy()  # Must make a copy so we don't keep a reference to the same one
+        elif name == 'ai_groups':
+            value = [ai_group.save() for ai_group in value]
         else:
             value = super().save_attr(name, value)
         return value
@@ -52,6 +56,8 @@ class LevelPrefab(Prefab):
             value = Data([Region.restore(val) for val in value])
         elif name == 'music':
             value = {k: value.get(k) for k in value.keys()}
+        elif name == 'ai_groups':
+            value = Data([AIGroup.restore(val) for val in value])
         else:
             value = super().restore_attr(name, value)
         return value

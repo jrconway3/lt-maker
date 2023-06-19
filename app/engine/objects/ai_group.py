@@ -23,6 +23,10 @@ class AIGroupObject(Prefab):
     def clear(self):
         self.triggered.clear()
 
+    @classmethod
+    def from_prefab(cls, prefab):
+        return cls(prefab.nid, prefab.trigger_threshold)
+
     def save(self):
         return {'nid': self.nid,
                 'trigger_threshold': self.trigger_threshold,

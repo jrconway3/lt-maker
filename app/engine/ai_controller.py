@@ -210,7 +210,7 @@ class AIController():
 
     def get_true_valid_moves(self) -> set:
         # Guard AI
-        if self.behaviour.view_range == -1 and not game.get_ai_group(self.unit.ai_group).active:
+        if self.behaviour.view_range == -1 and not game.ai_group_active(self.unit.ai_group):
             return {self.unit.position}
         else:
             valid_moves = target_system.get_valid_moves(self.unit)
@@ -693,7 +693,7 @@ class SecondaryAI():
         self.unit = unit
         self.behaviour = behaviour
         self.view_range = self.behaviour.view_range
-        if self.view_range == -4 or game.get_ai_group(self.unit.ai_group).active:
+        if self.view_range == -4 or game.ai_group_active(self.unit.ai_group):
             self.view_range = -3  # Try this first
 
         self.available_targets = []
@@ -765,7 +765,7 @@ class SecondaryAI():
             return True, self.best_position
 
         else:
-            if (self.behaviour.view_range == -4 or game.get_ai_group(self.unit.ai_group).active) and not self.widen_flag:
+            if (self.behaviour.view_range == -4 or game.ai_group_active(self.unit.ai_group)) and not self.widen_flag:
                 logging.info("Widening search!")
                 self.widen_flag = True
                 self.view_range = -4

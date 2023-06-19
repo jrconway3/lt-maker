@@ -2418,7 +2418,7 @@ class ChangeAIGroup(Action):
 class AIGroupPing(Action):
     def __init__(self, ai_group: NID):
         self.ai_group = ai_group
-        self.old_active = game.get_ai_group(self.ai_group).active
+        self.old_active = game.ai_group_active(self.ai_group)
 
     def do(self):
         ai_group = game.get_ai_group(self.ai_group)

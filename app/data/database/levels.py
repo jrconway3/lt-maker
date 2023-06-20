@@ -63,6 +63,25 @@ class LevelPrefab(Prefab):
         return value
 
     @classmethod
+    def restore(cls, s_dict):
+        self = super().restore(s_dict)
+        
+        # Clear any unused ai groups
+        # Cannot be done on save because then autosaving will randomly remove non-populated ai groups you may have planned to use
+        all_unit_ai_groups = {unit.ai_group for unit in self.units if unit.ai_group}
+        for ai_group in self.ai_groups[:]:
+            if ai_group.nid not in all_unit_ai_groups:
+                self.ai_groups.delete(ai_group)
+
+        # Create any missing ai groups since old versions of the project files
+        # don't have reified ai groups
+        for ai_group_nid in all_unit_ai_groups:
+            if ai_group_nid not in self.ai_groups.keys():
+                self.ai_groups[ai_group_nid] = AIGroup(ai_group_nid, 1)
+
+        return self
+
+    @classmethod
     def default(cls):
         return cls('0', 'Prologue')
 

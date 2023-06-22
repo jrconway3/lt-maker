@@ -315,27 +315,16 @@ def before_crit(actions, playback, attacker, item, defender, mode, attack_info) 
             if component.defines('before_crit'):
                 component.before_crit(actions, playback, attacker, item, defender, mode, attack_info)
 
-def on_upkeep(actions, playback, unit) -> tuple:  # actions, playback
-    for skill in unit.skills:
-        for component in skill.components:
-            if component.defines('on_upkeep'):
-                if component.ignore_conditional or condition(skill, unit):
-                    component.on_upkeep(actions, playback, unit)
-    return actions, playback
-
-def on_endstep(actions, playback, unit) -> tuple:  # actions, playback
-    for skill in unit.skills:
-        for component in skill.components:
-            if component.defines('on_endstep'):
-                if component.ignore_conditional or condition(skill, unit):
-                    component.on_endstep(actions, playback, unit)
-    return actions, playback
-
 def on_end_chapter(unit, skill):
     for component in skill.components:
         if component.defines('on_end_chapter'):
             if component.ignore_conditional or condition(skill, unit):
                 component.on_end_chapter(unit, skill)
+
+def on_end_chapter_unconditional(unit, skill):
+    for component in skill.components:
+        if component.defines('on_end_chapter_unconditional'):
+            component.on_end_chapter(unit, skill)
 
 def init(skill):
     """

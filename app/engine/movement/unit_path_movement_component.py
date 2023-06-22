@@ -29,6 +29,9 @@ class UnitPathMovementComponent(MovementComponent):
     def get_camera_position(self):
         return self.unit.position
 
+    def should_camera_center(self) -> bool:
+        return self.follow and self.event
+
     def get_end_goal(self):
         return self.goal
 

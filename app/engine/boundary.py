@@ -130,7 +130,7 @@ class BoundaryInterface():
     def _add_unit(self, unit):
         valid_moves = target_system.get_valid_moves(unit, force=True)
 
-        if DB.constants.value('zero_move') and unit.get_ai() and not unit.ai_group_active:
+        if DB.constants.value('zero_move') and unit.get_ai() and not game.ai_group_active(unit.ai_group):
             ai_prefab = DB.ai.get(unit.get_ai())
             guard = ai_prefab.guard_ai()
             if guard:

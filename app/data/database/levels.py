@@ -60,7 +60,7 @@ class LevelPrefab(Prefab):
             if value:
                 value = Data([AIGroup.restore(val) for val in value])
             else:
-                value = []
+                value = Data()
         else:
             value = super().restore_attr(name, value)
         return value

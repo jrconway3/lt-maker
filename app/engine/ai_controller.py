@@ -273,9 +273,11 @@ class AIController():
                             ai_group = game.get_ai_group(self.unit.ai_group)
                             triggered = ai_group.trigger(self.unit.nid)
                             if triggered:
+                                logging.info("AI group %s activate!", self.unit.ai_group)
                                 self.ai_group_ping(ai_group)
                                 success = True
                             else:
+                                logging.info("AI group %s is not ready to trigger", self.unit.ai_group)
                                 # If we didn't trigger, that means this unit is not ready to participate
                                 self.clean_up()
                                 success = False

@@ -1,5 +1,5 @@
 from app.editor.skill_list_widget import SkillListWidget
-from PyQt5.QtWidgets import QPushButton, QLineEdit, \
+from PyQt5.QtWidgets import QPushButton, QLineEdit, QComboBox, \
     QWidget, QStyledItemDelegate, QDialog, QSpinBox, \
     QVBoxLayout, QHBoxLayout, QMessageBox, QApplication, QCheckBox
 from PyQt5.QtCore import QSize, Qt
@@ -8,6 +8,7 @@ from PyQt5.QtGui import QIcon, QBrush, QColor, QFontMetrics
 from app.utilities import str_utils
 from app.utilities.data import Data
 from app.data.database.level_units import GenericUnit, UniqueUnit
+from app.data.database.ai_groups import AIGroup
 from app.data.database.database import DB
 
 from app.editor import timer
@@ -451,16 +452,16 @@ class LoadUnitDialog(Dialog):
         """
         ai_group = self.ai_group_box.edit.currentText()
         if ai_group in self.window.current_level.ai_groups.keys():
-            threshold = self.window.current_level.ai_groups[ai_group].trigger_threshold
+            threshold = self.window.current_level.ai_groups.get(ai_group).trigger_threshold
             self.ai_group_threshold_box.edit.setValue(threshold)
 
     def check_ai_group(self):
         ai_group = self.ai_group_box.edit.currentText()
-        threshold = int(self.ai_group_threshold_box.edit.currentValue())
+        threshold = int(self.ai_group_threshold_box.edit.value())
         if ai_group in self.window.current_level.ai_groups.keys():
-            self.window.current_level.ai_groups[ai_group].trigger_threshold = threshold
+            self.window.current_level.ai_groups.get(ai_group).trigger_threshold = threshold
         else:
-            self.window.current_level.ai_groups[ai_group] = AIGroup(ai_group, threshold)
+            self.window.current_level.ai_groups.append(AIGroup(ai_group, threshold))
         self.current.ai_group = ai_group
 
     def traveler_check(self, val):
@@ -711,16 +712,16 @@ class GenericUnitDialog(Dialog):
         """
         ai_group = self.ai_group_box.edit.currentText()
         if ai_group in self.window.current_level.ai_groups.keys():
-            threshold = self.window.current_level.ai_groups[ai_group].trigger_threshold
+            threshold = self.window.current_level.ai_groups.get(ai_group).trigger_threshold
             self.ai_group_threshold_box.edit.setValue(threshold)
 
     def check_ai_group(self):
         ai_group = self.ai_group_box.edit.currentText()
-        threshold = int(self.ai_group_threshold_box.edit.currentValue())
+        threshold = int(self.ai_group_threshold_box.edit.value())
         if ai_group in self.window.current_level.ai_groups.keys():
-            self.window.current_level.ai_groups[ai_group].trigger_threshold = threshold
+            self.window.current_level.ai_groups.get(ai_group).trigger_threshold = threshold
         else:
-            self.window.current_level.ai_groups[ai_group] = AIGroup(ai_group, threshold)
+            self.window.current_level.ai_groups.append(AIGroup(ai_group, threshold))
         self.current.ai_group = ai_group
 
     def roam_ai_changed(self, val):

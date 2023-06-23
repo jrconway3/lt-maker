@@ -1,5 +1,9 @@
 import sys, os
+import pathlib
 import logging
+import threading
+import time
+import uuid
 
 from app.constants import VERSION
 
@@ -79,35 +83,51 @@ def setup_logging(console_log_output, console_log_level, console_log_color, logf
 
     return True
 
-def create_debug_log():
+def create_debug_log(log_dir: os.PathLike) -> os.PathLike:
     """
-    Increments all old debug logs in number
-    Destroys logs older than 5 runs
+    Destroys logs older than 24 hours
+    Then initializes a current log
     """
-    counter = 5  # traverse backwards, so we don't overwrite older logs
-    while counter > 0:
-        fn = 'saves/debug.log.' + str(counter)
-        if os.path.exists(fn):
-            if counter == 5:
-                os.remove(fn)
-            else:
-                os.rename(fn, 'saves/debug.log.' + str(counter + 1))
-        counter -= 1
+    for root, _, files in os.walk(log_dir):
+        for name in files:
+            fn = os.path.join(root, name)
+            if fn.endswith('.log') and os.path.exists(fn):
+                last_modified_hours_ago = (time.time() - os.path.getmtime(fn)) / 3600
+                if last_modified_hours_ago > 24:
+                    os.remove(fn)
+    nfn = log_dir / pathlib.Path(str(uuid.uuid4()) + '.log')
+    while os.path.exists(nfn):
+        nfn = log_dir / pathlib.Path(str(uuid.uuid4()) + '.log')
+    # creates the file
+    with open(nfn, 'w') as fp:
+        pass
+    return nfn
+
+def get_log_dir() -> os.PathLike:
+    appdata_dir = pathlib.Path(os.getenv("LOCALAPPDATA", '')) / 'lex_talionis'
+    if not os.path.isdir(appdata_dir):
+        os.mkdir(appdata_dir)
+    return appdata_dir
+
+def heartbeat_log():
+    # heartbeat once per hour
+    t = threading.Timer(3600.0, heartbeat_log)
+    t.daemon = True
+    t.start()
+    logging.info("log_heartbeat")
 
 def create_logger() -> bool:
     try:
-        create_debug_log()
-    except WindowsError:
-        print("Error! Debug logs in use -- Another instance of this is already running!")
-        return None
+        debug_fn = create_debug_log(get_log_dir())
     except PermissionError:
-        print("Error! Debug logs in use -- Another instance of this is already running!")
-        return None
+        print("No permission to write to AppData.")
+        return False
     success = setup_logging(console_log_output="stdout", console_log_level="warning", console_log_color=False,
-                            logfile_file='saves/debug.log.1', logfile_log_level="debug", logfile_log_color=False,
+                            logfile_file=debug_fn, logfile_log_level="debug", logfile_log_color=False,
                             log_line_template="%(color_on)s%(relativeCreated)d %(levelname)7s:%(module)16s: %(message)s")
     if not success:
         print("Failed to setup logging")
         return False
     logging.info('*** Lex Talionis Engine Version %s ***' % VERSION)
+    heartbeat_log()
     return True

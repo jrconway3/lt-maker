@@ -3,6 +3,7 @@ import pathlib
 import logging
 import threading
 import time
+from typing import Optional
 import uuid
 
 from app.constants import VERSION
@@ -82,6 +83,10 @@ def setup_logging(console_log_output, console_log_level, console_log_color, logf
     logger.addHandler(logfile_handler)
 
     return True
+
+def get_log_fname() -> Optional[str]:
+    log_files = [i.baseFilename for i in logging.getLogger().handlers if hasattr(i, 'baseFilename')]
+    return log_files[0] if log_files else None
 
 def create_debug_log(log_dir: os.PathLike) -> os.PathLike:
     """

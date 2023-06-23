@@ -81,7 +81,7 @@ class PlayerChoiceState(MapState):
                 else:
                     self.help_boxes.append(help_menu.HelpDialog(item.desc))
         elif self.data_type == 'type_skill':
-            for skill_nid in skills:
+            for skill_nid in options_list:
                 skill = DB.skills.get(skill_nid)
                 self.help_boxes.append(help_menu.HelpDialog(skill.desc))
 

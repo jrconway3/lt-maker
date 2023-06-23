@@ -2461,6 +2461,9 @@ class AIState(MapState):
             game.ai.reset()
             self.cur_unit = None
             self.cur_group = None
+            # Clear all ai group info at the end of the turn
+            for ai_group in game.level.ai_groups:
+                ai_group.clear()
             game.state.change('turn_change')
             game.state.change('status_endstep')
             self.finish()

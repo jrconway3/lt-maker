@@ -80,7 +80,7 @@ class LevelPrefab(Prefab):
         # don't have reified ai groups
         for ai_group_nid in all_unit_ai_groups:
             if ai_group_nid not in self.ai_groups.keys():
-                self.ai_groups[ai_group_nid] = AIGroup(ai_group_nid, 1)
+                self.ai_groups.append(AIGroup(ai_group_nid, 1))
 
         return self
 

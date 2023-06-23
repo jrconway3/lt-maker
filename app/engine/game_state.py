@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from app.engine.objects.skill import SkillObject
     from app.engine.objects.unit import UnitObject
     from app.engine.objects.region import RegionObject
+    from app.engine.objects.ai_group import AIGroupObject
     from app.engine.dialog_log import DialogLog
     from app.events.event_manager import EventManager
     from app.utilities.typing import NID, UID
@@ -794,6 +795,17 @@ class GameState():
             for region in self.level.regions.values():
                 if (not region_type or region.region_type == region_type) and region.contains(pos):
                     return region
+
+    def get_ai_group(self, ai_group_nid: NID) -> Optional[AIGroupObject]:
+        if self.level:
+            return self.level.ai_groups.get(ai_group_nid)
+        return None
+
+    def ai_group_active(self, ai_group_nid: NID) -> bool:
+        group = self.get_ai_group(ai_group_nid)
+        if group:
+            return group.active
+        return False
 
     def get_all_units(self) -> List[UnitObject]:
         return [unit for unit in self.units if unit.position and not unit.dead and not unit.is_dying and 'Tile' not in unit.tags]

@@ -390,7 +390,6 @@ class LoadUnitDialog(Dialog):
         self.ai_group_box.setToolTip("Units which share an AI Group will try to attack together.")
         self.ai_group_box.edit.setEditable(True)
         self.ai_group_box.edit.setInsertPolicy(QComboBox.InsertAlphabetically)
-        self.ai_group_box.edit.setPlaceholderText("No Group")
         self.ai_group_box.edit.addItems(sorted(self.window.current_level.ai_groups.keys()))
         if self.current.ai_group:
             self.ai_group_box.edit.setValue(self.current.ai_group)
@@ -597,7 +596,6 @@ class GenericUnitDialog(Dialog):
         self.ai_group_box.setToolTip("Units which share an AI Group will try to attack together.")
         self.ai_group_box.edit.setEditable(True)
         self.ai_group_box.edit.setInsertPolicy(QComboBox.InsertAlphabetically)
-        self.ai_group_box.edit.setPlaceholderText("No Group")
         self.ai_group_box.edit.addItems(sorted(self.window.current_level.ai_groups.keys()))
         self.ai_group_box.edit.currentTextChanged.connect(self.ai_group_changed)
 

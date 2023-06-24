@@ -15,31 +15,19 @@ from app.editor.settings import MainSettingsController
 from app.editor.base_database_gui import ResourceCollectionModel
 import app.editor.utilities as editor_utilities
 from app.utilities import str_utils
+from app.utilities.typing import NID
 
-def get_basic_icon(pixmap, num, active=False, team='player'):
+def get_basic_icon(pixmap, num, active: bool = False, team: NID = 'player'):
     if active:
         one_frame = pixmap.copy(num*64 + 16, 96 + 16, 32, 32)
     else:
         one_frame = pixmap.copy(num*64 + 16, 0 + 16, 32, 32)
     # pixmap = pixmap.copy(16, 16, 32, 32)
     one_frame = one_frame.toImage()
-    if team == 'player':
-        if DB.constants.value('dark_sprites'):
-            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.player_dark_colors)
-        else:
-            pass
-    elif team == 'enemy':
-        if DB.constants.value('dark_sprites'):
-            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy_dark_colors)
-        else:
-            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy_colors)
-    elif team == 'other':
-        if DB.constants.value('dark_sprites'):
-            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.other_dark_colors)
-        else:
-            one_frame = editor_utilities.color_convert(one_frame, editor_utilities.other_colors)
-    elif team == 'enemy2':
-        one_frame = editor_utilities.color_convert(one_frame, editor_utilities.enemy2_colors)
+    team_obj = DB.teams.get(team)
+    if team_obj and team_obj.palette:
+        color_transform = editor_utilities.rgb_convert(team_obj.palette)
+        one_frame = editor_utilities.color_convert(one_frame, color_transform)
     # Must convert colorkey last, or else color conversion doesn't work correctly
     one_frame = editor_utilities.convert_colorkey(one_frame)
     pixmap = QPixmap.fromImage(one_frame)

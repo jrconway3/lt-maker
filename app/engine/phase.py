@@ -42,7 +42,7 @@ class PhaseController():
     def __init__(self):
         self.phase_in = []
         for team in DB.teams:
-            self.phase_in.append(PhaseIn(team))
+            self.phase_in.append(PhaseIn(team.nid))
 
         if DB.constants.value('initiative'):
             self.current = 0
@@ -73,7 +73,7 @@ class PhaseController():
             self.current = (self.current + 1) % len(DB.teams)
 
     def _team_int(self, team: str) -> int:
-        if team in DB.teams:
+        if team in DB.teams.keys():
             return DB.teams.index(team)
         return 1 # 1 is used instead of zero so that it will default to an AI turn
 

@@ -1169,7 +1169,7 @@ def remove_all_units(self: Event, flags=None):
 
 def remove_all_enemies(self: Event, flags=None):
     for unit in self.game.units:
-        if unit.position and unit.team.startswith('enemy'):
+        if unit.position and unit.team in DB.teams.enemies:
             action.do(action.FadeOut(unit))
 
 def interact_unit(self: Event, unit, position, combat_script=None, ability=None, rounds=None, flags=None):

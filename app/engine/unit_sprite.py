@@ -5,8 +5,6 @@ from app.engine.game_counters import ANIMATION_COUNTERS
 import math
 
 from app.constants import TILEWIDTH, TILEHEIGHT, COLORKEY
-from app.data.database.palettes import gray_colors, enemy_colors, other_colors, enemy2_colors, black_colors, \
-    player_dark_colors, enemy_dark_colors, other_dark_colors, gray_dark_colors
 from app.engine.objects.unit import UnitObject
 
 from app.data.resources.resources import RESOURCES
@@ -50,34 +48,15 @@ class MapSprite():
         self.up = [engine.subsurface(move, (num*48, 120, 48, 40)) for num in range(4)]
 
     def convert_to_team_colors(self, map_sprite):
-        if self.team == 'player':
-            if DB.constants.value('dark_sprites'):
-                conversion_dict = player_dark_colors
-            else:
-                conversion_dict = {}
-        elif self.team == 'enemy':
-            if DB.constants.value('dark_sprites'):
-                conversion_dict = enemy_dark_colors
-            else:
-                conversion_dict = enemy_colors
-        elif self.team == 'enemy2':
-            conversion_dict = enemy2_colors
-        elif self.team == 'other':
-            if DB.constants.value('dark_sprites'):
-                conversion_dict = other_dark_colors
-            else:
-                conversion_dict = other_colors
-        elif self.team == 'black':
-            conversion_dict = black_colors
-
+        if self.team == 'black':
+            conversion_dict = DB.combat_palettes.get('generic_black')
+        else:
+            conversion_dict = DB.teams.get(self.team).palette
         return image_mods.color_convert(map_sprite.standing_image, conversion_dict), \
             image_mods.color_convert(map_sprite.moving_image, conversion_dict)
 
     def create_gray(self, imgs):
-        if DB.constants.value('dark_sprites'):
-            color = gray_dark_colors
-        else:
-            color = gray_colors
+        color = DB.combat_palettes.get('generic_wait')
         imgs = [image_mods.color_convert(img, color) for img in imgs]
         for img in imgs:
             engine.set_colorkey(img, COLORKEY, rleaccel=True)
@@ -619,8 +598,8 @@ class UnitSprite():
         if self.unit.is_dying or self.unit.dead:
             return False
         if (cf.SETTINGS['hp_map_team'] == 'All') or \
-           (cf.SETTINGS['hp_map_team'] == 'Ally' and self.unit.team in ('player', 'other')) or \
-           (cf.SETTINGS['hp_map_team'] == 'Enemy' and self.unit.team.startswith('enemy')):
+           (cf.SETTINGS['hp_map_team'] == 'Ally' and self.unit.team in DB.teams.allies) or \
+           (cf.SETTINGS['hp_map_team'] == 'Enemy' and self.unit.team in DB.teams.enemies):
             if (cf.SETTINGS['hp_map_cull'] == 'All') or \
                (cf.SETTINGS['hp_map_cull'] == 'Wounded' and self.unit.get_hp() < equations.parser.hitpoints(self.unit)):
                 return True
@@ -641,23 +620,16 @@ class UnitSprite():
             elif 'Elite' in self.unit.tags:
                 icon = SPRITES.get('elite_icon')
             elif 'Protect' in self.unit.tags:
-                if self.unit.team == 'other':
-                    icon = SPRITES.get('protect_green_icon')
-                elif self.unit.team == 'player':
-                    icon = SPRITES.get('protect_icon')
-                elif self.unit.team == 'enemy':
-                    icon = SPRITES.get('protect_red_icon')
-                elif self.unit.team == 'enemy2':
-                    icon = SPRITES.get('protect_purple_icon')
+                team_color = DB.teams.get(self.unit.team).combat_color
+                icon = SPRITES.get('protect_%s_icon' % team_color, 'protect_icon')
             if icon:
                 surf.blit(icon, (left - 8, top - 8))
 
         if self.unit.traveler and self.transition_state == 'normal' and \
                 not self.unit.is_dying and not DB.constants.value('pairup'):
-            if game.get_unit(self.unit.traveler).team == 'player':
-                rescue_icon = SPRITES.get('rescue_icon_blue')
-            else:
-                rescue_icon = SPRITES.get('rescue_icon_green')
+            traveler_team = game.get_unit(self.unit.traveler).team
+            team_color = DB.teams.get(traveler_team).combat_color
+            rescue_icon = SPRITES.get('rescue_icon_%s' % team_color, 'rescue_icon_green')
             topleft = (left - 8, top - 8)
             surf.blit(rescue_icon, topleft)
 

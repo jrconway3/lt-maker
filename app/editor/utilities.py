@@ -1,22 +1,20 @@
+from __future__ import annotations
+
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt
 
-from app.constants import COLORKEY
-from app.data.database.palettes import enemy_colors, other_colors, enemy2_colors, \
-    player_dark_colors, enemy_dark_colors, other_dark_colors
+from typing import Dict, Tuple
 
+from app.constants import COLORKEY
 from app.data.resources.combat_palettes import Palette
 from app.data.resources.combat_anims import Frame
 
 qCOLORKEY = QtGui.qRgb(*COLORKEY)
 qAlpha = QtGui.qRgba(0, 0, 0, 0)
 
-enemy_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in enemy_colors.items()}
-other_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in other_colors.items()}
-enemy2_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in enemy2_colors.items()}
-player_dark_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in player_dark_colors.items()}
-enemy_dark_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in enemy_dark_colors.items()}
-other_dark_colors = {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in other_dark_colors.items()}
+Color3 = Tuple[int, int, int]
+def rgb_convert(self, palette: Dict[Color3, Color3]) -> Dict[QtGui.qRgb, QtGui.qRgb]:
+    return {QtGui.qRgb(*k): QtGui.qRgb(*v) for k, v in palette.items()}
 
 def convert_colorkey_slow(image):
     image.convertTo(QtGui.QImage.Format_ARGB32)

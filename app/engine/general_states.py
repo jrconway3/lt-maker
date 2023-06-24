@@ -326,7 +326,8 @@ class FreeState(MapState):
                     game.cursor.place_arrows()
                     game.events.trigger(triggers.UnitSelect(cur_unit, cur_unit.position))
                 else:
-                    if cur_unit.team == 'enemy' or cur_unit.team == 'enemy2':
+                    player_team_enemies = DB.teams.enemies
+                    if cur_unit.team in player_team_enemies:
                         get_sound_thread().play_sfx('Select 3')
                         game.boundary.toggle_unit(cur_unit)
                     else:

@@ -54,7 +54,7 @@ class PlayerChoiceState(MapState):
 
         # For now putting info stuff here because innards of UIF are too arcane.
         self.info_flag = False
-        self.create_help_boxes(self._resolved_data)
+        self.create_help_boxes(values)
 
     def process_data(self, data: List[str]) -> Tuple[List[str], List[str]]:
         data = list(map(str, data))

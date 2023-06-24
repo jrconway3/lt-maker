@@ -1,11 +1,11 @@
 import json
-import logging
 import os
 import re
 import shutil
 from typing import Dict
 from app.utilities.data import Prefab
 from app.data.resources.base_catalog import ManifestCatalog
+from app.data.resources.default_palettes import default_palettes
 
 from app.constants import COLORKEY
 
@@ -30,6 +30,15 @@ class Palette(Prefab):
             (int(idx % 8), int(idx / 8)): color for idx, color in enumerate(colors)
         }
 
+    def get_colors(self) -> list:
+        """
+        # Returns just the colors in the right order
+        # not the coord
+        """
+        colors = list(sorted([(coord, color) for coord, color in self.colors.items()]))
+        colors = [color for coord, color in colors]
+        return colors
+
     def save(self):
         return (self.nid, list(self.colors.items()))
 
@@ -37,6 +46,12 @@ class Palette(Prefab):
     def restore(cls, s):
         self = cls(s[0])
         self.colors = {tuple(k): tuple(v) for k, v in s[1].copy()}
+        return self
+
+    @classmethod
+    def from_list(cls, nid, colors):
+        self = cls(nid)
+        self.assign_colors(colors)
         return self
 
 class PaletteCatalog(ManifestCatalog[Palette]):
@@ -78,6 +93,12 @@ class PaletteCatalog(ManifestCatalog[Palette]):
                 save_data = sorted(save_data, key=lambda obj: obj[2])
             for s_dict in save_data:
                 new_palette = Palette.restore(s_dict)
+                self.append(new_palette)
+
+        # Always load in the default map sprite palettes
+        for palette_nid, colors in default_palettes.items:
+            if palette_nid not in self.keys():
+                new_palette = Palette.from_list(palette_nid, colors)
                 self.append(new_palette)
 
     def dump(self, loc):

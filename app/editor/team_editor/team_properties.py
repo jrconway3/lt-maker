@@ -68,6 +68,9 @@ class TeamProperties(QWidget):
 
         total_section.setAlignment(Qt.AlignTop)
 
+        if current:
+            self.set_current(current)
+
     def nid_changed(self, text):
         self.current.nid = text
         self.window.update_list()
@@ -106,7 +109,7 @@ class TeamProperties(QWidget):
 
         allies = current.allies[:] # Must make a copy
         self.allies_box.edit.clear()
-        self.allies_box.edit.addItems(DB.teams.keys())
+        self.allies_box.edit.addItems([k for k in DB.teams.keys() if k != current.nid])
         self.allies_box.edit.setCurrentTexts(allies)
 
         if self.current:

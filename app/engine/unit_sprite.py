@@ -9,6 +9,7 @@ from app.engine.objects.unit import UnitObject
 
 from app.data.resources.resources import RESOURCES
 from app.data.database.database import DB
+from app.data.resources.default_palettes import default_palettes
 
 from app.utilities import utils
 
@@ -49,15 +50,21 @@ class MapSprite():
 
     def convert_to_team_colors(self, map_sprite):
         if self.team == 'black':
-            conversion_dict = DB.combat_palettes.get('generic_black')
+            palette = DB.combat_palettes.get('map_sprite_black')
+            if not palette:
+                palette = default_palettes['map_sprite_black']
         else:
-            conversion_dict = DB.teams.get(self.team).palette
+            palette = DB.teams.get(self.team).palette
+        conversion_dict = {a: b for a, b in zip(default_palettes['map_sprite_blue'], palette.get_colors())}
         return image_mods.color_convert(map_sprite.standing_image, conversion_dict), \
             image_mods.color_convert(map_sprite.moving_image, conversion_dict)
 
     def create_gray(self, imgs):
-        color = DB.combat_palettes.get('generic_wait')
-        imgs = [image_mods.color_convert(img, color) for img in imgs]
+        palette = DB.combat_palettes.get('map_sprite_wait')
+        if not palette:
+            palette = default_palettes['map_sprite_wait']
+        conversion_dict = {a: b for a, b in zip(default_palettes['map_sprite_blue'], palette.get_colors())}
+        imgs = [image_mods.color_convert(img, conversion_dict) for img in imgs]
         for img in imgs:
             engine.set_colorkey(img, COLORKEY, rleaccel=True)
         return imgs

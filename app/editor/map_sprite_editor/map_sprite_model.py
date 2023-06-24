@@ -9,6 +9,7 @@ from app.data.resources.resources import RESOURCES
 
 from app.utilities.data import Data
 from app.data.database.database import DB
+from app.data.resources.default_palettes import default_palettes
 
 from app.extensions.custom_gui import DeletionDialog
 from app.editor.settings import MainSettingsController
@@ -26,7 +27,8 @@ def get_basic_icon(pixmap, num, active: bool = False, team: NID = 'player'):
     one_frame = one_frame.toImage()
     team_obj = DB.teams.get(team)
     if team_obj and team_obj.palette:
-        color_transform = editor_utilities.rgb_convert(team_obj.palette)
+        conversion_dict = {a: b for a, b in zip(default_palettes['map_sprite_blue'], team_obj.palette.get_colors())}
+        color_transform = editor_utilities.rgb_convert(conversion_dict)
         one_frame = editor_utilities.color_convert(one_frame, color_transform)
     # Must convert colorkey last, or else color conversion doesn't work correctly
     one_frame = editor_utilities.convert_colorkey(one_frame)

@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QPainter, QImage, QColor
 
 from app.data.database.database import DB
+from app.data.resources.default_palettes import default_palettes
 
 from app.extensions.custom_gui import PropertyBox
 from app.extensions.custom_widgets import TeamBox
@@ -159,7 +160,8 @@ class MapSpriteProperties(QWidget):
         team_nid = self.team_box.edit.currentText()
         team = DB.teams.get(team_nid)
         if team and team.palette:
-            color_transform = editor_utilities.rgb_convert(team.palette)
+            conversion_dict = {a: b for a, b in zip(default_palettes['map_sprite_blue'], team.palette.get_colors())}
+            color_transform = editor_utilities.rgb_convert(conversion_dict)
             frame = editor_utilities.color_convert(frame, color_transform)
         frame = editor_utilities.convert_colorkey(frame)
 

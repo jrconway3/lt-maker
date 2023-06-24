@@ -10,6 +10,7 @@ from app.editor.icon_editor.icon_view import IconView
 from app.editor.lib.components.validated_line_edit import NidLineEdit
 from app.editor.map_sprite_editor import map_sprite_model
 from app.extensions.custom_gui import ComboBox, PropertyBox
+from app.extensions.multi_select_combo_box import MultiSelectComboBox
 
 from app.utilities import str_utils
 

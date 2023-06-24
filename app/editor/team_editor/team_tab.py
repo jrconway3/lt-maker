@@ -13,8 +13,8 @@ class TeamDatabase(DatabaseTab):
         right_frame = team_properties.TeamProperties
 
         def deletion_func(model, index):
-            # Cannot delete the standard teams
-            return model._data[index.row()].nid not in DB.teams.default_teams
+            # Cannot delete the player team
+            return model._data[index.row()].nid != 'player'
 
         collection_model = team_model.TeamModel
         dialog = cls(data, title, right_frame, (deletion_func, None, deletion_func), collection_model, parent)

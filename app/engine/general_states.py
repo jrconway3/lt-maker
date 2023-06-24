@@ -141,6 +141,7 @@ class TurnChangeState(MapState):
                             if region.time_left <= 0:
                                 action.do(action.RemoveRegion(region))
                                 game.events.trigger(triggers.TimeRegionComplete(region.position, region))
+                game.events.trigger(triggers.PhaseChange(game.phase.get_current()))
                 game.events.trigger(triggers.TurnChange())
                 if game.turncount - 1 <= 0:  # Beginning of the level
                     for unit in game.get_all_units_in_party():
@@ -154,8 +155,8 @@ class TurnChangeState(MapState):
                 game.state.change('status_upkeep')
                 game.state.change('phase_change')
                 # EVENTS TRIGGER HERE
+                game.events.trigger(triggers.PhaseChange(game.phase.get_current()))
                 if game.phase.get_current() == 'enemy':
-
                     game.events.trigger(triggers.EnemyTurnChange())
                 elif game.phase.get_current() == 'enemy2':
                     game.events.trigger(triggers.Enemy2TurnChange())

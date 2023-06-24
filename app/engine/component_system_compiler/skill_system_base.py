@@ -12,6 +12,7 @@ class Defaults():
 
     @staticmethod
     def check_ally(unit1, unit2) -> bool:
+        from app.data.database.database import DB
         if unit1 is unit2:
             return True
         elif unit2.team in DB.teams.get(unit1.team).allies:
@@ -22,6 +23,7 @@ class Defaults():
 
     @staticmethod
     def check_enemy(unit1, unit2) -> bool:
+        from app.data.database.database import DB
         if unit2.team not in DB.teams.get(unit1.team).allies:
             return True
         else:

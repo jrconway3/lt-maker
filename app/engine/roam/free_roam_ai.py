@@ -229,7 +229,7 @@ class RoamAI:
         elif self.state.action_type == roam_ai_action.RoamAIAction.WAIT:
             self.wait(self.state.time)
         elif self.state.action_type == roam_ai_action.RoamAIAction.INTERACT:
-            self.move(self.state.region.center, self.state.desired_proximity)
+            self.make_path(self.state.region.center)
             # Then try to interact (will probably fail unless we are close enough)
             self.interact(self.state.region, self.state.desired_proximity)
 
@@ -240,6 +240,7 @@ class RoamAI:
     def interact(self, region: RegionObject, proximity: float):
         positions = [pos for pos in region.get_all_positions() if utils.calculate_distance(self.unit.position, pos) <= proximity]
         if positions:
+            game.movement.stop_all()
             pos = list(sorted(positions, key=lambda pos: utils.calculate_distance(self.unit.position, pos)))[0]
             did_trigger = game.events.trigger(triggers.RegionTrigger(region.sub_nid, self.state.unit, pos, region))
             if not did_trigger:  # Just in case we need the generic one
@@ -264,6 +265,9 @@ class RoamAI:
             self.reset_for_next_behaviour()
             return
             
+        self.make_path(target)
+
+    def make_path(self, target: Tuple[int, int]):
         # Check whether the path has diverged too much
         if self.path and self.path[0] != target:
             self.path = self.get_path(target)

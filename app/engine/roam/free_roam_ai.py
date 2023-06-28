@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Dict, List, Optional, Tuple
+from app.engine.objects.unit import UnitObject
 from app.utilities.typing import NID
 
 from app.data.database.database import DB
@@ -33,6 +34,22 @@ class FreeRoamAIHandler:
                 mc = RoamAIMovementComponent(unit)
                 self.components[unit.nid] = mc
         self.start_all_units()
+
+    def add_unit(self, unit: UnitObject):
+        if unit.get_roam_ai() and DB.ai.get(unit.get_roam_ai()).roam_ai:
+            self.roam_ais.append(RoamAI(unit))
+            mc = RoamAIMovementComponent(unit)
+            self.components[unit.nid] = mc
+            mc.start()
+            game.movement.add(mc)
+
+    def remove_unit(self, unit: UnitObject):
+        mc = self.components.get(unit.nid)
+        if mc:
+            mc.finish()
+
+    def contains_unit(self, unit: UnitObject):
+        return self.components.get(unit.nid)
 
     def update(self):
         if not self.active:

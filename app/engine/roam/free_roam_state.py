@@ -3,6 +3,7 @@ import logging
 from app.engine import action, evaluate
 from app.engine.game_state import game
 from app.engine.input_manager import get_input_manager
+from app.engine.objects.unit import UnitObject
 from app.engine.roam import free_roam_ai
 from app.engine.movement.roam_player_movement_component import RoamPlayerMovementComponent
 from app.engine.movement import movement_funcs
@@ -22,6 +23,15 @@ class FreeRoamState(MapState):
         self.movement_component = None
 
         self.ai_handler = free_roam_ai.FreeRoamAIHandler()
+
+    def add_unit(self, unit: UnitObject):
+        self.ai_handler.add_unit(unit)
+
+    def remove_unit(self, unit: UnitObject):
+        self.ai_handler.remove_unit(unit)
+
+    def contains_unit(self, unit: UnitObject):
+        return self.ai_handler.contains_unit(unit)
 
     def begin(self):
         game.cursor.hide()

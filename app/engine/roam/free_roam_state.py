@@ -1,6 +1,6 @@
 import logging
 
-from app.engine import action, evaluate
+from app.engine import action, evaluate, phase
 from app.engine.game_state import game
 from app.engine.input_manager import get_input_manager
 from app.engine.roam import free_roam_ai
@@ -25,6 +25,7 @@ class FreeRoamState(MapState):
 
     def begin(self):
         game.cursor.hide()
+        phase.fade_in_phase_music()
         if not self.ai_handler.active:
             self.ai_handler.start_all_units()
 

@@ -24,13 +24,13 @@ class FreeRoamState(MapState):
 
         self.ai_handler = free_roam_ai.FreeRoamAIHandler()
 
-    def add_unit(self, unit: UnitObject):
+    def add_ai_unit(self, unit: UnitObject):
         self.ai_handler.add_unit(unit)
 
-    def remove_unit(self, unit: UnitObject):
+    def remove_ai_unit(self, unit: UnitObject):
         self.ai_handler.remove_unit(unit)
 
-    def contains_unit(self, unit: UnitObject):
+    def contains_ai_unit(self, unit: UnitObject):
         return self.ai_handler.contains_unit(unit)
 
     def begin(self):

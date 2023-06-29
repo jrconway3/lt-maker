@@ -29,17 +29,20 @@ class FreeRoamAIHandler:
         # And also to set their paths they should be using
         self.components: Dict[NID, RoamAIMovementComponent] = {}
         for unit in game.get_all_units():
-            if unit.get_roam_ai() and DB.ai.get(unit.get_roam_ai()).roam_ai:
-                self.roam_ais.append(RoamAI(unit))
-                mc = RoamAIMovementComponent(unit)
-                self.components[unit.nid] = mc
+            self._add_movement_component(unit)
         self.start_all_units()
 
-    def add_unit(self, unit: UnitObject):
+    def _add_movement_component(self, unit: UnitObject) -> Optional[RoamAIMovementComponent]:
         if unit.get_roam_ai() and DB.ai.get(unit.get_roam_ai()).roam_ai:
             self.roam_ais.append(RoamAI(unit))
             mc = RoamAIMovementComponent(unit)
             self.components[unit.nid] = mc
+            return mc
+        return None
+
+    def add_unit(self, unit: UnitObject):
+        mc = self._add_movement_component(unit)
+        if mc:
             mc.start()
             game.movement.add(mc)
 
@@ -48,7 +51,7 @@ class FreeRoamAIHandler:
         if mc:
             mc.finish()
 
-    def contains_unit(self, unit: UnitObject):
+    def contains_unit(self, unit: UnitObject) -> Optional[RoamAIMovementComponent]:
         return self.components.get(unit.nid)
 
     def update(self):

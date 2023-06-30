@@ -4,7 +4,7 @@ import logging
 import threading
 import time
 from typing import Optional
-import appdirs
+import utilities.platformdirs as appdirs
 
 from app.constants import APP_AUTHOR, APP_NAME, VERSION
 

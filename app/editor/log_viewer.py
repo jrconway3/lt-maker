@@ -10,6 +10,7 @@ from PyQt5.QtGui import QWindow
 from app import lt_log
 import os
 
+MAX_NUM_CHARS = 100000
 
 class LogViewer(QWidget):
     def __init__(self,parent=None):
@@ -24,10 +25,10 @@ class LogViewer(QWidget):
         self.textEdit.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.textEdit.setLineWrapMode(QTextEdit.NoWrap)
 
-        log_file = lt_log.get_log_fname()
-        if log_file:
-            self.log_name = os.path.basename(log_file)
-            self.log_file_pointer = open(log_file, 'r')
+        self.log_file = lt_log.get_log_fname()
+        if self.log_file:
+            self.log_name = os.path.basename(self.log_file)
+            self.log_file_pointer = open(self.log_file, 'r')
         else:
             self.log_name = "UNKNOWN"
             self.log_file_pointer = io.StringIO("No log file found!")
@@ -38,9 +39,9 @@ class LogViewer(QWidget):
         self.log_name_label = QLabel(self.log_name)
 
         self.fetch_log_timer = QTimer(self)
+        self.fetch_log(initial=True)
         self.fetch_log_timer.timeout.connect(self.fetch_log)
         self.fetch_log_timer.start(500)
-        self.fetch_log()
 
         layout = QVBoxLayout()
         layout.addWidget(self.log_name_label)
@@ -53,10 +54,19 @@ class LogViewer(QWidget):
         if log_file:
             os.startfile(os.path.dirname(log_file))
 
-    def fetch_log(self):
+    def fetch_log(self, initial=False):
         if self.log_file_pointer.closed:
             return
         lines = []
+        # skip to close to end if file size too large
+        if initial and self.log_file:
+            f_size = os.stat(self.log_file).st_size
+            if f_size > MAX_NUM_CHARS:
+                jump_to = f_size - MAX_NUM_CHARS
+                self.log_file_pointer.seek(jump_to)
+                # read a single line to get to a newline
+                self.log_file_pointer.readline()
+
         line = self.log_file_pointer.readline()
         while line:
             lines.append(line)

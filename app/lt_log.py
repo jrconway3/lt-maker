@@ -4,9 +4,9 @@ import logging
 import threading
 import time
 from typing import Optional
-import uuid
+import appdirs
 
-from app.constants import VERSION
+from app.constants import APP_AUTHOR, APP_NAME, VERSION
 
 # Taken from: https://stackoverflow.com/a/61043789
 # Maxxim's answer
@@ -100,26 +100,28 @@ def create_debug_log(log_dir: os.PathLike) -> os.PathLike:
                 last_modified_hours_ago = (time.time() - os.path.getmtime(fn)) / 3600
                 if last_modified_hours_ago > 24:
                     os.remove(fn)
-    nfn = log_dir / pathlib.Path(str(uuid.uuid4()) + '.log')
-    while os.path.exists(nfn):
-        nfn = log_dir / pathlib.Path(str(uuid.uuid4()) + '.log')
+    current_time = int(time.time())
+    nfn = log_dir / pathlib.Path(str(current_time) + '.log')
     # creates the file
     with open(nfn, 'w') as fp:
         pass
     return nfn
 
 def get_log_dir() -> os.PathLike:
-    appdata_dir = pathlib.Path(os.getenv("LOCALAPPDATA", '')) / 'lex_talionis'
+    appdata_dir = pathlib.Path(appdirs.user_log_dir(APP_NAME, APP_AUTHOR))
     if not os.path.isdir(appdata_dir):
-        os.mkdir(appdata_dir)
+        os.makedirs(appdata_dir)
     return appdata_dir
 
-def heartbeat_log():
-    # heartbeat once per hour
-    t = threading.Timer(3600.0, heartbeat_log)
-    t.daemon = True
-    t.start()
-    logging.info("log_heartbeat")
+def touch_log():
+    current_time = time.time()
+    log = get_log_fname()
+    if log:
+        # touch once per hour
+        os.utime(log, (current_time, current_time))
+        t = threading.Timer(3600.0, touch_log)
+        t.daemon = True
+        t.start()
 
 def create_logger() -> bool:
     try:
@@ -134,5 +136,5 @@ def create_logger() -> bool:
         print("Failed to setup logging")
         return False
     logging.info('*** Lex Talionis Engine Version %s ***' % VERSION)
-    heartbeat_log()
+    touch_log()
     return True

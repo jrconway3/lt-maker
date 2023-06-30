@@ -1,10 +1,11 @@
+from datetime import datetime
 import sys, os
 import pathlib
 import logging
 import threading
 import time
 from typing import Optional
-import utilities.platformdirs as appdirs
+import app.utilities.platformdirs as appdirs
 
 from app.constants import APP_AUTHOR, APP_NAME, VERSION
 
@@ -100,10 +101,10 @@ def create_debug_log(log_dir: os.PathLike) -> os.PathLike:
                 last_modified_hours_ago = (time.time() - os.path.getmtime(fn)) / 3600
                 if last_modified_hours_ago > 24:
                     os.remove(fn)
-    current_time = int(time.time())
-    nfn = log_dir / pathlib.Path(str(current_time) + '.log')
+    current_time = str(datetime.now()).replace(' ', '_').replace(':', '.')
+    nfn = log_dir / pathlib.Path('debug.' + str(current_time) + '.log')
     # creates the file
-    with open(nfn, 'w') as fp:
+    with open(nfn, 'w'):
         pass
     return nfn
 

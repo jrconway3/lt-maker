@@ -1,0 +1,16 @@
+name: ltmaker
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python==3.11.7
+  - pyinstaller==6.2.0
+  - typing-extensions==4.8.0
+  - mypy==1.8.0
+  - attrs>=21.4.0
+  - sphinx_rtd_theme==2.0.0
+  - myst-parser==2.0.0
+  - pip:
+    - pygame-ce==2.3.2
+    - PyQt5==5.15.10
+    - mypy-extensions==1.0.0

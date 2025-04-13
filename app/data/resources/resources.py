@@ -100,7 +100,7 @@ class Resources():
 
         # Load Custom Platforms
         if(os.path.exists(os.path.join(self.main_folder, 'platforms'))):
-            self.platforms.update(self.get_sprites(os.path.join(self.main_folder), 'platforms'))
+            self.platforms.update(self.get_sprites(self.main_folder, 'platforms'))
 
         if specific:
             save_data_types = specific

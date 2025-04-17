@@ -2102,6 +2102,7 @@ class GainWexp(Action):
                     weapon_type = item_system.weapon_type(self.unit, self.item)
                     game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, weapon_type))
                     game.state.change('alert')
+                    game.events.trigger(triggers.UnitWeaponRankUp(self.unit, weapon_rank.rank, weapon_type, self.old_value))
                     break
 
     def execute(self):
@@ -2137,6 +2138,7 @@ class AddWexp(Action):
                 if self.old_value < weapon_rank.requirement and self.current_value >= weapon_rank.requirement:
                     game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, self.weapon_type))
                     game.state.change('alert')
+                    game.events.trigger(triggers.UnitWeaponRankUp(self.unit, weapon_rank.rank, self.weapon_type, self.old_value))
                     break
 
     def execute(self):
@@ -2164,6 +2166,7 @@ class SetWexp(Action):
                 if self.old_wexp < weapon_rank.requirement and self.wexp >= weapon_rank.requirement:
                     game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, self.weapon_type))
                     game.state.change('alert')
+                    game.events.trigger(triggers.UnitWeaponRankUp(self.unit, weapon_rank.rank, self.weapon_type, self.old_wexp))
                     break
 
     def execute(self):

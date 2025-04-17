@@ -2083,6 +2083,7 @@ class GainWexp(Action):
         self.unit = unit
         self.item = item
         self.wexp_gain = wexp_gain
+        self.new_weapon_rank = None
 
     def increase_wexp(self) -> Tuple[int, int]:
         weapon_type = item_system.weapon_type(self.unit, self.item)
@@ -2101,8 +2102,8 @@ class GainWexp(Action):
                 if self.old_value < weapon_rank.requirement and self.current_value >= weapon_rank.requirement:
                     weapon_type = item_system.weapon_type(self.unit, self.item)
                     game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, weapon_type))
-                    game.state.change('alert')
                     game.events.trigger(triggers.UnitWeaponRankUp(self.unit, weapon_type, self.old_value, weapon_rank.rank))
+                    game.state.change('alert')
                     break
 
     def execute(self):
@@ -2137,8 +2138,8 @@ class AddWexp(Action):
             for weapon_rank in reversed(DB.weapon_ranks):
                 if self.old_value < weapon_rank.requirement and self.current_value >= weapon_rank.requirement:
                     game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, self.weapon_type))
-                    game.state.change('alert')
                     game.events.trigger(triggers.UnitWeaponRankUp(self.unit, self.weapon_type, self.old_value, weapon_rank.rank))
+                    game.state.change('alert')
                     break
 
     def execute(self):
@@ -2165,8 +2166,8 @@ class SetWexp(Action):
             for weapon_rank in reversed(DB.weapon_ranks):
                 if self.old_wexp < weapon_rank.requirement and self.wexp >= weapon_rank.requirement:
                     game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, self.weapon_type))
-                    game.state.change('alert')
                     game.events.trigger(triggers.UnitWeaponRankUp(self.unit, self.weapon_type, self.old_value, weapon_rank.rank))
+                    game.state.change('alert')
                     break
 
     def execute(self):

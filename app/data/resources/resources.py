@@ -99,8 +99,8 @@ class Resources():
         sprites.load_sprites(os.path.join(self.main_folder, 'custom_sprites'))
 
         # Load Custom Platforms
-        if(os.path.exists(os.path.join(self.main_folder, 'platforms'))):
-            self.platforms.update(self.get_sprites(self.main_folder, 'platforms'))
+        if(os.path.exists(os.path.join(self.main_folder, 'custom_sprites/platforms'))):
+            self.platforms.update(self.get_sprites(self.main_folder, 'custom_sprites/platforms'))
 
         if specific:
             save_data_types = specific

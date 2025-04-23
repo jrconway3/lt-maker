@@ -210,7 +210,7 @@ class UnitWeaponRankUp(EventTrigger):
     """
     nid: ClassVar[NID] = 'unit_weapon_rank_up'
     unit: UnitObject #: the unit that increased in weapon rank.
-    weapon_type: ItemObject #: ItemObject of weapon type
+    weapon_type: NID #: nid of weapon type object
     old_wexp: int #: old wexp before gaining wexp
     rank: str #: new weapon rank by letter
 

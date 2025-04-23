@@ -165,7 +165,13 @@ class FreeRoamState(MapState):
                     action.do(action.RemoveRegion(region))
                 self.rationalize_all_units()
         else:
-            get_sound_thread().play_sfx('Error')
+            other_unit = self.get_closest_unit()
+            did_trigger = game.events.trigger(triggers.RoamPressSelect(self.roam_unit, other_unit))
+            if did_trigger:
+                get_sound_thread().play_sfx('Select 2')
+                self.rationalize_all_units()
+            else:
+                get_sound_thread().play_sfx('Error')
 
     def check_info(self):
         """

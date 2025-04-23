@@ -320,6 +320,15 @@ class OnOverworldNodeSelect(EventTrigger):
     node_nid: NID #: Contains the id of the node.
 
 @dataclass(init=True)
+class RoamPressSelect(EventTrigger):
+    """
+    Occurs when the `select` key is pressed in Free Roam. Talk or Region Interact events take precedence.
+    """
+    nid: ClassVar[NID] = 'roam_press_select'
+    unit1: UnitObject #: The current roam unit.
+    unit2: UnitObject #: the closest nearby other unit.
+
+@dataclass(init=True)
 class RoamPressStart(EventTrigger):
     """
     Occurs when the `start` key is pressed in Free Roam.

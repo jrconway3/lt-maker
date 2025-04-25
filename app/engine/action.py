@@ -2831,7 +2831,7 @@ class HideTalk(Action):
         self.unit2 = unit2_nid
 
     def do(self):
-        game.talk_hidden.append((self.unit1, self.unit2))
+        game.talk_hidden.add((self.unit1, self.unit2))
 
     def reverse(self):
         if (self.unit1, self.unit2) in game.talk_hidden:
@@ -2851,7 +2851,7 @@ class UnhideTalk(Action):
 
     def reverse(self):
         if self.did_remove:
-            game.talk_hidden.append((self.unit1, self.unit2))
+            game.talk_hidden.add((self.unit1, self.unit2))
 
 
 class AddLore(Action):

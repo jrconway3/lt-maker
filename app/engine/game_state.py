@@ -77,7 +77,7 @@ class GameState():
         - records (records.Recordkeeper): The record keeper.
         - turncount (int): The current turn count.
         - talk_options (List[Tuple[NID, NID]]): A list of talk options.
-        - talk_hidden (List[Tuple[NID, NID]]): A list of talk options that won't be marked.
+        - talk_hidden (Set[Tuple[NID, NID]]): A set of talk options that won't be marked on the map or menu.
         - board (game_board.GameBoard): The game board.
         - cursor (cursor.BaseCursor): The cursor.
         - camera (camera.Camera): The camera.
@@ -124,7 +124,7 @@ class GameState():
         self.turncount: int = 0
         self.roam_info: RoamInfo = RoamInfo()
         self.talk_options: List[Tuple[NID, NID]] = []
-        self.talk_hidden: List[Tuple[NID, NID]] = []
+        self.talk_hidden: Set[Tuple[NID, NID]] = {}
         self.base_convos: Dict[NID, bool] = {}
         self.action_log: turnwheel.ActionLog = None
         self.events: EventManager = None
@@ -242,7 +242,7 @@ class GameState():
         self.level_vars = PrimitiveCounter()
         self.turncount = 0
         self.talk_options = []
-        self.talk_hidden = []
+        self.talk_hidden = {}
         self.base_convos = {}
         self.action_log = turnwheel.ActionLog()
         self.events = event_manager.EventManager()
@@ -494,7 +494,7 @@ class GameState():
 
         self.already_triggered_events = s_dict.get('already_triggered_events', [])
         self.talk_options = s_dict.get('talk_options', [])
-        self.talk_hidden = s_dict.get('talk_hidden', [])
+        self.talk_hidden = s_dict.get('talk_hidden', {})
         self.base_convos = s_dict.get('base_convos', {})
 
         # load all overworlds, or initialize them

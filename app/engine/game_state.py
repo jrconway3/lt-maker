@@ -124,7 +124,7 @@ class GameState():
         self.turncount: int = 0
         self.roam_info: RoamInfo = RoamInfo()
         self.talk_options: List[Tuple[NID, NID]] = []
-        self.talk_hidden: Set[Tuple[NID, NID]] = {}
+        self.talk_hidden: Set[Tuple[NID, NID]] = set()
         self.base_convos: Dict[NID, bool] = {}
         self.action_log: turnwheel.ActionLog = None
         self.events: EventManager = None
@@ -242,7 +242,7 @@ class GameState():
         self.level_vars = PrimitiveCounter()
         self.turncount = 0
         self.talk_options = []
-        self.talk_hidden = {}
+        self.talk_hidden = set()
         self.base_convos = {}
         self.action_log = turnwheel.ActionLog()
         self.events = event_manager.EventManager()
@@ -494,7 +494,7 @@ class GameState():
 
         self.already_triggered_events = s_dict.get('already_triggered_events', [])
         self.talk_options = s_dict.get('talk_options', [])
-        self.talk_hidden = s_dict.get('talk_hidden', {})
+        self.talk_hidden = s_dict.get('talk_hidden', set())
         self.base_convos = s_dict.get('base_convos', {})
 
         # load all overworlds, or initialize them

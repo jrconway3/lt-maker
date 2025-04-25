@@ -4,7 +4,7 @@ from functools import lru_cache
 import random
 import time
 from collections import Counter
-from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, Set, Iterable, List, Optional, Tuple
 
 from app.engine.query_engine import GameQueryEngine
 from app.engine.utils import ltcache

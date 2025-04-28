@@ -96,6 +96,7 @@ class ItemIcon32(ItemIcon16):
     child_icon = PushableIcon32
 
 class ItemIcon80(ItemIcon16):
+    sourceChanged = pyqtSignal(str)
     width, height = 80, 72
     child_icon = PushableIcon80
 

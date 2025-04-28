@@ -2,6 +2,7 @@ import copy
 from dataclasses import dataclass
 from typing import Dict, List
 
+from app.data.category import CategorizedCatalog
 from app.utilities.data import Data, Prefab
 from app.data.database.weapons import WexpGain
 from app.utilities import str_utils
@@ -83,7 +84,7 @@ class Klass(Prefab):
             value = super().restore_attr(name, value)
         return value
 
-class ClassCatalog(Data[Klass]):
+class ClassCatalog(CategorizedCatalog[Klass]):
     datatype = Klass
 
     def create_new(self, db):

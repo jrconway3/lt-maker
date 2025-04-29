@@ -72,7 +72,7 @@ from app.editor.sound_editor import sound_tab
 from app.editor.support_editor import support_pair_tab
 from app.editor.portrait_editor.portrait_tab import PortraitDatabase
 from app.editor.panorama_editor.panorama_tab import PanoramaDatabase
-from app.editor.map_sprite_editor.map_sprite_tab import MapSpriteDatabase
+from app.editor.map_sprite_editor.new_map_sprite_tab import NewMapSpriteDatabase
 from app.editor.map_animation_editor.map_animation_tab import MapAnimationDatabase
 from app.utilities.system_info import is_editor_engine_built_version
 
@@ -262,7 +262,7 @@ class MainEditor(QMainWindow):
                             "Portraits": PortraitDatabase.edit,
                             "Map Animations": MapAnimationDatabase.edit,
                             "Backgrounds": PanoramaDatabase.edit,
-                            "Map Sprites": MapSpriteDatabase.edit,
+                            "Map Sprites": NewMapSpriteDatabase.edit,
                             "Combat Animations": self.edit_combat_animations,
                             "Tilemaps": self.edit_tilemaps,
                             "Sounds": self.edit_sounds

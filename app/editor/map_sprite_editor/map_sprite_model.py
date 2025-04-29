@@ -20,6 +20,15 @@ from app.utilities.typing import NID
 
 import logging
 
+def get_map_sprite_icon(res, num=0, current=False, team: NID = 'player', variant=None):
+    if not res:
+        return None
+    if not res.standing_pixmap:
+        res.standing_pixmap = QPixmap(res.stand_full_path)
+    pixmap = res.standing_pixmap
+    pixmap = get_basic_icon(pixmap, num, current, team)
+    return pixmap
+
 def color_shift_team(im: QImage, team: NID) -> QImage:
     team_obj = DB.teams.get(team)
     if team_obj and team_obj.map_sprite_palette:
@@ -59,6 +68,34 @@ def get_basic_icon(pixmap: QPixmap, num: int, active: bool = False, team: NID = 
     one_frame = color_shift_team(one_frame, team)
     pixmap = QPixmap.fromImage(one_frame)
     return pixmap
+
+def check_delete(nid: NID, window) -> bool:
+    # Check to see what is using me?
+    affected_classes = [klass for klass in DB.classes if nid == klass.map_sprite_nid]
+    if affected_classes:
+        from app.editor.class_editor.class_model import ClassModel
+        model = ClassModel
+        msg = "Deleting Map Sprite <b>%s</b> would affect these classes." % nid
+        deletion_tab = DeletionTab(affected_classes, model, msg, "Classes")
+        ok = DeletionDialog.inform([deletion_tab], window)
+        if ok:
+            for klass in affected_classes:
+                klass.map_sprite_nid = None
+    return True
+
+def on_delete(nid: NID):
+    # What uses map sprites
+    # Classes
+    for klass in DB.classes:
+        if klass.map_sprite_nid == nid:
+            klass.map_sprite_nid = None
+
+def on_nid_changed(old_nid, new_nid):
+    # What uses map sprites
+    # Classes
+    for klass in DB.classes:
+        if klass.map_sprite_nid == old_nid:
+            klass.map_sprite_nid = new_nid
 
 class MapSpriteModel(ResourceCollectionModel):
     def data(self, index, role):
@@ -155,30 +192,15 @@ class MapSpriteModel(ResourceCollectionModel):
             return new_map_sprite
 
     def delete(self, idx):
-        # Check to see what is using me?
+        # check to make sure nothing else is using me!!!
         res = self._data[idx]
         nid = res.nid
-        affected_classes = [klass for klass in DB.classes if nid == klass.map_sprite_nid]
-        if affected_classes:
-            from app.editor.class_editor.class_model import ClassModel
-            model = ClassModel
-            msg = "Deleting Map Sprite <b>%s</b> would affect these classes." % nid
-            deletion_tab = DeletionTab(affected_classes, model, msg, "Classes")
-            ok = DeletionDialog.inform([deletion_tab], self.window)
-            if ok:
-                for klass in affected_classes:
-                    klass.map_sprite_nid = None
-            else:
-                return
-        # Delete watchers
+        ok = check_delete(nid)
+        if ok:
+            on_delete(nid)
+        else:
+            return
         super().delete(idx)
-
-    def on_nid_changed(self, old_nid, new_nid):
-        # What uses map sprites
-        # Classes
-        for klass in DB.classes:
-            if klass.map_sprite_nid == old_nid:
-                klass.map_sprite_nid = new_nid
 
     def import_gba_map_sprite(self, standing_pix, moving_pix):
         s_width = standing_pix.width()

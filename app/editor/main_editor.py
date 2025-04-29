@@ -68,7 +68,7 @@ from app.editor.raw_editor.raw_data_tab import RawDataDatabase
 from app.editor.icon_editor import icon_tab
 from app.editor.combat_animation_editor import combat_animation_tab
 from app.editor.tile_editor import tile_tab
-from app.editor.sound_editor import sound_tab
+from app.editor.sound_editor import new_sound_tab
 from app.editor.support_editor import support_pair_tab
 from app.editor.portrait_editor.portrait_tab import PortraitDatabase
 from app.editor.panorama_editor.panorama_tab import PanoramaDatabase
@@ -566,7 +566,7 @@ class MainEditor(QMainWindow):
         dialog.exec_()
 
     def edit_sounds(self, parent=None):
-        dialog = sound_tab.get_full_editor()
+        dialog = new_sound_tab.get_full_editor()
         dialog.exec_()
 
     def edit_preferences(self):

@@ -19,8 +19,6 @@ from app.utilities.typing import NID
 class NewClassDatabase(NewEditorTab):
     catalog_type = ClassCatalog
     properties_type = new_class_properties.ClassProperties
-    allow_import_from_lt = True
-    allow_copy_and_paste = True
 
     @property
     def data(self):
@@ -56,6 +54,17 @@ class NewClassDatabase(NewEditorTab):
             for unit in new_units:
                 self._data.append(unit)
             self.update_list()
+
+    def _on_nid_changed(self, old_nid: NID, new_nid: NID):
+        class_model.on_nid_changed(old_nid, new_nid)
+
+    def _on_delete(self, nid: NID) -> bool:
+        ok = class_model.check_delete(nid, self)
+        if ok:
+            class_model.on_delete(nid)
+            return True
+        else:
+            return False
 
     @classmethod
     def edit(cls, parent=None):

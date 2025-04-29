@@ -41,7 +41,7 @@ class NewClassDatabase(NewEditorTab):
         return True
 
     def tick(self):
-        self.update_list()
+        self.reset()
 
     def import_data(self):
         settings = MainSettingsController()
@@ -53,7 +53,7 @@ class NewClassDatabase(NewEditorTab):
             new_units = class_import.get_from_xml(parent_dir, fn)
             for unit in new_units:
                 self._data.append(unit)
-            self.update_list()
+            self.reset()
 
     def _on_nid_changed(self, old_nid: NID, new_nid: NID):
         class_model.on_nid_changed(old_nid, new_nid)

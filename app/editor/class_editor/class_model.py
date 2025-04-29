@@ -65,17 +65,14 @@ def check_delete(nid: NID, window) -> bool:
         deletion_tabs.append(DeletionTab(affected_levels, model, msg, "Levels"))
 
     if deletion_tabs:
-        ok = DeletionDialog.inform(deletion_tabs, window)
-        return ok
+        old_klass = None
+        for klass in DB.classes:
+            if klass.nid == nid:
+                old_klass = klass
+                break
+        swap, ok = DeletionDialog.get_swap(deletion_tabs, ClassBox(window, exclude=old_klass), window)
+        return swap, ok
     return True
-
-def on_delete(old_nid: NID):
-    new_nid = None
-    for klass in DB.classes:
-        if klass.nid != old_nid:
-            new_nid = klass.nid
-            break
-    on_nid_changed(old_nid, new_nid)
 
 def on_nid_changed(old_nid, new_nid):
     if not new_nid:

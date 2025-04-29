@@ -59,9 +59,9 @@ class NewClassDatabase(NewEditorTab):
         class_model.on_nid_changed(old_nid, new_nid)
 
     def _on_delete(self, nid: NID) -> bool:
-        ok = class_model.check_delete(nid, self)
+        swap, ok = class_model.check_delete(nid, self)
         if ok:
-            class_model.on_delete(nid)
+            class_model.on_nid_changed(nid, swap.nid)
             return True
         else:
             return False

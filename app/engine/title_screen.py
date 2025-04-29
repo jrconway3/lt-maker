@@ -789,8 +789,16 @@ class TitleExtrasState(TitleLoadState):
             get_sound_thread().play_sfx('Select 1')
             selection = self.menu.get_current()
             if selection == 'Credits':
-                game.memory['next_state'] = 'title_credit'
-                game.state.change('transition_to')
+                game.sweep()  # Set up event manager
+                event_prefab = DB.events.get_from_nid('Global Credits')
+                if event_prefab:
+                    event = Event(event_prefab, triggers.GenericTrigger())
+                    game.events.append(event)
+                    game.memory['next_state'] = 'event'
+                    game.state.change('transition_to')
+                else:
+                    game.memory['next_state'] = 'title_credit'
+                    game.state.change('transition_to')
             elif selection == 'Options':
                 game.memory['next_state'] = 'settings_menu'
                 game.state.change('transition_to')

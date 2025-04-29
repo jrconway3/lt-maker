@@ -119,9 +119,9 @@ class ClassModel(DragDropCollectionModel):
         # check to make sure nothing else is using me!!!
         klass = self._data[idx]
         nid = klass.nid
-        ok = check_delete(nid)
+        swap, ok = check_delete(nid)
         if ok:
-            on_delete(nid)
+            on_nid_changed(nid, swap.nid)
         else:
             return
         super().delete(idx)

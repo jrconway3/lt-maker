@@ -75,28 +75,7 @@ def on_delete(old_nid: NID):
         if klass.nid != old_nid:
             new_nid = klass.nid
             break
-    for unit in DB.units:
-        if unit.klass == old_nid:
-            unit.klass = new_nid
-    for klass in DB.classes:
-        if old_nid == klass.promotes_from:
-            klass.promotes_from = new_nid
-        elif old_nid in klass.turns_into:
-            klass.turns_into.remove(old_nid)
-            klass.turns_into.append(new_nid)
-    for ai in DB.ai:
-        ai.change_unit_spec("Class", old_nid, new_nid)
-    for level in DB.levels:
-        for unit in level.units:
-            if unit.klass == old_nid:
-                level.units.remove_key(unit.nid)
-        for unit_group in level.unit_groups:
-            for unit in unit_group.units:
-                if unit.klass == old_nid:
-                    unit_group.remove(unit.nid)
-        for unit in level.units:
-            if unit.starting_traveler.klass == old_nid:
-                unit.starting_traveler = None
+    on_nid_changed(old_nid, new_nid)
 
 def on_nid_changed(old_nid, new_nid):
     if not new_nid:

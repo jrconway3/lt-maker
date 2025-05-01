@@ -146,6 +146,7 @@ class FreeRoamState(MapState):
         """
         other_unit = self.get_closest_unit(must_have_talk=True)
         region = self.get_visit_region()
+        did_trigger = None
 
         if other_unit:
             get_sound_thread().play_sfx('Select 2')
@@ -155,7 +156,8 @@ class FreeRoamState(MapState):
                 # Behaves more like other things in the engine
                 # action.do(action.RemoveTalk(self.roam_unit.nid, other_unit.nid))
                 self.rationalize_all_units()
-        elif region:
+
+        if not did_trigger and region:
             get_sound_thread().play_sfx('Select 2')
             did_trigger = game.events.trigger(triggers.RegionTrigger(region.sub_nid, self.roam_unit, self.roam_unit.position, region))
             if not did_trigger:  # maybe this uses the more dynamic region trigger
@@ -164,14 +166,16 @@ class FreeRoamState(MapState):
                 if region.only_once:
                     action.do(action.RemoveRegion(region))
                 self.rationalize_all_units()
-        else:
+
+        if not did_trigger:
             other_unit = self.get_closest_unit()
             did_trigger = game.events.trigger(triggers.OnRoamInteract(self.roam_unit, other_unit))
             if did_trigger:
                 get_sound_thread().play_sfx('Select 2')
                 self.rationalize_all_units()
-            else:
-                get_sound_thread().play_sfx('Error')
+
+        if not did_trigger:
+            get_sound_thread().play_sfx('Error')
 
     def check_info(self):
         """

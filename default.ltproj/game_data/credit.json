@@ -1,0 +1,316 @@
+[
+    {
+        "nid": "New Credit",
+        "sub_nid": "Natasha",
+        "type": "Portraits",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            0
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                "Natasha"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_1",
+        "sub_nid": "Ephraim_Lord",
+        "type": "Map_Sprites",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            0
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                null
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_2",
+        "sub_nid": "Useful stuff",
+        "type": "List",
+        "category": "Resources",
+        "icon_index": [],
+        "contrib": [
+            [
+                "rainlash",
+                "Lex Talionis Game Engine"
+            ],
+            [
+                "Klokinator",
+                "Fire Emblem Graphics Repository"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_3",
+        "sub_nid": "castle",
+        "type": "Map_Icons",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            0
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                "castle"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_4",
+        "sub_nid": "Special Thanks",
+        "type": "Text",
+        "category": "Other",
+        "icon_index": [],
+        "contrib": [
+            [
+                null,
+                "Hello world\nNew line\n\nBig gap"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_5",
+        "sub_nid": "Sword",
+        "type": "16x16_Icons",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            10
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                "Sword"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_6",
+        "sub_nid": "Generic_Portrait_Cavalier",
+        "type": "80x72_Icons",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            0
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                "Generic Portrait Cavalier"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_7",
+        "sub_nid": "CastleRuins",
+        "type": "Panoramas",
+        "category": "Graphics",
+        "icon_index": [],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                "CastleRuins"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_8",
+        "sub_nid": "Axe",
+        "type": "16x16_Icons",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            13
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                "Axe"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_9",
+        "sub_nid": "Light",
+        "type": "16x16_Icons",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            5
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                "Light"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_10",
+        "sub_nid": "Staff",
+        "type": "16x16_Icons",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            11
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                "Staff"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_11",
+        "sub_nid": "Bow",
+        "type": "16x16_Icons",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            9
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                "Bow"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_12",
+        "sub_nid": "Neutral",
+        "type": "16x16_Icons",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            0
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems but with a longer name for testing",
+                "Neutral"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_13",
+        "sub_nid": "Valuable",
+        "type": "16x16_Icons",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            5
+        ],
+        "contrib": [
+            [
+                "Me",
+                "Valuable"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_14",
+        "sub_nid": "MonsterEmblem",
+        "type": "32x32_Icons",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            0
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems also longer name",
+                "MonsterEmblem"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_15",
+        "sub_nid": "KnightEmblem",
+        "type": "32x32_Icons",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            0
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                "KnightEmblem"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_16",
+        "sub_nid": "Forest",
+        "type": "Panoramas",
+        "category": "Graphics",
+        "icon_index": [],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                "Forest"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_17",
+        "sub_nid": "Special Thanks",
+        "type": "List",
+        "category": "Other",
+        "icon_index": [],
+        "contrib": [
+            [
+                "Me",
+                "Previous Page was Text"
+            ],
+            [
+                "Me Too",
+                "Now this is a List"
+            ],
+            [
+                "Me Three",
+                "So List and Text can be mixed in one Header"
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_18",
+        "sub_nid": "NeutralEmblem",
+        "type": "32x32_Icons",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            0
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                ""
+            ]
+        ]
+    },
+    {
+        "nid": "New Credit_19",
+        "sub_nid": "Special Thanks",
+        "type": "Text",
+        "category": "Pop Goes the Weasel",
+        "icon_index": [],
+        "contrib": [
+            [
+                null,
+                "Same Header, different Category, they will still be split"
+            ]
+        ]
+    }
+]

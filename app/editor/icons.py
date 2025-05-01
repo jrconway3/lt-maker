@@ -37,7 +37,7 @@ class PushableIcon16(QPushButton):
             if res.pixmap.width() > 0 and res.pixmap.height() > 0:
                 pic = res.pixmap.copy(self.x*self.width, self.y*self.height, self.width, self.height)
                 pic = QPixmap.fromImage(editor_utilities.convert_colorkey(pic.toImage()))
-                pic = pic.scaled(self.display_width, self.display_width)
+                pic = pic.scaled(self.display_width, self.display_width * self.height // self.width)
                 pic = QIcon(pic)
                 self.setIcon(pic)
         else:

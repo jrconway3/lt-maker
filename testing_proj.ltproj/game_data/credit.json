@@ -1,0 +1,18 @@
+[
+    {
+        "nid": "New Credit",
+        "sub_nid": "Natasha",
+        "type": "Portraits",
+        "category": "Graphics",
+        "icon_index": [
+            0,
+            0
+        ],
+        "contrib": [
+            [
+                "Intelligent Systems",
+                "Natasha"
+            ]
+        ]
+    }
+]

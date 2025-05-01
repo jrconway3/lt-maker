@@ -66,6 +66,7 @@ class PushableIcon80(PushableIcon16):
     database = RESOURCES.icons80
 
 class ItemIcon16(QWidget):
+    sourceChanged = pyqtSignal(str)
     width, height = 16, 16
     child_icon = PushableIcon16
 
@@ -96,7 +97,6 @@ class ItemIcon32(ItemIcon16):
     child_icon = PushableIcon32
 
 class ItemIcon80(ItemIcon16):
-    sourceChanged = pyqtSignal(str)
     width, height = 80, 72
     child_icon = PushableIcon80
 

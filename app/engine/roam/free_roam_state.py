@@ -166,7 +166,7 @@ class FreeRoamState(MapState):
                 self.rationalize_all_units()
         else:
             other_unit = self.get_closest_unit()
-            did_trigger = game.events.trigger(triggers.RoamPressSelect(self.roam_unit, other_unit))
+            did_trigger = game.events.trigger(triggers.OnRoamInteract(self.roam_unit, other_unit))
             if did_trigger:
                 get_sound_thread().play_sfx('Select 2')
                 self.rationalize_all_units()

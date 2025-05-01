@@ -27,7 +27,8 @@ class NewClassDatabase(NewEditorTab):
     def get_icon(self, class_nid: NID) -> Optional[QIcon]:
         if not self.data.get(class_nid):
             return None
-        pix = class_model.get_map_sprite_icon(self.data.get(class_nid))
+        num = timer.get_timer().passive_counter.count
+        pix = class_model.get_map_sprite_icon(self.data.get(class_nid), num)
         if pix:
             return QIcon(pix.scaled(32, 32))
         return None
@@ -61,7 +62,8 @@ class NewClassDatabase(NewEditorTab):
     def _on_delete(self, nid: NID) -> bool:
         swap, ok = class_model.check_delete(nid, self)
         if ok:
-            class_model.on_nid_changed(nid, swap.nid)
+            if swap is not None:
+                class_model.on_nid_changed(nid, swap.nid)
             return True
         else:
             return False

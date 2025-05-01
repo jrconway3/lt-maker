@@ -72,7 +72,7 @@ def check_delete(nid: NID, window) -> bool:
                 break
         swap, ok = DeletionDialog.get_swap(deletion_tabs, ClassBox(window, exclude=old_klass), window)
         return swap, ok
-    return True
+    return None, True
 
 def on_nid_changed(old_nid, new_nid):
     if not new_nid:

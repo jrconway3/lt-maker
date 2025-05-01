@@ -133,6 +133,18 @@ class OnRegionInteract(EventTrigger):
     region: RegionObject  #: the event region.
 
 @dataclass(init=True)
+class OnRoamInteract(EventTrigger):
+    """
+    Occurs when a unit interactions with any during free roam.
+    Talk or Region Interact events take precedence.
+    Can be used for Generic NPC dialogue or for opening a menu
+    when not interacting with other NPC's or regions.
+    """
+    nid: ClassVar[NID] = 'on_roam_interact'
+    unit1: UnitObject #: The current roam unit.
+    unit2: UnitObject #: the closest nearby other unit.
+
+@dataclass(init=True)
 class CombatDeath(EventTrigger):
     """
     Occurs during combat when any unit dies, including generics.
@@ -329,15 +341,6 @@ class OnOverworldNodeSelect(EventTrigger):
     nid: ClassVar[NID] = 'on_overworld_node_select'
     entity_nid: NID #: Contains the id of entity that will issue a move.
     node_nid: NID #: Contains the id of the node.
-
-@dataclass(init=True)
-class RoamPressSelect(EventTrigger):
-    """
-    Occurs when the `select` key is pressed in Free Roam. Talk or Region Interact events take precedence.
-    """
-    nid: ClassVar[NID] = 'roam_press_select'
-    unit1: UnitObject #: The current roam unit.
-    unit2: UnitObject #: the closest nearby other unit.
 
 @dataclass(init=True)
 class RoamPressStart(EventTrigger):

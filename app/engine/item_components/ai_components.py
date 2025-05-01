@@ -1,3 +1,4 @@
+from app.data.database.components import ComponentType
 from app.data.database.item_components import ItemComponent, ItemTags
 
 class NoAI(ItemComponent):

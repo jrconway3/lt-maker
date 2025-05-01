@@ -36,7 +36,7 @@ from app.utilities.typing import NID
 
 from typing import (Callable, Optional)
 
-class ClassProperties(QWidget):
+class NewClassProperties(QWidget):
     title = "Class"
 
     def __init__(self, parent, current: Optional[T] = None,

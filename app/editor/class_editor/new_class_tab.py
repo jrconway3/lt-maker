@@ -18,7 +18,7 @@ from app.utilities.typing import NID
 
 class NewClassDatabase(NewEditorTab):
     catalog_type = ClassCatalog
-    properties_type = new_class_properties.ClassProperties
+    properties_type = new_class_properties.NewClassProperties
 
     @property
     def data(self):
@@ -67,13 +67,6 @@ class NewClassDatabase(NewEditorTab):
             return True
         else:
             return False
-
-    @classmethod
-    def edit(cls, parent=None):
-        timer.get_timer().stop_for_editor()  # Don't need these while running game
-        window = SingleDatabaseEditor(cls, parent)
-        window.exec_()
-        timer.get_timer().start_for_editor()
 
 # Testing
 # Run "python -m app.editor.class_editor.class_tab" from main directory

@@ -217,7 +217,7 @@ class NewClassProperties(QWidget):
         timer.get_timer().tick_elapsed.connect(self.tick)
 
     def tick(self):
-        self.window.reset()
+        self.on_icon_change()
 
     def on_icon_changed(self, nid):
         if self.current:

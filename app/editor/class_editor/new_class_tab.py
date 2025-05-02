@@ -24,6 +24,11 @@ class NewClassDatabase(NewEditorTab):
     def data(self):
         return self._db.classes
 
+    @classmethod
+    def edit(cls, parent=None):
+        window = SingleDatabaseEditor(cls, parent)
+        window.exec_()
+
     def get_icon(self, class_nid: NID) -> Optional[QIcon]:
         if not self.data.get(class_nid):
             return None
@@ -42,7 +47,7 @@ class NewClassDatabase(NewEditorTab):
         return True
 
     def tick(self):
-        self.reset()
+        self.on_icon_change()
 
     def import_data(self):
         settings = MainSettingsController()

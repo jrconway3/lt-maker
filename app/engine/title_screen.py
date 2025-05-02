@@ -13,6 +13,8 @@ from app.engine import (dialog, engine, gui, image_mods, menus, particles,
 from app.engine.background import PanoramaBackground
 from app.engine.fluid_scroll import FluidScroll
 from app.engine.fonts import FONT
+
+from app.engine.state import MapState
 from app.engine.game_state import game
 from app.engine.objects.difficulty_mode import DifficultyModeObject
 from app.engine.sound import get_sound_thread
@@ -1023,7 +1025,10 @@ class TitleCreditState(State):
         self.fluid = FluidScroll()
 
     def start(self):
-        self.bg = game.memory['title_bg']
+        if game.memory.get('credit_bg'):
+            self.bg = game.memory['credit_bg']
+        else:
+            self.bg = game.memory['title_bg']
 
         credits = sorted(DB.credit, key=lambda x: (x.category, x.sub_nid if x.type in ['List', 'Text'] else x.type))
         self.categories = []
@@ -1113,7 +1118,9 @@ class TitleCreditState(State):
             self.menu.update()
 
     def draw(self, surf):
-        if self.bg:
+        if game.game_vars.get('_base_transparent'):
+            surf = MapState.draw(self, surf)
+        elif self.bg:
             self.bg.draw(surf)
         if self.display:
             self.display.draw(surf)

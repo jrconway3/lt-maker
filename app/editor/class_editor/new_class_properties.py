@@ -61,7 +61,6 @@ class NewClassProperties(QWidget):
         main_section = QGridLayout()
 
         self.icon_edit = ItemIcon80(self)
-        self.icon_edit.sourceChanged.connect(self.on_icon_changed)
         main_section.addWidget(self.icon_edit, 0, 0, 2, 2, Qt.AlignHCenter)
 
         self.nid_box = PropertyBox(_("Unique ID"), NidLineEdit, self)
@@ -335,7 +334,6 @@ class NewClassProperties(QWidget):
             pix = class_model.get_combat_anim_icon(self.current)
             if pix:
                 self.combat_anim_label.setPixmap(pix)
-            self.window.reset()
         else:  # Use to clear the combat animation -- since this can be reasonable
             self.current.combat_anim_nid = None
             self.combat_anim_label.clear()
@@ -349,7 +347,6 @@ class NewClassProperties(QWidget):
             pix = class_model.get_combat_anim_icon(self.current)
             if pix:
                 self.combat_anim_label.setPixmap(pix)
-            self.window.reset()
 
     def set_current(self, current):
         if not current:

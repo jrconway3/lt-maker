@@ -217,7 +217,7 @@ class NewClassProperties(QWidget):
         timer.get_timer().tick_elapsed.connect(self.tick)
 
     def tick(self):
-        self.window.reset()
+        self.on_icon_change()
 
     def on_icon_changed(self, nid):
         if self.current:
@@ -316,6 +316,7 @@ class NewClassProperties(QWidget):
             self.current.map_sprite_nid = nid
             pix = class_model.get_map_sprite_icon(self.current, num=0)
             self.map_sprite_label.setPixmap(pix)
+            self.on_icon_change()
 
     def autoselect_map_sprite(self):
         nid = self.current.nid
@@ -325,6 +326,7 @@ class NewClassProperties(QWidget):
             self.current.map_sprite_nid = nid
             pix = class_model.get_map_sprite_icon(self.current, num=0)
             self.map_sprite_label.setPixmap(pix)
+            self.on_icon_change()
 
     def select_combat_anim(self):
         res, ok = combat_animation_tab.get_animations()

@@ -86,9 +86,12 @@ class Database(object):
     # === Saving and loading important data functions ===
     def restore(self, save_obj):
         for data_type in self.save_data_types:
-            logging.info("Database: Restoring %s..." % (data_type))
             data = getattr(self, data_type)
-            data.restore(save_obj[data_type])
+            if save_obj[data_type] is None:
+                logging.warning("Database: Skipping %s..." % (data_type))
+            else:
+                logging.info("Database: Restoring %s..." % (data_type))
+                data.restore(save_obj[data_type])
             # Also restore the categories if it has any
             if isinstance(data, CategorizedCatalog):
                 data.categories = Categories.load(save_obj.get(data_type + CATEGORY_SUFFIX, {}))

@@ -36,7 +36,7 @@ from app.utilities.typing import NID
 
 from typing import (Callable, Optional)
 
-class ClassProperties(QWidget):
+class NewClassProperties(QWidget):
     title = "Class"
 
     def __init__(self, parent, current: Optional[T] = None,
@@ -61,7 +61,6 @@ class ClassProperties(QWidget):
         main_section = QGridLayout()
 
         self.icon_edit = ItemIcon80(self)
-        self.icon_edit.sourceChanged.connect(self.on_icon_changed)
         main_section.addWidget(self.icon_edit, 0, 0, 2, 2, Qt.AlignHCenter)
 
         self.nid_box = PropertyBox(_("Unique ID"), NidLineEdit, self)
@@ -218,7 +217,7 @@ class ClassProperties(QWidget):
         timer.get_timer().tick_elapsed.connect(self.tick)
 
     def tick(self):
-        self.window.reset()
+        self.on_icon_change()
 
     def on_icon_changed(self, nid):
         if self.current:
@@ -317,6 +316,7 @@ class ClassProperties(QWidget):
             self.current.map_sprite_nid = nid
             pix = class_model.get_map_sprite_icon(self.current, num=0)
             self.map_sprite_label.setPixmap(pix)
+            self.on_icon_change()
 
     def autoselect_map_sprite(self):
         nid = self.current.nid
@@ -326,6 +326,7 @@ class ClassProperties(QWidget):
             self.current.map_sprite_nid = nid
             pix = class_model.get_map_sprite_icon(self.current, num=0)
             self.map_sprite_label.setPixmap(pix)
+            self.on_icon_change()
 
     def select_combat_anim(self):
         res, ok = combat_animation_tab.get_animations()
@@ -335,7 +336,6 @@ class ClassProperties(QWidget):
             pix = class_model.get_combat_anim_icon(self.current)
             if pix:
                 self.combat_anim_label.setPixmap(pix)
-            self.window.reset()
         else:  # Use to clear the combat animation -- since this can be reasonable
             self.current.combat_anim_nid = None
             self.combat_anim_label.clear()
@@ -349,7 +349,6 @@ class ClassProperties(QWidget):
             pix = class_model.get_combat_anim_icon(self.current)
             if pix:
                 self.combat_anim_label.setPixmap(pix)
-            self.window.reset()
 
     def set_current(self, current):
         if not current:

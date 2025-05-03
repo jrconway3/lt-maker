@@ -65,11 +65,7 @@ def check_delete(nid: NID, window) -> bool:
         deletion_tabs.append(DeletionTab(affected_levels, model, msg, "Levels"))
 
     if deletion_tabs:
-        old_klass = None
-        for klass in DB.classes:
-            if klass.nid == nid:
-                old_klass = klass
-                break
+        old_klass = window.data.get(nid)
         swap, ok = DeletionDialog.get_swap(deletion_tabs, ClassBox(window, exclude=old_klass), window)
         return swap, ok
     return None, True
@@ -119,7 +115,7 @@ class ClassModel(DragDropCollectionModel):
         # check to make sure nothing else is using me!!!
         klass = self._data[idx]
         nid = klass.nid
-        swap, ok = check_delete(nid)
+        swap, ok = check_delete(nid, self)
         if ok:
             on_nid_changed(nid, swap.nid)
         else:

@@ -18,11 +18,16 @@ from app.utilities.typing import NID
 
 class NewClassDatabase(NewEditorTab):
     catalog_type = ClassCatalog
-    properties_type = new_class_properties.ClassProperties
+    properties_type = new_class_properties.NewClassProperties
 
     @property
     def data(self):
         return self._db.classes
+
+    @classmethod
+    def edit(cls, parent=None):
+        window = SingleDatabaseEditor(cls, parent)
+        window.exec_()
 
     def get_icon(self, class_nid: NID) -> Optional[QIcon]:
         if not self.data.get(class_nid):
@@ -42,7 +47,7 @@ class NewClassDatabase(NewEditorTab):
         return True
 
     def tick(self):
-        self.reset()
+        self.on_icon_change()
 
     def import_data(self):
         settings = MainSettingsController()
@@ -67,13 +72,6 @@ class NewClassDatabase(NewEditorTab):
             return True
         else:
             return False
-
-    @classmethod
-    def edit(cls, parent=None):
-        timer.get_timer().stop_for_editor()  # Don't need these while running game
-        window = SingleDatabaseEditor(cls, parent)
-        window.exec_()
-        timer.get_timer().start_for_editor()
 
 # Testing
 # Run "python -m app.editor.class_editor.class_tab" from main directory

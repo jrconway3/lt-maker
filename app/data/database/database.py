@@ -28,7 +28,7 @@ class Database(object):
                        "classes", "support_constants", "support_ranks", "affinities", "units",
                        "support_pairs", "ai", "parties", "difficulty_modes", "credit",
                        "translations", "lore", "levels", "events", "overworlds", "raw_data")
-    save_as_chunks = ("events", 'items', 'skills', 'units', 'classes', 'levels')
+    save_as_chunks = ("events", 'items', 'skills', 'units', 'classes', 'levels', "credit")
 
     def __init__(self):
         self.current_proj_dir = None

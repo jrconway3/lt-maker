@@ -9,7 +9,7 @@ class CreditModel(DragDropCollectionModel):
             return None
         if role == Qt.DisplayRole:
             credit = self._data[index.row()]
-            text = credit.nid + ': ' + credit.type
+            text = credit.nid
             return text
         return None
 

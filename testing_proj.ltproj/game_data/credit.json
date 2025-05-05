@@ -1,17 +1,18 @@
 [
     {
         "nid": "New Credit",
-        "sub_nid": "Natasha",
-        "type": "Portraits",
-        "category": "Graphics",
-        "icon_index": [
-            0,
-            0
-        ],
+        "sub_nid": "Useful tools",
+        "credit_type": "List",
+        "category": "Resources",
+        "icon_index": [],
         "contrib": [
             [
-                "Intelligent Systems",
-                "Natasha"
+                "rainlash",
+                "Lex Talionis Game Engine"
+            ],
+            [
+                "Klokinator",
+                "Fire Emblem Graphics Repository"
             ]
         ]
     }

@@ -1,8 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QVBoxLayout, QTextEdit, QStackedWidget, QPushButton, QLabel
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QFontMetrics, QIcon
+from PyQt5.QtGui import QFontMetrics, QIcon, QPixmap
 
 from app.data.resources.resources import RESOURCES
+from app.data.resources.resource_types import ResourceType
 
 from app.extensions.custom_gui import PropertyBox, ComboBox
 from app.extensions.list_widgets import AppendMultiListWidget
@@ -14,41 +15,57 @@ from app.editor.map_sprite_editor import map_sprite_tab, map_sprite_model
 from app.editor.lib.components.validated_line_edit import NidLineEdit
 
 from app.utilities import str_utils
+from app.utilities.typing import NID
 
-class CreditProperties(QWidget):
-    CREDIT_TYPES = ("16x16_Icons", "32x32_Icons", "80x72_Icons", "Portraits", "Map_Icons", "Map_Sprites", "Panoramas", "List", "Text")
+from typing import (Callable, Optional)
 
-    def __init__(self, parent, current=None):
+class NewCreditProperties(QWidget):
+    title = 'Credit'
+
+    CREDIT_TYPES = [credit_type for credit_type in ResourceType
+                    if credit_type not in (ResourceType.COMBAT_PALETTES, ResourceType.COMBAT_ANIMS, ResourceType.COMBAT_EFFECTS, 
+                                           ResourceType.TILESETS, ResourceType.TILEMAPS, 
+                                           ResourceType.MUSIC, ResourceType.SFX,
+                                           ResourceType.ANIMATIONS)] + ['List', 'Text']
+
+    def __init__(self, parent, current = None,
+                 attempt_change_nid: Optional[Callable[[NID, NID], bool]] = None,
+                 on_icon_change: Optional[Callable] = None):
         super().__init__(parent)
-        self.window = parent
-        self._data = self.window._data
 
         self.current = current
+        self.cached_nid: Optional[NID] = self.current.nid if self.current else None
+        self.attempt_change_nid = attempt_change_nid
+        self.on_icon_change = on_icon_change
 
         self.nid_box = PropertyBox("Unique ID", NidLineEdit, self)
         self.nid_box.edit.textChanged.connect(self.nid_changed)
         self.nid_box.edit.editingFinished.connect(self.nid_done_editing)
 
         self.type_box = PropertyBox(("Type"), ComboBox, self)
-        for type in self.CREDIT_TYPES:
-            self.type_box.edit.addItem(type.replace('_', ' '))
+        for credit_type in self.CREDIT_TYPES:
+            self.type_box.edit.addItem(credit_type.name.replace('_', ' ').capitalize() 
+                                            if isinstance(credit_type, ResourceType) 
+                                            else credit_type, 
+                                       userData=credit_type)
         self.type_box.edit.currentIndexChanged.connect(self.type_changed)
 
         self.category_box = PropertyBox("Category", QLineEdit, self)
         self.category_box.edit.textChanged.connect(self.category_changed)
 
         self.desc_box = QStackedWidget(self)
-        for type in self.CREDIT_TYPES:
-            if type in ("16x16_Icons", "32x32_Icons", "80x72_Icons", "Portraits", "Map_Icons"):
-                desc_box = IconDesc(self, type)
-            elif type == "Map_Sprites":
+        for credit_type in self.CREDIT_TYPES:
+            if credit_type in (ResourceType.ICONS16, ResourceType.ICONS32, ResourceType.ICONS80, 
+                               ResourceType.MAP_ICONS, ResourceType.PORTRAITS):
+                desc_box = IconDesc(self, credit_type)
+            elif credit_type == ResourceType.MAP_SPRITES:
                 desc_box = MapSpriteDesc(self)
-            elif type == "Panoramas":
+            elif credit_type == ResourceType.PANORAMAS:
                 desc_box = PanoramaDesc(self)
-            elif type == "List":
+            elif credit_type == "List":
                 desc_box = ListDesc(self)
-            elif type == "Text":
-                desc_box = TextDesc(self)    
+            elif credit_type == "Text":
+                desc_box = TextDesc(self)
             self.desc_box.addWidget(desc_box)
 
         total_section = QVBoxLayout()
@@ -60,44 +77,55 @@ class CreditProperties(QWidget):
 
         total_section.setAlignment(Qt.AlignTop)
 
+        self.set_current(self.current)
+
     def nid_changed(self, text):
         self.current.nid = text
-        self.window.update_list()
 
     def nid_done_editing(self):
-        # Check validity of nid!
-        other_nids = [d.nid for d in self._data.values() if d is not self.current]
-        if self.current.nid in other_nids:
-            QMessageBox.warning(self.window, 'Warning', 'Credit ID %s already in use' % self.current.nid)
-            self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
-        self.window.left_frame.model.on_nid_changed(self._data.find_key(self.current), self.current.nid)
-        self._data.update_nid(self.current, self.current.nid)
-        self.window.update_list()
+        if self.current and self.cached_nid:
+            self.nid_box.edit.blockSignals(True)  # message box causes focus loss which double triggers nid_done_editing
+            # Check validity of nid!
+            if self.attempt_change_nid and self.attempt_change_nid(self.cached_nid, self.current.nid):
+                self.cached_nid = self.current.nid
+            else:
+                self.current.nid = self.cached_nid
+                self.nid_box.edit.setText(self.cached_nid)
+            self.nid_box.edit.blockSignals(False)
 
     def type_changed(self, index):
-        type = self.type_box.edit.currentText().replace(' ', '_')
-        self.current.type = type
+        credit_type = self.type_box.edit.currentData()
+        self.current.credit_type = credit_type
 
-        if self.current.type in ["List", "Text"]:
+        if self.current.credit_type in ["List", "Text"]:
             self.category_box.setEnabled(True)
         else:
             self.category_box.setEnabled(False)
             self.category_box.edit.setText('Graphics')
 
-        idx = self.CREDIT_TYPES.index(type)
+        idx = self.CREDIT_TYPES.index(credit_type)
         self.desc_box.setCurrentIndex(idx)
         self.desc_box.currentWidget().set_current(self.current)
 
     def category_changed(self, category):
         self.current.category = category
-        self.window.update_list()
 
     def set_current(self, current):
-        self.current = current
-        self.nid_box.edit.setText(current.nid)
-        self.type_box.edit.setValue(current.type.replace('_', ' '))
-        self.category_box.edit.setText(current.category)
-        self.desc_box.currentWidget().set_current(current)
+        if not current:
+            self.setEnabled(False)
+        else:
+            self.setEnabled(True)
+            self.current = current
+            self.cached_nid = current.nid
+            self.nid_box.edit.setText(current.nid)
+
+            idx = 0
+            if current.credit_type in self.CREDIT_TYPES:
+                idx = self.CREDIT_TYPES.index(current.credit_type)
+            self.type_box.edit.setCurrentIndex(idx)
+
+            self.category_box.edit.setText(current.category)
+            self.desc_box.currentWidget().set_current(current)
 
 class TextDesc(QWidget):
     def __init__(self, parent=None):
@@ -125,11 +153,12 @@ class TextDesc(QWidget):
         self.window.current.contrib = [[None, self.desc_box.edit.toPlainText()]]
 
     def set_current(self, current):
-        try:
-            self.header_box.edit.setText(current.sub_nid)
+        self.header_box.edit.setText(current.sub_nid)
+
+        if current.contrib:
             self.desc_box.edit.setText(current.contrib[0][1])
-        except: # spec isn't compatible
-            pass
+        else:
+            self.desc_box.edit.clear()
 
 class PanoramaDesc(QWidget):
     def __init__(self, parent=None):
@@ -183,60 +212,65 @@ class PanoramaDesc(QWidget):
     def set_current(self, current):
         try:
             self.panorama_box.edit.setValue(current.sub_nid)
+        except: # spec isn't compatible
+            self.panorama_box.edit.clear()
+
+        if current.contrib:
             self.contrib_box.edit.setText(current.contrib[0][1])
             self.author_box.edit.setText(current.contrib[0][0])
-        except: # spec isn't compatible
-            pass
+        else:
+            self.contrib_box.edit.clear()
+            self.author_box.edit.clear()
 
 class PushableIcon(PushableIcon16):
     display_width = 160
 
-    def setType(self, type):
-        self.type = type
-        if type == '16x16_Icons':
+    def setType(self, credit_type):
+        self.credit_type = credit_type
+        if credit_type == ResourceType.ICONS16:
             self.width, self.height = 16, 16
             self.database = RESOURCES.icons16
-        elif type == '32x32_Icons':
+        elif credit_type == ResourceType.ICONS32:
             self.width, self.height = 32, 32
             self.database = RESOURCES.icons32
-        elif type == '80x72_Icons':
+        elif credit_type == ResourceType.ICONS80:
             self.width, self.height = 80, 72
             self.database = RESOURCES.icons80
-        elif type == 'Map_Icons':
+        elif credit_type == ResourceType.MAP_ICONS:
             self.width, self.height = 48, 48
             self.database = RESOURCES.map_icons
-        elif type == 'Portraits':
+        elif credit_type == ResourceType.PORTRAITS:
             self.width, self.height = 96, 80
             self.database = RESOURCES.portraits
 
     def onIconSourcePicker(self):
-        if self.type == 'Portraits':
+        if self.credit_type == ResourceType.PORTRAITS:
             from app.editor.portrait_editor import portrait_tab
             res, ok = portrait_tab.get()
         else:           
             from app.editor.icon_editor import icon_tab
-            if self.type == 'Map_Icons':
+            if self.credit_type == ResourceType.MAP_ICONS:
                 res, ok = icon_tab.get_map_icon_editor()
             else:
                 res, ok = icon_tab.get(self.width, self._nid)
 
         if res and ok:
             icon_index = (0, 0)
-            if self.type in ("16x16_Icons", "32x32_Icons", "80x72_Icons"):
+            if self.credit_type in (ResourceType.ICONS16, ResourceType.ICONS32, ResourceType.ICONS80):
                 icon_index = res.icon_index
 
             self.change_icon(res.nid, icon_index)
             self.sourceChanged.emit(self._nid, self.x, self.y)
 
 class IconDesc(QWidget):
-    def __init__(self, parent=None, type='16x16_Icons'):
+    def __init__(self, parent=None, credit_type='16x16_Icons'):
         super().__init__(parent)
         self.window = parent
 
         self.layout = QVBoxLayout()       
 
         self.icon_box = PropertyBox("Contribution", PushableIcon, self)
-        self.icon_box.edit.setType(type)
+        self.icon_box.edit.setType(credit_type)
         self.icon_box.edit.sourceChanged.connect(self.on_icon_changed)
 
         self.contrib_box = PropertyBox("Name", QLineEdit, self)
@@ -253,7 +287,7 @@ class IconDesc(QWidget):
 
     def on_icon_changed(self, nid, x, y):
         contrib = self.window.current.contrib
-        if not contrib or not len(contrib[0]) > 1 or \
+        if not contrib or not len(contrib[0]) > 1 or not contrib[0][1] or \
             (self.window.current.sub_nid and contrib[0][1] == self.window.current.sub_nid.replace('_', ' ')):
                 self.contrib_box.edit.setText(nid.replace('_', ' '))
 
@@ -277,10 +311,15 @@ class IconDesc(QWidget):
     def set_current(self, current):
         try:
             self.icon_box.edit.change_icon(current.sub_nid, current.icon_index)
+        except:
+            self.icon_box.edit.change_icon(None, (0, 0))
+
+        if current.contrib:
             self.contrib_box.edit.setText(current.contrib[0][1])
             self.author_box.edit.setText(current.contrib[0][0])
-        except:
-            pass
+        else:
+            self.contrib_box.edit.clear()
+            self.author_box.edit.clear()
 
 class MapSpriteDesc(QWidget):
     display_width = 160
@@ -311,21 +350,21 @@ class MapSpriteDesc(QWidget):
             self.window.current.sub_nid = nid
             pix = self.get_map_sprite_icon(self.window.current.sub_nid, num=0)
             self.map_sprite_label.setPixmap(pix)
-            self.window.window.update_list()
 
     def author_changed(self, text):
         self.window.current.contrib = [[text, None]]
 
     def set_current(self, current):
-        try:
-            pix = self.get_map_sprite_icon(self.window.current.sub_nid, num=0)
-            if pix:
-                self.map_sprite_label.setPixmap(pix)
-            else:
-                self.map_sprite_label.clear()
+        pix = self.get_map_sprite_icon(self.window.current.sub_nid, num=0)
+        if pix:
+            self.map_sprite_label.setPixmap(pix)
+        else:
+            self.map_sprite_label.clear()
+
+        if current.contrib:
             self.author_box.edit.setText(current.contrib[0][0])
-        except: # spec isn't compatible
-            pass
+        else:
+            self.author_box.edit.clear()
 
     def get_map_sprite_icon(self, nid, num, current=False, team='player', variant=None):
         res = None
@@ -363,8 +402,5 @@ class ListDesc(QWidget):
         self.window.current.sub_nid = text
 
     def set_current(self, current):
-        try:
-            self.header_box.edit.setText(current.sub_nid)
-            self.desc_box.set_current(current.contrib)
-        except: # spec isn't compatible
-            pass
+        self.header_box.edit.setText(current.sub_nid)
+        self.desc_box.set_current(current.contrib)

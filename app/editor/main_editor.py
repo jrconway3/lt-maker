@@ -63,7 +63,7 @@ from app.editor.equation_widget import EquationDialog
 from app.editor.event_editor.event_tab import EventDatabase
 from app.editor.lore_editor.lore_tab import LoreDatabase
 from app.editor.raw_editor.raw_data_tab import RawDataDatabase
-from app.editor.credit_editor.credit_tab import CreditDatabase
+from app.editor.credit_editor.new_credit_tab import NewCreditDatabase
 
 # Resources
 from app.editor.icon_editor import icon_tab
@@ -253,7 +253,7 @@ class MainEditor(QMainWindow):
                             _("Lore"): LoreDatabase.edit,
                             _("Raw Data"): RawDataDatabase.edit,
                             _("Translations"): self.edit_translations,
-                            _("Credit"): CreditDatabase.edit
+                            _("Credit"): NewCreditDatabase.edit
                             }
         self.database_actions = {}
         for name, func in database_actions.items():

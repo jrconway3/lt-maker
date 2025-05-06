@@ -3301,9 +3301,9 @@ def open_credits(self: Event, panorama=None, flags=None):
         action.do(action.SetGameVar('_base_transparent', False))
 
     if 'immediate' in flags:
-        self.game.state.change('title_credit')
+        self.game.state.change('credit')
     else:
-        self.game.memory['next_state'] = 'title_credit'
+        self.game.memory['next_state'] = 'credit'
         self.game.state.change('transition_to')
 
 def open_unit_management(self: Event, panorama=None, flags=None):

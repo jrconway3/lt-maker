@@ -9,6 +9,7 @@ from app.engine import dialog, engine, gui, image_mods, text_funcs
 from app.engine.background import PanoramaBackground, ScrollingBackground
 from app.engine.fluid_scroll import FluidScroll
 from app.engine.fonts import FONT
+from app.engine.state import MapState
 from app.engine.game_state import game
 
 from app.engine.game_menus.menu_options import BasicOption, EmptyOption
@@ -138,7 +139,9 @@ class CreditState(State):
             self.menu.update()
 
     def draw(self, surf):
-        if self.bg:
+        if game.game_vars.get('_base_transparent'):
+            surf = MapState.draw(self, surf)
+        elif self.bg:
             self.bg.draw(surf)
         if self.display:
             self.display.draw(surf)

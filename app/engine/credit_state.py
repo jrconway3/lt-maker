@@ -1,6 +1,7 @@
 from app.constants import WINHEIGHT, WINWIDTH, COLORKEY
 
 from app.data.database.database import DB
+from app.data.database.credit import CreditEntry, CreditCatalog
 from app.data.resources.resources import RESOURCES
 from app.data.resources.resource_types import ResourceType
 
@@ -24,6 +25,50 @@ from app.engine.unit_sprite import MapSprite
 from app.utilities import utils
 from app.utilities.enums import HAlignment
 
+from typing import Tuple, List
+
+def populate_options(credit_catalog: CreditCatalog) -> Tuple[List[str], List[str], List[List[CreditEntry]]]:
+    """
+    return (options, ignore, ordered_credits), which should all be the same size
+    """
+    credits = sorted(credit_catalog, key=lambda x: (x.category, x.header()))
+    categories = []
+    options = []
+    ignore = []
+
+    ordered_credits = []
+    temp_list = None
+    for credit in credits:
+        curr_option = credit.header()
+
+        if credit.category not in categories:
+            categories.append(credit.category)
+            if temp_list:
+                ordered_credits.append(temp_list)
+            options.append(credit.category)
+            ignore.append(True)
+
+            ordered_credits.append([])
+            options.append(curr_option)
+            ignore.append(False)
+
+            prev_option = curr_option
+            temp_list = [credit]
+            continue
+
+        if prev_option == curr_option:
+            temp_list.append(credit)
+            continue
+
+        ordered_credits.append(temp_list)
+        options.append(curr_option)
+        ignore.append(False)
+        prev_option = curr_option
+        temp_list = [credit]
+    ordered_credits.append(temp_list)
+
+    return options, ignore, ordered_credits
+
 class CreditState(State):
     name = 'credit'
 
@@ -45,46 +90,7 @@ class CreditState(State):
             self.bg = ScrollingBackground(panorama)
             self.bg.scroll_speed = 50
 
-        credits = sorted(DB.credit, key=lambda x: (x.category, 
-                                                   x.credit_type.name.capitalize() 
-                                                        if isinstance(x.credit_type, ResourceType) 
-                                                        else x.sub_nid))
-        self.categories = []
-        options = []
-        ignore = []
-
-        ordered_credits = []
-        temp_list = None
-        for credit in credits:
-            curr_option = credit.credit_type.name.replace('_', ' ').capitalize() \
-                            if isinstance(credit.credit_type, ResourceType) \
-                            else credit.sub_nid
-
-            if credit.category not in self.categories:
-                self.categories.append(credit.category)
-                if temp_list:
-                    ordered_credits.append(temp_list)
-                options.append(credit.category)
-                ignore.append(True)
-
-                ordered_credits.append([])
-                options.append(curr_option)
-                ignore.append(False)
-
-                prev_option = curr_option
-                temp_list = [credit]
-                continue
-
-            if prev_option == curr_option:
-                temp_list.append(credit)
-                continue
-
-            ordered_credits.append(temp_list)
-            options.append(curr_option)
-            ignore.append(False)
-            prev_option = curr_option
-            temp_list = [credit]
-        ordered_credits.append(temp_list)
+        options, ignore, ordered_credits = populate_options(DB.credit)
 
         self.menu = CreditMenu(options, ignore)
         self.display = CreditDisplay(ordered_credits)
@@ -273,62 +279,64 @@ class CreditDisplay():
         return False
 
     def draw(self, surf):
-        if self.pages:
-            lst = self.pages[self.page_num]
-            credit = lst[0]
+        if not self.pages:
+            return surf
 
-            if credit.credit_type == ResourceType.PANORAMAS:
-                if not self.bg:
-                    imgs = RESOURCES.panoramas.get(credit.sub_nid)
-                    self.bg = PanoramaBackground(imgs) if imgs else None
-                self.bg.draw(surf)
+        lst = self.pages[self.page_num]
+        credit = lst[0]
 
-                c = credit.contrib[0]
-                lines = text_funcs.line_wrap(self.font, "%s by %s" % (c[1], c[0]), self.width - 16)
-                temp_menu = base_surf.create_base_surf(self.width, 28 + len(lines) * FONT[self.font].height, 'menu_bg_clear')
-                surf.blit(temp_menu, self.topleft)
-            else:
-                surf.blit(self.bg_surf, self.topleft)
+        if credit.credit_type == ResourceType.PANORAMAS:
+            if not self.bg:
+                imgs = RESOURCES.panoramas.get(credit.sub_nid)
+                self.bg = PanoramaBackground(imgs) if imgs else None
+            self.bg.draw(surf)
 
-            if credit.credit_type == ResourceType.PORTRAITS:
-                if not self.portrait:
-                    portrait = RESOURCES.portraits.get(credit.sub_nid)
-                    self.portrait = InfoMenuPortrait(portrait, DB.constants.value('info_menu_blink'))
+            c = credit.contrib[0]
+            lines = text_funcs.line_wrap(self.font, "%s by %s" % (c[1], c[0]), self.width - 16)
+            temp_menu = base_surf.create_base_surf(self.width, 28 + len(lines) * FONT[self.font].height, 'menu_bg_clear')
+            surf.blit(temp_menu, self.topleft)
+        else:
+            surf.blit(self.bg_surf, self.topleft)
 
-                self.portrait.update()
-                im = self.portrait.create_image()
-                surf.blit(im, utils.tuple_add((self.width - 96, WINHEIGHT - 12 - 80), self.topleft))
+        if credit.credit_type == ResourceType.PORTRAITS:
+            if not self.portrait:
+                portrait = RESOURCES.portraits.get(credit.sub_nid)
+                self.portrait = InfoMenuPortrait(portrait, DB.constants.value('info_menu_blink'))
 
-            elif credit.credit_type == ResourceType.MAP_SPRITES:
-                y_pos = 20
-                icon_size = self.icon_size_dict.get(credit.credit_type) + 4
-                for c in lst:
-                    res = RESOURCES.map_sprites.get(c.sub_nid)
-                    map_sprite = game.map_sprite_registry.get("%s_player" % res.nid)
-                    if not map_sprite:
-                        map_sprite = MapSprite(res, "player")
-                        game.map_sprite_registry["%s_player" % map_sprite.nid] = map_sprite
-                    im = map_sprite.create_image('passive')
-                    surf.blit(im, utils.tuple_add((8 - 24, y_pos - 24), self.topleft))
+            self.portrait.update()
+            im = self.portrait.create_image()
+            surf.blit(im, utils.tuple_add((self.width - 96, WINHEIGHT - 12 - 80), self.topleft))
 
-                    lines = text_funcs.line_wrap(self.font, "by %s" % c.contrib[0][0], self.width - 16 - icon_size)
-                    for idx, line in enumerate(lines):
-                        render_text(surf, [self.font], [line], [], utils.tuple_add((8 + icon_size, y_pos + idx * FONT[self.font].height), self.topleft))
-                    y_pos += max(len(lines) * FONT[self.font].height, icon_size)
+        elif credit.credit_type == ResourceType.MAP_SPRITES:
+            y_pos = 20
+            icon_size = self.icon_size_dict.get(credit.credit_type) + 4
+            for c in lst:
+                res = RESOURCES.map_sprites.get(c.sub_nid)
+                map_sprite = game.map_sprite_registry.get("%s_player" % res.nid)
+                if not map_sprite:
+                    map_sprite = MapSprite(res, "player")
+                    game.map_sprite_registry["%s_player" % map_sprite.nid] = map_sprite
+                im = map_sprite.create_image('passive')
+                surf.blit(im, utils.tuple_add((8 - 24, y_pos - 24), self.topleft))
 
-            elif credit.credit_type == 'Text':
-                if not self.dlg:
-                    self.dlg = self.contents[self.page_num]
-                self.dlg.update()
-                self.dlg.draw(surf)
+                lines = text_funcs.line_wrap(self.font, "by %s" % c.contrib[0][0], self.width - 16 - icon_size)
+                for idx, line in enumerate(lines):
+                    render_text(surf, [self.font], [line], [], utils.tuple_add((8 + icon_size, y_pos + idx * FONT[self.font].height), self.topleft))
+                y_pos += max(len(lines) * FONT[self.font].height, icon_size)
 
-            if self.num_pages > 1:
-                self.left_arrow.draw(surf)
-                self.right_arrow.draw(surf)
+        elif credit.credit_type == 'Text':
+            if not self.dlg:
+                self.dlg = self.contents[self.page_num]
+            self.dlg.update()
+            self.dlg.draw(surf)
 
-            if not self.static_surf:
-                self.static_surf = self.create_static_surf(lst)
-            surf.blit(self.static_surf, (0, 0))
+        if self.num_pages > 1:
+            self.left_arrow.draw(surf)
+            self.right_arrow.draw(surf)
+
+        if not self.static_surf:
+            self.static_surf = self.create_static_surf(lst)
+        surf.blit(self.static_surf, (0, 0))
 
         return surf
 
@@ -336,9 +344,7 @@ class CreditDisplay():
         credit = lst[0]
         surf = engine.create_surface((WINWIDTH, WINHEIGHT), transparent=True)
 
-        header = credit.credit_type.name.replace('_', ' ').capitalize() \
-                    if isinstance(credit.credit_type, ResourceType) \
-                    else credit.sub_nid
+        header = credit.header()
         render_text(surf, ['text'], [header], ['blue'], utils.tuple_add((self.width // 2, 4), self.topleft), HAlignment.CENTER)
         if self.num_pages > 1:
             text = '%d / %d' % (self.page_num + 1, self.num_pages)
@@ -462,7 +468,35 @@ class CreditOption(BasicOption):
 
         s = self.display_text
         width = text_width(main_font, s)
-        if width > 70:
+        if width > 66:
             main_font = 'narrow'
 
         render_text(surf, [main_font], s, [main_color], (x + 6, y))
+
+# Testing
+# Run "python -m app.engine.credit_state" from main directory
+if __name__ == '__main__':
+    import random
+    credit_entries = [CreditEntry(0, 0, ResourceType.ICONS16, 'Graphic'),
+                      CreditEntry(1, 0, ResourceType.ICONS16, 'Graphic'),
+                      CreditEntry(2, 0, ResourceType.ICONS32, 'Graphic'),
+                      CreditEntry(3, 0, ResourceType.ICONS32, 'Graphic'),
+                      CreditEntry(4, 0, ResourceType.ICONS16, 'Resources'),
+                      CreditEntry(5, 0, ResourceType.ICONS16, 'Resources'),
+                      CreditEntry(6, 'Special Thanks', 'List', 'Music'),
+                      CreditEntry(7, 'Special Thanks', 'List', 'Resources'),
+                      CreditEntry(8, 'Other', 'List', 'Resources'),
+                      CreditEntry(9, 'Special Thanks', 'Text', 'Resources'),
+                      CreditEntry(10, 'Other', 'Text', 'Music')]
+    random.shuffle(credit_entries)
+    credit_catalog = CreditCatalog()
+    for credit in credit_entries:
+        credit_catalog.append(credit)
+
+    options, ignore, ordered_credits = populate_options(credit_catalog)
+    for i in range(len(options)):
+        print(options[i])
+        print(ignore[i])
+        for credit in ordered_credits[i]:
+            print(credit)
+        print()

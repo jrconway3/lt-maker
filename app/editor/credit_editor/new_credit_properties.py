@@ -23,10 +23,9 @@ class NewCreditProperties(QWidget):
     title = 'Credit'
 
     CREDIT_TYPES = [credit_type for credit_type in ResourceType
-                    if credit_type not in (ResourceType.COMBAT_PALETTES, ResourceType.COMBAT_ANIMS, ResourceType.COMBAT_EFFECTS, 
-                                           ResourceType.TILESETS, ResourceType.TILEMAPS, 
-                                           ResourceType.MUSIC, ResourceType.SFX,
-                                           ResourceType.ANIMATIONS)] + ['List', 'Text']
+                    if credit_type in (ResourceType.ICONS16, ResourceType.ICONS32, ResourceType.ICONS80, 
+                                       ResourceType.MAP_ICONS, ResourceType.MAP_SPRITES, 
+                                       ResourceType.PORTRAITS, ResourceType.PANORAMAS)] + ['List', 'Text']
 
     def __init__(self, parent, current = None,
                  attempt_change_nid: Optional[Callable[[NID, NID], bool]] = None,
@@ -150,7 +149,8 @@ class TextDesc(QWidget):
         self.window.current.sub_nid = text
 
     def desc_changed(self, text=None):
-        self.window.current.contrib = [[None, self.desc_box.edit.toPlainText()]]
+        if text:
+            self.window.current.contrib = [(None, self.desc_box.edit.toPlainText())]
 
     def set_current(self, current):
         self.header_box.edit.setText(current.sub_nid)
@@ -196,18 +196,22 @@ class PanoramaDesc(QWidget):
         self.window.current.sub_nid = sub_nid
 
     def contrib_changed(self, text):
+        if not text:
+            return
         author = None
         contrib = self.window.current.contrib
         if contrib and contrib[0]:
             author = contrib[0][0]
-        self.window.current.contrib = [[author, text]]
+        self.window.current.contrib = [(author, text)]
 
     def author_changed(self, text):
+        if not text:
+            return
         desc = None
         contrib = self.window.current.contrib
         if contrib and len(contrib[0]) > 1:
             desc = contrib[0][1]
-        self.window.current.contrib = [[text, desc]]
+        self.window.current.contrib = [(text, desc)]
 
     def set_current(self, current):
         try:
@@ -222,7 +226,7 @@ class PanoramaDesc(QWidget):
             self.contrib_box.edit.clear()
             self.author_box.edit.clear()
 
-class PushableIcon(PushableIcon16):
+class CreditPushableIcon(PushableIcon16):
     display_width = 160
 
     def setType(self, credit_type):
@@ -269,7 +273,7 @@ class IconDesc(QWidget):
 
         self.layout = QVBoxLayout()       
 
-        self.icon_box = PropertyBox("Contribution", PushableIcon, self)
+        self.icon_box = PropertyBox("Contribution", CreditPushableIcon, self)
         self.icon_box.edit.setType(credit_type)
         self.icon_box.edit.sourceChanged.connect(self.on_icon_changed)
 
@@ -295,18 +299,22 @@ class IconDesc(QWidget):
         self.window.current.icon_index = (x, y)
 
     def contrib_changed(self, text):
+        if not text:
+            return
         author = None
         contrib = self.window.current.contrib
         if contrib and contrib[0]:
             author = contrib[0][0]
-        self.window.current.contrib = [[author, text]]
+        self.window.current.contrib = [(author, text)]
 
     def author_changed(self, text):
+        if not text:
+            return           
         desc = None
         contrib = self.window.current.contrib
         if contrib and len(contrib[0]) > 1:
             desc = contrib[0][1]
-        self.window.current.contrib = [[text, desc]]
+        self.window.current.contrib = [(text, desc)]
 
     def set_current(self, current):
         try:
@@ -352,7 +360,8 @@ class MapSpriteDesc(QWidget):
             self.map_sprite_label.setPixmap(pix)
 
     def author_changed(self, text):
-        self.window.current.contrib = [[text, None]]
+        if text:
+            self.window.current.contrib = [(text, None)]
 
     def set_current(self, current):
         pix = self.get_map_sprite_icon(self.window.current.sub_nid, num=0)
@@ -381,6 +390,18 @@ class MapSpriteDesc(QWidget):
         pixmap = pixmap.scaled(self.display_width, self.display_width)
         return pixmap
 
+class CreditListModel(KeyValueDoubleListModel):
+    def setData(self, index, value, role):
+        if not index.isValid():
+            return False
+
+        row = list(self._data[index.row()])
+        row[index.column()] = value
+        self._data[index.row()] = tuple(row)
+
+        self.dataChanged.emit(index, index)
+        return True
+
 class ListDesc(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -392,7 +413,7 @@ class ListDesc(QWidget):
         self.header_box.edit.textChanged.connect(self.header_changed)
 
         attrs = ("Author", "Contribution")
-        self.desc_box = AppendMultiListWidget([], "List of Contributions", attrs, KeyValueDelegate, self, model=KeyValueDoubleListModel)
+        self.desc_box = AppendMultiListWidget([], "List of Contributions", attrs, KeyValueDelegate, self, model=CreditListModel)
 
         self.layout.addWidget(self.header_box)
         self.layout.addWidget(self.desc_box)

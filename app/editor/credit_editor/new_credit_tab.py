@@ -38,7 +38,7 @@ class NewCreditDatabase(NewEditorTab):
         return True
 
 # Testing
-# Run "python -m app.editor.item_editor.new_item_tab" from main directory
+# Run "python -m app.editor.credit_editor.new_credit_tab" from main directory
 if __name__ == '__main__':
     import sys
     from app.data.database.database import DB

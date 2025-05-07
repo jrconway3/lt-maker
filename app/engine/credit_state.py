@@ -305,7 +305,7 @@ class CreditDisplay():
 
             self.portrait.update()
             im = self.portrait.create_image()
-            surf.blit(im, utils.tuple_add((self.width - 96, WINHEIGHT - 12 - 80), self.topleft))
+            surf.blit(im, utils.tuple_add((self.width - 8 - 96, WINHEIGHT - 12 - 80), self.topleft))
 
         elif credit.credit_type == ResourceType.MAP_SPRITES:
             y_pos = 20
@@ -330,13 +330,13 @@ class CreditDisplay():
             self.dlg.update()
             self.dlg.draw(surf)
 
-        if self.num_pages > 1:
-            self.left_arrow.draw(surf)
-            self.right_arrow.draw(surf)
-
         if not self.static_surf:
             self.static_surf = self.create_static_surf(lst)
         surf.blit(self.static_surf, (0, 0))
+
+        if self.num_pages > 1:
+            self.left_arrow.draw(surf)
+            self.right_arrow.draw(surf)
 
         return surf
 
@@ -346,13 +346,10 @@ class CreditDisplay():
 
         header = credit.header()
         render_text(surf, ['text'], [header], ['blue'], utils.tuple_add((self.width // 2, 4), self.topleft), HAlignment.CENTER)
-        if self.num_pages > 1:
-            text = '%d / %d' % (self.page_num + 1, self.num_pages)
-            render_text(surf, ['text'], [text], ['yellow'], utils.tuple_add((self.width - 8, WINHEIGHT - 12 - 16), self.topleft), HAlignment.RIGHT)
 
         if credit.credit_type == ResourceType.ICONS80:
             im = self.get_icon_by_credit(credit)
-            surf.blit(im, utils.tuple_add((self.width - 96, WINHEIGHT - 12 - 72), self.topleft))
+            surf.blit(im, utils.tuple_add((self.width - 8 - 80, WINHEIGHT - 12 - 72), self.topleft))
 
         lines = []
         if credit.credit_type in (ResourceType.ICONS16, ResourceType.ICONS32, ResourceType.MAP_ICONS):
@@ -390,6 +387,10 @@ class CreditDisplay():
             for idx, line in enumerate(lines):
                 render_text(surf, [self.font], [line], ['orange' if idx in highlight_lines else None], 
                             utils.tuple_add((8, 20 + idx * FONT[self.font].height), self.topleft))
+
+        if self.num_pages > 1:
+            text = '%d / %d' % (self.page_num + 1, self.num_pages)
+            render_text(surf, ['text'], [text], ['yellow'], utils.tuple_add((self.width - 8, WINHEIGHT - 12 - 16), self.topleft), HAlignment.RIGHT)
 
         return surf
 

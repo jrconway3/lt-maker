@@ -16,7 +16,7 @@ from app.utilities import utils
 class FreeRoamState(MapState):
     name = 'free_roam'
 
-    TALK_RANGE = 1.0
+    TALK_RANGE = 1.2
 
     def start(self):
         self.roam_unit = None
@@ -149,20 +149,20 @@ class FreeRoamState(MapState):
         did_trigger = None
 
         if other_unit:
-            get_sound_thread().play_sfx('Select 2')
             did_trigger = game.events.trigger(triggers.OnTalk(self.roam_unit, other_unit, None))
             if did_trigger:
+                get_sound_thread().play_sfx('Select 2')
                 # Rely on the talk event itself to remove the trigger
                 # Behaves more like other things in the engine
                 # action.do(action.RemoveTalk(self.roam_unit.nid, other_unit.nid))
                 self.rationalize_all_units()
 
         if not did_trigger and region:
-            get_sound_thread().play_sfx('Select 2')
             did_trigger = game.events.trigger(triggers.RegionTrigger(region.sub_nid, self.roam_unit, self.roam_unit.position, region))
             if not did_trigger:  # maybe this uses the more dynamic region trigger
                 did_trigger = game.events.trigger(triggers.OnRegionInteract(self.roam_unit, self.roam_unit.position, region))
             if did_trigger:
+                get_sound_thread().play_sfx('Select 2')
                 if region.only_once:
                     action.do(action.RemoveRegion(region))
                 self.rationalize_all_units()

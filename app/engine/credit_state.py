@@ -147,13 +147,9 @@ class CreditState(State):
             self.menu.update()
 
     def draw(self, surf):
-<<<<<<< HEAD
-        if self.bg:
-=======
         if game.game_vars.get('_base_transparent'):
             surf = MapState.draw(self, surf)
         elif self.bg:
->>>>>>> origin-branch-event-func
             self.bg.draw(surf)
         if self.display:
             self.display.draw(surf)

@@ -135,14 +135,15 @@ class OnRegionInteract(EventTrigger):
 @dataclass(init=True)
 class OnRoamInteract(EventTrigger):
     """
-    Occurs when a unit interactions with any during free roam.
-    Talk or Region Interact events take precedence.
+    Occurs when a unit interacts with anything during free roam.
+    Talk or Region Interact events take precedence. The events
+    must exist, if they do not, this event will trigger instead.
     Can be used for Generic NPC dialogue or for opening a menu
     when not interacting with other NPC's or regions.
     """
     nid: ClassVar[NID] = 'on_roam_interact'
     unit1: UnitObject #: The current roam unit.
-    unit2: UnitObject #: the closest nearby other unit.
+    units: List[UnitObject] #: the closest nearby other units.
 
 @dataclass(init=True)
 class CombatDeath(EventTrigger):

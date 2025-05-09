@@ -9,12 +9,13 @@ from app.extensions.custom_gui import PropertyBox, ComboBox
 from app.extensions.list_widgets import AppendMultiListWidget
 from app.extensions.key_value_delegate import KeyValueDelegate, KeyValueDoubleListModel
 
-from app.editor.icons import PushableIcon16
+from app.editor.icons import PushableIcon16, MapSpriteBox
 from app.editor.icon_editor import icon_tab
 from app.editor.map_sprite_editor import map_sprite_tab, map_sprite_model
 from app.editor.lib.components.validated_line_edit import NidLineEdit
 
 from app.utilities import str_utils
+from app.utilities.enums import Orientation
 from app.utilities.typing import NID
 
 from typing import (Callable, Optional)
@@ -330,65 +331,36 @@ class IconDesc(QWidget):
             self.author_box.edit.clear()
 
 class MapSpriteDesc(QWidget):
-    display_width = 160
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.window = parent
 
-        self.layout = QVBoxLayout()
-
-        self.map_sprite_label = QLabel()
-        self.map_sprite_box = QPushButton(("Choose Map Sprite..."))
-        self.map_sprite_box.clicked.connect(self.select_map_sprite)
+        self.map_sprite_box = MapSpriteBox(self, self.window.current, display_width=160, orient=Orientation.VERTICAL)
+        self.map_sprite_box.sourceChanged.connect(self.select_map_sprite)
 
         self.author_box = PropertyBox("Author", QLineEdit, self)
         self.author_box.edit.textChanged.connect(self.author_changed)
 
-        self.layout.addWidget(self.map_sprite_label)
+        self.layout = QVBoxLayout()
         self.layout.addWidget(self.map_sprite_box)
         self.layout.addWidget(self.author_box)
         self.layout.setAlignment(Qt.AlignCenter)
         self.setLayout(self.layout)
 
-    def select_map_sprite(self):
-        res, ok = map_sprite_tab.get()
-        if ok:
-            nid = res.nid
-            self.window.current.sub_nid = nid
-            pix = self.get_map_sprite_icon(self.window.current.sub_nid, num=0)
-            self.map_sprite_label.setPixmap(pix)
+    def select_map_sprite(self, nid):
+        self.window.current.sub_nid = nid
 
     def author_changed(self, text):
         if text:
             self.window.current.contrib = [(text, None)]
 
     def set_current(self, current):
-        pix = self.get_map_sprite_icon(self.window.current.sub_nid, num=0)
-        if pix:
-            self.map_sprite_label.setPixmap(pix)
-        else:
-            self.map_sprite_label.clear()
+        self.map_sprite_box.set_current(current, current.sub_nid)
 
         if current.contrib:
             self.author_box.edit.setText(current.contrib[0][0])
         else:
             self.author_box.edit.clear()
-
-    def get_map_sprite_icon(self, nid, num, current=False, team='player', variant=None):
-        res = None
-        if variant and nid:
-            res = RESOURCES.map_sprites.get(nid + variant)
-        if nid and (not variant or not res):
-            res = RESOURCES.map_sprites.get(nid)
-        if not res:
-            return None
-        if not res.standing_pixmap:
-            res.standing_pixmap = QPixmap(res.stand_full_path)
-        pixmap = res.standing_pixmap
-        pixmap = map_sprite_model.get_basic_icon(pixmap, num, current, team)
-        pixmap = pixmap.scaled(self.display_width, self.display_width)
-        return pixmap
 
 class CreditListModel(KeyValueDoubleListModel):
     def setData(self, index, value, role):

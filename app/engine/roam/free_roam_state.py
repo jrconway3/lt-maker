@@ -85,7 +85,7 @@ class FreeRoamState(MapState):
             self.movement_component.finish()
         game.state.change('free_roam_rationalize')
 
-    def get_closest_unit(self, must_have_talk=False):
+    def get_closest_units(self, must_have_talk=False):
         """
         # Returns a unit that roam unit can talk to.
         # Returns the closest unit if more than one is available.
@@ -102,11 +102,17 @@ class FreeRoamState(MapState):
         all_units = [unit for unit in game.units if unit.position and not unit.dead and not unit.is_dying]
         for unit in all_units:
             has_talk = (self.roam_unit.nid, unit.nid) in game.talk_options
+            if must_have_talk and is_interact:
+                dist = utils.calculate_distance(my_pos, unit.position)
             if unit is not self.roam_unit and \
                     utils.calculate_distance(my_pos, unit.position) < self.TALK_RANGE and \
                     (has_talk if must_have_talk else True):
                 units.append(unit)
         units = list(sorted(units, key=lambda unit: utils.calculate_distance(my_pos, unit.position)))
+        return units
+
+    def get_closest_unit(self, must_have_talk=False):
+        units = self.get_closest_units(must_have_talk)
         if units:
             return units[0]
         return None
@@ -168,8 +174,8 @@ class FreeRoamState(MapState):
                 self.rationalize_all_units()
 
         if not did_trigger:
-            other_unit = self.get_closest_unit()
-            did_trigger = game.events.trigger(triggers.OnRoamInteract(self.roam_unit, other_unit))
+            other_units = self.get_closest_units()
+            did_trigger = game.events.trigger(triggers.OnRoamInteract(self.roam_unit, other_units))
             if did_trigger:
                 get_sound_thread().play_sfx('Select 2')
                 self.rationalize_all_units()

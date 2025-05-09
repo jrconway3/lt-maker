@@ -77,7 +77,11 @@ class CreditState(State):
         self.fluid = FluidScroll()
 
     def start(self):
-        self.bg = game.memory.get('title_bg')
+        if game.memory.get('credit_bg'):
+            self.bg = game.memory.get('credit_bg')
+        else:
+            self.bg = game.memory.get('title_bg')
+
         if not self.bg:
             bg_name = game.game_vars.get('_credit_bg_name')
             if bg_name:

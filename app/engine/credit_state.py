@@ -204,7 +204,11 @@ class CreditDisplay():
                 page = []
 
                 for credit in lst:
-                    line = len(text_funcs.line_wrap(self.font, "by %s" % credit.contrib[0][0], self.width - 16 - icon_size))
+                    line = 0
+                    if credit.contrib and credit.contrib[0]:
+                        line = len(text_funcs.line_wrap(self.font, 
+                                                        "by %s" % credit.contrib[0][0], 
+                                                        self.width - 16 - icon_size))
                     credit_height = max(line * font_height, icon_size)
                     if page_height + credit_height <= limit:
                         page_height += credit_height
@@ -217,6 +221,11 @@ class CreditDisplay():
 
             elif not isinstance(lst[0].credit_type, ResourceType):
                 for credit in lst:
+                    if not (credit.contrib and credit.contrib[0]):
+                        self.contents.append(None)
+                        self.pages.append([credit])
+                        continue
+
                     if credit.credit_type == 'Text':
                         text = text_funcs.translate_and_text_evaluate(credit.contrib[0][1]).split('\n')
                         for line in text:
@@ -285,24 +294,26 @@ class CreditDisplay():
         lst = self.pages[self.page_num]
         credit = lst[0]
 
-        if credit.credit_type == ResourceType.PANORAMAS:
-            if not self.bg:
-                imgs = RESOURCES.panoramas.get(credit.sub_nid)
-                self.bg = PanoramaBackground(imgs) if imgs else None
-            self.bg.draw(surf)
+        if credit.credit_type == ResourceType.PANORAMAS and not self.bg:
+            imgs = RESOURCES.panoramas.get(credit.sub_nid)
+            self.bg = PanoramaBackground(imgs) if imgs else None
 
-            c = credit.contrib[0]
-            lines = text_funcs.line_wrap(self.font, "%s by %s" % (c[1], c[0]), self.width - 16)
+        if self.bg:
+            self.bg.draw(surf)
+            lines = 0
+            if credit.contrib and credit.contrib[0]:
+                c = credit.contrib[0]
+                lines = text_funcs.line_wrap(self.font, "%s by %s" % (c[1], c[0]), self.width - 16)
             temp_menu = base_surf.create_base_surf(self.width, 28 + len(lines) * FONT[self.font].height, 'menu_bg_clear')
             surf.blit(temp_menu, self.topleft)
         else:
             surf.blit(self.bg_surf, self.topleft)
 
-        if credit.credit_type == ResourceType.PORTRAITS:
-            if not self.portrait:
-                portrait = RESOURCES.portraits.get(credit.sub_nid)
-                self.portrait = InfoMenuPortrait(portrait, DB.constants.value('info_menu_blink'))
+        if credit.credit_type == ResourceType.PORTRAITS and not self.portrait:
+            portrait = RESOURCES.portraits.get(credit.sub_nid)
+            self.portrait = InfoMenuPortrait(portrait, DB.constants.value('info_menu_blink')) if portrait else None
 
+        if self.portrait:
             self.portrait.update()
             im = self.portrait.create_image()
             surf.blit(im, utils.tuple_add((self.width - 8 - 96, WINHEIGHT - 12 - 80), self.topleft))
@@ -312,6 +323,8 @@ class CreditDisplay():
             icon_size = self.icon_size_dict.get(credit.credit_type) + 4
             for c in lst:
                 res = RESOURCES.map_sprites.get(c.sub_nid)
+                if not res:
+                    continue
                 map_sprite = game.map_sprite_registry.get("%s_player" % res.nid)
                 if not map_sprite:
                     map_sprite = MapSprite(res, "player")
@@ -319,16 +332,20 @@ class CreditDisplay():
                 im = map_sprite.create_image('passive')
                 surf.blit(im, utils.tuple_add((8 - 24, y_pos - 24), self.topleft))
 
-                lines = text_funcs.line_wrap(self.font, "by %s" % c.contrib[0][0], self.width - 16 - icon_size)
-                for idx, line in enumerate(lines):
-                    render_text(surf, [self.font], [line], [], utils.tuple_add((8 + icon_size, y_pos + idx * FONT[self.font].height), self.topleft))
+                lines = []
+                if c.contrib and c.contrib[0]:
+                    lines = text_funcs.line_wrap(self.font, "by %s" % c.contrib[0][0], self.width - 16 - icon_size)
+                    for idx, line in enumerate(lines):
+                        render_text(surf, [self.font], [line], [], 
+                                    utils.tuple_add((8 + icon_size, y_pos + idx * FONT[self.font].height), self.topleft))
                 y_pos += max(len(lines) * FONT[self.font].height, icon_size)
 
         elif credit.credit_type == 'Text':
             if not self.dlg:
                 self.dlg = self.contents[self.page_num]
-            self.dlg.update()
-            self.dlg.draw(surf)
+            if self.dlg:
+                self.dlg.update()
+                self.dlg.draw(surf)
 
         if not self.static_surf:
             self.static_surf = self.create_static_surf(lst)
@@ -349,7 +366,8 @@ class CreditDisplay():
 
         if credit.credit_type == ResourceType.ICONS80:
             im = self.get_icon_by_credit(credit)
-            surf.blit(im, utils.tuple_add((self.width - 8 - 80, WINHEIGHT - 12 - 72), self.topleft))
+            if im:
+                surf.blit(im, utils.tuple_add((self.width - 8 - 80, WINHEIGHT - 12 - 72), self.topleft))
 
         lines = []
         if credit.credit_type in (ResourceType.ICONS16, ResourceType.ICONS32, ResourceType.MAP_ICONS):
@@ -357,13 +375,20 @@ class CreditDisplay():
             icon_size = self.icon_size_dict.get(credit.credit_type) + 4
             for c in lst:
                 im = self.get_icon_by_credit(c)
+                if not im:
+                    continue
+
                 surf.blit(im, utils.tuple_add((8, y_pos), self.topleft))
-                lines = text_funcs.line_wrap(self.font, "by %s" % c.contrib[0][0], self.width - 16 - icon_size)
-                for idx, line in enumerate(lines):
-                    render_text(surf, [self.font], [line], [], utils.tuple_add((8 + icon_size, y_pos + idx * FONT[self.font].height), self.topleft))
+                lines = []
+                if c.contrib and c.contrib[0]:
+                    lines = text_funcs.line_wrap(self.font, "by %s" % c.contrib[0][0], self.width - 16 - icon_size)
+                    for idx, line in enumerate(lines):
+                        render_text(surf, [self.font], [line], [], 
+                                    utils.tuple_add((8 + icon_size, y_pos + idx * FONT[self.font].height), self.topleft))
                 y_pos += max(len(lines) * FONT[self.font].height, icon_size)
 
-        elif credit.credit_type in (ResourceType.ICONS80, ResourceType.PORTRAITS, ResourceType.PANORAMAS):
+        elif credit.credit_type in (ResourceType.ICONS80, ResourceType.PORTRAITS, ResourceType.PANORAMAS) and \
+                credit.contrib and credit.contrib[0]:
             c = credit.contrib[0]
             lines = text_funcs.line_wrap(self.font, c[1], self.width - 16)
             st = lines.pop()
@@ -374,7 +399,7 @@ class CreditDisplay():
                 render_text(surf, [self.font], [line], ['orange' if idx in highlight_lines else None], 
                             utils.tuple_add((8, 20 + idx * FONT[self.font].height), self.topleft))
 
-        elif credit.credit_type == 'List':
+        elif credit.credit_type == 'List' and credit.contrib and credit.contrib[0]:
             highlight_lines = []
             for c in self.contents[self.page_num]:
                 start = len(lines)
@@ -382,8 +407,8 @@ class CreditDisplay():
                 st = lines.pop()
                 end = len(lines)
                 highlight_lines += range(start, end)
-
                 lines += text_funcs.line_wrap(self.font, "<orange>%s</> by %s" % (st, c[0]), self.width - 16)
+
             for idx, line in enumerate(lines):
                 render_text(surf, [self.font], [line], ['orange' if idx in highlight_lines else None], 
                             utils.tuple_add((8, 20 + idx * FONT[self.font].height), self.topleft))
@@ -406,8 +431,10 @@ class CreditDisplay():
             width, height = 80, 72
         elif credit.credit_type == ResourceType.MAP_ICONS:
             database = RESOURCES.map_icons
-
             image = database.get(credit.sub_nid)
+            if not image:
+                return None
+
             if not image.image:
                 image.image = engine.image_load(image.full_path)
             im = image.image.copy()
@@ -416,6 +443,9 @@ class CreditDisplay():
             return None
 
         image = database.get(credit.sub_nid)
+        if not image:
+            return None
+
         if not image.image:
             image.image = engine.image_load(image.full_path)
         im = engine.subsurface(image.image, (credit.icon_index[0] * width, credit.icon_index[1] * height, width, height))

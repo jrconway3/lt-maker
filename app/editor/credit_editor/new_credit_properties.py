@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QMessageBox, QVBoxLayout, QTextEdit, QStackedWidget, QPushButton, QLabel
+from PyQt5.QtWidgets import QWidget, QLineEdit, QVBoxLayout, QTextEdit, QStackedWidget
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QFontMetrics, QIcon, QPixmap
+from PyQt5.QtGui import QFontMetrics, QIcon
 
 from app.data.resources.resources import RESOURCES
 from app.data.resources.resource_types import ResourceType
@@ -11,10 +11,8 @@ from app.extensions.key_value_delegate import KeyValueDelegate, KeyValueDoubleLi
 
 from app.editor.icons import PushableIcon16, MapSpriteBox
 from app.editor.icon_editor import icon_tab
-from app.editor.map_sprite_editor import map_sprite_tab, map_sprite_model
 from app.editor.lib.components.validated_line_edit import NidLineEdit
 
-from app.utilities import str_utils
 from app.utilities.enums import Orientation
 from app.utilities.typing import NID
 

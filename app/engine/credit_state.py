@@ -80,9 +80,9 @@ class CreditState(State):
 
     def start(self):
         if game.memory.get('credit_bg'):
-            self.bg = game.memory['credit_bg']
+            self.bg = game.memory.get('credit_bg')
         else:
-            self.bg = game.memory['title_bg']
+            self.bg = game.memory.get('title_bg')
 
         if not self.bg:
             bg_name = game.game_vars.get('_credit_bg_name')

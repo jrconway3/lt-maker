@@ -367,13 +367,13 @@ class NewClassProperties(QWidget):
             self.wexp_gain_widget.set_current(current.wexp_gain)
             self.field_widget.set_current(current.fields)
 
-        self.icon_edit.set_current(current.icon_nid, current.icon_index)
-        self.map_sprite_box.set_current(current, current.map_sprite_nid)
-        pix = class_model.get_combat_anim_icon(self.current)
-        if pix:
-            self.combat_anim_label.setPixmap(pix)
-        else:
-            self.combat_anim_label.clear()
+            self.icon_edit.set_current(current.icon_nid, current.icon_index)
+            self.map_sprite_box.set_current(current, current.map_sprite_nid)
+            pix = class_model.get_combat_anim_icon(self.current)
+            if pix:
+                self.combat_anim_label.setPixmap(pix)
+            else:
+                self.combat_anim_label.clear()
 
     def hideEvent(self, event):
         self.close_averages()

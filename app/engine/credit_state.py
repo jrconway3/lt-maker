@@ -83,14 +83,7 @@ class CreditState(State):
             self.bg = game.memory.get('credit_bg')
         else:
             self.bg = game.memory.get('title_bg')
-
-        if not self.bg:
-            bg_name = game.game_vars.get('_credit_bg_name')
-            if bg_name:
-                panorama = RESOURCES.panoramas.get(bg_name)
-            if panorama:
-                self.bg = PanoramaBackground(panorama)
-
+            
         if not self.bg:
             panorama = RESOURCES.panoramas.get('default_background')
             self.bg = ScrollingBackground(panorama)

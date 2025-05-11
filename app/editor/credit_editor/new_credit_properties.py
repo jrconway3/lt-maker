@@ -148,8 +148,9 @@ class TextDesc(QWidget):
         self.window.current.sub_nid = text
 
     def desc_changed(self, text=None):
+        text = self.desc_box.edit.toPlainText()
         if text:
-            self.window.current.contrib = [(None, self.desc_box.edit.toPlainText())]
+            self.window.current.contrib = [(None, text)]
 
     def set_current(self, current):
         self.header_box.edit.setText(current.sub_nid)

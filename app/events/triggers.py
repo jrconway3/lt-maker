@@ -135,9 +135,10 @@ class OnRegionInteract(EventTrigger):
 @dataclass(init=True)
 class OnRoamInteract(EventTrigger):
     """
-    Occurs when a unit interacts with anything during free roam.
-    Talk or Region Interact events take precedence. The events
-    must exist, if they do not, this event will trigger instead.
+    Occurs when a unit interacts during free roam. If a Talk
+    or Region event exists, they will trigger instead. This
+    event will only trigger if Talk or Region events do not
+    exist at the given location during Free Roam.
     Can be used for Generic NPC dialogue or for opening a menu
     when not interacting with other NPC's or regions.
     """

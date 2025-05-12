@@ -476,13 +476,24 @@ class IncrementTurn(Action):
 
 
 class MarkPhase(Action):
-    def __init__(self, phase_name):
+    def __init__(self, phase_name: str):
         self.phase_name = phase_name
 
 
 class LockTurnwheel(Action):
-    def __init__(self, lock):
+    def __init__(self, lock: bool):
         self.lock = lock
+
+
+class MarkActionGroupStart(Action):
+    def __init__(self, unit: NID, state: str):
+        self.unit = unit
+        self.state = state
+
+
+class MarkActionGroupEnd(Action):
+    def __init__(self, state: str):
+        self.state = state
 
 
 class ChangePhaseMusic(Action):
@@ -2101,6 +2112,7 @@ class GainWexp(Action):
                 if self.old_value < weapon_rank.requirement and self.current_value >= weapon_rank.requirement:
                     weapon_type = item_system.weapon_type(self.unit, self.item)
                     game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, weapon_type))
+                    game.events.trigger(triggers.UnitWeaponRankUp(self.unit, weapon_type, self.old_value, weapon_rank.rank))
                     game.state.change('alert')
                     break
 
@@ -2136,6 +2148,7 @@ class AddWexp(Action):
             for weapon_rank in reversed(DB.weapon_ranks):
                 if self.old_value < weapon_rank.requirement and self.current_value >= weapon_rank.requirement:
                     game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, self.weapon_type))
+                    game.events.trigger(triggers.UnitWeaponRankUp(self.unit, self.weapon_type, self.old_value, weapon_rank.rank))
                     game.state.change('alert')
                     break
 
@@ -2163,6 +2176,7 @@ class SetWexp(Action):
             for weapon_rank in reversed(DB.weapon_ranks):
                 if self.old_wexp < weapon_rank.requirement and self.wexp >= weapon_rank.requirement:
                     game.alerts.append(banner.GainWexp(self.unit, weapon_rank.rank, self.weapon_type))
+                    game.events.trigger(triggers.UnitWeaponRankUp(self.unit, self.weapon_type, self.old_wexp, weapon_rank.rank))
                     game.state.change('alert')
                     break
 
@@ -2820,6 +2834,35 @@ class RemoveTalk(Action):
     def reverse(self):
         if self.did_remove:
             game.talk_options.append((self.unit1, self.unit2))
+
+
+class HideTalk(Action):
+    def __init__(self, unit1_nid, unit2_nid):
+        self.unit1 = unit1_nid
+        self.unit2 = unit2_nid
+
+    def do(self):
+        game.talk_hidden.add((self.unit1, self.unit2))
+
+    def reverse(self):
+        if (self.unit1, self.unit2) in game.talk_hidden:
+            game.talk_hidden.remove((self.unit1, self.unit2))
+
+
+class UnhideTalk(Action):
+    def __init__(self, unit1_nid, unit2_nid):
+        self.unit1 = unit1_nid
+        self.unit2 = unit2_nid
+        self.did_remove = False
+
+    def do(self):
+        if (self.unit1, self.unit2) in game.talk_hidden:
+            game.talk_hidden.remove((self.unit1, self.unit2))
+            self.did_remove = True
+
+    def reverse(self):
+        if self.did_remove:
+            game.talk_hidden.add((self.unit1, self.unit2))
 
 
 class AddLore(Action):

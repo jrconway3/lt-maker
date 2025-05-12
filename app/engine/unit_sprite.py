@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from app.counters import GenericAnimCounter
 from app.data.database.units import UnitPrefab
@@ -149,6 +149,19 @@ def load_map_sprite(unit: UnitObject | UnitPrefab, team='player'):
     res = RESOURCES.map_sprites.get(nid)
     if not res:  # Try without unit variant
         res = RESOURCES.map_sprites.get(klass.map_sprite_nid)
+    if not res:
+        return None
+
+    map_sprite = game.map_sprite_registry.get(res.nid + '_' + team)
+    if not map_sprite:
+        map_sprite = MapSprite(res, team)
+        game.map_sprite_registry[map_sprite.nid + '_' + team] = map_sprite
+    return map_sprite
+
+def load_klass_sprite(klass_nid: NID, team: NID = 'player') -> Optional[MapSprite]:
+    klass = DB.classes.get(klass_nid)
+    nid = klass.map_sprite_nid
+    res = RESOURCES.map_sprites.get(nid)
     if not res:
         return None
 
@@ -651,9 +664,9 @@ class UnitSprite():
         offset = [0, 0, 0, 1, 2, 2, 2, 1][frame]
         markers = []
         if game.is_roam() and game.state.current() == 'free_roam' and game.state.state[-1].get_closest_unit(must_have_talk=True) and \
-                (self.unit.nid, cur_unit.nid) in game.talk_options:
+                (self.unit.nid, cur_unit.nid) in game.talk_options and (self.unit.nid, cur_unit.nid) not in game.talk_hidden:
             markers.append('talk')
-        elif (cur_unit.nid, self.unit.nid) in game.talk_options:
+        elif (cur_unit.nid, self.unit.nid) in game.talk_options and (cur_unit.nid, self.unit.nid) not in game.talk_hidden:
             markers.append('talk')
         if (game.is_roam() and game.state.current() == 'free_roam' and
                 game.state.state[-1].get_visit_region() and

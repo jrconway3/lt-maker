@@ -448,13 +448,14 @@ def transition(self: Event, direction=None, speed=None, color3=None, panorama=No
             self.wait_time = current_time + int(self.transition_speed * 1.33)
             self.state = 'waiting'
 
-def change_background(self: Event, panorama=None, flags=None):
+def change_background(self: Event, panorama=None, speed=50, flags=None):
     flags = flags or set()
     if not panorama:
         self.background = None
     elif RESOURCES.panoramas.get(panorama):
         if 'scroll' in flags:
             self.background = background.create_background(panorama, True)
+            self.background.scroll_speed = speed
         else:
             self.background = background.create_background(panorama, False)
 
@@ -2421,6 +2422,28 @@ def remove_talk(self: Event, unit1, unit2, flags=None):
         return
     action.do(action.RemoveTalk(u1.nid, u2.nid))
 
+def hide_talk(self: Event, unit1, unit2, flags=None):
+    u1 = self._get_unit(unit1)
+    if not u1:
+        self.logger.error("hide_talk: Couldn't find unit %s" % unit1)
+        return
+    u2 = self._get_unit(unit2)
+    if not u2:
+        self.logger.error("hide_talk: Couldn't find unit %s" % unit2)
+        return
+    action.do(action.HideTalk(u1.nid, u2.nid))
+
+def unhide_talk(self: Event, unit1, unit2, flags=None):
+    u1 = self._get_unit(unit1)
+    if not u1:
+        self.logger.error("unhide_talk: Couldn't find unit %s" % unit1)
+        return
+    u2 = self._get_unit(unit2)
+    if not u2:
+        self.logger.error("unhide_talk: Couldn't find unit %s" % unit2)
+        return
+    action.do(action.UnhideTalk(u1.nid, u2.nid))
+
 def add_lore(self: Event, lore, flags=None):
     action.do(action.AddLore(lore))
 
@@ -2930,7 +2953,13 @@ def choice(self: Event, nid: NID, title: str, choices: TableRows, row_width: int
         scroll_bar = False
     backable = 'backable' in flags
 
-    # Automatically convert str to alignment
+    # Automatically convert str to alignment, orientation
+    if isinstance(orientation, str):
+        if orientation.lower() in ('h', 'horiz', 'horizontal'):
+            orientation = 'horizontal'
+        elif orientation.lower() in ('v', 'vert', 'vertical'):
+            orientation = 'vertical'
+        orientation = Orientation(orientation)
     if isinstance(alignment, str):
         alignment = Alignments(alignment)
 

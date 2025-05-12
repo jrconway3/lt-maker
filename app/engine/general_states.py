@@ -283,6 +283,8 @@ class FreeState(MapState):
                 game.boundary.recalculate_unit(unit)
         phase.fade_in_phase_music()
 
+        action.do(action.MarkActionGroupEnd(self.name))
+
         # Auto-end turn
         autoend_turn = True
         if not cf.SETTINGS['autoend_turn']:
@@ -710,27 +712,26 @@ class MoveState(MapState):
             pass
 
         elif event == 'BACK':
-            get_sound_thread().play_sfx('Select 4')
-            game.cursor.set_pos(cur_unit.position)
-            game.state.clear()
-            game.state.change('free')
             if cur_unit.has_attacked or cur_unit.has_traded:
-                if not cur_unit.finished:
-                    cur_unit.wait()
+                get_sound_thread().play_sfx('Error')
             else:
+                get_sound_thread().play_sfx('Select 4')
+                game.cursor.set_pos(cur_unit.position)
+                game.state.clear()
+                game.state.change('free')
                 cur_unit.sprite.change_state('normal')
-            game.events.trigger(triggers.UnitDeselect(cur_unit, cur_unit.position))
+                game.events.trigger(triggers.UnitDeselect(cur_unit, cur_unit.position))
 
         elif event == 'SELECT':
             if game.cursor.position == cur_unit.position:
                 if cur_unit.has_attacked or cur_unit.has_traded:
-                    get_sound_thread().play_sfx('Select 2')
-                    game.state.clear()
-                    game.state.change('free')
-                    if not cur_unit.finished:
-                        cur_unit.wait()
+                    # Just move in place
+                    cur_unit.current_move = action.CantoMove(cur_unit, game.cursor.position)
+                    action.execute(cur_unit.current_move)
+                    game.state.change('canto_wait')
                 else:
                     # Just move in place
+                    action.do(action.MarkActionGroupStart(cur_unit, 'free'))
                     cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
                     action.execute(cur_unit.current_move)
                     game.state.change('menu')
@@ -748,9 +749,11 @@ class MoveState(MapState):
                             cur_unit.current_move = action.CantoMove(cur_unit, game.cursor.position)
                         game.state.change('canto_wait')
                     elif game.cursor.position in witch_warp and game.cursor.position not in normal_moves:
+                        action.do(action.MarkActionGroupStart(cur_unit, 'free'))
                         cur_unit.current_move = action.Warp(cur_unit, game.cursor.position)
                         game.state.change('menu')
                     else:
+                        action.do(action.MarkActionGroupStart(cur_unit, 'free'))
                         cur_unit.current_move = action.Move(cur_unit, game.cursor.position)
                         game.state.change('menu')
                     game.state.change('movement')
@@ -800,23 +803,64 @@ class CantoWaitState(MapState):
     def start(self):
         get_sound_thread().play_sfx('Select 2')
         self.cur_unit = game.cursor.cur_unit
-        self.menu = menus.Choice(self.cur_unit, ['Wait'])
+
+        options = ['Wait']
+        info_descs = ['Wait_desc']
+        
+        # Handle Supply Ability
+        targets = SupplyAbility.targets(self.cur_unit)
+        if targets:
+            options.insert(0, 'Supply')
+            info_descs.insert(0, 'Supply_desc')
+
+        self.menu = menus.Choice(self.cur_unit, options, info=info_descs)
+        self.menu.set_color(['green' if option == 'Supply' else None for option in options])
 
     def begin(self):
         self.cur_unit.sprite.change_state('selected')
 
     def take_input(self, event):
-        if event == 'INFO':
-            pass
+        first_push = self.fluid.update()
+        directions = self.fluid.get_directions()
+
+        self.menu.handle_mouse()
+        if 'DOWN' in directions:
+            if self.menu.move_down(first_push):
+                get_sound_thread().play_sfx('Select 6')
+        elif 'UP' in directions:
+            if self.menu.move_up(first_push):
+                get_sound_thread().play_sfx('Select 6')
+                
+        elif event == 'INFO':
+            if self.menu.info_flag:
+                get_sound_thread().play_sfx('Info Out')
+                self.menu.info_flag = False
+            else:
+                selection = self.menu.get_current()
+                # Show info menu for Wait
+                if selection in ('Wait'):
+                    _handle_info()
+                else:  # Show description for everything else.
+                    get_sound_thread().play_sfx('Info In')
+                    self.menu.info_flag = True
 
         elif event == 'SELECT':
-            game.state.clear()
-            game.state.change('free')
-            self.cur_unit.wait()
+            selection = self.menu.get_current()
+            logging.info("In CantoWait State: Player selected %s", selection)
+            game.highlight.remove_highlights()
+
+            if selection == 'Supply':
+                game.memory['current_unit'] = self.cur_unit
+                game.memory['next_state'] = 'supply_items'
+                game.state.change('transition_to')
+            elif selection == 'Wait':
+                game.state.clear()
+                game.state.change('free')
+                self.cur_unit.wait(actively_chosen=True)
 
         elif event == 'BACK':
             if self.cur_unit.current_move:
-                action.reverse(self.cur_unit.current_move)
+                game.action_log.reverse_move_to_action_group_start(self.cur_unit.current_move)
                 self.cur_unit.current_move = None
                 game.cursor.set_pos(self.cur_unit.position)
             game.state.back()
@@ -1001,7 +1045,7 @@ class MenuState(MapState):
                         game.cursor.cur_unit = u
                     if self.cur_unit.current_move:
                         logging.info("Reversing " + self.cur_unit.nid + "'s move")
-                        action.reverse(self.cur_unit.current_move)
+                        game.action_log.reverse_move_to_action_group_start(self.cur_unit.current_move)
                         self.cur_unit.current_move = None
                     game.state.change('move')
                     game.cursor.construct_arrows(game.cursor.path[::-1])
@@ -2254,6 +2298,7 @@ class CombatTargetingState(MapState):
                 ignore = [not item_system.item_restrict(self.cur_unit, self.item, target_unit, item) for item in target_unit.items]
                 game.ui_view.draw_trade_preview(target_unit, surf, ignore)
             elif item_system.is_weapon(self.cur_unit, self.item):
+                self.find_strike_partners(game.cursor.position, atk=False)
                 game.ui_view.draw_attack_info(surf, self.cur_unit, self.item, target_unit, self.attacker_assist, self.defender_assist)
             else:
                 game.ui_view.draw_spell_info(surf, self.cur_unit, self.item, target_unit)
@@ -2543,6 +2588,7 @@ class AIState(MapState):
                 self.cur_unit.has_run_ai = True
                 if did_something:  # Don't turn grey if didn't actually do anything
                     self.cur_unit.wait()
+                game.ai.finalize()
                 game.ai.reset()
                 self.cur_unit = None
         else:

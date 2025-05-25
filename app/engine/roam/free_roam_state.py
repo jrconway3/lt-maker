@@ -102,8 +102,6 @@ class FreeRoamState(MapState):
         all_units = [unit for unit in game.units if unit.position and not unit.dead and not unit.is_dying]
         for unit in all_units:
             has_talk = (self.roam_unit.nid, unit.nid) in game.talk_options
-            if must_have_talk and is_interact:
-                dist = utils.calculate_distance(my_pos, unit.position)
             if unit is not self.roam_unit and \
                     utils.calculate_distance(my_pos, unit.position) < self.TALK_RANGE and \
                     (has_talk if must_have_talk else True):

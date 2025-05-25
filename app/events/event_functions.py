@@ -1150,6 +1150,10 @@ def interact_unit(self: Event, unit, position, combat_script: Optional[List[str]
         arena='arena' in flags, force_animation='force_animation' in flags, force_no_animation='force_no_animation' in flags)
     self.state = "paused"
 
+def change_unit_state(self: Event, unit, new_state, dir=None, flags=None):
+    flags = flags or set()
+    unit.sprite.change_state(new_state, dir)
+
 def recruit_generic(self: Event, unit, nid, name=None, flags=None):
     new_unit = self._get_unit(unit)
     if not new_unit:

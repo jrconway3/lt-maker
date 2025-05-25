@@ -1367,6 +1367,13 @@ class MaybeSprite(Validator):
         valids += [(None, "None")]
         return valids
 
+class SpriteState(Validator):
+    valid = ['normal', 'selected', 'moving', 'stand_dir', 'start_cast', 'end_cast', 'combat_attacker', 'combat_anim', 'combat_active', 'combat_defender', 'combat_counter', 'fake_transition_in', 'fake_transition_out']
+    # NOTE: Determine if combat and transitions even work standalone! Its possible counter and defender won't work correctly due to it involving memory in some way
+
+class SpriteDirection(OptionValidator):
+    valid = ['up', 'left', 'right', 'down']
+
 class DifficultyMode(Validator):
     desc = 'accepts the nid of a difficulty mode.'
 

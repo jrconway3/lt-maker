@@ -25,7 +25,7 @@ class NewMapSpriteProperties(QWidget):
                  on_icon_change: Optional[Callable] = None):
         super().__init__(parent)
         self.window = parent
-        self._data = self.window._data
+        self._data = self.window.data
 
         self.current: Optional[T] = current
         self.cached_nid: Optional[NID] = self.current.nid if self.current else None

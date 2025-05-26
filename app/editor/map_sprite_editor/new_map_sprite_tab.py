@@ -3,7 +3,7 @@ from typing import (Optional)
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog
 
-from app.data.resources.resources import RESOURCES, Resources
+from app.data.resources.resources import RESOURCES
 
 from app.data.resources.map_sprites import MapSpriteCatalog
 from app.editor.new_editor_tab import NewEditorTab
@@ -23,7 +23,7 @@ class NewMapSpriteDatabase(NewEditorTab):
 
     @property
     def data(self):
-        return Resources.map_sprites
+        return self._res.map_sprites
 
     def get_icon(self, map_sprite_nid: NID) -> Optional[QIcon]:
         if not self.data.get(map_sprite_nid):
@@ -60,6 +60,6 @@ if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     RESOURCES.load('default.ltproj', CURRENT_SERIALIZATION_VERSION)
-    window = SingleResourceEditor(MapSpriteDatabase, ['map_sprites'])
+    window = SingleResourceEditor(NewMapSpriteDatabase, ['map_sprites'])
     window.show()
     app.exec_()

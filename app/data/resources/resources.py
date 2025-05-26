@@ -116,9 +116,8 @@ class Resources():
             getattr(self, data_type).load(os.path.join(self.main_folder, data_type), resource_data.get(data_type, []))
 
             # Also restore the categories if it has any
-            data = getattr(self, data_type)
-            if isinstance(data, CategorizedCatalog):
-                data.categories = Categories.load(resource_data.get(data_type + CATEGORY_SUFFIX, {}))
+            if isinstance(getattr(self, data_type), CategorizedCatalog):
+                getattr(self, data_type).categories = Categories.load(resource_data.get(data_type + CATEGORY_SUFFIX, {}))
 
         # load custom components
         self.load_components()
@@ -190,7 +189,7 @@ class Resources():
             # serialize manifest data
             try:
                 for key, value in to_save.items():
-                    save_dir = Path(resource_dir, key)
+                    save_dir = Path(resource_dir, key.replace(CATEGORY_SUFFIX, ''))
                     # if chunks, delete the old directory
                     actual_save_dir = save_dir
                     if key in self.save_as_chunks:

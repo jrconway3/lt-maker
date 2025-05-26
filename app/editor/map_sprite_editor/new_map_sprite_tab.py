@@ -1,7 +1,7 @@
 from typing import (Optional)
 
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QMessageBox
 
 from app.data.resources.resources import RESOURCES
 
@@ -32,6 +32,17 @@ class NewMapSpriteDatabase(NewEditorTab):
         if pix:
             return QIcon(pix.scaled(32, 32))
         return None
+
+    def create_new(self, nid):
+        if self.data.get(nid):
+            QMessageBox.warning(self, 'Warning', 'ID %s already in use' % nid)
+            return False
+        new_map_sprite = map_sprite_model.create_new(self)
+        if not new_map_sprite:
+            return False
+
+        self.data.append(new_map_sprite)
+        return True
 
     def _on_nid_changed(self, old_nid: NID, new_nid: NID):
         map_sprite_model.on_nid_changed(old_nid, new_nid)

@@ -1150,9 +1150,29 @@ def interact_unit(self: Event, unit, position, combat_script: Optional[List[str]
         arena='arena' in flags, force_animation='force_animation' in flags, force_no_animation='force_no_animation' in flags)
     self.state = "paused"
 
-def change_unit_state(self: Event, unit, new_state, dir=None, flags=None):
+def pose_unit(self: Event, unit, pose, direction=None, flags=None):
+    from app.events.event_validators import SpritePose, SpriteDirection
     flags = flags or set()
-    unit.sprite.change_state(new_state, dir)
+
+    actor = self._get_unit(unit)
+    if not actor or not actor.sprite:
+        self.logger.error("pose_unit: Couldn't find %s" % unit)
+        return
+
+    if pose not in SpritePose.valid:
+        self.logger.error("post_unit: %s is not a valid sprite pose!" % pose)
+        return
+
+    if pose in ['stand_dir', 'moving']:
+        if not direction:
+            self.logger.error("post_unit: Direction is required when using %s pose!" % pose)
+            return
+
+        if direction not in SpriteDirection.valid:
+            self.logger.error("post_unit: %s is not a valid sprite direction!" % pose)
+            return
+
+    actor.sprite.change_state(pose, direction)
 
 def recruit_generic(self: Event, unit, nid, name=None, flags=None):
     new_unit = self._get_unit(unit)

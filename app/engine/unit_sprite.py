@@ -599,19 +599,9 @@ class UnitSprite():
                 color = (0, int(diff * .5), 0)  # Tint image green at magnitude depending on diff
                 image = image_mods.change_color(image.convert_alpha(), color)
 
-        flicker_tint = skill_system.unit_sprite_flicker_tint(self.unit)
-        for idx, tint in enumerate(flicker_tint):
-            color, period, width, add = tint
-            # Modify the color by the wave
-            if period > 0 and width > 0:
-                offset = idx * period / len(flicker_tint)
-                diff = utils.model_wave(current_time + offset, period, width)
-                diff = utils.clamp(diff, 0, 1)
-                color = tuple([int(c * diff) for c in color])
-            if add:
-                image = image_mods.add_tint(image.convert_alpha(), color)
-            else:
-                image = image_mods.sub_tint(image.convert_alpha(), color)
+        flicker_tints = skill_system.unit_sprite_flicker_tint(self.unit)
+        flicker_tints = [image_mods.FlickerTint(*tint) for tint in flicker_tints]
+        image = image_mods.draw_flicker_tint(image, current_time, flicker_tints)
 
         # Each image has (self.image.get_width() - 32)//2 pixels on the
         # left and right of it, to handle any off tile spriting
@@ -664,9 +654,9 @@ class UnitSprite():
         offset = [0, 0, 0, 1, 2, 2, 2, 1][frame]
         markers = []
         if game.is_roam() and game.state.current() == 'free_roam' and game.state.state[-1].get_closest_unit(must_have_talk=True) and \
-                (self.unit.nid, cur_unit.nid) in game.talk_options:
+                (self.unit.nid, cur_unit.nid) in game.talk_options and (self.unit.nid, cur_unit.nid) not in game.talk_hidden:
             markers.append('talk')
-        elif (cur_unit.nid, self.unit.nid) in game.talk_options:
+        elif (cur_unit.nid, self.unit.nid) in game.talk_options and (cur_unit.nid, self.unit.nid) not in game.talk_hidden:
             markers.append('talk')
         if (game.is_roam() and game.state.current() == 'free_roam' and
                 game.state.state[-1].get_visit_region() and

@@ -72,6 +72,7 @@ class EventCommand(Prefab):
 
     def to_plain_text(self) -> str:
         as_string = [str(self.parameters.get(kwd) or "") for kwd in (self.keywords + self.optional_keywords)]
+        as_string += [flag for flag in self.chosen_flags]
         return ';'.join([self.nid] + as_string).rstrip(';')
 
     def __repr__(self):
@@ -702,12 +703,17 @@ class ChangeBackground(EventCommand):
     desc = \
         """
 Changes the dialogue scene's background image to *Panorama*. If no *Panorama* is specified,
-the current background is removed without being replaced.
+the current background is removed without being replaced. 
+
+*Speed* controls the moving speed when paired with *scroll* flag. 
+Higher speed makes it move slower. Exact meaning: milliseconds it takes to move 1 px.
+
 Displayed portraits are also removed unless the *keep_portraits* flag is set.
 The *Scroll* flag determines whether the background image will move.
         """
 
-    optional_keywords = ['Panorama']
+    optional_keywords = ['Panorama', 'Speed']
+    keyword_types = ['Panorama', 'WholeNumber']
     _flags = ["keep_portraits", "scroll"]
 
 class PauseBackground(EventCommand):
@@ -1067,6 +1073,8 @@ By default, the prompt for a battle save will not occur until the end of this ev
 The optional flag *immediately* will cause the prompt to appear immediately.
         """
 
+    optional_keywords = ['SaveName']
+    keyword_types = ['String']
     _flags = ["immediately"]
 
 class DeleteSave(EventCommand):
@@ -2332,6 +2340,30 @@ Removes the ability for the two indicated units to "Talk" in the current chapter
     keywords = ["Unit1", "Unit2"]
     keyword_types = ["Unit", "Unit"]
 
+class HideTalk(EventCommand):
+    nid = 'hide_talk'
+    tag = Tags.LEVEL_VARS
+
+    desc = \
+        """
+Hides the "Talk" marker from maps matching the Unit1 and Unit2 selected, making it a secret conversation.
+        """
+
+    keywords = ["Unit1", "Unit2"]
+    keyword_types = ["Unit", "Unit"]
+
+class UnhideTalk(EventCommand):
+    nid = 'unhide_talk'
+    tag = Tags.LEVEL_VARS
+
+    desc = \
+        """
+Removes the hidden flag for the "Talk" marker from maps matching the Unit1 and Unit2 selected, making it visible again.
+        """
+
+    keywords = ["Unit1", "Unit2"]
+    keyword_types = ["Unit", "Unit"]
+
 class AddLore(EventCommand):
     nid = 'add_lore'
     nickname = 'unlock_lore'
@@ -2485,8 +2517,8 @@ When set, the *only_once* flag applies only to event region, preventing them fro
         """
 
     keywords = ["Region", "Position", "Size", "RegionType"]
-    optional_keywords = ["String", "TimeLeft"]
-    keyword_types = ["Region", "Position", "Size", "RegionType", "String", "PositiveInteger"]
+    optional_keywords = ["String", "TimeLeft", "HideTime"]
+    keyword_types = ["Region", "Position", "Size", "RegionType", "String", "PositiveInteger", "Bool"]
     _flags = ["only_once", "interrupt_move"]
 
 class RegionCondition(EventCommand):
@@ -3057,6 +3089,23 @@ Displays the game's guide screen.
         """
 
     _flags = ["immediate"]
+
+class OpenCredits(EventCommand):
+    nid = 'open_credits'
+    tag = Tags.MISCELLANEOUS
+
+    desc = \
+        """
+Displays the game's credits module.
+If given, uses the (*Panorama*) as the background image.
+The (*Scroll*) flag determines whether the background image will move.
+1. *immediate* flag skips the transition between screens
+2. *show_map* determines whether or not the background will simply be the map of the mission.
+        """
+
+    optional_keywords = ['Panorama']
+    keyword_types = ['Panorama']
+    _flags = ["immediate", "scroll", "show_map"]
 
 class OpenUnitManagement(EventCommand):
     nid = 'open_unit_management'

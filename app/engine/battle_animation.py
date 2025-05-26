@@ -561,6 +561,11 @@ class BattleAnimation():
                 self.blend = engine.BLEND_RGB_ADD
             else:
                 self.blend = 0
+        elif command.nid == 'blend2':
+            if bool(values[0]):
+                self.blend = engine.BLEND_RGB_SUB
+            else:
+                self.blend = 0
         elif command.nid == 'partial_blend':
             self.partial_blend = int(values[0])
         elif command.nid == 'static':
@@ -738,6 +743,13 @@ class BattleAnimation():
             # Greyscale for pair up
             if y_offset:
                 image = image_mods.make_anim_gray(image)
+
+            # Add tints from skills
+            if self.unit and self.parent == self: # Don't apply tint if this is combat effect or mock combat
+                current_time = engine.get_time()
+                flicker_tints = skill_system.combat_sprite_flicker_tint(self.unit)
+                flicker_tints = [image_mods.FlickerTint(*tint) for tint in flicker_tints]
+                image = image_mods.draw_flicker_tint(image, current_time, flicker_tints)
 
             # Actually blit
             if self.background and self.blend:

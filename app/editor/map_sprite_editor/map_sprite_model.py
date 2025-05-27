@@ -154,7 +154,7 @@ def create_new(window):
         return
     if sok and mok and nid:
         if lion_throne_mode:
-            new_map_sprite = MapSprite(nid, stand_full_path, move_full_path)
+            new_map_sprite = window.catalog_type.datatype(nid, stand_full_path, move_full_path)
         else:
             current_proj = settings.get_current_project()
             if current_proj:
@@ -163,11 +163,12 @@ def create_new(window):
                 move_full_path = os.path.join(current_proj, 'resources', 'map_sprites', nid + '-move.png')
                 standing_pix.save(stand_full_path)
                 moving_pix.save(move_full_path)
-                new_map_sprite = MapSprite(nid, stand_full_path, move_full_path)
+                new_map_sprite = window.catalog_type.datatype(nid, stand_full_path, move_full_path)
             else:
                 QMessageBox.critical(window, "Error", "Cannot load GBA map sprites without having saved the project")
                 return
 
+        window.data.append(new_map_sprite)
         parent_dir = os.path.split(fn)[0]
         settings.set_last_open_path(parent_dir)
         return new_map_sprite

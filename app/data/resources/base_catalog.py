@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import shutil
 import filecmp
-from typing import List, Generic, Set, Type, TypeVar, Union
+from typing import List, Set, Type, TypeVar, Union
 
 from app.data.resources.resource_prefab import WithResources
 from app.utilities.data import Data, Prefab

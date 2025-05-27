@@ -38,11 +38,10 @@ class NewMapSpriteDatabase(NewEditorTab):
             QMessageBox.warning(self, 'Warning', 'ID %s already in use' % nid)
             return False
         new_map_sprite = map_sprite_model.create_new(self)
-        if not new_map_sprite:
-            return False
-
-        self.data.append(new_map_sprite)
-        return True
+        if new_map_sprite:
+            self.reset()
+        
+        return False
 
     def _on_nid_changed(self, old_nid: NID, new_nid: NID):
         map_sprite_model.on_nid_changed(old_nid, new_nid)

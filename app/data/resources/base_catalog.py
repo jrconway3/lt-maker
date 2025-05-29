@@ -4,9 +4,6 @@ import shutil
 import filecmp
 from typing import List, Set, Type, TypeVar, Union
 
-from dataclasses import field
-from typing import List, TypeVar
-from app.data.category import CategorizedCatalog
 from app.data.resources.resource_prefab import WithResources
 from app.utilities.data import Data, Prefab
 
@@ -15,7 +12,7 @@ import logging
 from app.utilities.typing import NID, NestedPrimitiveDict
 
 M = TypeVar('M', bound=Union[WithResources, Prefab])
-class ManifestCatalog(CategorizedCatalog[M]):
+class ManifestCatalog(Data[M]):
     filetype = '.png'
     manifest = None  # To be implemented
     title = ''  # To be implemented

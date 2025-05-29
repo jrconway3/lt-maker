@@ -9,7 +9,7 @@ from app.editor.custom_widgets import TeamBox
 from app.editor import timer
 from app.editor.icon_editor.icon_view import IconView
 from app.editor.map_sprite_editor import map_sprite_model
-from app.editor.component_editor_properties import T
+from app.editor.component_editor_has import T
 from app.utilities.typing import NID
 
 from typing import (Callable, Optional)

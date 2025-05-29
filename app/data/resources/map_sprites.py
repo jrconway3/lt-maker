@@ -4,6 +4,7 @@ import shutil
 from typing import List, Optional, Set
 from typing_extensions import override
 
+from app.data.category import CategorizedCatalog
 from app.data.resources.base_catalog import ManifestCatalog
 from app.data.resources.resource_prefab import WithResources
 from app.utilities.data import Prefab
@@ -43,7 +44,7 @@ class MapSprite(WithResources, Prefab):
         self = cls(s)
         return self
 
-class MapSpriteCatalog(ManifestCatalog[MapSprite]):
+class MapSpriteCatalog(ManifestCatalog[MapSprite], CategorizedCatalog[MapSprite]):
     manifest = 'map_sprites.json'
     title = 'map sprites'
     datatype = MapSprite

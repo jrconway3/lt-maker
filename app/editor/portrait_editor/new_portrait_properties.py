@@ -39,7 +39,7 @@ class NewPortraitProperties(QWidget):
                  on_icon_change: Optional[Callable] = None):
         QWidget.__init__(self, parent)
         self.window = parent
-        self._data = self.window._data
+        self._data = self.window.data
 
         self.current: Optional[T] = current
         self.cached_nid: Optional[NID] = self.current.nid if self.current else None
@@ -131,17 +131,21 @@ class NewPortraitProperties(QWidget):
         timer.get_timer().tick_elapsed.connect(self.tick)
 
     def set_current(self, current):
-        self.current = current
-        self.raw_view.edit.set_image(self.current.pixmap)
-        self.raw_view.edit.show_image()
+        if not current:
+            self.setEnabled(False)
+        else:
+            self.setEnabled(True)
+            self.current = current
+            self.raw_view.edit.set_image(self.current.pixmap)
+            self.raw_view.edit.show_image()
 
-        bo = self.current.blinking_offset
-        so = self.current.smiling_offset
-        self.blinking_offset.edit.set_current(bo[0], bo[1])
-        self.smiling_offset.edit.set_current(so[0], so[1])
-        self.info_offset.edit.setValue(self.current.info_offset)
+            bo = self.current.blinking_offset
+            so = self.current.smiling_offset
+            self.blinking_offset.edit.set_current(bo[0], bo[1])
+            self.smiling_offset.edit.set_current(so[0], so[1])
+            self.info_offset.edit.setValue(self.current.info_offset)
 
-        self.draw_portrait()
+            self.draw_portrait()
 
     def tick(self):
         self.draw_portrait()

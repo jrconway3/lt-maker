@@ -9,15 +9,16 @@ from app.data.resources.portraits import PortraitCatalog
 from app.extensions.custom_gui import ResourceListView
 from app.editor.data_editor import SingleResourceEditor
 from app.editor.base_database_gui import DatabaseTab
+from app.editor.new_editor_tab import NewEditorTab
 
 from app.editor.portrait_editor import portrait_model, new_portrait_properties
 from app.utilities.typing import NID
 
 from app.editor import timer
 
-class NewPortraitDatabase(DatabaseTab):
+class NewPortraitDatabase(NewEditorTab):
     catalog_type = PortraitCatalog
-    properties_type = new_portrait_properties.NewMapSpriteProperties
+    properties_type = new_portrait_properties.NewPortraitProperties
 
     @classmethod
     def edit(cls, parent=None):
@@ -26,12 +27,12 @@ class NewPortraitDatabase(DatabaseTab):
 
     @property
     def data(self):
-        return self._res.map_sprites
+        return self._res.portraits
 
     def get_icon(self, portrait_nid: NID) -> Optional[QIcon]:
         if not self.data.get(portrait_nid):
             return None
-        pix = portrait_model.get_chibi(self.data.get(portrait_nid))
+        pix = portrait_model.get_chibi(portrait_nid)
         if pix:
             return QIcon(pix.scaled(32, 32))
         return None

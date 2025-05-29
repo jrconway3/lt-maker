@@ -21,6 +21,16 @@ from app.utilities.typing import NID
 
 import app.editor.utilities as editor_utilities
 
+def get_chibi(portrait_nid):
+    res = RESOURCES.portraits.get(portrait_nid)
+    if not res:
+        return None
+    if not res.pixmap:
+        res.pixmap = QPixmap(res.full_path)
+    pixmap = res.pixmap.copy(res.pixmap.width() - 32, 16, 32, 32)
+    pixmap = QPixmap.fromImage(editor_utilities.convert_colorkey(pixmap.toImage()))
+    return pixmap
+
 def auto_frame_portrait(portrait: PortraitPrefab):
     width, height = 32, 16
 

@@ -17,7 +17,7 @@ from app.editor import timer
 from app.utilities import str_utils
 from app.extensions.custom_gui import PropertyBox, ComboBox, Dialog
 from app.editor.combat_animation_editor.frame_selector import FrameSelector
-from app.editor.combat_animation_editor import combat_animation_model, new_combat_animation_properties, new_combat_effect_properties
+from app.editor.combat_animation_editor import combat_animation_model, new_combat_animation_properties, new_combat_effect_properties, palette_model
 from app.editor.combat_animation_editor.color_editor import ColorEditorWidget
 from app.editor.lib.components.validated_line_edit import NidLineEdit
 from app.data.resources.combat_anims import Frame
@@ -500,9 +500,8 @@ class NewPaletteProperties(QWidget):
         QWidget.__init__(self, parent)
         self.window = parent
         self._data = self.window.data
-        self.model = self.window.left_frame.model
 
-        self.current: Optional[T] = current
+        self.current_palette: Optional[T] = current
         self.cached_nid: Optional[NID] = self.current.nid if self.current else None
         self.attempt_change_nid = attempt_change_nid
         self.on_icon_change = on_icon_change
@@ -532,9 +531,9 @@ class NewPaletteProperties(QWidget):
 
         left_frame = self.window.left_frame
         grid = left_frame.layout()
-        grid.addWidget(self.import_box, 3, 0, 1, 2)
-        grid.addWidget(self.import_with_base_box, 4, 0, 1, 2)
-        grid.addWidget(self.nid_box, 5, 0, 1, 2)
+        grid.addWidget(self.import_box)
+        grid.addWidget(self.import_with_base_box)
+        grid.addWidget(self.nid_box)
 
         self.raw_view = AnimView(self)
         self.raw_view.static_size = True
@@ -599,7 +598,7 @@ class NewPaletteProperties(QWidget):
 
     def nid_changed(self, text):
         self.current_palette.nid = text
-        self.window.update_list()
+        self.window.reset()
 
     def nid_done_editing(self):
         # Check validity of nid!
@@ -607,9 +606,9 @@ class NewPaletteProperties(QWidget):
         if self.current_palette.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Palette ID %s already in use' % self.current_palette.nid)
             self.current_palette.nid = str_utils.get_next_name(self.current_palette.nid, other_nids)
-        self.model.on_nid_changed(self._data.find_key(self.current_palette), self.current_palette.nid)
+        palette_model.on_nid_changed(self._data.find_key(self.current_palette), self.current_palette.nid)
         self._data.update_nid(self.current_palette, self.current_palette.nid)
-        self.window.update_list()
+        self.window.reset()
 
     @property
     def current(self):
@@ -776,7 +775,7 @@ class NewPaletteProperties(QWidget):
                     did_import = True
             if did_import:
                 # Move view
-                self.model.move_to_bottom()
+                palette_model.move_to_bottom()
 
     def import_palette_from_image_with_base(self):
         """
@@ -829,4 +828,4 @@ class NewPaletteProperties(QWidget):
                     new_palette.colors = colors
                     RESOURCES.combat_palettes.append(new_palette)
                     # Move view
-                    self.model.move_to_bottom()
+                    palette_model.move_to_bottom()

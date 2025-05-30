@@ -240,10 +240,12 @@ class CombatAnimProperties(QWidget):
         self.import_anim_button.clicked.connect(self.import_anim)
         self.export_anim_button = QPushButton("Export...")
         self.export_anim_button.clicked.connect(self.export_anim)
-
-        self.window.left_frame.layout().addWidget(self.import_anim_button, 3, 0)
-        self.window.left_frame.layout().addWidget(self.export_anim_button, 3, 1)
-        self.window.left_frame.layout().addWidget(self.export_from_lt_button, 4, 0, 1, 2)
+        
+        import_export = QHBoxLayout()
+        import_export.addWidget(self.import_anim_button)#, 3, 0)
+        import_export.addWidget(self.export_anim_button)#, 3, 1)
+        self.window.left_frame.layout().addLayout(import_export)
+        self.window.left_frame.layout().addWidget(self.export_from_lt_button)#, 4, 0, 1, 2)
 
         frame_layout.addWidget(self.import_from_lt_button)
         frame_layout.addWidget(self.import_from_gba_button)
@@ -328,7 +330,7 @@ class CombatAnimProperties(QWidget):
 
     def nid_changed(self, text):
         self.current.nid = text
-        self.window.update_list()
+        self.window.reset()
 
     def nid_done_editing(self):
         other_nids = [d.nid for d in self._data if d is not self.current]
@@ -337,7 +339,7 @@ class CombatAnimProperties(QWidget):
             self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
         self.on_nid_changed(self._data.find_key(self.current), self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
-        self.window.update_list()
+        self.window.reset()
 
     def on_nid_changed(self, old_nid, new_nid):
         for klass in DB.classes:
@@ -883,7 +885,7 @@ class CombatAnimProperties(QWidget):
             populate_anim_pixmaps(anim)
             RESOURCES.combat_anims.append(anim)
         # Print done import! Import complete!
-        self.window.update_list()
+        self.window.reset()
         QMessageBox.information(self, "Import Complete", "Import of combat animation %s complete!" % fn_dir)
 
     def export_anim(self):

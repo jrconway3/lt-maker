@@ -5,7 +5,7 @@ from app.editor.lib.components.validated_line_edit import NidLineEdit
 import os, glob
 import json
 
-from PyQt5.QtWidgets import QVBoxLayout, \
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, \
     QWidget, QGroupBox, QFormLayout, QFileDialog, \
     QPushButton, QLineEdit, QInputDialog, QMessageBox
 from PyQt5.QtGui import QImage, QPixmap, QPainter
@@ -120,11 +120,17 @@ class CombatEffectProperties(CombatAnimProperties):
         self.import_from_gba_button = QPushButton("Import from GBA...")
         self.import_from_gba_button.clicked.connect(self.import_from_gba)
 
-        self.window.left_frame.layout().addWidget(self.import_effect_button, 3, 0)
-        self.window.left_frame.layout().addWidget(self.export_effect_button, 3, 1)
-        self.window.left_frame.layout().addWidget(self.import_from_lt_button, 4, 0)
-        self.window.left_frame.layout().addWidget(self.export_to_lt_button, 4, 1)
-        self.window.left_frame.layout().addWidget(self.import_from_gba_button, 5, 0, 1, 2)
+        
+        import_export = QHBoxLayout()
+        import_export.addWidget(self.import_effect_button)#, 3, 0)
+        import_export.addWidget(self.export_effect_button)#, 3, 1)
+
+        import_export_legacy = QHBoxLayout()
+        import_export_legacy.addWidget(self.import_from_lt_button)#, 4, 0)
+        import_export_legacy.addWidget(self.export_to_lt_button)#, 4, 1)
+        self.window.left_frame.layout().addLayout(import_export)
+        self.window.left_frame.layout().addLayout(import_export_legacy)
+        self.window.left_frame.layout().addWidget(self.import_from_gba_button)
         frame_layout.addWidget(self.import_png_button)
 
     def pose_changed(self, idx):
@@ -232,7 +238,7 @@ class CombatEffectProperties(CombatAnimProperties):
                 QMessageBox.critical(self, "Invalid Filename", f"File {fn} must be named `Spell.txt`")
         parent_dir = os.path.split(fn)[0]
         self.settings.set_last_open_path(parent_dir)
-        self.window.update_list()
+        self.window.reset()
 
     def import_legacy(self):
         starting_path = self.settings.get_last_open_path()
@@ -243,7 +249,7 @@ class CombatEffectProperties(CombatAnimProperties):
                     combat_animation_imports.import_effect_from_legacy(fn)
             parent_dir = os.path.split(fns[-1])[0]
             self.settings.set_last_open_path(parent_dir)
-        self.window.update_list()
+        self.window.reset()
 
     def export_legacy(self):
         # Ask user for location
@@ -366,7 +372,7 @@ class CombatEffectProperties(CombatAnimProperties):
             populate_effect_pixmaps(effect)
             RESOURCES.combat_effects.append(effect)
         # Print done import! Import complete!
-        self.window.update_list()
+        self.window.reset()
         QMessageBox.information(self, "Import Complete", "Import of effect %s complete!" % fn_dir)
 
     def export_effect(self):

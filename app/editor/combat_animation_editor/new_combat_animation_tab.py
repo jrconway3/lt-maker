@@ -11,7 +11,7 @@ from app.editor.combat_animation_editor import combat_animation_model
 from app.editor.combat_animation_editor.new_combat_animation_properties import CombatAnimProperties
 from app.editor.combat_animation_editor.new_combat_effect_properties import CombatEffectProperties
 from app.editor.combat_animation_editor.new_palette_tab import NewPaletteTab
-from app.editor.data_editor import SingleResourceEditor, MultiResourceEditor
+from app.editor.data_editor import SingleResourceEditor, NewMultiResourceEditor
 from app.utilities.typing import NID
 
 class SimpleCombatAnimProperties(QWidget):
@@ -75,8 +75,8 @@ class CombatEffectDisplay(NewEditorTab):
             return pix
         return None
 
-def get_full_editor() -> MultiResourceEditor:
-    editor = MultiResourceEditor((CombatAnimDisplay, CombatEffectDisplay, NewPaletteTab),
+def get_full_editor() -> NewMultiResourceEditor:
+    editor = NewMultiResourceEditor((CombatAnimDisplay, CombatEffectDisplay, NewPaletteTab),
                                  ('combat_anims', 'combat_effects', 'combat_palettes'))
     editor.setWindowTitle("Combat Animation Editor")
     return editor

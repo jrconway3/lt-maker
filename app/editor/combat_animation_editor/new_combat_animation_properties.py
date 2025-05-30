@@ -50,10 +50,12 @@ def populate_anim_pixmaps(combat_anim, force=False):
                 frame.pixmap = weapon_anim.pixmap.copy(x, y, width, height)
 
 class CombatAnimProperties(QWidget):
+    title = "Combat Animation"
+
     def __init__(self, parent, current=None):
         QWidget.__init__(self, parent)
         self.window = parent
-        self._data = self.window._data
+        self._data = self.window.data
 
         # Populate resources
         # for combat_anim in self._data:

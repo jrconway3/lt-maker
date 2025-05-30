@@ -23,6 +23,11 @@ from app.editor.lib.components.validated_line_edit import NidLineEdit
 from app.data.resources.combat_anims import Frame
 from app.data.resources.combat_palettes import Palette
 from app.editor.icon_editor.icon_view import IconView
+from app.editor.component_editor_has import T
+from app.utilities.typing import NID
+
+from typing import (Callable, Optional)
+
 import app.editor.utilities as editor_utilities
 
 import logging
@@ -310,11 +315,15 @@ class EaselWidget(QGraphicsView):
         return base_image
 
     def set_current(self, current_palette: Palette, current_frame: Frame):
-        self.current_palette = current_palette
-        self.current_frame = current_frame
-        self.current_coord = None
-        self.update_view()
-        self.selectionChanged.emit(None)
+        if not current_palette:
+            self.setEnabled(False)
+        else:
+            self.setEnabled(True)
+            self.current_palette = current_palette
+            self.current_frame = current_frame
+            self.current_coord = None
+            self.update_view()
+            self.selectionChanged.emit(None)
 
     def set_current_color(self, color: QColor):
         if self.current_palette and self.current_coord:
@@ -485,11 +494,18 @@ class MapSpriteSelection(Dialog):
 class NewPaletteProperties(QWidget):
     title = "Palette"
 
-    def __init__(self, parent):
+    def __init__(self, parent, current: Optional[T] = None,
+                 attempt_change_nid: Optional[Callable[[NID, NID], bool]] = None,
+                 on_icon_change: Optional[Callable] = None):
         QWidget.__init__(self, parent)
         self.window = parent
         self._data = self.window.data
         self.model = self.window.left_frame.model
+
+        self.current: Optional[T] = current
+        self.cached_nid: Optional[NID] = self.current.nid if self.current else None
+        self.attempt_change_nid = attempt_change_nid
+        self.on_icon_change = on_icon_change
 
         self.settings = MainSettingsController()
 

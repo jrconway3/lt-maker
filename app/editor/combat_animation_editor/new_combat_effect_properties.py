@@ -25,9 +25,13 @@ from app.editor.combat_animation_editor.frame_selector import FrameSelector
 from app.editor.combat_animation_editor.new_combat_animation_properties import CombatAnimProperties
 from app.editor.file_manager.project_file_backend import DEFAULT_PROJECT
 from app.editor.combat_animation_editor import combat_animation_imports, effect_animation_imports, combat_animation_export
+from app.editor.component_editor_has import T
 
 import app.editor.utilities as editor_utilities
 from app.utilities import str_utils
+from app.utilities.typing import NID
+
+from typing import (Callable, Optional)
 
 # Game interface
 import app.editor.game_actions.game_actions as GAME_ACTIONS
@@ -45,10 +49,17 @@ def populate_effect_pixmaps(effect_anim, force=False):
 class CombatEffectProperties(CombatAnimProperties):
     title = "Combat Effect"
 
-    def __init__(self, parent, current=None):
+    def __init__(self, parent, current: Optional[T] = None,
+                 attempt_change_nid: Optional[Callable[[NID, NID], bool]] = None,
+                 on_icon_change: Optional[Callable] = None):
         QWidget.__init__(self, parent)
         self.window = parent
-        self._data = self.window._data
+        self._data = self.window.data
+
+        self.current: Optional[T] = current
+        self.cached_nid: Optional[NID] = self.current.nid if self.current else None
+        self.attempt_change_nid = attempt_change_nid
+        self.on_icon_change = on_icon_change
 
         # Populate resources
         # for effect_anim in self._data:
@@ -280,20 +291,23 @@ class CombatEffectProperties(CombatAnimProperties):
 
     def set_current(self, current):
         self.stop()
-
-        self.current = current
-        populate_effect_pixmaps(self.current)
-        self.nid_box.setText(self.current.nid)
-
-        poses = self.reset_pose_box()
-        self.timeline_menu.set_current_frames(self.current.frames)
-        self.palette_menu.set_current(self.current)
-        current_pose_nid = self.pose_box.currentText()
-        current_pose = poses.get(current_pose_nid)
-        if current_pose:
-            self.timeline_menu.set_current_pose(current_pose)
+        if not current:
+            self.setEnabled(False)
         else:
-            self.timeline_menu.clear_pose()
+            self.setEnabled(True)
+            self.current = current
+            populate_effect_pixmaps(self.current)
+            self.nid_box.setText(self.current.nid)
+
+            poses = self.reset_pose_box()
+            self.timeline_menu.set_current_frames(self.current.frames)
+            self.palette_menu.set_current(self.current)
+            current_pose_nid = self.pose_box.currentText()
+            current_pose = poses.get(current_pose_nid)
+            if current_pose:
+                self.timeline_menu.set_current_pose(current_pose)
+            else:
+                self.timeline_menu.clear_pose()
 
     def draw_frame(self):
         self.update()

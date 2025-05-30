@@ -1,13 +1,18 @@
+from typing import Optional
+
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog, QWidget
 
 from app.data.resources.resources import RESOURCES
 from app.data.resources.combat_anims import CombatCatalog, CombatEffectCatalog
 
 from app.editor.new_editor_tab import NewEditorTab
+from app.editor.combat_animation_editor import combat_animation_model
 from app.editor.combat_animation_editor.new_combat_animation_properties import CombatAnimProperties
 from app.editor.combat_animation_editor.new_combat_effect_properties import CombatEffectProperties
 from app.editor.combat_animation_editor.new_palette_tab import NewPaletteTab
 from app.editor.data_editor import SingleResourceEditor, MultiResourceEditor
+from app.utilities.typing import NID
 
 class SimpleCombatAnimProperties(QWidget):
     title = "Combat Animation"
@@ -24,25 +29,51 @@ class CombatAnimDisplay(NewEditorTab):
     catalog_type = CombatCatalog
     properties_type = CombatAnimProperties
 
+    @classmethod
+    def edit(cls, parent=None):
+        window = SingleResourceEditor(CombatAnimDisplay, ['combat_anims'], parent)
+        window.exec_()
+
     @property
     def data(self):
         return self._res.combat_anims
 
-class SimpleCombatAnimDisplay(NewEditorTab):
-    catalog_type = CombatCatalog
+    def get_icon(self, combat_anim_nid: NID) -> Optional[QIcon]:
+        if not self.data.get(combat_anim_nid):
+            return None
+        pix = combat_animation_model.get_combat_anim_icon(combat_anim_nid)
+        if pix:
+            return QIcon(pix)
+        return None
+
+class SimpleCombatAnimDisplay(CombatAnimDisplay):
     properties_type = SimpleCombatAnimProperties
 
-    @property
-    def data(self):
-        return self._res.combat_anims
+    @classmethod
+    def edit(cls, parent=None):
+        window = SingleResourceEditor(SimpleCombatAnimDisplay, ['combat_anims'], parent)
+        window.exec_()
 
 class CombatEffectDisplay(NewEditorTab):
     catalog_type = CombatEffectCatalog
     properties_type = CombatEffectProperties
 
+    @classmethod
+    def edit(cls, parent=None):
+        window = SingleResourceEditor(CombatEffectDisplay, ['combat_effects'], parent)
+        window.exec_()
+
     @property
     def data(self):
         return self._res.combat_effects
+
+    def get_icon(self, combat_anim_nid: NID) -> Optional[QIcon]:
+        if not self.data.get(combat_anim_nid):
+            return None
+        pix = combat_animation_model.get_combat_anim_icon(combat_anim_nid)
+        if pix:
+            return pix
+        return None
 
 def get_full_editor() -> MultiResourceEditor:
     editor = MultiResourceEditor((CombatAnimDisplay, CombatEffectDisplay, NewPaletteTab),

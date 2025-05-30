@@ -1,3 +1,6 @@
+from typing import Optional
+
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QDialog
 
 from app.data.resources.resources import RESOURCES
@@ -7,19 +10,29 @@ from app.editor.data_editor import SingleResourceEditor
 from app.editor.new_editor_tab import NewEditorTab
 
 from app.editor.combat_animation_editor import new_palette_properties, palette_model
+from app.utilities.typing import NID
 
 class NewPaletteTab(NewEditorTab):
     catalog_type = PaletteCatalog
     properties_type = new_palette_properties.NewPaletteProperties
 
-    @property
-    def data(self):
-        return self._res.combat_palettes
-
     @classmethod
     def edit(cls, parent=None):
         window = SingleResourceEditor(NewPaletteTab, ['combat_palettes'], parent)
         window.exec_()
+
+    @property
+    def data(self):
+        return self._res.combat_palettes
+
+    def get_icon(self, palette_nid: NID) -> Optional[QIcon]:
+        if not self.data.get(palette_nid):
+            return None
+        palette = self.data.get(palette_nid)
+        pix = palette_model.get_palette_pixmap(palette)
+        if pix:
+            return QIcon(pix)
+        return None
 
 def get():
     window = SingleResourceEditor(NewPaletteTab, ['combat_palettes'])

@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout,
                              QWidget, QApplication)
 
 from app.data.database.database import DB, Database
+from app.data.resources.resources import RESOURCES, Resources
 from app.data.category import Categories, CategorizedCatalog
 from app.editor import timer
 from app.editor.data_editor import SingleDatabaseEditor
@@ -30,10 +31,11 @@ class NewEditorTab(QWidget, Generic[T]):
     allow_import_from_csv = False
     allow_copy_and_paste = False
 
-    def __init__(self, parent, database: Database) -> None:
+    def __init__(self, parent, database: Database, resources: Resources) -> None:
         QWidget.__init__(self, parent)
         self.setWindowTitle(_('%s Editor') % self.properties_type.title)
         self._db = database
+        self._res = resources
         self.categories = self.data.categories
 
         self.left_frame = QWidget()
@@ -176,9 +178,10 @@ class NewEditorTab(QWidget, Generic[T]):
             QMessageBox.critical(self, "Import Error", "Could not read valid json from clipboard!")
 
     @classmethod
-    def create(cls, parent=None, db=None):
+    def create(cls, parent=None, db=None, res=None):
         db = db or DB
-        return cls(parent, db)
+        res = res or RESOURCES
+        return cls(parent, db, res)
 
     @property
     def data(self):

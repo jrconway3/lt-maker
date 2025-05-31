@@ -128,9 +128,9 @@ class CombatEffectProperties(CombatAnimProperties):
         import_export_legacy = QHBoxLayout()
         import_export_legacy.addWidget(self.import_from_lt_button)#, 4, 0)
         import_export_legacy.addWidget(self.export_to_lt_button)#, 4, 1)
-        self.window.left_frame.layout().addLayout(import_export)
-        self.window.left_frame.layout().addLayout(import_export_legacy)
-        self.window.left_frame.layout().addWidget(self.import_from_gba_button)
+        self.window.tree_list.layout().addLayout(import_export)
+        self.window.tree_list.layout().addLayout(import_export_legacy)
+        self.window.tree_list.layout().addWidget(self.import_from_gba_button)
         frame_layout.addWidget(self.import_png_button)
 
     def pose_changed(self, idx):

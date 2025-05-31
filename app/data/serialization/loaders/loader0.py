@@ -20,8 +20,8 @@ class Loader0(LoaderBase):
                 raise FileNotFoundError(f"Resource directory {resource_dir / key} does not exist!\nPlease recover or copy from default.ltproj the missing directory.")
             if key == 'combat_palettes': # special case
                 as_dict[key] = _json_load(resource_dir / key, 'palette_data')
-                if Path(resource_dir / key, 'palette_data' + resources.CATEGORY_SUFFIX + '.json').exists():
-                    as_dict[key + resources.CATEGORY_SUFFIX] = _json_load(resource_dir / key, 'palette_data' + resources.CATEGORY_SUFFIX)
+                if Path(resource_dir / key, key + resources.CATEGORY_SUFFIX + '.json').exists():
+                    as_dict[key + resources.CATEGORY_SUFFIX] = _json_load(resource_dir / key, key + resources.CATEGORY_SUFFIX)
             elif key == 'tilemaps': # special case
                 as_dict[key] = _json_load(resource_dir / key, 'tilemap_data')
             else:

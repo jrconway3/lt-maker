@@ -244,8 +244,8 @@ class CombatAnimProperties(QWidget):
         import_export = QHBoxLayout()
         import_export.addWidget(self.import_anim_button)#, 3, 0)
         import_export.addWidget(self.export_anim_button)#, 3, 1)
-        self.window.left_frame.layout().addLayout(import_export)
-        self.window.left_frame.layout().addWidget(self.export_from_lt_button)#, 4, 0, 1, 2)
+        self.window.tree_list.layout().addLayout(import_export)
+        self.window.tree_list.layout().addWidget(self.export_from_lt_button)#, 4, 0, 1, 2)
 
         frame_layout.addWidget(self.import_from_lt_button)
         frame_layout.addWidget(self.import_from_gba_button)
@@ -330,7 +330,7 @@ class CombatAnimProperties(QWidget):
 
     def nid_changed(self, text):
         self.current.nid = text
-        self.window.reset()
+        #self.window.reset()
 
     def nid_done_editing(self):
         other_nids = [d.nid for d in self._data if d is not self.current]

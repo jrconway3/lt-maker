@@ -315,15 +315,11 @@ class EaselWidget(QGraphicsView):
         return base_image
 
     def set_current(self, current_palette: Palette, current_frame: Frame):
-        if not current_palette:
-            self.setEnabled(False)
-        else:
-            self.setEnabled(True)
-            self.current_palette = current_palette
-            self.current_frame = current_frame
-            self.current_coord = None
-            self.update_view()
-            self.selectionChanged.emit(None)
+        self.current_palette = current_palette
+        self.current_frame = current_frame
+        self.current_coord = None
+        self.update_view()
+        self.selectionChanged.emit(None)
 
     def set_current_color(self, color: QColor):
         if self.current_palette and self.current_coord:
@@ -529,11 +525,11 @@ class NewPaletteProperties(QWidget):
         self.import_with_base_box = QPushButton("Import from PNG Image with base frame...")
         self.import_with_base_box.clicked.connect(self.import_palette_from_image_with_base)
 
-        left_frame = self.window.left_frame
-        grid = left_frame.layout()
-        grid.addWidget(self.import_box)
-        grid.addWidget(self.import_with_base_box)
-        grid.addWidget(self.nid_box)
+        left_frame = self.window.tree_list.layout()
+        layout = left_frame
+        layout.addWidget(self.import_box)#, 3, 0, 1, 2)
+        layout.addWidget(self.import_with_base_box)#, 4, 0, 1, 2)
+        layout.addWidget(self.nid_box)#, 5, 0, 1, 2)
 
         self.raw_view = AnimView(self)
         self.raw_view.static_size = True
@@ -598,7 +594,7 @@ class NewPaletteProperties(QWidget):
 
     def nid_changed(self, text):
         self.current_palette.nid = text
-        self.window.reset()
+        #self.window.reset()
 
     def nid_done_editing(self):
         # Check validity of nid!
@@ -615,11 +611,15 @@ class NewPaletteProperties(QWidget):
         return self.current_palette
 
     def set_current(self, current):
-        palette_commands.clear()
-        self.current_palette = current
-        self.nid_box.edit.setText(self.current_palette.nid)
-        self.easel_widget.set_current(current, self.current_frame)
-        self.draw_frame()
+        if not current:
+            self.setEnabled(False)
+        else:
+            self.setEnabled(True)
+            palette_commands.clear()
+            self.current_palette = current
+            self.nid_box.edit.setText(self.current_palette.nid)
+            self.easel_widget.set_current(current, self.current_frame)
+            self.draw_frame()
 
     def get_current_palette(self):
         return self.current_palette.nid

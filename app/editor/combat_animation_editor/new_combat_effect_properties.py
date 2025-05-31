@@ -122,14 +122,17 @@ class CombatEffectProperties(CombatAnimProperties):
 
         
         import_export = QHBoxLayout()
-        import_export.addWidget(self.import_effect_button)#, 3, 0)
-        import_export.addWidget(self.export_effect_button)#, 3, 1)
+        import_box = QVBoxLayout()
+        import_box.addWidget(self.import_effect_button)#, 3, 0)
+        import_box.addWidget(self.import_from_lt_button)#, 4, 0)
 
-        import_export_legacy = QHBoxLayout()
-        import_export_legacy.addWidget(self.import_from_lt_button)#, 4, 0)
-        import_export_legacy.addWidget(self.export_to_lt_button)#, 4, 1)
+        export_box = QVBoxLayout()
+        export_box.addWidget(self.export_effect_button)#, 3, 1)
+        export_box.addWidget(self.export_to_lt_button)#, 4, 1)
+        import_export.addLayout(import_box)
+        import_export.addLayout(export_box)
+
         self.window.tree_list.layout().addLayout(import_export)
-        self.window.tree_list.layout().addLayout(import_export_legacy)
         self.window.tree_list.layout().addWidget(self.import_from_gba_button)
         frame_layout.addWidget(self.import_png_button)
 

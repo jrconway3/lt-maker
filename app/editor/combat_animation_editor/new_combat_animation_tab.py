@@ -8,6 +8,7 @@ from app.data.resources.combat_anims import CombatCatalog, CombatEffectCatalog
 
 from app.editor.new_editor_tab import NewEditorTab
 from app.editor.combat_animation_editor import combat_animation_model
+from app.editor.item_editor import  item_model
 from app.editor.combat_animation_editor.new_combat_animation_properties import CombatAnimProperties
 from app.editor.combat_animation_editor.new_combat_effect_properties import CombatEffectProperties
 from app.editor.combat_animation_editor.new_palette_tab import NewPaletteTab
@@ -67,12 +68,12 @@ class CombatEffectDisplay(NewEditorTab):
     def data(self):
         return self._res.combat_effects
 
-    def get_icon(self, combat_anim_nid: NID) -> Optional[QIcon]:
-        if not self.data.get(combat_anim_nid):
+    def get_icon(self, combat_effect_nid: NID) -> Optional[QIcon]:
+        if not self._db.items.get(combat_effect_nid):
             return None
-        pix = combat_animation_model.get_combat_anim_icon(combat_anim_nid)
+        pix = item_model.get_pixmap(self._db.items.get(combat_effect_nid))
         if pix:
-            return pix
+            return QIcon(pix.scaled(32, 32))
         return None
 
 def get_full_editor() -> NewMultiResourceEditor:

@@ -27,6 +27,7 @@ class NewEditorTab(QWidget, Generic[T]):
     # Make sure you define these
     catalog_type: Type[T] = None
     properties_type = None 
+    allow_rename = False
     allow_import_from_xml = False
     allow_import_from_csv = False
     allow_copy_and_paste = False
@@ -43,7 +44,7 @@ class NewEditorTab(QWidget, Generic[T]):
         self.left_frame.setLayout(left_frame_layout)
         self.tree_list = LTNestedList(self, self.data.keys(), self.categories, self.get_icon,
                                       self.on_select, self.resort_db, self.delete_from_db, self.create_new,
-                                      self.duplicate)
+                                      self.duplicate, self.rename)
         left_frame_layout.setContentsMargins(0, 0, 0, 0)
         left_frame_layout.setSpacing(0)
         left_frame_layout.addWidget(self.tree_list)
@@ -148,6 +149,14 @@ class NewEditorTab(QWidget, Generic[T]):
         orig_obj = self.catalog_type.datatype.restore(orig_obj.save())
         orig_obj.nid = nid
         self.data.append(orig_obj)
+        return True
+
+    def rename(self, old_nid, nid):
+        if self.data.get(nid):
+            QMessageBox.warning(self, 'Warning', 'ID %s already in use' % nid)
+            return False
+        new_obj = self.catalog_type.datatype(nid, nid, '')
+        self.data.append(new_obj)
         return True
 
     def copy_to_clipboard(self):

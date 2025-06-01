@@ -70,6 +70,8 @@ class LTNestedList(QWidget):
                                             the NestedList will also insert a duplicate into itself.
         attempt_new (function(new_nid) -> bool): Callback is called with the new nid to create. Callback is expected to handle initialization in the DB.
                                             If callback returns True, implies insertion was successful and the NestedList will insert a new entry.
+        attempt_rename (function(new_nid) -> bool): Callback is called with the new nid on rename. Callback is expected to handle initialization in the DB.
+                                            If callback returns True, implies rename was successful and the NestedList will trigger a rename on the entry.
     """
     def __init__(self, parent=None,
                  list_entries: Optional[List[NID]]=None,
@@ -80,6 +82,7 @@ class LTNestedList(QWidget):
                  attempt_delete: Optional[Callable[[NID], bool]]=None,
                  attempt_new: Optional[Callable[[NID], bool]]=None,
                  attempt_duplicate: Optional[Callable[[NID, NID], bool]]=None,
+                 attempt_rename: Optional[Callable[[NID, NID], bool]]=None,
                  ) -> None:
         super().__init__(parent)
         self.get_icon = get_icon or (lambda nid: create_empty_icon(32, 32))
@@ -88,6 +91,7 @@ class LTNestedList(QWidget):
         self.attempt_delete = attempt_delete
         self.attempt_new = attempt_new
         self.attempt_duplicate = attempt_duplicate
+        self.attempt_rename = attempt_rename
 
         layout = QVBoxLayout()
         self.search_box = QLineEdit()
@@ -148,8 +152,8 @@ class LTNestedList(QWidget):
             if self.can_delete(index, item):
                 delete_action = QAction("Delete", self, triggered=lambda: self.delete(index, item))
                 menu.addAction(delete_action)
-            if is_category:
-                rename_action = QAction("Rename", self, triggered=lambda: self.rename_category(item))
+            if is_category or self.parent.allow_rename:
+                rename_action = QAction("Rename", self, triggered=lambda: self.rename(item))
                 menu.addAction(rename_action)
         menu.popup(self.tree_widget.viewport().mapToGlobal(pos))
 
@@ -243,7 +247,7 @@ class LTNestedList(QWidget):
                 self.select_item(new_item)
                 self.data_changed(new_item)
 
-    def rename_category(self, item: QTreeWidgetItem):
+    def rename(self, item: QTreeWidgetItem):
         self.tree_widget.editItem(item)
 
     def can_delete(self, index, item: QTreeWidgetItem):
@@ -321,6 +325,8 @@ class LTNestedList(QWidget):
             self.select_item(target_item)
 
     def data_changed(self, item: Optional[QTreeWidgetItem], column=None):
+        if item and not item.data(0, IsCategoryRole) and self.parent.allow_rename:
+            self.attempt_rename(item.text())
         list_entries, list_categories = self.get_list_and_category_structure()
         if self.on_rearrange_items:
             self.on_rearrange_items(list_entries, list_categories)

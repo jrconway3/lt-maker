@@ -15,12 +15,12 @@ from app.utilities import str_utils
 from app.utilities.typing import NID
 
 
-def create_tree_entry(nid: NID, icon: QIcon, is_category: bool) -> QTreeWidgetItem:
+def create_tree_entry(nid: NID, icon: QIcon, is_category: bool, allow_rename: bool) -> QTreeWidgetItem:
     new_item = QTreeWidgetItem()
     new_item.setText(0, nid)
     new_item.setIcon(0, icon)
     new_item.setData(0, IsCategoryRole, is_category)
-    if not is_category:
+    if not is_category and not allow_rename:
         new_item.setFlags(new_item.flags() & ~QtCore.Qt.ItemIsDropEnabled)
     else:
         new_item.setFlags(new_item.flags() | QtCore.Qt.ItemIsEditable)
@@ -213,7 +213,7 @@ class LTNestedList(QWidget):
         new_nid = str_utils.get_next_name("new", nids)
         if self.attempt_new and self.attempt_new(new_nid):
             closest_category = self._determine_category_parent(item)
-            new_item = create_tree_entry(new_nid, create_empty_icon(32, 32), False)
+            new_item = create_tree_entry(new_nid, create_empty_icon(32, 32), False, self.parent.allow_rename)
             row = self._determine_insertion_row(index, item)
             closest_category.insertChild(row, new_item)
             self.select_item(new_item)

@@ -1160,16 +1160,16 @@ def pose_unit(self: Event, unit, pose, direction=None, flags=None):
         return
 
     if pose not in SpritePose.valid:
-        self.logger.error("post_unit: %s is not a valid sprite pose!" % pose)
+        self.logger.error("pose_unit: %s is not a valid sprite pose!" % pose)
         return
 
     if pose in ['stand_dir', 'moving']:
         if not direction:
-            self.logger.error("post_unit: Direction is required when using %s pose!" % pose)
+            self.logger.error("pose_unit: Direction is required when using %s pose!" % pose)
             return
 
         if direction not in SpriteDirection.valid:
-            self.logger.error("post_unit: %s is not a valid sprite direction!" % pose)
+            self.logger.error("pose_unit: %s is not a valid sprite direction!" % pose)
             return
 
     actor.sprite.change_state(pose, direction)

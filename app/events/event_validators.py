@@ -1367,11 +1367,20 @@ class MaybeSprite(Validator):
         valids += [(None, "None")]
         return valids
 
-class SpriteState(Validator):
-    valid = ['normal', 'selected', 'moving', 'stand_dir', 'start_cast', 'end_cast', 'combat_attacker', 'combat_anim', 'combat_active', 'combat_defender', 'combat_counter', 'fake_transition_in', 'fake_transition_out']
-    # NOTE: Determine if combat and transitions even work standalone! Its possible counter and defender won't work correctly due to it involving memory in some way
+class SpritePose(OptionValidator):
+    desc = """
+Specify the pose the unit's sprite will take.
+Available options are (`normal`, `active`, `moving`, `stand_dir`,
+`start_cast`, `end_cast`, `fake_transition_in`, `fake_transition_out`).
+"""
+    valid = ['normal', 'active', 'moving', 'stand_dir', 'start_cast', 'end_cast', 'fake_transition_in', 'fake_transition_out']
 
 class SpriteDirection(OptionValidator):
+    desc = """
+Specify the direction moving or stand pose will take.
+Available options are (`up`, `left`, `right`, `down`).
+This has no effect unless the sprite pose is `moving` or `stand_dir`.
+"""
     valid = ['up', 'left', 'right', 'down']
 
 class DifficultyMode(Validator):

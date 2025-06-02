@@ -151,12 +151,17 @@ class NewEditorTab(QWidget, Generic[T]):
         self.data.append(orig_obj)
         return True
 
-    def rename(self, old_nid, nid):
-        if self.data.get(nid):
-            QMessageBox.warning(self, 'Warning', 'ID %s already in use' % nid)
+    def rename(self, old_nid, new_nid):
+        if self.data.get(new_nid):
+            QMessageBox.warning(self, 'Warning', 'ID %s already in use' % new_nid)
             return False
-        new_obj = self.catalog_type.datatype(nid, nid, '')
-        self.data.append(new_obj)
+        orig_obj = self.data.get(old_nid)
+        if not orig_obj:
+            QMessageBox.warning(self, 'Warning', 'ID %s not found' % old_nid)
+            return False
+        self._on_nid_changed(old_nid, new_nid)
+        self.data.change_key(old_nid, new_nid)
+        self.tree_list.on_filter_changed(self.tree_list.search_box.text())
         return True
 
     def copy_to_clipboard(self):

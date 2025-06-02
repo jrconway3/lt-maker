@@ -1370,10 +1370,9 @@ class MaybeSprite(Validator):
 class SpritePose(OptionValidator):
     desc = """
 Specify the pose the unit's sprite will take.
-Available options are (`normal`, `active`, `moving`, `stand_dir`,
-`start_cast`, `end_cast`, `fake_transition_in`, `fake_transition_out`).
+Available options are (`normal`, `active`, `moving`, `stand_dir`, `start_cast`, `end_cast`).
 """
-    valid = ['normal', 'active', 'moving', 'stand_dir', 'start_cast', 'end_cast', 'fake_transition_in', 'fake_transition_out']
+    valid = ['normal', 'active', 'moving', 'stand_dir', 'start_cast', 'end_cast']
 
 class SpriteDirection(OptionValidator):
     desc = """

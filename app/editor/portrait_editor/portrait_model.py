@@ -122,7 +122,7 @@ def check_delete(nid: NID, window) -> bool:
         msg = "Deleting Portrait <b>%s</b> would affect these units." % nid
         deletion_tab = DeletionTab(affected_units, model, msg, "Units")
         return DeletionDialog.inform([deletion_tab], window)
-    return None
+    return True
 
 def on_delete(nid: NID):
     # What uses portraits
@@ -131,7 +131,7 @@ def on_delete(nid: NID):
         if unit.portrait_nid == nid:
             unit.portrait_nid = None
 
-def on_nid_changed(self, old_nid, new_nid):
+def on_nid_changed(old_nid, new_nid):
     # What uses portraits
     # Units (Later Dialogues)
     for unit in DB.units:

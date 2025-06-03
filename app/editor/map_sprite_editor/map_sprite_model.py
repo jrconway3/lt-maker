@@ -78,7 +78,7 @@ def check_delete(nid: NID, window) -> bool:
         msg = "Deleting Map Sprite <b>%s</b> would affect these classes." % nid
         deletion_tab = DeletionTab(affected_classes, model, msg, "Classes")
         return DeletionDialog.inform([deletion_tab], window)
-    return None
+    return True
 
 def on_delete(nid: NID):
     # What uses map sprites

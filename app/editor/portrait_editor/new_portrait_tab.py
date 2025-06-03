@@ -19,6 +19,7 @@ from app.editor import timer
 class NewPortraitDatabase(NewEditorTab):
     catalog_type = PortraitCatalog
     properties_type = new_portrait_properties.NewPortraitProperties
+    allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):

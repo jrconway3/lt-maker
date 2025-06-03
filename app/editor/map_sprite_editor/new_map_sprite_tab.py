@@ -15,6 +15,7 @@ from app.utilities.typing import NID
 class NewMapSpriteDatabase(NewEditorTab):
     catalog_type = MapSpriteCatalog
     properties_type = new_map_sprite_properties.NewMapSpriteProperties
+    allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):

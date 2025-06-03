@@ -106,6 +106,12 @@ class ItemIcon80(ItemIcon16):
     width, height = 80, 72
     child_icon = PushableIcon80
 
+    def on_icon_changed(self, nid, x, y):
+        if self.window.current:
+            self.window.current.icon_nid = nid
+            self.window.current.icon_index = (x, y)
+        return False
+
 class UnitPortrait(QPushButton):
     sourceChanged = pyqtSignal(str)
     width, height = 96, 80
@@ -148,8 +154,8 @@ class UnitPortrait(QPushButton):
         self.change_icon(nid)
 
     def onIconSourcePicker(self):
-        from app.editor.portrait_editor import portrait_tab
-        res, ok = portrait_tab.get()
+        from app.editor.portrait_editor import new_portrait_tab
+        res, ok = new_portrait_tab.get()
         if res and ok:
             self.change_icon(res.nid)
 

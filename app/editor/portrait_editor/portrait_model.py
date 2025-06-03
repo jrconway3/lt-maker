@@ -131,7 +131,7 @@ def on_delete(nid: NID):
         if unit.portrait_nid == nid:
             unit.portrait_nid = None
 
-def on_nid_changed(self, old_nid, new_nid):
+def on_nid_changed(old_nid, new_nid):
     # What uses portraits
     # Units (Later Dialogues)
     for unit in DB.units:

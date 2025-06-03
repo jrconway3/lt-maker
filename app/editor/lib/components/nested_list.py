@@ -93,7 +93,7 @@ class LTNestedList(QWidget):
         self.attempt_new = attempt_new
         self.attempt_duplicate = attempt_duplicate
         self.attempt_rename = attempt_rename
-        self.old_name = None
+        self.old_nid = None
 
         layout = QVBoxLayout()
         self.search_box = QLineEdit()
@@ -123,7 +123,7 @@ class LTNestedList(QWidget):
         self.tree_widget.originalMousePressEvent(e)
         item = self.tree_widget.itemAt(e.pos())
         if item:
-            self.old_name = item.text(0)
+            self.old_nid = item.text(0)
             while item.parent():
                 item = item.parent()
         self.disturbed_category = item
@@ -161,7 +161,7 @@ class LTNestedList(QWidget):
         menu.popup(self.tree_widget.viewport().mapToGlobal(pos))
 
     def reset(self, list_entries: Optional[List[NID]], list_categories: Optional[Categories]):
-        self.old_name = None
+        self.old_nid = None
         previous_selected_item_nid = self.get_selected_nid()
         self.tree_widget.clear()
         self._build_tree_widget_in_place(list_entries, list_categories, self.tree_widget.invisibleRootItem())
@@ -252,7 +252,7 @@ class LTNestedList(QWidget):
                 self.data_changed(new_item)
 
     def rename(self, item: QTreeWidgetItem):
-        self.old_name = item.text(0)
+        self.old_nid = item.text(0)
         self.tree_widget.editItem(item)
 
     def can_delete(self, index, item: QTreeWidgetItem):
@@ -321,6 +321,7 @@ class LTNestedList(QWidget):
             self.on_click_item(None)
 
     def on_drag_drop(self, event):
+        self.old_nid = None
         self.tree_widget.originalDropEvent(event)
         if self.disturbed_category:
             self.data_changed(self.disturbed_category)
@@ -330,10 +331,11 @@ class LTNestedList(QWidget):
             self.select_item(target_item)
 
     def data_changed(self, item: Optional[QTreeWidgetItem], column=None):
-        if item and not item.data(0, IsCategoryRole) and self.parent.allow_rename:
-            if not self.attempt_rename(self.old_name, item.text(0)):
-                item.setText(column, self.old_name)
-        self.old_name = None
+        old_nid = self.old_nid
+        self.old_nid = None
+        if item and old_nid and not item.data(0, IsCategoryRole) and self.parent.allow_rename:
+            if not self.attempt_rename(old_nid, item.text(column)):
+                item.setText(column, old_nid)
         list_entries, list_categories = self.get_list_and_category_structure()
         if self.on_rearrange_items:
             self.on_rearrange_items(list_entries, list_categories)

@@ -29,6 +29,7 @@ class SimpleCombatAnimProperties(QWidget):
 class CombatAnimDisplay(NewEditorTab):
     catalog_type = CombatCatalog
     properties_type = CombatAnimProperties
+    allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):
@@ -58,6 +59,7 @@ class SimpleCombatAnimDisplay(CombatAnimDisplay):
 class CombatEffectDisplay(NewEditorTab):
     catalog_type = CombatEffectCatalog
     properties_type = CombatEffectProperties
+    allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):

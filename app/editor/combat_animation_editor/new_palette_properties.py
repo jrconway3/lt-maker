@@ -593,8 +593,9 @@ class NewPaletteProperties(QWidget):
         self.draw_frame()
 
     def nid_changed(self, text):
+        old_nid = self.current_palette.nid
         self.current_palette.nid = text
-        #self.window.reset()
+        self.attempt_change_nid(old_nid, text)
 
     def nid_done_editing(self):
         # Check validity of nid!
@@ -602,9 +603,10 @@ class NewPaletteProperties(QWidget):
         if self.current_palette.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Palette ID %s already in use' % self.current_palette.nid)
             self.current_palette.nid = str_utils.get_next_name(self.current_palette.nid, other_nids)
-        palette_model.on_nid_changed(self._data.find_key(self.current_palette), self.current_palette.nid)
+        old_nid = self._data.find_key(self.current_palette)
+        palette_model.on_nid_changed(old_nid, self.current_palette.nid)
         self._data.update_nid(self.current_palette, self.current_palette.nid)
-        self.window.reset()
+        self.attempt_change_nid(old_nid, self.current_palette.nid)
 
     @property
     def current(self):

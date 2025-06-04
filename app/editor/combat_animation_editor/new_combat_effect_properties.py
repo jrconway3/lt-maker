@@ -241,7 +241,7 @@ class CombatEffectProperties(CombatAnimProperties):
                 QMessageBox.critical(self, "Invalid Filename", f"File {fn} must be named `Spell.txt`")
         parent_dir = os.path.split(fn)[0]
         self.settings.set_last_open_path(parent_dir)
-        self.window.reset()
+        self.on_icon_change()
 
     def import_legacy(self):
         starting_path = self.settings.get_last_open_path()
@@ -252,7 +252,7 @@ class CombatEffectProperties(CombatAnimProperties):
                     combat_animation_imports.import_effect_from_legacy(fn)
             parent_dir = os.path.split(fns[-1])[0]
             self.settings.set_last_open_path(parent_dir)
-        self.window.reset()
+        self.on_icon_change()
 
     def export_legacy(self):
         # Ask user for location

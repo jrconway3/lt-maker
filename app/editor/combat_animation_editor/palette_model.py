@@ -32,6 +32,20 @@ def get_palette_pixmap(palette) -> QPixmap:
     colors = palette.colors.values()
     return generate_palette_pixmap(tuple(colors))
 
+def on_nid_changed(old_nid, new_nid):
+    # What uses combat palettes
+    for combat_anim in RESOURCES.combat_anims:
+        for idx, palette in enumerate(combat_anim.palettes):
+            if old_nid == palette[1]:
+                combat_anim.palettes[idx][1] = new_nid
+    for effect_anim in RESOURCES.combat_effects:
+        for idx, palette in enumerate(effect_anim.palettes):
+            if old_nid == palette[1]:
+                effect_anim.palettes[idx][1] = new_nid
+    for team in DB.teams:
+        if team.map_sprite_palette == old_nid:
+            team.map_sprite_palette = new_nid
+
 class PaletteModel(DragDropCollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -87,17 +101,3 @@ class PaletteModel(DragDropCollectionModel):
             else:
                 return
         super().delete(idx)
-
-    def on_nid_changed(self, old_nid, new_nid):
-        # What uses combat palettes
-        for combat_anim in RESOURCES.combat_anims:
-            for idx, palette in enumerate(combat_anim.palettes):
-                if old_nid == palette[1]:
-                    combat_anim.palettes[idx][1] = new_nid
-        for effect_anim in RESOURCES.combat_effects:
-            for idx, palette in enumerate(effect_anim.palettes):
-                if old_nid == palette[1]:
-                    effect_anim.palettes[idx][1] = new_nid
-        for team in DB.teams:
-            if team.map_sprite_palette == old_nid:
-                team.map_sprite_palette = new_nid

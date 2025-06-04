@@ -329,17 +329,19 @@ class CombatAnimProperties(QWidget):
                 QMessageBox.information(self, "Export Complete", "Export of frames complete!")
 
     def nid_changed(self, text):
+        old_nid = self.current.nid
         self.current.nid = text
-        #self.window.reset()
+        self.attempt_change_nid(old_nid, text)
 
     def nid_done_editing(self):
         other_nids = [d.nid for d in self._data if d is not self.current]
         if self.current.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'ID %s already in use' % self.current.nid)
             self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
-        self.on_nid_changed(self._data.find_key(self.current), self.current.nid)
+        old_nid = self._data.find_key(self.current)
+        self.on_nid_changed(old_nid, self.current.nid)
         self._data.update_nid(self.current, self.current.nid)
-        self.window.reset()
+        self.attempt_change_nid(old_nid, self.current.nid)
 
     def on_nid_changed(self, old_nid, new_nid):
         for klass in DB.classes:
@@ -885,7 +887,7 @@ class CombatAnimProperties(QWidget):
             populate_anim_pixmaps(anim)
             RESOURCES.combat_anims.append(anim)
         # Print done import! Import complete!
-        self.window.reset()
+        self.on_icon_change()
         QMessageBox.information(self, "Import Complete", "Import of combat animation %s complete!" % fn_dir)
 
     def export_anim(self):

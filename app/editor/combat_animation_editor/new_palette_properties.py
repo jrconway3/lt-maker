@@ -498,7 +498,7 @@ class NewPaletteProperties(QWidget):
         self._data = self.window.data
 
         self.current_palette: Optional[T] = current
-        self.cached_nid: Optional[NID] = self.current.nid if self.current else None
+        self.cached_nid: Optional[NID] = self.current_palette.nid if self.current_palette else None
         self.attempt_change_nid = attempt_change_nid
         self.on_icon_change = on_icon_change
 
@@ -593,9 +593,7 @@ class NewPaletteProperties(QWidget):
         self.draw_frame()
 
     def nid_changed(self, text):
-        old_nid = self.current_palette.nid
         self.current_palette.nid = text
-        self.attempt_change_nid(old_nid, text)
 
     def nid_done_editing(self):
         # Check validity of nid!
@@ -603,10 +601,8 @@ class NewPaletteProperties(QWidget):
         if self.current_palette.nid in other_nids:
             QMessageBox.warning(self.window, 'Warning', 'Palette ID %s already in use' % self.current_palette.nid)
             self.current_palette.nid = str_utils.get_next_name(self.current_palette.nid, other_nids)
-        old_nid = self._data.find_key(self.current_palette)
-        palette_model.on_nid_changed(old_nid, self.current_palette.nid)
-        self._data.update_nid(self.current_palette, self.current_palette.nid)
-        self.attempt_change_nid(old_nid, self.current_palette.nid)
+        if self.attempt_change_nid(self.cached_nid, self.current_palette.nid):
+            palette_model.on_nid_changed(self.cached_nid, self.current_palette.nid)
 
     @property
     def current(self):
@@ -619,6 +615,7 @@ class NewPaletteProperties(QWidget):
             self.setEnabled(True)
             palette_commands.clear()
             self.current_palette = current
+            self.cached_nid = self.current_palette.nid
             self.nid_box.edit.setText(self.current_palette.nid)
             self.easel_widget.set_current(current, self.current_frame)
             self.draw_frame()

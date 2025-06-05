@@ -68,6 +68,25 @@ def get_combat_anim_icon(combat_anim_nid: str):
             return pixmap
     return None
 
+def check_delete(nid: NID, window):
+    # Check to see what is using me?
+    affected_classes = [klass for klass in DB.classes if klass.combat_anim_nid == nid]
+
+    if affected_classes:
+        from app.editor.class_editor.class_model import ClassModel
+        model = ClassModel
+        msg = "Deleting Combat Animation <b>%s</b> would affect these classes" % nid
+        deletion_tab = DeletionTab(affected_classes, model, msg, "Classes")
+        return DeletionDialog.inform([deletion_tab], window)
+    return True
+
+def on_delete(nid: NID):
+    # What uses map sprites
+    # Classes
+    for klass in DB.classes:
+        if klass.combat_anim_nid == nid:
+            klass.combat_anim_nid = None
+
 class CombatAnimModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -89,25 +108,6 @@ class CombatAnimModel(ResourceCollectionModel):
         new_anim = combat_anims.CombatAnimation(nid)
         self._data.append(new_anim)
         return new_anim
-
-    def delete(self, idx):
-        # Check to see what is using me?
-        res = self._data[idx]
-        nid = res.nid
-        affected_classes = [klass for klass in DB.classes if klass.combat_anim_nid == nid]
-
-        if affected_classes:
-            from app.editor.class_editor.class_model import ClassModel
-            model = ClassModel
-            msg = "Deleting Combat Animation <b>%s</b> would affect these classes" % nid
-            deletion_tab = DeletionTab(affected_classes, model, msg, "Classes")
-            ok = DeletionDialog.inform([deletion_tab], self.window)
-            if ok:
-                for klass in affected_classes:
-                    klass.combat_anim_nid = None
-            else:
-                return
-        super().delete(idx)
 
 class CombatEffectModel(ResourceCollectionModel):
     def data(self, index, role):
@@ -138,6 +138,3 @@ class CombatEffectModel(ResourceCollectionModel):
         new_anim = combat_anims.EffectAnimation(nid)
         self._data.append(new_anim)
         return new_anim
-
-    def delete(self, idx):
-        super().delete(idx)

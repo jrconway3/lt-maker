@@ -48,6 +48,17 @@ class CombatAnimDisplay(NewEditorTab):
             return QIcon(pix)
         return None
 
+    def _on_nid_changed(self, old_nid: NID, new_nid: NID):
+        combat_animation_model.on_nid_changed(old_nid, new_nid)
+
+    def _on_delete(self, nid: NID) -> bool:
+        ok = combat_animation_model.check_delete(nid, self)
+        if ok:
+            combat_animation_model.on_delete(nid)
+            return True
+        else:
+            return False
+
 class SimpleCombatAnimDisplay(CombatAnimDisplay):
     properties_type = SimpleCombatAnimProperties
 
@@ -77,6 +88,14 @@ class CombatEffectDisplay(NewEditorTab):
         if pix:
             return QIcon(pix.scaled(32, 32))
         return None
+
+    def _on_nid_changed(self, old_nid: NID, new_nid: NID):
+        combat_animation_model.on_nid_changed(old_nid, new_nid)
+
+    def _on_delete(self, nid: NID) -> bool:
+        if self.data.get(nid):
+            self.data.remove_key(nid)
+        return True
 
 def get_full_editor() -> NewMultiResourceEditor:
     editor = NewMultiResourceEditor((CombatAnimDisplay, CombatEffectDisplay, NewPaletteTab),

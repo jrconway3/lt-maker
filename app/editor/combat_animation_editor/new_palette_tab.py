@@ -34,6 +34,18 @@ class NewPaletteTab(NewEditorTab):
             return QIcon(pix)
         return None
 
+    def _on_nid_changed(self, old_nid: NID, new_nid: NID):
+        palette_model.on_nid_changed(old_nid, new_nid)
+
+    def _on_delete(self, nid: NID) -> bool:
+        swap, ok = palette_model.check_delete(nid, self)
+        if ok:
+            if swap is not None:
+                palette_model.on_nid_changed(nid, swap.nid)
+            return True
+        else:
+            return False
+
 def get():
     window = SingleResourceEditor(NewPaletteTab, ['combat_palettes'])
     result = window.exec_()

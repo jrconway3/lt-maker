@@ -601,9 +601,9 @@ class NewPaletteProperties(QWidget):
         #if self.current_palette.nid in other_nids:
         #    QMessageBox.warning(self.window, 'Warning', 'Palette ID %s already in use' % self.current_palette.nid)
         #    self.current_palette.nid = str_utils.get_next_name(self.current_palette.nid, other_nids)
-        if self.attempt_change_nid(self.cached_nid, self.current_palette.nid):
-            palette_model.on_nid_changed(self.cached_nid, self.current_palette.nid)
-        else:
+        print(self.cached_nid)
+        print(self.current_palette.nid)
+        if not self.attempt_change_nid(self.cached_nid, self.current_palette.nid):
             self.current_palette.nid = self.cached_nid
 
     @property

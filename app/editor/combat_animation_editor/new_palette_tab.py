@@ -15,6 +15,7 @@ from app.utilities.typing import NID
 class NewPaletteTab(NewEditorTab):
     catalog_type = PaletteCatalog
     properties_type = new_palette_properties.NewPaletteProperties
+    allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):

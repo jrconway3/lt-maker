@@ -332,13 +332,7 @@ class CombatAnimProperties(QWidget):
         self.current.nid = text
 
     def nid_done_editing(self):
-        #other_nids = [d.nid for d in self._data if d is not self.current]
-        #if self.current.nid in other_nids:
-        #    QMessageBox.warning(self.window, 'Warning', 'ID %s already in use' % self.current.nid)
-        #    self.current.nid = str_utils.get_next_name(self.current.nid, other_nids)
-        if self.attempt_change_nid(self.cached_nid, self.current.nid):
-            self.on_nid_changed(self.cached_nid, self.current.nid)
-        else:
+        if not self.attempt_change_nid(self.cached_nid, self.current.nid):
             self.current.nid = self.cached_nid
 
     def on_nid_changed(self, old_nid, new_nid):

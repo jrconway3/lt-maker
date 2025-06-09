@@ -97,8 +97,6 @@ class NewEditorTab(QWidget, Generic[T]):
         self.tree_list.reset(self.data.keys(), self.categories)
 
     def attempt_change_nid(self, old_nid: NID, new_nid: NID) -> bool:
-        if self.tree_list.is_editor_open:
-            return False
         if not new_nid:
             return False
         if old_nid == new_nid:

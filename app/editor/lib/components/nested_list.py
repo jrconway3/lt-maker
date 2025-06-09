@@ -5,7 +5,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSize, QItemSelection
-from PyQt5.QtGui import QFont, QIcon, QImage, QPainter, QPixmap
+from PyQt5.QtGui import QFont, QIcon, QImage, QPainter, QPixmap, QKeyEvent
 from PyQt5.QtWidgets import (QAction, QMenu, QPushButton, QStyledItemDelegate,
                              QTreeWidget, QTreeWidgetItem, QVBoxLayout, QLineEdit, QListWidget, QListWidgetItem,
                              QWidget)
@@ -130,6 +130,7 @@ class LTNestedList(QWidget):
     def on_double_click(self, item):
         if item:
             self.old_nid = item.text(0)
+            self.parent.properties_type.setEnabled(self.parent.properties_type, False)
 
     def on_filter_list_click(self, e):
         item_nid = e.text()
@@ -141,6 +142,10 @@ class LTNestedList(QWidget):
         if event.key() == QtCore.Qt.Key_Delete:
             if self.tree_widget.selectedIndexes():
                 self.delete(self.tree_widget.selectedIndexes()[0], self.tree_widget.selectedItems()[0])
+
+        if event.key() == QtCore.Qt.Key_Enter or event.key == QtCore.Qt.Key_Return:
+            if self.tree_widget.selectedIndexes():
+                self.done_editing()
 
     def customMenuRequested(self, pos):
         item = self.tree_widget.itemAt(pos)
@@ -261,6 +266,7 @@ class LTNestedList(QWidget):
     def rename(self, item: QTreeWidgetItem):
         self.old_nid = item.text(0)
         self.tree_widget.editItem(item)
+        self.parent.properties_type.setEnabled(self.parent.properties_type, False)
 
     def can_delete(self, index, item: QTreeWidgetItem):
         if not index or not item:
@@ -347,6 +353,17 @@ class LTNestedList(QWidget):
         if self.on_rearrange_items:
             self.on_rearrange_items(list_entries, list_categories)
         self.regenerate_icons(item, False)
+        self.parent.properties_type.setEnabled(self.parent.properties_type, True)
+
+    def done_editing(self):
+        # Check if Data Changed
+        item = self.tree_widget.selectedItems()[0]
+        if self.old_nid and item and self.old_nid != item.text(0):
+            return
+
+        # Remove Old NID, Re-Enable Window
+        self.old_nid = None
+        self.parent.properties_type.setEnabled(self.parent.properties_type, True)
 
     def find_item_by_nid(self, nid) -> Optional[QTreeWidgetItem]:
         list_entries, list_categories = self.get_list_and_category_structure()

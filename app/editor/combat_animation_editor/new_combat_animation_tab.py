@@ -90,7 +90,7 @@ class CombatEffectDisplay(NewEditorTab):
         return None
 
     def _on_nid_changed(self, old_nid: NID, new_nid: NID):
-        combat_animation_model.on_nid_changed(old_nid, new_nid)
+        return
 
     def _on_delete(self, nid: NID) -> bool:
         if self.data.get(nid):

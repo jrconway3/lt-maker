@@ -87,6 +87,13 @@ def on_delete(nid: NID):
         if klass.combat_anim_nid == nid:
             klass.combat_anim_nid = None
 
+def on_nid_changed(old_nid: NID, new_nid: NID):
+    # What uses map sprites
+    # Classes
+    for klass in DB.classes:
+        if klass.combat_anim_nid == old_nid:
+            klass.combat_anim_nid = new_nid
+
 class CombatAnimModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():

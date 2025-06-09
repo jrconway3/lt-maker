@@ -97,14 +97,16 @@ class NewEditorTab(QWidget, Generic[T]):
         self.tree_list.reset(self.data.keys(), self.categories)
 
     def attempt_change_nid(self, old_nid: NID, new_nid: NID) -> bool:
+        if self.tree_list.is_editor_open:
+            return False
         if not new_nid:
             return False
         if old_nid == new_nid:
             return True
         if self.data.get(new_nid):
-            print('ID %s already in use' % new_nid)
             QMessageBox.warning(self, 'Warning', 'ID %s already in use' % new_nid)
             return False
+        self.tree_list.old_nid = None
         self._on_nid_changed(old_nid, new_nid)
         self.data.change_key(old_nid, new_nid)
         self.tree_list.update_nid(old_nid, new_nid)
@@ -164,6 +166,7 @@ class NewEditorTab(QWidget, Generic[T]):
         self._on_nid_changed(old_nid, new_nid)
         self.data.change_key(old_nid, new_nid)
         self.tree_list.on_filter_changed(self.tree_list.search_box.text())
+        self.tree_list.select_item(new_nid)
         return True
 
     def copy_to_clipboard(self):

@@ -305,6 +305,7 @@ class CombatEffectProperties(CombatAnimProperties):
         else:
             self.setEnabled(True)
             self.current = current
+            self.cached_nid = self.current.nid
             populate_effect_pixmaps(self.current)
             self.nid_box.setText(self.current.nid)
 

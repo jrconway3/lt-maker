@@ -7,7 +7,7 @@ from app.data.resources.resources import RESOURCES
 from app.data.resources.combat_anims import CombatCatalog, CombatEffectCatalog
 
 from app.editor.new_editor_tab import NewEditorTab
-from app.editor.combat_animation_editor import combat_animation_model
+from app.editor.combat_animation_editor import combat_animation_model, combat_effect_model
 from app.editor.item_editor import  item_model
 from app.editor.combat_animation_editor.new_combat_animation_properties import CombatAnimProperties
 from app.editor.combat_animation_editor.new_combat_effect_properties import CombatEffectProperties
@@ -90,12 +90,15 @@ class CombatEffectDisplay(NewEditorTab):
         return None
 
     def _on_nid_changed(self, old_nid: NID, new_nid: NID):
-        return
+        combat_effect_model.on_nid_changed(old_nid, new_nid)
 
     def _on_delete(self, nid: NID) -> bool:
-        if self.data.get(nid):
-            self.data.remove_key(nid)
-        return True
+        ok = combat_effect_model.check_delete(nid, self)
+        if ok:
+            combat_effect_model.on_delete(nid)
+            return True
+        else:
+            return False
 
 def get_full_editor() -> NewMultiResourceEditor:
     editor = NewMultiResourceEditor((CombatAnimDisplay, CombatEffectDisplay, NewPaletteTab),

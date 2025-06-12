@@ -109,6 +109,7 @@ class LTNestedList(QWidget):
         self.tree_widget = QTreeWidget()
         self.build_tree_widget(self.tree_widget, list_entries, list_categories)
         layout.addWidget(self.tree_widget)
+        self.tree_widget.keyPressEvent = self.on_key_press
 
         self.new_item_button = QPushButton("Create New")
         self.new_item_button.clicked.connect(lambda: self.new(self.tree_widget.selectedIndexes()[0] if self.tree_widget.selectedIndexes() else None,
@@ -130,7 +131,7 @@ class LTNestedList(QWidget):
     def on_double_click(self, item):
         if item:
             self.old_nid = item.text(0)
-            self.parent.properties_type.setEnabled(self.parent.properties_type, False)
+            self.parent.right_frame.setEnabled(False)
 
     def on_filter_list_click(self, e):
         item_nid = e.text()
@@ -138,14 +139,13 @@ class LTNestedList(QWidget):
         if tree_item:
             self.select_item(tree_item)
 
-    def keyPressEvent(self, event):
+    def on_key_press(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
             if self.tree_widget.selectedIndexes():
                 self.delete(self.tree_widget.selectedIndexes()[0], self.tree_widget.selectedItems()[0])
 
-        if event.key() == QtCore.Qt.Key_Enter or event.key == QtCore.Qt.Key_Return:
-            if self.tree_widget.selectedIndexes():
-                self.done_editing()
+        if event.key() == QtCore.Qt.Key_Enter or event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Escape:
+            self.parent.right_frame.setEnabled(True)
 
     def customMenuRequested(self, pos):
         item = self.tree_widget.itemAt(pos)
@@ -266,7 +266,7 @@ class LTNestedList(QWidget):
     def rename(self, item: QTreeWidgetItem):
         self.old_nid = item.text(0)
         self.tree_widget.editItem(item)
-        self.parent.properties_type.setEnabled(self.parent.properties_type, False)
+        self.parent.right_frame.setEnabled(False)
 
     def can_delete(self, index, item: QTreeWidgetItem):
         if not index or not item:
@@ -349,21 +349,12 @@ class LTNestedList(QWidget):
         if item and old_nid and not item.data(0, IsCategoryRole) and self.parent.allow_rename:
             if not self.attempt_rename(old_nid, item.text(column)):
                 item.setText(column, old_nid)
+                self.select_item(item)
         list_entries, list_categories = self.get_list_and_category_structure()
         if self.on_rearrange_items:
             self.on_rearrange_items(list_entries, list_categories)
         self.regenerate_icons(item, False)
-        self.parent.properties_type.setEnabled(self.parent.properties_type, True)
-
-    def done_editing(self):
-        # Check if Data Changed
-        item = self.tree_widget.selectedItems()[0]
-        if self.old_nid and item and self.old_nid != item.text(0):
-            return
-
-        # Remove Old NID, Re-Enable Window
-        self.old_nid = None
-        self.parent.properties_type.setEnabled(self.parent.properties_type, True)
+        self.parent.right_frame.setEnabled(True)
 
     def find_item_by_nid(self, nid) -> Optional[QTreeWidgetItem]:
         list_entries, list_categories = self.get_list_and_category_structure()

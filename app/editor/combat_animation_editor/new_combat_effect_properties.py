@@ -87,19 +87,6 @@ class CombatEffectProperties(CombatAnimProperties):
         self.build_frames()
         self.set_layout()
 
-    def on_nid_changed(self, old_nid, new_nid):
-        for combat_anim in RESOURCES.combat_anims:
-            for weapon_anim in combat_anim.weapon_anims:
-                for pose in weapon_anim.poses:
-                    for command in pose.timeline:
-                        if command.has_effect() and command.value[0] == old_nid:
-                            command.value = (new_nid,) + tuple(command.value[1:])
-        for effect_anim in RESOURCES.combat_effects:
-            for pose in effect_anim.poses:
-                for command in pose.timeline:
-                    if command.has_effect() and command.value[0] == old_nid:
-                        command.value = (new_nid,) + tuple(command.value[1:])
-
     def build_frames(self):
         self.frame_group_box = QGroupBox()
         self.frame_group_box.setTitle("Image Frames")

@@ -24,7 +24,11 @@ class SimpleCombatAnimProperties(QWidget):
         self.current = current
 
     def set_current(self, current):
-        self.current = current
+        if not current:
+            self.setEnabled(False)
+        else:
+            self.setEnabled(True)
+            self.current = current
 
 class CombatAnimDisplay(NewEditorTab):
     catalog_type = CombatCatalog

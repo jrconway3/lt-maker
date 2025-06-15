@@ -335,11 +335,6 @@ class CombatAnimProperties(QWidget):
         if not self.attempt_change_nid(self.cached_nid, self.current.nid):
             self.current.nid = self.cached_nid
 
-    def on_nid_changed(self, old_nid, new_nid):
-        for klass in DB.classes:
-            if klass.combat_anim_nid == old_nid:
-                klass.combat_anim_nid = new_nid
-
     def ask_permission(self, obj, text: str) -> bool:
         ret = QMessageBox.warning(self, "Deletion Warning",
                                   "Really delete %s <b>%s</b>?" % (text, obj.nid),

@@ -20,6 +20,7 @@ from app.editor.combat_animation_editor.frame_selector import FrameSelector
 from app.editor.combat_animation_editor import combat_animation_model, new_combat_animation_properties, new_combat_effect_properties, palette_model
 from app.editor.combat_animation_editor.color_editor import ColorEditorWidget
 from app.editor.lib.components.validated_line_edit import NidLineEdit
+from app.editor.map_sprite_editor import new_map_sprite_properties, map_sprite_model
 from app.data.resources.combat_anims import Frame
 from app.data.resources.combat_palettes import Palette
 from app.editor.icon_editor.icon_view import IconView
@@ -315,11 +316,15 @@ class EaselWidget(QGraphicsView):
         return base_image
 
     def set_current(self, current_palette: Palette, current_frame: Frame):
-        self.current_palette = current_palette
-        self.current_frame = current_frame
-        self.current_coord = None
-        self.update_view()
-        self.selectionChanged.emit(None)
+        if not current_palette:
+            self.setEnabled(False)
+        else:
+            self.setEnabled(True)
+            self.current_palette = current_palette
+            self.current_frame = current_frame
+            self.current_coord = None
+            self.update_view()
+            self.selectionChanged.emit(None)
 
     def set_current_color(self, color: QColor):
         if self.current_palette and self.current_coord:
@@ -501,10 +506,10 @@ class NewPaletteProperties(QWidget):
         self.cached_nid: Optional[NID] = self.current_palette.nid if self.current_palette else None
         self.attempt_change_nid = attempt_change_nid
         self.on_icon_change = on_icon_change
+        self.set_current(None)
 
         self.settings = MainSettingsController()
 
-        self.current_palette = None
         self.current_frame = None
         self.current_frame_set = None
         self.painting_color: QColor = QColor(0, 0, 0)
@@ -527,9 +532,9 @@ class NewPaletteProperties(QWidget):
 
         left_frame = self.window.tree_list.layout()
         layout = left_frame
-        layout.addWidget(self.import_box)#, 3, 0, 1, 2)
-        layout.addWidget(self.import_with_base_box)#, 4, 0, 1, 2)
-        layout.addWidget(self.nid_box)#, 5, 0, 1, 2)
+        layout.addWidget(self.import_box)
+        layout.addWidget(self.import_with_base_box)
+        layout.addWidget(self.nid_box)
 
         self.raw_view = AnimView(self)
         self.raw_view.static_size = True
@@ -649,10 +654,10 @@ class NewPaletteProperties(QWidget):
 
     def select_map_sprite_frame(self):
         sprite_nid = MapSpriteSelection.get(self)
-        sprite_anim = RESOURCES.combat_effects.get(sprite_nid)
+        sprite_anim = RESOURCES.map_sprites.get(sprite_nid)
         if not sprite_anim:
             return
-        new_combat_effect_properties.populate_effect_pixmaps(sprite_anim)
+        new_map_sprite_properties.populate_map_sprite_pixmaps(sprite_anim)
         frame, ok = FrameSelector.get(sprite_anim, sprite_anim, self)
         if frame and ok:
             self.current_frame_set = sprite_anim
@@ -705,18 +710,18 @@ class NewPaletteProperties(QWidget):
     def autoselect_map_sprite_frame(self):
         if not self.current_palette:
             return
-        effect_nid = EffectSelection.autoget(self.current_palette)
-        effect_anim = RESOURCES.combat_effects.get(effect_nid)
-        if not effect_anim:
+        map_sprite_nid = MapSpriteSelection.autoget(self.current_palette)
+        map_sprite_anim = RESOURCES.map_sprites.get(map_sprite_nid)
+        if not map_sprite_anim:
             QMessageBox.critical(self, "Autoselect Error", 'Could not find a good frame. Try using manual "Select".')
             return
-        if not effect_anim.frames:
+        if not map_sprite_anim.frames:
             QMessageBox.critical(self, "Autoselect Error", 'Could not find a good frame. Try using manual "Select".')
             return
-        new_combat_effect_properties.populate_effect_pixmaps(effect_anim)
-        frame = effect_anim.frames[0]
+        new_map_sprite_properties.populate_effect_pixmaps(map_sprite_anim)
+        frame = map_sprite_anim.frames[0]
         if frame:
-            self.current_frame_set = effect_anim
+            self.current_frame_set = map_sprite_anim
             self.current_frame = frame
             self.easel_widget.set_current(self.current_palette, self.current_frame)
             self.draw_frame()

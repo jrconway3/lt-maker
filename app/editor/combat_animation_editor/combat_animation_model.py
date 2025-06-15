@@ -9,7 +9,6 @@ from app.data.resources.resources import RESOURCES
 from app.data.resources import combat_anims
 
 from app.editor.base_database_gui import ResourceCollectionModel
-from app.editor.item_editor import item_model
 
 from app.extensions.custom_gui import DeletionTab, DeletionDialog
 
@@ -87,6 +86,11 @@ def on_delete(nid: NID):
         if klass.combat_anim_nid == nid:
             klass.combat_anim_nid = None
 
+def on_nid_changed(old_nid, new_nid):
+    for klass in DB.classes:
+        if klass.combat_anim_nid == old_nid:
+            klass.combat_anim_nid = new_nid
+
 class CombatAnimModel(ResourceCollectionModel):
     def data(self, index, role):
         if not index.isValid():
@@ -106,35 +110,5 @@ class CombatAnimModel(ResourceCollectionModel):
     def create_new(self):
         nid = str_utils.get_next_name('New Combat Anim', self._data.keys())
         new_anim = combat_anims.CombatAnimation(nid)
-        self._data.append(new_anim)
-        return new_anim
-
-class CombatEffectModel(ResourceCollectionModel):
-    def data(self, index, role):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole:
-            animation = self._data[index.row()]
-            text = animation.nid
-            return text
-        elif role == Qt.DecorationRole:
-            animation = self._data[index.row()]
-            text = animation.nid
-            item = DB.items.get(text)
-            if item:
-                pix = item_model.get_pixmap(item)
-                if pix:
-                    pix = pix.scaled(16, 16)
-                    return QIcon(pix)
-            return None
-        elif role == Qt.ForegroundRole:
-            animation = self._data[index.row()]
-            if not animation.palettes:
-                return QBrush(QColor("cyan"))
-        return None
-
-    def create_new(self):
-        nid = str_utils.get_next_name('New Combat Effect', self._data.keys())
-        new_anim = combat_anims.EffectAnimation(nid)
         self._data.append(new_anim)
         return new_anim

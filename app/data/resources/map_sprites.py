@@ -7,7 +7,7 @@ from typing_extensions import override
 from app.data.category import CategorizedCatalog
 from app.data.resources.base_catalog import ManifestCatalog
 from app.data.resources.resource_prefab import WithResources
-from app.utilities.data import Prefab
+from app.utilities.data import Data, Prefab
 from app.utilities.typing import NID, NestedPrimitiveDict
 
 class MapSprite(WithResources, Prefab):
@@ -19,6 +19,8 @@ class MapSprite(WithResources, Prefab):
         self.moving_image = None
         self.standing_pixmap = None
         self.moving_pixmap = None
+        self.frames = Data()
+        self.palettes = []  # Palette name -> Palette nid
 
     def set_stand_full_path(self, full_path):
         self.stand_full_path = full_path

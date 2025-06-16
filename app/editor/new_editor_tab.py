@@ -4,7 +4,7 @@ import json
 import logging
 from typing import Generic, List, Optional, Type, TypeVar
 
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QBrush
 from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout,
                              QMessageBox, QPushButton, QSplitter, QVBoxLayout,
                              QWidget, QApplication)
@@ -42,7 +42,7 @@ class NewEditorTab(QWidget, Generic[T]):
         self.left_frame = QWidget()
         left_frame_layout = QVBoxLayout()
         self.left_frame.setLayout(left_frame_layout)
-        self.tree_list = LTNestedList(self, self.data.keys(), self.categories, self.get_icon,
+        self.tree_list = LTNestedList(self, self.data.keys(), self.categories, self.get_icon, self.get_foreground,
                                       self.on_select, self.resort_db, self.delete_from_db, self.create_new,
                                       self.duplicate, self.rename)
         left_frame_layout.setContentsMargins(0, 0, 0, 0)
@@ -206,6 +206,9 @@ class NewEditorTab(QWidget, Generic[T]):
 
     def get_icon(self, unit_nid: NID) -> Optional[QIcon]:
         raise NotImplementedError
+
+    def get_foreground(self, unit_nid: NID) -> Optional[QBrush]:
+        return None
 
     def import_xml(self):
         raise NotImplementedError

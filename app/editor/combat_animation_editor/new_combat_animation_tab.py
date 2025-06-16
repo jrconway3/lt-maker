@@ -1,6 +1,6 @@
 from typing import Optional
 
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QBrush, QColor
 from PyQt5.QtWidgets import QDialog, QWidget
 
 from app.data.resources.resources import RESOURCES
@@ -91,6 +91,12 @@ class CombatEffectDisplay(NewEditorTab):
         pix = item_model.get_pixmap(self._db.items.get(combat_effect_nid))
         if pix:
             return QIcon(pix.scaled(32, 32))
+        return None
+
+    def get_foreground(self, unit_nid: NID) -> Optional[QBrush]:
+        effect = self.data.get(unit_nid)
+        if effect and not effect.palettes:
+            return QBrush(QColor("cyan"))
         return None
 
     def _on_nid_changed(self, old_nid: NID, new_nid: NID):

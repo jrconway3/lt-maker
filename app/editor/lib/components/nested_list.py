@@ -77,6 +77,7 @@ class LTNestedList(QWidget):
                  list_entries: Optional[List[NID]]=None,
                  list_categories: Optional[Categories]=None,
                  get_icon: Optional[Callable[[NID], Optional[QIcon]]]=None,
+                 get_foreground: Optional[Callable[[NID], Optional[QIcon]]]=None,
                  on_click_item: Optional[Callable[[Optional[NID]], None]]=None,
                  on_rearrange_items: Optional[Callable[[List[NID], Categories], None]]=None,
                  attempt_delete: Optional[Callable[[NID], bool]]=None,
@@ -87,6 +88,7 @@ class LTNestedList(QWidget):
         super().__init__(parent)
         self.parent = parent
         self.get_icon = get_icon or (lambda nid: create_empty_icon(32, 32))
+        self.get_foreground = get_foreground or None
         self.on_click_item = on_click_item
         self.on_rearrange_items = on_rearrange_items
         self.attempt_delete = attempt_delete
@@ -484,6 +486,8 @@ class LTNestedList(QWidget):
         def _build_tree_widget(root: LTNestedList.ListNode, parent: QTreeWidgetItem):
             for node in root.children.values():
                 item = create_tree_entry(node.nid, create_empty_icon(32, 32), node.is_category, self.parent.allow_rename)
+                if self.get_foreground(node.nid):
+                    item.setForeground(0, self.get_foreground(node.nid))
                 parent.addChild(item)
                 if(node.is_category):
                     _build_tree_widget(node, item)

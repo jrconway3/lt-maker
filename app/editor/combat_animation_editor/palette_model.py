@@ -47,7 +47,7 @@ def check_delete(nid: NID, window):
         msg = "Deleting Palette <b>%s</b> would affect these combat animations." % nid
         deletion_tabs.append(DeletionTab(affected_combat_anims, model, msg, "Combat Animations"))
     if affected_effect_anims:
-        from app.editor.combat_animation_editor.combat_animation_model import CombatEffectModel
+        from app.editor.combat_animation_editor.combat_effect_model import CombatEffectModel
         model = CombatEffectModel
         msg = "Deleting Palette <b>%s</b> would affect these effect animations." % nid
         deletion_tabs.append(DeletionTab(affected_effect_anims, model, msg, "Effect Animations"))

@@ -5,7 +5,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSize, QItemSelection
-from PyQt5.QtGui import QFont, QIcon, QBrush, QImage, QPainter, QPixmap, QKeyEvent
+from PyQt5.QtGui import QFont, QIcon, QBrush, QImage, QPainter, QPixmap
 from PyQt5.QtWidgets import (QAction, QMenu, QPushButton, QStyledItemDelegate,
                              QTreeWidget, QTreeWidgetItem, QVBoxLayout, QLineEdit, QListWidget, QListWidgetItem,
                              QWidget)
@@ -168,7 +168,7 @@ class LTNestedList(QWidget):
                 delete_action = QAction("Delete", self, triggered=lambda: self.delete(index, item))
                 menu.addAction(delete_action)
             if is_category or  self.parent.allow_rename:
-                rename_action = QAction("Rename", self, triggered=lambda: self.rename_category(item))
+                rename_action = QAction("Rename", self, triggered=lambda: self.rename(item))
                 menu.addAction(rename_action)
         menu.popup(self.tree_widget.viewport().mapToGlobal(pos))
 
@@ -194,7 +194,7 @@ class LTNestedList(QWidget):
         tree_widget.dropEvent = self.on_drag_drop
         tree_widget.originalMousePressEvent = tree_widget.mousePressEvent
         tree_widget.mousePressEvent = self.on_click
-        tree_widget.itemDoubleClicked = self.on_double_click
+        tree_widget.itemDoubleClicked.connect(self.on_double_click)
         tree_widget.customContextMenuRequested.connect(self.customMenuRequested)
         tree_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         tree_widget.itemChanged.connect(self.data_changed)
@@ -353,11 +353,12 @@ class LTNestedList(QWidget):
         if item and old_nid and not item.data(0, IsCategoryRole) and self.parent.allow_rename:
             if not self.attempt_rename(old_nid, item.text(column)):
                 item.setText(column, old_nid)
+                self.select_item(item)
         list_entries, list_categories = self.get_list_and_category_structure()
         if self.on_rearrange_items:
             self.on_rearrange_items(list_entries, list_categories)
         self.regenerate_icons(item, False)
-        self.parent.right_frame.setEnabled(False)
+        self.parent.right_frame.setEnabled(True)
 
     def find_item_by_nid(self, nid) -> Optional[QTreeWidgetItem]:
         list_entries, list_categories = self.get_list_and_category_structure()

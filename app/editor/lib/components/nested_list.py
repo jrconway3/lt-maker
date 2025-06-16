@@ -5,7 +5,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSize, QItemSelection
-from PyQt5.QtGui import QFont, QIcon, QImage, QPainter, QPixmap, QKeyEvent
+from PyQt5.QtGui import QFont, QIcon, QBrush, QImage, QPainter, QPixmap
 from PyQt5.QtWidgets import (QAction, QMenu, QPushButton, QStyledItemDelegate,
                              QTreeWidget, QTreeWidgetItem, QVBoxLayout, QLineEdit, QListWidget, QListWidgetItem,
                              QWidget)
@@ -77,7 +77,7 @@ class LTNestedList(QWidget):
                  list_entries: Optional[List[NID]]=None,
                  list_categories: Optional[Categories]=None,
                  get_icon: Optional[Callable[[NID], Optional[QIcon]]]=None,
-                 get_foreground: Optional[Callable[[NID], Optional[QIcon]]]=None,
+                 get_foreground: Optional[Callable[[NID], Optional[QBrush]]]=None,
                  on_click_item: Optional[Callable[[Optional[NID]], None]]=None,
                  on_rearrange_items: Optional[Callable[[List[NID], Categories], None]]=None,
                  attempt_delete: Optional[Callable[[NID], bool]]=None,
@@ -126,6 +126,7 @@ class LTNestedList(QWidget):
         self.tree_widget.originalMousePressEvent(e)
         item = self.tree_widget.itemAt(e.pos())
         if item:
+            self.old_nid = item.text(0)
             while item.parent():
                 item = item.parent()
         self.disturbed_category = item

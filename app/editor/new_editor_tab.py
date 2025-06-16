@@ -26,7 +26,7 @@ class NewEditorTab(QWidget, Generic[T]):
     """
     # Make sure you define these
     catalog_type: Type[T] = None
-    properties_type = None 
+    properties_type = None
     allow_rename = False
     allow_import_from_xml = False
     allow_import_from_csv = False
@@ -154,7 +154,6 @@ class NewEditorTab(QWidget, Generic[T]):
 
     def rename(self, old_nid, new_nid):
         if self.data.get(new_nid):
-            print('Rename Fail: ID %s already in use' % new_nid)
             QMessageBox.warning(self, 'Warning', 'ID %s already in use' % new_nid)
             return False
         orig_obj = self.data.get(old_nid)

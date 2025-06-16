@@ -5,7 +5,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSize, QItemSelection
-from PyQt5.QtGui import QFont, QIcon, QImage, QPainter, QPixmap
+from PyQt5.QtGui import QFont, QIcon, QBrush, QImage, QPainter, QPixmap, QKeyEvent
 from PyQt5.QtWidgets import (QAction, QMenu, QPushButton, QStyledItemDelegate,
                              QTreeWidget, QTreeWidgetItem, QVBoxLayout, QLineEdit, QListWidget, QListWidgetItem,
                              QWidget)
@@ -15,12 +15,12 @@ from app.utilities import str_utils
 from app.utilities.typing import NID
 
 
-def create_tree_entry(nid: NID, icon: QIcon, is_category: bool) -> QTreeWidgetItem:
+def create_tree_entry(nid: NID, icon: QIcon, is_category: bool, allow_rename: bool) -> QTreeWidgetItem:
     new_item = QTreeWidgetItem()
     new_item.setText(0, nid)
     new_item.setIcon(0, icon)
     new_item.setData(0, IsCategoryRole, is_category)
-    if not is_category:
+    if not is_category and not allow_rename:
         new_item.setFlags(new_item.flags() & ~QtCore.Qt.ItemIsDropEnabled)
     else:
         new_item.setFlags(new_item.flags() | QtCore.Qt.ItemIsEditable)
@@ -70,24 +70,33 @@ class LTNestedList(QWidget):
                                             the NestedList will also insert a duplicate into itself.
         attempt_new (function(new_nid) -> bool): Callback is called with the new nid to create. Callback is expected to handle initialization in the DB.
                                             If callback returns True, implies insertion was successful and the NestedList will insert a new entry.
+        attempt_rename (function(new_nid) -> bool): Callback is called with the new nid on rename. Callback is expected to handle initialization in the DB.
+                                            If callback returns True, implies rename was successful and the NestedList will trigger a rename on the entry.
+
     """
     def __init__(self, parent=None,
                  list_entries: Optional[List[NID]]=None,
                  list_categories: Optional[Categories]=None,
                  get_icon: Optional[Callable[[NID], Optional[QIcon]]]=None,
+                 get_foreground: Optional[Callable[[NID], Optional[QBrush]]]=None,
                  on_click_item: Optional[Callable[[Optional[NID]], None]]=None,
                  on_rearrange_items: Optional[Callable[[List[NID], Categories], None]]=None,
                  attempt_delete: Optional[Callable[[NID], bool]]=None,
                  attempt_new: Optional[Callable[[NID], bool]]=None,
                  attempt_duplicate: Optional[Callable[[NID, NID], bool]]=None,
+                 attempt_rename: Optional[Callable[[NID, NID], bool]]=None,
                  ) -> None:
         super().__init__(parent)
+        self.parent = parent
         self.get_icon = get_icon or (lambda nid: create_empty_icon(32, 32))
+        self.get_foreground = get_foreground or None
         self.on_click_item = on_click_item
         self.on_rearrange_items = on_rearrange_items
         self.attempt_delete = attempt_delete
         self.attempt_new = attempt_new
         self.attempt_duplicate = attempt_duplicate
+        self.attempt_rename = attempt_rename
+        self.old_nid = None
 
         layout = QVBoxLayout()
         self.search_box = QLineEdit()
@@ -103,6 +112,7 @@ class LTNestedList(QWidget):
         self.tree_widget = QTreeWidget()
         self.build_tree_widget(self.tree_widget, list_entries, list_categories)
         layout.addWidget(self.tree_widget)
+        self.tree_widget.keyPressEvent = self.on_key_press
 
         self.new_item_button = QPushButton("Create New")
         self.new_item_button.clicked.connect(lambda: self.new(self.tree_widget.selectedIndexes()[0] if self.tree_widget.selectedIndexes() else None,
@@ -117,9 +127,15 @@ class LTNestedList(QWidget):
         self.tree_widget.originalMousePressEvent(e)
         item = self.tree_widget.itemAt(e.pos())
         if item:
+            self.old_nid = item.text(0)
             while item.parent():
                 item = item.parent()
         self.disturbed_category = item
+
+    def on_double_click(self, item):
+        if item:
+            self.old_nid = item.text(0)
+            self.parent.right_frame.setEnabled(False)
 
     def on_filter_list_click(self, e):
         item_nid = e.text()
@@ -127,10 +143,13 @@ class LTNestedList(QWidget):
         if tree_item:
             self.select_item(tree_item)
 
-    def keyPressEvent(self, event):
+    def on_key_press(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
             if self.tree_widget.selectedIndexes():
                 self.delete(self.tree_widget.selectedIndexes()[0], self.tree_widget.selectedItems()[0])
+
+        if event.key() == QtCore.Qt.Key_Enter or event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Escape:
+            self.parent.right_frame.setEnabled(True)
 
     def customMenuRequested(self, pos):
         item = self.tree_widget.itemAt(pos)
@@ -148,12 +167,13 @@ class LTNestedList(QWidget):
             if self.can_delete(index, item):
                 delete_action = QAction("Delete", self, triggered=lambda: self.delete(index, item))
                 menu.addAction(delete_action)
-            if is_category:
+            if is_category or  self.parent.allow_rename:
                 rename_action = QAction("Rename", self, triggered=lambda: self.rename_category(item))
                 menu.addAction(rename_action)
         menu.popup(self.tree_widget.viewport().mapToGlobal(pos))
 
     def reset(self, list_entries: Optional[List[NID]], list_categories: Optional[Categories]):
+        self.old_nid = None
         previous_selected_item_nid = self.get_selected_nid()
         self.tree_widget.clear()
         self._build_tree_widget_in_place(list_entries, list_categories, self.tree_widget.invisibleRootItem())
@@ -174,12 +194,14 @@ class LTNestedList(QWidget):
         tree_widget.dropEvent = self.on_drag_drop
         tree_widget.originalMousePressEvent = tree_widget.mousePressEvent
         tree_widget.mousePressEvent = self.on_click
+        tree_widget.itemDoubleClicked = self.on_double_click
         tree_widget.customContextMenuRequested.connect(self.customMenuRequested)
         tree_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         tree_widget.itemChanged.connect(self.data_changed)
         tree_widget.selectionModel().selectionChanged.connect(self.on_tree_item_selected)
 
     def on_filter_changed(self, text: str):
+        self.old_nid = None
         if text:
             filtered_items = self.tree_widget.findItems(text, QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive)
             items = set([item.text(0) for item in filtered_items if not item.data(0, IsCategoryRole)])
@@ -204,12 +226,13 @@ class LTNestedList(QWidget):
         old_item.setText(0, new_nid)
 
     def new(self, index, item: Optional[QTreeWidgetItem]):
+        self.old_nid = None
         list_entries, _ = self.get_list_and_category_structure()
         nids = list_entries
         new_nid = str_utils.get_next_name("new", nids)
         if self.attempt_new and self.attempt_new(new_nid):
             closest_category = self._determine_category_parent(item)
-            new_item = create_tree_entry(new_nid, create_empty_icon(32, 32), False)
+            new_item = create_tree_entry(new_nid, create_empty_icon(32, 32), False, self.parent.allow_rename)
             row = self._determine_insertion_row(index, item)
             closest_category.insertChild(row, new_item)
             self.select_item(new_item)
@@ -223,12 +246,13 @@ class LTNestedList(QWidget):
             if entry.data(0, IsCategoryRole):
                 existing_categories.add(entry.data(0, 0))
         new_category_name = str_utils.get_next_name("New Category", existing_categories)
-        new_category = create_tree_entry(new_category_name, create_empty_icon(32, 32), True)
+        new_category = create_tree_entry(new_category_name, create_empty_icon(32, 32), True, self.parent.allow_rename)
         row = self._determine_insertion_row(index, item)
         closest_category.insertChild(row, new_category)
         self.regenerate_icons(new_category)
 
     def duplicate(self, index, item: QTreeWidgetItem):
+        self.old_nid = None
         list_entries, _ = self.get_list_and_category_structure()
         nids = list_entries
         nid = item.data(0, 2)
@@ -237,14 +261,16 @@ class LTNestedList(QWidget):
         if not is_category: # duping categories doesn't make sense, lol
             if self.attempt_duplicate and self.attempt_duplicate(nid, new_nid):
                 closest_category = self._determine_category_parent(item)
-                new_item = create_tree_entry(new_nid, item.icon(0), False)
+                new_item = create_tree_entry(new_nid, item.icon(0), False, self.parent.allow_rename)
                 row = self._determine_insertion_row(index, item)
                 closest_category.insertChild(row, new_item)
                 self.select_item(new_item)
                 self.data_changed(new_item)
 
-    def rename_category(self, item: QTreeWidgetItem):
+    def rename(self, item: QTreeWidgetItem):
+        self.old_nid = item.text(0)
         self.tree_widget.editItem(item)
+        self.parent.right_frame.setEnabled(False)
 
     def can_delete(self, index, item: QTreeWidgetItem):
         if not index or not item:
@@ -312,6 +338,7 @@ class LTNestedList(QWidget):
             self.on_click_item(None)
 
     def on_drag_drop(self, event):
+        self.old_nid = None
         self.tree_widget.originalDropEvent(event)
         if self.disturbed_category:
             self.data_changed(self.disturbed_category)
@@ -321,10 +348,16 @@ class LTNestedList(QWidget):
             self.select_item(target_item)
 
     def data_changed(self, item: Optional[QTreeWidgetItem], column=None):
+        old_nid = self.old_nid
+        self.old_nid = None
+        if item and old_nid and not item.data(0, IsCategoryRole) and self.parent.allow_rename:
+            if not self.attempt_rename(old_nid, item.text(column)):
+                item.setText(column, old_nid)
         list_entries, list_categories = self.get_list_and_category_structure()
         if self.on_rearrange_items:
             self.on_rearrange_items(list_entries, list_categories)
         self.regenerate_icons(item, False)
+        self.parent.right_frame.setEnabled(False)
 
     def find_item_by_nid(self, nid) -> Optional[QTreeWidgetItem]:
         list_entries, list_categories = self.get_list_and_category_structure()
@@ -453,7 +486,9 @@ class LTNestedList(QWidget):
             return root
         def _build_tree_widget(root: LTNestedList.ListNode, parent: QTreeWidgetItem):
             for node in root.children.values():
-                item = create_tree_entry(node.nid, create_empty_icon(32, 32), node.is_category)
+                item = create_tree_entry(node.nid, create_empty_icon(32, 32), node.is_category, self.parent.allow_rename)
+                if self.get_foreground(node.nid):
+                    item.setForeground(0, self.get_foreground(node.nid))
                 parent.addChild(item)
                 if(node.is_category):
                     _build_tree_widget(node, item)

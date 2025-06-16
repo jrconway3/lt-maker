@@ -33,7 +33,6 @@ class FrameModel(ResourceCollectionModel):
             return text
         elif role == Qt.DecorationRole:
             frame = self._data[index.row()]
-            print(frame.nid)
             im = self.window.palette_swap(frame.pixmap)
             pix = QPixmap.fromImage(im)
             return QIcon(pix)
@@ -200,7 +199,6 @@ class FrameSelector(Dialog):
             painter = QPainter()
             painter.begin(base_image)
             pixmap = self.current.pixmap
-            print(self.current.nid)
             im = self.palette_swap(pixmap)
             painter.drawImage(self.current.offset[0], self.current.offset[1], im)
             painter.end()

@@ -9,6 +9,7 @@ from PyQt5.QtGui import QColor, QPen, QPixmap, QImage, QPainter, qRgb
 from typing import List, Tuple
 
 from app.constants import WINWIDTH, WINHEIGHT
+from app.data.resources import map_sprites
 from app.data.resources.resources import RESOURCES
 
 from app.editor.settings import MainSettingsController
@@ -741,7 +742,10 @@ class NewPaletteProperties(QWidget):
 
     def draw_frame(self):
         if self.current_frame and self.current_palette:
-            im = combat_animation_model.palette_swap(self.current_frame.pixmap, self.get_current_palette())
+            if isinstance(self.current_frame_set, map_sprites.MapSprite):
+                im = map_sprite_model.palette_swap(self.current_frame.pixmap, self.get_current_palette())
+            else:
+                im = combat_animation_model.palette_swap(self.current_frame.pixmap, self.get_current_palette())
             base_image = QImage(WINWIDTH, WINHEIGHT, QImage.Format_ARGB32)
             base_image.fill(editor_utilities.qCOLORKEY)
             painter = QPainter()

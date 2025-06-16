@@ -64,8 +64,10 @@ def palette_swap(pixmap: QPixmap, palette_nid: NID, with_colorkey=True) -> QImag
         return pixmap.toImage()
     im = pixmap.toImage()
     conv_dict = {a: b for a, b in zip(default_palettes['map_sprite_blue'], palette.get_colors())}
+    print(conv_dict)
     #conv_dict = editor_utilities.get_coord_conversion(palette)
-    im = editor_utilities.color_convert(im, conv_dict)
+    color_transform = editor_utilities.rgb_convert(conv_dict)
+    im = editor_utilities.color_convert(im, color_transform)
     if with_colorkey:
         im = editor_utilities.convert_colorkey(im)
     return im

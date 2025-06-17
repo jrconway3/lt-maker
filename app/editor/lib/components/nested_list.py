@@ -32,12 +32,9 @@ def create_folder_icon(contents_icon: Optional[QIcon]) -> QIcon:
 IsCategoryRole = 100
 
 class NestedListStyleDelegate(QStyledItemDelegate):
-    itemStoppedEditing = QtCore.pyqtSignal(QModelIndex)
-    _current_index: Optional[QModelIndex] = None
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._current_index = None
+    beforeItemChanged = QtCore.pyqtSignal(str)
+    itemStoppedEditing = QtCore.pyqtSignal(str)
+    _current_index = Optional[QModelIndex]
 
     def paint(self, painter, option, index):
         # decide here if item should be bold and set font weight to bold if needed
@@ -50,6 +47,10 @@ class NestedListStyleDelegate(QStyledItemDelegate):
         osize.setHeight(32)
         return osize
 
+    def setModelData(self, editor, model, index):
+        self.beforeItemChanged.emit(index.data())
+        super().setModelData(editor, model, index)
+
     def createEditor(self, parent, option, index):
         self._current_index = index
         editor = super().createEditor(parent, option, index)
@@ -58,7 +59,7 @@ class NestedListStyleDelegate(QStyledItemDelegate):
 
     def closeEditor(self):
         if self._current_index:
-            self.itemStoppedEditing.emit(self._current_index)
+            self.itemStoppedEditing.emit(self._current_index.data())
         self._current_index = None
 
 class LTNestedList(QWidget):
@@ -136,14 +137,12 @@ class LTNestedList(QWidget):
         self.tree_widget.originalMousePressEvent(e)
         item = self.tree_widget.itemAt(e.pos())
         if item:
-            self.old_nid = item.text(0)
             while item.parent():
                 item = item.parent()
         self.disturbed_category = item
 
     def on_double_click(self, item):
         if item and not item.data(0, IsCategoryRole):
-            self.old_nid = item.text(0)
             self.on_rename_item(item)
 
     def on_filter_list_click(self, e):
@@ -179,7 +178,6 @@ class LTNestedList(QWidget):
         menu.popup(self.tree_widget.viewport().mapToGlobal(pos))
 
     def reset(self, list_entries: Optional[List[NID]], list_categories: Optional[Categories]):
-        self.old_nid = None
         previous_selected_item_nid = self.get_selected_nid()
         self.tree_widget.clear()
         self._build_tree_widget_in_place(list_entries, list_categories, self.tree_widget.invisibleRootItem())
@@ -192,6 +190,7 @@ class LTNestedList(QWidget):
         self._build_tree_widget_in_place(list_entries, list_categories, tree_widget.invisibleRootItem())
         self.regenerate_icons(initial_generation=True)
         delegate = NestedListStyleDelegate(self)
+        delegate.beforeItemChanged.connect(self.before_data_changed)
         delegate.itemStoppedEditing.connect(self.done_editing)
         tree_widget.setItemDelegate(delegate)
         tree_widget.setUniformRowHeights(True)
@@ -209,7 +208,6 @@ class LTNestedList(QWidget):
         tree_widget.selectionModel().selectionChanged.connect(self.on_tree_item_selected)
 
     def on_filter_changed(self, text: str):
-        self.old_nid = None
         if text:
             filtered_items = self.tree_widget.findItems(text, QtCore.Qt.MatchContains | QtCore.Qt.MatchRecursive)
             items = set([item.text(0) for item in filtered_items if not item.data(0, IsCategoryRole)])
@@ -234,7 +232,6 @@ class LTNestedList(QWidget):
         old_item.setText(0, new_nid)
 
     def new(self, index, item: Optional[QTreeWidgetItem]):
-        self.old_nid = None
         list_entries, _ = self.get_list_and_category_structure()
         nids = list_entries
         new_nid = str_utils.get_next_name("new", nids)
@@ -260,7 +257,6 @@ class LTNestedList(QWidget):
         self.regenerate_icons(new_category)
 
     def duplicate(self, index, item: QTreeWidgetItem):
-        self.old_nid = None
         list_entries, _ = self.get_list_and_category_structure()
         nids = list_entries
         nid = item.data(0, 2)
@@ -276,7 +272,6 @@ class LTNestedList(QWidget):
                 self.data_changed(new_item)
 
     def rename(self, item: QTreeWidgetItem):
-        self.old_nid = item.text(0)
         self.tree_widget.editItem(item)
         self.on_rename_item(item)
 
@@ -346,7 +341,6 @@ class LTNestedList(QWidget):
             self.on_click_item(None)
 
     def on_drag_drop(self, event):
-        self.old_nid = None
         self.tree_widget.originalDropEvent(event)
         if self.disturbed_category:
             self.data_changed(self.disturbed_category)
@@ -356,20 +350,24 @@ class LTNestedList(QWidget):
             self.select_item(target_item)
 
     def data_changed(self, item: Optional[QTreeWidgetItem], column=None):
-        old_nid = self.old_nid
-        self.old_nid = None
-        if item and old_nid and not item.data(0, IsCategoryRole) and self.allow_rename:
-            if not self.attempt_rename(old_nid, item.text(column)):
-                item.setText(column, old_nid)
-                self.select_item(item)
+        if item and self.old_nid and not item.data(0, IsCategoryRole) and self.allow_rename:
+            if not self.attempt_rename(self.old_nid, item.text(column)):
+                item.setText(column, self.old_nid)
+            self.old_nid = None
+            self.select_item(item)
         list_entries, list_categories = self.get_list_and_category_structure()
         if self.on_rearrange_items:
             self.on_rearrange_items(list_entries, list_categories)
         self.regenerate_icons(item, False)
 
-    def done_editing(self, item:Optional[QTreeWidgetItem]):
+    def before_data_changed(self, nid:Optional[str]):
+        item = self.find_item_by_nid(nid)
+        if self.allow_rename and item:
+            self.old_nid = nid
+
+    def done_editing(self, nid:Optional[str]):
+        item = self.find_item_by_nid(nid)
         self.on_rename_item(item, False)
-        self.old_nid = None
 
     def find_item_by_nid(self, nid) -> Optional[QTreeWidgetItem]:
         list_entries, list_categories = self.get_list_and_category_structure()

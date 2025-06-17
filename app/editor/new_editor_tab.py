@@ -105,7 +105,6 @@ class NewEditorTab(QWidget, Generic[T]):
         if self.data.get(new_nid):
             QMessageBox.warning(self, 'Warning', 'ID %s already in use' % new_nid)
             return False
-        self.tree_list.old_nid = None
         self._on_nid_changed(old_nid, new_nid)
         self.data.change_key(old_nid, new_nid)
         self.tree_list.update_nid(old_nid, new_nid)

@@ -125,6 +125,7 @@ class NewEditorTab(QWidget, Generic[T]):
         self.data.sort(lambda x: entries.index(x.nid) if x.nid in entries else -1)
 
     def on_rename(self, entry_nid: NID, renaming: bool = True):
+        self.right_frame.setEnabled(not renaming)
         return
 
     def delete_from_db(self, nid):

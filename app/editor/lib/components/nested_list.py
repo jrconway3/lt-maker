@@ -51,7 +51,6 @@ class NestedListStyleDelegate(QStyledItemDelegate):
         return osize
 
     def createEditor(self, parent, option, index):
-        print("creating editor for index", index, "with data", index.data())
         self._current_index = index
         editor = super().createEditor(parent, option, index)
         editor.editingFinished.connect(self.closeEditor)
@@ -123,7 +122,6 @@ class LTNestedList(QWidget):
         self.tree_widget = QTreeWidget()
         self.build_tree_widget(self.tree_widget, list_entries, list_categories)
         layout.addWidget(self.tree_widget)
-        self.tree_widget.keyPressEvent = self.on_key_press
 
         self.new_item_button = QPushButton("Create New")
         self.new_item_button.clicked.connect(lambda: self.new(self.tree_widget.selectedIndexes()[0] if self.tree_widget.selectedIndexes() else None,
@@ -144,7 +142,7 @@ class LTNestedList(QWidget):
         self.disturbed_category = item
 
     def on_double_click(self, item):
-        if item:
+        if item and not item.data(0, IsCategoryRole):
             self.old_nid = item.text(0)
             self.on_rename_item(item)
 
@@ -154,13 +152,10 @@ class LTNestedList(QWidget):
         if tree_item:
             self.select_item(tree_item)
 
-    def on_key_press(self, event):
+    def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
             if self.tree_widget.selectedIndexes():
                 self.delete(self.tree_widget.selectedIndexes()[0], self.tree_widget.selectedItems()[0])
-
-        #if event.key() == QtCore.Qt.Key_Enter or event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Escape:
-        #    self.done_editing()
 
     def customMenuRequested(self, pos):
         item = self.tree_widget.itemAt(pos)
@@ -374,6 +369,7 @@ class LTNestedList(QWidget):
 
     def done_editing(self, item:Optional[QTreeWidgetItem]):
         self.on_rename_item(item, False)
+        self.old_nid = None
 
     def find_item_by_nid(self, nid) -> Optional[QTreeWidgetItem]:
         list_entries, list_categories = self.get_list_and_category_structure()

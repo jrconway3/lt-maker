@@ -42,9 +42,10 @@ class NewEditorTab(QWidget, Generic[T]):
         self.left_frame = QWidget()
         left_frame_layout = QVBoxLayout()
         self.left_frame.setLayout(left_frame_layout)
-        self.tree_list = LTNestedList(self, self.data.keys(), self.categories, self.get_icon, self.get_foreground,
-                                      self.on_select, self.resort_db, self.delete_from_db, self.create_new,
-                                      self.duplicate, self.rename)
+        self.tree_list = LTNestedList(self, self.data.keys(), self.categories, self.allow_rename,
+                                      self.get_icon, self.get_foreground,
+                                      self.on_select, self.resort_db, self.on_rename,
+                                      self.delete_from_db, self.create_new, self.duplicate, self.rename)
         left_frame_layout.setContentsMargins(0, 0, 0, 0)
         left_frame_layout.setSpacing(0)
         left_frame_layout.addWidget(self.tree_list)
@@ -122,6 +123,9 @@ class NewEditorTab(QWidget, Generic[T]):
     def resort_db(self, entries: List[str], categories: Categories):
         self.data.categories = categories
         self.data.sort(lambda x: entries.index(x.nid) if x.nid in entries else -1)
+
+    def on_rename(self, entry_nid: NID, renaming: bool = True):
+        return
 
     def delete_from_db(self, nid):
         if len(self.data) == 1:

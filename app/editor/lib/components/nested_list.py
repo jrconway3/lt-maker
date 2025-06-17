@@ -351,9 +351,10 @@ class LTNestedList(QWidget):
 
     def data_changed(self, item: Optional[QTreeWidgetItem], column=None):
         if item and self.old_nid and not item.data(0, IsCategoryRole) and self.allow_rename:
-            if not self.attempt_rename(self.old_nid, item.text(column)):
-                item.setText(column, self.old_nid)
+            old_nid = self.old_nid
             self.old_nid = None
+            if not self.attempt_rename(old_nid, item.text(column)):
+                item.setText(column, old_nid)
             self.select_item(item)
         list_entries, list_categories = self.get_list_and_category_structure()
         if self.on_rearrange_items:

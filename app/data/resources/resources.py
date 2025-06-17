@@ -115,9 +115,9 @@ class Resources():
             getattr(self, data_type).clear()  # Now always clears first
             getattr(self, data_type).load(os.path.join(self.main_folder, data_type), resource_data.get(data_type, []))
 
-        # Also restore the categories if it has any
-        if isinstance(getattr(self, data_type), CategorizedCatalog):
-            getattr(self, data_type).categories = Categories.load(resource_data.get(data_type + CATEGORY_SUFFIX, {}))
+            # Also restore the categories if it has any
+            if isinstance(getattr(self, data_type), CategorizedCatalog):
+                getattr(self, data_type).categories = Categories.load(resource_data.get(data_type + CATEGORY_SUFFIX, {}))
 
         # load custom components
         self.load_components()

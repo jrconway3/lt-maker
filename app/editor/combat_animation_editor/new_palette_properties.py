@@ -604,6 +604,7 @@ class NewPaletteProperties(QWidget):
     def nid_done_editing(self):
         if not self.attempt_change_nid(self.cached_nid, self.current_palette.nid):
             self.current_palette.nid = self.cached_nid
+        self.cached_nid = self.current_palette.nid
 
     @property
     def current(self):

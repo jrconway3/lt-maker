@@ -334,6 +334,7 @@ class CombatAnimProperties(QWidget):
     def nid_done_editing(self):
         if not self.attempt_change_nid(self.cached_nid, self.current.nid):
             self.current.nid = self.cached_nid
+        self.cached_nid = self.current.nid
 
     def ask_permission(self, obj, text: str) -> bool:
         ret = QMessageBox.warning(self, "Deletion Warning",

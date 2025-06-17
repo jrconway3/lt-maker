@@ -27,8 +27,12 @@ class Loader0(LoaderBase):
                 )
             if key == 'combat_palettes': # special case
                 as_dict[key] = _json_load(resource_dir / key, 'palette_data')
+                if Path(resource_dir / key, key + resources.CATEGORY_SUFFIX + '.json').exists():
+                    as_dict[key + resources.CATEGORY_SUFFIX] = _json_load(resource_dir / key, key + resources.CATEGORY_SUFFIX)
             elif key == 'tilemaps': # special case
                 as_dict[key] = _json_load(resource_dir / key, 'tilemap_data')
+                if Path(resource_dir / key, key + resources.CATEGORY_SUFFIX + '.json').exists():
+                    as_dict[key + resources.CATEGORY_SUFFIX] = _json_load(resource_dir / key, key + resources.CATEGORY_SUFFIX)
             else:
                 as_dict[key] = _load_manifest_or_prefabs(resource_dir, key)
         return as_dict

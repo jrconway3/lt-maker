@@ -34,7 +34,7 @@ IsCategoryRole = 100
 class NestedListStyleDelegate(QStyledItemDelegate):
     beforeItemChanged = QtCore.pyqtSignal(str)
     itemStoppedEditing = QtCore.pyqtSignal(str)
-    _current_index = Optional[QModelIndex]
+    _current_index: Optional[QModelIndex] = None
 
     def paint(self, painter, option, index):
         # decide here if item should be bold and set font weight to bold if needed

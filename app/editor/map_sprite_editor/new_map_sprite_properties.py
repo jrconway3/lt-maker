@@ -20,40 +20,6 @@ from app.utilities.typing import NID
 
 from typing import (List, Callable, Optional)
 
-def populate_map_sprite_frames(map_sprite):
-    # Get Left Frames
-    standing = map_sprite.standing_pixmap
-    moving = map_sprite.moving_pixmap
-    passive: List[Frame] = []
-    active: List[Frame] = []
-    down: List[Frame] = []
-    left: List[Frame] = []
-    right: List[Frame] = []
-    up: List[Frame] = []
-    for num in range(4):
-        if num < 3:
-            passive.append(Frame('passive' + str(num+1), (64, 48), (0, 0), standing.copy(num*64, 0, 64, 48), standing))
-            active.append(Frame('active' + str(num+1), (64, 48), (0, 0), standing.copy(num*64, 96, 64, 48), standing))
-        down.append(Frame('down' + str(num+1), (48, 40), (0, 0), moving.copy(num*48, 0, 48, 40), moving))
-        left.append(Frame('left' + str(num+1), (48, 40), (0, 0), moving.copy(num*48, 40, 48, 40), moving))
-        right.append(Frame('right' + str(num+1), (48, 40), (0, 0), moving.copy(num*48, 80, 48, 40), moving))
-        up.append(Frame('up' + str(num+1), (48, 40), (0, 0), moving.copy(num*48, 120, 48, 40), moving))
-    return passive + active + down + left + right + up
-
-def populate_map_sprite_pixmaps(map_sprite, force=False):
-    if not map_sprite.standing_pixmap or force:
-        if map_sprite.stand_full_path and os.path.exists(map_sprite.stand_full_path):
-            map_sprite.standing_pixmap = QPixmap(map_sprite.stand_full_path)
-        else:
-            return
-    if not map_sprite.moving_pixmap or force:
-        if map_sprite.move_full_path and os.path.exists(map_sprite.move_full_path):
-            map_sprite.moving_pixmap = QPixmap(map_sprite.move_full_path)
-        else:
-            return
-    map_sprite.frames = populate_map_sprite_frames(map_sprite)
-    map_sprite.palettes = [[team.nid, team.map_sprite_palette] for team in DB.teams]
-
 class NewMapSpriteProperties(QWidget):
     title = "Map Sprite"
 

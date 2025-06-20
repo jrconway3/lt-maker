@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from app import dark_theme
 
 from app.data.resources.resources import RESOURCES
-from app.editor.map_sprite_editor import map_sprite_tab, map_sprite_model
+from app.editor.map_sprite_editor import new_map_sprite_tab, map_sprite_model
 
 import app.editor.utilities as editor_utilities
 
@@ -249,7 +249,7 @@ class MapSpriteBox(QWidget):
             self.setLayout(self.layout)
 
     def select_map_sprite(self):
-        res, ok = map_sprite_tab.get()
+        res, ok = new_map_sprite_tab.get()
         if ok:
             nid = res.nid
             pix = self.get_map_sprite_icon(nid, num=0)

@@ -16,14 +16,14 @@ from app.utilities.typing import NID
 
 from app.editor import timer
 
-class NewPortraitTab(NewEditorTab):
+class NewPortraitDatabase(NewEditorTab):
     catalog_type = PortraitCatalog
     properties_type = new_portrait_properties.NewPortraitProperties
     allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(NewPortraitTab, ['portraits'], parent)
+        window = SingleResourceEditor(NewPortraitDatabase, ['portraits'], parent)
         window.exec_()
 
     @property
@@ -61,7 +61,7 @@ class NewPortraitTab(NewEditorTab):
 
 def get():
     timer.get_timer().start_for_editor()
-    window = SingleResourceEditor(NewPortraitTab, ['portraits'])
+    window = SingleResourceEditor(NewPortraitDatabase, ['portraits'])
     result = window.exec_()
     timer.get_timer().stop_for_editor()
     if result == QDialog.Accepted:
@@ -78,6 +78,6 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     from app.data.serialization.versions import CURRENT_SERIALIZATION_VERSION
     RESOURCES.load('default.ltproj', CURRENT_SERIALIZATION_VERSION)
-    window = SingleResourceEditor(NewPortraitTab, ['portraits'])
+    window = SingleResourceEditor(NewPortraitDatabase, ['portraits'])
     window.show()
     app.exec_()

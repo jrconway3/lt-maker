@@ -14,7 +14,7 @@ from app.editor import timer
 from app.editor.icon_editor.icon_view import IconView
 from app.engine.unit_sprite import MapSprite
 from app.editor.map_sprite_editor import map_sprite_model
-from app.editor.component_editor_has import T
+from app.editor.component_editor_types import T
 from app.engine.game_state import game
 from app.utilities.typing import NID
 

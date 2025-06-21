@@ -65,7 +65,7 @@ def get():
         return None, False
 
 # Testing
-# Run "python -m app.editor.map_sprite_editor.map_sprite_tab" from main directory
+# Run "python -m app.editor.map_sprite_editor.new_map_sprite_tab" from main directory
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication

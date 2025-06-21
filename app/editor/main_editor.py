@@ -67,7 +67,7 @@ from app.editor.credit_editor.new_credit_tab import NewCreditDatabase
 
 # Resources
 from app.editor.icon_editor import icon_tab
-from app.editor.combat_animation_editor import combat_animation_tab
+from app.editor.combat_animation_editor import new_combat_animation_tab
 from app.editor.tile_editor import tile_tab
 from app.editor.sound_editor import sound_tab
 from app.editor.support_editor import support_pair_tab
@@ -560,7 +560,7 @@ class MainEditor(QMainWindow):
         dialog.exec_()
 
     def edit_combat_animations(self, parent=None):
-        dialog = combat_animation_tab.get_full_editor()
+        dialog = new_combat_animation_tab.get_full_editor()
         dialog.exec_()
 
     def edit_tilemaps(self, parent=None):

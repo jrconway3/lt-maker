@@ -18,6 +18,18 @@ class NewPaletteTab(NewEditorTab):
     allow_rename = True
 
     @classmethod
+    def create(cls, parent=None):
+        data = RESOURCES.combat_palettes
+        title = "Palette"
+        right_frame = new_palette_properties.PaletteProperties
+        collection_model = palette_model.PaletteModel
+        deletion_criteria = None
+
+        dialog = cls(data, title, right_frame, deletion_criteria,
+                     collection_model, parent, button_text="Add New %s...")
+        return dialog
+
+    @classmethod
     def edit(cls, parent=None):
         window = SingleResourceEditor(NewPaletteTab, ['combat_palettes'], parent)
         window.exec_()

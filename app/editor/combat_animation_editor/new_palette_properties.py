@@ -18,7 +18,7 @@ from app.editor import timer
 from app.utilities import str_utils
 from app.extensions.custom_gui import PropertyBox, ComboBox, Dialog
 from app.editor.combat_animation_editor.frame_selector import FrameSelector
-from app.editor.combat_animation_editor import combat_animation_model, new_combat_animation_properties, new_combat_effect_properties, palette_model
+from app.editor.combat_animation_editor import combat_animation_model, new_combat_effect_properties, new_combat_animation_properties, palette_model
 from app.editor.combat_animation_editor.color_editor import ColorEditorWidget
 from app.editor.lib.components.validated_line_edit import NidLineEdit
 from app.editor.map_sprite_editor import new_map_sprite_properties, map_sprite_model

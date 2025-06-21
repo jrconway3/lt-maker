@@ -27,7 +27,7 @@ from app.editor.combat_animation_editor.combat_animation_model import palette_sw
 from app.editor.file_manager.project_file_backend import DEFAULT_PROJECT
 import app.editor.combat_animation_editor.combat_animation_imports as combat_animation_imports
 import app.editor.combat_animation_editor.combat_animation_export as combat_animation_export
-from app.editor.component_editor_has import T
+from app.editor.component_editor_types import T
 from app.extensions.custom_gui import ComboBox
 
 import app.editor.utilities as editor_utilities
@@ -53,7 +53,7 @@ def populate_anim_pixmaps(combat_anim, force=False):
                 x, y, width, height = frame.rect
                 frame.pixmap = weapon_anim.pixmap.copy(x, y, width, height)
 
-class CombatAnimProperties(QWidget):
+class NewCombatAnimProperties(QWidget):
     title = "Combat Animation"
 
     def __init__(self, parent, current: Optional[T] = None,

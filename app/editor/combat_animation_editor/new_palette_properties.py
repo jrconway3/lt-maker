@@ -23,7 +23,7 @@ from app.editor.lib.components.validated_line_edit import NidLineEdit
 from app.data.resources.combat_anims import Frame
 from app.data.resources.combat_palettes import Palette
 from app.editor.icon_editor.icon_view import IconView
-from app.editor.component_editor_has import T
+from app.editor.component_editor_types import T
 from app.utilities.typing import NID
 
 from typing import (Callable, Optional)

@@ -9,13 +9,13 @@ from app.data.resources.combat_anims import CombatCatalog, CombatEffectCatalog
 from app.editor.new_editor_tab import NewEditorTab
 from app.editor.combat_animation_editor import combat_animation_model, combat_effect_model
 from app.editor.item_editor import  item_model
-from app.editor.combat_animation_editor.new_combat_animation_properties import CombatAnimProperties
-from app.editor.combat_animation_editor.new_combat_effect_properties import CombatEffectProperties
-from app.editor.combat_animation_editor.new_palette_tab import NewPaletteTab
+from app.editor.combat_animation_editor.new_combat_animation_properties import NewCombatAnimProperties
+from app.editor.combat_animation_editor.new_combat_effect_properties import NewCombatEffectProperties
+from app.editor.combat_animation_editor.new_palette_tab import NewPaletteDatabase
 from app.editor.data_editor import SingleResourceEditor, NewMultiResourceEditor
 from app.utilities.typing import NID
 
-class SimpleCombatAnimProperties(QWidget):
+class NewSimpleCombatAnimProperties(QWidget):
     title = "Combat Animation"
 
     def __init__(self, parent, current=None):
@@ -30,14 +30,14 @@ class SimpleCombatAnimProperties(QWidget):
             self.setEnabled(True)
             self.current = current
 
-class CombatAnimDisplay(NewEditorTab):
+class NewCombatAnimDatabase(NewEditorTab):
     catalog_type = CombatCatalog
-    properties_type = CombatAnimProperties
+    properties_type = NewCombatAnimProperties
     allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(CombatAnimDisplay, ['combat_anims'], parent)
+        window = SingleResourceEditor(NewCombatAnimDatabase, ['combat_anims'], parent)
         window.exec_()
 
     @property
@@ -63,22 +63,22 @@ class CombatAnimDisplay(NewEditorTab):
         else:
             return False
 
-class SimpleCombatAnimDisplay(CombatAnimDisplay):
-    properties_type = SimpleCombatAnimProperties
+class NewSimpleCombatAnimDatabase(NewCombatAnimDatabase):
+    properties_type = NewSimpleCombatAnimProperties
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(SimpleCombatAnimDisplay, ['combat_anims'], parent)
+        window = SingleResourceEditor(SimpleNewCombatAnimDatabase, ['combat_anims'], parent)
         window.exec_()
 
-class CombatEffectDisplay(NewEditorTab):
+class NewCombatEffectDatabase(NewEditorTab):
     catalog_type = CombatEffectCatalog
-    properties_type = CombatEffectProperties
+    properties_type = NewCombatEffectProperties
     allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(CombatEffectDisplay, ['combat_effects'], parent)
+        window = SingleResourceEditor(NewCombatEffectDatabase, ['combat_effects'], parent)
         window.exec_()
 
     @property
@@ -111,13 +111,13 @@ class CombatEffectDisplay(NewEditorTab):
             return False
 
 def get_full_editor() -> NewMultiResourceEditor:
-    editor = NewMultiResourceEditor((CombatAnimDisplay, CombatEffectDisplay, NewPaletteTab),
+    editor = NewMultiResourceEditor((NewCombatAnimDatabase, NewCombatEffectDatabase, NewPaletteDatabase),
                                  ('combat_anims', 'combat_effects', 'combat_palettes'))
     editor.setWindowTitle("Combat Animation Editor")
     return editor
 
 def get_animations() -> tuple:
-    window = SingleResourceEditor(SimpleCombatAnimDisplay, ['combat_anims'])
+    window = SingleResourceEditor(SimpleNewCombatAnimDatabase, ['combat_anims'])
     result = window.exec_()
     if result == QDialog.Accepted:
         selected_combat_anim = window.tab.right_frame.current
@@ -135,8 +135,8 @@ from app.data.resources.combat_anims import CombatCatalog, CombatEffectCatalog
 from app.editor.new_editor_tab import NewEditorTab
 from app.editor.combat_animation_editor import combat_animation_model, combat_effect_model
 from app.editor.item_editor import  item_model
-from app.editor.combat_animation_editor.new_combat_animation_properties import CombatAnimProperties
-from app.editor.combat_animation_editor.new_combat_effect_properties import CombatEffectProperties
+from app.editor.combat_animation_editor.new_combat_animation_properties import NewCombatAnimProperties
+from app.editor.combat_animation_editor.new_combat_effect_properties import NewCombatEffectProperties
 from app.editor.combat_animation_editor.new_palette_tab import NewPaletteTab
 from app.editor.data_editor import SingleResourceEditor, NewMultiResourceEditor
 from app.utilities.typing import NID
@@ -156,14 +156,14 @@ class SimpleCombatAnimProperties(QWidget):
             self.setEnabled(True)
             self.current = current
 
-class CombatAnimDisplay(NewEditorTab):
+class NewCombatAnimDatabase(NewEditorTab):
     catalog_type = CombatCatalog
-    properties_type = CombatAnimProperties
+    properties_type = NewCombatAnimProperties
     allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(CombatAnimDisplay, ['combat_anims'], parent)
+        window = SingleResourceEditor(NewCombatAnimDatabase, ['combat_anims'], parent)
         window.exec_()
 
     @property
@@ -189,17 +189,17 @@ class CombatAnimDisplay(NewEditorTab):
         else:
             return False
 
-class SimpleCombatAnimDisplay(CombatAnimDisplay):
-    properties_type = SimpleCombatAnimProperties
+class SimpleNewCombatAnimDatabase(NewCombatAnimDatabase):
+    properties_type = NewSimpleCombatAnimProperties
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(SimpleCombatAnimDisplay, ['combat_anims'], parent)
+        window = SingleResourceEditor(SimpleNewCombatAnimDatabase, ['combat_anims'], parent)
         window.exec_()
 
 class CombatEffectDisplay(NewEditorTab):
     catalog_type = CombatEffectCatalog
-    properties_type = CombatEffectProperties
+    properties_type = NewCombatEffectProperties
     allow_rename = True
 
     @classmethod
@@ -237,13 +237,13 @@ class CombatEffectDisplay(NewEditorTab):
             return False
 
 def get_full_editor() -> NewMultiResourceEditor:
-    editor = NewMultiResourceEditor((CombatAnimDisplay, CombatEffectDisplay, NewPaletteTab),
+    editor = NewMultiResourceEditor((NewCombatAnimDatabase, CombatEffectDisplay, NewPaletteTab),
                                  ('combat_anims', 'combat_effects', 'combat_palettes'))
     editor.setWindowTitle("Combat Animation Editor")
     return editor
 
 def get_animations() -> tuple:
-    window = SingleResourceEditor(SimpleCombatAnimDisplay, ['combat_anims'])
+    window = SingleResourceEditor(SimpleNewCombatAnimDatabase, ['combat_anims'])
     result = window.exec_()
     if result == QDialog.Accepted:
         selected_combat_anim = window.tab.right_frame.current

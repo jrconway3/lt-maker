@@ -68,7 +68,7 @@ class NewSimpleCombatAnimDatabase(NewCombatAnimDatabase):
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(SimpleNewCombatAnimDatabase, ['combat_anims'], parent)
+        window = SingleResourceEditor(NewSimpleCombatAnimDatabase, ['combat_anims'], parent)
         window.exec_()
 
 class NewCombatEffectDatabase(NewEditorTab):
@@ -117,7 +117,7 @@ def get_full_editor() -> NewMultiResourceEditor:
     return editor
 
 def get_animations() -> tuple:
-    window = SingleResourceEditor(SimpleNewCombatAnimDatabase, ['combat_anims'])
+    window = SingleResourceEditor(NewSimpleCombatAnimDatabase, ['combat_anims'])
     result = window.exec_()
     if result == QDialog.Accepted:
         selected_combat_anim = window.tab.right_frame.current
@@ -189,12 +189,12 @@ class NewCombatAnimDatabase(NewEditorTab):
         else:
             return False
 
-class SimpleNewCombatAnimDatabase(NewCombatAnimDatabase):
+class NewSimpleCombatAnimDatabase(NewCombatAnimDatabase):
     properties_type = NewSimpleCombatAnimProperties
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(SimpleNewCombatAnimDatabase, ['combat_anims'], parent)
+        window = SingleResourceEditor(NewSimpleCombatAnimDatabase, ['combat_anims'], parent)
         window.exec_()
 
 class CombatEffectDisplay(NewEditorTab):
@@ -243,7 +243,7 @@ def get_full_editor() -> NewMultiResourceEditor:
     return editor
 
 def get_animations() -> tuple:
-    window = SingleResourceEditor(SimpleNewCombatAnimDatabase, ['combat_anims'])
+    window = SingleResourceEditor(NewSimpleCombatAnimDatabase, ['combat_anims'])
     result = window.exec_()
     if result == QDialog.Accepted:
         selected_combat_anim = window.tab.right_frame.current

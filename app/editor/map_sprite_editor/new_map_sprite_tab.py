@@ -12,14 +12,14 @@ from app.editor.data_editor import SingleResourceEditor
 from app.editor.map_sprite_editor import map_sprite_model, new_map_sprite_properties
 from app.utilities.typing import NID
 
-class NewMapSpriteTab(NewEditorTab):
+class NewMapSpriteDatabase(NewEditorTab):
     catalog_type = MapSpriteCatalog
     properties_type = new_map_sprite_properties.NewMapSpriteProperties
     allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(NewMapSpriteTab, ['map_sprites'], parent)
+        window = SingleResourceEditor(NewMapSpriteDatabase, ['map_sprites'], parent)
         window.exec_()
 
     @property
@@ -56,7 +56,7 @@ class NewMapSpriteTab(NewEditorTab):
             return False
 
 def get():
-    window = SingleResourceEditor(NewMapSpriteTab, ['map_sprites'])
+    window = SingleResourceEditor(NewMapSpriteDatabase, ['map_sprites'])
     result = window.exec_()
     if result == QDialog.Accepted:
         selected_map_sprite = window.tab.right_frame.current
@@ -71,6 +71,6 @@ if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     RESOURCES.load('default.ltproj', CURRENT_SERIALIZATION_VERSION)
-    window = SingleResourceEditor(NewMapSpriteTab, ['map_sprites'])
+    window = SingleResourceEditor(NewMapSpriteDatabase, ['map_sprites'])
     window.show()
     app.exec_()

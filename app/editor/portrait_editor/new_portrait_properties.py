@@ -12,7 +12,7 @@ from app.extensions.custom_gui import PropertyBox
 from app.editor import timer
 from app.editor.icon_editor.icon_view import IconView
 from app.editor.portrait_editor import portrait_model
-from app.editor.component_editor_has import T
+from app.editor.component_editor_types import T
 from app.utilities.typing import NID
 import app.editor.utilities as editor_utilities
 

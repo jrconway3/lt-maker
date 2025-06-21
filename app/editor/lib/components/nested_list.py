@@ -70,7 +70,8 @@ class LTNestedList(QWidget):
         on_rearrange_items (function(List[NID], Categories)): Callback is called whenever the data of the NestedList changes, with the flattened order
                                             of all entries (i.e. no categories), as well as a dictionary mapping each entry to its parent categories as params. Intended to be used
                                             to sync sort order and category naming between DB and the NestedList.
-        on_rename_item (function(nid, renaming)): Callback is called with a whenever any leaf node is started to be renamed, with the selected NID and whether renaming has started (True) or ended (False). Will not trigger on category rename.
+        on_begin_rename_item (function(nid, on_begin)): Callback is called whenever any leaf node is started to be renamed along with the selected NID. `on_begin` is
+                                            set to True by default, if set to False then it means renaming has ended instead of began. Will not trigger on category rename.
         attempt_delete (function(nid) -> bool): Callback is called with the NID of the item to be deleted. Callback is expected to handle deletion from the DB.
                                             If callback returns True, implies that deletion was successful and the NestedList will also delete its own entry.
         attempt_duplicate (function(nid_to_dup, new_nid) -> bool): Callback is called with the nid of the original item, and the new nid that it will create.
@@ -90,7 +91,7 @@ class LTNestedList(QWidget):
                  get_foreground: Optional[Callable[[NID], Optional[QBrush]]]=None,
                  on_click_item: Optional[Callable[[Optional[NID]], None]]=None,
                  on_rearrange_items: Optional[Callable[[List[NID], Categories], None]]=None,
-                 on_rename_item: Optional[Callable[[NID, bool], None]]=None,
+                 on_begin_rename_item: Optional[Callable[[NID, bool], None]]=None,
                  attempt_delete: Optional[Callable[[NID], bool]]=None,
                  attempt_new: Optional[Callable[[NID], bool]]=None,
                  attempt_duplicate: Optional[Callable[[NID, NID], bool]]=None,
@@ -102,7 +103,7 @@ class LTNestedList(QWidget):
         self.get_foreground = get_foreground or None
         self.on_click_item = on_click_item
         self.on_rearrange_items = on_rearrange_items
-        self.on_rename_item = on_rename_item
+        self.on_begin_rename_item = on_begin_rename_item
         self.attempt_delete = attempt_delete
         self.attempt_new = attempt_new
         self.attempt_duplicate = attempt_duplicate
@@ -143,7 +144,7 @@ class LTNestedList(QWidget):
 
     def on_double_click(self, item):
         if item and not item.data(0, IsCategoryRole):
-            self.on_rename_item(item)
+            self.on_begin_rename_item(item)
 
     def on_filter_list_click(self, e):
         item_nid = e.text()
@@ -273,7 +274,7 @@ class LTNestedList(QWidget):
 
     def rename(self, item: QTreeWidgetItem):
         self.tree_widget.editItem(item)
-        self.on_rename_item(item)
+        self.on_begin_rename_item(item)
 
     def can_delete(self, index, item: QTreeWidgetItem):
         if not index or not item:
@@ -368,7 +369,7 @@ class LTNestedList(QWidget):
 
     def done_editing(self, nid:Optional[str]):
         item = self.find_item_by_nid(nid)
-        self.on_rename_item(item, False)
+        self.on_begin_rename_item(item, False)
 
     def find_item_by_nid(self, nid) -> Optional[QTreeWidgetItem]:
         list_entries, list_categories = self.get_list_and_category_structure()

@@ -295,7 +295,7 @@ class EventCollection(QWidget):
         self.settings.component_controller.set_sort(self.__class__.__name__, (sort_col, sort_dir))
         return super().leaveEvent(event)
 
-class EventProperties(QWidget):
+class NewEventProperties(QWidget):
     def __init__(self, parent, current=None):
         super().__init__(parent)
         self.window = parent

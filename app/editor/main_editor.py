@@ -60,7 +60,7 @@ from app.editor.game_var_slot_widget import GameVarSlotDialog
 from app.editor.mcost_dialog import McostDialog
 from app.editor.translation_widget import TranslationDialog
 from app.editor.equation_widget import EquationDialog
-from app.editor.event_editor.event_tab import EventDatabase
+from app.editor.event_editor.new_event_tab import NewEventDatabase
 from app.editor.lore_editor.lore_tab import LoreDatabase
 from app.editor.raw_editor.raw_data_tab import RawDataDatabase
 from app.editor.credit_editor.new_credit_tab import NewCreditDatabase
@@ -275,7 +275,7 @@ class MainEditor(QMainWindow):
                 "%s..." % name, self, triggered=functools.partial(func, self))
 
         self.modify_events_act = QAction(
-            "Edit Events", self, triggered=functools.partial(EventDatabase.edit, self))
+            "Edit Events", self, triggered=functools.partial(NewEventDatabase.edit, self))
 
     def edit_level(self):
         self.app_state_manager.change_and_broadcast(

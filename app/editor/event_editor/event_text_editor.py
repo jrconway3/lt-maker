@@ -16,7 +16,7 @@ from app.events.event_version import EventVersion
 from app.utilities import str_utils
 
 if TYPE_CHECKING:
-    from app.editor.event_editor.event_properties import EventProperties
+    from app.editor.event_editor.new_event_properties import NewEventProperties
 
 class LineNumberArea(QWidget):
     def __init__(self, parent: EventTextEditor):
@@ -44,7 +44,7 @@ class EventTextEditor(QPlainTextEdit):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.event_properties: EventProperties = parent
+        self.new_event_properties: NewEventProperties = parent
         self.line_number_area = LineNumberArea(self)
 
         self.settings = MainSettingsController()
@@ -90,7 +90,7 @@ class EventTextEditor(QPlainTextEdit):
                 self.function_annotator.setStyleSheet(stylecss.read())
 
     def autoformat(self):
-        if self.event_properties.version == EventVersion.EVENT:
+        if self.new_event_properties.version == EventVersion.EVENT:
             text = self.document().toRawText()
             text = str_utils.convert_raw_text_newlines(text)
             formatted = event_formatter.format_event_script(text)
@@ -146,9 +146,9 @@ class EventTextEditor(QPlainTextEdit):
         self.function_annotator.show()
 
     def get_command_text_before_cursor(self) -> str:
-        if self.event_properties.version == EventVersion.EVENT:
+        if self.new_event_properties.version == EventVersion.EVENT:
             return self.get_line_before_cursor()
-        elif self.event_properties.version == EventVersion.PYEV1:
+        elif self.new_event_properties.version == EventVersion.PYEV1:
             return self.get_line_before_cursor("$" + str_utils.RAW_NEWLINE)
         else:
             return None
@@ -158,7 +158,7 @@ class EventTextEditor(QPlainTextEdit):
             self.hide_completion_box()
             return
         line = self.get_command_text_before_cursor()
-        if not self.completer.setTextToComplete(line, self.textCursor().position(), self.event_properties.current.level_nid, self.document().toPlainText()):
+        if not self.completer.setTextToComplete(line, self.textCursor().position(), self.new_event_properties.current.level_nid, self.document().toPlainText()):
             return
         cr = self.cursorRect()
         cr.setWidth(

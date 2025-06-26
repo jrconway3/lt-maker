@@ -9,6 +9,7 @@ from PyQt5.QtGui import QColor, QPen, QPixmap, QImage, QPainter, qRgb
 from typing import List, Tuple
 
 from app.constants import WINWIDTH, WINHEIGHT
+from app.data.resources import map_sprites
 from app.data.resources.resources import RESOURCES
 
 from app.editor.settings import MainSettingsController
@@ -19,6 +20,7 @@ from app.extensions.custom_gui import PropertyBox, ComboBox, Dialog
 from app.editor.combat_animation_editor.frame_selector import FrameSelector
 from app.editor.combat_animation_editor import combat_animation_model, new_combat_effect_properties, new_combat_animation_properties, palette_model
 from app.editor.combat_animation_editor.color_editor import ColorEditorWidget
+from app.editor.map_sprite_editor import new_map_sprite_properties, map_sprite_model
 from app.editor.lib.components.validated_line_edit import NidLineEdit
 from app.data.resources.combat_anims import Frame
 from app.data.resources.combat_palettes import Palette

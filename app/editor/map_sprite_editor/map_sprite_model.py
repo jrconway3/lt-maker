@@ -58,6 +58,18 @@ def gray_shift_team(im: QImage) -> QImage:
     im = editor_utilities.convert_colorkey(im)
     return im
 
+def palette_swap(pixmap: QPixmap, palette_nid: NID, with_colorkey=True) -> QImage:
+    palette = RESOURCES.combat_palettes.get(palette_nid)
+    if not palette:
+        return pixmap.toImage()
+    im = pixmap.toImage()
+    conv_dict = {a: b for a, b in zip(default_palettes['map_sprite_blue'], palette.get_colors())}
+    color_transform = editor_utilities.rgb_convert(conv_dict)
+    im = editor_utilities.color_convert(im, color_transform)
+    if with_colorkey:
+        im = editor_utilities.convert_colorkey(im)
+    return im
+
 def get_basic_icon(pixmap: QPixmap, num: int, active: bool = False, team: NID = 'player') -> QPixmap:
     if active:
         one_frame = pixmap.copy(num*64 + 16, 96 + 16, 32, 32)

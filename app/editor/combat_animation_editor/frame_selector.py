@@ -67,7 +67,6 @@ class FrameSelector(Dialog):
                 else:
                     from app.editor.combat_animation_editor.new_combat_effect_properties import populate_effect_pixmaps
                     populate_effect_pixmaps(combat_anim)
- 
 
         self.display = IconView(self)
         self.display.static_size = True

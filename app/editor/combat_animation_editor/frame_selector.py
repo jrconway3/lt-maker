@@ -279,7 +279,7 @@ class FrameSelector(Dialog):
             painter = QPainter()
             painter.begin(base_image)
             pixmap = frame.pixmap
-            im = self.palette_swap(pixmap, self)
+            im = self.palette_swap(pixmap)
             painter.drawImage(frame.offset[0], frame.offset[1], im)
             painter.end()
             path = os.path.join(fn_dir, '%s.png' % frame.nid)

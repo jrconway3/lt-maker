@@ -1,24 +1,42 @@
-from PyQt5.QtWidgets import QTableView
+from typing import Optional
+
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QTableView, QMessageBox
 
 from app.data.database.database import DB
 
-from app.editor.base_database_gui import DatabaseTab
-from app.extensions.custom_gui import TableView
+from app.editor.new_editor_tab import NewEditorTab
 from app.editor.data_editor import SingleDatabaseEditor
 
 from app.editor.event_editor import event_model, new_event_properties
+from app.events.event_prefab import EventCatalog
+from app.extensions.custom_gui import DeletionTab, DeletionDialog
+from app.utilities.typing import NID
 
-class NewEventDatabase(DatabaseTab):
-    @classmethod
-    def create(cls, parent=None):
-        data = DB.events
-        title: str = "Event"
-        right_frame = new_event_properties.NewEventProperties
+class NewEventDatabase(NewEditorTab):
+    catalog_type = EventCatalog
+    properties_type = new_event_properties.NewEventProperties
 
-        collection_model = event_model.EventModel
-        collection = new_event_properties.EventCollection
-        dialog = cls(data, title, right_frame, None, collection_model, parent, view_type=QTableView, collection_type=collection)
-        return dialog
+    @property
+    def data(self):
+        return self._db.events
+
+    def get_icon(self, class_nid: NID) -> Optional[QIcon]:
+        return None
+
+    def create_new(self, nid):
+        if self.data.get(nid):
+            QMessageBox.warning(self, 'Warning', 'ID %s already in use' % nid)
+            return False
+        new_event = self.catalog_type.datatype(nid, nid, '')
+        self.data.append(new_event)
+        return True
+
+    def _on_nid_changed(self, old_nid: NID, new_nid: NID):
+        return True
+
+    def _on_delete(self, nid: NID) -> bool:
+        return True
 
 # Testing
 # Run "python -m app.editor.event_editor.new_event_tab"

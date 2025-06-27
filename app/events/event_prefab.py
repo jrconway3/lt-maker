@@ -3,6 +3,7 @@ from enum import Enum
 import re
 from typing import Dict, List, Optional, Set, Tuple
 
+from app.data.category import CategorizedCatalog
 from app.events import event_commands
 from app.events.event_version import EventVersion
 from app.utilities.data import Data, Prefab
@@ -91,7 +92,7 @@ class EventPrefab(Prefab):
     def default(cls):
         return cls('None')
 
-class EventCatalog(Data[EventPrefab]):
+class EventCatalog(CategorizedCatalog[EventPrefab]):
     datatype = EventPrefab
 
     def __init__(self, vals: List[EventPrefab] | None = None):

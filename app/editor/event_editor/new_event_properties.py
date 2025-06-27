@@ -28,8 +28,8 @@ from app.data.database.database import DB
 from app.data.database.levels import LevelPrefab
 from app.data.resources.resources import RESOURCES
 from app.editor import table_model, timer
-from app.editor.base_database_gui import CollectionModel
 from app.editor.custom_widgets import TilemapBox
+from app.editor.component_editor_types import T
 from app.editor.event_editor import event_autocompleter, find_and_replace
 from app.editor.event_editor.event_highlighter import EventHighlighter
 from app.editor.event_editor.py_syntax import PythonHighlighter
@@ -46,15 +46,20 @@ from app.events.triggers import ALL_TRIGGERS
 from app.extensions.custom_gui import (ComboBox, PropertyBox, PropertyCheckBox,
                                        QHLine, TableView)
 from app.extensions.markdown2 import Markdown
+
 from app.utilities import str_utils
+from app.utilities.typing import NID
 
 from app.editor.code_line_edit import CodeLineEdit
+
+from typing import (Callable, Optional)
 
 class EventCollection(QWidget):
     def __init__(self, deletion_criteria, collection_model, parent,
                  button_text="Create %s", view_type=TableView):
         super().__init__(parent)
         self.window = parent
+
         self.database_editor = self.window.window
         self.main_editor = self.database_editor.window
         current_level_nid = self.main_editor.app_state_manager.state.selected_level
@@ -296,13 +301,20 @@ class EventCollection(QWidget):
         return super().leaveEvent(event)
 
 class NewEventProperties(QWidget):
-    def __init__(self, parent, current=None):
+    title = "Event"
+
+    def __init__(self, parent, current: Optional[T] = None,
+                 attempt_change_nid: Optional[Callable[[NID, NID], bool]] = None,
+                 on_icon_change: Optional[Callable] = None):
         super().__init__(parent)
         self.window = parent
-        self._data = self.window._data
+
+        self.current: Optional[T] = current
+        self.cached_nid: Optional[NID] = self.current.nid if self.current else None
+        self.attempt_change_nid = attempt_change_nid
+        self.on_icon_change = on_icon_change
 
         self.settings = MainSettingsController()
-        self.current = current
         self.version = None
 
         self.text_box = EventTextEditor(self)
@@ -565,34 +577,38 @@ class NewEventProperties(QWidget):
             self.text_box.set_function_hinter(EventScriptFunctionHinter)
 
     def set_current(self, current: EventPrefab):
-        self.current = current
-        self.name_box.edit.setText(current.name)
-        # self.trigger_box.edit.clear()
-        if current.level_nid is not None:
-            self.level_nid_box.edit.setValue(current.level_nid)
-            # self.trigger_box.edit.addItems(self.get_trigger_items(current.level_nid))
+        if not self.current:
+            self.setEnabled(False)
         else:
-            self.level_nid_box.edit.setValue('Global')
-            # self.trigger_box.edit.addItems(self.get_trigger_items("Global"))
-        if current.trigger:
-            self.trigger_box.edit.setValue(current.trigger)
-        else:
-            self.trigger_box.edit.setValue("None")
-        self.condition_box.edit.setPlainText(current.condition)
-        self.only_once_box.edit.setChecked(bool(current.only_once))
-        self.priority_box.edit.setValue(current.priority)
+            self.setEnabled(True)
+            self.current = current
+            self.name_box.edit.setText(current.name)
+            # self.trigger_box.edit.clear()
+            if current.level_nid is not None:
+                self.level_nid_box.edit.setValue(current.level_nid)
+                # self.trigger_box.edit.addItems(self.get_trigger_items(current.level_nid))
+            else:
+                self.level_nid_box.edit.setValue('Global')
+                # self.trigger_box.edit.addItems(self.get_trigger_items("Global"))
+            if current.trigger:
+                self.trigger_box.edit.setValue(current.trigger)
+            else:
+                self.trigger_box.edit.setValue("None")
+            self.condition_box.edit.setPlainText(current.condition)
+            self.only_once_box.edit.setChecked(bool(current.only_once))
+            self.priority_box.edit.setValue(current.priority)
 
-        if self.current.version() == EventVersion.EVENT:
-            if not self.current.source:
-                self.current.source = '\n'.join([str(cmd) for cmd in self.current.commands])
-            self.text_box.setPlainText(self.current.source)
-            self.set_editor_language(self.current.version())
-        else:
-            self.text_box.setPlainText(self.current.source)
-            self.set_editor_language(self.current.version())
-        self.set_test_event_button_visible()
-        # Reset red dot
-        self.text_box.debug_point_line_number = None
+            if self.current.version() == EventVersion.EVENT:
+                if not self.current.source:
+                    self.current.source = '\n'.join([str(cmd) for cmd in self.current.commands])
+                self.text_box.setPlainText(self.current.source)
+                self.set_editor_language(self.current.version())
+            else:
+                self.text_box.setPlainText(self.current.source)
+                self.set_editor_language(self.current.version())
+            self.set_test_event_button_visible()
+            # Reset red dot
+            self.text_box.debug_point_line_number = None
 
     def hideEvent(self, event):
         self.close_map()

@@ -18,14 +18,15 @@ from app.editor import timer
 from app.utilities import str_utils
 from app.extensions.custom_gui import PropertyBox, ComboBox, Dialog
 from app.editor.combat_animation_editor.frame_selector import FrameSelector
-from app.editor.combat_animation_editor import combat_animation_model, new_combat_animation_properties, new_combat_effect_properties, palette_model
+from app.editor.combat_animation_editor import combat_animation_model, new_combat_effect_properties, new_combat_animation_properties, palette_model
 from app.editor.combat_animation_editor.color_editor import ColorEditorWidget
+from app.editor.map_sprite_editor import new_map_sprite_properties, map_sprite_model
 from app.editor.lib.components.validated_line_edit import NidLineEdit
 from app.editor.map_sprite_editor import new_map_sprite_properties, map_sprite_model
 from app.data.resources.combat_anims import Frame
 from app.data.resources.combat_palettes import Palette
 from app.editor.icon_editor.icon_view import IconView
-from app.editor.component_editor_has import T
+from app.editor.component_editor_types import T
 from app.utilities.typing import NID
 
 from typing import (Callable, Optional)
@@ -602,8 +603,10 @@ class NewPaletteProperties(QWidget):
         self.current_palette.nid = text
 
     def nid_done_editing(self):
+        # Check validity of nid!
         if not self.attempt_change_nid(self.cached_nid, self.current_palette.nid):
             self.current_palette.nid = self.cached_nid
+        self.cached_nid = self.current_palette.nid
 
     @property
     def current(self):

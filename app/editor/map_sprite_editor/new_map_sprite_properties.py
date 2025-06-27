@@ -14,13 +14,18 @@ from app.editor import timer
 from app.editor.icon_editor.icon_view import IconView
 from app.engine.unit_sprite import MapSprite
 from app.editor.map_sprite_editor import map_sprite_model
-from app.editor.component_editor_has import T
+from app.editor.component_editor_types import T
 from app.engine.game_state import game
 from app.utilities.typing import NID
 
 from typing import (List, Callable, Optional)
 
-def populate_map_sprite_frames(map_sprite):
+# All Frames in All Directions, Single Frames Only
+# NOTE: I set this up on split frames like the other types of anims,
+#       then I noticed how incredibly small they were...
+#       IMO, we should go with the sheets, but I have both
+#       options here just in case.
+def populate_map_sprite_single_frames(map_sprite):
     # Get Left Frames
     standing = map_sprite.standing_pixmap
     moving = map_sprite.moving_pixmap
@@ -40,6 +45,17 @@ def populate_map_sprite_frames(map_sprite):
         up.append(Frame('up' + str(num+1), (48, 40), (0, 0), moving.copy(num*48, 120, 48, 40), moving))
     return passive + active + down + left + right + up
 
+# Populate Map Sprite Sheets as Frames
+# NOTE: Map Sprites are so small, showing the entire sheet might actually be the better option here
+def populate_map_sprite_sheet_frames(map_sprite):
+    standing = map_sprite.standing_pixmap
+    moving = map_sprite.moving_pixmap
+    frames: List[Frame] = []
+    frames.append(Frame('standing', (192, 144), (0, 0), standing.copy(0, 0, 192, 144), standing))
+    frames.append(Frame('moving', (192, 160), (0, 0), moving.copy(0, 0, 192, 160), moving))
+    return frames
+
+# Fill Out Pixmap Frames for Map Sprites
 def populate_map_sprite_pixmaps(map_sprite, force=False):
     if not map_sprite.standing_pixmap or force:
         if map_sprite.stand_full_path and os.path.exists(map_sprite.stand_full_path):
@@ -51,7 +67,7 @@ def populate_map_sprite_pixmaps(map_sprite, force=False):
             map_sprite.moving_pixmap = QPixmap(map_sprite.move_full_path)
         else:
             return
-    map_sprite.frames = populate_map_sprite_frames(map_sprite)
+    map_sprite.frames = populate_map_sprite_sheet_frames(map_sprite)
     map_sprite.palettes = [[team.nid, team.map_sprite_palette] for team in DB.teams]
 
 class NewMapSpriteProperties(QWidget):

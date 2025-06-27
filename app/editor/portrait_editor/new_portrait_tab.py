@@ -71,7 +71,7 @@ def get():
         return None, False
 
 # Testing
-# Run "python -m app.editor.portrait_editor.portrait_tab" from main directory
+# Run "python -m app.editor.portrait_editor.new_portrait_tab" from main directory
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication

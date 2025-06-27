@@ -22,10 +22,10 @@ from app.editor.settings import MainSettingsController
 from app.editor import timer
 
 from app.editor.combat_animation_editor.frame_selector import FrameSelector
-from app.editor.combat_animation_editor.new_combat_animation_properties import CombatAnimProperties
+from app.editor.combat_animation_editor.new_combat_animation_properties import NewCombatAnimProperties
 from app.editor.file_manager.project_file_backend import DEFAULT_PROJECT
 from app.editor.combat_animation_editor import combat_animation_imports, effect_animation_imports, combat_animation_export
-from app.editor.component_editor_has import T
+from app.editor.component_editor_types import T
 
 import app.editor.utilities as editor_utilities
 from app.utilities import str_utils
@@ -46,7 +46,7 @@ def populate_effect_pixmaps(effect_anim, force=False):
         x, y, width, height = frame.rect
         frame.pixmap = effect_anim.pixmap.copy(x, y, width, height)
 
-class CombatEffectProperties(CombatAnimProperties):
+class NewCombatEffectProperties(NewCombatAnimProperties):
     title = "Combat Effect"
 
     def __init__(self, parent, current: Optional[T] = None,

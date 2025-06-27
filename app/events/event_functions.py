@@ -114,7 +114,7 @@ def change_special_music(self: Event, special_music_type: str, music: SongPrefab
     elif special_music_type == 'game_over':
         action.do(action.SetGameVar('_music_game_over', music_nid))
 
-def add_portrait(self: Event, portrait, screen_position: Tuple | str, slide=None, 
+def add_portrait(self: Event, portrait, screen_position: Tuple | str, slide=None,
                  expression_list: Optional[List[str]] = None, speed_mult: float = 1.0, flags=None):
     flags = flags or set()
 
@@ -326,21 +326,17 @@ def say(self: Event, speaker_or_style: str, text: List[str], text_position: Poin
           message_tail, transparency, name_tag_bg, boop_sound, flags)
 
 def speak(self: Event, speaker_or_style: str, text, text_position: Point | Alignments=None, width=None, style_nid=None, text_speed=None,
-          font_color=None, font_type=None, dialog_box=None, num_lines=None, draw_cursor=None,
+          font_color=None, font_type=None, dialog_box=None, num_lines=None, draw_cursor: bool=None,
           message_tail=None, transparency=None, name_tag_bg=None, boop_sound=None, flags=None):
     flags = flags or set()
     text = dialog.process_dialog_shorthand(text)
 
     if 'no_block' in flags:
         text += '{no_wait}'
-
-    if draw_cursor:
-        cursor = draw_cursor.lower() in self.true_vals
-    else:
-        cursor = None
+    cursor = True if draw_cursor is None else draw_cursor
 
     manual_style = SpeakStyle(None, None, text_position, width, text_speed, font_color,
-                              font_type, dialog_box, num_lines, cursor, message_tail, 
+                              font_type, dialog_box, num_lines, cursor, message_tail,
                               transparency, name_tag_bg, boop_sound, flags)
 
     style = self._resolve_speak_style(speaker_or_style, style_nid, manual_style)
@@ -3447,6 +3443,8 @@ def credits(self: Event, role, credits, flags=None):
     self.state = 'waiting'
 
 def ending(self: Event, portrait, title, text, flags=None):
+    flags = flags or set()
+
     unit = self._get_unit(portrait)
     if unit and unit.portrait_nid:
         portrait, _ = icons.get_portrait(unit)
@@ -3460,11 +3458,13 @@ def ending(self: Event, portrait, title, text, flags=None):
         self.logger.error("ending: Couldn't find unit or portrait %s" % portrait)
         return False
 
-    new_ending = dialog.Ending(portrait, title, text, unit)
+    new_ending = dialog.Ending(portrait, title, text, unit, wait_for_input='wait_for_input' in flags)
     self.text_boxes.append(new_ending)
     self.state = 'dialog'
 
 def paired_ending(self: Event, left_portrait, right_portrait, left_title, right_title, text, flags=None):
+    flags = flags or set()
+
     left_unit = self._get_unit(left_portrait)
     if left_unit and left_unit.portrait_nid:
         left_portrait, _ = icons.get_portrait(left_unit)
@@ -3492,7 +3492,10 @@ def paired_ending(self: Event, left_portrait, right_portrait, left_title, right_
         self.logger.error("ending: Couldn't find unit or portrait %s" % right_portrait)
         return False
 
-    new_ending = dialog.PairedEnding(left_portrait, right_portrait, left_title, right_title, text, left_unit, right_unit)
+    new_ending = \
+        dialog.PairedEnding(left_portrait, right_portrait, left_title, right_title,
+                            text, left_unit, right_unit,
+                            wait_for_input='wait_for_input' in flags)
     self.text_boxes.append(new_ending)
     self.state = 'dialog'
 
@@ -3834,10 +3837,79 @@ def party_transfer(self: Event, party1, party2, fixed_units = None, party1_name 
     self.game.state.change('party_transfer')
     self.state = 'paused'
 
-def dump_vars(self: Event, flags=None):
+def dump_vars(self: Event, flags:set[str]=None) -> None:
+    def is_json_serializable(obj: Any) -> bool:
+        """
+            Return True if obj can be serialized by json.dumps, False otherwise.
+            Narrowly catches errors associated with serialization failure, rather than all broad errors.
+        """
+        try:
+            json.dumps(obj)
+            return True
+        except (TypeError, OverflowError):
+            return False
+
+    def sanitize_vars(data: Any, path: str = "") -> Any:
+        """
+        Recursively sanitize data so that the result is JSON-serializable.
+        - dict: returns a new dict with same keys, sanitized values
+        - list: returns list of sanitized elements
+        - tuple: returns tuple of sanitized elements
+        - set: returns list of sanitized elements
+        - other: if JSON-serializable, return as-is; else log and return None.
+        - path: a dotted path for logging context.
+        """
+        # Primitive JSON types pass through quickly
+        # But we still check to ensure e.g. custom objects (if any, ugh) are caught.
+        if isinstance(data, dict):
+            new_dict: dict[str, Any] = {}
+            for key, val in data.items():
+                sub_path = f"{path}.{key}" if path else key
+                sanitized_val = sanitize_vars(val, sub_path)
+                new_dict[key] = sanitized_val
+            return new_dict
+
+        elif isinstance(data, list):
+            new_list: list[Any] = []
+            for idx, val in enumerate(data):
+                sub_path = f"{path}[{idx}]"
+                sanitized_list_val = sanitize_vars(val, sub_path)
+                new_list.append(sanitized_list_val)
+            return new_list
+
+        elif isinstance(data, tuple):
+            new_tuple = tuple(sanitize_vars(val, f"{path}[{idx}]") for idx, val in enumerate(data))
+            return new_tuple
+
+        elif isinstance(data, set):
+            # Convert to list for JSON, safely, then sanitize elements
+            new_list: list[Any] = []
+            for idx, val in enumerate(data):
+                sub_path = f"{path}{{{idx}}}"
+                sanitized_val = sanitize_vars(val, sub_path)
+                new_list.append(sanitized_val)
+            return new_list
+
+        else:
+            # Fallback in case we missed something when validating input for game_vars & level_vars
+            # Normally shouldn't happen, but is good to have...
+            if is_json_serializable(data):
+                return data
+            else:
+                self.logger.error(f"dump_vars: {path or '<root>'} value {data!r} is not JSON-serializable; replacing with None... Perhaps try casting into a serializable type?")
+                return None
+
     try:
         app_data_fman = file_manager_utils.get_app_data_fman()
-        all_vars = {'level_vars': self.game.level_vars, 'game_vars': self.game.game_vars}
+
+        from copy import deepcopy
+        local_level_vars = deepcopy(self.game.level_vars)
+        local_game_vars = deepcopy(self.game.game_vars)
+
+        clean_level_vars = sanitize_vars(local_level_vars, path="level_vars")
+        clean_game_vars  = sanitize_vars(local_game_vars, path="game_vars")
+
+        all_vars = {'level_vars': clean_level_vars, 'game_vars': clean_game_vars}
         app_data_fman.save('_vars.json', json.dumps(all_vars), True)
         file_utils.startfile(app_data_fman.get_path('_vars.json'))
     except:

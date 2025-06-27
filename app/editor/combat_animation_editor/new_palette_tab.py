@@ -12,14 +12,14 @@ from app.editor.new_editor_tab import NewEditorTab
 from app.editor.combat_animation_editor import new_palette_properties, palette_model
 from app.utilities.typing import NID
 
-class NewPaletteTab(NewEditorTab):
+class NewPaletteDatabase(NewEditorTab):
     catalog_type = PaletteCatalog
     properties_type = new_palette_properties.NewPaletteProperties
     allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(NewPaletteTab, ['combat_palettes'], parent)
+        window = SingleResourceEditor(NewPaletteDatabase, ['combat_palettes'], parent)
         window.exec_()
 
     @property
@@ -48,7 +48,7 @@ class NewPaletteTab(NewEditorTab):
             return False
 
 def get():
-    window = SingleResourceEditor(NewPaletteTab, ['combat_palettes'])
+    window = SingleResourceEditor(NewPaletteDatabase, ['combat_palettes'])
     result = window.exec_()
     if result == QDialog.Accepted:
         selected_palette = window.tab.right_frame.current
@@ -57,7 +57,7 @@ def get():
         return None, False
 
 # Testing
-# Run "python -m app.editor.combat_animation_editor.palette_tab" from main directory
+# Run "python -m app.editor.combat_animation_editor.new_palette_tab" from main directory
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
@@ -67,6 +67,6 @@ if __name__ == '__main__':
     RESOURCES.load('sacred_stones.ltproj', CURRENT_SERIALIZATION_VERSION)
     for anim in RESOURCES.combat_anims:
         populate_anim_pixmaps(anim)
-    window = SingleResourceEditor(NewPaletteTab, ['combat_palettes'])
+    window = SingleResourceEditor(NewPaletteDatabase, ['combat_palettes'])
     window.show()
     app.exec_()

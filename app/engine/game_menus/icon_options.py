@@ -41,7 +41,7 @@ class ItemOptionUtils():
     @staticmethod
     def draw_with_uses(surf, x, y, item: ItemObject, font: NID, color: NID, uses_color: NID,
                        width: int, align: HAlignment = HAlignment.LEFT,
-                       disp_text: Optional[str] = None):
+                       disp_text: Optional[str] = None, custom_uses: Optional[Tuple] = None):
         display_text = disp_text or item.name
         uses_font = font
         if text_width(font, display_text) > width - 36:
@@ -56,7 +56,9 @@ class ItemOptionUtils():
             ItemOptionUtils.draw_icon(surf, x, y, item)
         render_text(surf, [font], [display_text], [color], blit_loc, align)
         uses_string = '--'
-        if item.uses:
+        if custom_uses is not None and custom_uses[0]:
+            uses_string = str(custom_uses[0])
+        elif item.uses:
             uses_string = str(item.data['uses'])
         elif item.parent_item and item.parent_item.uses and item.parent_item.data['uses']:
             uses_string = str(item.parent_item.data['uses'])
@@ -73,7 +75,7 @@ class ItemOptionUtils():
     @staticmethod
     def draw_with_full_uses(surf, x, y, item: ItemObject, font: NID, color: NID, uses_color: NID,
                             width: int, align: HAlignment = HAlignment.LEFT,
-                            disp_text: Optional[str] = None):
+                            disp_text: Optional[str] = None, custom_uses: Optional[Tuple] = None):
         main_font = font
         display_text = disp_text or item.name
         if text_width(main_font, display_text) > width - 56:
@@ -92,7 +94,10 @@ class ItemOptionUtils():
 
         uses_string_a = '--'
         uses_string_b = '--'
-        if item.data.get('uses') is not None:
+        if custom_uses is not None and custom_uses[0]:
+            uses_string_a = str(custom_uses[0])
+            uses_string_b = str(custom_uses[1])
+        elif item.data.get('uses') is not None:
             uses_string_a = str(item.data['uses'])
             uses_string_b = str(item.data['starting_uses'])
         elif item.data.get('c_uses') is not None:
@@ -138,6 +143,7 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
         self._color = text_color
         self._font = font
         self._mode = mode
+        self.get_custom_uses()
 
     @classmethod
     def from_nid(cls, idx, item_nid: NID, display_value: str | None = None, width: int = 0,
@@ -212,6 +218,21 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
                 self._help_box = help_menu.HelpDialog(text)
         return self._help_box
 
+    def get_custom_uses(self):
+        self._custom_uses = None
+        if not self._value:
+            return
+
+        owner = game.get_unit(self._value.owner_nid)
+        if not owner or not item_funcs.available(owner, self._value):
+            return
+
+        custom_uses = item_system.item_uses_display(owner, self._value)
+        if custom_uses:
+            self._custom_uses = custom_uses
+            if self._custom_uses[2] in [ItemOptionModes.USES, ItemOptionModes.FULL_USES]:
+                self._mode = self._custom_uses[2]
+
     def draw(self, surf, x, y):
         main_color, uses_color = self.get_color()
         if not self._value:
@@ -222,10 +243,10 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
                 surf, x, y, self._value, self._font, main_color, self.width(), self._align, self._disp_value)
         elif self._mode == ItemOptionModes.USES:
             ItemOptionUtils.draw_with_uses(surf, x, y, self._value, self._font,
-                                           main_color, uses_color, self.width(), self._align, self._disp_value)
+                                           main_color, uses_color, self.width(), self._align, self._disp_value, custom_uses=self._custom_uses)
         elif self._mode == ItemOptionModes.FULL_USES:
             ItemOptionUtils.draw_with_full_uses(
-                surf, x, y, self._value, self._font, main_color, uses_color, self.width(), self._align, self._disp_value)
+                surf, x, y, self._value, self._font, main_color, uses_color, self.width(), self._align, self._disp_value, custom_uses=self._custom_uses)
 
 
 class BasicSkillOption(BaseOption[SkillObject]):

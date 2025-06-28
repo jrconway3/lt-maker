@@ -324,6 +324,16 @@ class ItemOption(BasicOption):
                 self=self.item)
             return help_menu.HelpDialog(text)
 
+    def get_custom_uses(self):
+        if not self.item:
+            return
+
+        owner = game.get_unit(self.item.owner_nid)
+        if not owner or not item_funcs.available(owner, self.item):
+            return
+
+        return item_system.item_uses_display(owner, self.item)
+
     def draw(self, surf, x, y):
         icon = icons.get_icon(self.item)
         if icon:
@@ -335,7 +345,10 @@ class ItemOption(BasicOption):
         uses_font = 'text'
         render_text(surf, [main_font], [self.item.name], [main_color], (x + 20, y))
         uses_string = '--'
-        if self.item.uses:
+        custom_uses = self.get_custom_uses()
+        if custom_uses is not None and custom_uses[0]:
+            uses_string = str(custom_uses[0])
+        elif self.item.uses:
             uses_string = str(self.item.data['uses'])
         elif self.item.parent_item and self.item.parent_item.uses and self.item.parent_item.data['uses']:
             uses_string = str(self.item.parent_item.data['uses'])

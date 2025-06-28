@@ -56,8 +56,11 @@ class ItemOptionUtils():
             ItemOptionUtils.draw_icon(surf, x, y, item)
         render_text(surf, [font], [display_text], [color], blit_loc, align)
         uses_string = '--'
+        print(custom_uses)
         if custom_uses is not None and custom_uses[0]:
             uses_string = str(custom_uses[0])
+            if custom_uses[1]:
+                uses_string += ' ' + str(custom_uses[1])
         elif item.uses:
             uses_string = str(item.data['uses'])
         elif item.parent_item and item.parent_item.uses and item.parent_item.data['uses']:

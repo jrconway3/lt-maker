@@ -61,6 +61,7 @@ class ItemOptionUtils():
             uses_string = str(custom_uses[0])
             if custom_uses[1]:
                 uses_string += ' ' + str(custom_uses[1])
+            uses_color = 'navy'
         elif item.uses:
             uses_string = str(item.data['uses'])
         elif item.parent_item and item.parent_item.uses and item.parent_item.data['uses']:
@@ -100,6 +101,7 @@ class ItemOptionUtils():
         if custom_uses is not None and custom_uses[0]:
             uses_string_a = str(custom_uses[0])
             uses_string_b = str(custom_uses[1])
+            uses_color = 'navy'
         elif item.data.get('uses') is not None:
             uses_string_a = str(item.data['uses'])
             uses_string_b = str(item.data['starting_uses'])

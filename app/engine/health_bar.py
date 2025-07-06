@@ -51,6 +51,18 @@ class HealthBar():
                 self.old_hp = self.displayed_hp
                 self.transition_flag = False
 
+class ManaBar(HealthBar):
+    def __init__(self, unit):
+        super(self, unit)
+        self.unit = unit
+
+        self.displayed_hp = self.unit.get_hp()
+        self.old_hp = self.displayed_hp
+
+        self.transition_flag = False
+        self.time_for_change = self.time_for_change_min
+        self.last_update = 0
+
 MAX_HP_PER_BAR = 40
 class CombatHealthBar(HealthBar):
     colors = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1]
@@ -196,6 +208,28 @@ class MapCombatHealthBar(HealthBar):
 
         return surf
 
+class MapCombatManahBar(HealthBar):
+    display_numbers = True
+    health_bar = SPRITES.get('health_bar')
+
+    def draw(self, surf):
+        total = max(1, self.unit.get_max_hp())
+        fraction_hp = utils.clamp(self.displayed_hp / total, 0, 1)
+        index_pixel = int(50 * fraction_hp)
+        position = 25, 22
+        surf.blit(engine.subsurface(self.health_bar, (0, 0, index_pixel, 2)), position)
+
+        # Blit HP number
+        if self.display_numbers:
+            font = FONT['number_small2']
+            if self.transition_flag:
+                font = FONT['number_big2']
+            s = str(self.displayed_hp)
+            position = 22 - font.size(s)[0], 15
+            font.blit(s, surf, position)
+
+        return surf
+
 class MapCombatInfo():
     blind_speed = 1/8.  # 8 frames to fade in
 
@@ -217,7 +251,10 @@ class MapCombatInfo():
         else:
             self.blinds = 1
 
-        self.hp_bar = MapCombatHealthBar(unit)
+        if item.mana_heal or item.equation_mana_heal:
+            self.hp_bar = MapCombatManaBar(unit)
+        else:
+            self.hp_bar = MapCombatHealthBar(unit)
         self.unit = unit
         self.item = item
         if target:

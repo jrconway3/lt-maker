@@ -53,15 +53,31 @@ class HealthBar():
 
 class ManaBar(HealthBar):
     def __init__(self, unit):
-        super(self, unit)
-        self.unit = unit
+        super().__init__(unit)
 
-        self.displayed_hp = self.unit.get_hp()
-        self.old_hp = self.displayed_hp
+        self.displayed_mp = self.unit.get_mana()
+        self.old_mp = self.displayed_mp
 
-        self.transition_flag = False
-        self.time_for_change = self.time_for_change_min
-        self.last_update = 0
+    def set_mp(self, val):
+        self.displayed_mp = val
+
+    def update(self):
+        # print(self.displayed_mp, self.unit.get_mp(), self.transition_flag)
+        # Check to see if we should begin showing transition
+        if self.displayed_mp != self.unit.get_mana() and not self.transition_flag:
+            self.transition_flag = True
+            self.time_for_change = max(self.time_for_change_min, abs(self.displayed_mp - self.unit.get_mana()) * self.speed)
+            self.last_update = engine.get_time()
+
+        # Check to see if we should update
+        if self.transition_flag:
+            time = (engine.get_time() - self.last_update) / self.time_for_change
+            new_val = int(utils.lerp(self.old_mp, self.unit.get_mana(), time))
+            self.set_mp(new_val)
+            if time >= 1:
+                self.set_mp(self.unit.get_mana())
+                self.old_mp = self.displayed_mp
+                self.transition_flag = False
 
 MAX_HP_PER_BAR = 40
 class CombatHealthBar(HealthBar):
@@ -208,23 +224,24 @@ class MapCombatHealthBar(HealthBar):
 
         return surf
 
-class MapCombatManahBar(HealthBar):
+class MapCombatManaBar(ManaBar):
     display_numbers = True
     health_bar = SPRITES.get('health_bar')
+    # TO DO: Maybe add a separate mana bar? Blue bar?
 
     def draw(self, surf):
-        total = max(1, self.unit.get_max_hp())
-        fraction_hp = utils.clamp(self.displayed_hp / total, 0, 1)
-        index_pixel = int(50 * fraction_hp)
+        total = max(1, self.unit.get_max_mana())
+        fraction_mp = utils.clamp(self.displayed_mp / total, 0, 1)
+        index_pixel = int(50 * fraction_mp)
         position = 25, 22
         surf.blit(engine.subsurface(self.health_bar, (0, 0, index_pixel, 2)), position)
 
-        # Blit HP number
+        # Blit MP number
         if self.display_numbers:
             font = FONT['number_small2']
             if self.transition_flag:
                 font = FONT['number_big2']
-            s = str(self.displayed_hp)
+            s = str(self.displayed_mp)
             position = 22 - font.size(s)[0], 15
             font.blit(s, surf, position)
 

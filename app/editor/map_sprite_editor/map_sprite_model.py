@@ -20,7 +20,23 @@ from app.utilities.typing import NID
 
 import logging
 
-def get_map_sprite_icon(res, num=0, current=False, team: NID = 'player', variant=None):
+def get_basic_icon(pixmap: QPixmap, num: int, active: bool = False, team: NID = 'player') -> QPixmap:
+    if active:
+        one_frame = pixmap.copy(num*64 + 16, 96 + 16, 32, 32)
+    else:
+        one_frame = pixmap.copy(num*64 + 16, 0 + 16, 32, 32)
+    # pixmap = pixmap.copy(16, 16, 32, 32)
+    one_frame = one_frame.toImage()
+    one_frame = color_shift_team(one_frame, team)
+    pixmap = QPixmap.fromImage(one_frame)
+    return pixmap
+
+def get_map_sprite_icon(nid, num=0, current=False, team: NID = 'player', variant=None):
+    res = None
+    if variant and nid:
+        res = RESOURCES.map_sprites.get(nid + variant)
+    if res.nid and (not variant or not res):
+        res = RESOURCES.map_sprites.get(nid)
     if not res:
         return None
     if not res.standing_pixmap:
@@ -57,17 +73,6 @@ def gray_shift_team(im: QImage) -> QImage:
     # Must convert colorkey last, or else color conversion doesn't work correctly
     im = editor_utilities.convert_colorkey(im)
     return im
-
-def get_basic_icon(pixmap: QPixmap, num: int, active: bool = False, team: NID = 'player') -> QPixmap:
-    if active:
-        one_frame = pixmap.copy(num*64 + 16, 96 + 16, 32, 32)
-    else:
-        one_frame = pixmap.copy(num*64 + 16, 0 + 16, 32, 32)
-    # pixmap = pixmap.copy(16, 16, 32, 32)
-    one_frame = one_frame.toImage()
-    one_frame = color_shift_team(one_frame, team)
-    pixmap = QPixmap.fromImage(one_frame)
-    return pixmap
 
 def check_delete(nid: NID, window) -> bool:
     # Check to see what is using me?

@@ -35,7 +35,7 @@ def get_map_sprite_icon(nid, num=0, current=False, team: NID = 'player', variant
     res = None
     if variant and nid:
         res = RESOURCES.map_sprites.get(nid + variant)
-    if res.nid and (not variant or not res):
+    if nid and (not variant or not res):
         res = RESOURCES.map_sprites.get(nid)
     if not res:
         return None

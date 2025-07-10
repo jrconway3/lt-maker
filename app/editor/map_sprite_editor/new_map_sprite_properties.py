@@ -177,11 +177,9 @@ class NewMapSpriteProperties(QWidget):
 
         timer.get_timer().tick_elapsed.connect(self.tick)
 
-    def on_icon_changed(self, nid):
-        if self.current:
-            self.current.portrait_nid = nid
-            if self.on_icon_change:
-                self.on_icon_change()
+    def on_icon_changed(self):
+        if self.current and self.on_icon_change:
+            self.on_icon_change()
 
     def nid_changed(self, text):
         if self.current:

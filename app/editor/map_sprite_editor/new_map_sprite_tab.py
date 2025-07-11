@@ -29,7 +29,7 @@ class NewMapSpriteDatabase(NewEditorTab):
     def get_icon(self, map_sprite_nid: NID) -> Optional[QIcon]:
         if not self.data.get(map_sprite_nid):
             return None
-        pix = map_sprite_model.get_map_sprite_icon(self.data.get(map_sprite_nid))
+        pix = map_sprite_model.get_map_sprite_icon(map_sprite_nid)
         if pix:
             return QIcon(pix.scaled(32, 32))
         return None

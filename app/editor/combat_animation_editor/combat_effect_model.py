@@ -45,7 +45,7 @@ def check_delete(nid: NID, window):
     if affected_effects:
         from app.editor.combat_animation_editor.combat_effect_model import CombatEffectModel
         model = CombatEffectModel
-        msg = "Deleting Combat Effect <b>%s</b> would affect these Combat Effectss" % nid
+        msg = "Deleting Combat Effect <b>%s</b> would affect these Combat Effects" % nid
         deletion_tabs.append(DeletionTab(affected_effects, model, msg, "Combat Effects"))
 
     if deletion_tabs:

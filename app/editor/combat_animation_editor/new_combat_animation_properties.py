@@ -242,10 +242,10 @@ class NewCombatAnimProperties(QWidget):
         self.export_anim_button.clicked.connect(self.export_anim)
         
         import_export = QHBoxLayout()
-        import_export.addWidget(self.import_anim_button)#, 3, 0)
-        import_export.addWidget(self.export_anim_button)#, 3, 1)
+        import_export.addWidget(self.import_anim_button)
+        import_export.addWidget(self.export_anim_button)
         self.window.tree_list.layout().addLayout(import_export)
-        self.window.tree_list.layout().addWidget(self.export_from_lt_button)#, 4, 0, 1, 2)
+        self.window.tree_list.layout().addWidget(self.export_from_lt_button)
 
         frame_layout.addWidget(self.import_from_lt_button)
         frame_layout.addWidget(self.import_from_gba_button)

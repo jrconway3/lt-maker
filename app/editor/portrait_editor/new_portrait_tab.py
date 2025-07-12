@@ -1,6 +1,6 @@
 from typing import (Optional)
 
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QDialog, QMessageBox
 
 from app.data.resources.resources import RESOURCES
@@ -19,12 +19,13 @@ from app.editor import timer
 class NewPortraitDatabase(NewEditorTab):
     catalog_type = PortraitCatalog
     properties_type = new_portrait_properties.NewPortraitProperties
+    resource_type = 'portraits'
     allow_rename = True
     allow_duplicate = False
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(NewPortraitDatabase, ['portraits'], parent)
+        window = SingleResourceEditor(NewPortraitDatabase, [cls.resource_type], parent)
         window.exec_()
 
     @property
@@ -48,6 +49,14 @@ class NewPortraitDatabase(NewEditorTab):
             self.reset()
         
         return False
+
+    def duplicate(self, old_nid, nid):
+        super().duplicate(old_nid, nid)
+        orig = self.data.get(old_nid)
+        res = self.data.get(nid)
+        self.catalog_type.make_copy(self.catalog_type, orig.full_path, res.full_path)
+        res.pixmap = QPixmap(res.full_path)
+        return True
 
     def _on_nid_changed(self, old_nid: NID, new_nid: NID):
         portrait_model.on_nid_changed(old_nid, new_nid)

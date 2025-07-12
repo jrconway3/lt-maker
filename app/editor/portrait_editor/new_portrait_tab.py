@@ -21,7 +21,6 @@ class NewPortraitDatabase(NewEditorTab):
     properties_type = new_portrait_properties.NewPortraitProperties
     resource_type = 'portraits'
     allow_rename = True
-    allow_duplicate = False
 
     @classmethod
     def edit(cls, parent=None):

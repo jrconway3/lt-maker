@@ -19,11 +19,12 @@ from app.editor import timer
 class NewPortraitDatabase(NewEditorTab):
     catalog_type = PortraitCatalog
     properties_type = new_portrait_properties.NewPortraitProperties
+    resource_type = 'portraits'
     allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(NewPortraitDatabase, ['portraits'], parent)
+        window = SingleResourceEditor(NewPortraitDatabase, [cls.resource_type], parent)
         window.exec_()
 
     @property
@@ -48,8 +49,6 @@ class NewPortraitDatabase(NewEditorTab):
         
         return False
 
-<<<<<<< Updated upstream
-=======
     def duplicate(self, old_nid, nid):
         super().duplicate(old_nid, nid)
         orig = self.data.get(old_nid)
@@ -58,7 +57,6 @@ class NewPortraitDatabase(NewEditorTab):
         res.pixmap = QPixmap(res.full_path)
         return True
 
->>>>>>> Stashed changes
     def _on_nid_changed(self, old_nid: NID, new_nid: NID):
         portrait_model.on_nid_changed(old_nid, new_nid)
 

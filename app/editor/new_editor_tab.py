@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import json
 import logging
 from typing import Generic, List, Optional, Type, TypeVar
@@ -11,6 +12,7 @@ from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout,
 
 from app.data.database.database import DB, Database
 from app.data.resources.resources import RESOURCES, Resources
+from app.data.resources.base_catalog import ManifestCatalog
 from app.data.category import Categories, CategorizedCatalog
 from app.editor import timer
 from app.editor.data_editor import SingleDatabaseEditor
@@ -27,6 +29,7 @@ class NewEditorTab(QWidget, Generic[T]):
     # Make sure you define these
     catalog_type: Type[T] = None
     properties_type = None
+    resource_type = None
     allow_rename = False
     allow_import_from_xml = False
     allow_import_from_csv = False
@@ -151,9 +154,12 @@ class NewEditorTab(QWidget, Generic[T]):
         if not orig_obj:
             QMessageBox.warning(self, 'Warning', 'ID %s not found' % old_nid)
             return False
-        orig_obj = self.catalog_type.datatype.restore(orig_obj.save())
-        orig_obj.nid = nid
-        self.data.append(orig_obj)
+        new_obj = self.catalog_type.datatype.restore(orig_obj.save())
+        new_obj.nid = nid
+        if self.resource_type:
+            res_path = os.path.join(self._res.main_folder, self.resource_type)
+            new_obj.set_full_path(os.path.join(res_path, nid + self.catalog_type.filetype))
+        self.data.append(new_obj)
         return True
 
     def rename(self, old_nid, new_nid):

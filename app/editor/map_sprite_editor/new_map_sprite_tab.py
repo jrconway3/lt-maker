@@ -1,6 +1,6 @@
 from typing import (Optional)
 
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QDialog, QMessageBox
 
 from app.data.resources.resources import RESOURCES
@@ -15,11 +15,12 @@ from app.utilities.typing import NID
 class NewMapSpriteDatabase(NewEditorTab):
     catalog_type = MapSpriteCatalog
     properties_type = new_map_sprite_properties.NewMapSpriteProperties
+    resource_type = 'map_sprites'
     allow_rename = True
 
     @classmethod
     def edit(cls, parent=None):
-        window = SingleResourceEditor(NewMapSpriteDatabase, ['map_sprites'], parent)
+        window = SingleResourceEditor(NewMapSpriteDatabase, [cls.resource_type], parent)
         window.exec_()
 
     @property
@@ -43,6 +44,14 @@ class NewMapSpriteDatabase(NewEditorTab):
             self.reset()
         
         return False
+
+    def duplicate(self, old_nid, nid):
+        super().duplicate(old_nid, nid)
+        orig = self.data.get(old_nid)
+        res = self.data.get(nid)
+        self.catalog_type.make_copy(self.catalog_type, orig.stand_full_path, res.stand_full_path)
+        self.catalog_type.make_copy(self.catalog_type, orig.move_full_path, res.move_full_path)
+        return True
 
     def _on_nid_changed(self, old_nid: NID, new_nid: NID):
         map_sprite_model.on_nid_changed(old_nid, new_nid)

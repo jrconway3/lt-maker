@@ -48,6 +48,17 @@ class NewPortraitDatabase(NewEditorTab):
         
         return False
 
+<<<<<<< Updated upstream
+=======
+    def duplicate(self, old_nid, nid):
+        super().duplicate(old_nid, nid)
+        orig = self.data.get(old_nid)
+        res = self.data.get(nid)
+        self.catalog_type.make_copy(self.catalog_type, orig.full_path, res.full_path)
+        res.pixmap = QPixmap(res.full_path)
+        return True
+
+>>>>>>> Stashed changes
     def _on_nid_changed(self, old_nid: NID, new_nid: NID):
         portrait_model.on_nid_changed(old_nid, new_nid)
 

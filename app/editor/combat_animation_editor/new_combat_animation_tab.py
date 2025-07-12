@@ -34,6 +34,7 @@ class NewCombatAnimDatabase(NewEditorTab):
     catalog_type = CombatCatalog
     properties_type = NewCombatAnimProperties
     allow_rename = True
+    allow_duplicate = False
 
     @classmethod
     def edit(cls, parent=None):
@@ -75,6 +76,7 @@ class NewCombatEffectDatabase(NewEditorTab):
     catalog_type = CombatEffectCatalog
     properties_type = NewCombatEffectProperties
     allow_rename = True
+    allow_duplicate = False
 
     @classmethod
     def edit(cls, parent=None):

@@ -110,12 +110,12 @@ class NewCombatEffectProperties(NewCombatAnimProperties):
         
         import_export = QHBoxLayout()
         import_box = QVBoxLayout()
-        import_box.addWidget(self.import_effect_button)#, 3, 0)
-        import_box.addWidget(self.import_from_lt_button)#, 4, 0)
+        import_box.addWidget(self.import_effect_button)
+        import_box.addWidget(self.import_from_lt_button)
 
         export_box = QVBoxLayout()
-        export_box.addWidget(self.export_effect_button)#, 3, 1)
-        export_box.addWidget(self.export_to_lt_button)#, 4, 1)
+        export_box.addWidget(self.export_effect_button)
+        export_box.addWidget(self.export_to_lt_button)
         import_export.addLayout(import_box)
         import_export.addLayout(export_box)
 

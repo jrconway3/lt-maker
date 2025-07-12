@@ -28,9 +28,10 @@ class NewUnitDatabase(NewEditorTab):
         return self._db.units
 
     def get_icon(self, unit_nid: NID) -> Optional[QIcon]:
-        if not self.data.get(unit_nid) or not self.data.get(unit_nid).portrait_nid:
+        unit = self.data.get(unit_nid)
+        if not unit:
             return None
-        pix = portrait_model.get_chibi(self.data.get(unit_nid).portrait_nid)
+        pix = portrait_model.get_chibi(unit.portrait_nid)
         if pix:
             return QIcon(pix.scaled(32, 32))
         return None

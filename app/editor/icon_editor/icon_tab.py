@@ -122,6 +122,7 @@ class IconListView(QListView):
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)
+        print(event.key())
         if event.key() == Qt.Key_Delete:
             indices = self.selectionModel().selectedIndexes()
             for index in indices:

@@ -4,7 +4,11 @@ from app.data.database.database import DB
 from app.data.database.item_components import ItemComponent, ItemTags
 from app.data.database.components import ComponentType
 
+<<<<<<< HEAD
 from app.engine import action, item_funcs, text_funcs
+=======
+from app.engine import action, item_funcs
+>>>>>>> mana-uses-component
 from app.engine.game_menus.icon_options import ItemOptionModes
 
 import logging
@@ -267,54 +271,18 @@ class ManaUses(ItemComponent):
     requires = ['mana_cost', 'eval_mana_cost']
     tag = ItemTags.USES
 
-    #expose = ComponentType.NewMultipleOptions
-
-    #options = {
-    #    'replace_uses_with_mana_cost': ComponentType.Bool,
-    #    'replace_max_uses_with_max_mana': ComponentType.Bool,
-    #    'show_mana_text_in_inventory': ComponentType.Bool
-    #}
-
-    #def __init__(self, value=None):
-    #    self.value = {
-    #        'replace_uses_with_mana_cost': False,
-    #        'replace_max_uses_with_max_mana': False,
-    #        'show_mana_text_in_inventory': False
-    #    }
-    #    if value and isinstance(value, dict):
-    #        self.value.update(value)
-    #    else: # value is a list from the old multiple options
-    #        try:
-    #            self.value['replace_uses_with_mana_cost'] = value[0][1] == 'T'
-    #            self.value['replace_max_uses_with_max_mana'] = value[1][1] == 'T'
-    #            self.value['show_mana_text_in_inventory'] = value[1][1] == 'T'
-    #        except:
-    #            pass
-
     def _calc_uses(self, unit, item):
-        #if self.value['replace_uses_with_mana_cost'] == 'T':
         if DB.constants.value('mana_uses_shows_cost'):
             return item.mana_cost.value
-        #if self.value['show_mana_text_in_inventory'] == 'T':
-        #    return item.mana_cost.value
         return math.floor(unit.get_mana() / item.mana_cost.value)
 
     def _calc_max_uses(self, unit, item):
         max_uses = math.floor(unit.get_max_mana() / item.mana_cost.value)
-        #if self.value['replace_max_uses_with_max_mana'] == 'T':
         if DB.constants.value('mana_uses_shows_cost'):
             max_uses = unit.get_max_mana()
-        #if self.value['replace_uses_with_mana_cost'] == 'T' and \
-        #    not self.value['replace_max_uses_with_max_mana'] == 'T':
-        #    desc = text_funcs.translate_and_text_evaluate('MANA_desc_short', unit=unit)
-        #    if not desc:
-        #        desc = text_funcs.translate_and_text_evaluate('MANA_desc', unit=unit)
-        #    return desc
         return str(max_uses)
 
     def _uses_type(self):
-        #if self.value['replace_uses_with_mana_cost'] == 'T' and \
-        #    not self.value['replace_max_uses_with_max_mana'] == 'T':
         if DB.constants.value('mana_uses_shows_cost'):
             return ItemOptionModes.USES
         return ItemOptionModes.FULL_USES

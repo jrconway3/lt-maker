@@ -77,6 +77,73 @@ class EquationHeal(Heal):
         equation = self.value
         return equations.parser.get(equation, unit) + empower_heal + empower_heal_received
 
+class ManaHeal(ItemComponent):
+    nid = 'mana_heal'
+    desc = "Item heals mana by this amount on hit"
+    tag = ItemTags.UTILITY
+
+    expose = ComponentType.Int
+    value = 10
+
+    def _get_heal_amount(self, unit, target):
+        empower_mana = skill_system.empower_mana(unit, target)
+        empower_mana_received = skill_system.empower_mana_received(target, unit)
+        return self.value + empower_mana + empower_mana_received
+
+    def target_restrict(self, unit, item, def_pos, splash) -> bool:
+        # Restricts target based on whether any unit has < full MANA
+        defender = game.board.get_unit(def_pos)
+        if defender and defender.get_mana() < defender.get_max_mana():
+            return True
+        for s_pos in splash:
+            s = game.board.get_unit(s_pos)
+            if s and s.get_mana() < s.get_max_mana():
+                return True
+        return False
+
+    def simple_target_restrict(self, unit, item):
+        return unit and unit.get_mana() < unit.get_max_mana()
+
+    def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
+        heal = self._get_heal_amount(unit, target)
+        true_heal = min(heal, target.get_max_mana() - target.get_mana())
+        actions.append(action.ChangeMana(target, heal))
+
+        # For animation
+        if true_heal > 0:
+            playback.append(pb.HealHit(unit, item, target, heal, true_heal))
+            playback.append(pb.HitSound('MapHeal', map_only=True))
+            if heal >= 30:
+                name = 'MapBigHealTrans'
+            elif heal >= 15:
+                name = 'MapMediumHealTrans'
+            else:
+                name = 'MapSmallHealTrans'
+            playback.append(pb.HitAnim(name, target))
+
+    def ai_priority(self, unit, item, target, move):
+        if target and skill_system.check_ally(unit, target):
+            max_mana = target.get_max_mana()
+            missing_health = max_mana - target.get_mana()
+            help_term = utils.clamp(missing_health / float(max_mana), 0, 1)
+            heal = self._get_heal_amount(unit, target)
+            heal_term = utils.clamp(min(heal, missing_health) / float(max_mana), 0, 1)
+            return help_term * heal_term
+        return 0
+
+class EquationManaHeal(ManaHeal):
+    nid = 'equation_mana_heal'
+    desc = "Heals the target's mana for the value of the equation defined in the equations editor. Equation is calculated using the caster's stats, not the targets"
+
+    expose = ComponentType.Equation
+    value = 'HEAL'
+
+    def _get_heal_amount(self, unit, target):
+        empower_heal = skill_system.empower_heal(unit, target)
+        empower_heal_received = skill_system.empower_heal_received(target, unit)
+        equation = self.value
+        return equations.parser.get(equation, unit) + empower_heal + empower_heal_received
+
 class Refresh(ItemComponent):
     nid = 'refresh'
     desc = "Has an effect identical to dancing in normal FE. A dance skill makes use of this component in an attached item."

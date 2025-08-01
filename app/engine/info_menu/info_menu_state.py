@@ -664,7 +664,7 @@ class InfoMenuState(State):
         else:
             other_stats.insert(0, 'AID')
             other_stats.insert(0, 'TRV')
-        if self.unit.get_max_mana() > 0:
+        if self.unit.get_max_mana() > 0 and not DB.constants.value('add_mana_bar'):
             other_stats.insert(0, 'MANA')
         if DB.constants.value('pairup') and not DB.constants.value('attack_stance_only'):
             other_stats.insert(2, 'GAUGE')

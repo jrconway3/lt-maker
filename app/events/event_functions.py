@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import json
 import random
+from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
 
 from app.constants import WINHEIGHT, WINWIDTH
@@ -604,6 +605,36 @@ def inc_game_var(self: Event, nid, expression=None, flags=None):
     else:
         action.do(action.SetGameVar(nid, self.game.game_vars.get(nid, 0) + 1))
 
+def modify_game_var(self: Event, nid: NID, expression: str, flags:Optional[set[str]]=None):
+    """Does not work in #pyev1."""
+    flags = flags or set()
+    if nid not in self.game.game_vars:
+        self.logger.error(f"modify_game_var: {nid} does not exist as a game_var!")
+        return
+    
+    # Refer to the copy as `it` and (assume) the expression mutates the copy.
+    new_val = deepcopy(self.game.game_vars[nid])
+    self.it = new_val
+    self.text_evaluator.it = new_val
+    try:
+        maybe_result = self._eval_expr(expression, 'from_python' in flags)
+        if maybe_result is not None:
+            self.logger.warning(f"modify_game_var: {expression} has a return value of {maybe_result}: this value will be discarded. Perhaps you meant to use the `game_var` command instead?")
+    except:
+        self.logger.error(f"modify_game_var: cannot evaluate {expression}!")
+        self.it = None
+        self.text_evaluator.it = None
+        return
+    
+    if is_primitive_or_primitive_collection(new_val):
+        action.do(action.SetGameVar(nid, new_val))
+    else:
+        # If the new_val is invalid, simply do nothing - no turnwheel breakage!
+        self.logger.error(f"modify_game_var: {new_val} is not a valid variable!")
+    
+    self.it = None
+    self.text_evaluator.it = None
+    
 def level_var(self: Event, nid, expression, flags=None):
     val = self._eval_expr(expression, 'from_python' in flags)
     if is_primitive_or_primitive_collection(val):
@@ -620,6 +651,36 @@ def inc_level_var(self: Event, nid, expression=None, flags=None):
             self.logger.error("inc_level_var: %s is not a valid variable", val)
     else:
         action.do(action.SetLevelVar(nid, self.game.level_vars.get(nid, 0) + 1))
+
+def modify_level_var(self: Event, nid: NID, expression: str, flags:Optional[set[str]]=None):
+    """Does not work in #pyev1."""
+    flags = flags or set()
+    if nid not in self.game.level_vars:
+        self.logger.error(f"modify_level_var: {nid} does not exist as a level_var!")
+        return
+    
+    # Refer to the copy as `it` and (assume) the expression mutates the copy.
+    new_val = deepcopy(self.game.level_vars[nid])
+    self.it = new_val
+    self.text_evaluator.it = new_val
+    try:
+        maybe_result = self._eval_expr(expression, 'from_python' in flags)
+        if maybe_result is not None:
+            self.logger.warning(f"modify_level_var: {expression} has a return value of {maybe_result}: this value will be discarded. Perhaps you meant to use the `level_var` command instead?")
+    except:
+        self.logger.error(f"modify_level_var: cannot evaluate {expression}!")
+        self.it = None
+        self.text_evaluator.it = None
+        return
+    
+    if is_primitive_or_primitive_collection(new_val):
+        action.do(action.SetLevelVar(nid, new_val))
+    else:
+        # If the new_val is invalid, simply do nothing - no turnwheel breakage!
+        self.logger.error(f"modify_level_var: {new_val} is not a valid variable!")
+        
+    self.it = None
+    self.text_evaluator.it = None
 
 def set_next_chapter(self: Event, chapter, flags=None):
     if chapter not in DB.levels:
@@ -696,7 +757,7 @@ def activate_turnwheel(self: Event, force: bool = True, flags=None):
 def battle_save(self: Event, save_name: Optional[str] = None, flags=None):
     flags = flags or set()
     if save_name:
-        self.game.memory['save_name'] = save_name
+        self.game.game_vars['_save_name'] = save_name
     if 'immediately' in flags:
         self.state = 'paused'
         self.game.memory['save_kind'] = 'battle'
@@ -2815,7 +2876,8 @@ def arrange_formation(self: Event, flags=None):
             action.execute(action.Reset(unit))
 
 def prep(self: Event, pick_units_enabled: bool = False, music: SongPrefab | SongObject | NID = None, other_options: List[str] = None,
-         other_options_enabled: List[Optional[bool]] = None, other_options_on_select: List[Optional[bool]] = None, flags=None):
+         other_options_enabled: List[Optional[bool]] = None, other_options_on_select: List[Optional[str]] = None, 
+         other_options_description: List[Optional[str]] = None, flags=None):
     action.do(action.SetLevelVar('_prep_pick', pick_units_enabled))
     music_nid = self._resolve_nid(music)
     if music_nid:
@@ -2825,9 +2887,10 @@ def prep(self: Event, pick_units_enabled: bool = False, music: SongPrefab | Song
         options_list = other_options or []
         options_enabled = other_options_enabled or []
         options_events = other_options_on_select or []
+        options_descs = other_options_description or []
 
         if len(options_enabled) <= len(options_list):
-            options_enabled += [False] * (len(options_list) - len(options_events))
+            options_enabled += [False] * (len(options_list) - len(options_enabled))
             action.do(action.SetGameVar('_prep_options_enabled', options_enabled))
         else:
             self.logger.error("prep: too many bools in option enabled list: ", other_options_enabled)
@@ -2840,12 +2903,25 @@ def prep(self: Event, pick_units_enabled: bool = False, music: SongPrefab | Song
             self.logger.error("prep: too many events in option event list: ", other_options_on_select)
             return
         action.do(action.SetGameVar('_prep_additional_options', options_list))
+
+        if len(options_descs) <= len(options_list):
+            options_descs += [''] * (len(options_list) - len(options_descs))
+            action.do(action.SetGameVar('_prep_options_info_descs', options_descs))
+        else:
+            self.logger.error("prep: too many strs in option description list: ", other_options_description)
+            return
     else:
         action.do(action.SetGameVar('_prep_options_enabled', []))
         action.do(action.SetGameVar('_prep_options_events', []))
+        action.do(action.SetGameVar('_prep_options_info_descs', []))
         action.do(action.SetGameVar('_prep_additional_options', []))
 
-    self.game.state.change('prep_main')
+    if 'gba' in flags:
+        self.game.state.change('prep_gba_main')
+        self.game.memory['prep_gba_disp'] = ['' if 'no_obj_disp' in flags else self.game.level.objective['simple'],
+                                             '' if 'no_chap_disp' in flags else self.game.level.name]
+    else:
+        self.game.state.change('prep_main')
     self.state = 'paused'  # So that the message will leave the update loop
 
 def base(self: Event, background: str, music: SongPrefab | SongObject | NID = None, other_options: List[str] = None,
@@ -3156,6 +3232,7 @@ def remove_table(self: Event, nid, flags=None):
 
 def text_entry(self: Event, nid: NID, string: str, positive_integer:int=16, illegal_character_list: Optional[List[str]]=None, default_string: Optional[str]=None, flags:Optional[set[str]]=None):
     flags = flags or set()
+    illegal_character_list = illegal_character_list or list()
 
     header = string
     limit = positive_integer
@@ -3846,6 +3923,17 @@ def party_transfer(self: Event, party1, party2, fixed_units = None, party1_name 
     self.game.state.change('party_transfer')
     self.state = 'paused'
 
+def change_team_palette(self: Event, team, map_sprite_palette = None, combat_variant_palette = None, combat_color = None, flags=None):
+    if not self.game.teams.get(team):
+        self.logger.error("change_team_palette: %s is not a valid team nid" % team)
+        return
+
+    if map_sprite_palette and not RESOURCES.combat_palettes.get(map_sprite_palette):
+        self.logger.error("change_team_palette: %s is not a valid combat palette nid" % map_sprite_palette)
+        return
+
+    action.do(action.ChangeTeamPalette(team, (map_sprite_palette, combat_variant_palette, combat_color)))
+
 def dump_vars(self: Event, flags:Optional[set[str]]=None):
     def is_json_serializable(obj: Any) -> bool:
         """
@@ -3911,7 +3999,6 @@ def dump_vars(self: Event, flags:Optional[set[str]]=None):
     try:
         app_data_fman = file_manager_utils.get_app_data_fman()
 
-        from copy import deepcopy
         local_level_vars = deepcopy(self.game.level_vars)
         local_game_vars = deepcopy(self.game.game_vars)
 

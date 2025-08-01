@@ -453,7 +453,6 @@ class InfoMenuState(State):
         mana_bar = DB.constants.value('add_mana_bar')
 
         surf = engine.create_surface((96, WINHEIGHT), transparent=True)
-        surf.blit(SPRITES.get('info_unit'), (8, 122))
         offset = 0
         if mana_bar:
             surf.blit(SPRITES.get('info_unit_mp'), (6, 114))

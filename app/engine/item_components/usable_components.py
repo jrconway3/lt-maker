@@ -1,8 +1,11 @@
-from typing import Dict
+import math
+from typing import Dict, Tuple
+from app.data.database.database import DB
 from app.data.database.item_components import ItemComponent, ItemTags
 from app.data.database.components import ComponentType
 
 from app.engine import action, item_funcs
+from app.engine.game_menus.icon_options import ItemOptionModes
 
 import logging
 
@@ -257,6 +260,31 @@ class EvalManaCost(ItemComponent):
     def reverse_use(self, unit, item):
         value = self._check_value(unit, item)
         action.do(action.ChangeMana(unit, value))
+
+class ManaUses(ItemComponent):
+    nid = 'mana_uses'
+    desc = "Display the item’s uses based on mana cost and unit's max mana. Do not combine with other uses components."
+    requires = ['mana_cost', 'eval_mana_cost']
+    tag = ItemTags.USES
+
+    def _calc_uses(self, unit, item):
+        if DB.constants.value('mana_uses_shows_cost'):
+            return item.mana_cost.value
+        return math.floor(unit.get_mana() / item.mana_cost.value)
+
+    def _calc_max_uses(self, unit, item):
+        max_uses = math.floor(unit.get_max_mana() / item.mana_cost.value)
+        if DB.constants.value('mana_uses_shows_cost'):
+            max_uses = unit.get_max_mana()
+        return str(max_uses)
+
+    def _uses_type(self):
+        if DB.constants.value('mana_uses_shows_cost'):
+            return ItemOptionModes.USES
+        return ItemOptionModes.FULL_USES
+
+    def item_uses_display(self, unit, item) -> Tuple:
+        return (self._calc_uses(unit, item), self._calc_max_uses(unit, item), self._uses_type())
 
 class Cooldown(ItemComponent):
     nid = 'cooldown'

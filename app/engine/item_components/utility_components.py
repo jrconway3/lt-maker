@@ -83,7 +83,7 @@ class ManaHeal(ItemComponent):
     tag = ItemTags.UTILITY
 
     expose = ComponentType.Int
-    value = 10
+    value = 5
 
     def _get_heal_amount(self, unit, target):
         empower_mana = skill_system.empower_mana(unit, target)

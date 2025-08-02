@@ -4,11 +4,7 @@ from app.data.database.database import DB
 from app.data.database.item_components import ItemComponent, ItemTags
 from app.data.database.components import ComponentType
 
-<<<<<<< HEAD
-from app.engine import action, item_funcs, text_funcs
-=======
 from app.engine import action, item_funcs
->>>>>>> mana-uses-component
 from app.engine.game_menus.icon_options import ItemOptionModes
 
 import logging

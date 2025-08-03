@@ -1580,6 +1580,7 @@ class ItemDiscardState(MapState):
         game.cursor.hide()
         self.cur_unit = game.memory['item_discard_current_unit']
         self.new_item = game.memory['item_discard_new_item']
+        self.no_convoy = game.memory['item_discard_no_convoy']
 
         if game.game_vars.get('_convoy') and DB.constants.value("long_range_storage"):
             self.mode = self.ItemDiscardMode.STORAGE

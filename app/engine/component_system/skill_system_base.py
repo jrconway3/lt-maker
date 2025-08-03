@@ -116,6 +116,10 @@ class Defaults():
         return 0
 
     @staticmethod
+    def xcom_movement(unit):
+        return 0
+
+    @staticmethod
     def empower_splash(unit):
         return 0
 

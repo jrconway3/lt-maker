@@ -102,7 +102,7 @@ class EmpowerManaHealReceived(SkillComponent):
 
     expose = ComponentType.String
 
-    def empower_mana_heal_received(self, target, unit):
+    def empower_mana_received(self, target, unit):
         from app.engine import evaluate
         try:
             return int(evaluate.evaluate(self.value, target, unit))

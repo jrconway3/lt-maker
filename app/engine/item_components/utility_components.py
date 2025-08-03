@@ -139,10 +139,10 @@ class EquationManaHeal(ManaHeal):
     value = 'HEAL'
 
     def _get_heal_amount(self, unit, target):
-        empower_heal = skill_system.empower_heal(unit, target)
-        empower_heal_received = skill_system.empower_heal_received(target, unit)
+        empower_mana = skill_system.empower_mana(unit, target)
+        empower_mana_received = skill_system.empower_mana_received(target, unit)
         equation = self.value
-        return equations.parser.get(equation, unit) + empower_heal + empower_heal_received
+        return equations.parser.get(equation, unit) + empower_mana + empower_mana_received
 
 class Refresh(ItemComponent):
     nid = 'refresh'

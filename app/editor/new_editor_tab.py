@@ -110,7 +110,10 @@ class NewEditorTab(QWidget, Generic[T]):
             QMessageBox.warning(self, 'Warning', 'ID %s already in use' % new_nid)
             return False
         self._on_nid_changed(old_nid, new_nid)
-        self.data.change_key(old_nid, new_nid)
+        if isinstance(self.data, ManifestCatalog):
+            self.data.update_nid(self.data.get(old_nid), new_nid)
+        else:
+            self.data.change_key(old_nid, new_nid)
         self.tree_list.update_nid(old_nid, new_nid)
         self.tree_list.on_filter_changed(self.tree_list.search_box.text())
         return True
@@ -172,7 +175,10 @@ class NewEditorTab(QWidget, Generic[T]):
             QMessageBox.warning(self, 'Warning', 'ID %s not found' % old_nid)
             return False
         self._on_nid_changed(old_nid, new_nid)
-        self.data.change_key(old_nid, new_nid)
+        if isinstance(self.data, ManifestCatalog):
+            self.data.update_nid(self.data.get(old_nid), new_nid)
+        else:
+            self.data.change_key(old_nid, new_nid)
         self.tree_list.on_filter_changed(self.tree_list.search_box.text())
         self.tree_list.select_item(new_nid)
         return True

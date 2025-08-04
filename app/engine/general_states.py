@@ -1609,9 +1609,9 @@ class ItemDiscardState(MapState):
         and cannot be discarded or stored at the moment
         """
         if self.mode == self.ItemDiscardMode.STORAGE:
-            locked = [not bool(item_system.storeable(self.cur_unit, item)) or not item == exclude for item in options]
+            locked = [not bool(item_system.storeable(self.cur_unit, item)) or item == exclude for item in options]
         else:
-            locked = [not bool(item_system.discardable(self.cur_unit, item)) or not item == exclude for item in options]
+            locked = [not bool(item_system.discardable(self.cur_unit, item)) or item == exclude for item in options]
         return locked
 
     def begin(self):
@@ -1623,7 +1623,7 @@ class ItemDiscardState(MapState):
         self.fluid.reset_on_change_state()
         options = self.cur_unit.items
         self.menu.update_options(options)
-        ignore = self._get_locked(options)
+        ignore = self._get_locked(options, self.new_item if self.force_give else None)
         self.menu.set_ignore(ignore)
         # Don't need to do this if we are under items
         if not item_funcs.too_much_in_inventory(self.cur_unit):

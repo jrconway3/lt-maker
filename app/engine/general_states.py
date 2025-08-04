@@ -1580,7 +1580,7 @@ class ItemDiscardState(MapState):
         game.cursor.hide()
         self.cur_unit = game.memory['item_discard_current_unit']
         self.new_item = game.memory['item_discard_new_item']
-        self.no_convoy = game.memory['item_discard_no_convoy']
+        self.force_give = game.memory['item_discard_force_give']
 
         if game.game_vars.get('_convoy') and DB.constants.value("long_range_storage"):
             self.mode = self.ItemDiscardMode.STORAGE
@@ -1594,7 +1594,7 @@ class ItemDiscardState(MapState):
 
         options = self.cur_unit.items
         self.menu = menus.Choice(self.cur_unit, options)
-        ignore = self._get_locked(options)
+        ignore = self._get_locked(options, self.new_item if self.force_give else None)
         self.menu.set_ignore(ignore)
         self.menu.set_limit(8)
 
@@ -1603,15 +1603,15 @@ class ItemDiscardState(MapState):
         else:
             self.pennant = banner.Pennant('Choose item to discard')
 
-    def _get_locked(self, options: List[ItemObject]) -> List[bool]:
+    def _get_locked(self, options: List[ItemObject], exclude: Optional[ItemObject] = None) -> List[bool]:
         """
         Returns a list of booleans, one for each item, that determines whether the item is locked to the unit
         and cannot be discarded or stored at the moment
         """
         if self.mode == self.ItemDiscardMode.STORAGE:
-            locked = [not bool(item_system.storeable(self.cur_unit, item)) for item in options]
+            locked = [not bool(item_system.storeable(self.cur_unit, item)) or not item == exclude for item in options]
         else:
-            locked = [not bool(item_system.discardable(self.cur_unit, item)) for item in options]
+            locked = [not bool(item_system.discardable(self.cur_unit, item)) or not item == exclude for item in options]
         return locked
 
     def begin(self):

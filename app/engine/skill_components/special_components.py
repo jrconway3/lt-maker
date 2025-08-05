@@ -80,9 +80,9 @@ class EmpowerHealReceived(SkillComponent):
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
 
-class EmpowerManaHeal(SkillComponent):
-    nid = 'empower_mana_heal'
-    desc = "Gives +X extra mana healing"
+class EmpowerMana(SkillComponent):
+    nid = 'empower_mana'
+    desc = "Gives +X extra mana gain"
     tag = SkillTags.ADVANCED
 
     expose = ComponentType.String
@@ -95,9 +95,9 @@ class EmpowerManaHeal(SkillComponent):
             print("Couldn't evaluate %s conditional" % self.value)
             return 0
 
-class EmpowerManaHealReceived(SkillComponent):
-    nid = 'empower_mana_heal_received'
-    desc = "Gives +X extra mana healing received"
+class EmpowerManaReceived(SkillComponent):
+    nid = 'empower_mana_received'
+    desc = "Gives +X extra mana gain received"
     tag = SkillTags.ADVANCED
 
     expose = ComponentType.String

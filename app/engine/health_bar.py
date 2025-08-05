@@ -226,15 +226,14 @@ class MapCombatHealthBar(HealthBar):
 
 class MapCombatManaBar(ManaBar):
     display_numbers = True
-    health_bar = SPRITES.get('health_bar')
-    # TO DO: Maybe add a separate mana bar? Blue bar?
+    mana_bar = SPRITES.get('mana_bar')
 
     def draw(self, surf):
         total = max(1, self.unit.get_max_mana())
         fraction_mp = utils.clamp(self.displayed_mp / total, 0, 1)
         index_pixel = int(50 * fraction_mp)
         position = 25, 22
-        surf.blit(engine.subsurface(self.health_bar, (0, 0, index_pixel, 2)), position)
+        surf.blit(engine.subsurface(self.mana_bar, (0, 0, index_pixel, 2)), position)
 
         # Blit MP number
         if self.display_numbers:
@@ -250,9 +249,13 @@ class MapCombatManaBar(ManaBar):
 class MapCombatInfo():
     blind_speed = 1/8.  # 8 frames to fade in
 
-    def __init__(self, draw_method, unit, item, target, stats):
+    def __init__(self, draw_method, unit, item, target, stats, bar = 'hp'):
         self.skill_icons = []
         self.ordering = None
+        self.show_bar = bar
+        if self.show_bar not in ['hp', 'mp']:
+            self.show_bar = 'hp'
+            # TO DO: Add an option to have both HP and MP display with 'both'
 
         self.reset()
         self.change_unit(unit, item, target, stats, draw_method)
@@ -268,10 +271,8 @@ class MapCombatInfo():
         else:
             self.blinds = 1
 
-        if item.mana_heal or item.equation_mana_heal:
-            self.hp_bar = MapCombatManaBar(unit)
-        else:
-            self.hp_bar = MapCombatHealthBar(unit)
+        self.hp_bar = MapCombatHealthBar(unit)
+        self.mp_bar = MapCombatManaBar(unit)
         self.unit = unit
         self.item = item
         if target:
@@ -298,6 +299,7 @@ class MapCombatInfo():
         self.true_position = None
 
         self.hp_bar = None
+        self.mp_bar = None
         self.unit = None
         self.item = None
         self.target = None
@@ -396,7 +398,10 @@ class MapCombatInfo():
         return stat_surf
 
     def get_time_for_change(self):
-        return self.hp_bar.time_for_change
+        if self.show_bar == 'mp':
+            return self.mp_bar.time_for_change
+        else:
+            return self.hp_bar.time_for_change
 
     def force_position_update(self):
         if self.unit:
@@ -468,7 +473,10 @@ class MapCombatInfo():
 
         if self.unit and self.blinds >= 1:
             self.handle_shake()
-            self.hp_bar.update()
+            if self.show_bar != 'mp':
+                self.hp_bar.update()
+            if self.show_bar != 'hp':
+                self.mp_bar.update()
 
     def draw(self, surf):
         # Create background surface
@@ -514,7 +522,10 @@ class MapCombatInfo():
                     bg_surf.blit(up_arrow, (11, 7))
         # End item
 
-        bg_surf = self.hp_bar.draw(bg_surf)
+        if self.show_bar != 'mp':
+            bg_surf = self.hp_bar.draw(bg_surf)
+        if self.show_bar != 'hp':
+            bg_surf = self.mp_bar.draw(bg_surf)
 
         # Blit stat surf
         if self.grd is not None:

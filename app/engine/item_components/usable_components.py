@@ -1,5 +1,5 @@
 import math
-from typing import Dict, Tuple
+from typing import Dict, Tuple, TypeAlias, List
 from app.data.database.database import DB
 from app.data.database.item_components import ItemComponent, ItemTags
 from app.data.database.components import ComponentType
@@ -261,21 +261,26 @@ class EvalManaCost(ItemComponent):
         value = self._check_value(unit, item)
         action.do(action.ChangeMana(unit, value))
 
+
 class ManaUses(ItemComponent):
     nid = 'mana_uses'
     desc = "Display the item’s uses based on mana cost and unit's max mana. Do not combine with other uses components."
     requires = ['mana_cost', 'eval_mana_cost']
     tag = ItemTags.USES
 
+    _uses_color = 'navy'
+
+    UsesDisplayText: TypeAlias = List[Tuple[str, str, int, str]]
+
     def _calc_uses(self, unit, item):
         if DB.constants.value('mana_uses_shows_remaining'):
-            return math.floor(unit.get_mana() / item.mana_cost.value)
+            return unit.get_mana() // item.mana_cost.value
         return item.mana_cost.value
 
     def _calc_max_uses(self, unit, item):
         max_uses = unit.get_max_mana()
         if DB.constants.value('mana_uses_shows_remaining'):
-            max_uses = math.floor(unit.get_max_mana() / item.mana_cost.value)
+            max_uses = unit.get_max_mana() // item.mana_cost.value
         return str(max_uses)
 
     def _uses_type(self):
@@ -283,8 +288,8 @@ class ManaUses(ItemComponent):
             return ItemOptionModes.FULL_USES
         return ItemOptionModes.USES
 
-    def item_uses_display(self, unit, item) -> Tuple:
-        return (self._calc_uses(unit, item), self._calc_max_uses(unit, item), self._uses_type())
+    def item_uses_display(self, unit, item) -> UsesDisplayText:
+        return (self._calc_uses(unit, item), self._calc_max_uses(unit, item), self._uses_color, self._uses_type())
 
 class Cooldown(ItemComponent):
     nid = 'cooldown'

@@ -58,7 +58,7 @@ class ItemOptionUtils():
         uses_string = '--'
         if custom_uses is not None and custom_uses[0]:
             uses_string = str(custom_uses[0])
-            uses_color = 'navy'
+            uses_color = custom_uses[2]
         elif item.uses:
             uses_string = str(item.data['uses'])
         elif item.parent_item and item.parent_item.uses and item.parent_item.data['uses']:
@@ -98,7 +98,7 @@ class ItemOptionUtils():
         if custom_uses is not None and custom_uses[0]:
             uses_string_a = str(custom_uses[0])
             uses_string_b = str(custom_uses[1])
-            uses_color = 'navy'
+            uses_color = custom_uses[2]
         elif item.data.get('uses') is not None:
             uses_string_a = str(item.data['uses'])
             uses_string_b = str(item.data['starting_uses'])
@@ -232,8 +232,8 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
         custom_uses = item_system.item_uses_display(owner, self._value)
         if custom_uses:
             self._custom_uses = custom_uses
-            if self._custom_uses[2] in [ItemOptionModes.USES, ItemOptionModes.FULL_USES]:
-                self._mode = self._custom_uses[2]
+            if self._custom_uses[3] in [ItemOptionModes.USES, ItemOptionModes.FULL_USES]:
+                self._mode = self._custom_uses[3]
 
     def draw(self, surf, x, y):
         main_color, uses_color = self.get_color()

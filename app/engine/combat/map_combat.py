@@ -275,7 +275,12 @@ class MapCombat(SimpleCombat):
             self.health_bars.clear()
 
         else:
-            self.show_bar = 'mp' if self.main_item.mana_heal or self.main_item.equation_mana_heal else 'hp'
+            self.show_bar = 'hp'
+            if self.main_item.mana_heal or self.main_item.equation_mana_heal:
+                if self.main_item.heal or self.main_item.equation_heal:
+                    self.show_bar = 'both'
+                else:
+                    self.show_bar = 'mp'
 
             # P1 on P1
             if self.defender and self.attacker is self.defender:

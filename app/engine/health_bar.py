@@ -20,11 +20,17 @@ class HealthBar():
     time_for_change_min = 200
     speed = utils.frames2ms(1)   # 1 frame for each hp point
 
-    def __init__(self, unit):
+    def __init__(self, unit, bar = 'hp'):
         self.unit = unit
+
+        self.show_bar = bar
+        if self.show_bar not in ['hp', 'mp', 'both']:
+            self.show_bar = 'hp'
 
         self.displayed_hp = self.unit.get_hp()
         self.old_hp = self.displayed_hp
+        self.displayed_mp = self.unit.get_mana()
+        self.old_mp = self.displayed_mp
 
         self.transition_flag = False
         self.time_for_change = self.time_for_change_min
@@ -33,50 +39,42 @@ class HealthBar():
     def set_hp(self, val):
         self.displayed_hp = val
 
-    def update(self):
-        # print(self.displayed_hp, self.unit.get_hp(), self.transition_flag)
-        # Check to see if we should begin showing transition
-        if self.displayed_hp != self.unit.get_hp() and not self.transition_flag:
-            self.transition_flag = True
-            self.time_for_change = max(self.time_for_change_min, abs(self.displayed_hp - self.unit.get_hp()) * self.speed)
-            self.last_update = engine.get_time()
-
-        # Check to see if we should update
-        if self.transition_flag:
-            time = (engine.get_time() - self.last_update) / self.time_for_change
-            new_val = int(utils.lerp(self.old_hp, self.unit.get_hp(), time))
-            self.set_hp(new_val)
-            if time >= 1:
-                self.set_hp(self.unit.get_hp())
-                self.old_hp = self.displayed_hp
-                self.transition_flag = False
-
-class ManaBar(HealthBar):
-    def __init__(self, unit):
-        super().__init__(unit)
-
-        self.displayed_mp = self.unit.get_mana()
-        self.old_mp = self.displayed_mp
-
     def set_mp(self, val):
         self.displayed_mp = val
 
     def update(self):
-        # print(self.displayed_mp, self.unit.get_mp(), self.transition_flag)
         # Check to see if we should begin showing transition
-        if self.displayed_mp != self.unit.get_mana() and not self.transition_flag:
+        if not self.transition_flag:
             self.transition_flag = True
-            self.time_for_change = max(self.time_for_change_min, abs(self.displayed_mp - self.unit.get_mana()) * self.speed)
-            self.last_update = engine.get_time()
+
+            # Check if we need to transition hp
+            if self.displayed_hp != self.unit.get_hp() and self.show_bar != 'mp':
+                self.time_for_change = max(self.time_for_change_min, abs(self.displayed_hp - self.unit.get_hp()) * self.speed)
+                self.last_update = engine.get_time()
+
+            # Check if we need to transition mp
+            if self.displayed_mp != self.unit.get_mana() and self.show_bar != 'hp':
+                self.time_for_change = max(self.time_for_change_min, abs(self.displayed_mp - self.unit.get_mana()) * self.speed)
+                self.last_update = engine.get_time()
 
         # Check to see if we should update
         if self.transition_flag:
             time = (engine.get_time() - self.last_update) / self.time_for_change
-            new_val = int(utils.lerp(self.old_mp, self.unit.get_mana(), time))
-            self.set_mp(new_val)
+
+            if self.show_bar != 'mp':
+                new_hp = int(utils.lerp(self.old_hp, self.unit.get_hp(), time))
+                self.set_hp(new_hp)
+            if self.show_bar != 'hp':
+                new_mp = int(utils.lerp(self.old_mp, self.unit.get_mana(), time))
+                self.set_mp(new_mp)
+
             if time >= 1:
-                self.set_mp(self.unit.get_mana())
-                self.old_mp = self.displayed_mp
+                if self.show_bar != 'mp':
+                    self.set_hp(self.unit.get_hp())
+                    self.old_hp = self.displayed_hp
+                if self.show_bar != 'hp':
+                    self.set_mp(self.unit.get_mana())
+                    self.old_mp = self.displayed_mp
                 self.transition_flag = False
 
 MAX_HP_PER_BAR = 40
@@ -205,44 +203,45 @@ class MapHealthBar(HealthBar):
 class MapCombatHealthBar(HealthBar):
     display_numbers = True
     health_bar = SPRITES.get('health_bar')
-
-    def draw(self, surf):
-        total = max(1, self.unit.get_max_hp())
-        fraction_hp = utils.clamp(self.displayed_hp / total, 0, 1)
-        index_pixel = int(50 * fraction_hp)
-        position = 25, 22
-        surf.blit(engine.subsurface(self.health_bar, (0, 0, index_pixel, 2)), position)
-
-        # Blit HP number
-        if self.display_numbers:
-            font = FONT['number_small2']
-            if self.transition_flag:
-                font = FONT['number_big2']
-            s = str(self.displayed_hp)
-            position = 22 - font.size(s)[0], 15
-            font.blit(s, surf, position)
-
-        return surf
-
-class MapCombatManaBar(ManaBar):
-    display_numbers = True
     mana_bar = SPRITES.get('mana_bar')
 
     def draw(self, surf):
-        total = max(1, self.unit.get_max_mana())
-        fraction_mp = utils.clamp(self.displayed_mp / total, 0, 1)
-        index_pixel = int(50 * fraction_mp)
+        # Calculate HP
         position = 25, 22
-        surf.blit(engine.subsurface(self.mana_bar, (0, 0, index_pixel, 2)), position)
+        if self.show_bar != 'mp':
+            total = max(1, self.unit.get_max_hp())
+            fraction_hp = utils.clamp(self.displayed_hp / total, 0, 1)
+            index_pixel = int(50 * fraction_hp)
+            surf.blit(engine.subsurface(self.health_bar, (0, 0, index_pixel, 2)), position)
 
-        # Blit MP number
+        # Calculate MP
+        if self.show_bar != 'hp':
+            total = max(1, self.unit.get_max_mana())
+            fraction_mp = utils.clamp(self.displayed_mp / total, 0, 1)
+            index_pixel = int(50 * fraction_mp)
+            if self.show_bar == 'both':
+                position = 25, 44
+            surf.blit(engine.subsurface(self.mana_bar, (0, 0, index_pixel, 2)), position)
+
+        # Display Numbers
         if self.display_numbers:
             font = FONT['number_small2']
             if self.transition_flag:
                 font = FONT['number_big2']
-            s = str(self.displayed_mp)
-            position = 22 - font.size(s)[0], 15
-            font.blit(s, surf, position)
+
+            # Blit HP Number
+            if self.show_bar != 'mp':
+                s = str(self.displayed_hp)
+                position = 22 - font.size(s)[0], 15
+                font.blit(s, surf, position)
+
+            # Blit MP number
+            if self.show_bar != 'hp':
+                s = str(self.displayed_mp)
+                position = 22 - font.size(s)[0], 15
+                if self.show_bar == 'both':
+                    position = 22 - font.size(s)[0], 30
+                font.blit(s, surf, position)
 
         return surf
 
@@ -253,9 +252,8 @@ class MapCombatInfo():
         self.skill_icons = []
         self.ordering = None
         self.show_bar = bar
-        if self.show_bar not in ['hp', 'mp']:
+        if self.show_bar not in ['hp', 'mp', 'both']:
             self.show_bar = 'hp'
-            # TO DO: Add an option to have both HP and MP display with 'both'
 
         self.reset()
         self.change_unit(unit, item, target, stats, draw_method)
@@ -271,8 +269,8 @@ class MapCombatInfo():
         else:
             self.blinds = 1
 
-        self.hp_bar = MapCombatHealthBar(unit)
-        self.mp_bar = MapCombatManaBar(unit)
+        print(self.show_bar)
+        self.hp_bar = MapCombatHealthBar(unit, self.show_bar)
         self.unit = unit
         self.item = item
         if target:
@@ -299,7 +297,6 @@ class MapCombatInfo():
         self.true_position = None
 
         self.hp_bar = None
-        self.mp_bar = None
         self.unit = None
         self.item = None
         self.target = None
@@ -398,10 +395,7 @@ class MapCombatInfo():
         return stat_surf
 
     def get_time_for_change(self):
-        if self.show_bar == 'mp':
-            return self.mp_bar.time_for_change
-        else:
-            return self.hp_bar.time_for_change
+        return self.hp_bar.time_for_change
 
     def force_position_update(self):
         if self.unit:
@@ -473,10 +467,7 @@ class MapCombatInfo():
 
         if self.unit and self.blinds >= 1:
             self.handle_shake()
-            if self.show_bar != 'mp':
-                self.hp_bar.update()
-            if self.show_bar != 'hp':
-                self.mp_bar.update()
+            self.hp_bar.update()
 
     def draw(self, surf):
         # Create background surface
@@ -522,10 +513,7 @@ class MapCombatInfo():
                     bg_surf.blit(up_arrow, (11, 7))
         # End item
 
-        if self.show_bar != 'mp':
-            bg_surf = self.hp_bar.draw(bg_surf)
-        if self.show_bar != 'hp':
-            bg_surf = self.mp_bar.draw(bg_surf)
+        bg_surf = self.hp_bar.draw(bg_surf)
 
         # Blit stat surf
         if self.grd is not None:

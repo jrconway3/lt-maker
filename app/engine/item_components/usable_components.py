@@ -268,20 +268,20 @@ class ManaUses(ItemComponent):
     tag = ItemTags.USES
 
     def _calc_uses(self, unit, item):
-        if DB.constants.value('mana_uses_shows_cost'):
-            return item.mana_cost.value
-        return math.floor(unit.get_mana() / item.mana_cost.value)
+        if DB.constants.value('mana_uses_shows_remaining'):
+            return math.floor(unit.get_mana() / item.mana_cost.value)
+        return item.mana_cost.value
 
     def _calc_max_uses(self, unit, item):
-        max_uses = math.floor(unit.get_max_mana() / item.mana_cost.value)
-        if DB.constants.value('mana_uses_shows_cost'):
-            max_uses = unit.get_max_mana()
+        max_uses = unit.get_max_mana()
+        if DB.constants.value('mana_uses_shows_remaining'):
+            max_uses = math.floor(unit.get_max_mana() / item.mana_cost.value)
         return str(max_uses)
 
     def _uses_type(self):
-        if DB.constants.value('mana_uses_shows_cost'):
-            return ItemOptionModes.USES
-        return ItemOptionModes.FULL_USES
+        if DB.constants.value('mana_uses_shows_remaining'):
+            return ItemOptionModes.FULL_USES
+        return ItemOptionModes.USES
 
     def item_uses_display(self, unit, item) -> Tuple:
         return (self._calc_uses(unit, item), self._calc_max_uses(unit, item), self._uses_type())

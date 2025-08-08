@@ -58,8 +58,6 @@ class ItemOptionUtils():
         uses_string = '--'
         if custom_uses is not None and custom_uses[0]:
             uses_string = str(custom_uses[0])
-            if custom_uses[1]:
-                uses_string += ' ' + str(custom_uses[1])
             uses_color = 'navy'
         elif item.uses:
             uses_string = str(item.data['uses'])

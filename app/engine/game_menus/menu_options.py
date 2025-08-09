@@ -9,7 +9,7 @@ from app.engine.game_state import game
 
 from app.engine.graphics.text.text_renderer import render_text, text_width, rendered_text_width
 from app.utilities.enums import HAlignment
-from app.utilities.typing import UsesDisplayText
+from app.engine.game_menus.icon_options import UsesDisplayText
 
 class EmptyOption():
     def __init__(self, idx):
@@ -330,7 +330,7 @@ class ItemOption(BasicOption):
             return None
 
         owner = game.get_unit(self.item.owner_nid)
-        if not owner or not item_funcs.available(owner, self.item):
+        if not owner:
             return None
 
         return item_system.item_uses_display(owner, self.item)
@@ -349,7 +349,7 @@ class ItemOption(BasicOption):
         custom_uses = self.get_custom_uses()
         if custom_uses is not None and custom_uses[2]:
             uses_color = custom_uses[2]
-        if custom_uses is not None and custom_uses[0]:
+        if custom_uses is not None and custom_uses[0] is not None:
             uses_string = str(custom_uses[0])
         elif self.item.uses:
             uses_string = str(self.item.data['uses'])
@@ -403,7 +403,13 @@ class FullItemOption(ItemOption):
 
         uses_string_a = '--'
         uses_string_b = '--'
-        if self.item.data.get('uses') is not None:
+        custom_uses = self.get_custom_uses()
+        if custom_uses is not None and custom_uses[2]:
+            uses_color = custom_uses[2]
+        if custom_uses is not None and custom_uses[0|1] is not None:
+            uses_string_a = str(custom_uses[0])
+            uses_string_a = str(custom_uses[1])
+        elif self.item.data.get('uses') is not None:
             uses_string_a = str(self.item.data['uses'])
             uses_string_b = str(self.item.data['starting_uses'])
         elif self.item.data.get('c_uses') is not None:

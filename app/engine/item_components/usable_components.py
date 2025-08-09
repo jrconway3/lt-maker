@@ -3,9 +3,8 @@ from app.data.database.item_components import ItemComponent, ItemTags
 from app.data.database.components import ComponentType
 
 from app.engine import action, item_funcs
-from app.engine.game_menus.icon_options import ItemOptionModes
-
-from app.utilities.typing import UsesDisplayText
+from app.engine.fonts import FONT
+from app.engine.game_menus.icon_options import ItemOptionModes, UsesDisplayText
 
 import logging
 
@@ -268,18 +267,29 @@ class ManaCostAsUses(ItemComponent):
     requires = ['mana_cost', 'eval_mana_cost']
     tag = ItemTags.USES
 
-    _font_color = 'navy'
+    def _calc_uses(self, unit, item):
+        return item.mana_cost.value
+
+    def _calc_max_uses(self, unit, item):
+        return None
+
+    def _font_color(self, unit, item):
+        color = 'navy'
+        if not item_funcs.available(unit, item):
+            color = 'grey'
+        if FONT['text-' + color] is not None:
+            return color
+        return None
+
+    def _uses_type(self):
+        return ItemOptionModes.USES
 
     def item_uses_display(self, unit, item) -> UsesDisplayText:
-        return (item.mana_cost.value, None, self._font_color, ItemOptionModes.USES)
+        return (self._calc_uses(unit, item), self._calc_max_uses(unit, item), self._font_color(unit, item), self._uses_type())
 
-class RemainingManaUses(ItemComponent):
+class RemainingManaUses(ManaCostAsUses):
     nid = 'mana_uses_remaining'
     desc = "Display the remaining uses calculated from mana cost and unit's current/max mana. Do not combine with other uses components."
-    requires = ['mana_cost', 'eval_mana_cost']
-    tag = ItemTags.USES
-
-    _font_color = 'navy'
 
     def _calc_uses(self, unit, item):
         return unit.get_mana() // item.mana_cost.value
@@ -287,8 +297,8 @@ class RemainingManaUses(ItemComponent):
     def _calc_max_uses(self, unit, item):
         return str(unit.get_max_mana() // item.mana_cost.value)
 
-    def item_uses_display(self, unit, item) -> UsesDisplayText:
-        return (self._calc_uses(unit, item), self._calc_max_uses(unit, item), self._font_color, ItemOptionModes.FULL_USES)
+    def _uses_type(self):
+        return ItemOptionModes.FULL_USES
 
 class Cooldown(ItemComponent):
     nid = 'cooldown'

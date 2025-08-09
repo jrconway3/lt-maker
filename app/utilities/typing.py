@@ -13,3 +13,6 @@ Color4 = Tuple[int, int, int, int]
 Primitive = Union[int, float, str, bool, None]
 NestedPrimitiveList = Union[Primitive, 'NestedPrimitiveList', 'NestedPrimitiveDict']
 NestedPrimitiveDict = Dict[str, Union[Primitive, 'NestedPrimitiveDict', 'NestedPrimitiveList']]
+
+# Hooks
+UsesDisplayText = Tuple[str, str, str, int]

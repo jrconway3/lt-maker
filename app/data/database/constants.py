@@ -128,7 +128,6 @@ constants = ConstantCatalog([
     Constant('combat_art_category', "Combat Arts get put in their own category in the menu", ConstantType.BOOL, False, ConstantTag.OTHER),
     Constant('reset_mana', "Mana resets to full for units upon completion of the chapter", ConstantType.BOOL, ConstantTag.OTHER),
     Constant('add_mana_bar', "Add MP Bar (Mana) below HP in info menu. Slightly alters the default positions.", ConstantType.BOOL, False, ConstantTag.OTHER),
-    Constant('mana_uses_shows_cost', "Mana Uses shows Mana Cost instead of Remaining Uses.", ConstantType.BOOL, False, ConstantTag.OTHER),
     Constant('double_splash', "When doubling, splash/aoe applied on second strike", ConstantType.BOOL, ConstantTag.OTHER),
     Constant('num_save_slots', "Number of save slots", ConstantType.POSITIVE_INT, 3, ConstantTag.TITLE),
     Constant('sell_modifier', "Value multiplier when selling an item", ConstantType.FLOAT, 0.5, ConstantTag.INVENTORY),

@@ -12,7 +12,7 @@ from app.engine.graphics.text.text_renderer import (anchor_align, render_text,
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
 from app.utilities.enums import HAlignment
-from app.utilities.typing import NID
+from app.utilities.typing import NID, UsesDisplayText
 
 
 class ItemOptionUtils():
@@ -41,7 +41,7 @@ class ItemOptionUtils():
     @staticmethod
     def draw_with_uses(surf, x, y, item: ItemObject, font: NID, color: NID, uses_color: NID,
                        width: int, align: HAlignment = HAlignment.LEFT,
-                       disp_text: Optional[str] = None, custom_uses: Optional[Tuple] = None):
+                       disp_text: Optional[str] = None, custom_uses: Optional[UsesDisplayText] = None):
         display_text = disp_text or item.name
         uses_font = font
         if text_width(font, display_text) > width - 36:
@@ -56,11 +56,10 @@ class ItemOptionUtils():
             ItemOptionUtils.draw_icon(surf, x, y, item)
         render_text(surf, [font], [display_text], [color], blit_loc, align)
         uses_string = '--'
+        if custom_uses is not None and custom_uses[2]:
+            uses_color = custom_uses[2]
         if custom_uses is not None and custom_uses[0]:
             uses_string = str(custom_uses[0])
-            if custom_uses[1]:
-                uses_string += ' ' + str(custom_uses[1])
-            uses_color = 'navy'
         elif item.uses:
             uses_string = str(item.data['uses'])
         elif item.parent_item and item.parent_item.uses and item.parent_item.data['uses']:
@@ -78,7 +77,7 @@ class ItemOptionUtils():
     @staticmethod
     def draw_with_full_uses(surf, x, y, item: ItemObject, font: NID, color: NID, uses_color: NID,
                             width: int, align: HAlignment = HAlignment.LEFT,
-                            disp_text: Optional[str] = None, custom_uses: Optional[Tuple] = None):
+                            disp_text: Optional[str] = None, custom_uses: Optional[UsesDisplayText] = None):
         main_font = font
         display_text = disp_text or item.name
         if text_width(main_font, display_text) > width - 56:
@@ -97,10 +96,11 @@ class ItemOptionUtils():
 
         uses_string_a = '--'
         uses_string_b = '--'
+        if custom_uses is not None and custom_uses[2]:
+            uses_color = custom_uses[2]
         if custom_uses is not None and custom_uses[0]:
             uses_string_a = str(custom_uses[0])
             uses_string_b = str(custom_uses[1])
-            uses_color = 'navy'
         elif item.data.get('uses') is not None:
             uses_string_a = str(item.data['uses'])
             uses_string_b = str(item.data['starting_uses'])
@@ -222,20 +222,21 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
                 self._help_box = help_menu.HelpDialog(text)
         return self._help_box
 
-    def get_custom_uses(self):
+    def get_custom_uses(self) -> UsesDisplayText:
         self._custom_uses = None
         if not self._value:
-            return
+            return None
 
         owner = game.get_unit(self._value.owner_nid)
         if not owner or not item_funcs.available(owner, self._value):
-            return
+            return None
 
         custom_uses = item_system.item_uses_display(owner, self._value)
         if custom_uses:
             self._custom_uses = custom_uses
-            if self._custom_uses[2] in [ItemOptionModes.USES, ItemOptionModes.FULL_USES]:
-                self._mode = self._custom_uses[2]
+            if self._custom_uses[3] in [ItemOptionModes.USES, ItemOptionModes.FULL_USES]:
+                self._mode = self._custom_uses[3]
+        return self._custom_uses
 
     def draw(self, surf, x, y):
         main_color, uses_color = self.get_color()

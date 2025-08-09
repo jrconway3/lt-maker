@@ -262,20 +262,24 @@ class EvalManaCost(ItemComponent):
         action.do(action.ChangeMana(unit, value))
 
 
-class ManaUses(ItemComponent):
-    nid = 'mana_uses'
-    desc = "Display the Mana Cost in place of Uses on the item."
+class ManaCostAsUses(ItemComponent):
+    nid = 'mana_cost_uses'
+    desc = "Display the Mana Cost in place of Uses on the item. Do not combine with other uses components."
     requires = ['mana_cost', 'eval_mana_cost']
     tag = ItemTags.USES
 
-    def item_uses_display(self, unit, item) -> UsesDisplayText:
-        return UsesDisplayText(item.mana_cost.value, None, 'navy', ItemOptionModes.USES)
+    _font_color = 'navy'
 
-class ManaUsesRemaining(ItemComponent):
+    def item_uses_display(self, unit, item) -> UsesDisplayText:
+        return (item.mana_cost.value, None, self._font_color, ItemOptionModes.USES)
+
+class RemainingManaUses(ItemComponent):
     nid = 'mana_uses_remaining'
     desc = "Display the remaining uses calculated from mana cost and unit's current/max mana. Do not combine with other uses components."
     requires = ['mana_cost', 'eval_mana_cost']
     tag = ItemTags.USES
+
+    _font_color = 'navy'
 
     def _calc_uses(self, unit, item):
         return unit.get_mana() // item.mana_cost.value
@@ -284,7 +288,7 @@ class ManaUsesRemaining(ItemComponent):
         return str(unit.get_max_mana() // item.mana_cost.value)
 
     def item_uses_display(self, unit, item) -> UsesDisplayText:
-        return UsesDisplayText(self._calc_uses(unit, item), self._calc_max_uses(unit, item), 'navy', ItemOptionModes.FULL_USES)
+        return (self._calc_uses(unit, item), self._calc_max_uses(unit, item), self._font_color, ItemOptionModes.FULL_USES)
 
 class Cooldown(ItemComponent):
     nid = 'cooldown'

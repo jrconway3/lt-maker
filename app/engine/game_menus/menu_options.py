@@ -406,7 +406,7 @@ class FullItemOption(ItemOption):
         custom_uses = self.get_custom_uses()
         if custom_uses is not None and custom_uses[2]:
             uses_color = custom_uses[2]
-        if custom_uses is not None and custom_uses[0|1] is not None:
+        if custom_uses is not None and custom_uses[0] is not None and custom_uses[1] is not None:
             uses_string_a = str(custom_uses[0])
             uses_string_a = str(custom_uses[1])
         elif self.item.data.get('uses') is not None:

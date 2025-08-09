@@ -98,7 +98,7 @@ class ItemOptionUtils():
         uses_string_b = '--'
         if custom_uses is not None and custom_uses[2]:
             uses_color = custom_uses[2]
-        if custom_uses is not None and custom_uses[0|1] is not None:
+        if custom_uses is not None and custom_uses[0] is not None and custom_uses[1] is not None:
             uses_string_a = str(custom_uses[0])
             uses_string_b = str(custom_uses[1])
         elif item.data.get('uses') is not None:

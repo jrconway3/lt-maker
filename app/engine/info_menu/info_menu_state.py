@@ -450,22 +450,29 @@ class InfoMenuState(State):
         return color
 
     def create_portrait_section(self):
+        mana_bar = DB.constants.value('add_mana_bar')
+
         surf = engine.create_surface((96, WINHEIGHT), transparent=True)
-        surf.blit(SPRITES.get('info_unit'), (8, 122))
+        offset = 0
+        if mana_bar:
+            surf.blit(SPRITES.get('info_unit_mp'), (6, 114))
+            offset = -8
+        else:
+            surf.blit(SPRITES.get('info_unit'), (8, 122))
 
         render_text(surf, ['text'], [self.unit.name], ['white'], (48, 80), HAlignment.CENTER)
         unit_desc = text_funcs.translate_and_text_evaluate(self.unit.desc, self=self.unit, unit=self.unit)
         self.info_graph.register((24, 80, 52, 24), unit_desc, 'all')
         class_obj = DB.classes.get(self.unit.klass)
-        render_text(surf, ['text'], [class_obj.name], ['white'], (8, 104))
+        render_text(surf, ['text'], [class_obj.name], ['white'], (8, 104 + offset))
         class_desc = text_funcs.translate_and_text_evaluate(class_obj.desc, self=class_obj, unit=self.unit)
-        self.info_graph.register((8, 104, 72, 16), class_desc, 'all')
-        render_text(surf, ['text'], [str(self.unit.level)], ['blue'], (39, 120), HAlignment.RIGHT)
+        self.info_graph.register((8, 104 + offset, 72, 16), class_desc, 'all')
+        render_text(surf, ['text'], [str(self.unit.level)], ['blue'], (39, 120 + offset), HAlignment.RIGHT)
         desc = text_funcs.translate_and_text_evaluate('Level_desc', unit=self.unit)
-        self.info_graph.register((8, 120, 30, 16), desc, 'all')
-        render_text(surf, ['text'], [str(self.unit.exp)], ['blue'], (63, 120), HAlignment.RIGHT)
+        self.info_graph.register((8, 120 + offset, 30, 16), desc, 'all')
+        render_text(surf, ['text'], [str(self.unit.exp)], ['blue'], (63, 120 + offset), HAlignment.RIGHT)
         desc = text_funcs.translate_and_text_evaluate('Exp_desc', unit=self.unit)
-        self.info_graph.register((38, 120, 30, 16), desc, 'all')
+        self.info_graph.register((38, 120 + offset, 30, 16), desc, 'all')
         
         # Draw HP
         current_hp = str(self.unit.get_hp())
@@ -475,10 +482,24 @@ class InfoMenuState(State):
             hp_font = 'narrow'
         else:
             hp_font = 'text'
-        render_text(surf, [hp_font], [current_hp], ['blue'], (39, 136), HAlignment.RIGHT)
+        render_text(surf, [hp_font], [current_hp], ['blue'], (39, 136 + offset), HAlignment.RIGHT)
         desc = text_funcs.translate_and_text_evaluate('HP_desc', unit=self.unit)
-        self.info_graph.register((8, 136, 72, 16), desc, 'all')
-        render_text(surf, [hp_font], [str(max_hp)], ['blue'], (63, 136), HAlignment.RIGHT)
+        self.info_graph.register((8, 136 + offset, 72, 16), desc, 'all')
+        render_text(surf, [hp_font], [str(max_hp)], ['blue'], (63, 136 + offset), HAlignment.RIGHT)
+        
+        # Draw MP if Enabled
+        if mana_bar:
+            current_mp = str(self.unit.get_mana())
+            max_mp = str(self.unit.get_max_mana())
+            # 14 pixels is width of space available to draw current_hp or max_hp
+            if text_width('text', current_mp) > 14 or text_width('text', max_mp) > 14:
+                mp_font = 'narrow'
+            else:
+                mp_font = 'text'
+            render_text(surf, [mp_font], [current_mp], ['blue'], (39, 144), HAlignment.RIGHT)
+            desc = text_funcs.translate_and_text_evaluate('MANA_desc', unit=self.unit)
+            self.info_graph.register((8, 144, 72, 16), desc, 'all')
+            render_text(surf, [mp_font], [str(max_mp)], ['blue'], (63, 144), HAlignment.RIGHT)
 
         # Blit the white status platform
         surf.blit(SPRITES.get('status_platform'), (66, 131))
@@ -643,7 +664,7 @@ class InfoMenuState(State):
         else:
             other_stats.insert(0, 'AID')
             other_stats.insert(0, 'TRV')
-        if self.unit.get_max_mana() > 0:
+        if self.unit.get_max_mana() > 0 and not DB.constants.value('add_mana_bar'):
             other_stats.insert(0, 'MANA')
         if DB.constants.value('pairup') and not DB.constants.value('attack_stance_only'):
             other_stats.insert(2, 'GAUGE')

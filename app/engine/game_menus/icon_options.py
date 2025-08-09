@@ -56,9 +56,10 @@ class ItemOptionUtils():
             ItemOptionUtils.draw_icon(surf, x, y, item)
         render_text(surf, [font], [display_text], [color], blit_loc, align)
         uses_string = '--'
+        if custom_uses is not None and custom_uses[2]:
+            uses_color = custom_uses[2]
         if custom_uses is not None and custom_uses[0]:
             uses_string = str(custom_uses[0])
-            uses_color = custom_uses[2]
         elif item.uses:
             uses_string = str(item.data['uses'])
         elif item.parent_item and item.parent_item.uses and item.parent_item.data['uses']:
@@ -95,10 +96,11 @@ class ItemOptionUtils():
 
         uses_string_a = '--'
         uses_string_b = '--'
+        if custom_uses is not None and custom_uses[2]:
+            uses_color = custom_uses[2]
         if custom_uses is not None and custom_uses[0]:
             uses_string_a = str(custom_uses[0])
             uses_string_b = str(custom_uses[1])
-            uses_color = custom_uses[2]
         elif item.data.get('uses') is not None:
             uses_string_a = str(item.data['uses'])
             uses_string_b = str(item.data['starting_uses'])

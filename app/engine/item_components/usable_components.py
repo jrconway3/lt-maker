@@ -1,11 +1,11 @@
-import math
-from typing import Dict, Tuple, TypeAlias, List
 from app.data.database.database import DB
 from app.data.database.item_components import ItemComponent, ItemTags
 from app.data.database.components import ComponentType
 
 from app.engine import action, item_funcs
 from app.engine.game_menus.icon_options import ItemOptionModes
+
+from app.utilities.typing import UsesDisplayText
 
 import logging
 
@@ -264,32 +264,27 @@ class EvalManaCost(ItemComponent):
 
 class ManaUses(ItemComponent):
     nid = 'mana_uses'
-    desc = "Display the item’s uses based on mana cost and unit's max mana. Do not combine with other uses components."
+    desc = "Display the Mana Cost in place of Uses on the item."
     requires = ['mana_cost', 'eval_mana_cost']
     tag = ItemTags.USES
 
-    _uses_color = 'navy'
+    def item_uses_display(self, unit, item) -> UsesDisplayText:
+        return UsesDisplayText(item.mana_cost.value, None, 'navy', ItemOptionModes.USES)
 
-    UsesDisplayText: TypeAlias = List[Tuple[str, str, int, str]]
+class ManaUsesRemaining(ItemComponent):
+    nid = 'mana_uses_remaining'
+    desc = "Display the remaining uses calculated from mana cost and unit's current/max mana. Do not combine with other uses components."
+    requires = ['mana_cost', 'eval_mana_cost']
+    tag = ItemTags.USES
 
     def _calc_uses(self, unit, item):
-        if DB.constants.value('mana_uses_shows_remaining'):
-            return unit.get_mana() // item.mana_cost.value
-        return item.mana_cost.value
+        return unit.get_mana() // item.mana_cost.value
 
     def _calc_max_uses(self, unit, item):
-        max_uses = unit.get_max_mana()
-        if DB.constants.value('mana_uses_shows_remaining'):
-            max_uses = unit.get_max_mana() // item.mana_cost.value
-        return str(max_uses)
-
-    def _uses_type(self):
-        if DB.constants.value('mana_uses_shows_remaining'):
-            return ItemOptionModes.FULL_USES
-        return ItemOptionModes.USES
+        return str(unit.get_max_mana() // item.mana_cost.value)
 
     def item_uses_display(self, unit, item) -> UsesDisplayText:
-        return (self._calc_uses(unit, item), self._calc_max_uses(unit, item), self._uses_color, self._uses_type())
+        return UsesDisplayText(self._calc_uses(unit, item), self._calc_max_uses(unit, item), 'navy', ItemOptionModes.FULL_USES)
 
 class Cooldown(ItemComponent):
     nid = 'cooldown'

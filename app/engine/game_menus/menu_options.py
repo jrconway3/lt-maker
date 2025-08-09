@@ -9,6 +9,7 @@ from app.engine.game_state import game
 
 from app.engine.graphics.text.text_renderer import render_text, text_width, rendered_text_width
 from app.utilities.enums import HAlignment
+from app.utilities.typing import UsesDisplayText
 
 class EmptyOption():
     def __init__(self, idx):
@@ -324,13 +325,13 @@ class ItemOption(BasicOption):
                 self=self.item)
             return help_menu.HelpDialog(text)
 
-    def get_custom_uses(self):
+    def get_custom_uses(self) -> UsesDisplayText:
         if not self.item:
-            return
+            return None
 
         owner = game.get_unit(self.item.owner_nid)
         if not owner or not item_funcs.available(owner, self.item):
-            return
+            return None
 
         return item_system.item_uses_display(owner, self.item)
 

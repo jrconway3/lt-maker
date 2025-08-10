@@ -275,6 +275,13 @@ class MapCombat(SimpleCombat):
             self.health_bars.clear()
 
         else:
+            self.show_bar = 'hp'
+            if self.main_item.mana_heal or self.main_item.equation_mana_heal:
+                if self.main_item.heal or self.main_item.equation_heal:
+                    self.show_bar = 'both'
+                else:
+                    self.show_bar = 'mp'
+
             # P1 on P1
             if self.defender and self.attacker is self.defender:
                 hit = combat_calcs.compute_hit(
@@ -286,7 +293,7 @@ class MapCombat(SimpleCombat):
                 grd = self.attacker.get_guard_gauge() if self._show_guard_gauge() else None
                 if self.attacker not in self.health_bars:
                     attacker_health = MapCombatInfo(
-                        'p1', self.attacker, self.main_item, self.defender, (hit, mt, crt, grd))
+                        'p1', self.attacker, self.main_item, self.defender, (hit, mt, crt, grd), self.show_bar)
                     self.health_bars[self.attacker] = attacker_health
                 else:
                     self.health_bars[self.attacker].update_stats((hit, mt, crt, grd))
@@ -303,7 +310,7 @@ class MapCombat(SimpleCombat):
                 grd = self.attacker.get_guard_gauge() if self._show_guard_gauge() else None
                 if self.attacker not in self.health_bars:
                     attacker_health = MapCombatInfo(
-                        'p1', self.attacker, self.main_item, self.defender, (hit, mt, crt, grd))
+                        'p1', self.attacker, self.main_item, self.defender, (hit, mt, crt, grd), self.show_bar)
                     self.health_bars[self.attacker] = attacker_health
                 else:
                     self.health_bars[self.attacker].update_stats((hit, mt, crt, grd))
@@ -321,7 +328,7 @@ class MapCombat(SimpleCombat):
                 grd = self.defender.get_guard_gauge() if self._show_guard_gauge() else None
                 if self.defender not in self.health_bars:
                     defender_health = MapCombatInfo(
-                        'p2', self.defender, self.def_item, self.attacker, (hit, mt, crt, grd))
+                        'p2', self.defender, self.def_item, self.attacker, (hit, mt, crt, grd), self.show_bar)
                     self.health_bars[self.defender] = defender_health
                 else:
                     self.health_bars[self.defender].update_stats((hit, mt, crt, grd))
@@ -337,14 +344,14 @@ class MapCombat(SimpleCombat):
                     self.attacker, defender, self.main_item, None, 'attack', self.state_machine.get_attack_info())
                 if self.attacker not in self.health_bars:
                     attacker_health = MapCombatInfo(
-                        'p1', self.attacker, self.main_item, defender, (hit, mt, crt, None))
+                        'p1', self.attacker, self.main_item, defender, (hit, mt, crt, None), self.show_bar)
                     self.health_bars[self.attacker] = attacker_health
                 else:
                     self.health_bars[self.attacker].update_stats((hit, mt, crt, None))
 
                 if defender not in self.health_bars:
                     splash_health = MapCombatInfo(
-                        'splash', defender, None, self.attacker, (None, None, None, None))
+                        'splash', defender, None, self.attacker, (None, None, None, None), self.show_bar)
                     self.health_bars[defender] = splash_health
 
     def _handle_playback(self):

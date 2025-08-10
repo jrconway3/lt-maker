@@ -682,18 +682,37 @@ class UIView():
             FONT['text'].blit(defender.name, bg_surf, (30, running_height))
 
             running_height += 16
-            # Blit HP
-            FONT['text-yellow'].blit('HP', bg_surf, (9, running_height))
-            # Blit /
-            FONT['text-yellow'].blit('/', bg_surf, (width - 25, running_height))
-            # Blit stats['HP']
-            maxhp = str(equations.parser.hitpoints(defender))
-            maxhp_width = FONT['text-blue'].width(maxhp)
-            FONT['text-blue'].blit(maxhp, bg_surf, (width - 5 - maxhp_width, running_height))
-            # Blit currenthp
-            currenthp = str(defender.get_hp())
-            currenthp_width = FONT['text-blue'].width(currenthp)
-            FONT['text-blue'].blit(currenthp, bg_surf, (width - 26 - currenthp_width, running_height))
+            if self.show_bar != 'mp':
+                # Blit HP
+                FONT['text-yellow'].blit('HP', bg_surf, (9, running_height))
+                # Blit /
+                FONT['text-yellow'].blit('/', bg_surf, (width - 25, running_height))
+                # Blit stats['HP']
+                maxhp = str(equations.parser.hitpoints(defender))
+                maxhp_width = FONT['text-blue'].width(maxhp)
+                FONT['text-blue'].blit(maxhp, bg_surf, (width - 5 - maxhp_width, running_height))
+                # Blit currenthp
+                currenthp = str(defender.get_hp())
+                currenthp_width = FONT['text-blue'].width(currenthp)
+                FONT['text-blue'].blit(currenthp, bg_surf, (width - 26 - currenthp_width, running_height))
+
+            if self.show_bar == 'both':
+                running_height += 16
+
+            if self.show_bar != 'hp':
+                # Blit MP
+                FONT['text-yellow'].blit('MP', bg_surf, (9, running_height))
+                # Blit /
+                FONT['text-yellow'].blit('/', bg_surf, (width - 25, running_height))
+                # Blit stats['MP']
+                #maxmp = str(equations.parser.hitpoints(defender))
+                maxmp = str(defender.get_max_mana())
+                maxmp_width = FONT['text-blue'].width(maxmp)
+                FONT['text-blue'].blit(maxmp, bg_surf, (width - 5 - maxmp_width, running_height))
+                # Blit currenthp
+                currentmp = str(defender.get_mana())
+                currentmp_width = FONT['text-blue'].width(currentmp)
+                FONT['text-blue'].blit(currentmp, bg_surf, (width - 26 - currentmp_width, running_height))
 
             if mt is not None:
                 running_height += 16
@@ -764,6 +783,13 @@ class UIView():
     def draw_spell_info(self, surf, attacker, spell, defender):
         # Turns on appropriate combat conditionals to get accurate stats
         skill_system.test_on([], attacker, spell, defender, resolve_weapon(defender), 'attack')
+
+        self.show_bar = 'hp'
+        if spell.mana_heal or spell.equation_mana_heal:
+            if spell.heal or spell.equation_heal:
+                self.show_bar = 'both'
+            else:
+                self.show_bar = 'mp'
 
         if not self.spell_info_disp:
             self.spell_info_disp = self.create_spell_info(attacker, spell, defender)

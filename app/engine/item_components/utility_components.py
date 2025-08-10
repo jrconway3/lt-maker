@@ -79,13 +79,13 @@ class EquationHeal(Heal):
 
 class ManaHeal(ItemComponent):
     nid = 'mana_heal'
-    desc = "Item heals mana by this amount on hit"
+    desc = "Item restores mana by this amount on hit"
     tag = ItemTags.UTILITY
 
     expose = ComponentType.Int
     value = 5
 
-    def _get_heal_amount(self, unit, target):
+    def _get_restore_amount(self, unit, target):
         empower_mana = skill_system.empower_mana(unit, target)
         empower_mana_received = skill_system.empower_mana_received(target, unit)
         return self.value + empower_mana + empower_mana_received
@@ -105,17 +105,17 @@ class ManaHeal(ItemComponent):
         return unit and unit.get_mana() < unit.get_max_mana()
 
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        heal = self._get_heal_amount(unit, target)
-        true_heal = min(heal, target.get_max_mana() - target.get_mana())
-        actions.append(action.ChangeMana(target, heal))
+        gain = self._get_restore_amount(unit, target)
+        true_gain = min(gain, target.get_max_mana() - target.get_mana())
+        actions.append(action.ChangeMana(target, gain))
 
         # For animation
-        if true_heal > 0:
-            playback.append(pb.HealHit(unit, item, target, heal, true_heal))
+        if true_gain > 0:
+            playback.append(pb.HealHit(unit, item, target, gain, true_gain))
             playback.append(pb.HitSound('MapHeal', map_only=True))
-            if heal >= 30:
+            if gain >= 30:
                 name = 'MapBigHealTrans'
-            elif heal >= 15:
+            elif gain >= 15:
                 name = 'MapMediumHealTrans'
             else:
                 name = 'MapSmallHealTrans'
@@ -124,21 +124,21 @@ class ManaHeal(ItemComponent):
     def ai_priority(self, unit, item, target, move):
         if target and skill_system.check_ally(unit, target):
             max_mana = target.get_max_mana()
-            missing_health = max_mana - target.get_mana()
-            help_term = utils.clamp(missing_health / float(max_mana), 0, 1)
-            heal = self._get_heal_amount(unit, target)
-            heal_term = utils.clamp(min(heal, missing_health) / float(max_mana), 0, 1)
+            missing_mana = max_mana - target.get_mana()
+            help_term = utils.clamp(missing_mana / float(max_mana), 0, 1)
+            heal = self._get_restore_amount(unit, target)
+            heal_term = utils.clamp(min(heal, missing_mana) / float(max_mana), 0, 1)
             return help_term * heal_term
         return 0
 
 class EquationManaHeal(ManaHeal):
     nid = 'equation_mana_heal'
-    desc = "Heals the target's mana for the value of the equation defined in the equations editor. Equation is calculated using the caster's stats, not the targets"
+    desc = "Restores the target's mana for the value of the equation defined in the equations editor. Equation is calculated using the caster's stats, not the targets"
 
     expose = ComponentType.Equation
-    value = 'HEAL'
+    value = 'MANA_GAIN'
 
-    def _get_heal_amount(self, unit, target):
+    def _get_restore_amount(self, unit, target):
         empower_mana = skill_system.empower_mana(unit, target)
         empower_mana_received = skill_system.empower_mana_received(target, unit)
         equation = self.value

@@ -16,44 +16,38 @@ from app.engine.game_state import game
 from app.engine.sound import get_sound_thread
 from app.engine.sprites import SPRITES
 
-class BarType(Enum):
-    HP = 'hp'
-    MP = 'mp'
-
 class BarStats():
-    label: str = None
-    current: int = 0
-    max: int = 30
-    desc: str = None
-
-    @staticmethod
-    def find(unit, type: BarType):
-        if type == BarType.HP:
-            return BarStatsHP(unit)
-        elif type == BarType.MP:
-            return BarStatsMP(unit)
-
-class BarStatsHP(BarStats):
+    short = 'HP'
     label = 'HP'
     desc = 'HP_desc'
+    current = 0
+    max = 0
 
     def __init__(self, unit):
         self.current = unit.get_hp()
         self.max = unit.get_max_hp()
 
-class BarStatsMP(BarStats):
-    label = 'MP'
+class BarStatsMana(BarStats):
+    short = 'MP'
+    label = 'MANA'
     desc = 'MANA_desc'
 
     def __init__(self, unit):
         self.current = unit.get_mana()
         self.max = unit.get_max_mana()
 
+class BarType(Enum):
+    HP = BarStats
+    MANA = BarStatsMana
+
+    def __call__(self, *args, **kwargs):
+        return self.value(*args, **kwargs)
+
 class HealthBar():
     time_for_change_min = 200
     speed = utils.frames2ms(1)   # 1 frame for each hp point
 
-    def __init__(self, unit, bar: BarType = BarType.HP):
+    def __init__(self, unit, bar = BarType.HP):
         self.unit = unit
 
         self.show_bar = bar

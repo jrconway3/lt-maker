@@ -480,7 +480,7 @@ class InfoMenuState(State):
 
         # Draw MP if Enabled
         if add_mana_bar:
-            self.draw_stat_row(surf, 144, BarType.MP)
+            self.draw_stat_row(surf, 144, BarType.MANA)
 
         # Blit the white status platform
         surf.blit(SPRITES.get('status_platform'), (66, 131))
@@ -494,7 +494,7 @@ class InfoMenuState(State):
 
     def draw_stat_row(self, surf, y, bar = BarType.HP):
         # Stat Type
-        stats = BarStats.find(self.unit, bar)
+        stats = bar(self.unit)
 
         # 14 pixels is width of space available to draw current_hp or max_hp
         if text_width('text', str(stats.current)) > 14 or text_width('text', str(stats.max)) > 14:

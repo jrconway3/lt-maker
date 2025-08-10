@@ -12,7 +12,7 @@ from app.engine.fonts import FONT
 from app.engine.game_menus import menu_options
 from app.engine.game_counters import ANIMATION_COUNTERS
 from app.engine.game_state import game
-from app.engine.health_bar import BarType, BarStats
+from app.engine.health_bar import BarType
 from app.engine.sprites import SPRITES
 from app.utilities import utils
 from app.utilities.enums import HAlignment
@@ -792,7 +792,7 @@ class UIView():
 
     def draw_stat_row(self, target, bg_surf, width, running_height, bar = BarType.HP):
         # Stat Type
-        stats = BarStats.find(target, bar)
+        stats = bar(target)
 
         # Increment Running Height
         running_height += 16

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Optional, Tuple, TypeAlias
 
 from app.data.database.database import DB
 from app.engine import help_menu, icons, item_funcs, item_system, text_funcs
@@ -12,7 +12,7 @@ from app.engine.graphics.text.text_renderer import (anchor_align, render_text,
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
 from app.utilities.enums import HAlignment
-from app.utilities.typing import NID, UsesDisplayText
+from app.utilities.typing import NID
 
 
 class ItemOptionUtils():
@@ -56,9 +56,9 @@ class ItemOptionUtils():
             ItemOptionUtils.draw_icon(surf, x, y, item)
         render_text(surf, [font], [display_text], [color], blit_loc, align)
         uses_string = '--'
-        if custom_uses is not None and custom_uses[2]:
-            uses_color = custom_uses[2]
-        if custom_uses is not None and custom_uses[0]:
+        if custom_uses is not None and custom_uses[3]:
+            uses_color = custom_uses[3]
+        if custom_uses is not None and custom_uses[0] is not None:
             uses_string = str(custom_uses[0])
         elif item.uses:
             uses_string = str(item.data['uses'])
@@ -96,9 +96,12 @@ class ItemOptionUtils():
 
         uses_string_a = '--'
         uses_string_b = '--'
-        if custom_uses is not None and custom_uses[2]:
-            uses_color = custom_uses[2]
-        if custom_uses is not None and custom_uses[0]:
+        uses_delimiter = "/"
+        if custom_uses is not None and custom_uses[3]:
+            uses_color = custom_uses[3]
+        if custom_uses is not None and custom_uses[2] is not None:
+            uses_delimiter = custom_uses[2]
+        if custom_uses is not None and custom_uses[0] is not None and custom_uses[1] is not None:
             uses_string_a = str(custom_uses[0])
             uses_string_b = str(custom_uses[1])
         elif item.data.get('uses') is not None:
@@ -122,7 +125,7 @@ class ItemOptionUtils():
         slash_loc = anchor_align(x, width, HAlignment.RIGHT, (0, 16)), y
         render_text(surf, [uses_font], [uses_string_a], [
                     uses_color], uses_string_a_loc, HAlignment.RIGHT)
-        render_text(surf, [uses_font], ["/"], [], slash_loc, HAlignment.RIGHT)
+        render_text(surf, [uses_font], [uses_delimiter], [], slash_loc, HAlignment.RIGHT)
         render_text(surf, [uses_font], [uses_string_b], [
                     uses_color], uses_string_b_loc, HAlignment.RIGHT)
 
@@ -134,6 +137,14 @@ class ItemOptionModes(Enum):
     FULL_USES_AND_REPAIR = 3
     VALUE = 4
     STOCK_AND_VALUE = 5
+
+# Tuple to Handle Replace Uses Text
+# idx[0]: str to replace 'current uses'; e.g. XX/-- where XX = current uses
+# idx[1]: str to replace 'max uses'; e.g. --/XX where XX = max uses; only applies if idx[4] = ItemOptionModes.FULL_USES
+# idx[2]: str to replace '/' delimiter; only applies if idx[4] = ItemOptionModes.FULL_USES
+# idx[3]: A unique font colour identifier.
+# idx[4]: One of the possible values of `ItemOptionModes`.
+UsesDisplayText: TypeAlias = Tuple[Optional[str], Optional[str], Optional[str], Optional[NID], ItemOptionModes]
 
 
 class BasicItemOption(BaseOption[Optional[ItemObject]]):
@@ -228,14 +239,14 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
             return None
 
         owner = game.get_unit(self._value.owner_nid)
-        if not owner or not item_funcs.available(owner, self._value):
+        if not owner:
             return None
 
         custom_uses = item_system.item_uses_display(owner, self._value)
         if custom_uses:
             self._custom_uses = custom_uses
-            if self._custom_uses[3] in [ItemOptionModes.USES, ItemOptionModes.FULL_USES]:
-                self._mode = self._custom_uses[3]
+            if self._custom_uses[4] in [ItemOptionModes.USES, ItemOptionModes.FULL_USES]:
+                self._mode = self._custom_uses[4]
         return self._custom_uses
 
     def draw(self, surf, x, y):

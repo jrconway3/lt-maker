@@ -43,7 +43,7 @@ class BarType(Enum):
     def __call__(self, *args, **kwargs):
         return self.value(*args, **kwargs)
 
-class HealthBar():
+class StatBars():
     time_for_change_min = 200
     speed = utils.frames2ms(1)   # 1 frame for each hp point
 
@@ -54,10 +54,8 @@ class HealthBar():
         if self.show_bar not in ['hp', 'mp', 'both']:
             self.show_bar = 'hp'
 
-        self.displayed_hp = self.unit.get_hp()
+        self.displayed = self.unit.get_hp()
         self.old_hp = self.displayed_hp
-        self.displayed_mp = self.unit.get_mana()
-        self.old_mp = self.displayed_mp
 
         self.transition_flag = False
         self.time_for_change = self.time_for_change_min
@@ -105,7 +103,7 @@ class HealthBar():
                 self.transition_flag = False
 
 MAX_HP_PER_BAR = 40
-class CombatHealthBar(HealthBar):
+class CombatHealthBar(StatBar):
     colors = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1]
     speed = utils.frames2ms(2)
     time_for_change_min = 0

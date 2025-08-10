@@ -77,8 +77,8 @@ class EquationHeal(Heal):
         equation = self.value
         return equations.parser.get(equation, unit) + empower_heal + empower_heal_received
 
-class ManaHeal(ItemComponent):
-    nid = 'mana_heal'
+class ManaRestore(ItemComponent):
+    nid = 'mana_restore'
     desc = "Item restores mana by this amount on hit"
     tag = ItemTags.UTILITY
 
@@ -131,8 +131,8 @@ class ManaHeal(ItemComponent):
             return help_term * heal_term
         return 0
 
-class EquationManaHeal(ManaHeal):
-    nid = 'equation_mana_heal'
+class EquationManaRestore(ManaRestore):
+    nid = 'equation_mana_restore'
     desc = "Restores the target's mana for the value of the equation defined in the equations editor. Equation is calculated using the caster's stats, not the targets"
 
     expose = ComponentType.Equation

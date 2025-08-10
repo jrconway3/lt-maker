@@ -12,6 +12,7 @@ from app.engine.fonts import FONT
 from app.engine.game_menus import menu_options
 from app.engine.game_counters import ANIMATION_COUNTERS
 from app.engine.game_state import game
+from app.engine.health_bar import BarType, BarStats
 from app.engine.sprites import SPRITES
 from app.utilities import utils
 from app.utilities.enums import HAlignment
@@ -662,9 +663,7 @@ class UIView():
 
     def create_spell_info(self, attacker, spell, defender):
         if defender:
-            height = 2
-            if self.show_bar == 'both':
-                height += 1
+            height = 1 + len(self.stat_bars)
             mt = combat_calcs.compute_damage(attacker, defender, spell, resolve_weapon(defender), 'attack', (0, 0))
             if mt is not None:
                 height += 1
@@ -684,12 +683,8 @@ class UIView():
             FONT['text'].blit(defender.name, bg_surf, (30, running_height))
 
             # Add HP Bar if not restricted to just MP
-            if self.show_bar != 'mp':
-                running_height = self.draw_stat_row(defender, bg_surf, width, running_height, 'hp')
-
-            # Add MP Bar if not restricted to just HP
-            if self.show_bar != 'hp':
-                running_height = self.draw_stat_row(defender, bg_surf, width, running_height, 'mp')
+            for bar in self.stat_bars:
+                running_height = self.draw_stat_row(defender, bg_surf, width, running_height, bar)
 
             if mt is not None:
                 running_height += 16
@@ -761,7 +756,7 @@ class UIView():
         # Turns on appropriate combat conditionals to get accurate stats
         skill_system.test_on([], attacker, spell, defender, resolve_weapon(defender), 'attack')
 
-        self.show_bar = self.get_bar_type(spell)
+        self.stat_bars = item_funcs.get_stat_bars(attacker, spell)
 
         if not self.spell_info_disp:
             self.spell_info_disp = self.create_spell_info(attacker, spell, defender)
@@ -795,43 +790,24 @@ class UIView():
 
         return surf
 
-    def draw_stat_row(self, target, bg_surf, width, running_height, stat = 'hp'):
+    def draw_stat_row(self, target, bg_surf, width, running_height, bar = BarType.HP):
         # Stat Type
-        text = 'HP'
-        cur = str(target.get_hp())
-        max = str(equations.parser.hitpoints(target))
-        if stat == 'mp':
-            text = 'MP'
-            cur = str(target.get_mana())
-            max = str(target.get_max_mana())
+        stats = BarStats.find(target, bar)
 
         # Increment Running Height
         running_height += 16
 
         # Blit Stat
-        FONT['text-yellow'].blit(text, bg_surf, (9, running_height))
+        FONT['text-yellow'].blit(stats.label, bg_surf, (9, running_height))
         # Blit /
         FONT['text-yellow'].blit('/', bg_surf, (width - 25, running_height))
         # Blit stats['HP']
-        max_width = FONT['text-blue'].width(max)
-        FONT['text-blue'].blit(max, bg_surf, (width - 5 - max_width, running_height))
+        max_width = FONT['text-blue'].width(str(stats.max))
+        FONT['text-blue'].blit(str(stats.max), bg_surf, (width - 5 - max_width, running_height))
         # Blit currenthp
-        cur_width = FONT['text-blue'].width(cur)
-        FONT['text-blue'].blit(cur, bg_surf, (width - 26 - cur_width, running_height))
+        cur_width = FONT['text-blue'].width(str(stats.current))
+        FONT['text-blue'].blit(str(stats.current), bg_surf, (width - 26 - cur_width, running_height))
         return running_height
-
-    def get_bar_type(self, item):
-        # If Add Mana Bar, Use both
-        if DB.constants.value('add_mana_bar'):
-            return 'both'
-
-        # If Mana Heal Enabled, Use MP
-        if item.mana_heal or item.equation_mana_heal:
-            if item.heal or item.equation_heal:
-                return 'both'
-            else:
-                return 'mp'
-        return 'hp'
 
     @staticmethod
     def draw_trade_preview(unit, surf, ignore: List[bool] = None):

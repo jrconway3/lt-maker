@@ -13,6 +13,7 @@ from app.engine.game_menus.icon_options import BasicItemOption, ItemOptionModes
 from app.engine.game_state import game
 from app.engine.graphics.ingame_ui.build_groove import build_groove
 from app.engine.graphics.text.text_renderer import render_text, text_width
+from app.engine.health_bar import BarType, BarStats
 from app.engine.info_menu.info_graph import InfoGraph, info_states
 from app.engine.info_menu.info_menu_portrait import InfoMenuPortrait
 from app.engine.input_manager import get_input_manager
@@ -475,11 +476,11 @@ class InfoMenuState(State):
         self.info_graph.register((38, 120 + offset, 30, 16), desc, 'all')
         
         # Draw HP
-        self.add_stat_row(surf, 136 + offset)
+        self.draw_stat_row(surf, 136 + offset)
 
         # Draw MP if Enabled
         if add_mana_bar:
-            self.draw_stat_row(surf, 144, 'mp')
+            self.draw_stat_row(surf, 144, BarType.MP)
 
         # Blit the white status platform
         surf.blit(SPRITES.get('status_platform'), (66, 131))
@@ -491,27 +492,19 @@ class InfoMenuState(State):
             self.info_graph.register((76, 80, 16, 16), affinity_desc, 'all')
         return surf
 
-    def draw_stat_row(self, surf, y, stat = 'hp'):
-        # Get HP Stats
-        desc = 'HP_desc'
-        current = str(self.unit.get_hp())
-        max = str(self.unit.get_max_hp())
-
-        # Get MP Stats
-        if stat == 'mp':
-            desc = 'MANA_desc'
-            current = str(self.unit.get_mana())
-            max = str(self.unit.get_max_mana())
+    def draw_stat_row(self, surf, y, bar = BarType.HP):
+        # Stat Type
+        stats = BarStats.find(self.unit, bar)
 
         # 14 pixels is width of space available to draw current_hp or max_hp
-        if text_width('text', current) > 14 or text_width('text', max) > 14:
+        if text_width('text', str(stats.current)) > 14 or text_width('text', str(stats.max)) > 14:
             font = 'narrow'
         else:
             font = 'text'
-        render_text(surf, [font], [current], ['blue'], (39, y), HAlignment.RIGHT)
-        desc = text_funcs.translate_and_text_evaluate(desc, unit=self.unit)
+        render_text(surf, [font], [str(stats.current)], ['blue'], (39, y), HAlignment.RIGHT)
+        desc = text_funcs.translate_and_text_evaluate(stats.desc, unit=self.unit)
         self.info_graph.register((8, y, 72, 16), desc, 'all')
-        render_text(surf, [font], [str(max)], ['blue'], (63, y), HAlignment.RIGHT)
+        render_text(surf, [font], [str(stats.max)], ['blue'], (63, y), HAlignment.RIGHT)
 
     def draw_top_arrows(self, surf):
         self.left_arrow.draw(surf)

@@ -2,6 +2,7 @@ import random
 from functools import lru_cache
 
 from typing import Tuple
+from enum import Enum
 
 import app.utilities as utils
 from app.constants import (TILEHEIGHT, TILEWIDTH, TILEX, TILEY, WINHEIGHT,
@@ -15,12 +16,44 @@ from app.engine.game_state import game
 from app.engine.sound import get_sound_thread
 from app.engine.sprites import SPRITES
 
+class BarType(Enum):
+    HP = 'hp'
+    MP = 'mp'
+
+class BarStats():
+    label: str = None
+    current: int = 0
+    max: int = 30
+    desc: str = None
+
+    @staticmethod
+    def find(unit, type: BarType):
+        if type == BarType.HP:
+            return BarStatsHP(unit)
+        elif type == BarType.MP:
+            return BarStatsMP(unit)
+
+class BarStatsHP(BarStats):
+    label = 'HP'
+    desc = 'HP_desc'
+
+    def __init__(self, unit):
+        self.current = unit.get_hp()
+        self.max = unit.get_max_hp()
+
+class BarStatsMP(BarStats):
+    label = 'MP'
+    desc = 'MANA_desc'
+
+    def __init__(self, unit):
+        self.current = unit.get_mana()
+        self.max = unit.get_max_mana()
 
 class HealthBar():
     time_for_change_min = 200
     speed = utils.frames2ms(1)   # 1 frame for each hp point
 
-    def __init__(self, unit, bar = 'hp'):
+    def __init__(self, unit, bar: BarType = BarType.HP):
         self.unit = unit
 
         self.show_bar = bar

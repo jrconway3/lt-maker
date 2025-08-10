@@ -475,7 +475,7 @@ class InfoMenuState(State):
         self.info_graph.register((38, 120 + offset, 30, 16), desc, 'all')
         
         # Draw HP
-        self.add_stat_roq(surf, 136 + offset)
+        self.add_stat_row(surf, 136 + offset)
 
         # Draw MP if Enabled
         if add_mana_bar:

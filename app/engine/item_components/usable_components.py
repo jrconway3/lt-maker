@@ -285,7 +285,7 @@ class ManaCostAsUses(ItemComponent):
         return ItemOptionModes.USES
 
     def item_uses_display(self, unit, item) -> UsesDisplayText:
-        return (self._calc_uses(unit, item), self._calc_max_uses(unit, item), self._font_color(unit, item), self._uses_type())
+        return (self._calc_uses(unit, item), self._calc_max_uses(unit, item), None, self._font_color(unit, item), self._uses_type())
 
 class RemainingManaUses(ManaCostAsUses):
     nid = 'mana_uses_remaining'

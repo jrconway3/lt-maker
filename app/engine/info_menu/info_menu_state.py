@@ -450,11 +450,11 @@ class InfoMenuState(State):
         return color
 
     def create_portrait_section(self):
-        mana_bar = DB.constants.value('add_mana_bar')
+        add_mana_bar = DB.constants.value('add_mana_bar')
 
         surf = engine.create_surface((96, WINHEIGHT), transparent=True)
         offset = 0
-        if mana_bar:
+        if add_mana_bar:
             surf.blit(SPRITES.get('info_unit_mp'), (6, 114))
             offset = -8
         else:
@@ -475,31 +475,11 @@ class InfoMenuState(State):
         self.info_graph.register((38, 120 + offset, 30, 16), desc, 'all')
         
         # Draw HP
-        current_hp = str(self.unit.get_hp())
-        max_hp = str(self.unit.get_max_hp())
-        # 14 pixels is width of space available to draw current_hp or max_hp
-        if text_width('text', current_hp) > 14 or text_width('text', max_hp) > 14:
-            hp_font = 'narrow'
-        else:
-            hp_font = 'text'
-        render_text(surf, [hp_font], [current_hp], ['blue'], (39, 136 + offset), HAlignment.RIGHT)
-        desc = text_funcs.translate_and_text_evaluate('HP_desc', unit=self.unit)
-        self.info_graph.register((8, 136 + offset, 72, 16), desc, 'all')
-        render_text(surf, [hp_font], [str(max_hp)], ['blue'], (63, 136 + offset), HAlignment.RIGHT)
-        
+        self.add_stat_roq(surf, 136 + offset)
+
         # Draw MP if Enabled
-        if mana_bar:
-            current_mp = str(self.unit.get_mana())
-            max_mp = str(self.unit.get_max_mana())
-            # 14 pixels is width of space available to draw current_hp or max_hp
-            if text_width('text', current_mp) > 14 or text_width('text', max_mp) > 14:
-                mp_font = 'narrow'
-            else:
-                mp_font = 'text'
-            render_text(surf, [mp_font], [current_mp], ['blue'], (39, 144), HAlignment.RIGHT)
-            desc = text_funcs.translate_and_text_evaluate('MANA_desc', unit=self.unit)
-            self.info_graph.register((8, 144, 72, 16), desc, 'all')
-            render_text(surf, [mp_font], [str(max_mp)], ['blue'], (63, 144), HAlignment.RIGHT)
+        if add_mana_bar:
+            self.draw_stat_row(surf, 144, 'mp')
 
         # Blit the white status platform
         surf.blit(SPRITES.get('status_platform'), (66, 131))
@@ -510,6 +490,28 @@ class InfoMenuState(State):
             affinity_desc = text_funcs.translate_and_text_evaluate(affinity.desc, self=affinity, unit=self.unit)
             self.info_graph.register((76, 80, 16, 16), affinity_desc, 'all')
         return surf
+
+    def draw_stat_row(self, surf, y, stat = 'hp'):
+        # Get HP Stats
+        desc = 'HP_desc'
+        current = str(self.unit.get_hp())
+        max = str(self.unit.get_max_hp())
+
+        # Get MP Stats
+        if stat == 'mp':
+            desc = 'MANA_desc'
+            current = str(self.unit.get_mana())
+            max = str(self.unit.get_max_mana())
+
+        # 14 pixels is width of space available to draw current_hp or max_hp
+        if text_width('text', current) > 14 or text_width('text', max) > 14:
+            font = 'narrow'
+        else:
+            font = 'text'
+        render_text(surf, [font], [current], ['blue'], (39, y), HAlignment.RIGHT)
+        desc = text_funcs.translate_and_text_evaluate(desc, unit=self.unit)
+        self.info_graph.register((8, y, 72, 16), desc, 'all')
+        render_text(surf, [font], [str(max)], ['blue'], (63, y), HAlignment.RIGHT)
 
     def draw_top_arrows(self, surf):
         self.left_arrow.draw(surf)

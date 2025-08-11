@@ -4,7 +4,7 @@ from app.data.database.database import DB
 from app.engine.combat.solver import CombatPhaseSolver
 
 from app.engine.sound import get_sound_thread
-from app.engine import engine, combat_calcs, gui, action, item_system, skill_system
+from app.engine import engine, combat_calcs, gui, action, item_system, skill_system, item_funcs
 from app.engine.health_bar import MapCombatInfo
 from app.engine.animations import MapAnimation
 from app.engine.game_state import game
@@ -275,12 +275,7 @@ class MapCombat(SimpleCombat):
             self.health_bars.clear()
 
         else:
-            self.show_bar = 'hp'
-            if self.main_item.mana_heal or self.main_item.equation_mana_heal:
-                if self.main_item.heal or self.main_item.equation_heal:
-                    self.show_bar = 'both'
-                else:
-                    self.show_bar = 'mp'
+            bars = item_funcs.get_stat_bars(self.defender, self.main_item)
 
             # P1 on P1
             if self.defender and self.attacker is self.defender:
@@ -293,7 +288,7 @@ class MapCombat(SimpleCombat):
                 grd = self.attacker.get_guard_gauge() if self._show_guard_gauge() else None
                 if self.attacker not in self.health_bars:
                     attacker_health = MapCombatInfo(
-                        'p1', self.attacker, self.main_item, self.defender, (hit, mt, crt, grd), self.show_bar)
+                        'p1', self.attacker, self.main_item, self.defender, (hit, mt, crt, grd), bars)
                     self.health_bars[self.attacker] = attacker_health
                 else:
                     self.health_bars[self.attacker].update_stats((hit, mt, crt, grd))
@@ -310,7 +305,7 @@ class MapCombat(SimpleCombat):
                 grd = self.attacker.get_guard_gauge() if self._show_guard_gauge() else None
                 if self.attacker not in self.health_bars:
                     attacker_health = MapCombatInfo(
-                        'p1', self.attacker, self.main_item, self.defender, (hit, mt, crt, grd), self.show_bar)
+                        'p1', self.attacker, self.main_item, self.defender, (hit, mt, crt, grd), bars)
                     self.health_bars[self.attacker] = attacker_health
                 else:
                     self.health_bars[self.attacker].update_stats((hit, mt, crt, grd))
@@ -328,7 +323,7 @@ class MapCombat(SimpleCombat):
                 grd = self.defender.get_guard_gauge() if self._show_guard_gauge() else None
                 if self.defender not in self.health_bars:
                     defender_health = MapCombatInfo(
-                        'p2', self.defender, self.def_item, self.attacker, (hit, mt, crt, grd), self.show_bar)
+                        'p2', self.defender, self.def_item, self.attacker, (hit, mt, crt, grd), bars)
                     self.health_bars[self.defender] = defender_health
                 else:
                     self.health_bars[self.defender].update_stats((hit, mt, crt, grd))
@@ -344,14 +339,14 @@ class MapCombat(SimpleCombat):
                     self.attacker, defender, self.main_item, None, 'attack', self.state_machine.get_attack_info())
                 if self.attacker not in self.health_bars:
                     attacker_health = MapCombatInfo(
-                        'p1', self.attacker, self.main_item, defender, (hit, mt, crt, None), self.show_bar)
+                        'p1', self.attacker, self.main_item, defender, (hit, mt, crt, None), bars)
                     self.health_bars[self.attacker] = attacker_health
                 else:
                     self.health_bars[self.attacker].update_stats((hit, mt, crt, None))
 
                 if defender not in self.health_bars:
                     splash_health = MapCombatInfo(
-                        'splash', defender, None, self.attacker, (None, None, None, None), self.show_bar)
+                        'splash', defender, None, self.attacker, (None, None, None, None), bars)
                     self.health_bars[defender] = splash_health
 
     def _handle_playback(self):

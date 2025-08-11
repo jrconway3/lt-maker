@@ -95,7 +95,8 @@ def get_stat_bars(unit: UnitObject, item: ItemObject) -> Set[BarType]:
 
     # If Add Mana Bar, Use both
     if DB.constants.value('add_mana_bar'):
-        types = set(BarType.HP, BarType.MANA)
+        types.add(BarType.HP)
+        types.add(BarType.MANA)
 
     # If Mana Restore Enabled, Use MP
     if is_mana_restore(unit, item):
@@ -106,7 +107,6 @@ def get_stat_bars(unit: UnitObject, item: ItemObject) -> Set[BarType]:
     else:
         # If Mana Restore NOT Enabled, Always Use HP
         types.add(BarType.HP)
-    print(types)
     return types
 
 def available(unit: UnitObject, item: ItemObject) -> bool:

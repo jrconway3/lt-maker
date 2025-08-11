@@ -147,19 +147,24 @@ class CombatBar(HealthBar):
     speed = utils.frames2ms(2)
     time_for_change_min = 0
 
+    sprite_full_blip = 'full_hp_blip'
+    sprite_empty_blip = 'empty_hp_blip'
+    sprite_over_blip = 'overflow_hp_blip'
+    sprite_overpurple_blip = 'overflowpurple_hp_blip'
+
     def __init__(self, unit):
         super().__init__(unit)
-        self.full_hp_blip = SPRITES.get('full_hp_blip')
-        self.empty_hp_blip = SPRITES.get('empty_hp_blip')
-        self.overflow_hp_blip = SPRITES.get('overflow_hp_blip')
-        self.overflowpurple_hp_blip = SPRITES.get('overflowpurple_hp_blip')
-        self.end_full_hp_blip = engine.subsurface(self.full_hp_blip, (0, 0, 1, self.full_hp_blip.get_height()))
-        self.end_damaged_hp_blip = engine.subsurface(self.empty_hp_blip, (0, 0, 1, self.empty_hp_blip.get_height()))
+        self.full_blip = SPRITES.get(self.sprite_full_blip)
+        self.empty_blip = SPRITES.get(self.sprite_empty_blip)
+        self.overflow_blip = SPRITES.get(self.sprite_over_blip)
+        self.overflowpurple_blip = SPRITES.get(self.sprite_overpurple_blip)
+        self.end_full_blip = engine.subsurface(self.full_blip, (0, 0, 1, self.full_blip.get_height()))
+        self.end_damaged_blip = engine.subsurface(self.empty_blip, (0, 0, 1, self.empty_blip.get_height()))
         self.color_tick = 0
         self.heal_sound_update = 0
 
     def update(self, skip=False):
-        if self.displayed_hp < self.unit.get_hp():
+        if self.displayed < self.get():
             self.speed = utils.frames2ms(4)  # Slower speed when increasing hp
         else:
             self.speed = utils.frames2ms(2)
@@ -168,60 +173,60 @@ class CombatBar(HealthBar):
 
     def set(self, val):
         current_time = engine.get_time()
-        if self.displayed_hp < self.unit.get_hp() and current_time - self.heal_sound_update > self.speed:
+        if self.displayed < self.get() and current_time - self.heal_sound_update > self.speed:
             self.heal_sound_update = current_time
             get_sound_thread().stop_sfx('HealBoop')
             get_sound_thread().play_sfx('HealBoop')
         super().set(val)
 
     def big_number(self) -> bool:
-        return self.displayed_hp != self.unit.get_hp()
+        return self.displayed != self.get()
 
     def done(self) -> bool:
-        return self.displayed_hp == self.unit.get_hp()
+        return self.displayed == self.get()
 
     @lru_cache(1)
-    def _create_hp_bar_surf(self, full_hp: int, actual_hp: int, overflow: int = 0) -> engine.Surface:
+    def _create_bar_surf(self, full: int, actual: int, overflow: int = 0) -> engine.Surface:
         """Creates a single hp bar row.
         """
-        surf = engine.create_surface((full_hp * 2 + 1, self.full_hp_blip.get_height()), transparent=True)
+        surf = engine.create_surface((full * 2 + 1, self.full_blip.get_height()), transparent=True)
         if overflow > 2:
-            hp_blip = engine.subsurface(self.overflowpurple_hp_blip, (self.colors[self.color_tick] * 2, 0, 2, self.overflowpurple_hp_blip.get_height()))
-            damage_blip = hp_blip
+            blip = engine.subsurface(self.overflowpurple_blip, (self.colors[self.color_tick] * 2, 0, 2, self.overflowpurple_blip.get_height()))
+            damage_blip = blip
         elif overflow == 2:
-            hp_blip = engine.subsurface(self.overflowpurple_hp_blip, (self.colors[self.color_tick] * 2, 0, 2, self.overflowpurple_hp_blip.get_height()))
-            damage_blip = engine.subsurface(self.overflow_hp_blip, (self.colors[self.color_tick] * 2, 0, 2, self.overflow_hp_blip.get_height()))
+            blip = engine.subsurface(self.overflowpurple_blip, (self.colors[self.color_tick] * 2, 0, 2, self.overflowpurple_blip.get_height()))
+            damage_blip = engine.subsurface(self.overflow_blip, (self.colors[self.color_tick] * 2, 0, 2, self.overflow_blip.get_height()))
         elif overflow == 1:
-            hp_blip = engine.subsurface(self.overflow_hp_blip, (self.colors[self.color_tick] * 2, 0, 2, self.overflow_hp_blip.get_height()))
-            damage_blip = engine.subsurface(self.full_hp_blip, (self.colors[self.color_tick] * 2, 0, 2, self.full_hp_blip.get_height()))
+            blip = engine.subsurface(self.overflow_blip, (self.colors[self.color_tick] * 2, 0, 2, self.overflow_blip.get_height()))
+            damage_blip = engine.subsurface(self.full_blip, (self.colors[self.color_tick] * 2, 0, 2, self.full_blip.get_height()))
         else:
-            hp_blip = engine.subsurface(self.full_hp_blip, (self.colors[self.color_tick] * 2, 0, 2, self.full_hp_blip.get_height()))
-            damage_blip = self.empty_hp_blip
-        for idx in range(actual_hp):
-            surf.blit(hp_blip, (idx * 2, 0))
-        for idx in range(full_hp - actual_hp):
-            surf.blit(damage_blip, ((idx + actual_hp) * 2, 0))
-        if full_hp == actual_hp:
-            end_blip = engine.subsurface(hp_blip, (0, 0, 1, hp_blip.get_height()))
+            blip = engine.subsurface(self.full_blip, (self.colors[self.color_tick] * 2, 0, 2, self.full_blip.get_height()))
+            damage_blip = self.empty_blip
+        for idx in range(actual):
+            surf.blit(blip, (idx * 2, 0))
+        for idx in range(full - actual):
+            surf.blit(damage_blip, ((idx + actual) * 2, 0))
+        if full == actual:
+            end_blip = engine.subsurface(blip, (0, 0, 1, blip.get_height()))
         else:
             end_blip = engine.subsurface(damage_blip, (0, 0, 1, damage_blip.get_height()))
-        surf.blit(end_blip, (full_hp * 2, 0))
+        surf.blit(end_blip, (full * 2, 0))
         return surf
 
     @lru_cache(1)
-    def _create_double_hp_bar_surf(self, full_hp: int, actual_hp: int, overflow: int = 0) -> engine.Surface:
+    def _create_double_bar_surf(self, full: int, actual: int, overflow: int = 0) -> engine.Surface:
         """Creates two HP bar rows stacked on top of one another"""
-        surf = engine.create_surface((MAX_HP_PER_BAR * 2 + 1, 2 * self.full_hp_blip.get_height()), True)
-        full_hp = min(full_hp, 2 * MAX_HP_PER_BAR)
+        surf = engine.create_surface((MAX_HP_PER_BAR * 2 + 1, 2 * self.full_blip.get_height()), True)
+        full = min(full, 2 * MAX_HP_PER_BAR)
 
-        bottom_full_hp = min(full_hp, MAX_HP_PER_BAR)
-        bottom_actual_hp = min(actual_hp, MAX_HP_PER_BAR)
-        bottom_bar = self._create_hp_bar_surf(bottom_full_hp, bottom_actual_hp, overflow)
-        surf.blit(bottom_bar, (0, self.full_hp_blip.get_height()))
+        bottom_full = min(full, MAX_HP_PER_BAR)
+        bottom_actual = min(actual, MAX_HP_PER_BAR)
+        bottom_bar = self._create_bar_surf(bottom_full, bottom_actual, overflow)
+        surf.blit(bottom_bar, (0, self.full_blip.get_height()))
 
-        top_full_hp = max(full_hp - MAX_HP_PER_BAR, 0)
-        top_actual_hp = max(actual_hp - MAX_HP_PER_BAR, 0)
-        top_bar = self._create_hp_bar_surf(top_full_hp, top_actual_hp, overflow)
+        top_full = max(full - MAX_HP_PER_BAR, 0)
+        top_actual = max(actual - MAX_HP_PER_BAR, 0)
+        top_bar = self._create_bar_surf(top_full, top_actual, overflow)
         surf.blit(top_bar, (0, 0))
         return surf
 
@@ -229,22 +234,22 @@ class CombatBar(HealthBar):
         font = FONT['number_small2']
         if self.big_number():
             font = FONT['number_big2']
-        if self.displayed_hp <= 240:
-            font.blit_right(str(self.displayed_hp), surf, (left, top - 4))
+        if self.displayed <= 240:
+            font.blit_right(str(self.displayed), surf, (left, top - 4))
         else:
             font.blit_right('??', surf, (left, top - 4))
-        max_hp = self.unit.get_max_hp()
-        curr_hp = self.displayed_hp
-        if max_hp <= MAX_HP_PER_BAR:
-            hp_bar = self._create_hp_bar_surf(max_hp, curr_hp)
+        max = self.get_max()
+        curr = self.displayed
+        if max <= MAX_HP_PER_BAR:
+            hp_bar = self._create_bar_surf(max, curr)
             surf.blit(hp_bar, (left + 5, top + 1))
         else:
             overflow_level = 0
-            while curr_hp > 2 * MAX_HP_PER_BAR:
+            while curr > 2 * MAX_HP_PER_BAR:
                 overflow_level += 1
-                curr_hp -= 2 * MAX_HP_PER_BAR
-            double_hp_bars = self._create_double_hp_bar_surf(max_hp, curr_hp, overflow_level)
-            surf.blit(double_hp_bars, (left + 5, top - 4))
+                curr -= 2 * MAX_HP_PER_BAR
+            double_bars = self._create_double_bar_surf(max, curr, overflow_level)
+            surf.blit(double_bars, (left + 5, top - 4))
 
 class MapBar(HealthBar):
     health_outline = SPRITES.get('map_health_outline')

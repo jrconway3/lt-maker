@@ -20,21 +20,31 @@ class BarStats():
     short = 'HP'
     label = 'HP'
     desc = 'HP_desc'
+
+    bar_sprite = 'health_bar'
+    bar_image = None
+
     current = 0
     max = 0
 
     def __init__(self, unit):
-        self.current = unit.get_hp()
-        self.max = unit.get_max_hp()
+        self.unit = unit
+        self.bar_image = SPRITES.get(self.bar_sprite)
+        self.update()
+
+    def update(self):
+        self.current = self.unit.get_hp()
+        self.max = self.unit.get_max_hp()
 
 class BarStatsMana(BarStats):
     short = 'MP'
     label = 'MANA'
     desc = 'MANA_desc'
+    sprite = 'mana_bar'
 
-    def __init__(self, unit):
-        self.current = unit.get_mana()
-        self.max = unit.get_max_mana()
+    def update(self):
+        self.current = self.unit.get_mana()
+        self.max = self.unit.get_max_mana()
 
 class BarType(Enum):
     HP = BarStats
@@ -43,29 +53,23 @@ class BarType(Enum):
     def __call__(self, *args, **kwargs):
         return self.value(*args, **kwargs)
 
-class StatBars():
+class StatBar():
     time_for_change_min = 200
     speed = utils.frames2ms(1)   # 1 frame for each hp point
 
     def __init__(self, unit, bar = BarType.HP):
         self.unit = unit
+        self.stats = bar(unit)
 
-        self.show_bar = bar
-        if self.show_bar not in ['hp', 'mp', 'both']:
-            self.show_bar = 'hp'
-
-        self.displayed = self.unit.get_hp()
-        self.old_hp = self.displayed_hp
+        self.displayed = self.stats.current
+        self.old = self.displayed
 
         self.transition_flag = False
         self.time_for_change = self.time_for_change_min
         self.last_update = 0
 
-    def set_hp(self, val):
-        self.displayed_hp = val
-
-    def set_mp(self, val):
-        self.displayed_mp = val
+    def set(self, val):
+        self.displayed = val
 
     def update(self):
         # Check to see if we should begin showing transition
@@ -86,20 +90,12 @@ class StatBars():
         if self.transition_flag:
             time = (engine.get_time() - self.last_update) / self.time_for_change
 
-            if self.show_bar != 'mp':
-                new_hp = int(utils.lerp(self.old_hp, self.unit.get_hp(), time))
-                self.set_hp(new_hp)
-            if self.show_bar != 'hp':
-                new_mp = int(utils.lerp(self.old_mp, self.unit.get_mana(), time))
-                self.set_mp(new_mp)
+            new = int(utils.lerp(self.old, self.unit.get_hp(), time))
+            self.set(new)
 
             if time >= 1:
-                if self.show_bar != 'mp':
-                    self.set_hp(self.unit.get_hp())
-                    self.old_hp = self.displayed_hp
-                if self.show_bar != 'hp':
-                    self.set_mp(self.unit.get_mana())
-                    self.old_mp = self.displayed_mp
+                self.set(self.unit.get())
+                self.old_hp = self.displayed
                 self.transition_flag = False
 
 MAX_HP_PER_BAR = 40
@@ -207,7 +203,7 @@ class CombatHealthBar(StatBar):
             double_hp_bars = self._create_double_hp_bar_surf(max_hp, curr_hp, overflow_level)
             surf.blit(double_hp_bars, (left + 5, top - 4))
 
-class MapHealthBar(HealthBar):
+class MapStatBar(StatBars):
     time_for_change_min = 200
     speed = utils.frames2ms(1)
     health_outline = SPRITES.get('map_health_outline')
@@ -225,7 +221,7 @@ class MapHealthBar(HealthBar):
 
         return surf
 
-class MapCombatHealthBar(HealthBar):
+class MapCombatStatBar(StatBars):
     display_numbers = True
     health_bar = SPRITES.get('health_bar')
     mana_bar = SPRITES.get('mana_bar')

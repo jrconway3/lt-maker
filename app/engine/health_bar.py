@@ -112,7 +112,7 @@ class ManaBar(GenericBar):
         return self.unit.get_mana()
 
     def get_max(self):
-        return self.unit.get_max_hp()
+        return self.unit.get_max_mana()
 
 class BarType(Enum):
     HP = HealthBar

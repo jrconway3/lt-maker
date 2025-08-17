@@ -18,7 +18,8 @@ from app.engine.sprites import SPRITES
 
 from abc import abstractmethod
 
-class StatBar():
+class GenericBar():
+    time_for_change = 0
     time_for_change_min = 200
     speed = utils.frames2ms(1)   # 1 frame for each hp point
 
@@ -34,12 +35,14 @@ class StatBar():
     old = 0
     displayed = 0
 
-    def __init__(self, unit):
+    def __init__(self, unit, new_time_for_change = None, new_speed = None):
         self.unit = unit
         self.bar_image = SPRITES.get(self.bar_sprite)
 
         self.transition_flag = False
-        self.time_for_change = self.time_for_change_min
+        self.time_for_change = new_time_for_change if new_time_for_change is not None else self.time_for_change_min
+        if new_speed:
+            self.speed = new_speed
         self.last_update = 0
 
         self.starting()
@@ -77,7 +80,7 @@ class StatBar():
     def get_max(self):
         pass
 
-class HealthBar(StatBar):
+class HealthBar(GenericBar):
     short = 'HP'
     label = 'HP'
     desc = 'HP_desc'
@@ -94,7 +97,7 @@ class HealthBar(StatBar):
     def get_max(self):
         return self.unit.get_max_hp()
 
-class ManaBar(StatBar):
+class ManaBar(GenericBar):
     short = 'MP'
     label = 'MANA'
     desc = 'MANA_desc'
@@ -118,7 +121,8 @@ class BarType(Enum):
     def __call__(self, *args, **kwargs):
         return self.value(*args, **kwargs)
 
-class MultiBar():
+
+class MultiGenericBar():
     time_for_change_min = 200
     speed = utils.frames2ms(1)   # 1 frame for each hp point
 
@@ -267,19 +271,34 @@ class MapBar(HealthBar):
 
         return surf
 
-class MapCombatBar(MultiBar):
+class MapCombatBar(MultiGenericBar):
     display_numbers = True
+    prefix = 'map_bar_'
+    color = 'blue'
+    surfs = set()
+
+    def __init__(self, unit, bars, offset_y, color = None):
+        super().__init__(unit, bars)
+        self.offset_y = offset_y
+        if color is not None:
+            self.color = color
+        self.bar_surf = SPRITES.get(self.prefix + color).convert_alpha()
 
     def draw(self, surf):
         # Calculate Stats on Bars
-        y = 22
+        y = self.offset_y + 2
+        self.surfs = set()
         for stat in self.stats:
             position = 25, y
+            bar_surf = self.bar_surf.copy()
+            surf.blit(bar_surf, (0, self.offset_y + self.get_height()))
+            self.surfs.add(bar_surf)
+
             total = max(1, stat.get_max())
-            fraction = utils.clamp(self.displayed / total, 0, 1)
+            fraction = utils.clamp(stat.displayed / total, 0, 1)
             index_pixel = int(50 * fraction)
-            surf.blit(engine.subsurface(stat.image, (0, 0, index_pixel, 2)), position)
-            y += 22
+            surf.blit(engine.subsurface(stat.bar_image, (0, 0, index_pixel, 2)), position)
+            y += self.bar_surf.get_height()
 
         # Display Numbers
         if self.display_numbers:
@@ -296,6 +315,12 @@ class MapCombatBar(MultiBar):
                 y += 15
 
         return surf
+
+    def get_height(self):
+        height = 0
+        for surf in self.surfs:
+            height += surf.get_height()
+        return height
 
 class MapCombatInfo():
     blind_speed = 1/8.  # 8 frames to fade in
@@ -319,7 +344,6 @@ class MapCombatInfo():
         else:
             self.blinds = 1
 
-        self.stat_bar = MapCombatBar(unit, self.stat_bars)
         self.unit = unit
         self.item = item
         if target:
@@ -336,16 +360,19 @@ class MapCombatInfo():
         team = game.teams.get(unit.team)
 
         self.stats_surf = None
-        self.bg_surf = SPRITES.get('health_' + team.combat_color, 'health_blue').convert_alpha()
+        self.bg_surf = SPRITES.get('map_header_' + team.combat_color, 'map_header_blue').convert_alpha()
+        self.footer_surf = SPRITES.get('map_footer_' + team.combat_color, 'map_footer_blue').convert_alpha()
         self.hit_and_mt_surf = SPRITES.get('combat_stats_' + team.combat_color, 'combat_stats_blue').convert_alpha()
         self.guard_surf = SPRITES.get('combat_stats_guard_' + team.combat_color, 'combat_stats_guard_blue').convert_alpha()
         self.gem = SPRITES.get('combat_gem_' + team.combat_color, 'combat_gem_blue').convert_alpha()
+
+        self.combat_bars = MapCombatBar(unit, self.stat_bars, self.bg_surf.get_height(), team.combat_color)
 
     def reset(self):
         self.draw_method = None
         self.true_position = None
 
-        self.stat_bar = None
+        self.combat_bars = None
         self.unit = None
         self.item = None
         self.target = None
@@ -444,11 +471,20 @@ class MapCombatInfo():
         return stat_surf
 
     def get_time_for_change(self):
-        return self.stat_bar.time_for_change
+        return self.combat_bars.time_for_change
+
+    def get_dimensions(self, skip = []):
+        # Stack Heights Together
+        height = self.bg_surf.get_height()
+        if 'bars' not in skip:
+            height += self.combat_bars.get_height()
+        if 'footer' not in skip:
+            height += self.footer_surf.get_height()
+        return self.bg_surf.get_width(), height
 
     def force_position_update(self):
         if self.unit:
-            width, height = self.bg_surf.get_width(), self.bg_surf.get_height()
+            width, height = self.get_dimensions()
             self.determine_position(width, height)
 
     def determine_position(self, width, height):
@@ -516,11 +552,11 @@ class MapCombatInfo():
 
         if self.unit and self.blinds >= 1:
             self.handle_shake()
-            self.stat_bar.update()
+            self.combat_bars.update()
 
     def draw(self, surf):
         # Create background surface
-        width, height = self.bg_surf.get_width(), self.bg_surf.get_height()
+        width, height = self.get_dimensions()
         
         if self.grd is not None:
             stat_height = height + self.guard_surf.get_height()
@@ -562,7 +598,9 @@ class MapCombatInfo():
                     bg_surf.blit(up_arrow, (11, 7))
         # End item
 
-        bg_surf = self.stat_bar.draw(bg_surf)
+        bg_surf = self.combat_bars.draw(bg_surf)
+        footer_x, footer_y = self.get_dimensions(['footer'])
+        bg_surf.blit(self.footer_surf.copy(), (0, footer_y))
 
         # Blit stat surf
         if self.grd is not None:

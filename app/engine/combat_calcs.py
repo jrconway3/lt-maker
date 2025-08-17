@@ -311,7 +311,6 @@ def attack_speed(unit, item=None):
         skill_system.Defaults.attack_speed_formula
     )
     attack_speed = equations.parser.get(equation, unit)
-    print("base attack speed: " + str(attack_speed))
 
     weapon_rank_bonus = get_weapon_rank_bonus(unit, item)
     if weapon_rank_bonus:
@@ -321,14 +320,9 @@ def attack_speed(unit, item=None):
     for bonus in support_rank_bonuses:
         attack_speed += float(bonus.attack_speed)
     attack_speed = int(attack_speed)
-    print(unit.get_stat('WT'))
-    print(unit.get_stat('CON'))
-    print("bonus attack speed: " + str(attack_speed))
 
     attack_speed += item_system.modify_attack_speed(unit, item)
-    print("item attack speed mod: " + str(attack_speed))
     attack_speed += skill_system.modify_attack_speed(unit, item)
-    print("skill attack speed mod: " + str(attack_speed))
 
     if not DB.constants.value('allow_negative_as') and attack_speed < 0:
         attack_speed = 0

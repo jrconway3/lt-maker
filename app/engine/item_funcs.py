@@ -79,7 +79,7 @@ def is_mana_restore(unit: UnitObject, item: ItemObject) -> bool:
         return True
     return False
 
-def get_stat_bars(unit: UnitObject, item: ItemObject) -> Set[BarType]:
+def get_stat_bars(unit: UnitObject, item: ItemObject) -> List[BarType]:
     """
     Returns the bar types based on provided items. (Determines stat bars that will display.)
 
@@ -91,22 +91,22 @@ def get_stat_bars(unit: UnitObject, item: ItemObject) -> Set[BarType]:
         List: List of bars to use. If both heal and mana restore exists, or if add mana bar is enabled, hp and mp will both be included.
     """
     # Initialize Types
-    types = set()
+    types = []
 
     # If Add Mana Bar, Use both
     if DB.constants.value('add_mana_bar'):
-        types.add(BarType.HP)
-        types.add(BarType.MANA)
-
-    # If Mana Restore Enabled, Use MP
-    if is_mana_restore(unit, item):
-        # Also Include HP is Heal Enabled
-        if is_heal(unit, item):
-            types.add(BarType.HP)
-        types.add(BarType.MANA)
+        types.append(BarType.HP)
+        types.append(BarType.MANA)
     else:
-        # If Mana Restore NOT Enabled, Always Use HP
-        types.add(BarType.HP)
+        # If Mana Restore Enabled, Use MP
+        if is_mana_restore(unit, item):
+            # Also Include HP is Heal Enabled
+            if is_heal(unit, item):
+                types.append(BarType.HP)
+            types.append(BarType.MANA)
+        else:
+            # If Mana Restore NOT Enabled, Always Use HP
+            types.add(BarType.HP)
     return types
 
 def available(unit: UnitObject, item: ItemObject) -> bool:

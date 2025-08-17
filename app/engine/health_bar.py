@@ -275,7 +275,7 @@ class MapCombatBar(MultiGenericBar):
     display_numbers = True
     prefix = 'map_bar_'
     color = 'blue'
-    surfs = set()
+    surfs = []
 
     def __init__(self, unit, bars, offset_y, color = None):
         super().__init__(unit, bars)
@@ -287,12 +287,12 @@ class MapCombatBar(MultiGenericBar):
     def draw(self, surf):
         # Calculate Stats on Bars
         y = self.offset_y + 2
-        self.surfs = set()
+        self.surfs = []
         for stat in self.stats:
             position = 25, y
             bar_surf = self.bar_surf.copy()
             surf.blit(bar_surf, (0, self.offset_y + self.get_height()))
-            self.surfs.add(bar_surf)
+            self.surfs.append(bar_surf)
 
             total = max(1, stat.get_max())
             fraction = utils.clamp(stat.displayed / total, 0, 1)
@@ -307,12 +307,12 @@ class MapCombatBar(MultiGenericBar):
                 font = FONT['number_big2']
 
             # Calculate Stats on Bars
-            y = 15
+            y = self.offset_y - 5
             for stat in self.stats:
                 s = str(stat.displayed)
                 position = 22 - font.size(s)[0], y
                 font.blit(s, surf, position)
-                y += 15
+                y += self.bar_surf.get_height()
 
         return surf
 

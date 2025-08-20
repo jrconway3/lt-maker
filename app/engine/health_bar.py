@@ -9,7 +9,7 @@ from app.constants import (TILEHEIGHT, TILEWIDTH, TILEX, TILEY, WINHEIGHT,
                            WINWIDTH)
 from app.data.database.database import DB
 from app.engine import (combat_calcs, engine, icons, item_system,
-                        skill_system, item_funcs)
+                        skill_system, item_funcs, text_funcs)
 from app.engine.fonts import FONT
 from app.engine.game_counters import ANIMATION_COUNTERS
 from app.engine.game_state import game
@@ -44,6 +44,11 @@ class GenericBar():
         if new_speed:
             self.speed = new_speed
         self.last_update = 0
+
+        if self.short:
+            self.short = text_funcs.translate(self.short)
+        if self.label:
+            self.label = text_funcs.translate(self.label)
 
         self.starting()
 

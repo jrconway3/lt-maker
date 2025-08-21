@@ -346,10 +346,11 @@ class LTNestedList(QWidget):
             self.on_click_item(None)
 
     def on_drag_drop(self, event):
+        selected_nid = self.tree_widget.selectedItems()[0].text(0)
         self.tree_widget.originalDropEvent(event)
         if self.disturbed_category:
             self.data_changed(self.disturbed_category)
-        target_item = self.tree_widget.itemAt(event.pos())
+        target_item = self.find_any_by_nid(selected_nid)
         if target_item:
             self.data_changed(target_item)
             self.select_item(target_item)
@@ -393,6 +394,27 @@ class LTNestedList(QWidget):
             for i in range(parent.childCount()):
                 child = parent.child(i)
                 if not child.data(0, IsCategoryRole) and child.data(0, 0) == nid:
+                    found_item = child
+                    break
+        return found_item
+
+    def find_any_by_nid(self, nid) -> Optional[QTreeWidgetItem]:
+        list_entries, list_categories = self.get_list_and_category_structure()
+        found_item = None
+        if nid is not None:
+            categories = list_categories.get(nid, [cat for cats in list_categories.values() for cat in cats if nid in cats])
+            parent = self.tree_widget.invisibleRootItem()
+            for category in categories:
+                for i in range(parent.childCount()):
+                    child = parent.child(i)
+                    if child.data(0, IsCategoryRole) and child.data(0, 0) == category and category != nid:
+                        parent = child
+                        break
+            # parent now contains the path/to/node
+            found_item = None
+            for i in range(parent.childCount()):
+                child = parent.child(i)
+                if child.data(0, 0) == nid:
                     found_item = child
                     break
         return found_item

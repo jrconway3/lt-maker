@@ -552,7 +552,7 @@ class SetLevelVar(Action):
     def __init__(self, nid, val):
         self.nid = nid
         self.val = val
-        if sef.nid in game.level_vars:
+        if self.nid in game.level_vars:
             self.old_val = game.level_vars[self.nid]
         else:
             self.old_val = None
@@ -2682,7 +2682,7 @@ class ChangeAIGroup(Action):
     def __init__(self, unit, ai_group):
         self.unit = unit
         self.ai_group = ai_group
-        self.old_ai = self.unit.ai_group
+        self.old_ai_group = self.unit.ai_group
 
     def do(self):
         self.unit.ai_group = self.ai_group

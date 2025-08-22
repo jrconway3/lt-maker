@@ -42,8 +42,9 @@ class NewMapSpriteDatabase(NewEditorTab):
             return False
         new_map_sprite = map_sprite_model.create_new(self)
         if new_map_sprite:
-            self.reset()
-        
+            self.data.append(new_map_sprite)
+            nid = new_map_sprite.nid
+            return nid
         return False
 
     def duplicate(self, old_nid, nid):

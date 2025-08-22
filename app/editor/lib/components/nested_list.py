@@ -237,10 +237,13 @@ class LTNestedList(QWidget):
     def new(self, index, item: Optional[QTreeWidgetItem]):
         list_entries, _ = self.get_list_and_category_structure()
         nids = list_entries
-        old_nid = item.data(0, 2) if item is not None else None
         new_nid = str_utils.get_next_name("new", nids)
-        if self.attempt_new and self.attempt_new(new_nid, index, old_nid):
-            self.insert_item(index, new_nid, item)
+        if self.attempt_new:
+            attempt = self.attempt_new(new_nid)
+            if isinstance(attempt, NID):
+                new_nid = attempt
+            if attempt:
+                self.insert_item(index, new_nid, item)
 
     def new_category(self, index, item: Optional[QTreeWidgetItem]):
         existing_categories = set()

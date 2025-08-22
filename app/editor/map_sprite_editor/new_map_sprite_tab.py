@@ -35,7 +35,7 @@ class NewMapSpriteDatabase(NewEditorTab):
             return QIcon(pix.scaled(32, 32))
         return None
 
-    def create_new(self, nid, index = None, old_nid = None):
+    def create_new(self, nid):
         if self.data.get(nid):
             QMessageBox.warning(self, 'Warning', 'ID %s already in use' % nid)
             return False
@@ -43,8 +43,7 @@ class NewMapSpriteDatabase(NewEditorTab):
         if new_map_sprite:
             self.data.append(new_map_sprite)
             nid = new_map_sprite.nid
-            item = self.tree_list.find_item_by_nid(old_nid) if old_nid is not None else None
-            self.tree_list.insert_item(index, nid, item, self.get_icon(nid))
+            return nid
         return False
 
     def _on_nid_changed(self, old_nid: NID, new_nid: NID):

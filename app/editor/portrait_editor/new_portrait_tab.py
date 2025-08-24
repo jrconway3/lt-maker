@@ -46,8 +46,8 @@ class NewPortraitDatabase(NewEditorTab):
             return False
         portrait = portrait_model.create_new(self)
         if portrait:
-            self.reset()
-        
+            self.data.append(portrait)
+            return portrait.nid
         return False
 
     def duplicate(self, old_nid, nid):

@@ -13,7 +13,7 @@ from app.engine.game_menus.icon_options import BasicItemOption, ItemOptionModes
 from app.engine.game_state import game
 from app.engine.graphics.ingame_ui.build_groove import build_groove
 from app.engine.graphics.text.text_renderer import render_text, text_width
-from app.engine.health_bar import BarType, BarStats
+from app.engine.health_bar import BarType
 from app.engine.info_menu.info_graph import InfoGraph, info_states
 from app.engine.info_menu.info_menu_portrait import InfoMenuPortrait
 from app.engine.input_manager import get_input_manager

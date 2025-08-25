@@ -142,7 +142,7 @@ class NewEditorTab(QWidget, Generic[T]):
             return True
         return False
 
-    def create_new(self, nid, index = None, old_nid = None):
+    def create_new(self, nid):
         if self.data.get(nid):
             QMessageBox.warning(self, 'Warning', 'ID %s already in use' % nid)
             return False

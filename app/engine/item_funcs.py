@@ -60,7 +60,7 @@ def is_heal(unit: UnitObject, item: ItemObject) -> bool:
     Returns:
         bool: True if the item is a healing item, False otherwise.
     """
-    if item.heal or item.magic_heal:
+    if item.heal or item.magic_heal or item.equation_heal:
         return True
     return False
 
@@ -103,6 +103,28 @@ def get_stat_bars(unit: UnitObject, item: ItemObject) -> List[BarType]:
             types = []
         types.append(BarType.MANA)
     return types
+
+def can_heal_target(unit: UnitObject, item: ItemObject) -> bool:
+    """
+    Determines if unit can be healed with the given item. (Includes all methods that can heal!)
+
+    Args:
+        unit (UnitObject): The unit attempting to be healed by the item.
+        item (ItemObject): The item to check.
+
+    Returns:
+        True if unit can be healed by any healing method.
+    """
+    # Get Stat Bars
+    stats = get_stat_bars(unit, item)
+
+    # Loop Stat Bars
+    for bar in stats:
+        stat = bar(unit)
+        if stat.get() < stat.get_max():
+            return True
+
+    return False
 
 def available(unit: UnitObject, item: ItemObject) -> bool:
     """

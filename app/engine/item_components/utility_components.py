@@ -26,16 +26,16 @@ class Heal(ItemComponent):
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Restricts target based on whether any unit has < full hp
         defender = game.board.get_unit(def_pos)
-        if defender and defender.get_hp() < defender.get_max_hp():
+        if defender and item_funcs.can_heal_target(defender, item):
             return True
         for s_pos in splash:
             s = game.board.get_unit(s_pos)
-            if s and s.get_hp() < s.get_max_hp():
+            if s and item_funcs.can_heal_target(s, item):
                 return True
         return False
 
     def simple_target_restrict(self, unit, item):
-        return unit and unit.get_hp() < unit.get_max_hp()
+        return unit and item_funcs.can_heal_target(unit, item)
 
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
         heal = self._get_heal_amount(unit, target)
@@ -93,16 +93,16 @@ class ManaRestore(ItemComponent):
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Restricts target based on whether any unit has < full MANA
         defender = game.board.get_unit(def_pos)
-        if defender and defender.get_mana() < defender.get_max_mana():
+        if defender and item_funcs.can_heal_target(defender, item):
             return True
         for s_pos in splash:
             s = game.board.get_unit(s_pos)
-            if s and s.get_mana() < s.get_max_mana():
+            if s and item_funcs.can_heal_target(s, item):
                 return True
         return False
 
     def simple_target_restrict(self, unit, item):
-        return unit and unit.get_mana() < unit.get_max_mana()
+        return unit and item_funcs.can_heal_target(unit, item)
 
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
         gain = self._get_restore_amount(unit, target)

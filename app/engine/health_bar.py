@@ -91,15 +91,15 @@ class HealthBar(GenericBar):
     bar_sprite = 'health_bar'
 
     def starting(self):
-        self.current = self.get_hp()
+        self.current = self.unit.get_hp()
         self.old = self.current
-        self.max = self.get_max_hp()
+        self.max = self.unit.get_max_hp()
 
     def get(self):
-        return self.get_hp()
+        return self.unit.get_hp()
 
     def get_max(self):
-        return self.get_max_hp()
+        return self.unit.get_max_hp()
 
 class ManaBar(GenericBar):
     short = 'MP'
@@ -108,15 +108,15 @@ class ManaBar(GenericBar):
     bar_sprite = 'mana_bar'
 
     def starting(self):
-        self.current = self.get_mana()
+        self.current = self.unit.get_mana()
         self.old = self.current
-        self.max = self.get_max_mana()
+        self.max = self.unit.get_max_mana()
 
     def get(self):
-        return self.get_mana()
+        return self.unit.get_mana()
 
     def get_max(self):
-        return self.get_max_mana()
+        return self.unit.get_max_mana()
 
 class BarType(Enum):
     HP = HealthBar

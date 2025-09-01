@@ -57,18 +57,18 @@ class GenericBar():
 
     def update(self):
         # Check to see if we should begin showing transition
-        if self.displayed != self.get() and not self.transition_flag:
+        if self.displayed != self.unit.get() and not self.transition_flag:
             self.transition_flag = True
-            self.time_for_change = max(self.time_for_change_min, abs(self.displayed - self.get()) * self.speed)
+            self.time_for_change = max(self.time_for_change_min, abs(self.displayed - self.unit.get()) * self.speed)
             self.last_update = engine.get_time()
 
         # Check to see if we should update
         if self.transition_flag:
             time = (engine.get_time() - self.last_update) / self.time_for_change
-            new_val = int(utils.lerp(self.old, self.get(), time))
+            new_val = int(utils.lerp(self.old, self.unit.get(), time))
             self.set(new_val)
             if time >= 1:
-                self.set(self.get())
+                self.set(self.unit.get())
                 self.old = self.displayed
                 self.transition_flag = False
 

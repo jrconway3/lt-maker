@@ -56,7 +56,6 @@ class GenericBar():
         self.displayed = val
 
     def update(self):
-        # print(self.displayed, self.get(), self.transition_flag)
         # Check to see if we should begin showing transition
         if self.displayed != self.get() and not self.transition_flag:
             self.transition_flag = True
@@ -173,7 +172,7 @@ class CombatBar(HealthBar):
         self.heal_sound_update = 0
 
     def update(self, skip=False):
-        if self.displayed < self.get():
+        if self.displayed_hp < self.get_hp():
             self.speed = utils.frames2ms(4)  # Slower speed when increasing hp
         else:
             self.speed = utils.frames2ms(2)
@@ -250,14 +249,14 @@ class CombatBar(HealthBar):
         max = self.get_max()
         curr = self.displayed
         if max <= MAX_HP_PER_BAR:
-            hp_bar = self._create_bar_surf(max, curr)
-            surf.blit(hp_bar, (left + 5, top + 1))
+            bar = self._create_bar_surf(max, curr)
+            surf.blit(bar, (left + 5, top + 1))
         else:
             overflow_level = 0
             while curr > 2 * MAX_HP_PER_BAR:
                 overflow_level += 1
                 curr -= 2 * MAX_HP_PER_BAR
-            double_bars = self._create_double_bar_surf(max, curr, overflow_level)
+            double_bars = self._create_double_hp_bar_surf(max, curr, overflow_level)
             surf.blit(double_bars, (left + 5, top - 4))
 
 class MapBar(HealthBar):
@@ -561,7 +560,7 @@ class MapCombatInfo():
 
     def draw(self, surf):
         # Create background surface
-        width, height = self.get_dimensions()
+        width, height = self.bg_surf.get_width(), self.bg_surf.get_height()
         
         if self.grd is not None:
             stat_height = height + self.guard_surf.get_height()

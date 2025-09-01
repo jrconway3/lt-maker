@@ -308,7 +308,7 @@ class MapCombat(SimpleCombat):
                         'p1', self.attacker, self.main_item, self.defender, (hit, mt, crt, grd), bars)
                     self.health_bars[self.attacker] = attacker_health
                 else:
-                    self.health_bars[self.attacker].update_stats((hit, mt, crt, grd))
+                    self.health_bars[self.attacker].update_stats((hit, mt, crt, grd), bars)
 
                 # Defender
                 if combat_calcs.can_counterattack(self.attacker, self.main_item, self.defender, self.def_item):

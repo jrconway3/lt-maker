@@ -57,18 +57,18 @@ class GenericBar():
 
     def update(self):
         # Check to see if we should begin showing transition
-        if self.displayed != self.unit.get() and not self.transition_flag:
+        if self.displayed != self.get() and not self.transition_flag:
             self.transition_flag = True
-            self.time_for_change = max(self.time_for_change_min, abs(self.displayed - self.unit.get()) * self.speed)
+            self.time_for_change = max(self.time_for_change_min, abs(self.displayed - self.get()) * self.speed)
             self.last_update = engine.get_time()
 
         # Check to see if we should update
         if self.transition_flag:
             time = (engine.get_time() - self.last_update) / self.time_for_change
-            new_val = int(utils.lerp(self.old, self.unit.get(), time))
+            new_val = int(utils.lerp(self.old, self.get(), time))
             self.set(new_val)
             if time >= 1:
-                self.set(self.unit.get())
+                self.set(self.get())
                 self.old = self.displayed
                 self.transition_flag = False
 
@@ -91,15 +91,15 @@ class HealthBar(GenericBar):
     bar_sprite = 'health_bar'
 
     def starting(self):
-        self.current = self.unit.get_hp()
+        self.current = self.get_hp()
         self.old = self.current
-        self.max = self.unit.get_max_hp()
+        self.max = self.get_max_hp()
 
     def get(self):
-        return self.unit.get_hp()
+        return self.get_hp()
 
     def get_max(self):
-        return self.unit.get_max_hp()
+        return self.get_max_hp()
 
 class ManaBar(GenericBar):
     short = 'MP'
@@ -108,15 +108,15 @@ class ManaBar(GenericBar):
     bar_sprite = 'mana_bar'
 
     def starting(self):
-        self.current = self.unit.get_mana()
+        self.current = self.get_mana()
         self.old = self.current
-        self.max = self.unit.get_max_mana()
+        self.max = self.get_max_mana()
 
     def get(self):
-        return self.unit.get_mana()
+        return self.get_mana()
 
     def get_max(self):
-        return self.unit.get_max_mana()
+        return self.get_max_mana()
 
 class BarType(Enum):
     HP = HealthBar
@@ -172,7 +172,7 @@ class CombatBar(HealthBar):
         self.heal_sound_update = 0
 
     def update(self, skip=False):
-        if self.displayed_hp < self.unit.get_hp():
+        if self.displayed_hp < self.get_hp():
             self.speed = utils.frames2ms(4)  # Slower speed when increasing hp
         else:
             self.speed = utils.frames2ms(2)
@@ -181,17 +181,17 @@ class CombatBar(HealthBar):
 
     def set(self, val):
         current_time = engine.get_time()
-        if self.displayed < self.unit.get() and current_time - self.heal_sound_update > self.speed:
+        if self.displayed < self.get() and current_time - self.heal_sound_update > self.speed:
             self.heal_sound_update = current_time
             get_sound_thread().stop_sfx('HealBoop')
             get_sound_thread().play_sfx('HealBoop')
         super().set(val)
 
     def big_number(self) -> bool:
-        return self.displayed != self.unit.get()
+        return self.displayed != self.get()
 
     def done(self) -> bool:
-        return self.displayed == self.unit.get()
+        return self.displayed == self.get()
 
     @lru_cache(1)
     def _create_bar_surf(self, full: int, actual: int, overflow: int = 0) -> engine.Surface:
@@ -246,7 +246,7 @@ class CombatBar(HealthBar):
             font.blit_right(str(self.displayed), surf, (left, top - 4))
         else:
             font.blit_right('??', surf, (left, top - 4))
-        max = self.unit.get_max()
+        max = self.get_max()
         curr = self.displayed
         if max <= MAX_HP_PER_BAR:
             bar = self._create_bar_surf(max, curr)
@@ -264,7 +264,7 @@ class MapBar(HealthBar):
     health_bar = SPRITES.get('map_health_bar')
 
     def draw(self, surf, left, top):
-        total = max(1, self.unit.get_max())
+        total = max(1, self.get_max())
         fraction = utils.clamp(self.displayed / total, 0, 1)
         index_pixel = int(12 * fraction) + 1
 

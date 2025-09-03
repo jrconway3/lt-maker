@@ -262,7 +262,7 @@ class EvalManaCost(ItemComponent):
 
 
 class ManaCostAsUses(ItemComponent):
-    nid = 'mana_cost_uses'
+    nid = 'mana_cost_as_uses'
     desc = "Display the Mana Cost in place of Uses on the item. Do not combine with other uses components."
     requires = ['mana_cost', 'eval_mana_cost']
     tag = ItemTags.USES

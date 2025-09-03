@@ -172,7 +172,7 @@ class CombatBar(HealthBar):
         self.heal_sound_update = 0
 
     def update(self, skip=False):
-        if self.displayed_hp < self.get_hp():
+        if self.displayed < self.get():
             self.speed = utils.frames2ms(4)  # Slower speed when increasing hp
         else:
             self.speed = utils.frames2ms(2)
@@ -256,7 +256,7 @@ class CombatBar(HealthBar):
             while curr > 2 * MAX_HP_PER_BAR:
                 overflow_level += 1
                 curr -= 2 * MAX_HP_PER_BAR
-            double_bars = self._create_double_hp_bar_surf(max, curr, overflow_level)
+            double_bars = self._create_double_bar_surf(max, curr, overflow_level)
             surf.blit(double_bars, (left + 5, top - 4))
 
 class MapBar(HealthBar):

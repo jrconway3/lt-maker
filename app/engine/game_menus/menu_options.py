@@ -347,8 +347,8 @@ class ItemOption(BasicOption):
         render_text(surf, [main_font], [self.item.name], [main_color], (x + 20, y))
         uses_string = '--'
         custom_uses = self.get_custom_uses()
-        if custom_uses is not None and custom_uses[2]:
-            uses_color = custom_uses[2]
+        if custom_uses is not None and custom_uses[3]:
+            uses_color = custom_uses[3]
         if custom_uses is not None and custom_uses[0] is not None:
             uses_string = str(custom_uses[0])
         elif self.item.uses:

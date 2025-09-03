@@ -288,7 +288,7 @@ class ManaCostAsUses(ItemComponent):
         return (self._calc_uses(unit, item), self._calc_max_uses(unit, item), None, self._font_color(unit, item), self._uses_type())
 
 class RemainingManaUses(ManaCostAsUses):
-    nid = 'mana_uses_remaining'
+    nid = 'remaining_mana_uses'
     desc = "Display the remaining uses calculated from mana cost and unit's current/max mana. Do not combine with other uses components."
 
     def _calc_uses(self, unit, item):

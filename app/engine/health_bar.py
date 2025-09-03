@@ -560,7 +560,7 @@ class MapCombatInfo():
 
     def draw(self, surf):
         # Create background surface
-        width, height = self.bg_surf.get_width(), self.bg_surf.get_height()
+        width, height = self.get_dimensions()
         
         if self.grd is not None:
             stat_height = height + self.guard_surf.get_height()

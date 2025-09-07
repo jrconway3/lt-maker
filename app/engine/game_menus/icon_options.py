@@ -171,7 +171,6 @@ class ItemOptionModes(Enum):
     FULL_USES_AND_REPAIR = 3
     VALUE = 4
     STOCK_AND_VALUE = 5
-    CUSTOM = 6
 
 @dataclass
 class UsesDisplayConfig:

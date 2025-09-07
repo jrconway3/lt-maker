@@ -9,7 +9,7 @@ from app.engine.game_state import game
 
 from app.engine.graphics.text.text_renderer import render_text, text_width, rendered_text_width
 from app.utilities.enums import HAlignment
-from app.engine.game_menus.icon_options import UsesDisplayText
+from app.engine.game_menus.icon_options import UsesDisplayConfig
 
 class EmptyOption():
     def __init__(self, idx):
@@ -325,16 +325,6 @@ class ItemOption(BasicOption):
                 self=self.item)
             return help_menu.HelpDialog(text)
 
-    def get_custom_uses(self) -> UsesDisplayText:
-        if not self.item:
-            return None
-
-        owner = game.get_unit(self.item.owner_nid)
-        if not owner:
-            return None
-
-        return item_system.item_uses_display(owner, self.item)
-
     def draw(self, surf, x, y):
         icon = icons.get_icon(self.item)
         if icon:
@@ -345,22 +335,24 @@ class ItemOption(BasicOption):
             main_font = 'narrow'
         uses_font = 'text'
         render_text(surf, [main_font], [self.item.name], [main_color], (x + 20, y))
+
+        # Draw Uses String
         uses_string = '--'
-        custom_uses = self.get_custom_uses()
-        if custom_uses is not None and custom_uses[3]:
-            uses_color = custom_uses[3]
-        if custom_uses is not None and custom_uses[0] is not None:
-            uses_string = str(custom_uses[0])
-        elif self.item.uses:
-            uses_string = str(self.item.data['uses'])
-        elif self.item.parent_item and self.item.parent_item.uses and self.item.parent_item.data['uses']:
-            uses_string = str(self.item.parent_item.data['uses'])
-        elif self.item.c_uses:
-            uses_string = str(self.item.data['c_uses'])
-        elif self.item.parent_item and self.item.parent_item.c_uses and self.item.parent_item.data['c_uses']:
-            uses_string = str(self.item.parent_item.data['c_uses'])
-        elif self.item.cooldown:
-            uses_string = str(self.item.data['cooldown'])
+        custom_uses = UsesDisplayConfig.from_item(self.item)
+        if custom_uses is not None and custom_uses.uses is not None:
+            uses_string = str(custom_uses.uses)
+            uses_color = custom_uses.color
+        if uses_string == '--':
+            if self.item.uses:
+                uses_string = str(self.item.data['uses'])
+            elif self.item.parent_item and self.item.parent_item.uses and self.item.parent_item.data['uses']:
+                uses_string = str(self.item.parent_item.data['uses'])
+            elif self.item.c_uses:
+                uses_string = str(self.item.data['c_uses'])
+            elif self.item.parent_item and self.item.parent_item.c_uses and self.item.parent_item.data['c_uses']:
+                uses_string = str(self.item.parent_item.data['c_uses'])
+            elif self.item.cooldown:
+                uses_string = str(self.item.data['cooldown'])
         left = x + 99
         render_text(surf, [uses_font], [uses_string], [uses_color], (left, y), HAlignment.RIGHT)
 

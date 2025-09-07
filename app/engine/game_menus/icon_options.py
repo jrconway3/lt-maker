@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional, Tuple, TypeAlias
+from typing import Callable, Optional, Tuple, TypeAlias
+from dataclasses import dataclass
 
 from app.data.database.database import DB
 from app.engine import help_menu, icons, item_funcs, item_system, text_funcs
@@ -9,6 +10,8 @@ from app.engine.game_menus.string_options import BaseOption
 from app.engine.game_state import game
 from app.engine.graphics.text.text_renderer import (anchor_align, render_text,
                                                     text_width)
+
+from app.engine.objects.unit import UnitObject
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
 from app.utilities.enums import HAlignment
@@ -41,7 +44,7 @@ class ItemOptionUtils():
     @staticmethod
     def draw_with_uses(surf, x, y, item: ItemObject, font: NID, color: NID, uses_color: NID,
                        width: int, align: HAlignment = HAlignment.LEFT,
-                       disp_text: Optional[str] = None, custom_uses: Optional[UsesDisplayText] = None):
+                       disp_text: Optional[str] = None):
         display_text = disp_text or item.name
         uses_font = font
         if text_width(font, display_text) > width - 36:
@@ -56,11 +59,7 @@ class ItemOptionUtils():
             ItemOptionUtils.draw_icon(surf, x, y, item)
         render_text(surf, [font], [display_text], [color], blit_loc, align)
         uses_string = '--'
-        if custom_uses is not None and custom_uses[3]:
-            uses_color = custom_uses[3]
-        if custom_uses is not None and custom_uses[0] is not None:
-            uses_string = str(custom_uses[0])
-        elif item.uses:
+        if item.uses:
             uses_string = str(item.data['uses'])
         elif item.parent_item and item.parent_item.uses and item.parent_item.data['uses']:
             uses_string = str(item.parent_item.data['uses'])
@@ -77,7 +76,7 @@ class ItemOptionUtils():
     @staticmethod
     def draw_with_full_uses(surf, x, y, item: ItemObject, font: NID, color: NID, uses_color: NID,
                             width: int, align: HAlignment = HAlignment.LEFT,
-                            disp_text: Optional[str] = None, custom_uses: Optional[UsesDisplayText] = None):
+                            disp_text: Optional[str] = None):
         main_font = font
         display_text = disp_text or item.name
         if text_width(main_font, display_text) > width - 56:
@@ -97,14 +96,7 @@ class ItemOptionUtils():
         uses_string_a = '--'
         uses_string_b = '--'
         uses_delimiter = "/"
-        if custom_uses is not None and custom_uses[3]:
-            uses_color = custom_uses[3]
-        if custom_uses is not None and custom_uses[2] is not None:
-            uses_delimiter = custom_uses[2]
-        if custom_uses is not None and custom_uses[0] is not None and custom_uses[1] is not None:
-            uses_string_a = str(custom_uses[0])
-            uses_string_b = str(custom_uses[1])
-        elif item.data.get('uses') is not None:
+        if item.data.get('uses') is not None:
             uses_string_a = str(item.data['uses'])
             uses_string_b = str(item.data['starting_uses'])
         elif item.data.get('c_uses') is not None:
@@ -129,6 +121,49 @@ class ItemOptionUtils():
         render_text(surf, [uses_font], [uses_string_b], [
                     uses_color], uses_string_b_loc, HAlignment.RIGHT)
 
+    @staticmethod
+    def draw_with_custom_uses(surf, x, y, item: ItemObject, custom_uses: UsesDisplayConfig,
+                            font: NID, color: NID, uses_color: NID, width: int,
+                            align: HAlignment = HAlignment.LEFT, disp_text: Optional[str] = None):
+        main_font = font
+        display_text = disp_text or item.name
+        if text_width(main_font, display_text) > width - 56:
+            main_font = 'narrow'
+        uses_font = font
+        blit_loc = anchor_align(x, width, align, (20, 36)), y
+        if align == HAlignment.RIGHT:
+            ItemOptionUtils.draw_icon(surf, blit_loc[0] - 20 - text_width(font, display_text), y, item)
+        elif align == HAlignment.CENTER:
+            blit_loc = (blit_loc[0] + 10, blit_loc[1])
+            ItemOptionUtils.draw_icon(surf, blit_loc[0] - 20 - text_width(font, display_text) // 2, y, item)
+        else:
+            ItemOptionUtils.draw_icon(surf, x, y, item)
+        render_text(surf, [main_font], [display_text],
+                    [color], blit_loc, align)
+
+        # Set Current Uses
+        uses_string_a = str(custom_uses.uses)
+        uses_string_a_loc_x = 25 if custom_uses.max is not None else 5
+
+        # Check Custom Color
+        if custom_uses.color is not None:
+            uses_color = custom_uses.color
+
+        # Set String A
+        uses_string_a_loc = anchor_align(
+            x, width, HAlignment.RIGHT, (0, uses_string_a_loc_x)), y
+        render_text(surf, [uses_font], [uses_string_a], [
+                    uses_color], uses_string_a_loc, HAlignment.RIGHT)
+
+        # Set String B if Not None
+        if custom_uses.max is not None:
+            uses_string_b = str(custom_uses.max)
+            uses_string_b_loc = anchor_align(x, width, HAlignment.RIGHT, (0, 0)), y
+            slash_loc = anchor_align(x, width, HAlignment.RIGHT, (0, 16)), y
+            render_text(surf, [uses_font], [custom_uses.delim], [], slash_loc, HAlignment.RIGHT)
+            render_text(surf, [uses_font], [uses_string_b], [
+                        uses_color], uses_string_b_loc, HAlignment.RIGHT)
+
 
 class ItemOptionModes(Enum):
     NO_USES = 0
@@ -137,14 +172,35 @@ class ItemOptionModes(Enum):
     FULL_USES_AND_REPAIR = 3
     VALUE = 4
     STOCK_AND_VALUE = 5
+    CUSTOM = 6
 
-# Tuple to Handle Replace Uses Text
-# idx[0]: str to replace 'current uses'; e.g. XX/-- where XX = current uses
-# idx[1]: str to replace 'max uses'; e.g. --/XX where XX = max uses; only applies if idx[4] = ItemOptionModes.FULL_USES
-# idx[2]: str to replace '/' delimiter; only applies if idx[4] = ItemOptionModes.FULL_USES
-# idx[3]: A unique font colour identifier.
-# idx[4]: One of the possible values of `ItemOptionModes`.
-UsesDisplayText: TypeAlias = Tuple[Optional[str], Optional[str], Optional[str], Optional[NID], ItemOptionModes]
+@dataclass
+class UsesDisplayConfig:
+    get_curr_uses: Callable[[ItemObject, UnitObject], str]
+    delim: str
+    get_max_uses: Callable[[ItemObject, UnitObject], str]
+    get_uses_color: Callable[[ItemObject, UnitObject], str]
+
+    uses: str = None
+    max: str = None
+    color: str = None
+
+    def load(self, item: ItemObject, unit: UnitObject) -> UsesDisplayConfig:
+        self.uses = self.get_curr_uses(item, unit)
+        self.max = self.get_max_uses(item, unit)
+        self.color = self.get_uses_color(item, unit)
+        return self
+
+    @staticmethod
+    def from_item(item: ItemObject) -> UsesDisplayConfig:
+        if not item:
+            return None
+
+        owner = game.get_unit(item.owner_nid)
+        if not owner:
+            return None
+
+        return item_system.item_uses_display(owner, item)
 
 
 class BasicItemOption(BaseOption[Optional[ItemObject]]):
@@ -152,13 +208,15 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
                  height: int = 0, ignore: bool = False, font: NID = 'text', text_color: Optional[NID] = None,
                  align: HAlignment = HAlignment.LEFT, mode: ItemOptionModes = ItemOptionModes.NO_USES):
         super().__init__(idx, item, display_value, width, height, ignore)
+
         self._disp_value = text_funcs.translate(
             display_value or (self._value.name if self._value else "None"))
         self._align = align
         self._color = text_color
         self._font = font
         self._mode = mode
-        self.get_custom_uses()
+
+        self._custom_uses = UsesDisplayConfig.from_item(self._value)
 
     @classmethod
     def from_nid(cls, idx, item_nid: NID, display_value: str | None = None, width: int = 0,
@@ -233,36 +291,26 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
                 self._help_box = help_menu.HelpDialog(text)
         return self._help_box
 
-    def get_custom_uses(self) -> UsesDisplayText:
-        self._custom_uses = None
-        if not self._value:
-            return None
-
-        owner = game.get_unit(self._value.owner_nid)
-        if not owner:
-            return None
-
-        custom_uses = item_system.item_uses_display(owner, self._value)
-        if custom_uses:
-            self._custom_uses = custom_uses
-            if self._custom_uses[4] in [ItemOptionModes.USES, ItemOptionModes.FULL_USES]:
-                self._mode = self._custom_uses[4]
-        return self._custom_uses
-
     def draw(self, surf, x, y):
         main_color, uses_color = self.get_color()
         if not self._value:
             blit_loc = anchor_align(x, self.width(), self._align, (5, 5)), y
             render_text(surf, [self._font], [self._disp_value], [main_color], blit_loc, self._align)
+        elif self._custom_uses is not None:
+            ItemOptionUtils.draw_with_custom_uses(surf, x, y, self._value, self._custom_uses, self._font,
+                                           main_color, uses_color, self.width(), self._align, self._disp_value)
+        elif self._mode == ItemOptionModes.NO_USES:
+            ItemOptionUtils.draw_without_uses(
+                surf, x, y, self._value, self._font, main_color, self.width(), self._align, self._disp_value)
         elif self._mode == ItemOptionModes.NO_USES:
             ItemOptionUtils.draw_without_uses(
                 surf, x, y, self._value, self._font, main_color, self.width(), self._align, self._disp_value)
         elif self._mode == ItemOptionModes.USES:
             ItemOptionUtils.draw_with_uses(surf, x, y, self._value, self._font,
-                                           main_color, uses_color, self.width(), self._align, self._disp_value, custom_uses=self._custom_uses)
+                                           main_color, uses_color, self.width(), self._align, self._disp_value)
         elif self._mode == ItemOptionModes.FULL_USES:
             ItemOptionUtils.draw_with_full_uses(
-                surf, x, y, self._value, self._font, main_color, uses_color, self.width(), self._align, self._disp_value, custom_uses=self._custom_uses)
+                surf, x, y, self._value, self._font, main_color, uses_color, self.width(), self._align, self._disp_value)
 
 
 class BasicSkillOption(BaseOption[SkillObject]):

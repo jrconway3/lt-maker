@@ -95,7 +95,6 @@ class ItemOptionUtils():
 
         uses_string_a = '--'
         uses_string_b = '--'
-        uses_delimiter = "/"
         if item.data.get('uses') is not None:
             uses_string_a = str(item.data['uses'])
             uses_string_b = str(item.data['starting_uses'])
@@ -117,7 +116,7 @@ class ItemOptionUtils():
         slash_loc = anchor_align(x, width, HAlignment.RIGHT, (0, 16)), y
         render_text(surf, [uses_font], [uses_string_a], [
                     uses_color], uses_string_a_loc, HAlignment.RIGHT)
-        render_text(surf, [uses_font], [uses_delimiter], [], slash_loc, HAlignment.RIGHT)
+        render_text(surf, [uses_font], ["/"], [], slash_loc, HAlignment.RIGHT)
         render_text(surf, [uses_font], [uses_string_b], [
                     uses_color], uses_string_b_loc, HAlignment.RIGHT)
 

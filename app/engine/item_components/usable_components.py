@@ -4,7 +4,7 @@ from app.data.database.components import ComponentType
 
 from app.engine import action, item_funcs
 from app.engine.fonts import FONT
-from app.engine.game_menus.icon_options import ItemOptionModes, UsesDisplayText
+from app.engine.game_menus.icon_options import UsesDisplayConfig
 
 import logging
 
@@ -266,6 +266,7 @@ class ManaCostAsUses(ItemComponent):
     desc = "Display the Mana Cost in place of Uses on the item. Do not combine with other uses components."
     requires = ['mana_cost', 'eval_mana_cost']
     tag = ItemTags.USES
+    delim = None
 
     def _calc_uses(self, unit, item):
         return item.mana_cost.value
@@ -281,24 +282,20 @@ class ManaCostAsUses(ItemComponent):
             return color
         return None
 
-    def _uses_type(self):
-        return ItemOptionModes.USES
-
-    def item_uses_display(self, unit, item) -> UsesDisplayText:
-        return (self._calc_uses(unit, item), self._calc_max_uses(unit, item), None, self._font_color(unit, item), self._uses_type())
+    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
+        config = UsesDisplayConfig(self._calc_uses, self.delim, self._calc_max_uses, self._font_color)
+        return config.load(unit, item)
 
 class RemainingManaUses(ManaCostAsUses):
     nid = 'remaining_mana_uses'
     desc = "Display the remaining uses calculated from mana cost and unit's current/max mana. Do not combine with other uses components."
+    delim = "/"
 
     def _calc_uses(self, unit, item):
         return unit.get_mana() // item.mana_cost.value
 
     def _calc_max_uses(self, unit, item):
         return str(unit.get_max_mana() // item.mana_cost.value)
-
-    def _uses_type(self):
-        return ItemOptionModes.FULL_USES
 
 class Cooldown(ItemComponent):
     nid = 'cooldown'

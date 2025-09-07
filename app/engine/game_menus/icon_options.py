@@ -95,7 +95,6 @@ class ItemOptionUtils():
 
         uses_string_a = '--'
         uses_string_b = '--'
-        uses_delimiter = "/"
         if item.data.get('uses') is not None:
             uses_string_a = str(item.data['uses'])
             uses_string_b = str(item.data['starting_uses'])
@@ -117,7 +116,7 @@ class ItemOptionUtils():
         slash_loc = anchor_align(x, width, HAlignment.RIGHT, (0, 16)), y
         render_text(surf, [uses_font], [uses_string_a], [
                     uses_color], uses_string_a_loc, HAlignment.RIGHT)
-        render_text(surf, [uses_font], [uses_delimiter], [], slash_loc, HAlignment.RIGHT)
+        render_text(surf, [uses_font], ["/"], [], slash_loc, HAlignment.RIGHT)
         render_text(surf, [uses_font], [uses_string_b], [
                     uses_color], uses_string_b_loc, HAlignment.RIGHT)
 
@@ -299,9 +298,6 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
         elif self._custom_uses is not None:
             ItemOptionUtils.draw_with_custom_uses(surf, x, y, self._value, self._custom_uses, self._font,
                                            main_color, uses_color, self.width(), self._align, self._disp_value)
-        elif self._mode == ItemOptionModes.NO_USES:
-            ItemOptionUtils.draw_without_uses(
-                surf, x, y, self._value, self._font, main_color, self.width(), self._align, self._disp_value)
         elif self._mode == ItemOptionModes.NO_USES:
             ItemOptionUtils.draw_without_uses(
                 surf, x, y, self._value, self._font, main_color, self.width(), self._align, self._disp_value)

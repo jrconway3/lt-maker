@@ -341,7 +341,8 @@ class ItemOption(BasicOption):
         custom_uses = UsesDisplayConfig.from_item(self.item)
         if custom_uses is not None and custom_uses.uses is not None:
             uses_string = str(custom_uses.uses)
-            uses_color = custom_uses.color
+            if custom_uses.color is not None:
+                uses_color = custom_uses.color
         if uses_string == '--':
             if self.item.uses:
                 uses_string = str(self.item.data['uses'])
@@ -396,29 +397,28 @@ class FullItemOption(ItemOption):
         uses_string_a = '--'
         uses_string_b = '--'
         uses_delimiter = "/"
-        custom_uses = self.get_custom_uses()
-        if custom_uses is not None and custom_uses[3]:
-            uses_color = custom_uses[3]
-        if custom_uses is not None and custom_uses[2] is not None:
-            uses_delimiter = custom_uses[2]
-        if custom_uses is not None and custom_uses[0] is not None and custom_uses[1] is not None:
-            uses_string_a = str(custom_uses[0])
-            uses_string_a = str(custom_uses[1])
-        elif self.item.data.get('uses') is not None:
-            uses_string_a = str(self.item.data['uses'])
-            uses_string_b = str(self.item.data['starting_uses'])
-        elif self.item.data.get('c_uses') is not None:
-            uses_string_a = str(self.item.data['c_uses'])
-            uses_string_b = str(self.item.data['starting_c_uses'])
-        elif self.item.parent_item and self.item.parent_item.data.get('uses') is not None:
-            uses_string_a = str(self.item.parent_item.data['uses'])
-            uses_string_b = str(self.item.parent_item.data['starting_uses'])
-        elif self.item.parent_item and self.item.parent_item.data.get('c_uses') is not None:
-            uses_string_a = str(self.item.parent_item.data['c_uses'])
-            uses_string_b = str(self.item.parent_item.data['starting_c_uses'])
-        elif self.item.data.get('cooldown') is not None:
-            uses_string_a = str(self.item.data['cooldown'])
-            uses_string_b = str(self.item.data['starting_cooldown'])
+        custom_uses = UsesDisplayConfig.from_item(self.item)
+        if custom_uses is not None and custom_uses.uses is not None:
+            uses_string = str(custom_uses.uses)
+            if custom_uses.color is not None:
+                uses_color = custom_uses.color
+            uses_delimiter = custom_uses.delim
+        if uses_string == '--':
+            if self.item.data.get('uses') is not None:
+                uses_string_a = str(self.item.data['uses'])
+                uses_string_b = str(self.item.data['starting_uses'])
+            elif self.item.data.get('c_uses') is not None:
+                uses_string_a = str(self.item.data['c_uses'])
+                uses_string_b = str(self.item.data['starting_c_uses'])
+            elif self.item.parent_item and self.item.parent_item.data.get('uses') is not None:
+                uses_string_a = str(self.item.parent_item.data['uses'])
+                uses_string_b = str(self.item.parent_item.data['starting_uses'])
+            elif self.item.parent_item and self.item.parent_item.data.get('c_uses') is not None:
+                uses_string_a = str(self.item.parent_item.data['c_uses'])
+                uses_string_b = str(self.item.parent_item.data['starting_c_uses'])
+            elif self.item.data.get('cooldown') is not None:
+                uses_string_a = str(self.item.data['cooldown'])
+                uses_string_b = str(self.item.data['starting_cooldown'])
         if not (uses_string_a == '--' and uses_string_b == '--'):
             render_text(surf, [uses_font], [uses_string_a], [uses_color], (x + 96, y), HAlignment.RIGHT)
             render_text(surf, [uses_font], [uses_delimiter], [], (x + 98, y))
@@ -445,21 +445,22 @@ class ValueItemOption(ItemOption):
         render_text(surf, [main_font], [self.item.name], [main_color], (x + 20, y))
 
         uses_string = '--'
-        custom_uses = self.get_custom_uses()
-        if custom_uses is not None and custom_uses[3]:
-            uses_color = custom_uses[3]
-        if custom_uses is not None and custom_uses[0] is not None:
-            uses_string = str(custom_uses[0])
-        elif self.item.data.get('uses') is not None:
-            uses_string = str(self.item.data['uses'])
-        elif self.item.parent_item and self.item.parent_item.data.get('uses') is not None:
-            uses_string = str(self.item.parent_item.data['uses'])
-        elif self.item.c_uses is not None:
-            uses_string = str(self.item.data['c_uses'])
-        elif self.item.parent_item and self.item.parent_item.data.get('c_uses') is not None:
-            uses_string = str(self.item.parent_item.data['c_uses'])
-        elif self.item.cooldown is not None:
-            uses_string = str(self.item.data['cooldown'])
+        custom_uses = UsesDisplayConfig.from_item(self.item)
+        if custom_uses is not None and custom_uses.uses is not None:
+            uses_string = str(custom_uses.uses)
+            if custom_uses.color is not None:
+                uses_color = custom_uses.color
+        if uses_string == '--':
+            if self.item.data.get('uses') is not None:
+                uses_string = str(self.item.data['uses'])
+            elif self.item.parent_item and self.item.parent_item.data.get('uses') is not None:
+                uses_string = str(self.item.parent_item.data['uses'])
+            elif self.item.c_uses is not None:
+                uses_string = str(self.item.data['c_uses'])
+            elif self.item.parent_item and self.item.parent_item.data.get('c_uses') is not None:
+                uses_string = str(self.item.parent_item.data['c_uses'])
+            elif self.item.cooldown is not None:
+                uses_string = str(self.item.data['cooldown'])
         render_text(surf, [uses_font], [uses_string], [uses_color], (x + 100, y), HAlignment.RIGHT)
 
         value_color = 'grey'

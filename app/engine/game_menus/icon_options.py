@@ -301,9 +301,6 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
         elif self._mode == ItemOptionModes.NO_USES:
             ItemOptionUtils.draw_without_uses(
                 surf, x, y, self._value, self._font, main_color, self.width(), self._align, self._disp_value)
-        elif self._mode == ItemOptionModes.NO_USES:
-            ItemOptionUtils.draw_without_uses(
-                surf, x, y, self._value, self._font, main_color, self.width(), self._align, self._disp_value)
         elif self._mode == ItemOptionModes.USES:
             ItemOptionUtils.draw_with_uses(surf, x, y, self._value, self._font,
                                            main_color, uses_color, self.width(), self._align, self._disp_value)

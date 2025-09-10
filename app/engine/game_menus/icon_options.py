@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-from enum import Enum
-from typing import Callable, Optional, Tuple, TypeAlias
-from dataclasses import dataclass
+from typing import Optional, Tuple
 
 from app.data.database.database import DB
 from app.engine import help_menu, icons, item_funcs, item_system, text_funcs
+from app.engine.game_menus.uses_display_config import UsesDisplayConfig, ItemOptionModes
 from app.engine.game_menus.string_options import BaseOption
 from app.engine.game_state import game
 from app.engine.graphics.text.text_renderer import (anchor_align, render_text,
                                                     text_width)
 
-from app.engine.objects.unit import UnitObject
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
 from app.utilities.enums import HAlignment
@@ -141,66 +139,26 @@ class ItemOptionUtils():
                     [color], blit_loc, align)
 
         # Set Current Uses
-        uses_string_a = custom_uses.get_uses()
-        uses_string_b = custom_uses.get_max()
-        uses_string_a_loc_x = 25 if uses_string_b is not None else 5
+        curr_uses_string = custom_uses.get_uses()
+        max_uses_string = custom_uses.get_max()
+        curr_uses_string_loc_x = 25 if curr_uses_string is not None else 5
 
         # Check Custom Color
-        if custom_uses.get_color() is not None:
-            uses_color = custom_uses.get_color()
+        uses_color = custom_uses.get_color() or uses_color
 
         # Set String A
-        uses_string_a_loc = anchor_align(
-            x, width, HAlignment.RIGHT, (0, uses_string_a_loc_x)), y
-        render_text(surf, [uses_font], [uses_string_a], [
-                    uses_color], uses_string_a_loc, HAlignment.RIGHT)
+        curr_uses_string_loc = anchor_align(
+            x, width, HAlignment.RIGHT, (0, curr_uses_string_loc_x)), y
+        render_text(surf, [uses_font], [curr_uses_string], [
+                    uses_color], curr_uses_string_loc, HAlignment.RIGHT)
 
         # Set String B if Not None
-        if uses_string_b is not None:
-            uses_string_b_loc = anchor_align(x, width, HAlignment.RIGHT, (0, 0)), y
+        if max_uses_string is not None:
+            max_uses_string_loc = anchor_align(x, width, HAlignment.RIGHT, (0, 0)), y
             slash_loc = anchor_align(x, width, HAlignment.RIGHT, (0, 16)), y
             render_text(surf, [uses_font], [custom_uses.delim], [], slash_loc, HAlignment.RIGHT)
-            render_text(surf, [uses_font], [uses_string_b], [
-                        uses_color], uses_string_b_loc, HAlignment.RIGHT)
-
-
-class ItemOptionModes(Enum):
-    NO_USES = 0
-    USES = 1
-    FULL_USES = 2
-    FULL_USES_AND_REPAIR = 3
-    VALUE = 4
-    STOCK_AND_VALUE = 5
-
-@dataclass
-class UsesDisplayConfig:
-    get_curr_uses: Callable[[ItemObject, UnitObject], str]
-    delim: str
-    get_max_uses: Callable[[ItemObject, UnitObject], str]
-    get_uses_color: Callable[[ItemObject, UnitObject], str]
-
-    unit: Optional[UnitObject]
-    item: Optional[ItemObject]
-
-    def get_uses(self) -> str:
-        return str(self.get_curr_uses(self.unit, self.item))
-
-    def get_max(self) -> str:
-        return str(self.get_max_uses(self.unit, self.item))
-
-    def get_color(self) -> str:
-        return self.get_uses_color(self.unit, self.item)
-
-    @staticmethod
-    def from_item(item: ItemObject) -> UsesDisplayConfig:
-        if not item:
-            return None
-
-        owner = game.get_unit(item.owner_nid)
-        if not owner:
-            return None
-
-        return item_system.item_uses_display(owner, item)
+            render_text(surf, [uses_font], [curr_uses_string], [
+                        uses_color], max_uses_string_loc, HAlignment.RIGHT)
 
 
 class BasicItemOption(BaseOption[Optional[ItemObject]]):
@@ -217,6 +175,8 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
         self._mode = mode
 
         self._custom_uses = UsesDisplayConfig.from_item(self._value)
+        if self._custom_uses:
+            self._mode = ItemOptionModes.CUSTOM
 
     @classmethod
     def from_nid(cls, idx, item_nid: NID, display_value: str | None = None, width: int = 0,
@@ -296,7 +256,7 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
         if not self._value:
             blit_loc = anchor_align(x, self.width(), self._align, (5, 5)), y
             render_text(surf, [self._font], [self._disp_value], [main_color], blit_loc, self._align)
-        elif self._custom_uses is not None:
+        elif self._mode == ItemOptionModes.CUSTOM:
             ItemOptionUtils.draw_with_custom_uses(surf, x, y, self._value, self._custom_uses, self._font,
                                            main_color, uses_color, self.width(), self._align, self._disp_value)
         elif self._mode == ItemOptionModes.NO_USES:

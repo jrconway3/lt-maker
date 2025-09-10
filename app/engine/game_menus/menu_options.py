@@ -339,10 +339,10 @@ class ItemOption(BasicOption):
         # Draw Uses String
         uses_string = '--'
         custom_uses = UsesDisplayConfig.from_item(self.item)
-        if custom_uses is not None and custom_uses.uses is not None:
-            uses_string = str(custom_uses.uses)
-            if custom_uses.color is not None:
-                uses_color = custom_uses.color
+        if custom_uses is not None and custom_uses.get_uses() is not None:
+            uses_string = custom_uses.get_uses()
+            if custom_uses.get_color() is not None:
+                uses_color = custom_uses.get_color()
         if uses_string == '--':
             if self.item.uses:
                 uses_string = str(self.item.data['uses'])
@@ -398,12 +398,14 @@ class FullItemOption(ItemOption):
         uses_string_b = '--'
         uses_delimiter = "/"
         custom_uses = UsesDisplayConfig.from_item(self.item)
-        if custom_uses is not None and custom_uses.uses is not None:
-            uses_string = str(custom_uses.uses)
-            if custom_uses.color is not None:
-                uses_color = custom_uses.color
+        if custom_uses is not None and custom_uses.get_uses() is not None:
+            uses_string_a = custom_uses.get_uses()
+            if custom_uses.get_max() is not None:
+                uses_string_b = custom_uses.get_max()
+            if custom_uses.get_color() is not None:
+                uses_color = custom_uses.get_color()
             uses_delimiter = custom_uses.delim
-        if uses_string == '--':
+        if uses_string_a == '--':
             if self.item.data.get('uses') is not None:
                 uses_string_a = str(self.item.data['uses'])
                 uses_string_b = str(self.item.data['starting_uses'])
@@ -446,10 +448,10 @@ class ValueItemOption(ItemOption):
 
         uses_string = '--'
         custom_uses = UsesDisplayConfig.from_item(self.item)
-        if custom_uses is not None and custom_uses.uses is not None:
-            uses_string = str(custom_uses.uses)
-            if custom_uses.color is not None:
-                uses_color = custom_uses.color
+        if custom_uses is not None and custom_uses.get_uses() is not None:
+            uses_string = str(custom_uses.get_uses())
+            if custom_uses.get_color() is not None:
+                uses_color = custom_uses.get_color()
         if uses_string == '--':
             if self.item.data.get('uses') is not None:
                 uses_string = str(self.item.data['uses'])

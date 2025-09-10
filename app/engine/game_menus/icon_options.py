@@ -141,12 +141,13 @@ class ItemOptionUtils():
                     [color], blit_loc, align)
 
         # Set Current Uses
-        uses_string_a = str(custom_uses.uses)
-        uses_string_a_loc_x = 25 if custom_uses.max is not None else 5
+        uses_string_a = custom_uses.get_uses()
+        uses_string_b = custom_uses.get_max()
+        uses_string_a_loc_x = 25 if uses_string_b is not None else 5
 
         # Check Custom Color
-        if custom_uses.color is not None:
-            uses_color = custom_uses.color
+        if custom_uses.get_color() is not None:
+            uses_color = custom_uses.get_color()
 
         # Set String A
         uses_string_a_loc = anchor_align(
@@ -155,8 +156,7 @@ class ItemOptionUtils():
                     uses_color], uses_string_a_loc, HAlignment.RIGHT)
 
         # Set String B if Not None
-        if custom_uses.max is not None:
-            uses_string_b = str(custom_uses.max)
+        if uses_string_b is not None:
             uses_string_b_loc = anchor_align(x, width, HAlignment.RIGHT, (0, 0)), y
             slash_loc = anchor_align(x, width, HAlignment.RIGHT, (0, 16)), y
             render_text(surf, [uses_font], [custom_uses.delim], [], slash_loc, HAlignment.RIGHT)
@@ -179,15 +179,17 @@ class UsesDisplayConfig:
     get_max_uses: Callable[[ItemObject, UnitObject], str]
     get_uses_color: Callable[[ItemObject, UnitObject], str]
 
-    uses: str = None
-    max: str = None
-    color: str = None
+    unit: Optional[UnitObject]
+    item: Optional[ItemObject]
 
-    def load(self, item: ItemObject, unit: UnitObject) -> UsesDisplayConfig:
-        self.uses = self.get_curr_uses(item, unit)
-        self.max = self.get_max_uses(item, unit)
-        self.color = self.get_uses_color(item, unit)
-        return self
+    def get_uses(self) -> str:
+        return str(self.get_curr_uses(self.unit, self.item))
+
+    def get_max(self) -> str:
+        return str(self.get_max_uses(self.unit, self.item))
+
+    def get_color(self) -> str:
+        return self.get_uses_color(self.unit, self.item)
 
     @staticmethod
     def from_item(item: ItemObject) -> UsesDisplayConfig:

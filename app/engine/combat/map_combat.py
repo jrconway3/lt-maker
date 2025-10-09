@@ -308,7 +308,7 @@ class MapCombat(SimpleCombat):
                         'p1', self.attacker, self.main_item, self.defender, (hit, mt, crt, grd), bars)
                     self.health_bars[self.attacker] = attacker_health
                 else:
-                    self.health_bars[self.attacker].update_stats((hit, mt, crt, grd), bars)
+                    self.health_bars[self.attacker].update_stats((hit, mt, crt, grd))
 
                 # Defender
                 if combat_calcs.can_counterattack(self.attacker, self.main_item, self.defender, self.def_item):
@@ -323,7 +323,7 @@ class MapCombat(SimpleCombat):
                 grd = self.defender.get_guard_gauge() if self._show_guard_gauge() else None
                 if self.defender not in self.health_bars:
                     defender_health = MapCombatInfo(
-                        'p2', self.defender, self.def_item, self.attacker, (hit, mt, crt, grd))
+                        'p2', self.defender, self.def_item, self.attacker, (hit, mt, crt, grd), bars)
                     self.health_bars[self.defender] = defender_health
                 else:
                     self.health_bars[self.defender].update_stats((hit, mt, crt, grd))

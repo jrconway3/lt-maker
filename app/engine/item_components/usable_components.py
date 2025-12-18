@@ -73,8 +73,8 @@ class Uses(ItemComponent):
     def special_sort(self, unit, item):
         return item.data['uses']
 
-class UsesUnbreakable(ItemComponent):
-    nid = 'uses'
+class UsesNoBreak(ItemComponent):
+    nid = 'uses_no_break'
     desc = "Number of uses of item (does not break upon durability reduced to 0)"
     paired_with = ('uses_options',)
     tag = ItemTags.USES

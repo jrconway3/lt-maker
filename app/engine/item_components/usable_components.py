@@ -46,6 +46,8 @@ class Uses(ItemComponent):
 
     def on_broken(self, unit, item):
         from app.engine.game_state import game
+        if item.no_break_out_of_uses:
+            return
         if item in unit.items:
             action.do(action.RemoveItem(unit, item))
         elif item in game.party.convoy:
@@ -54,66 +56,6 @@ class Uses(ItemComponent):
             for other_unit in game.get_units_in_party():
                 if item in other_unit.items:
                     action.do(action.RemoveItem(other_unit, item))
-
-    def end_combat(self, playback, unit, item, target, item2, mode):
-        if self._did_something and 'uses' in item.data:
-            action.do(action.SetObjData(item, 'uses', item.data['uses'] - 1))
-            action.do(action.UpdateRecords('item_use', (unit.nid, item.nid)))
-        self._did_something = False
-
-    def reverse_use(self, unit, item):
-        if self.is_broken(unit, item):
-            if item_funcs.inventory_full(unit, item):
-                action.do(action.PutItemInConvoy(item))
-            else:
-                action.do(action.GiveItem(unit, item))
-        action.do(action.SetObjData(item, 'uses', item.data['uses'] + 1))
-        action.do(action.ReverseRecords('item_use', (unit.nid, item.nid)))
-
-    def special_sort(self, unit, item):
-        return item.data['uses']
-
-class UsesNoBreak(ItemComponent):
-    nid = 'uses_no_break'
-    desc = "Number of uses of item (does not break upon durability reduced to 0)"
-    paired_with = ('uses_options',)
-    tag = ItemTags.USES
-
-    expose = ComponentType.Int
-    value = 1
-
-    _did_something = False
-
-    def init(self, item):
-        item.data['uses'] = self.value
-        item.data['starting_uses'] = self.value
-
-    def available(self, unit, item) -> bool:
-        return item.data['uses'] > 0
-
-    def is_unusable(self, unit, item) -> bool:
-        return item.data['uses'] <= 0
-
-    def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        if item.uses_options.one_loss_per_combat():
-            self._did_something = True
-        else:
-            actions.append(action.SetObjData(item, 'uses', item.data['uses'] - 1))
-            actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
-
-    def on_miss(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        if item.uses_options.lose_uses_on_miss():
-            if item.uses_options.one_loss_per_combat():
-                self._did_something = True
-            else:
-                actions.append(action.SetObjData(item, 'uses', item.data['uses'] - 1))
-                actions.append(action.UpdateRecords('item_use', (unit.nid, item.nid)))
-
-    def on_unusable(self, unit, item):
-        if unit.equipped_weapon is item:
-            action.do(action.UnequipItem(unit, item))
-        elif unit.equipped_accessory is item:
-            action.do(action.UnequipItem(unit, item))
 
     def end_combat(self, playback, unit, item, target, item2, mode):
         if self._did_something and 'uses' in item.data:
@@ -233,6 +175,23 @@ class NoAlertOnBreak(ItemComponent):
 
     def alerts_when_broken(self, unit, item):
         return False
+
+class NoBreakOutOfUses(ItemComponent):
+    nid = 'no_break_out_of_uses'
+    desc = "Item will not be removed from inventory when it runs out of uses."
+
+    tag = ItemTags.USES
+
+    expose = ComponentType.Bool
+
+    def is_unusable(self, unit, item) -> bool:
+        return item.data['uses'] <= 0
+
+    def on_unusable(self, unit, item):
+        if unit.equipped_weapon is item:
+            action.do(action.UnequipItem(unit, item))
+        elif unit.equipped_accessory is item:
+            action.do(action.UnequipItem(unit, item))
 
 class HPCost(ItemComponent):
     nid = 'hp_cost'

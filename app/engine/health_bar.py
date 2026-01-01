@@ -259,7 +259,7 @@ class CombatBar(HealthBar):
             double_bars = self._create_double_bar_surf(max, curr, overflow_level)
             surf.blit(double_bars, (left + 5, top - 4))
 
-class MapBar(HealthBar):
+class MapHealthBar(HealthBar):
     health_outline = SPRITES.get('map_health_outline')
     health_bar = SPRITES.get('map_health_bar')
 
@@ -272,6 +272,22 @@ class MapBar(HealthBar):
         if fraction > 0:
             bar = engine.subsurface(self.health_bar, (0, 0, index_pixel, 1))
             surf.blit(bar, (left + 1, top + 14))
+
+        return surf
+
+class MapManaBar(ManaBar):
+    mana_outline = SPRITES.get('map_mana_outline')
+    mana_bar = SPRITES.get('map_mana_bar')
+
+    def draw(self, surf, left, top):
+        total = max(1, self.get_max())
+        fraction = utils.clamp(self.displayed / total, 0, 1)
+        index_pixel = int(12 * fraction) + 1
+
+        surf.blit(self.mana_outline, (left, top + 13))
+        if fraction > 0:
+            bar = engine.subsurface(self.mana_bar, (0, 0, index_pixel, 1))
+            surf.blit(bar, (left + 1, top + 17))
 
         return surf
 

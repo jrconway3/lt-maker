@@ -171,5 +171,8 @@
     "Summon_Soldier",
     "Sear",
     "Luna_Proc",
-    "Skill_Activate"
+    "LightOverride",
+    "AnimaOverride",
+    "DarkOverride",
+    "Shove"
 ]

@@ -1,8 +1,10 @@
-from typing import Dict
+from app.data.database.database import DB
 from app.data.database.item_components import ItemComponent, ItemTags
 from app.data.database.components import ComponentType
 
 from app.engine import action, item_funcs
+from app.engine.fonts import FONT
+from app.engine.game_menus.icon_options import UsesDisplayConfig
 
 import logging
 
@@ -44,6 +46,8 @@ class Uses(ItemComponent):
 
     def on_broken(self, unit, item):
         from app.engine.game_state import game
+        if item.no_break_out_of_uses:
+            return
         if item in unit.items:
             action.do(action.RemoveItem(unit, item))
         elif item in game.party.convoy:
@@ -172,6 +176,23 @@ class NoAlertOnBreak(ItemComponent):
     def alerts_when_broken(self, unit, item):
         return False
 
+class NoBreakOutOfUses(ItemComponent):
+    nid = 'no_break_out_of_uses'
+    desc = "Item will not be removed from inventory when it runs out of uses."
+
+    tag = ItemTags.USES
+
+    expose = ComponentType.Bool
+
+    def is_unusable(self, unit, item) -> bool:
+        return item.data['uses'] <= 0
+
+    def on_unusable(self, unit, item):
+        if unit.equipped_weapon is item:
+            action.do(action.UnequipItem(unit, item))
+        elif unit.equipped_accessory is item:
+            action.do(action.UnequipItem(unit, item))
+
 class HPCost(ItemComponent):
     nid = 'hp_cost'
     desc = "Item subtracts the specified amount of HP upon use. If the subtraction would kill the unit the item becomes unusable."
@@ -257,6 +278,42 @@ class EvalManaCost(ItemComponent):
     def reverse_use(self, unit, item):
         value = self._check_value(unit, item)
         action.do(action.ChangeMana(unit, value))
+
+
+class ManaCostAsUses(ItemComponent):
+    nid = 'mana_cost_as_uses'
+    desc = "Display the Mana Cost in place of Uses on the item. Do not combine with other uses components."
+    requires = ['mana_cost', 'eval_mana_cost']
+    tag = ItemTags.USES
+    delim = None
+
+    def _calc_uses(self, unit, item):
+        return item.mana_cost.value
+
+    def _calc_max_uses(self, unit, item):
+        return None
+
+    def _font_color(self, unit, item):
+        color = 'navy'
+        if not item_funcs.available(unit, item):
+            color = 'grey'
+        if 'text-' + color in FONT:
+            return color
+        return None
+
+    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
+        return UsesDisplayConfig(self._calc_uses, self.delim, self._calc_max_uses, self._font_color, unit, item)
+
+class RemainingManaUses(ManaCostAsUses):
+    nid = 'remaining_mana_uses'
+    desc = "Display the remaining uses calculated from mana cost and unit's current/max mana. Do not combine with other uses components."
+    delim = "/"
+
+    def _calc_uses(self, unit, item):
+        return unit.get_mana() // item.mana_cost.value
+
+    def _calc_max_uses(self, unit, item):
+        return str(unit.get_max_mana() // item.mana_cost.value)
 
 class Cooldown(ItemComponent):
     nid = 'cooldown'

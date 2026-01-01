@@ -64,7 +64,7 @@
         "components": [
             [
                 "regeneration",
-                0.10000000000000002
+                0.1
             ],
             [
                 "avoid",
@@ -485,7 +485,7 @@
     {
         "nid": "Stoneskin",
         "name": "Stoneskin",
-        "desc": "Take half damage but inflicts -2 SPD.",
+        "desc": "Take half damage but inflicts -4 SPD.",
         "icon_nid": "Skills",
         "icon_index": [
             9,
@@ -1140,7 +1140,8 @@
                     "lost_on_self": true,
                     "lost_on_ally": true,
                     "lost_on_enemy": true,
-                    "lost_on_splash": true
+                    "lost_on_splash": true,
+                    "only_if_initiated": false
                 }
             ]
         ]
@@ -1484,6 +1485,102 @@
             [
                 "avoid",
                 10
+            ]
+        ]
+    },
+    {
+        "nid": "LightOverride",
+        "name": "LightOverride",
+        "desc": "(Allows Light Brand to count as Light magic at range.)",
+        "icon_nid": "wexp_icons",
+        "icon_index": [
+            0,
+            5
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ],
+            [
+                "combat_condition",
+                "unit.position and (utils.calculate_distance(unit.position, unit2.position) > 1)"
+            ],
+            [
+                "item_override",
+                "LightOverride"
+            ]
+        ]
+    },
+    {
+        "nid": "AnimaOverride",
+        "name": "AnimaOverride",
+        "desc": "(Allows Wind Sword to count as Anima magic at range.)",
+        "icon_nid": "wexp_icons",
+        "icon_index": [
+            0,
+            6
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ],
+            [
+                "combat_condition",
+                "unit.position and (utils.calculate_distance(unit.position, unit2.position) > 1)"
+            ],
+            [
+                "item_override",
+                "AnimaOverride"
+            ]
+        ]
+    },
+    {
+        "nid": "DarkOverride",
+        "name": "DarkOverride",
+        "desc": "(Allows Runesword to count as Dark magic at range.)",
+        "icon_nid": "wexp_icons",
+        "icon_index": [
+            0,
+            7
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ],
+            [
+                "combat_condition",
+                "unit.position and (utils.calculate_distance(unit.position, unit2.position) > 1)"
+            ],
+            [
+                "item_override",
+                "DarkOverride"
+            ]
+        ]
+    },
+    {
+        "nid": "Distance_Debuff",
+        "name": "Distance Debuff",
+        "desc": "Decreases accuracy of status staves based on distance between unit and target.",
+        "icon_nid": "Skills",
+        "icon_index": [
+            0,
+            0
+        ],
+        "components": [
+            [
+                "hidden",
+                null
+            ],
+            [
+                "dynamic_accuracy",
+                "-2 * utils.calculate_distance(unit.position, unit2.position)if unit.position and (utils.calculate_distance(unit.position, unit2.position) > 1) else 0"
+            ],
+            [
+                "combat_condition",
+                "item_system.weapon_type(unit, item) == 'Staff'"
             ]
         ]
     }

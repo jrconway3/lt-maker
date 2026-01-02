@@ -19,7 +19,7 @@ from app.utilities import utils
 
 from app.engine.sprites import SPRITES
 from app.engine.sound import get_sound_thread
-from app.engine import engine, image_mods, gui, health_bar, equations
+from app.engine import engine, image_mods, gui, equations
 from app.engine import item_funcs, item_system, skill_system, particles
 import app.engine.config as cf
 from app.engine.animations import Animation

@@ -204,8 +204,6 @@ class UnitSprite():
         self.map_sprite = load_map_sprite(self.unit, self.unit.team)
 
         self.stat_bars = item_funcs.get_map_bars(self.unit, self.unit.get_weapon())
-        #self.health_bar = health_bar.MapHealthBar(self.unit)
-        #self.mana_bar = health_bar.MapManaBar(self.unit)
 
     def set_image_state(self, new_state: str):
         self.image_state = new_state
@@ -442,8 +440,6 @@ class UnitSprite():
         self.update_state()
         self.update_transition()
         self.stat_bars.update()
-        #self.health_bar.update()
-        #self.mana_bar.update()
 
         # update animations
         self.animations = {k: v for (k, v) in self.animations.items() if not v.update()}
@@ -725,8 +721,6 @@ class UnitSprite():
 
         if not event and self.check_draw_hp():
             self.stat_bars.draw(surf, left, top)
-            #self.health_bar.draw(surf, left, top)
-            #self.mana_bar.draw(surf, left, top)
 
         if self.transition_state == 'normal' and not self.unit.is_dying and \
                 self.image_state in ('gray', 'passive') and int((current_time%450) // 150) in (1, 2):

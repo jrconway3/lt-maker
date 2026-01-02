@@ -7,7 +7,7 @@ from app.data.database.database import DB
 from app.engine import item_system, skill_system, text_funcs
 from app.engine.objects.item import ItemObject
 from app.engine.objects.skill import SkillObject
-from app.engine.health_bar import BarType
+from app.engine.health_bar import BarType, MapBarType, MapBars
 from app.utilities import utils
 
 from app.engine.game_state import game
@@ -79,13 +79,13 @@ def is_mana_restore(unit: UnitObject, item: ItemObject) -> bool:
         return True
     return False
 
-def get_stat_bars(unit: UnitObject, item: ItemObject) -> List[BarType]:
+def get_stat_bars(unit: UnitObject, item: ItemObject = None) -> List[BarType]:
     """
     Returns the bar types based on provided items. (Determines stat bars that will display.)
 
     Args:
         unit (UnitObject): The unit attempting to use the item.
-        item (ItemObject): The item to check.
+        item (ItemObject): The item to check, ignored if not provided.
 
     Returns:
         List: List of bars to use. If both heal and mana restore exists, or if add mana bar is enabled, hp and mp will both be included.
@@ -97,12 +97,32 @@ def get_stat_bars(unit: UnitObject, item: ItemObject) -> List[BarType]:
     if DB.constants.value('add_mana_bar'):
         types.append(BarType.MANA)
     # If Mana Restore Enabled, Use MP
-    elif is_mana_restore(unit, item):
+    elif item is not None and is_mana_restore(unit, item):
         # If ONLY Mana, Remove HP
         if not is_heal(unit, item):
             types = []
         types.append(BarType.MANA)
     return types
+
+def get_map_bars(unit: UnitObject, item: ItemObject = None) -> MapBars:
+    """
+    Returns the map bar types based on provided items. (Determines stat bars that will display.)
+
+    Args:
+        unit (UnitObject): The unit attempting to use the item.
+        item (ItemObject): The item to check, ignored if not provided.
+
+    Returns:
+        List: List of bars to use. If both heal and mana restore exists, or if add mana bar is enabled, hp and mp will both be included.
+    """
+    # Initialize Types
+    types = [MapBarType.HP]
+
+    # If Add Mana Bar, Use both
+    if DB.constants.value('add_mana_bar') or (item is not None and is_mana_restore(unit, item)):
+        # If ONLY Mana, Remove HP
+        types.append(MapBarType.MANA)
+    return MapBars(unit, types)
 
 def can_heal_target(unit: UnitObject, item: ItemObject) -> bool:
     """

@@ -284,12 +284,24 @@ class MapManaBar(ManaBar):
         fraction = utils.clamp(self.displayed / total, 0, 1)
         index_pixel = int(12 * fraction) + 1
 
-        surf.blit(self.mana_outline, (left, top + 13))
+        surf.blit(self.mana_outline, (left, top + 16))
         if fraction > 0:
             bar = engine.subsurface(self.mana_bar, (0, 0, index_pixel, 1))
             surf.blit(bar, (left + 1, top + 17))
 
         return surf
+
+class MapBarType(Enum):
+    HP = MapHealthBar
+    MANA = MapManaBar
+
+    def __call__(self, *args, **kwargs):
+        return self.value(*args, **kwargs)
+
+class MapBars(MultiGenericBar):
+    def draw(self, surf, top, left):
+        for stat in self.stats:
+            stat.draw(surf, top, left)
 
 class MapCombatBar(MultiGenericBar):
     display_numbers = True

@@ -215,6 +215,43 @@ class HPCost(ItemComponent):
     def reverse_use(self, unit, item):
         action.do(action.ChangeHP(unit, self.value))
 
+class EvalHPCost(ItemComponent):
+    nid = 'eval_hp_cost'
+    desc = "Item subtracts the specified amount of HP upon use. If the subtraction would kill the unit the item becomes unusable."
+    tag = ItemTags.CUSTOM
+
+    expose = ComponentType.String
+    value = ""
+
+    _did_something = False
+
+    def _check_value(self, unit, item) -> int:
+        from app.engine import evaluate
+        try:
+            return int(evaluate.evaluate(self.value, unit, local_args={'item': item}))
+        except:
+            print("Couldn't evaluate %s conditional" % self.value)
+        return 0
+    
+    def available(self, unit, item) -> bool:
+        return unit.get_hp() > self._check_value(unit, item)
+
+    def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
+        self._did_something = True
+
+    def on_miss(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
+        self._did_something = True
+
+    def end_combat(self, playback, unit, item, target, item2, mode):
+        value = self._check_value(unit, item)
+        if self._did_something:
+            action.do(action.ChangeHP(unit, -value))
+        self._did_something = False
+
+    def reverse_use(self, unit, item):
+        value = self._check_value(unit, item)
+        action.do(action.ChangeHP(unit, value))
+
 class ManaCost(ItemComponent):
     nid = 'mana_cost'
     desc = "Item subtracts the specified amount of Mana upon use. MANA must be defined in the equations editor. If unit does not have enough mana the item will not be usable."
@@ -279,15 +316,49 @@ class EvalManaCost(ItemComponent):
         value = self._check_value(unit, item)
         action.do(action.ChangeMana(unit, value))
 
+class CustomUses(ItemComponent):
+    nid = 'custom_uses'
+    desc = "Display a custom value in place of Uses on the item. Do not combine with other uses components."
+    tag = ItemTags.USES
+    delim = None
+    expose = ComponentType.NewMultipleOptions
+    options = {
+        'text': ComponentType.String,
+        'color': ComponentType.FontColor
+    }
+    value = ''
 
-class ManaCostAsUses(ItemComponent):
+    def __init__(self, value=None):
+        self.value = {
+            'text': '',
+            'color': 'blue'
+        }
+        if value:
+            self.value.update(value)
+
+    def _calc_uses(self, unit, item):
+        return self.value['text'] or ''
+
+    def _calc_max_uses(self, unit, item):
+        return None
+
+    def _font_color(self, unit, item):
+        return self.value['color'] or None
+
+    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
+        return UsesDisplayConfig(self._calc_uses, self.delim, self._calc_max_uses, self._font_color, unit, item)
+
+class ManaCostAsUses(CustomUses):
     nid = 'mana_cost_as_uses'
     desc = "Display the Mana Cost in place of Uses on the item. Do not combine with other uses components."
     requires = ['mana_cost', 'eval_mana_cost']
     tag = ItemTags.USES
     delim = None
+    expose = None
 
     def _calc_uses(self, unit, item):
+        if (item.eval_mana_cost):
+            return item.eval_mana_cost._check_value(unit, item)
         return item.mana_cost.value
 
     def _calc_max_uses(self, unit, item):
@@ -301,19 +372,61 @@ class ManaCostAsUses(ItemComponent):
             return color
         return None
 
-    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
-        return UsesDisplayConfig(self._calc_uses, self.delim, self._calc_max_uses, self._font_color, unit, item)
-
 class RemainingManaUses(ManaCostAsUses):
     nid = 'remaining_mana_uses'
     desc = "Display the remaining uses calculated from mana cost and unit's current/max mana. Do not combine with other uses components."
     delim = "/"
 
     def _calc_uses(self, unit, item):
+        if (item.eval_mana_cost):
+            if (item.eval_mana_cost._check_value(unit, item) == 0):
+                return 0
+            return unit.get_mana() // item.eval_mana_cost._check_value(unit, item)
         return unit.get_mana() // item.mana_cost.value
 
     def _calc_max_uses(self, unit, item):
+        if (item.eval_mana_cost):
+            if (item.eval_mana_cost._check_value(unit, item) == 0):
+                return 0
+            return str(unit.get_max_mana() // item.eval_mana_cost._check_value(unit, item))
         return str(unit.get_max_mana() // item.mana_cost.value)
+
+class HPCostAsUses(ManaCostAsUses):
+    nid = 'hp_cost_as_uses'
+    desc = "Display the HP Cost in place of Uses on the item. Do not combine with other uses components."
+    requires = ['hp_cost', 'eval_hp_cost']
+
+    def _calc_uses(self, unit, item):
+        if (item.eval_hp_cost):
+            return item.eval_hp_cost._check_value(unit, item)
+        return item.hp_cost.value
+
+    def _font_color(self, unit, item):
+        color = 'red'
+        if not item_funcs.available(unit, item):
+            color = 'grey'
+        if 'text-' + color in FONT:
+            return color
+        return None
+
+class RemainingHPUses(HPCostAsUses):
+    nid = 'remaining_hp_uses'
+    desc = "Display the remaining uses calculated from HP cost and unit's current/max HP. Do not combine with other uses components."
+    delim = "/"
+
+    def _calc_uses(self, unit, item):
+        if (item.eval_hp_cost):
+            if (item.eval_hp_cost._check_value(unit, item) == 0):
+                return 0
+            return unit.get_hp() // item.eval_hp_cost._check_value(unit, item)
+        return unit.get_hp() // item.hp_cost.value
+
+    def _calc_max_uses(self, unit, item):
+        if (item.eval_hp_cost):
+            if (item.eval_hp_cost._check_value(unit, item) == 0):
+                return 0
+            return str(unit.get_max_hp() // item.eval_hp_cost._check_value(unit, item))
+        return str(unit.get_max_hp() // item.hp_cost.value)
 
 class Cooldown(ItemComponent):
     nid = 'cooldown'

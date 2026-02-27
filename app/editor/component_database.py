@@ -46,6 +46,13 @@ from app.editor.settings import MainSettingsController
 from app.editor.event_editor.py_syntax import PythonHighlighter
 from app.utilities.typing import NID
 
+
+def get_font_color_options() -> list[str]:
+    text_font = RESOURCES.fonts.get('text')
+    if not text_font or not text_font.palettes:
+        return ['white']
+    return list(text_font.palettes.keys())
+
 class ComponentList(WidgetList):
     def __init__(self, parent):
         super().__init__(parent)
@@ -233,6 +240,11 @@ class DropDownItemComponent(BoolItemComponent):
 
     def on_value_changed(self, val):
         self._data.value = self.options[val]
+
+
+class FontColorItemComponent(DropDownItemComponent):
+    def __init__(self, data, parent):
+        super().__init__(data, parent, get_font_color_options())
 
 
 class DeprecatedOptionsItemComponent(BoolItemComponent):
@@ -697,6 +709,8 @@ def get_display_widget(component, parent):
         c = FloatItemComponent(component, parent)
     elif component.expose == ComponentType.String:
         c = StringItemComponent(component, parent)
+    elif component.expose == ComponentType.FontColor:
+        c = FontColorItemComponent(component, parent)
     elif component.expose == ComponentType.WeaponType:
         c = WeaponTypeItemComponent(component, parent)
     elif component.expose == ComponentType.WeaponRank:

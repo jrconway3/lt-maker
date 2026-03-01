@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 
 from app.data.database.database import DB
 from app.engine import help_menu, icons, item_funcs, item_system, text_funcs
-from app.engine.game_menus.uses_display_config import UsesDisplayConfig, ItemOptionModes
+from app.engine.game_menus.uses_display_config import UsesColorConfig, UsesDisplayConfig, ItemOptionModes
 from app.engine.game_menus.string_options import BaseOption
 from app.engine.game_state import game
 from app.engine.graphics.text.text_renderer import (anchor_align, render_text,
@@ -149,8 +149,7 @@ class ItemOptionUtils():
         # Set String A
         curr_uses_string_loc = anchor_align(
             x, width, HAlignment.RIGHT, (0, curr_uses_string_loc_x)), y
-        render_text(surf, [uses_font], [curr_uses_string], [
-                    uses_color], curr_uses_string_loc, HAlignment.RIGHT)
+        render_text(surf, [uses_font], [curr_uses_string], [uses_color], curr_uses_string_loc, HAlignment.RIGHT)
 
         # Set String B if Not None
         if max_uses_string is not None:
@@ -222,7 +221,8 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
             return 'grey', 'grey'
         owner = game.get_unit(self._value.owner_nid)
         main_color = 'grey'
-        uses_color = 'grey'
+        custom_color = UsesColorConfig.from_item(self._value)
+        uses_color = custom_color.get_color() if custom_color else 'grey'
         if self.get_ignore():
             pass
         elif self._color:
@@ -230,13 +230,14 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
             if owner and not item_funcs.available(owner, self._value):
                 pass
             else:
-                uses_color = 'blue'
+                uses_color = custom_color.get_color() if custom_color else 'blue'
         elif self._value.droppable:
             main_color = 'green'
-            uses_color = 'green'
+            if not custom_color or not custom_color.override_droppable:
+                uses_color = 'green'
         elif not owner or item_funcs.available(owner, self._value):
             main_color = 'white'
-            uses_color = 'blue'
+            uses_color = custom_color.get_color() if custom_color else 'blue'
         return main_color, uses_color
 
     def get_help_box(self):

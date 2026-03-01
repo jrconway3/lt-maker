@@ -45,6 +45,7 @@ class ComponentType(Enum):
     MultipleOptions = 104  # Deprecated
     StringDict = 105  # List of Tuples of [Item, str]
     NewMultipleOptions = 106  # item is a dict of string options with types that can be individually configured
+    FontColor = 107  # Stored as a text palette name for the default text font
 
 def convert_type_from_string(tstr: str, ttype: ComponentType):
     if ttype == ComponentType.Int:

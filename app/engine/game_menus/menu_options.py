@@ -9,7 +9,7 @@ from app.engine.game_state import game
 
 from app.engine.graphics.text.text_renderer import render_text, text_width, rendered_text_width
 from app.utilities.enums import HAlignment
-from app.engine.game_menus.icon_options import UsesDisplayConfig
+from app.engine.game_menus.icon_options import UsesDisplayConfig, UsesColorConfig
 
 class EmptyOption():
     def __init__(self, idx):
@@ -297,7 +297,8 @@ class ItemOption(BasicOption):
     def get_color(self):
         owner = game.get_unit(self.item.owner_nid)
         main_color = 'grey'
-        uses_color = 'grey'
+        custom_color = UsesColorConfig.from_item(self.item)
+        uses_color = custom_color.get_color() if custom_color else 'grey'
         if self.ignore:
             pass
         elif self.color:
@@ -305,13 +306,14 @@ class ItemOption(BasicOption):
             if owner and not item_funcs.available(owner, self.item):
                 pass
             else:
-                uses_color = 'blue'
+                uses_color = custom_color.get_color() if custom_color else 'blue'
         elif self.item.droppable:
             main_color = 'green'
-            uses_color = 'green'
+            if not custom_color or not custom_color.override_droppable:
+                uses_color = 'green'
         elif not owner or item_funcs.available(owner, self.item):
             main_color = None
-            uses_color = 'blue'
+            uses_color = custom_color.get_color() if custom_color else 'blue'
         return main_color, uses_color
 
     def get_help_box(self):
@@ -365,15 +367,16 @@ class ConvoyItemOption(ItemOption):
 
     def get_color(self):
         main_color = 'grey'
-        uses_color = 'grey'
+        custom_color = UsesColorConfig.from_item(self.item)
+        uses_color = custom_color.get_color() if custom_color else 'grey'
         if self.ignore:
             pass
         elif self.color:
             main_color = self.color
-            uses_color = 'blue'
+            uses_color = custom_color.get_color() if custom_color else 'blue'
         elif item_funcs.available(self.owner, self.item):
             main_color = None
-            uses_color = 'blue'
+            uses_color = custom_color.get_color() if custom_color else 'blue'
         return main_color, uses_color
 
 class FullItemOption(ItemOption):

@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (QApplication, QDoubleSpinBox, QHBoxLayout,
 from app.data.database.components import ComponentType
 from app.data.database.database import DB
 from app.data.resources.resources import RESOURCES
+from app.engine.fonts import get_font_color_options
 from app.editor.component_editor_delegates import (AffinityDelegate,
                                                    ClassDelegate, ItemDelegate,
                                                    SkillDelegate, StatDelegate,
@@ -20,7 +21,7 @@ from app.editor.component_editor_delegates import (AffinityDelegate,
                                                    UnitDelegate,
                                                    WeaponTypeDelegate,
                                                    LoreDelegate)
-from app.editor.component_subcomponent_editors import get_editor_widget
+from app.editor.component_subcomponent_editors import get_editor_widget, FontColorSubcomponentEditor
 from app.editor.editor_constants import (DROP_DOWN_BUFFER, MAX_DROP_DOWN_WIDTH,
                                          MIN_DROP_DOWN_WIDTH)
 from app.editor.settings.preference_definitions import Preference
@@ -46,12 +47,6 @@ from app.editor.settings import MainSettingsController
 from app.editor.event_editor.py_syntax import PythonHighlighter
 from app.utilities.typing import NID
 
-
-def get_font_color_options() -> list[str]:
-    text_font = RESOURCES.fonts.get('text')
-    if not text_font or not text_font.palettes:
-        return ['white']
-    return list(text_font.palettes.keys())
 
 class ComponentList(WidgetList):
     def __init__(self, parent):

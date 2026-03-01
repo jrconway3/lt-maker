@@ -4,7 +4,7 @@ from app.data.database.components import ComponentType
 
 from app.engine import action, item_funcs
 from app.engine.fonts import FONT
-from app.engine.game_menus.icon_options import UsesDisplayConfig
+from app.engine.game_menus.icon_options import UsesDisplayConfig, UsesColorConfig
 
 import logging
 
@@ -166,6 +166,70 @@ class UsesOptions(ItemComponent):
     def one_loss_per_combat(self) -> bool:
         return self.value.get('one_loss_per_combat', False)
 
+class HpUsesOptions(ItemComponent):
+    nid = 'hp_uses_options'
+    desc = 'Additional options for HP Cost as Uses / Remaining HP Uses'
+    tag = ItemTags.HIDDEN
+    
+    expose = ComponentType.NewMultipleOptions
+
+    options = {
+        'cost_hp_on_miss': ComponentType.Bool,
+        'one_hp_cost_per_combat': ComponentType.Bool
+    }
+
+    def __init__(self, value=None):
+        self.value = {
+            'cost_hp_on_miss': False,
+            'one_hp_cost_per_combat': False
+        }
+        if value and isinstance(value, dict):
+            self.value.update(value)
+        else: # value is a list from the old multiple options
+            try:
+                self.value['cost_hp_on_miss'] = value[0][1] == 'T'
+                self.value['one_hp_cost_per_combat'] = value[1][1] == 'T'
+            except:
+                pass
+
+    def cost_hp_on_miss(self) -> bool:
+        return self.value.get('cost_hp_on_miss', False)
+
+    def one_hp_cost_per_combat(self) -> bool:
+        return self.value.get('one_hp_cost_per_combat', False)
+
+class ManaUsesOptions(ItemComponent):
+    nid = 'mana_uses_options'
+    desc = 'Additional options for Mana Cost as Uses / Remaining Mana Uses'
+    tag = ItemTags.HIDDEN
+    
+    expose = ComponentType.NewMultipleOptions
+
+    options = {
+        'cost_mana_on_miss': ComponentType.Bool,
+        'one_mana_cost_per_combat': ComponentType.Bool
+    }
+
+    def __init__(self, value=None):
+        self.value = {
+            'cost_mana_on_miss': False,
+            'one_mana_cost_per_combat': False
+        }
+        if value and isinstance(value, dict):
+            self.value.update(value)
+        else: # value is a list from the old multiple options
+            try:
+                self.value['cost_mana_on_miss'] = value[0][1] == 'T'
+                self.value['one_mana_cost_per_combat'] = value[1][1] == 'T'
+            except:
+                pass
+
+    def cost_mana_on_miss(self) -> bool:
+        return self.value.get('cost_mana_on_miss', False)
+
+    def one_mana_cost_per_combat(self) -> bool:
+        return self.value.get('one_mana_cost_per_combat', False)
+
 class NoAlertOnBreak(ItemComponent):
     nid = 'no_alert_on_break'
     desc = "Item will not display 'X broke!' when it runs out of uses."
@@ -196,6 +260,7 @@ class NoBreakOutOfUses(ItemComponent):
 class HPCost(ItemComponent):
     nid = 'hp_cost'
     desc = "Item subtracts the specified amount of HP upon use. If the subtraction would kill the unit the item becomes unusable."
+    paired_with = ('hp_uses_options',)
     tag = ItemTags.USES
 
     expose = ComponentType.Int
@@ -207,10 +272,22 @@ class HPCost(ItemComponent):
         return unit.get_hp() > self.value
 
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        action.do(action.ChangeHP(unit, -self.value))
+        if item.hp_uses_options.one_hp_cost_per_combat():
+            self._did_something = True
+        else:
+            action.do(action.ChangeHP(unit, -self.value))
 
     def on_miss(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        action.do(action.ChangeHP(unit, -self.value))
+        if item.hp_uses_options.cost_hp_on_miss():
+            if item.hp_uses_options.one_hp_cost_per_combat():
+                self._did_something = True
+            else:
+                action.do(action.ChangeHP(unit, -self.value))
+
+    def end_combat(self, playback, unit, item, target, item2, mode):
+        if self._did_something:
+            action.do(action.ChangeHP(unit, -self.value))
+        self._did_something = False
 
     def reverse_use(self, unit, item):
         action.do(action.ChangeHP(unit, self.value))
@@ -218,34 +295,39 @@ class HPCost(ItemComponent):
 class EvalHPCost(ItemComponent):
     nid = 'eval_hp_cost'
     desc = "Item subtracts the specified amount of HP upon use. If the subtraction would kill the unit the item becomes unusable."
-    tag = ItemTags.CUSTOM
+    paired_with = ('hp_uses_options',)
+    tag = ItemTags.USES
 
     expose = ComponentType.String
     value = ""
-
-    _did_something = False
 
     def _check_value(self, unit, item) -> int:
         from app.engine import evaluate
         try:
             return int(evaluate.evaluate(self.value, unit, local_args={'item': item}))
         except:
-            print("Couldn't evaluate %s conditional" % self.value)
+            logging.error("Couldn't evaluate %s conditional" % self.value)
         return 0
     
     def available(self, unit, item) -> bool:
         return unit.get_hp() > self._check_value(unit, item)
 
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        self._did_something = True
+        if item.hp_uses_options.one_hp_cost_per_combat():
+            self._did_something = True
+        else:
+            action.do(action.ChangeHP(unit, -self._check_value(unit, item)))
 
     def on_miss(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        self._did_something = True
+        if item.hp_uses_options.cost_hp_on_miss():
+            if item.hp_uses_options.one_hp_cost_per_combat():
+                self._did_something = True
+            else:
+                action.do(action.ChangeHP(unit, -self._check_value(unit, item)))
 
     def end_combat(self, playback, unit, item, target, item2, mode):
-        value = self._check_value(unit, item)
         if self._did_something:
-            action.do(action.ChangeHP(unit, -value))
+            action.do(action.ChangeHP(unit, -self._check_value(unit, item)))
         self._did_something = False
 
     def reverse_use(self, unit, item):
@@ -255,6 +337,7 @@ class EvalHPCost(ItemComponent):
 class ManaCost(ItemComponent):
     nid = 'mana_cost'
     desc = "Item subtracts the specified amount of Mana upon use. MANA must be defined in the equations editor. If unit does not have enough mana the item will not be usable."
+    paired_with = ('mana_uses_options',)
     tag = ItemTags.USES
 
     expose = ComponentType.Int
@@ -275,10 +358,17 @@ class ManaCost(ItemComponent):
             action.do(action.UnequipItem(unit, item))
 
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        self._did_something = True
+        if item.mana_uses_options.one_mana_cost_per_combat():
+            self._did_something = True
+        else:
+            action.do(action.ChangeMana(unit, -self.value))
 
     def on_miss(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        self._did_something = True
+        if item.mana_uses_options.cost_mana_on_miss():
+            if item.mana_uses_options.one_mana_cost_per_combat():
+                self._did_something = True
+            else:
+                action.do(action.ChangeMana(unit, -self.value))
 
     def end_combat(self, playback, unit, item, target, item2, mode):
         if self._did_something:
@@ -291,10 +381,10 @@ class ManaCost(ItemComponent):
 class EvalManaCost(ItemComponent):
     nid = 'eval_mana_cost'
     desc = "Item costs mana to use, the amount is eval'd at runtime"
+    paired_with = ('mana_uses_options',)
     tag = ItemTags.USES
 
     expose = ComponentType.String
-
     value = ""
 
     def _check_value(self, unit, item) -> int:
@@ -308,9 +398,32 @@ class EvalManaCost(ItemComponent):
     def available(self, unit, item) -> bool:
         return unit.get_mana() >= self._check_value(unit, item)
 
-    def start_combat(self, playback, unit, item, target, item2, mode):
-        value = self._check_value(unit, item)
-        action.do(action.ChangeMana(unit, -value))
+    def is_unusable(self, unit, item) -> bool:
+        return unit.get_mana() < self._check_value(unit, item)
+
+    def on_unusable(self, unit, item) -> bool:
+        if unit.equipped_weapon is item:
+            action.do(action.UnequipItem(unit, item))
+        elif unit.equipped_accessory is item:
+            action.do(action.UnequipItem(unit, item))
+
+    def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
+        if item.mana_uses_options.one_mana_cost_per_combat():
+            self._did_something = True
+        else:
+            action.do(action.ChangeMana(unit, -self.value))
+
+    def on_miss(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
+        if item.mana_uses_options.cost_mana_on_miss():
+            if item.mana_uses_options.one_mana_cost_per_combat():
+                self._did_something = True
+            else:
+                action.do(action.ChangeMana(unit, -self.value))
+
+    def end_combat(self, playback, unit, item, target, item2, mode):
+        if self._did_something:
+            action.do(action.ChangeMana(unit, -self.value))
+        self._did_something = False
 
     def reverse_use(self, unit, item):
         value = self._check_value(unit, item)
@@ -319,52 +432,86 @@ class EvalManaCost(ItemComponent):
 class CustomUses(ItemComponent):
     nid = 'custom_uses'
     desc = "Display a custom value in place of Uses on the item. Do not combine with other uses components."
+    paired_with = ('custom_uses_color',)
     tag = ItemTags.USES
-    delim = None
+    expose = ComponentType.String
+
+    def _get_uses(self, unit, item):
+        return self.value or ''
+
+    def _font_color(self, unit, item):
+        return item.custom_uses_color._font_color(unit, item) if item.custom_uses_color else None
+
+    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
+        return UsesDisplayConfig(self._get_uses, None, None, self._font_color, unit, item)
+
+class BlankUses(ItemComponent):
+    nid = 'blank_uses'
+    desc = "Display empty string in place of Uses on the item. Do not combine with other uses components."
+    tag = ItemTags.USES
+
+    def _get_uses(self, unit, item):
+        return ''
+
+    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
+        return UsesDisplayConfig(self._get_uses, None, None, None, unit, item)
+
+class CustomUsesColor(ItemComponent):
+    nid = 'custom_uses_color'
+    desc = "Override the default color of the uses text. CAN combine with other uses components (this will override the defaults on other components)."
+    tag = ItemTags.USES
     expose = ComponentType.NewMultipleOptions
     options = {
-        'text': ComponentType.String,
-        'color': ComponentType.FontColor
+        'color': ComponentType.FontColor,
+        'override_unavailable': ComponentType.Bool,
+        'override_droppable': ComponentType.Bool
     }
-    value = ''
 
     def __init__(self, value=None):
         self.value = {
-            'text': '',
-            'color': 'blue'
+            'color': 'blue',
+            'override_unavailable': False,
+            'override_droppable': False
         }
         if value:
             self.value.update(value)
 
-    def _calc_uses(self, unit, item):
-        return self.value['text'] or ''
+    def _override_unavailable(self):
+        return self.value['override_unavailable']
 
-    def _calc_max_uses(self, unit, item):
-        return None
+    def _override_droppable(self):
+        return self.value['override_droppable']
 
     def _font_color(self, unit, item):
-        return self.value['color'] or None
+        color = self.value['color']
+        if not item_funcs.available(unit, item) and not self._override_unavailable():
+            color = 'grey'
+        if 'text-' + color in FONT:
+            return color
+        return None
 
-    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
-        return UsesDisplayConfig(self._calc_uses, self.delim, self._calc_max_uses, self._font_color, unit, item)
+    def item_uses_color(self, unit, item) -> str|None:
+        return UsesColorConfig(self._font_color, self._override_unavailable(), self._override_droppable(), unit, item)
 
-class ManaCostAsUses(CustomUses):
+class ManaCostAsUses(ItemComponent):
     nid = 'mana_cost_as_uses'
     desc = "Display the Mana Cost in place of Uses on the item. Do not combine with other uses components."
     requires = ['mana_cost', 'eval_mana_cost']
     tag = ItemTags.USES
-    delim = None
-    expose = None
 
     def _calc_uses(self, unit, item):
         if (item.eval_mana_cost):
             return item.eval_mana_cost._check_value(unit, item)
         return item.mana_cost.value
 
-    def _calc_max_uses(self, unit, item):
-        return None
-
     def _font_color(self, unit, item):
+        # Grab Custom Color If It Exists
+        custom_color = item.custom_uses_color._font_color(unit, item) if item.custom_uses_color else None
+        if custom_color:
+            # Don't Need to Check Availability for Custom Color since it should be handled by the Custom Color Component
+            return custom_color
+
+        # Just Use Navy Blue
         color = 'navy'
         if not item_funcs.available(unit, item):
             color = 'grey'
@@ -372,10 +519,15 @@ class ManaCostAsUses(CustomUses):
             return color
         return None
 
-class RemainingManaUses(ManaCostAsUses):
+    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
+        return UsesDisplayConfig(self._calc_uses, None, None, self._font_color, unit, item)
+
+class RemainingManaUses(ItemComponent):
     nid = 'remaining_mana_uses'
     desc = "Display the remaining uses calculated from mana cost and unit's current/max mana. Do not combine with other uses components."
+    requires = ['mana_cost', 'eval_mana_cost']
     delim = "/"
+    tag = ItemTags.USES
 
     def _calc_uses(self, unit, item):
         if (item.eval_mana_cost):
@@ -391,10 +543,29 @@ class RemainingManaUses(ManaCostAsUses):
             return str(unit.get_max_mana() // item.eval_mana_cost._check_value(unit, item))
         return str(unit.get_max_mana() // item.mana_cost.value)
 
-class HPCostAsUses(ManaCostAsUses):
+    def _font_color(self, unit, item):
+        # Grab Custom Color If It Exists
+        custom_color = item.custom_uses_color._font_color(unit, item) if item.custom_uses_color else None
+        if custom_color:
+            # Don't Need to Check Availability for Custom Color since it should be handled by the Custom Color Component
+            return custom_color
+
+        # Just Use Navy Blue
+        color = 'navy'
+        if not item_funcs.available(unit, item):
+            color = 'grey'
+        if 'text-' + color in FONT:
+            return color
+        return None
+
+    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
+        return UsesDisplayConfig(self._calc_uses, self.delim, self._calc_max_uses, self._font_color, unit, item)
+
+class HPCostAsUses(ItemComponent):
     nid = 'hp_cost_as_uses'
     desc = "Display the HP Cost in place of Uses on the item. Do not combine with other uses components."
     requires = ['hp_cost', 'eval_hp_cost']
+    tag = ItemTags.USES
 
     def _calc_uses(self, unit, item):
         if (item.eval_hp_cost):
@@ -402,6 +573,13 @@ class HPCostAsUses(ManaCostAsUses):
         return item.hp_cost.value
 
     def _font_color(self, unit, item):
+        # Grab Custom Color If It Exists
+        custom_color = item.custom_uses_color._font_color(unit, item) if item.custom_uses_color else None
+        if custom_color:
+            # Don't Need to Check Availability for Custom Color since it should be handled by the Custom Color Component
+            return custom_color
+
+        # Just Use Red
         color = 'red'
         if not item_funcs.available(unit, item):
             color = 'grey'
@@ -409,9 +587,15 @@ class HPCostAsUses(ManaCostAsUses):
             return color
         return None
 
-class RemainingHPUses(HPCostAsUses):
+    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
+        return UsesDisplayConfig(self._calc_uses, None, None, self._font_color, unit, item)
+
+class RemainingHPUses(ItemComponent):
     nid = 'remaining_hp_uses'
     desc = "Display the remaining uses calculated from HP cost and unit's current/max HP. Do not combine with other uses components."
+    requires = ['hp_cost', 'eval_hp_cost']
+    paired_with = ('hp_uses_options',)
+    tag = ItemTags.USES
     delim = "/"
 
     def _calc_uses(self, unit, item):
@@ -427,6 +611,24 @@ class RemainingHPUses(HPCostAsUses):
                 return 0
             return str(unit.get_max_hp() // item.eval_hp_cost._check_value(unit, item))
         return str(unit.get_max_hp() // item.hp_cost.value)
+
+    def _font_color(self, unit, item):
+        # Grab Custom Color If It Exists
+        custom_color = item.custom_uses_color._font_color(unit, item) if item.custom_uses_color else None
+        if custom_color:
+            # Don't Need to Check Availability for Custom Color since it should be handled by the Custom Color Component
+            return custom_color
+
+        # Just Use Red
+        color = 'red'
+        if not item_funcs.available(unit, item):
+            color = 'grey'
+        if 'text-' + color in FONT:
+            return color
+        return None
+
+    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
+        return UsesDisplayConfig(self._calc_uses, self.delim, self._calc_max_uses, self._font_color, unit, item)
 
 class Cooldown(ItemComponent):
     nid = 'cooldown'

@@ -101,6 +101,7 @@ ITEM_HOOKS: Dict[str, HookInfo] = {
     'combat_effect':                                   HookInfo(['unit', 'item', 'target', 'item2', 'mode'], ResolvePolicy.UNIQUE),
     'on_hit_effect':                                   HookInfo(['unit', 'item', 'target', 'item2', 'mode'], ResolvePolicy.UNIQUE),
     'item_uses_display':                               HookInfo(['unit', 'item'], ResolvePolicy.UNIQUE),
+    'item_uses_color':                                 HookInfo(['unit', 'item'], ResolvePolicy.UNIQUE),
     'multi_desc_name_override':                        HookInfo(['unit', 'item'], ResolvePolicy.UNIQUE),
     'show_item_name_in_help_dlg':                      HookInfo(['unit', 'item'], ResolvePolicy.UNIQUE, has_default_value=True),
     # events do not return, but are the only item components currently inherited from parents

@@ -20,7 +20,7 @@ class ItemOptionModes(Enum):
 
 @dataclass
 class UsesDisplayConfig:
-    get_curr_uses: Callable[[ItemObject, UnitObject], str]
+    get_curr_uses: Optional[Callable[[ItemObject, UnitObject], str]]
     delim: str
     get_max_uses: Callable[[ItemObject, UnitObject], str]
     get_uses_color: Callable[[ItemObject, UnitObject], str]
@@ -29,13 +29,19 @@ class UsesDisplayConfig:
     item: Optional[ItemObject]
 
     def get_uses(self) -> str:
+        if not self.get_curr_uses:
+            return None
         return str(self.get_curr_uses(self.unit, self.item))
 
     def get_max(self) -> str:
+        if not self.get_max_uses:
+            return None
         max_uses = self.get_max_uses(self.unit, self.item)
         return str(max_uses) if max_uses is not None else None
 
     def get_color(self) -> str:
+        if not self.get_uses_color:
+            return None
         return self.get_uses_color(self.unit, self.item)
 
     @staticmethod
@@ -48,3 +54,28 @@ class UsesDisplayConfig:
             return None
 
         return item_system.item_uses_display(owner, item)
+
+@dataclass
+class UsesColorConfig:
+    get_uses_color: Callable[[ItemObject, UnitObject], str]
+    override_unavailable: bool
+    override_droppable: bool
+
+    unit: Optional[UnitObject]
+    item: Optional[ItemObject]
+
+    def get_color(self) -> str:
+        if not self.get_uses_color:
+            return None
+        return self.get_uses_color(self.unit, self.item)
+
+    @staticmethod
+    def from_item(item: ItemObject):
+        if not item:
+            return None
+
+        owner = game.get_unit(item.owner_nid)
+        if not owner:
+            return None
+
+        return item_system.item_uses_color(owner, item)

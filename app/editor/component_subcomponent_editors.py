@@ -11,6 +11,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from app.data.database.components import ComponentType
 from app.data.database.database import DB
 from app.data.resources.resources import RESOURCES
+from app.engine.fonts import get_font_color_options
 from app.editor.component_editor_delegates import (AffinityDelegate,
                                                    BaseComponentDelegate,
                                                    ClassDelegate, ItemDelegate,
@@ -32,13 +33,6 @@ from app.extensions.custom_gui import ComboBox
 from app.extensions.list_widgets import AppendSingleListWidget
 from app.extensions.shape_dialog import ShapeIcon
 from app.utilities import str_utils, utils
-
-
-def get_font_color_options() -> List[str]:
-    text_font = RESOURCES.fonts.get('text')
-    if not text_font or not text_font.palettes:
-        return ['white']
-    return list(text_font.palettes.keys())
 
 
 class BaseSubcomponentEditor(QWidget):

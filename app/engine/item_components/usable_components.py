@@ -301,6 +301,8 @@ class EvalHPCost(ItemComponent):
     expose = ComponentType.String
     value = ""
 
+    _did_something = False
+
     def _check_value(self, unit, item) -> int:
         from app.engine import evaluate
         try:
@@ -386,6 +388,8 @@ class EvalManaCost(ItemComponent):
 
     expose = ComponentType.String
     value = ""
+
+    _did_something = False
 
     def _check_value(self, unit, item) -> int:
         from app.engine import evaluate

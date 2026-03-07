@@ -212,7 +212,7 @@ class ManaUsesOptions(ItemComponent):
 
     def __init__(self, value=None):
         self.value = {
-            'cost_mana_on_miss': False,
+            'cost_mana_on_miss': True, # Magic in FE drains Uses even if it misses, so default this to true
             'one_mana_cost_per_combat': False
         }
         if value and isinstance(value, dict):
@@ -225,7 +225,7 @@ class ManaUsesOptions(ItemComponent):
                 pass
 
     def cost_mana_on_miss(self) -> bool:
-        return self.value.get('cost_mana_on_miss', False)
+        return self.value.get('cost_mana_on_miss', True)
 
     def one_mana_cost_per_combat(self) -> bool:
         return self.value.get('one_mana_cost_per_combat', False)
@@ -506,7 +506,7 @@ class ManaCostAsUses(ItemComponent):
     def _calc_uses(self, unit, item):
         if (item.eval_mana_cost):
             return item.eval_mana_cost._check_value(unit, item)
-        return item.mana_cost.value
+        return item.mana_cost.value if item.mana_cost else 0
 
     def _font_color(self, unit, item):
         # Grab Custom Color If It Exists
@@ -538,14 +538,14 @@ class RemainingManaUses(ItemComponent):
             if (item.eval_mana_cost._check_value(unit, item) == 0):
                 return 0
             return unit.get_mana() // item.eval_mana_cost._check_value(unit, item)
-        return unit.get_mana() // item.mana_cost.value
+        return unit.get_mana() // item.mana_cost.value if item.mana_cost else 0
 
     def _calc_max_uses(self, unit, item):
         if (item.eval_mana_cost):
             if (item.eval_mana_cost._check_value(unit, item) == 0):
                 return 0
-            return str(unit.get_max_mana() // item.eval_mana_cost._check_value(unit, item))
-        return str(unit.get_max_mana() // item.mana_cost.value)
+            return unit.get_max_mana() // item.eval_mana_cost._check_value(unit, item)
+        return unit.get_max_mana() // item.mana_cost.value if item.mana_cost else 0
 
     def _font_color(self, unit, item):
         # Grab Custom Color If It Exists
@@ -574,7 +574,7 @@ class HPCostAsUses(ItemComponent):
     def _calc_uses(self, unit, item):
         if (item.eval_hp_cost):
             return item.eval_hp_cost._check_value(unit, item)
-        return item.hp_cost.value
+        return item.hp_cost.value if item.hp_cost else 0
 
     def _font_color(self, unit, item):
         # Grab Custom Color If It Exists
@@ -598,7 +598,6 @@ class RemainingHPUses(ItemComponent):
     nid = 'remaining_hp_uses'
     desc = "Display the remaining uses calculated from HP cost and unit's current/max HP. Do not combine with other uses components."
     requires = ['hp_cost', 'eval_hp_cost']
-    paired_with = ('hp_uses_options',)
     tag = ItemTags.USES
     delim = "/"
 
@@ -607,14 +606,14 @@ class RemainingHPUses(ItemComponent):
             if (item.eval_hp_cost._check_value(unit, item) == 0):
                 return 0
             return unit.get_hp() // item.eval_hp_cost._check_value(unit, item)
-        return unit.get_hp() // item.hp_cost.value
+        return unit.get_hp() // item.hp_cost.value if item.hp_cost else 0
 
     def _calc_max_uses(self, unit, item):
         if (item.eval_hp_cost):
             if (item.eval_hp_cost._check_value(unit, item) == 0):
                 return 0
-            return str(unit.get_max_hp() // item.eval_hp_cost._check_value(unit, item))
-        return str(unit.get_max_hp() // item.hp_cost.value)
+            return unit.get_max_hp() // item.eval_hp_cost._check_value(unit, item)
+        return unit.get_max_hp() // item.hp_cost.value if item.hp_cost else 0
 
     def _font_color(self, unit, item):
         # Grab Custom Color If It Exists

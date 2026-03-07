@@ -436,7 +436,6 @@ class EvalManaCost(ItemComponent):
 class CustomUses(ItemComponent):
     nid = 'custom_uses'
     desc = "Display a custom value in place of Uses on the item. Do not combine with other uses components."
-    paired_with = ('custom_uses_color',)
     tag = ItemTags.USES
     expose = ComponentType.String
 

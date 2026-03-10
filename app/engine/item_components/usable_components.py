@@ -180,14 +180,14 @@ class HpUsesOptions(ItemComponent):
 
     def __init__(self, value=None):
         self.value = {
-            'cost_hp_on_miss': False,
+            'cost_hp_on_miss': True,
             'one_hp_cost_per_combat': False
         }
         if value and isinstance(value, dict):
             self.value.update(value)
 
     def cost_hp_on_miss(self) -> bool:
-        return self.value.get('cost_hp_on_miss', False)
+        return self.value.get('cost_hp_on_miss', True)
 
     def one_hp_cost_per_combat(self) -> bool:
         return self.value.get('one_hp_cost_per_combat', False)

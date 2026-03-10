@@ -194,14 +194,17 @@ class Weight(ItemComponent):
     expose = ComponentType.Int
     value = 0
 
-    def modify_attack_speed(self, unit, item):
-        return -1 * max(0, self.value - equations.parser.constitution(unit))
+    def stat_change(self, unit):
+        return {"WT": self.value}
 
-    def modify_defense_speed(self, unit, item):
-        return -1 * max(0, self.value - equations.parser.constitution(unit))
+    #def modify_attack_speed(self, unit, item):
+    #    return -1 * max(0, self.value - equations.parser.constitution(unit))
 
-    def modify_avoid(self, unit, item):
-        return -2 * max(0, self.value - equations.parser.constitution(unit))
+    #def modify_defense_speed(self, unit, item):
+    #    return -1 * max(0, self.value - equations.parser.constitution(unit))
+
+    #def modify_avoid(self, unit, item):
+    #    return -2 * max(0, self.value - equations.parser.constitution(unit))
 
 class Unwieldy(ItemComponent):
     nid = 'Unwieldy'

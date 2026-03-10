@@ -58,4 +58,10 @@
         <maximum>15</maximum>
         <desc>The distance you can move in one turn.</desc>
     </stat>
+
+    <stat name="Mana">
+        <id>MP</id>
+        <maximum>30</maximum>
+        <desc>The amount of magical energy available for casting spells.</desc>
+    </stat>
 </stat_data>

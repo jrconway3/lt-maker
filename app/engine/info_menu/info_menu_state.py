@@ -676,7 +676,7 @@ class InfoMenuState(State):
             self.info_graph.register((96 + 72, 16 * idx + 24, 64, 16), help_box, state)
 
         other_stats = []
-        if not DB.constants.value('disable_rating'):
+        if DB.constants.value('enable_rating'):
             other_stats.append('RAT')
         if DB.constants.value('talk_display'):
             other_stats.insert(0, 'TALK')

@@ -31,6 +31,7 @@ class EquationMultiModel(MultiAttrListModel):
         "HEAL": "Base heal formula",
         "HIT": "Base hit rate",
         "HITPOINTS": "Total HP",
+        "MANA": "If 0, disables use of mana system. Otherwise, formula determines max mana.",
         "MAGIC_DAMAGE": "Base damage with magical weapons",
         "MAGIC_DEFENSE": "Base magical defense",
         "MOVEMENT": "Total movement",

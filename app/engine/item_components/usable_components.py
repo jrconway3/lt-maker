@@ -166,58 +166,6 @@ class UsesOptions(ItemComponent):
     def one_loss_per_combat(self) -> bool:
         return self.value.get('one_loss_per_combat', False)
 
-class HpUsesOptions(ItemComponent):
-    nid = 'hp_uses_options'
-    desc = 'Additional options for HP Cost as Uses / Remaining HP Uses'
-    tag = ItemTags.HIDDEN
-    
-    expose = ComponentType.NewMultipleOptions
-
-    options = {
-        'cost_hp_on_miss': ComponentType.Bool,
-        'one_hp_cost_per_combat': ComponentType.Bool
-    }
-
-    def __init__(self, value=None):
-        self.value = {
-            'cost_hp_on_miss': True,
-            'one_hp_cost_per_combat': False
-        }
-        if value and isinstance(value, dict):
-            self.value.update(value)
-
-    def cost_hp_on_miss(self) -> bool:
-        return self.value.get('cost_hp_on_miss', True)
-
-    def one_hp_cost_per_combat(self) -> bool:
-        return self.value.get('one_hp_cost_per_combat', False)
-
-class ManaUsesOptions(ItemComponent):
-    nid = 'mana_uses_options'
-    desc = 'Additional options for Mana Cost as Uses / Remaining Mana Uses'
-    tag = ItemTags.HIDDEN
-    
-    expose = ComponentType.NewMultipleOptions
-
-    options = {
-        'cost_mana_on_miss': ComponentType.Bool,
-        'one_mana_cost_per_combat': ComponentType.Bool
-    }
-
-    def __init__(self, value=None):
-        self.value = {
-            'cost_mana_on_miss': True, # Magic in FE drains Uses even if it misses, so default this to true
-            'one_mana_cost_per_combat': False
-        }
-        if value and isinstance(value, dict):
-            self.value.update(value)
-
-    def cost_mana_on_miss(self) -> bool:
-        return self.value.get('cost_mana_on_miss', True)
-
-    def one_mana_cost_per_combat(self) -> bool:
-        return self.value.get('one_mana_cost_per_combat', False)
-
 class NoAlertOnBreak(ItemComponent):
     nid = 'no_alert_on_break'
     desc = "Item will not display 'X broke!' when it runs out of uses."
@@ -258,6 +206,17 @@ class HPCost(ItemComponent):
 
     def available(self, unit, item) -> bool:
         return unit.get_hp() > self.value
+
+    def is_unusable(self, unit, item) -> bool:
+        return unit.get_hp() < self.value
+
+    def on_unusable(self, unit, item) -> bool:
+        if not item.hp_uses_options.unequip_on_unusable():
+            return
+        if unit.equipped_weapon is item:
+            action.do(action.UnequipItem(unit, item))
+        elif unit.equipped_accessory is item:
+            action.do(action.UnequipItem(unit, item))
 
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
         if item.hp_uses_options.one_hp_cost_per_combat():
@@ -302,6 +261,17 @@ class EvalHPCost(ItemComponent):
     def available(self, unit, item) -> bool:
         return unit.get_hp() > self._check_value(unit, item)
 
+    def is_unusable(self, unit, item) -> bool:
+        return unit.get_hp() < self._check_value(unit, item)
+
+    def on_unusable(self, unit, item) -> bool:
+        if not item.hp_uses_options.unequip_on_unusable():
+            return
+        if unit.equipped_weapon is item:
+            action.do(action.UnequipItem(unit, item))
+        elif unit.equipped_accessory is item:
+            action.do(action.UnequipItem(unit, item))
+
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
         if item.hp_uses_options.one_hp_cost_per_combat():
             self._did_something = True
@@ -324,6 +294,37 @@ class EvalHPCost(ItemComponent):
         value = self._check_value(unit, item)
         action.do(action.ChangeHP(unit, value))
 
+class HpUsesOptions(ItemComponent):
+    nid = 'hp_uses_options'
+    desc = 'Additional options for HP Cost as Uses / Remaining HP Uses'
+    tag = ItemTags.HIDDEN
+    
+    expose = ComponentType.NewMultipleOptions
+
+    options = {
+        'cost_hp_on_miss': ComponentType.Bool,
+        'one_hp_cost_per_combat': ComponentType.Bool,
+        'unequip_on_unusable': ComponentType.Bool
+    }
+
+    def __init__(self, value=None):
+        self.value = {
+            'cost_hp_on_miss': True, # Magic in SoV drains HP even if it misses, so default this to true
+            'one_hp_cost_per_combat': False,
+            'unequip_on_unusable': True
+        }
+        if value and isinstance(value, dict):
+            self.value.update(value)
+
+    def cost_hp_on_miss(self) -> bool:
+        return self.value.get('cost_hp_on_miss', True)
+
+    def one_hp_cost_per_combat(self) -> bool:
+        return self.value.get('one_hp_cost_per_combat', False)
+
+    def unequip_on_unusable(self) -> bool:
+        return self.value.get('unequip_on_unusable', True)
+
 class ManaCost(ItemComponent):
     nid = 'mana_cost'
     desc = "Item subtracts the specified amount of Mana upon use. MANA must be defined in the equations editor. If unit does not have enough mana the item will not be usable."
@@ -342,6 +343,8 @@ class ManaCost(ItemComponent):
         return unit.get_mana() < self.value
 
     def on_unusable(self, unit, item) -> bool:
+        if not item.mana_uses_options.unequip_on_unusable():
+            return
         if unit.equipped_weapon is item:
             action.do(action.UnequipItem(unit, item))
         elif unit.equipped_accessory is item:
@@ -394,6 +397,8 @@ class EvalManaCost(ItemComponent):
         return unit.get_mana() < self._check_value(unit, item)
 
     def on_unusable(self, unit, item) -> bool:
+        if not item.mana_uses_options.unequip_on_unusable():
+            return
         if unit.equipped_weapon is item:
             action.do(action.UnequipItem(unit, item))
         elif unit.equipped_accessory is item:
@@ -420,6 +425,37 @@ class EvalManaCost(ItemComponent):
     def reverse_use(self, unit, item):
         value = self._check_value(unit, item)
         action.do(action.ChangeMana(unit, value))
+
+class ManaUsesOptions(ItemComponent):
+    nid = 'mana_uses_options'
+    desc = 'Additional options for Mana Cost as Uses / Remaining Mana Uses'
+    tag = ItemTags.HIDDEN
+    
+    expose = ComponentType.NewMultipleOptions
+
+    options = {
+        'cost_mana_on_miss': ComponentType.Bool,
+        'one_mana_cost_per_combat': ComponentType.Bool,
+        'unequip_on_unusable': ComponentType.Bool
+    }
+
+    def __init__(self, value=None):
+        self.value = {
+            'cost_mana_on_miss': True, # Magic in FE drains Uses even if it misses, so default this to true
+            'one_mana_cost_per_combat': False,
+            'unequip_on_unusable': True
+        }
+        if value and isinstance(value, dict):
+            self.value.update(value)
+
+    def cost_mana_on_miss(self) -> bool:
+        return self.value.get('cost_mana_on_miss', True)
+
+    def one_mana_cost_per_combat(self) -> bool:
+        return self.value.get('one_mana_cost_per_combat', False)
+
+    def unequip_on_unusable(self) -> bool:
+        return self.value.get('unequip_on_unusable', True)
 
 class CustomUses(ItemComponent):
     nid = 'custom_uses'

@@ -5,7 +5,17 @@
         "maximum": 60,
         "desc": "Hit points. The unit is removed from the battle if HP reaches 0.",
         "position": "hidden",
-        "growth_colors": false
+        "growth_colors": false,
+        "hidden_stat": false
+    },
+    {
+        "nid": "MP",
+        "name": "MANA", 
+        "maximum": 30,
+        "desc": "",
+        "position": "hidden",
+        "growth_colors": false,
+        "hidden_stat": false
     },
     {
         "nid": "STR",
@@ -13,7 +23,8 @@
         "maximum": 30,
         "desc": "Strength. The higher the number, the more damage you inflict.",
         "position": "left",
-        "growth_colors": false
+        "growth_colors": false,
+        "hidden_stat": false
     },
     {
         "nid": "MAG",
@@ -21,7 +32,8 @@
         "maximum": 30,
         "desc": "Magical power. Increases spell and staff effectiveness.",
         "position": "left",
-        "growth_colors": false
+        "growth_colors": false,
+        "hidden_stat": false
     },
     {
         "nid": "SKL",
@@ -29,7 +41,8 @@
         "maximum": 30,
         "desc": "Fighting skill. A higher number improves accuracy.",
         "position": "left",
-        "growth_colors": false
+        "growth_colors": false,
+        "hidden_stat": false
     },
     {
         "nid": "SPD",
@@ -37,7 +50,8 @@
         "maximum": 30,
         "desc": "This affects both evasion and attack speed.",
         "position": "left",
-        "growth_colors": false
+        "growth_colors": false,
+        "hidden_stat": false
     },
     {
         "nid": "LCK",
@@ -45,7 +59,8 @@
         "maximum": 30,
         "desc": "Luck affects many things.",
         "position": "right",
-        "growth_colors": false
+        "growth_colors": false,
+        "hidden_stat": false
     },
     {
         "nid": "DEF",
@@ -53,7 +68,8 @@
         "maximum": 30,
         "desc": "Reduces damage from weapons.",
         "position": "left",
-        "growth_colors": false
+        "growth_colors": false,
+        "hidden_stat": false
     },
     {
         "nid": "RES",
@@ -61,7 +77,8 @@
         "maximum": 30,
         "desc": "Reduces damage from magic.",
         "position": "left",
-        "growth_colors": false
+        "growth_colors": false,
+        "hidden_stat": false
     },
     {
         "nid": "CON",
@@ -69,7 +86,8 @@
         "maximum": 25,
         "desc": "Constitution. Affects how well the unit can wield heavier weapons.",
         "position": "right",
-        "growth_colors": false
+        "growth_colors": false,
+        "hidden_stat": false
     },
     {
         "nid": "MOV",

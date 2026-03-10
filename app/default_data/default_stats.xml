@@ -64,4 +64,10 @@
         <maximum>30</maximum>
         <desc>The amount of weight you are carrying. Reduces attack speed and evasion if higher than Con.</desc>
     </stat>
+
+    <stat name="Mana">
+        <id>MP</id>
+        <maximum>30</maximum>
+        <desc>The amount of magical energy available for casting spells.</desc>
+    </stat>
 </stat_data>

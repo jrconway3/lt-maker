@@ -204,6 +204,10 @@ class HPCost(ItemComponent):
 
     _did_something = False
 
+    # Get Default Options if Item Doesn't Have HpUsesOptions Component
+    def _opts(self, item):
+        return item.hp_uses_options or HpUsesOptions(self)
+
     def available(self, unit, item) -> bool:
         return unit.get_hp() > self.value
 
@@ -211,7 +215,7 @@ class HPCost(ItemComponent):
         return unit.get_hp() < self.value
 
     def on_unusable(self, unit, item) -> bool:
-        if not item.hp_uses_options.unequip_on_unusable():
+        if not self._opts(item).unequip_on_unusable():
             return
         if unit.equipped_weapon is item:
             action.do(action.UnequipItem(unit, item))
@@ -219,14 +223,14 @@ class HPCost(ItemComponent):
             action.do(action.UnequipItem(unit, item))
 
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        if item.hp_uses_options.one_hp_cost_per_combat():
+        if self._opts(item).one_hp_cost_per_combat():
             self._did_something = True
         else:
             action.do(action.ChangeHP(unit, -self.value))
 
     def on_miss(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        if item.hp_uses_options.cost_hp_on_miss():
-            if item.hp_uses_options.one_hp_cost_per_combat():
+        if self._opts(item).cost_hp_on_miss():
+            if self._opts(item).one_hp_cost_per_combat():
                 self._did_something = True
             else:
                 action.do(action.ChangeHP(unit, -self.value))
@@ -250,6 +254,10 @@ class EvalHPCost(ItemComponent):
 
     _did_something = False
 
+    # Get Default Options if Item Doesn't Have HpUsesOptions Component
+    def _opts(self, item):
+        return item.hp_uses_options or HpUsesOptions(self)
+
     def _check_value(self, unit, item) -> int:
         from app.engine import evaluate
         try:
@@ -265,7 +273,7 @@ class EvalHPCost(ItemComponent):
         return unit.get_hp() < self._check_value(unit, item)
 
     def on_unusable(self, unit, item) -> bool:
-        if not item.hp_uses_options.unequip_on_unusable():
+        if not self._opts(item).unequip_on_unusable():
             return
         if unit.equipped_weapon is item:
             action.do(action.UnequipItem(unit, item))
@@ -273,14 +281,14 @@ class EvalHPCost(ItemComponent):
             action.do(action.UnequipItem(unit, item))
 
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        if item.hp_uses_options.one_hp_cost_per_combat():
+        if self._opts(item).one_hp_cost_per_combat():
             self._did_something = True
         else:
             action.do(action.ChangeHP(unit, -self._check_value(unit, item)))
 
     def on_miss(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        if item.hp_uses_options.cost_hp_on_miss():
-            if item.hp_uses_options.one_hp_cost_per_combat():
+        if self._opts(item).cost_hp_on_miss():
+            if self._opts(item).one_hp_cost_per_combat():
                 self._did_something = True
             else:
                 action.do(action.ChangeHP(unit, -self._check_value(unit, item)))
@@ -336,6 +344,10 @@ class ManaCost(ItemComponent):
 
     _did_something = False
 
+    # Get Default Options if Item Doesn't Have ManaUsesOptions Component
+    def _opts(self, item):
+        return item.mana_uses_options or ManaUsesOptions(self)
+
     def available(self, unit, item) -> bool:
         return unit.get_mana() >= self.value
 
@@ -343,7 +355,7 @@ class ManaCost(ItemComponent):
         return unit.get_mana() < self.value
 
     def on_unusable(self, unit, item) -> bool:
-        if not item.mana_uses_options.unequip_on_unusable():
+        if not self._opts(item).unequip_on_unusable():
             return
         if unit.equipped_weapon is item:
             action.do(action.UnequipItem(unit, item))
@@ -351,14 +363,14 @@ class ManaCost(ItemComponent):
             action.do(action.UnequipItem(unit, item))
 
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        if item.mana_uses_options.one_mana_cost_per_combat():
+        if self._opts(item).one_mana_cost_per_combat():
             self._did_something = True
         else:
             action.do(action.ChangeMana(unit, -self.value))
 
     def on_miss(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        if item.mana_uses_options.cost_mana_on_miss():
-            if item.mana_uses_options.one_mana_cost_per_combat():
+        if self._opts(item).cost_mana_on_miss():
+            if self._opts(item).one_mana_cost_per_combat():
                 self._did_something = True
             else:
                 action.do(action.ChangeMana(unit, -self.value))
@@ -390,6 +402,10 @@ class EvalManaCost(ItemComponent):
             logging.error("Couldn't evaluate %s conditional" % self.value)
         return 0
 
+    # Get Default Options if Item Doesn't Have ManaUsesOptions Component
+    def _opts(self, item):
+        return item.mana_uses_options or ManaUsesOptions(self)
+
     def available(self, unit, item) -> bool:
         return unit.get_mana() >= self._check_value(unit, item)
 
@@ -397,7 +413,7 @@ class EvalManaCost(ItemComponent):
         return unit.get_mana() < self._check_value(unit, item)
 
     def on_unusable(self, unit, item) -> bool:
-        if not item.mana_uses_options.unequip_on_unusable():
+        if not self._opts(item).unequip_on_unusable():
             return
         if unit.equipped_weapon is item:
             action.do(action.UnequipItem(unit, item))
@@ -405,21 +421,21 @@ class EvalManaCost(ItemComponent):
             action.do(action.UnequipItem(unit, item))
 
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        if item.mana_uses_options.one_mana_cost_per_combat():
+        if self._opts(item).one_mana_cost_per_combat():
             self._did_something = True
         else:
-            action.do(action.ChangeMana(unit, -self.value))
+            action.do(action.ChangeMana(unit, -self._check_value(unit, item)))
 
     def on_miss(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
-        if item.mana_uses_options.cost_mana_on_miss():
-            if item.mana_uses_options.one_mana_cost_per_combat():
+        if self._opts(item).cost_mana_on_miss():
+            if self._opts(item).one_mana_cost_per_combat():
                 self._did_something = True
             else:
-                action.do(action.ChangeMana(unit, -self.value))
+                action.do(action.ChangeMana(unit, -self._check_value(unit, item)))
 
     def end_combat(self, playback, unit, item, target, item2, mode):
         if self._did_something:
-            action.do(action.ChangeMana(unit, -self.value))
+            action.do(action.ChangeMana(unit, -self._check_value(unit, item)))
         self._did_something = False
 
     def reverse_use(self, unit, item):

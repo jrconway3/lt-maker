@@ -77,6 +77,16 @@
         "maximum": 15,
         "desc": "The distance you can move in one turn.",
         "position": "right",
-        "growth_colors": false
+        "growth_colors": false,
+        "hidden_stat": false
+    },
+    {
+        "nid": "WT",
+        "name": "Weight", 
+        "maximum": 30,
+        "desc": "The amount of weight you are carrying. Reduces attack speed and evasion if higher than Con.",
+        "position": "hidden",
+        "growth_colors": false,
+        "hidden_stat": true
     }
 ]

@@ -58,4 +58,10 @@
         <maximum>15</maximum>
         <desc>The distance you can move in one turn.</desc>
     </stat>
+
+    <stat name="Weight">
+        <id>WT</id>
+        <maximum>30</maximum>
+        <desc>The amount of weight you are carrying. Reduces attack speed and evasion if higher than Con.</desc>
+    </stat>
 </stat_data>

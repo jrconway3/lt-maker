@@ -37,6 +37,7 @@ class ComponentType(Enum):
     Shape = 26 #List of lists of [x,y] coordinates
     StatFloat = 27 # Special handling for stat as float
     StatString = 28 # Special handling for stat as string
+    FontColor = 29  # Stored as a text palette name for the default text font
     Event = 80
     List = 100  # List containing Items
     Dict = 101  # List of Tuples of [Item, integer]
@@ -45,7 +46,6 @@ class ComponentType(Enum):
     MultipleOptions = 104  # Deprecated
     StringDict = 105  # List of Tuples of [Item, str]
     NewMultipleOptions = 106  # item is a dict of string options with types that can be individually configured
-    FontColor = 107  # Stored as a text palette name for the default text font
 
 def convert_type_from_string(tstr: str, ttype: ComponentType):
     if ttype == ComponentType.Int:

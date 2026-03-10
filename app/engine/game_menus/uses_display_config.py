@@ -20,7 +20,7 @@ class ItemOptionModes(Enum):
 
 @dataclass
 class UsesDisplayConfig:
-    get_curr_uses: Optional[Callable[[ItemObject, UnitObject], str]]
+    get_curr_uses: Callable[[ItemObject, UnitObject], str]
     delim: str
     get_max_uses: Callable[[ItemObject, UnitObject], str]
     get_uses_color: Callable[[ItemObject, UnitObject], str]

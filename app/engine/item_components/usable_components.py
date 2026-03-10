@@ -185,12 +185,6 @@ class HpUsesOptions(ItemComponent):
         }
         if value and isinstance(value, dict):
             self.value.update(value)
-        else: # value is a list from the old multiple options
-            try:
-                self.value['cost_hp_on_miss'] = value[0][1] == 'T'
-                self.value['one_hp_cost_per_combat'] = value[1][1] == 'T'
-            except:
-                pass
 
     def cost_hp_on_miss(self) -> bool:
         return self.value.get('cost_hp_on_miss', False)
@@ -217,12 +211,6 @@ class ManaUsesOptions(ItemComponent):
         }
         if value and isinstance(value, dict):
             self.value.update(value)
-        else: # value is a list from the old multiple options
-            try:
-                self.value['cost_mana_on_miss'] = value[0][1] == 'T'
-                self.value['one_mana_cost_per_combat'] = value[1][1] == 'T'
-            except:
-                pass
 
     def cost_mana_on_miss(self) -> bool:
         return self.value.get('cost_mana_on_miss', True)

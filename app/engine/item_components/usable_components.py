@@ -10,7 +10,7 @@ import logging
 
 class Uses(ItemComponent):
     nid = 'uses'
-    desc = "Number of uses of item. Do not combine with ChapterUses, CustomUses, BlankUses, ManaCostAsUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
+    desc = "Number of uses of item.\nDo not combine with ChapterUses, CustomUses, BlankUses, ManaCostAsUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
     paired_with = ('uses_options',)
     tag = ItemTags.USES
 
@@ -77,7 +77,7 @@ class Uses(ItemComponent):
 
 class ChapterUses(ItemComponent):
     nid = 'c_uses'
-    desc = "The item’s uses per chapter. The uses recharge to full at chapter end, even if all are used. Do not combine with Uses, CustomUses, BlankUses, ManaCostAsUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
+    desc = "The item’s uses per chapter. The uses recharge to full at chapter end, even if all are used.\nDo not combine with Uses, CustomUses, BlankUses, ManaCostAsUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
     paired_with = ('uses_options',)
     tag = ItemTags.USES
 
@@ -475,7 +475,7 @@ class ManaUsesOptions(ItemComponent):
 
 class CustomUses(ItemComponent):
     nid = 'custom_uses'
-    desc = "Display a custom value in place of the Uses text on the item. Do not combine with Uses, ChapterUses, BlankUses, ManaCostAsUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
+    desc = "Display a custom value in place of the Uses text on the item.\nDo not combine with Uses, ChapterUses, BlankUses, ManaCostAsUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
     tag = ItemTags.USES
     expose = ComponentType.String
 
@@ -490,7 +490,7 @@ class CustomUses(ItemComponent):
 
 class BlankUses(ItemComponent):
     nid = 'blank_uses'
-    desc = "Display empty string in place of the Uses text on the item. Do not combine with Uses, CustomUses, ManaCostAsUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
+    desc = "Display empty string in place of the Uses text on the item.\nDo not combine with Uses, CustomUses, ManaCostAsUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
     tag = ItemTags.USES
 
     def _get_uses(self, unit, item):
@@ -501,9 +501,7 @@ class BlankUses(ItemComponent):
 
 class CustomUsesColor(ItemComponent):
     nid = 'custom_uses_color'
-    desc = "Override the default color of the uses text or the color of another Uses component (e.g. HPCostAsUses, ManaCostRemaining). \
-'Override Unavailable' also replaces grey text from an unavailable item. \
-'Override Droppable' also replaces green text when an item is dropped by an enemy."
+    desc = "Override the default color of the uses text or the color of another Uses component (e.g. HPCostAsUses, ManaCostRemaining).\n'Override Unavailable' also replaces grey text from an unavailable item.\n'Override Droppable' also replaces green text when an item is dropped by an enemy.\n'Override Droppable' also replaces green text when an item is dropped by an enemy."
     tag = ItemTags.USES
     expose = ComponentType.NewMultipleOptions
     options = {
@@ -540,7 +538,7 @@ class CustomUsesColor(ItemComponent):
 
 class ManaCostAsUses(ItemComponent):
     nid = 'mana_cost_as_uses'
-    desc = "Display the Mana Cost in place of the Uses text on the item. Do not combine with Uses, ChapterUses, CustomUses, BlankUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
+    desc = "Display the Mana Cost in place of the Uses text on the item.\nDo not combine with Uses, ChapterUses, CustomUses, BlankUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
     requires = ['mana_cost', 'eval_mana_cost']
     tag = ItemTags.USES
 
@@ -569,7 +567,7 @@ class ManaCostAsUses(ItemComponent):
 
 class RemainingManaUses(ItemComponent):
     nid = 'remaining_mana_uses'
-    desc = "Display the remaining uses calculated from mana cost and unit's current/max mana. Do not combine with Uses, ChapterUses, CustomUses, BlankUses, ManaCostAsUses, HPCostAsUses, or HPCostRemaining."
+    desc = "Display the remaining uses calculated from mana cost and unit's current/max mana.\nDo not combine with Uses, ChapterUses, CustomUses, BlankUses, ManaCostAsUses, HPCostAsUses, or HPCostRemaining."
     requires = ['mana_cost', 'eval_mana_cost']
     delim = "/"
     tag = ItemTags.USES
@@ -608,7 +606,7 @@ class RemainingManaUses(ItemComponent):
 
 class HPCostAsUses(ItemComponent):
     nid = 'hp_cost_as_uses'
-    desc = "Display the HP Cost in place of the Uses text on the item. Do not combine with Uses, ChapterUses, CustomUses, BlankUses, ManaCostAsUses, ManaCostRemaining, HPCostRemaining."
+    desc = "Display the HP Cost in place of the Uses text on the item.\nDo not combine with Uses, ChapterUses, CustomUses, BlankUses, ManaCostAsUses, ManaCostRemaining, HPCostRemaining."
     requires = ['hp_cost', 'eval_hp_cost']
     tag = ItemTags.USES
 
@@ -637,7 +635,7 @@ class HPCostAsUses(ItemComponent):
 
 class RemainingHPUses(ItemComponent):
     nid = 'remaining_hp_uses'
-    desc = "Display the remaining uses calculated from HP cost and unit's current/max HP. Do not combine with Uses, ChapterUses, CustomUses, BlankUses, ManaCostAsUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
+    desc = "Display the remaining uses calculated from HP cost and unit's current/max HP.\nDo not combine with Uses, ChapterUses, CustomUses, BlankUses, ManaCostAsUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
     requires = ['hp_cost', 'eval_hp_cost']
     tag = ItemTags.USES
     delim = "/"

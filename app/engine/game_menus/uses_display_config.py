@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 from app.engine import item_funcs, item_system
 from app.engine.game_state import game
+from app.engine.fonts import FONT
 
 from app.engine.objects.unit import UnitObject
 from app.engine.objects.item import ItemObject
@@ -54,7 +55,11 @@ class UsesDisplayConfig:
 
     def get_color(self) -> str:
         # Grab Custom Color If It Exists
-        custom_color = self.get_uses_color(self.unit, self.item) if self.get_uses_color else None
+        custom_color = self.item.custom_uses_color._font_color(self.unit, self.item) if self.item and self.item.custom_uses_color else None
+        if not custom_color:
+            custom_color = self.get_uses_color(self.unit, self.item) if self.get_uses_color else None
+        if custom_color is None or 'text-' + custom_color not in FONT:
+            custom_color = None
 
         # Set Custom Color to 'grey' by Default
         uses_color = custom_color if self._override_unavailable() else 'grey'

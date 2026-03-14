@@ -374,8 +374,8 @@ class ItemSkillComponentTests(unittest.TestCase):
         self.assertEqual(result.delim, '-')            # config_2 overrides
         self.assertIs(result.get_max_uses, func_b)     # config_2 is None -> keep config_1's
         self.assertIs(result.get_uses_color, func_d)   # config_2 overrides
-        self.assertIs(result._override_unavailable, True)   # config_2 overrides
-        self.assertIs(result._override_droppable, False)   # config_2 overrides
+        self.assertEqual(result.override_unavailable_color, True)   # config_2 overrides
+        self.assertEqual(result.override_droppable_color, False)   # config_2 is None -> keep config_1's
         self.assertIs(result.unit, mock_unit)
         self.assertIs(result.item, mock_item)
 

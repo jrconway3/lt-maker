@@ -320,10 +320,6 @@ class EvalHPCost(ItemComponent):
 
     _did_something = False
 
-    # Get Default Options if Item Doesn't Have HpUsesOptions Component
-    def _opts(self, item):
-        return item.hp_uses_options or HpUsesOptions(self)
-
     def _check_value(self, unit, item) -> int:
         from app.engine import evaluate
         try:
@@ -331,6 +327,10 @@ class EvalHPCost(ItemComponent):
         except:
             logging.error("Couldn't evaluate %s conditional" % self.value)
         return 0
+
+    # Get Default Options if Item Doesn't Have HpUsesOptions Component
+    def _opts(self, item):
+        return item.hp_uses_options or HpUsesOptions(self)
     
     def available(self, unit, item) -> bool:
         return unit.get_hp() > self._check_value(unit, item)

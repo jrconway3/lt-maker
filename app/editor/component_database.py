@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QApplication, QDoubleSpinBox, QHBoxLayout,
 from app.data.database.components import ComponentType
 from app.data.database.database import DB
 from app.data.resources.resources import RESOURCES
-from app.engine.fonts import get_font_color_options
+from app.engine.fonts import get_text_color_options
 from app.editor.component_editor_delegates import (AffinityDelegate,
                                                    ClassDelegate, ItemDelegate,
                                                    SkillDelegate, StatDelegate,
@@ -21,7 +21,7 @@ from app.editor.component_editor_delegates import (AffinityDelegate,
                                                    UnitDelegate,
                                                    WeaponTypeDelegate,
                                                    LoreDelegate)
-from app.editor.component_subcomponent_editors import get_editor_widget, FontColorSubcomponentEditor
+from app.editor.component_subcomponent_editors import get_editor_widget, TextColorSubcomponentEditor
 from app.editor.editor_constants import (DROP_DOWN_BUFFER, MAX_DROP_DOWN_WIDTH,
                                          MIN_DROP_DOWN_WIDTH)
 from app.editor.settings.preference_definitions import Preference
@@ -236,10 +236,9 @@ class DropDownItemComponent(BoolItemComponent):
     def on_value_changed(self, val):
         self._data.value = self.options[val]
 
-
-class FontColorItemComponent(DropDownItemComponent):
+class TextColorItemComponent(DropDownItemComponent):
     def __init__(self, data, parent):
-        super().__init__(data, parent, get_font_color_options())
+        super().__init__(data, parent, get_text_color_options())
 
 
 class DeprecatedOptionsItemComponent(BoolItemComponent):
@@ -704,8 +703,6 @@ def get_display_widget(component, parent):
         c = FloatItemComponent(component, parent)
     elif component.expose == ComponentType.String:
         c = StringItemComponent(component, parent)
-    elif component.expose == ComponentType.FontColor:
-        c = FontColorItemComponent(component, parent)
     elif component.expose == ComponentType.WeaponType:
         c = WeaponTypeItemComponent(component, parent)
     elif component.expose == ComponentType.WeaponRank:
@@ -752,6 +749,8 @@ def get_display_widget(component, parent):
         c = UnitItemComponent(component, parent)
     elif component.expose == ComponentType.Lore:
         c = LoreItemComponent(component, parent)
+    elif component.expose == ComponentType.TextColor:
+        c = TextColorItemComponent(component, parent)
 
     elif isinstance(component.expose, tuple):
         delegate = None

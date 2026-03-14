@@ -11,7 +11,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from app.data.database.components import ComponentType
 from app.data.database.database import DB
 from app.data.resources.resources import RESOURCES
-from app.engine.fonts import get_font_color_options
+from app.engine.fonts import get_text_color_options
 from app.editor.component_editor_delegates import (AffinityDelegate,
                                                    BaseComponentDelegate,
                                                    ClassDelegate, ItemDelegate,
@@ -253,11 +253,11 @@ class ShapeSubcomponentEditor(BaseSubcomponentEditor):
         self.option_dict[self.field_name] = self.editor.shape()
 
 
-class FontColorSubcomponentEditor(BaseSubcomponentEditor):
+class TextColorSubcomponentEditor(BaseSubcomponentEditor):
     @override
     def _create_editor(self, hbox):
         self.editor = ComboBox(self)
-        choices = get_font_color_options()
+        choices = get_text_color_options()
         for choice in choices:
             self.editor.addItem(choice)
         width = utils.clamp(self.editor.minimumSizeHint().width(
@@ -322,7 +322,7 @@ EDITOR_MAP: Dict[ComponentType, BaseSubcomponentEditor] = {
     ComponentType.Sound: SoundSubcomponentEditor,
     ComponentType.Affinity: AffinitySubcomponentEditor,
     ComponentType.Shape: ShapeSubcomponentEditor,
-    ComponentType.FontColor: FontColorSubcomponentEditor
+    ComponentType.TextColor: TextColorSubcomponentEditor
 }
 
 CONTAINER_EDITOR_MAP: Dict[ComponentType, BaseContainerSubcomponentEditor] = {

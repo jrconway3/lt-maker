@@ -153,8 +153,7 @@ class ItemOptionUtils():
             max_uses_string_loc = anchor_align(x, width, HAlignment.RIGHT, (0, 0)), y
             slash_loc = anchor_align(x, width, HAlignment.RIGHT, (0, 16)), y
             render_text(surf, [uses_font], [custom_uses.delim], [], slash_loc, HAlignment.RIGHT)
-            render_text(surf, [uses_font], [curr_uses_string], [
-                        uses_color], max_uses_string_loc, HAlignment.RIGHT)
+            render_text(surf, [uses_font], [max_uses_string], [uses_color], max_uses_string_loc, HAlignment.RIGHT)
 
 
 class BasicItemOption(BaseOption[Optional[ItemObject]]):

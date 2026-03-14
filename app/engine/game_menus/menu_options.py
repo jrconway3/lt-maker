@@ -300,15 +300,25 @@ class ItemOption(BasicOption):
     def get_color(self):
         owner = game.get_unit(self.item.owner_nid)
         main_color = 'grey'
-        uses_color = self.uses_config.get_color()
+        custom_color = self.uses_config.get_color() if self.uses_config else None
+        uses_color = custom_color or 'grey'
         if self.ignore:
             pass
         elif self.color:
             main_color = self.color
+            if not custom_color:
+                if owner and not item_funcs.available(owner, self._value):
+                    pass
+                else:
+                    uses_color = 'blue'
         elif self.item.droppable:
             main_color = 'green'
+            if not custom_color:
+                uses_color = 'green'
         elif not owner or item_funcs.available(owner, self.item):
             main_color = None
+            if not custom_color:
+                uses_color = 'blue'
         return main_color, uses_color
 
     def get_help_box(self):
@@ -361,13 +371,20 @@ class ConvoyItemOption(ItemOption):
 
     def get_color(self):
         main_color = 'grey'
-        uses_color = self.uses_config.get_color()
+        custom_color = self.uses_config.get_color() if self.uses_config else None
+        uses_color = custom_color or 'grey'
         if self.ignore:
             pass
         elif self.color:
             main_color = self.color
+            if self.owner and not item_funcs.available(self.owner, self.item):
+                pass
+            else:
+                uses_color = 'blue'
         elif item_funcs.available(self.owner, self.item):
             main_color = None
+            if not custom_color:
+                uses_color = 'blue'
         return main_color, uses_color
 
 class FullItemOption(ItemOption):

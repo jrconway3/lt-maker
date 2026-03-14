@@ -418,6 +418,8 @@ class ManaCost(ItemComponent):
         return unit.get_mana() >= self.value
 
     def is_unusable(self, unit, item) -> bool:
+        if not self._opts(item).unequip_on_unusable():
+            return
         return unit.get_mana() < self.value
 
     def on_unusable(self, unit, item) -> bool:

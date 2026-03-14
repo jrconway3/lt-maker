@@ -26,8 +26,8 @@ class UsesDisplayConfig:
     delim: str = ''
     get_max_uses: Callable[[ItemObject, UnitObject], str] = None
     get_uses_color: Callable[[ItemObject, UnitObject], str] = None
-    override_unavailable_color: bool = False
-    override_droppable_color: bool = False
+    override_unavailable_color: bool = None
+    override_droppable_color: bool = None
 
     unit: Optional[UnitObject] = None
     item: Optional[ItemObject] = None
@@ -38,8 +38,8 @@ class UsesDisplayConfig:
             delim=other.delim if other.delim is not None else self.delim,
             get_max_uses=other.get_max_uses if other.get_max_uses is not None else self.get_max_uses,
             get_uses_color=other.get_uses_color if other.get_uses_color is not None else self.get_uses_color,
-            override_unavailable_color=other.override_unavailable_color if other.override_unavailable_color is not None else False,
-            override_droppable_color=other.override_droppable_color if other.override_droppable_color is not None else False,
+            override_unavailable_color=other.override_unavailable_color if other.override_unavailable_color is not None else self.override_unavailable_color,
+            override_droppable_color=other.override_droppable_color if other.override_droppable_color is not None else self.override_droppable_color,
             unit=self.unit,
             item=self.item
         )
@@ -53,21 +53,17 @@ class UsesDisplayConfig:
         return str(max_uses) if max_uses is not None else None
 
     def get_color(self) -> str:
-        uses_color = 'grey'
+        # Grab Custom Color If It Exists
         custom_color = self.get_uses_color(self.unit, self.item) if self.get_uses_color else None
-        if custom_color is not None:
-            uses_color = custom_color
 
         # Set Custom Color to 'grey' by Default
-        uses_color = 'grey'
+        uses_color = custom_color if self._override_unavailable() else 'grey'
         if self.item:
-            if self.unit and not item_funcs.available(self.unit, self.item):
-                uses_color = 'grey'
-            elif not self.unit or item_funcs.available(self.unit, self.item):
-                uses_color = 'blue'
+            if not self.unit or item_funcs.available(self.unit, self.item):
+                uses_color = custom_color or 'blue'
 
             # Item is Droppable?
-            if self.item.droppable:
+            if self.item.droppable and not self._override_droppable():
                 uses_color = 'green'
         return uses_color
 

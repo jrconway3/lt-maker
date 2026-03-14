@@ -89,7 +89,10 @@ class CustomUses(ItemComponent):
 
 class CustomUsesColor(ItemComponent):
     nid = 'custom_uses_color'
-    desc = "Override the default color of the uses text or the color of another Uses component (e.g. HPCostAsUses, ManaCostRemaining).\n'Override Unavailable' also replaces grey text from an unavailable item.\n'Override Droppable' also replaces green text when an item is dropped by an enemy.\n'Override Droppable' also replaces green text when an item is dropped by an enemy."
+    desc = "Override the default color of the uses text or the color of another Uses component (e.g. ManaCostAsUses, RemainingManaUses).\n\
+'Override Unavailable' also replaces grey text from an unavailable item.\n\
+'Override Droppable' also replaces green text when an item is dropped by an enemy.\n\
+To override the color in ManaCostAsUses or RemainingManaUses, this component must be BELOW those components in the item component list."
     tag = ItemTags.USES
     expose = ComponentType.NewMultipleOptions
     options = {

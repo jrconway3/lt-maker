@@ -359,8 +359,8 @@ class ItemSkillComponentTests(unittest.TestCase):
         func_c = lambda u, i: 'c'
         func_d = lambda u, i: 'd'
 
-        config_1 = UsesDisplayConfig(func_a, '/', func_b, func_c, mock_unit, mock_item)
-        config_2 = UsesDisplayConfig(None, '-', None, func_d, mock_unit, mock_item)
+        config_1 = UsesDisplayConfig(func_a, '/', func_b, func_c, None, False, mock_unit, mock_item)
+        config_2 = UsesDisplayConfig(None, '-', None, func_d, True, None, mock_unit, mock_item)
 
         # empty list returns None
         self.assertIsNone(object_merge([]))
@@ -374,6 +374,8 @@ class ItemSkillComponentTests(unittest.TestCase):
         self.assertEqual(result.delim, '-')            # config_2 overrides
         self.assertIs(result.get_max_uses, func_b)     # config_2 is None -> keep config_1's
         self.assertIs(result.get_uses_color, func_d)   # config_2 overrides
+        self.assertIs(result._override_unavailable, True)   # config_2 overrides
+        self.assertIs(result._override_droppable, False)   # config_2 overrides
         self.assertIs(result.unit, mock_unit)
         self.assertIs(result.item, mock_item)
 

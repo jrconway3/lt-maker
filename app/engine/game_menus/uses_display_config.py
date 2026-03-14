@@ -54,7 +54,9 @@ class UsesDisplayConfig:
 
     def get_color(self) -> str:
         # Grab Custom Color If It Exists
-        custom_color = self.get_uses_color(self.unit, self.item) if self.get_uses_color else None
+        custom_color = self.item.custom_uses_color._font_color(self.unit, self.item) if self.item and self.item.custom_uses_color else None
+        if not custom_color:
+            custom_color = self.get_uses_color(self.unit, self.item) if self.get_uses_color else None
 
         # Set Custom Color to 'grey' by Default
         uses_color = custom_color if self._override_unavailable() else 'grey'

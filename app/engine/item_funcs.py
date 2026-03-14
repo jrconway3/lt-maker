@@ -59,8 +59,44 @@ def is_heal(unit: UnitObject, item: ItemObject) -> bool:
     Returns:
         bool: True if the item is a healing item, False otherwise.
     """
-    if item.heal or item.magic_heal:
+    if item.heal or item.magic_heal or item.equation_heal:
         return True
+    return False
+
+def is_mana_restore(unit: UnitObject, item: ItemObject) -> bool:
+    """
+    Determines if an item is a mana restore item.
+
+    Args:
+        unit (UnitObject): The unit attempting to use the item.
+        item (ItemObject): The item to check.
+
+    Returns:
+        bool: True if the item is a mana restoring item, False otherwise.
+    """
+    if item.mana_restore or item.equation_mana_restore:
+        return True
+    return False
+
+def can_heal_target(unit: UnitObject, item: ItemObject) -> bool:
+    """
+    Determines if unit can be healed with the given item. (Includes all methods that can heal!)
+
+    Args:
+        unit (UnitObject): The unit attempting to be healed by the item.
+        item (ItemObject): The item to check.
+
+    Returns:
+        True if unit can be healed by any healing method.
+    """
+    # Check HP Heal
+    if unit.get_hp() < unit.get_max_hp():
+        return True
+
+    # Check Mana Heal
+    if unit.get_mana() < unit.get_max_mana():
+        return True
+
     return False
 
 def available(unit: UnitObject, item: ItemObject) -> bool:

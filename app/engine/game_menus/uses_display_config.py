@@ -54,11 +54,11 @@ class UsesDisplayConfig:
 
     @staticmethod
     def from_item(item: ItemObject):
-        if item:
-            owner = game.get_unit(item.owner_nid)
-            if owner:
-                custom_uses = item_system.item_uses_display(owner, item)
-                if custom_uses:
-                    return custom_uses
-                return UsesDisplayConfig(unit=owner, item=item)
-        return UsesDisplayConfig(item=item)
+        if not item:
+            return None
+
+        owner = game.get_unit(item.owner_nid)
+        if not owner:
+            return None
+
+        return item_system.item_uses_display(owner, item)

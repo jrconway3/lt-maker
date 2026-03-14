@@ -115,7 +115,6 @@ def can_heal_target(unit: UnitObject, item: ItemObject) -> bool:
     Returns:
         True if unit can be healed by any healing method.
     """
-<<<<<<< HEAD
     # Get Stat Bars
     stats = get_stat_bars(unit, item)
 
@@ -124,15 +123,6 @@ def can_heal_target(unit: UnitObject, item: ItemObject) -> bool:
         stat = bar(unit)
         if stat.get() < stat.get_max():
             return True
-=======
-    # Check HP Heal
-    if unit.get_hp() < unit.get_max_hp():
-        return True
-
-    # Check Mana Heal
-    if unit.get_mana() < unit.get_max_mana():
-        return True
->>>>>>> improvement/mana-restore-components
 
     return False
 

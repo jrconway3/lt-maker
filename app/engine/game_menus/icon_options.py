@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 
 from app.data.database.database import DB
 from app.engine import help_menu, icons, item_funcs, item_system, text_funcs
-from app.engine.game_menus.uses_display_config import UsesColorConfig, UsesDisplayConfig, ItemOptionModes
+from app.engine.game_menus.uses_display_config import UsesDisplayConfig, ItemOptionModes
 from app.engine.game_menus.string_options import BaseOption
 from app.engine.game_state import game
 from app.engine.graphics.text.text_renderer import (anchor_align, render_text,

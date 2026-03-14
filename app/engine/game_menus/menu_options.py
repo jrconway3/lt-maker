@@ -9,7 +9,7 @@ from app.engine.game_state import game
 
 from app.engine.graphics.text.text_renderer import render_text, text_width, rendered_text_width
 from app.utilities.enums import HAlignment
-from app.engine.game_menus.icon_options import UsesDisplayConfig, UsesColorConfig
+from app.engine.game_menus.icon_options import UsesDisplayConfig
 
 class EmptyOption():
     def __init__(self, idx):

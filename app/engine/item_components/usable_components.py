@@ -3,6 +3,7 @@ from app.data.database.item_components import ItemComponent, ItemTags
 from app.data.database.components import ComponentType
 
 from app.engine import action, item_funcs
+from app.engine.fonts import FONT
 from app.engine.game_menus.icon_options import UsesDisplayConfig
 
 import logging
@@ -113,12 +114,17 @@ class CustomUsesColor(ItemComponent):
         return self.value['override_droppable']
 
     def _font_color(self, unit, item):
-        return self.value['color']
+        color = self.value['color']
+        if item.droppable and not self._override_droppable():
+            color = 'green'
+        if not item_funcs.available(unit, item) and not self._override_unavailable():
+            color = 'grey'
+        if 'text-' + color in FONT:
+            return color
+        return None
 
     def item_uses_display(self, unit, item) -> UsesDisplayConfig:
         return UsesDisplayConfig(get_uses_color=self._font_color,
-            override_unavailable_color=self._override_unavailable(),
-            override_droppable_color=self._override_droppable(),
             unit=unit, item=item)
 
 class BlankUses(ItemComponent):
@@ -347,7 +353,12 @@ class ManaCostAsUses(ItemComponent):
         return item.mana_cost.value
 
     def _font_color(self, unit, item):
-        return 'navy'
+        color = 'navy'
+        if not item_funcs.available(unit, item):
+            color = 'grey'
+        if 'text-' + color in FONT:
+            return color
+        return None
 
     def item_uses_display(self, unit, item) -> UsesDisplayConfig:
         return UsesDisplayConfig(self._calc_uses, get_uses_color=self._font_color, unit=unit, item=item)
@@ -366,7 +377,12 @@ class RemainingManaUses(ManaCostAsUses):
         return str(unit.get_max_mana() // item.mana_cost.value)
 
     def _font_color(self, unit, item):
-        return 'navy'
+        color = 'navy'
+        if not item_funcs.available(unit, item):
+            color = 'grey'
+        if 'text-' + color in FONT:
+            return color
+        return None
 
     def item_uses_display(self, unit, item) -> UsesDisplayConfig:
         return UsesDisplayConfig(self._calc_uses, self.delim, self._calc_max_uses, self._font_color, unit=unit, item=item)

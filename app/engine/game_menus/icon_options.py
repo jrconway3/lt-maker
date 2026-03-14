@@ -218,15 +218,25 @@ class BasicItemOption(BaseOption[Optional[ItemObject]]):
             return 'grey', 'grey'
         owner = game.get_unit(self._value.owner_nid)
         main_color = 'grey'
-        uses_color = self._uses_config.get_color()
+        custom_color = self._uses_config.get_color() if self._uses_config else None
+        uses_color = custom_color or 'grey'
         if self.get_ignore():
             pass
         elif self._color:
             main_color = self._color
+            if not custom_color:
+                if owner and not item_funcs.available(owner, self._value):
+                    pass
+                else:
+                    uses_color = 'blue'
         elif self._value.droppable:
             main_color = 'green'
+            if not custom_color:
+                uses_color = 'green'
         elif not owner or item_funcs.available(owner, self._value):
             main_color = 'white'
+            if not custom_color:
+                uses_color = 'blue'
         return main_color, uses_color
 
     def get_help_box(self):

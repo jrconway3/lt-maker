@@ -3,6 +3,7 @@ from app.data.database.item_components import ItemComponent, ItemTags
 from app.data.database.components import ComponentType
 
 from app.engine import action, item_funcs
+from app.engine.fonts import FONT
 from app.engine.game_menus.icon_options import UsesDisplayConfig
 
 import logging
@@ -88,7 +89,10 @@ class CustomUses(ItemComponent):
 
 class CustomUsesColor(ItemComponent):
     nid = 'custom_uses_color'
-    desc = "Override the default color of the uses text or the color of another Uses component (e.g. HPCostAsUses, ManaCostRemaining).\n'Override Unavailable' also replaces grey text from an unavailable item.\n'Override Droppable' also replaces green text when an item is dropped by an enemy.\n'Override Droppable' also replaces green text when an item is dropped by an enemy."
+    desc = "Override the default color of the uses text or the color of another Uses component (e.g. ManaCostAsUses, RemainingManaUses).\n\
+'Override Unavailable' also replaces grey text from an unavailable item.\n\
+'Override Droppable' also replaces green text when an item is dropped by an enemy.\n\
+To override the color in ManaCostAsUses or RemainingManaUses, this component must be BELOW those components in the item component list."
     tag = ItemTags.USES
     expose = ComponentType.NewMultipleOptions
     options = {
@@ -113,12 +117,17 @@ class CustomUsesColor(ItemComponent):
         return self.value['override_droppable']
 
     def _font_color(self, unit, item):
-        return self.value['color']
+        color = self.value['color']
+        if item.droppable and not self._override_droppable():
+            color = 'green'
+        if not item_funcs.available(unit, item) and not self._override_unavailable():
+            color = 'grey'
+        if 'text-' + color in FONT:
+            return color
+        return None
 
     def item_uses_display(self, unit, item) -> UsesDisplayConfig:
         return UsesDisplayConfig(get_uses_color=self._font_color,
-            override_unavailable_color=self._override_unavailable(),
-            override_droppable_color=self._override_droppable(),
             unit=unit, item=item)
 
 class BlankUses(ItemComponent):
@@ -530,69 +539,6 @@ class ManaUsesOptions(ItemComponent):
     def unequip_on_unusable(self) -> bool:
         return self.value.get('unequip_on_unusable', True)
 
-class CustomUses(ItemComponent):
-    nid = 'custom_uses'
-    desc = "Display a custom value in place of the Uses text on the item.\nDo not combine with Uses, ChapterUses, BlankUses, ManaCostAsUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
-    tag = ItemTags.USES
-    expose = ComponentType.String
-
-    def _get_uses(self, unit, item):
-        return self.value or ''
-
-    def _font_color(self, unit, item):
-        return item.custom_uses_color._font_color(unit, item) if item.custom_uses_color else None
-
-    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
-        return UsesDisplayConfig(self._get_uses, None, None, self._font_color, unit, item)
-
-class BlankUses(ItemComponent):
-    nid = 'blank_uses'
-    desc = "Display empty string in place of the Uses text on the item.\nDo not combine with Uses, CustomUses, ManaCostAsUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
-    tag = ItemTags.USES
-
-    def _get_uses(self, unit, item):
-        return ''
-
-    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
-        return UsesDisplayConfig(self._get_uses, None, None, None, unit, item)
-
-class CustomUsesColor(ItemComponent):
-    nid = 'custom_uses_color'
-    desc = "Override the default color of the uses text or the color of another Uses component (e.g. HPCostAsUses, ManaCostRemaining).\n'Override Unavailable' also replaces grey text from an unavailable item.\n'Override Droppable' also replaces green text when an item is dropped by an enemy.\n'Override Droppable' also replaces green text when an item is dropped by an enemy."
-    tag = ItemTags.USES
-    expose = ComponentType.NewMultipleOptions
-    options = {
-        'color': ComponentType.FontColor,
-        'override_unavailable': ComponentType.Bool,
-        'override_droppable': ComponentType.Bool
-    }
-
-    def __init__(self, value=None):
-        self.value = {
-            'color': 'blue',
-            'override_unavailable': False,
-            'override_droppable': False
-        }
-        if value:
-            self.value.update(value)
-
-    def _override_unavailable(self):
-        return self.value['override_unavailable']
-
-    def _override_droppable(self):
-        return self.value['override_droppable']
-
-    def _font_color(self, unit, item):
-        color = self.value['color']
-        if not item_funcs.available(unit, item) and not self._override_unavailable():
-            color = 'grey'
-        if 'text-' + color in FONT:
-            return color
-        return None
-
-    def item_uses_color(self, unit, item) -> str|None:
-        return UsesColorConfig(self._font_color, self._override_unavailable(), self._override_droppable(), unit, item)
-
 class ManaCostAsUses(ItemComponent):
     nid = 'mana_cost_as_uses'
     desc = "Display the Mana Cost in place of the Uses text on the item.\nDo not combine with Uses, ChapterUses, CustomUses, BlankUses, ManaCostRemaining, HPCostAsUses, or HPCostRemaining."
@@ -600,9 +546,7 @@ class ManaCostAsUses(ItemComponent):
     tag = ItemTags.USES
 
     def _calc_uses(self, unit, item):
-        if (item.eval_mana_cost):
-            return item.eval_mana_cost._check_value(unit, item)
-        return item.mana_cost.value if item.mana_cost else 0
+        return item.mana_cost.value
 
     def _font_color(self, unit, item):
         return 'navy'
@@ -705,13 +649,7 @@ class RemainingHPUses(ItemComponent):
         return None
 
     def item_uses_display(self, unit, item) -> UsesDisplayConfig:
-        return UsesDisplayConfig(self._calc_uses, self.delim, self._calc_max_uses, self._font_color, unit, item)
-
-    def _font_color(self, unit, item):
-        return 'navy'
-
-    def item_uses_display(self, unit, item) -> UsesDisplayConfig:
-        return UsesDisplayConfig(self._calc_uses, self.delim, self._calc_max_uses, self._font_color, unit=unit, item=item)
+        return UsesDisplayConfig(self._calc_uses, get_uses_color=self._font_color, unit=unit, item=item)
 
 class Cooldown(ItemComponent):
     nid = 'cooldown'

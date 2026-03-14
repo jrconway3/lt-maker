@@ -240,7 +240,6 @@ class TextColorItemComponent(DropDownItemComponent):
     def __init__(self, data, parent):
         super().__init__(data, parent, get_text_color_options())
 
-
 class DeprecatedOptionsItemComponent(BoolItemComponent):
     def create_editor(self, hbox):
         if not self._data.value:

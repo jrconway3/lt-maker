@@ -27,8 +27,6 @@ class UsesDisplayConfig:
     delim: str = ''
     get_max_uses: Callable[[ItemObject, UnitObject], str] = None
     get_uses_color: Callable[[ItemObject, UnitObject], str] = None
-    override_unavailable_color: bool = None
-    override_droppable_color: bool = None
 
     unit: Optional[UnitObject] = None
     item: Optional[ItemObject] = None
@@ -39,8 +37,6 @@ class UsesDisplayConfig:
             delim=other.delim if other.delim is not None else self.delim,
             get_max_uses=other.get_max_uses if other.get_max_uses is not None else self.get_max_uses,
             get_uses_color=other.get_uses_color if other.get_uses_color is not None else self.get_uses_color,
-            override_unavailable_color=other.override_unavailable_color if other.override_unavailable_color is not None else self.override_unavailable_color,
-            override_droppable_color=other.override_droppable_color if other.override_droppable_color is not None else self.override_droppable_color,
             unit=self.unit,
             item=self.item
         )
@@ -55,30 +51,7 @@ class UsesDisplayConfig:
 
     def get_color(self) -> str:
         # Grab Custom Color If It Exists
-        custom_color = self.item.custom_uses_color._font_color(self.unit, self.item) if self.item and self.item.custom_uses_color else None
-        if not custom_color:
-            custom_color = self.get_uses_color(self.unit, self.item) if self.get_uses_color else None
-        if custom_color is None or 'text-' + custom_color not in FONT:
-            custom_color = None
-
-        # Set Custom Color to 'grey' by Default
-        uses_color = custom_color if self._override_unavailable() else 'grey'
-        if self.item:
-            if not self.unit or item_funcs.available(self.unit, self.item):
-                uses_color = custom_color or 'blue'
-
-            # Item is Droppable?
-            if self.item.droppable and not self._override_droppable():
-                uses_color = 'green'
-        return uses_color
-
-    # If true, also overrides the grey color for unavailable items.
-    def _override_unavailable(self) -> bool:
-        return self.override_unavailable_color or False
-
-    # If true, also overrides the green color for droppable items.
-    def _override_droppable(self) -> bool:
-        return self.override_droppable_color or False
+        return self.get_uses_color(self.unit, self.item) if self.get_uses_color else None
 
     @staticmethod
     def from_item(item: ItemObject):

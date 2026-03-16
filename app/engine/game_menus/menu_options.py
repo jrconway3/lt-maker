@@ -444,7 +444,7 @@ class ValueItemOption(ItemOption):
         if icon:
             surf.blit(icon, (x + 2, y))
         uses_config = UsesDisplayConfig.from_item(self.item)
-        main_color, uses_color = self.get_color(uses_config)
+        main_color, uses_color = self.get_color()
         main_font = self.font
         width = text_width(main_font, self.item.name)
         if width > 60:

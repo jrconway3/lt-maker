@@ -377,10 +377,11 @@ class ConvoyItemOption(ItemOption):
             pass
         elif self.color:
             main_color = self.color
-            if self.owner and not item_funcs.available(self.owner, self.item):
-                pass
-            else:
-                uses_color = 'blue'
+            if not custom_color:
+                if self.owner and not item_funcs.available(self.owner, self.item):
+                    pass
+                else:
+                    uses_color = 'blue'
         elif item_funcs.available(self.owner, self.item):
             main_color = None
             if not custom_color:
@@ -493,8 +494,7 @@ class RepairValueItemOption(ValueItemOption):
         icon = icons.get_icon(self.item)
         if icon:
             surf.blit(icon, (x + 2, y))
-        custom_uses = UsesDisplayConfig.from_item(self.item)
-        main_color, uses_color = self.get_color(custom_uses)
+        main_color, uses_color = self.get_color()
         main_font = self.font
         width = text_width(main_font, self.item.name)
         if width > 60:

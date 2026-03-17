@@ -59,6 +59,6 @@ class UsesDisplayConfig:
 
         owner = game.get_unit(item.owner_nid)
         if not owner:
-            return None
+            return item_system.item_uses_display(None, item)
 
         return item_system.item_uses_display(owner, item)

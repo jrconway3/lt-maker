@@ -365,6 +365,7 @@ class ConvoyItemOption(ItemOption):
     def __init__(self, idx, item, owner):
         super().__init__(idx, item)
         self.owner = owner
+        self.uses_config = UsesDisplayConfig.from_item(item, owner)
 
     def width(self):
         return 112

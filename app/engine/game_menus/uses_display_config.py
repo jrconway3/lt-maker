@@ -53,12 +53,12 @@ class UsesDisplayConfig:
         return self.get_uses_color(self.unit, self.item) if self.get_uses_color else None
 
     @staticmethod
-    def from_item(item: ItemObject):
+    def from_item(item: ItemObject, owner: Optional[UnitObject] = None):
         if not item:
             return None
 
-        owner = game.get_unit(item.owner_nid)
+        owner = game.get_unit(item.owner_nid) if owner is None else owner
         if not owner:
-            return item_system.item_uses_display(None, item)
+            return None
 
         return item_system.item_uses_display(owner, item)

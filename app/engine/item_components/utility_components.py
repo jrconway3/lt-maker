@@ -12,7 +12,8 @@ from app.engine.combat import playback as pb
 
 class Heal(ItemComponent):
     nid = 'heal'
-    desc = "Item heals this amount on hit"
+    desc = "Item heals this amount on hit.\n\
+        If ManaRestore is used on the same item, both mana and hp must be below max to use the item."
     tag = ItemTags.UTILITY
 
     expose = ComponentType.Int
@@ -79,7 +80,8 @@ class EquationHeal(Heal):
 
 class ManaRestore(ItemComponent):
     nid = 'mana_restore'
-    desc = "Item restores mana by this amount on hit"
+    desc = "Item restores mana by this amount on hit.\n\
+        If Heal is used on the same item, both mana and hp must be below max to use the item."
     tag = ItemTags.UTILITY
 
     expose = ComponentType.Int
@@ -93,16 +95,16 @@ class ManaRestore(ItemComponent):
     def target_restrict(self, unit, item, def_pos, splash) -> bool:
         # Restricts target based on whether any unit has < full MANA
         defender = game.board.get_unit(def_pos)
-        if defender and item_funcs.can_heal_target(defender, item):
+        if defender and defender.get_mana() < defender.get_max_mana():
             return True
         for s_pos in splash:
             s = game.board.get_unit(s_pos)
-            if s and item_funcs.can_heal_target(s, item):
+            if s and s.get_mana() < s.get_max_mana():
                 return True
         return False
 
     def simple_target_restrict(self, unit, item):
-        return unit and item_funcs.can_heal_target(unit, item)
+        return unit and unit.get_mana() < unit.get_max_mana()
 
     def on_hit(self, actions, playback, unit, item, target, item2, target_pos, mode, attack_info):
         gain = self._get_restore_amount(unit, target)

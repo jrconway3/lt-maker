@@ -30,10 +30,10 @@ class GenericBar():
     bar_sprite = ''
     bar_image = None
 
-    current = 0
-    max = 0
-    old = 0
-    displayed = 0
+    current_val = 0
+    max_val = 0
+    old_val = 0
+    displayed_val = 0
 
     def __init__(self, unit, new_time_for_change = None, new_speed = None):
         self.unit = unit
@@ -50,39 +50,39 @@ class GenericBar():
         if self.label:
             self.label = text_funcs.translate(self.label)
 
-        self.starting()
+        self.starting_vals()
 
-    def set(self, val):
-        self.displayed = val
+    def set_val(self, val):
+        self.displayed_val = val
 
     def update(self):
-        # print(self.displayed_hp, self.unit.get_hp(), self.transition_flag)
+        # print(self.displayed_val, self.get_val(), self.transition_flag)
         # Check to see if we should begin showing transition
-        if self.displayed != self.get() and not self.transition_flag:
+        if self.displayed_val != self.get_val() and not self.transition_flag:
             self.transition_flag = True
-            self.time_for_change = max(self.time_for_change_min, abs(self.displayed - self.get()) * self.speed)
+            self.time_for_change = max(self.time_for_change_min, abs(self.displayed_val - self.get_val()) * self.speed)
             self.last_update = engine.get_time()
 
         # Check to see if we should update
         if self.transition_flag:
             time = (engine.get_time() - self.last_update) / self.time_for_change
-            new_val = int(utils.lerp(self.old, self.get(), time))
-            self.set(new_val)
+            new_val = int(utils.lerp(self.old_val, self.get_val(), time))
+            self.set_val(new_val)
             if time >= 1:
-                self.set(self.get())
-                self.old = self.get()
+                self.set_val(self.get_val())
+                self.old_val = self.get_val()
                 self.transition_flag = False
 
     @abstractmethod
-    def starting(self):
+    def starting_vals(self):
         pass
 
     @abstractmethod
-    def get(self):
+    def get_val(self):
         pass
 
     @abstractmethod
-    def get_max(self):
+    def get_max_val(self):
         pass
 
 class HealthBar(GenericBar):
@@ -91,15 +91,15 @@ class HealthBar(GenericBar):
     desc = 'HP_desc'
     bar_sprite = 'health_bar'
 
-    def starting(self):
-        self.current = self.unit.get_hp()
-        self.old = self.current
-        self.max = self.unit.get_max_hp()
+    def starting_vals(self):
+        self.current_val = self.unit.get_hp()
+        self.old_val = self.current_val
+        self.max_val = self.unit.get_max_hp()
 
-    def get(self):
+    def get_val(self):
         return self.unit.get_hp()
 
-    def get_max(self):
+    def get_max_val(self):
         return self.unit.get_max_hp()
 
 class BarType(Enum):
@@ -115,22 +115,22 @@ class MultiGenericBar():
 
     def __init__(self, unit, bars):
         self.unit = unit
-        self.stats = []
+        self.combat_bars = []
 
         self.transition_flag = False
         self.time_for_change = self.time_for_change_min
         self.last_update = 0
 
         for bar in bars:
-            self.stats.append(bar(unit, self.time_for_change, self.speed))
+            self.combat_bars.append(bar(unit, self.time_for_change, self.speed))
 
-    def set(self, val):
-        for stat in self.stats:
-            stat.set(val)
+    def set_val(self, val):
+        for bar in self.combat_bars:
+            bar.set_val(val)
 
     def update(self):
-        for stat in self.stats:
-            stat.update()
+        for bar in self.combat_bars:
+            bar.update()
 
 
 MAX_HP_PER_BAR = 40
@@ -151,26 +151,26 @@ class CombatHealthBar(HealthBar):
         self.heal_sound_update = 0
 
     def update(self, skip=False):
-        if self.displayed < self.get():
+        if self.displayed_val < self.get_val():
             self.speed = utils.frames2ms(4)  # Slower speed when increasing hp
         else:
             self.speed = utils.frames2ms(2)
         super().update()
         self.color_tick = int(engine.get_time() / 16.67) % len(self.colors)
 
-    def set(self, val):
+    def set_val(self, val):
         current_time = engine.get_time()
-        if self.displayed < self.get() and current_time - self.heal_sound_update > self.speed:
+        if self.displayed_val < self.get_val() and current_time - self.heal_sound_update > self.speed:
             self.heal_sound_update = current_time
             get_sound_thread().stop_sfx('HealBoop')
             get_sound_thread().play_sfx('HealBoop')
-        super().set(val)
+        super().set_val(val)
 
     def big_number(self) -> bool:
-        return self.displayed != self.get()
+        return self.displayed_val != self.get_val()
 
     def done(self) -> bool:
-        return self.displayed == self.get()
+        return self.displayed_val == self.get_val()
 
     @lru_cache(1)
     def _create_hp_bar_surf(self, full_hp: int, actual_hp: int, overflow: int = 0) -> engine.Surface:
@@ -221,12 +221,12 @@ class CombatHealthBar(HealthBar):
         font = FONT['number_small2']
         if self.big_number():
             font = FONT['number_big2']
-        if self.displayed <= 240:
-            font.blit_right(str(self.displayed), surf, (left, top - 4))
+        if self.displayed_val <= 240:
+            font.blit_right(str(self.displayed_val), surf, (left, top - 4))
         else:
             font.blit_right('??', surf, (left, top - 4))
-        max_hp = self.get_max()
-        curr_hp = self.displayed
+        max_hp = self.get_max_val()
+        curr_hp = self.displayed_val
         if max_hp <= MAX_HP_PER_BAR:
             hp_bar = self._create_hp_bar_surf(max_hp, curr_hp)
             surf.blit(hp_bar, (left + 5, top + 1))
@@ -243,8 +243,8 @@ class MapHealthBar(HealthBar):
     health_bar = SPRITES.get('map_health_bar')
 
     def draw(self, surf, left, top):
-        total = max(1, self.get_max())
-        fraction = utils.clamp(self.displayed / total, 0, 1)
+        total = max(1, self.get_max_val())
+        fraction = utils.clamp(self.displayed_val / total, 0, 1)
         index_pixel = int(12 * fraction) + 1
 
         surf.blit(self.health_outline, (left, top + 13))
@@ -262,8 +262,8 @@ class MapBarType(Enum):
 
 class MapBars(MultiGenericBar):
     def draw(self, surf, top, left):
-        for stat in self.stats:
-            stat.draw(surf, top, left)
+        for bar in self.bars:
+            bar.draw(surf, top, left)
 
 class MapCombatBar(MultiGenericBar):
     display_numbers = True
@@ -283,16 +283,16 @@ class MapCombatBar(MultiGenericBar):
         # Calculate Stats on Bars
         y = self.offset_y + 2
         self.surfs = []
-        for stat in self.stats:
+        for bar in self.combat_bars:
             position = 25, y
             bar_surf = self.bar_surf.copy()
             surf.blit(bar_surf, (0, self.offset_y + self.get_height()))
             self.surfs.append(bar_surf)
 
-            total = max(1, stat.get_max())
-            fraction = utils.clamp(stat.displayed / total, 0, 1)
+            total = max(1, bar.get_max_val())
+            fraction = utils.clamp(bar.displayed_val / total, 0, 1)
             index_pixel = int(50 * fraction)
-            surf.blit(engine.subsurface(stat.bar_image, (0, 0, index_pixel, 2)), position)
+            surf.blit(engine.subsurface(bar.bar_image, (0, 0, index_pixel, 2)), position)
             y += self.bar_surf.get_height()
 
         # Display Numbers
@@ -303,8 +303,8 @@ class MapCombatBar(MultiGenericBar):
 
             # Calculate Stats on Bars
             y = self.offset_y - 5
-            for stat in self.stats:
-                s = str(stat.displayed)
+            for bar in self.combat_bars:
+                s = str(bar.displayed_val)
                 position = 22 - font.size(s)[0], y
                 font.blit(s, surf, position)
                 y += self.bar_surf.get_height()

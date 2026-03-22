@@ -1385,6 +1385,12 @@ def has_visited(self: Event, unit, flags=None):
         self.logger.error("has_visited: Couldn't find unit %s" % unit)
         return
     
+    # Set the appropriate action state
+    if 'attacked' in flags:
+        action.do(action.HasAttacked(actor))
+    else:
+        action.do(action.HasTraded(actor))
+    
     # Check if the level has ended or is ending to prevent crashes
     if (self.game.level_vars.get('_win_game') or 
         self.game.level_vars.get('_lose_game') or 
@@ -1396,12 +1402,6 @@ def has_visited(self: Event, unit, flags=None):
     if not self.game.check_alive(unit):
         self.logger.info("has_visited: Unit %s is no longer alive, skipping action" % unit)
         return
-    
-    # Set the appropriate action state
-    if 'attacked' in flags:
-        action.do(action.HasAttacked(actor))
-    else:
-        action.do(action.HasTraded(actor))
     
     # Handle canto properly - follow the Rescue/Drop pattern exactly
     if skill_system.has_canto(actor, None):

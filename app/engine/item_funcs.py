@@ -79,21 +79,6 @@ def is_mana_restore(unit: UnitObject, item: ItemObject) -> bool:
         return True
     return False
 
-def is_mana_restore(unit: UnitObject, item: ItemObject) -> bool:
-    """
-    Determines if an item is a mana restore item.
-
-    Args:
-        unit (UnitObject): The unit attempting to use the item.
-        item (ItemObject): The item to check.
-
-    Returns:
-        bool: True if the item is a mana restoring item, False otherwise.
-    """
-    if item.mana_restore or item.equation_mana_restore:
-        return True
-    return False
-
 def get_stat_bars(unit: UnitObject, item: ItemObject) -> List[BarType]:
     """
     Returns the bar types based on provided items. (Determines stat bars that will display.)

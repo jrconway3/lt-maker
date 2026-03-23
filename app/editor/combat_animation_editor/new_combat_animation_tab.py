@@ -47,6 +47,14 @@ class NewCombatAnimDatabase(NewEditorTab):
         self.data.append(new_class)
         return True
 
+    def on_begin_rename(self, entry_nid: NID, on_begin: bool = True):
+        super().on_begin_rename(entry_nid, on_begin)
+        right_frame = self.right_frame
+        #right_frame.import_box.setEnabled(not on_begin)
+        #right_frame.import_with_base_box.setEnabled(not on_begin)
+        #right_frame.nid_box.setEnabled(not on_begin)
+        return
+
     @classmethod
     def edit(cls, parent=None):
         window = SingleResourceEditor(NewCombatAnimDatabase, ['combat_anims'], parent)

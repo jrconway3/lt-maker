@@ -1408,10 +1408,9 @@ def has_visited(self: Event, unit, flags=None):
         # Critical: Set the cursor unit so MoveState recognizes this as a canto situation
         self.game.cursor.cur_unit = actor
         self.game.cursor.set_pos(actor.position)
-        self.game.state.change('move')
         action.do(action.SetMovementLeft(actor, skill_system.canto_movement(actor, None)))
         self.game.cursor.place_arrows()
-        self.game.state.change('move')
+        self.game.level_vars['_go_to_state'] = 'move'
     else:
         # Use the action system for proper turnwheel recording
         self.game.state.change('free')

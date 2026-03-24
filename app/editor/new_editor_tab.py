@@ -130,7 +130,6 @@ class NewEditorTab(QWidget, Generic[T]):
 
     def on_begin_rename(self, entry_nid: NID, on_begin: bool = True):
         self.right_frame.setEnabled(not on_begin)
-        self.tree_list.new_item_button.setEnabled(not on_begin)
         return
 
     def delete_from_db(self, nid):

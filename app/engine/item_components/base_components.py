@@ -13,6 +13,9 @@ class Spell(ItemComponent):
     def is_weapon(self, unit, item):
         return False
 
+    def in_magic_list(self, unit, item):
+        return False
+
     def equippable(self, unit, item):
         return False
 
@@ -37,6 +40,9 @@ class Weapon(ItemComponent):
         return True
 
     def is_spell(self, unit, item):
+        return False
+
+    def in_magic_list(self, unit, item):
         return False
 
     def equippable(self, unit, item):
@@ -79,6 +85,25 @@ class SiegeWeapon(ItemComponent):
 
     def wexp(self, playback, unit, item, target):
         return 1
+
+class LearnableMagic(ItemComponent):
+    nid = 'learnable_magic'
+    desc = "Item is a learnable magic spell. It will appear in the magic list and not take an inventory slot. Must be paired with the Spell or Weapon component."
+    tag = ItemTags.BASE
+
+    def in_magic_list(self, unit, item):
+        return True
+
+    def takes_item_slot(self, unit, item):
+        return False
+
+class HiddenItemSlot(ItemComponent):
+    nid = 'hidden_item_slot'
+    desc = "Item will be in the inventory but is hidden and does not take up an inventory slot. Item can still be usable, a weapon, or a spell."
+    tag = ItemTags.BASE
+
+    def takes_item_slot(self, unit, item):
+        return False
 
 class Usable(ItemComponent):
     nid = 'usable'

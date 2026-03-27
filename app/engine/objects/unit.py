@@ -639,12 +639,12 @@ class UnitObject(Prefab):
     @property
     def accessories(self) -> List[ItemObject]:
         """Returns a list of all accessories in the unit's inventory"""
-        return [item for item in self.items if item_system.is_accessory(self, item)]
+        return [item for item in self.items if item_system.is_accessory(self, item) and item_system.takes_item_slot(self, item)]
 
     @property
     def nonaccessories(self) -> List[ItemObject]:
         """Returns a list of all non-accessory items in the unit's inventory"""
-        return [item for item in self.items if not item_system.is_accessory(self, item)]
+        return [item for item in self.items if not item_system.is_accessory(self, item) and item_system.takes_item_slot(self, item)]
 
     @property
     def movement_left(self) -> int:

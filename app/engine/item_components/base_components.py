@@ -13,9 +13,6 @@ class Spell(ItemComponent):
     def is_weapon(self, unit, item):
         return False
 
-    def in_magic_list(self, unit, item):
-        return False
-
     def equippable(self, unit, item):
         return False
 
@@ -40,9 +37,6 @@ class Weapon(ItemComponent):
         return True
 
     def is_spell(self, unit, item):
-        return False
-
-    def in_magic_list(self, unit, item):
         return False
 
     def equippable(self, unit, item):
@@ -93,9 +87,6 @@ class LearnableMagic(ItemComponent):
 
     def in_magic_list(self, unit, item):
         return True
-
-    def takes_item_slot(self, unit, item):
-        return False
 
 class HiddenItemSlot(ItemComponent):
     nid = 'hidden_item_slot'

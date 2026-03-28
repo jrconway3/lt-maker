@@ -637,14 +637,24 @@ class UnitObject(Prefab):
         return skill_system.change_roam_ai(self)
 
     @property
+    def unhidden(self) -> List[ItemObject]:
+        """Returns a list of all items in the unit's inventory that take up an item slot"""
+        return [item for item in self.items if item_system.takes_item_slot(self, item)]
+
+    @property
     def accessories(self) -> List[ItemObject]:
         """Returns a list of all accessories in the unit's inventory"""
         return [item for item in self.items if item_system.is_accessory(self, item) and item_system.takes_item_slot(self, item)]
 
     @property
+    def spells(self) -> List[ItemObject]:
+        """Returns a list of all spell items in the unit's inventory"""
+        return [item for item in self.items if item_system.in_magic_list(self, item) and item_system.takes_item_slot(self, item)]
+
+    @property
     def nonaccessories(self) -> List[ItemObject]:
-        """Returns a list of all non-accessory items in the unit's inventory"""
-        return [item for item in self.items if not item_system.is_accessory(self, item) and item_system.takes_item_slot(self, item)]
+        """Returns a list of all non-accessory (and non-spell) items in the unit's inventory"""
+        return [item for item in self.items if not item_system.is_accessory(self, item) and not item_system.in_magic_list(self, item) and item_system.takes_item_slot(self, item)]
 
     @property
     def movement_left(self) -> int:

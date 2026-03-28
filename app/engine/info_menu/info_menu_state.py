@@ -92,6 +92,8 @@ class InfoMenuState(State):
         game.memory['scroll_units'] = None
 
         self.state = game.memory.get('info_menu_state', info_states[0])
+        if self.state == 'spells' and not (DB.constants.value('spell_list') and self.unit.spells):
+            self.state = 'wexp'
         if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.unit.notes):
             self.state = 'personal_data'
         self.growth_flag = False
@@ -255,6 +257,9 @@ class InfoMenuState(State):
             index = info_states.index(self.state)
             new_index = (index - 1) % len(info_states)
             self.next_state = info_states[new_index]
+            if self.next_state == 'spells' and not (DB.constants.value('spell_list') > 0 and self.unit.spells):
+                new_index = (new_index - 1) % len(info_states)
+                self.next_state = info_states[new_index]
             if self.next_state == 'notes' and not (DB.constants.value('unit_notes') and self.unit.notes):
                 new_index = (new_index - 1) % len(info_states)
                 self.next_state = info_states[new_index]
@@ -269,6 +274,9 @@ class InfoMenuState(State):
             index = info_states.index(self.state)
             new_index = (index + 1) % len(info_states)
             self.next_state = info_states[new_index]
+            if self.next_state == 'spells' and not (DB.constants.value('spell_list') and self.unit.spells):
+                new_index = (new_index + 1) % len(info_states)
+                self.next_state = info_states[new_index]
             if self.next_state == 'notes' and not (DB.constants.value('unit_notes') and self.unit.notes):
                 new_index = (new_index + 1) % len(info_states)
                 self.next_state = info_states[new_index]
@@ -288,6 +296,9 @@ class InfoMenuState(State):
         else:
             return
         self.next_unit = self.scroll_units[new_index]
+        if self.state == 'spells' and not (DB.constants.value('spell_list') and self.next_unit.spells):
+            self.state = 'wexp'
+            self.switch_logo('wexp')
         if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
             self.state = 'personal_data'
             self.switch_logo('personal_data')
@@ -304,6 +315,9 @@ class InfoMenuState(State):
         else:
             return
         self.next_unit = self.scroll_units[new_index]
+        if self.state == 'spells' and not (DB.constants.value('spell_list') and self.next_unit.spells):
+            self.state = 'wexp'
+            self.switch_logo('wexp')
         if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
             self.state = 'personal_data'
             self.switch_logo('personal_data')
@@ -313,6 +327,9 @@ class InfoMenuState(State):
         get_sound_thread().play_sfx('Status_Character')
         self.rescuer = self.unit
         self.next_unit = game.get_unit(self.unit.traveler)
+        if self.state == 'spells' and not (DB.constants.value('spell_list') and self.next_unit.spells):
+            self.state = 'wexp'
+            self.switch_logo('wexp')
         if self.state == 'notes' and not (DB.constants.value('unit_notes') and self.next_unit.notes):
             self.state = 'personal_data'
             self.switch_logo('personal_data')

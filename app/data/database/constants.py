@@ -68,7 +68,6 @@ class ConstantCatalog(Data[Constant]):
 constants = ConstantCatalog([
     Constant('num_items', "Max number of Items in inventory", ConstantType.INT, 5, ConstantTag.INVENTORY),
     Constant('num_accessories', "Max number of Accessories in inventory", ConstantType.INT, 0, ConstantTag.INVENTORY),
-    Constant('num_spells', "Max number of Spells in Spell List (0 disables spell list)", ConstantType.INT, 999, ConstantTag.INVENTORY),
     Constant('turnwheel', "Turnwheel", ConstantType.BOOL, False, ConstantTag.MAJOR_FEATURES),
     Constant('initiative', "Per Unit Initiative Order", ConstantType.BOOL, False, ConstantTag.MAJOR_FEATURES),
     Constant('fatigue', "Fatigue", ConstantType.BOOL, False, ConstantTag.MAJOR_FEATURES),
@@ -86,6 +85,7 @@ constants = ConstantCatalog([
     Constant('overworld_start', "Start in Overworld", ConstantType.BOOL, False, ConstantTag.MAJOR_FEATURES),
     Constant('unit_notes', "Unit Notes", ConstantType.BOOL, False, ConstantTag.MAJOR_FEATURES),
     Constant('crit', "Allow Criticals", ConstantType.BOOL, True, ConstantTag.MAJOR_FEATURES),
+    Constant('spell_list', "Enable Spell List similar to Shadows of Valentia and Three Houses.", ConstantType.BOOL, False, ConstantTag.MAJOR_FEATURES),
     Constant('reset_uses', "Reset uses on droppable items when acquired", ConstantType.BOOL, True, ConstantTag.OTHER),
     Constant('long_range_storage', "Allow use of storage even when not near convoy", ConstantType.BOOL, True, ConstantTag.OTHER),
     Constant('allow_negative_as', "Allow Attack Speed to be negative", ConstantType.BOOL, False, ConstantTag.OTHER),

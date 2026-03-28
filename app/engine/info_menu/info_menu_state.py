@@ -133,6 +133,7 @@ class InfoMenuState(State):
         self.growths_surf: engine.Surface = None
         self.wexp_surf: engine.Surface = None
         self.equipment_surf: engine.Surface = None
+        self.spell_surf: engine.Surface = None
         self.support_surf: engine.Surface = None
         self.skill_surf: engine.Surface = None
         self.class_skill_surf: engine.Surface = None
@@ -148,8 +149,14 @@ class InfoMenuState(State):
             image = SPRITES.get('info_title_personal_data')
         elif name == 'equipment':
             image = SPRITES.get('info_title_items')
+        elif name == 'spells':
+            image = SPRITES.get('info_title_spells')
         elif name == 'support_skills':
             image = SPRITES.get('info_title_weapon')
+        elif name == 'wexp':
+            image = SPRITES.get('info_title_wexp')
+        elif name == 'supports':
+            image = SPRITES.get('info_title_supports')
         elif name == 'notes':
             image = SPRITES.get('info_title_notes')
         else:
@@ -578,6 +585,11 @@ class InfoMenuState(State):
                 self.equipment_surf = self.create_equipment_surf()
             self.draw_equipment_surf(main_surf)
 
+        elif self.state == 'spells':
+            if not self.spell_surf:
+                self.spell_surf = self.create_spell_surf()
+            self.draw_spell_surf(main_surf)
+
         elif self.state == 'support_skills':
             main_surf.blit(SPRITES.get('status_logo'), (100, WINHEIGHT - 42))
             if not self.skill_surf:
@@ -586,6 +598,19 @@ class InfoMenuState(State):
             if not self.wexp_surf:
                 self.wexp_surf = self.create_wexp_surf()
             self.draw_wexp_surf(main_surf)
+            if not self.support_surf:
+                self.support_surf = self.create_support_surf()
+            self.draw_support_surf(main_surf)
+
+        elif self.state == 'wexp':
+            if not self.skill_surf:
+                self.skill_surf = self.create_skill_surf()
+            self.draw_skill_surf(main_surf)
+            if not self.wexp_surf:
+                self.wexp_surf = self.create_wexp_surf()
+            self.draw_wexp_surf(main_surf)
+
+        elif self.state == 'supports':
             if not self.support_surf:
                 self.support_surf = self.create_support_surf()
             self.draw_support_surf(main_surf)
@@ -945,6 +970,39 @@ class InfoMenuState(State):
     def draw_equipment_surf(self, surf):
         surf.blit(self.equipment_surf, (96, 0))
 
+    def create_spell_surf(self):
+        def create_item_option(idx, item):
+            return BasicItemOption.from_item(idx, item, width=120, mode=ItemOptionModes.FULL_USES, text_color=item_system.text_color(None, item))
+
+        surf = engine.create_surface((WINWIDTH - 96, WINHEIGHT), transparent=True)
+
+        weapon = self.unit.get_weapon()
+
+        # Blit spells
+        for idx, item in enumerate(self.unit.spells):
+            equipped_subitem: Optional[ItemObject] = None
+            if item.multi_item and any(subitem is weapon for subitem in item.subitems):
+                surf.blit(SPRITES.get('equipment_highlight'), (8, idx * 16 + 24 + 8))
+                for subitem in item.subitems:
+                    if subitem is weapon:
+                        equipped_subitem = subitem
+                        item_option = create_item_option(idx, subitem)
+                        break
+                else:  # Shouldn't happen
+                    item_option = create_item_option(idx, item)
+            else:
+                if item is weapon:
+                    surf.blit(SPRITES.get('equipment_highlight'), (8, idx * 16 + 24 + 8))
+                item_option = create_item_option(idx, item)
+            item_option.draw(surf, 8, idx * 16 + 24)
+            help_dlg = build_dialog_list(equipped_subitem if equipped_subitem else item, PageType.ITEM, unit=self.unit)
+            self.info_graph.register((96 + 8, idx * 16 + 24, 120, 16), help_dlg, 'equipment', first=(idx == 0))
+
+        return surf
+
+    def draw_spell_surf(self, surf):
+        surf.blit(self.spell_surf, (96, 0))
+
     def create_skill_surf(self):
         surf = engine.create_surface((WINWIDTH - 96, 24), transparent=True)
         skills = [skill for skill in self.unit.skills if not (skill.class_skill or skill_system.hidden(skill, self.unit))]
@@ -1026,7 +1084,7 @@ class InfoMenuState(State):
 
         pairs = pairs[:6] # max six supports displayed
 
-        top = self.wexp_surf.get_height() + 24
+        top = 24
         for idx, pair in enumerate(pairs):
             x, y = (idx) % 2, idx // 2
             other_unit = None

@@ -68,6 +68,7 @@ class ConstantCatalog(Data[Constant]):
 constants = ConstantCatalog([
     Constant('num_items', "Max number of Items in inventory", ConstantType.INT, 5, ConstantTag.INVENTORY),
     Constant('num_accessories', "Max number of Accessories in inventory", ConstantType.INT, 0, ConstantTag.INVENTORY),
+    Constant('num_spells', "Max number of Spells in Spell List (0 disables spell list)", ConstantType.INT, 999, ConstantTag.INVENTORY),
     Constant('turnwheel', "Turnwheel", ConstantType.BOOL, False, ConstantTag.MAJOR_FEATURES),
     Constant('initiative', "Per Unit Initiative Order", ConstantType.BOOL, False, ConstantTag.MAJOR_FEATURES),
     Constant('fatigue', "Fatigue", ConstantType.BOOL, False, ConstantTag.MAJOR_FEATURES),
